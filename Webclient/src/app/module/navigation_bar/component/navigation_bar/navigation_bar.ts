@@ -7,10 +7,41 @@ import {SettingsService} from "../../../../service/settings";
     styleUrls: ["./navigation_bar.scss"]
 })
 export class NavigationBarComponent implements OnInit {
-    sampleItems = [
-        ["url", "Entry 1"],
-        ["url", "Entry 2"],
-        ["url", "Entry 3"]
+    itemsRaids = [
+        ["/raids/", "NavigationBar.raids.title"],
+        ["/raids/bosses/", "NavigationBar.raids.bosses"],
+        ["/raids/ranking/", "NavigationBar.raids.ranking"],
+        ["/raids/speed_kill/", "NavigationBar.raids.speed_kill"],
+        ["/raids/speed_run/", "NavigationBar.raids.speed_run"],
+        ["/raids/loot/", "NavigationBar.raids.loot"],
+    ];
+
+    itemsArmory = [
+        ["/armory/", "NavigationBar.armory.title"],
+        ["/armory/items/", "NavigationBar.armory.items"],
+        ["/armory/guilds/", "NavigationBar.armory.guilds"],
+    ];
+
+    itemsPvP = [
+        ["/pvp/", "NavigationBar.pvp.title"],
+        ["/pvp/standings/", "NavigationBar.pvp.standings"],
+        ["/pvp/hk_life/", "NavigationBar.pvp.hk_life"],
+        ["/pvp/arena/", "NavigationBar.pvp.arena"],
+    ];
+
+    itemsTools = [
+        ["/tools/", "NavigationBar.tools.title"],
+        ["/tools/talent_calc/", "NavigationBar.tools.talent_calc"],
+        ["/tools/rp_calc/", "NavigationBar.tools.rp_calc"],
+        ["/tools/char_design/", "NavigationBar.tools.char_design"],
+    ];
+
+    itemsContribute = [
+        ["/contribute/", "NavigationBar.contribute.title"]
+    ];
+
+    itemsQueue = [
+        ["/queue/", "NavigationBar.queue.title"]
     ];
 
     accountItems: Array<Array<string>> = [

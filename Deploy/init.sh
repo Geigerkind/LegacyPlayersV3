@@ -6,13 +6,17 @@ BACKEND_USER='rpll'
 HOST_IP='51.38.99.189'
 DB_PASSWORD=$(cat /root/Keys/db_password)
 
-function initCertificates {
-  pacman -S --noconfirm certbot python certbot-dns-ovh ca-certificates
-  if [ ! -f "/etc/ssl/certs/ca-certificates.crt"]; then
+function fixCertificates {
+  pacman -S --noconfirm ca-certificates
+  if [ ! -f "/etc/ssl/certs/ca-certificates.crt" ]; then
     cd /etc/ssl/certs
     cat *.pem >> ca-certificates.crt
     cd ~
   fi
+}
+
+function initCertificates {
+  pacman -S --noconfirm certbot python certbot-dns-ovh
   # See: https://certbot-dns-ovh.readthedocs.io/en/stable/
   chmod -R 600 ~/Keys/ovh.ini
   # Requires user input
@@ -82,7 +86,8 @@ function initServer {
   useradd -m ${BACKEND_USER}
 
   pacman -Sy
-  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug
+  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make
+  fixCertificates
   installRust
   installZopfli
   npm install -g html-minifier

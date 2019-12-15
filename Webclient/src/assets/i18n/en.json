@@ -93,6 +93,37 @@
         "loggedOut": {
             "signIn": "Sign in",
             "signUp": "Sign up"
+        },
+        "raids": {
+            "title": "Raids",
+            "bosses": "Bosses",
+            "ranking": "Ranking",
+            "speed_kill": "Speed kills",
+            "speed_run": "Speed runs",
+            "loot": "Loot"
+        },
+        "armory": {
+            "title": "Armory",
+            "items": "Items",
+            "guilds": "Guilds"
+        },
+        "pvp": {
+            "title": "PvP",
+            "standings": "Standings",
+            "hk_life": "Lifetime kills",
+            "arena": "Arena"
+        },
+        "tools": {
+            "title": "Tools",
+            "talent_calc": "Talent calculator",
+            "rp_calc": "Rankpoints calculator",
+            "char_design": "Character designer"
+        },
+        "contribute": {
+            "title": "Contribute"
+        },
+        "queue": {
+            "title": "Queue"
         }
     },
     "Account": {
