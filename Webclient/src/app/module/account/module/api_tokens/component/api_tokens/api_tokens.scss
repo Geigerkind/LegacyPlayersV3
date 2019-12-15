@@ -1,0 +1,77 @@
+@import "../../../../../../../styles/global";
+@import "../../../../../../../styles/table";
+
+:host {
+    display: block;
+    position: relative;
+
+    .purposeForm {
+        display: flex;
+        flex-direction: row;
+
+        GeneralInput {
+            flex: 1;
+
+            &:first-child {
+                margin-right: $spacing * 0.5;
+            }
+        }
+
+        ConfirmButton {
+            margin-top: auto;
+            margin-left: $spacing * 0.5;
+
+            ::ng-deep button {
+                min-width: 130px;
+                min-height: 32px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 445px) {
+            flex-direction: column;
+
+            GeneralInput {
+                margin: 0 0 $spacing;
+            }
+
+            ConfirmButton {
+                margin: 0;
+            }
+        }
+    }
+
+    .tableContainer {
+        margin-top: $spacing;
+
+        @media (max-width: 445px) {
+            overflow-x: scroll;
+        }
+
+        .tableRow {
+            min-width: 400px;
+
+            div {
+                &:first-child {
+                    flex: 1;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                &:nth-child(2) {
+                    width: 120px;
+                    text-align: center;
+                }
+
+                &:nth-child(3) {
+                    width: 120px;
+                }
+
+                ConfirmButton::ng-deep button {
+                    min-height: 32px;
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}

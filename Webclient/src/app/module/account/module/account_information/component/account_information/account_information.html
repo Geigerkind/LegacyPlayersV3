@@ -1,0 +1,21 @@
+<div [class.loading]="initialLoading">
+    <header>{{ 'Account.navBar.entries.overview' | translate }}</header>
+
+    <div class="information">
+        <div class="label">{{ 'Account.accountInformation.nickname' | translate }}</div>
+        <div>{{ accountInformation?.nickname }}</div>
+    </div>
+
+    <div class="information">
+        <div class="label">{{ 'Account.accountInformation.mail' | translate }}</div>
+        <div>{{ accountInformation?.mail }}</div>
+    </div>
+
+    <div *ngIf="accountInformation && !accountInformation.mail_confirmed" class="information">
+        <div class="label">{{ 'Account.accountInformation.mail_confirmed' | translate }}</div>
+        <div>
+            <ConfirmButton (clicked)="resend_confirmation()" [disabled]="disabledSubmit"
+                           labelKey="Account.accountInformation.resend_mail"></ConfirmButton>
+        </div>
+    </div>
+</div>

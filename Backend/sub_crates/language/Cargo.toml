@@ -1,0 +1,7 @@
+[package]
+name = "language"
+version = "0.1.0"
+authors = ["Tom Dymel <tom@dymel.dev>"]
+
+[dependencies]
+dotenv = "*"

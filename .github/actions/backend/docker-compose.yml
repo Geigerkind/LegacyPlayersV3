@@ -1,0 +1,21 @@
+version: '3.6'
+services:
+  mariadb:
+    image: mariadb:10.4.8
+    volumes:
+    - ./../../../Database/patches:/docker-entrypoint-initdb.d
+    ports:
+    - '5555:3306'
+    environment:
+    - MYSQL_USER=mysql
+    - MYSQL_PASSWORD=vagrant
+    - MYSQL_ROOT_PASSWORD=vagrant
+  postfix:
+    image: juanluisbaptiste/postfix
+    ports:
+    - '5556:25'
+    environment:
+    - SMTP_SERVER=smtp.gmail.com
+    - SMTP_USERNAME=jaylapp@gmail.com
+    - SMTP_PASSWORD=jaylapp123
+    - SERVER_HOSTNAME=jaylapp.dev

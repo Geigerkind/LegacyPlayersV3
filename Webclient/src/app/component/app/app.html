@@ -1,0 +1,10 @@
+<wt-lazy *ngIf="isCookieBannerVisible"
+         [location]="location"
+         [outputs]="{close_banner: set_cookie_banner }"></wt-lazy>
+<RouterLoadingBar></RouterLoadingBar>
+<NotificationList></NotificationList>
+<NavigationBar></NavigationBar>
+<main>
+    <router-outlet></router-outlet>
+</main>
+<FooterBar (consent)="set_cookie_banner(true)"></FooterBar>

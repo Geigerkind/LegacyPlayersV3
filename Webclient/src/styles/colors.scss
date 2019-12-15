@@ -1,0 +1,19 @@
+$lesser_black: rgba(0, 0, 0, 0.2);
+$medium_black: rgba(0, 0, 0, 0.5);
+
+$font_title: #212934;
+$font_less_important: #141e23;
+$font_default: #e1f2f5;
+
+$highlight: #368bd6;
+$non_highlight: #eee;
+$less_important: darken($highlight, 30%);
+
+$theme_dominant_color: #303030;
+$tdc_darker: darken($theme_dominant_color, 3%);
+$tdc_accent: lighten($theme_dominant_color, 10%);
+
+$success: darken(#DFF2BF, 20%);
+$warning: darken(#FEEFB3, 20%);
+$error: darken(#FFD2D2, 20%);
+$information: darken(#BDE5F8, 20%);

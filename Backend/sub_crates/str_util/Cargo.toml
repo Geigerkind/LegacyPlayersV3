@@ -1,0 +1,10 @@
+[package]
+name = "str_util"
+version = "0.1.0"
+authors = ["Tom Dymel <tom@dymel.dev>"]
+
+[dependencies]
+sha3 = "*"
+bcrypt = "*"
+rand = "*"
+rand_distr = "*"

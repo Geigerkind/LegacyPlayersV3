@@ -1,0 +1,9 @@
+[package]
+name = "validator"
+version = "0.1.0"
+authors = ["Tom Dymel <tom@dymel.dev>"]
+
+[dependencies]
+pwned = "*"
+regex = "*"
+lazy_static = "*"

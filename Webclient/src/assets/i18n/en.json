@@ -1,0 +1,172 @@
+{
+    "serverResponses": {
+        "200": "Success!",
+        "401": "Unauthorized!",
+        "429": "Too many requests!",
+        "520": "Invalid credentials!",
+        "521": "Invalid mail!",
+        "522": "Invalid nickname!",
+        "523": "This password has been pwned {{arg1}} times. Please choose another password!",
+        "524": "The minimum length for a password is 12 character.",
+        "525": "This mail is already being used!",
+        "526": "This nickname is already being used!",
+        "527": "The provided url is invalid!",
+        "528": "Mail could not be send!",
+        "529": "A deletion has not been issued!",
+        "530": "No forgot issued!",
+        "531": "A token may only be valid for up to 365 days!",
+        "532": "Date may not be in the past!",
+        "533": "The purpose must have a length between 1 and 24 characters!",
+        "599": "An unknown error occurred!",
+        "mail_confirm": "A confirmation mail has been send to you!",
+        "reset_mail_confirm": "A mail has been send to the specified address!"
+    },
+    "CookieBanner": {
+        "notification": {
+            "saved": "Your consent settings have been saved!"
+        },
+        "front": {
+            "title": "We value your privacy",
+            "description": "{{company}} uses cookies and technologies such as Google Analytics to count, track and analyze visits. This helps us to improve your experience on this website. Click below to consent to use these technologies. You can change your consent choices any time by clicking on 'Change Consent' in the footer.",
+            "button": {
+                "options": "Manage choices",
+                "reject": "Reject all",
+                "agree": "Accept all"
+            }
+        },
+        "options": {
+            "title": "We value your privacy",
+            "description": "You can change the settings below to determine how you want your data to be used. Each purpose describes how we and our partners use your data.",
+            "button": {
+                "back": "Back",
+                "rejectAll": "Reject all",
+                "save": "Agree"
+            },
+            "vendor": {
+                "thirdparty": "Third party vendors",
+                "other": "Other",
+                "necessary": "Necessary",
+                "acceptAll": "Accept all"
+            }
+        },
+        "cookieDecisions": {
+            "title": "cookieDecisions",
+            "description": "Saves your decisions that you set here!"
+        },
+        "pwa_prompt": {
+            "title": "PWA_PROMPT",
+            "description": "This saves whether or not you have been prompted to install this website as PWA."
+        },
+        "api_token": {
+            "title": "API_TOKEN",
+            "description": "This saves your current API token to authenticate with the backend."
+        },
+        "googleAnalytics": {
+            "title": "Google Analytics",
+            "description": "We use Google Analytics to count, track and analyze visits. This helps us to understand how people use the site."
+        }
+    },
+    "FooterBar": {
+        "niceToKnow": {
+            "title": "Nice to know",
+            "restApi": "Rest API",
+            "github": "Github"
+        },
+        "needHelp": {
+            "title": "Need help?",
+            "changeConsent": "Change consent",
+            "privacy": "Privacy",
+            "imprint": "Imprint"
+        },
+        "connect": {
+            "title": "Connect",
+            "discord": "Discord"
+        },
+        "copyright": "©{{year}} {{company}}. All rights reserved."
+    },
+    "NavigationBar": {
+        "searchPlaceHolder": "Type to search",
+        "account": {
+            "title": "Account",
+            "logout": "Sign out"
+        },
+        "loggedOut": {
+            "signIn": "Sign in",
+            "signUp": "Sign up"
+        }
+    },
+    "Account": {
+        "navBar": {
+            "title": "Account settings",
+            "entries": {
+                "overview": "Overview",
+                "nickname": "Update nickname",
+                "password": "Update password",
+                "mail": "Update mail",
+                "api": "API tokens",
+                "delete": "Delete account"
+            }
+        },
+        "accountInformation": {
+            "nickname": "Nickname",
+            "mail": "Email",
+            "mail_confirmed": "Confirmation status",
+            "resend_mail": "Resend confirmation mail"
+        },
+        "updatePassword": {
+            "newPassword": "New password",
+            "typePassword": "Type your new password",
+            "update": "Update password",
+            "updateNote": "Note: All API tokens will be removed."
+        },
+        "updateNickname": {
+            "newNickname": "New nickname",
+            "typeNewNickname": "Type your new nickname",
+            "update": "Update nickname"
+        },
+        "updateMail": {
+            "newMail": "New email",
+            "typeNewMail": "Type your new email",
+            "update": "Update email",
+            "updateNote": "Note: All API tokens will be removed."
+        },
+        "api": {
+            "purpose": "Purpose",
+            "typePurpose": "Purpose of the token",
+            "generate": "Generate",
+            "token": "Token",
+            "action": "Action",
+            "remove": "Remove",
+            "expiration": "Expiration date"
+        },
+        "delete": {
+            "delete": "Delete account",
+            "deleteNote": "Note: This action is not revertible!"
+        }
+    },
+    "Login": {
+        "mail": "Email address",
+        "typeMail": "Your email address",
+        "password": "Password",
+        "typePassword": "Your password",
+        "signIn": "Sign in",
+        "forgotPassword": "Forgot password?"
+    },
+    "SignUp": {
+        "nickname": "Nickname",
+        "typeNickname": "Publicly displayed nickname",
+        "mail": "Email address",
+        "typeMail": "Your email address",
+        "password": "Password",
+        "typePassword": "Your password",
+        "signUp": "Sign Up"
+    },
+    "ResetPassword": {
+        "reset": "Reset password",
+        "mail": "Email address",
+        "typeMail": "Your email address"
+    },
+    "Confirm": {
+        "wait": "Validating..."
+    }
+}

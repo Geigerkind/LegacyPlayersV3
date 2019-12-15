@@ -1,0 +1,28 @@
+<div id="listContainer">
+    <div class="fb_infoList">
+        <div class="fb_il_title">{{ "FooterBar.niceToKnow.title" | translate }}</div>
+        <ul>
+            <li><a href="/API/" target="_blank">{{ "FooterBar.niceToKnow.restApi" | translate }}</a></li>
+            <li><a href="https://github.com/Geigerkind/Jaylapp" rel="noopener"
+                   target="_blank">{{ "FooterBar.niceToKnow.github" | translate }}</a></li>
+        </ul>
+    </div>
+
+    <div class="fb_infoList">
+        <div class="fb_il_title">{{ "FooterBar.needHelp.title" | translate }}</div>
+        <ul>
+            <li><a (click)="show_consent()">{{ "FooterBar.needHelp.changeConsent" | translate }}</a></li>
+            <li><a routerLink="/privacy">{{ "FooterBar.needHelp.privacy" | translate }}</a></li>
+            <li><a routerLink="/imprint">{{ "FooterBar.needHelp.imprint" | translate }}</a></li>
+        </ul>
+    </div>
+
+    <div class="fb_infoList">
+        <div class="fb_il_title">{{ "FooterBar.connect.title" | translate }}</div>
+        <ul>
+            <li><a href="">{{ "FooterBar.connect.discord" | translate }}</a></li>
+        </ul>
+    </div>
+</div>
+
+<div id="copyright">{{ "FooterBar.copyright" | translate:copyRightArguments }}</div>
