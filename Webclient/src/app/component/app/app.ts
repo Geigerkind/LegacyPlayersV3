@@ -53,10 +53,10 @@ export class AppComponent implements OnInit {
             return;
         }
 
-        gtag("config", "UA-152539504-1");
+        gtag("config", "UA-154652526-1");
         this.googleAnalyticsSubscription = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && (window as any).ga) {
-                (window as any).ga("create", "UA-152539504-1", "auto");
+                (window as any).ga("create", "UA-154652526-1", "auto");
                 (window as any).ga("set", "anonymizeIp", true);
                 (window as any).ga("set", "allowAdFeatures", false);
                 (window as any).ga("set", "page", event.urlAfterRedirects);
