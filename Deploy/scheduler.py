@@ -12,7 +12,7 @@ class DeployWorker(Thread):
     while True:
       if self.deploy:
         self.deploy = False
-        subprocess.call(["/bin/bash", "/root/Jaylapp/Deploy/deploy.sh"])
+        subprocess.call(["/bin/bash", "/root/LegacyPlayersV3/Deploy/deploy.sh"])
       else:
         time.sleep(1)
 
