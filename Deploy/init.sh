@@ -1,9 +1,9 @@
-REPOSITORY_NAME='Jaylapp'
-REPOSITORY='https://github.com/Geigerkind/Jaylapp'
-DOMAIN='yajla.com'
+REPOSITORY_NAME='LegacyPlayersV3'
+REPOSITORY='https://github.com/Geigerkind/LegacyPlayersV3'
+DOMAIN='beta.legacyplayers.com'
 HOST_USER='root'
-BACKEND_USER='yajla'
-HOST_IP='51.38.114.9'
+BACKEND_USER='rpll'
+HOST_IP='51.38.99.189'
 DB_PASSWORD=$(cat /root/Keys/db_password)
 
 function initCertificates {

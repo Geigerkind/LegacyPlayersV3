@@ -1,9 +1,9 @@
 [Unit]
-Description=Yajla Deploy Scheduler
+Description=RPLL Deploy Scheduler
 
 [Service]
 WorkingDirectory=/root
-ExecStart=python /root/Jaylapp/Deploy/scheduler.py
+ExecStart=python /root/LegacyPlayersV3/Deploy/scheduler.py
 User=root
 Type=simple
 Restart=on-failure

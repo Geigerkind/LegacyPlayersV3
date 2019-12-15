@@ -1,10 +1,10 @@
 [Unit]
-Description=Yajla backend application
+Description=RPLL backend application
 
 [Service]
-WorkingDirectory=/home/yajla/
-ExecStart=/home/yajla/backend
-User=yajla
+WorkingDirectory=/home/rpll/
+ExecStart=/home/rpll/backend
+User=rpll
 Type=simple
 Restart=on-failure
 RestartSec=10

@@ -4,28 +4,31 @@
 # Note for manifest icons: If you provide more than the 512 logo version, then adjust it yourself in the manifest_template.json
 
 # Important escape "/"
-WEBCLIENT_COMPANY_NAME="Company Name"
-WEBCLIENT_WEBSITE_NAME="Website Name"
-WEBCLIENT_WEBSITE_SHORT_NAME="Site"
-WEBCLIENT_WEBSITE_DOMAIN="DomainName.com"
+WEBCLIENT_COMPANY_NAME="LegacyPlayers"
+WEBCLIENT_WEBSITE_NAME="LegacyPlayers"
+WEBCLIENT_WEBSITE_SHORT_NAME="LP"
+WEBCLIENT_WEBSITE_DOMAIN="beta.legacyplayers.com"
 WEBCLIENT_WEBSITE_NOSCRIPT_MESSAGE="This website requires JavaScript to be enabled!"
 WEBCLIENT_WEBSITE_SEARCH_URL="search?q="
 WEBCLIENT_WEBSITE_SEARCH_VARIABLE="search_term_string"
 
-WEBCLIENT_OWNER_ADDRESS="Street HouseNumber"
-WEBCLIENT_OWNER_CITY="12345 City"
-WEBCLIENT_OWNER_COUNTRY="Country"
-WEBCLIENT_OWNER_PHONE="1234567890"
-WEBCLIENT_OWNER_MAIL="mail@mail.com"
+WEBCLIENT_OWNER_ADDRESS="Kiebitzhagen 5"
+WEBCLIENT_OWNER_CITY="21217 Seevetal"
+WEBCLIENT_OWNER_COUNTRY="Germany"
+WEBCLIENT_OWNER_PHONE="+49 176 61869410"
+WEBCLIENT_OWNER_MAIL="mail@beta.legacyplayers.com"
 
-WEBCLIENT_RESPONSIBLE_PERSON="Forename Surname"
-WEBCLIENT_IMAGE_SOURCES="<a href=\"https\:\/\/fontawesome.com\/license\" target=\"_blank\">Font Awesome<\/a><br \/>Some other Sources"
+WEBCLIENT_RESPONSIBLE_PERSON="Tom Dymel"
+WEBCLIENT_IMAGE_SOURCES="<a href=\"https\:\/\/fontawesome.com\/license\" target=\"_blank\">Font Awesome<\/a><br \/>Blizzard Entertainment Inc"
 
-WEBCLIENT_META_KEYWORDS="This Is A Key Word"
-WEBCLIENT_META_DESCRIPTION="Some detailed description"
+WEBCLIENT_META_KEYWORDS="WoW raid logs armory pvp metrics"
+WEBCLIENT_META_DESCRIPTION="LegacyPlayers is a community driven project to establish a platform where people
+playing on all kind of expansions of World of Warcraft can share raid logs, PvP logs
+and armory data. It aims to persist all data of all coming and going private servers,
+as well as to provide easy access to them."
 WEBCLIENT_META_THEME_COLOR="#303030"
 
-WEBCLIENT_GOOGLE_ANALYTICS_TOKEN="UA-152539504-1"
+WEBCLIENT_GOOGLE_ANALYTICS_TOKEN="UA-154652526-1"
 
 WEBCLIENT_MANIFEST_START_URL="\\/"
 

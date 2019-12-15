@@ -1,5 +1,5 @@
 HOST_USER='root'
-HOST_IP='51.38.114.9'
+HOST_IP='51.38.99.189'
 DB_PASSWORD=${1}
 
 unzip ./Keys.zip
