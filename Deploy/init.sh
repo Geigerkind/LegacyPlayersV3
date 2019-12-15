@@ -36,6 +36,7 @@ function installZopfli {
 function initNginx {
   pacman -S --noconfirm nginx nginx-mod-brotli
   cp ~/${REPOSITORY_NAME}/Deploy/conf/nginx.conf /etc/nginx/
+  mkdir -p /var/www/html
   systemctl enable nginx
   systemctl start nginx
 }
