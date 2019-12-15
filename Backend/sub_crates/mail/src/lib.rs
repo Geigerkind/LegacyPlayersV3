@@ -16,7 +16,7 @@ pub fn send(recipient: &str, username: &str, subject: String, text: String) -> b
 
   let email = EmailBuilder::new()
     .to((recipient, username))
-    .from("jaylappdev@gmail.com")
+    .from("mail@legacyplayers.com")
     .subject(subject)
     .text(text)
     .build()
