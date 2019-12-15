@@ -5,14 +5,15 @@ and armory data. It aims to persist all data of all coming and going private ser
 as well as to provide easy access to them.
 
 The project started 2016 as LegacyLogs, which was the website counterpart to show logs 
-collected by the in-game addon DPSMate. This solution gained popularity really fast
+collected by the in-game addon [DPSMate](https://github.com/Geigerkind/DPSMate).
+This solution gained popularity really fast
 and proved to not scale very well. At the same time, RealmPlayers, the competing
 project at this time, came to an end. Dilatazu and me initially decided to merge these two
 projects, where LegacyPlayers was born on the 21.03.2017. Unfortunately, did Dilatazu
-leave the team rather early in the development phase. LegacyPlayers is a huge success
-harboring Vanilla, TBC and WOTLK PvE and PvP logs as well as a stable armory. However,
-also this architecture proved to not scale well and many bugs were introduced due to
-it. Now it is at a point were it is hard to maintain and to add new wanted features.
+leave the team rather early in the development phase. [LegacyPlayers](https://github.com/Geigerkind/Legacyplayers)
+is a huge success harboring Vanilla, TBC and WOTLK PvE and PvP logs as well as a stable armory.
+However, also this architecture proved to not scale well and many bugs were introduced due
+to it. Now it is at a point were it is hard to maintain and to add new wanted features.
 This is why LegacyPlayers V3 was born. It is a complete rewrite and remodel of the
 architecture and aims to scale to thousands of visitors. 
 
