@@ -21,7 +21,7 @@ use crate::modules::account::Account;
 pub mod dto;
 pub mod modules;
 
-#[get("/", format = "application/json")]
+#[get("/")]
 fn api_overview() -> Json<Vec<String>> {
   Json(vec!["/API/account/".to_string()])
 }

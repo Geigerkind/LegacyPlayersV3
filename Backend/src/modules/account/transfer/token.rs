@@ -13,7 +13,7 @@ pub fn create_token(me: State<Account>, auth: Authenticate, params: Json<CreateT
     .and_then(|api_token| Ok(Json(api_token)))
 }
 
-#[get("/token", format = "application/json")]
+#[get("/token")]
 pub fn get_tokens(me: State<Account>, auth: Authenticate) -> Result<Json<Vec<APIToken>>, Failure> {
   Ok(Json(me.get_all_token(auth.0)))
 }
