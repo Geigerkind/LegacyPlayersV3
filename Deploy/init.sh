@@ -77,7 +77,9 @@ function initSSH {
   done
 
   # Adjusting Configuration
-  sed -i "s/#MaxAuthTries 6/MaxAuthTries 3/g" /etc/ssh/sshd_config
+  sed -i "s/#MaxAuthTries 6/MaxAuthTries 4/g" /etc/ssh/sshd_config
+  sed -i "s/#Port 22/Port 2222/g" /etc/ssh/sshd_config
+  sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config
   sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config
   echo "AllowUsers ${BACKEND_USER}" >> /etc/ssh/sshd_config
 }
@@ -90,11 +92,18 @@ function installRust {
 
 function initServer {
   # Requires user input
-  useradd -m ${BACKEND_USER}
+  sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
+
+  useradd -m -G wheel ${BACKEND_USER}
   passwd ${BACKEND_USER}
+  passwd -l root
 
   pacman -Sy
-  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make
+  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban
+
+  # Fail2Ban configuration
+  sed -i "s/maxretry = 5/maxretry = 3/g" /etc/sudoers
+
   fixCertificates
   installRust
   installZopfli
@@ -114,6 +123,9 @@ function initServer {
   systemctl daemon-reload
   systemctl enable backend.service
   systemctl enable deploy.service
+  systemctl enable deploy.service
+  systemctl enable fail2ban
+  systemctl start fail2ban
   systemctl start deploy
 
   initSSH
