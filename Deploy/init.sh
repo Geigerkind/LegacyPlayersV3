@@ -67,12 +67,19 @@ function initPostfix {
 }
 
 function initSSH {
+  mkdir /home/${BACKEND_USER}/.ssh
+  touch /home/${BACKEND_USER}/.ssh/authorized_keys
   for filename in /root/${REPOSITORY_NAME}/Deploy/ssh/*.pub; do
     if [ ! -f "${filename}" ]; then
       continue
     fi
-    cat ${filename} >> /root/.ssh/authorized_keys
+    cat ${filename} >> /home/${BACKEND_USER}/.ssh/authorized_keys
   done
+
+  # Adjusting Configuration
+  sed -i "s/#MaxAuthTries 6/MaxAuthTries 3/g" /etc/ssh/sshd_config
+  sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config
+  echo "AllowUsers ${BACKEND_USER}" >> /etc/ssh/sshd_config
 }
 
 function installRust {
@@ -83,8 +90,8 @@ function installRust {
 
 function initServer {
   # Requires user input
-  passwd root
   useradd -m ${BACKEND_USER}
+  passwd ${BACKEND_USER}
 
   pacman -Sy
   pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make
