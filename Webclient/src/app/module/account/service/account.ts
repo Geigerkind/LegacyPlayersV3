@@ -21,7 +21,7 @@ export class AccountService {
         // Only prolong token, if 3 days or less remain
         if (api_token.exp_date - (Date.now() / 1000) > 3 * 24 * 60 * 60)
             return;
-        this.apiService.post_auth(AccountService.URL_PROLONG, {
+        this.apiService.post(AccountService.URL_PROLONG, {
             token_id: api_token.id,
             days: 7
         }, (new_token) => this.settingsService.set("API_TOKEN", new_token));

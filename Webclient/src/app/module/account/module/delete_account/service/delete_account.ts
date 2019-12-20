@@ -14,7 +14,7 @@ export class DeleteAccountService {
     }
 
     delete(on_response: any): void {
-        this.apiService.delete_auth(DeleteAccountService.URL_ISSUE_DELETE, '', () => {
+        this.apiService.delete(DeleteAccountService.URL_ISSUE_DELETE, '', () => {
             this.notificationService.propagate(Severity.Info, 'serverResponses.mail_confirm');
             on_response.call(on_response);
         }, on_response);

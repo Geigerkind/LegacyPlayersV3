@@ -16,7 +16,7 @@ export class UpdatePasswordService {
     }
 
     update(password: string, on_success: any, on_failure: any): void {
-        this.apiService.post_auth(UpdatePasswordService.URL_UPDATE_PASSWORD, password, (api_token) => {
+        this.apiService.post(UpdatePasswordService.URL_UPDATE_PASSWORD, password, (api_token) => {
             this.settingsService.set("API_TOKEN", api_token);
             this.notificationService.propagate(Severity.Success, 'serverResponses.200');
             on_success.call(on_success);

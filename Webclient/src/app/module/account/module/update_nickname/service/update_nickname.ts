@@ -14,7 +14,7 @@ export class UpdateNicknameService {
     }
 
     update(nickname: string, on_success: any, on_failure: any): void {
-        this.apiService.post_auth(UpdateNicknameService.URL_UPDATE_NICKNAME, nickname, () => {
+        this.apiService.post(UpdateNicknameService.URL_UPDATE_NICKNAME, nickname, () => {
             this.notificationService.propagate(Severity.Success, 'serverResponses.200');
             on_success.call(on_success);
         }, on_failure);

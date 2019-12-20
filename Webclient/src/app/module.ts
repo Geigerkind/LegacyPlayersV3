@@ -4,7 +4,7 @@ import {NgModule} from "@angular/core";
 import {AppRouting} from "./routing";
 import {AppComponent} from "./component/app/app";
 
-import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {FooterBarModule} from "./module/footer_bar/module";
@@ -18,6 +18,9 @@ import {RouterLoadingBarModule} from "./module/router_loading_bar/module";
 import {TranslationService} from "./service/translation";
 import {APIService} from "./service/api";
 import {LoadingBarService} from "./service/loading_bar";
+import {LoadingBarInterceptor} from "./service/interceptor/loading_bar";
+import {AuthenticationService} from "./service/authentication";
+import {AuthenticationInterceptor} from "./service/interceptor/authentication";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -51,7 +54,10 @@ export function createTranslateLoader(http: HttpClient) {
         NotificationService,
         TranslationService,
         LoadingBarService,
-        APIService
+        APIService,
+        AuthenticationService,
+        {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true},
+        {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true}
     ],
     bootstrap: [AppComponent],
     entryComponents: [CookieBannerComponent]

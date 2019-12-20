@@ -14,7 +14,7 @@ export class UpdateMailService {
     }
 
     update(mail: string, on_success: any, on_failure: any): void {
-        this.apiService.post_auth(UpdateMailService.URL_UPDATE_MAIL, mail, (pw_changed) => {
+        this.apiService.post(UpdateMailService.URL_UPDATE_MAIL, mail, (pw_changed) => {
             if (pw_changed)
                 this.notificationService.propagate(Severity.Success, 'serverResponses.200');
             else

@@ -17,11 +17,11 @@ export class AccountInformationService {
 
     get(on_success: (AccountInformation) => void): void {
         this.apiService
-            .get_auth<AccountInformation>(AccountInformationService.URL_GET, on_success);
+            .get<AccountInformation>(AccountInformationService.URL_GET, on_success);
     }
 
     resend_confirmation(on_response: any): void {
-        this.apiService.post_auth(AccountInformationService.URL_CREATE_RESEND, '', () => {
+        this.apiService.post(AccountInformationService.URL_CREATE_RESEND, '', () => {
             this.notificationService.propagate(Severity.Info, "serverResponses.mail_confirm");
             on_response.call(on_response);
         }, on_response);
