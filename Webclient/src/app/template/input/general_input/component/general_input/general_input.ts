@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
-import {escapeRegExp} from "../../../../../stdlib/escapeRexExp";
+import {escapeRegExp} from "../../../../../stdlib/escapeRegExp";
 import {FormFailure} from "../../../../../material/form_failure";
 
 @Component({
