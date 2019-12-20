@@ -67,11 +67,11 @@ function initPostfix {
 }
 
 function initSSH {
-  for filename in /${REPOSITORY_NAME}/Deploy/ssh/*.pub; do
+  for filename in /root/${REPOSITORY_NAME}/Deploy/ssh/*.pub; do
     if [ ! -f "${filename}" ]; then
       continue
     fi
-    cat ${filename} > ~/.ssh/authorized_keys
+    cat ${filename} >> /root/.ssh/authorized_keys
   done
 }
 
