@@ -145,6 +145,23 @@ function updateConfigs {
 
   # Nginx
   cp /root/${REPOSITORY_NAME}/Deploy/conf/nginx.conf /etc/nginx/
+
+  # Grafana
+  cp -rf /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/provisioning/* /var/lib/grafana/provisioning/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/dashboards/* /var/lib/grafana/dashboards/
+
+  # Prometheus
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/prometheus.yml /etc/prometheus/
+
+  # SSH
+  rm /home/${BACKEND_USER}/.ssh/authorized_keys
+  touch /home/${BACKEND_USER}/.ssh/authorized_keys
+  for filename in /root/${REPOSITORY_NAME}/Deploy/ssh/*.pub; do
+    if [ ! -f "${filename}" ]; then
+      continue
+    fi
+    cat ${filename} >> /home/${BACKEND_USER}/.ssh/authorized_keys
+  done
 }
 
 function stopServices {
@@ -153,6 +170,8 @@ function stopServices {
   systemctl stop mysqld
   systemctl stop postfix
   systemctl stop backend
+  systemctl stop prometheus
+  systemctl stop grafana
 }
 
 function startServices {
@@ -161,6 +180,8 @@ function startServices {
   systemctl start mysqld
   systemctl start postfix
   systemctl start backend
+  systemctl start prometheus
+  systemctl start grafana
 }
 
 function waitForJobs {

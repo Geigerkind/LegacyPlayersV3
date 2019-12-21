@@ -104,9 +104,9 @@ function initGrafana {
   pacman -S --noconfirm grafana
   mkdir /var/lib/grafana/provisioning
   mkdir /var/lib/grafana/dashboards
-  cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/provisioning/* /var/lib/grafana/provisioning/
+  cp -r /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/provisioning/* /var/lib/grafana/provisioning/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/dashboards/* /var/lib/grafana/dashboards/
-  sed -i "s/;provisioning = conf\/provisioning/provisioning = \/var\/lib\/grafana\/provisioning/g"
+  sed -i "s/;provisioning = conf\/provisioning/provisioning = \/var\/lib\/grafana\/provisioning/g" /etc/grafana.ini
   systemctl enable grafana
   systemctl start grafana
 }
