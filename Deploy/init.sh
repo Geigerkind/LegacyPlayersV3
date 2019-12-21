@@ -82,6 +82,7 @@ function initSSH {
   sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config
   sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin no/g" /etc/ssh/sshd_config
   echo "AllowUsers ${BACKEND_USER}" >> /etc/ssh/sshd_config
+  systemctl restart sshd
 }
 
 function installRust {
@@ -95,7 +96,7 @@ function initPrometheus {
   cp /root/${REPOSITORY_NAME}/Deploy/conf/prometheus.yml /etc/prometheus/
   systemctl enable prometheus.service
   systemctl enable prometheus-node-exporter.service
-  systemctl start node_exporter.service
+  systemctl start prometheus-node-exporter.service
   systemctl start prometheus.service
 }
 
@@ -168,3 +169,4 @@ function initServer {
 }
 
 initServer
+bash /root/${REPOSITORY_NAME}/Deploy/deploy.sh
