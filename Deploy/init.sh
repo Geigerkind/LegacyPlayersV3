@@ -123,9 +123,9 @@ function initUfw {
 }
 
 function initServer {
-  # Requires user input
   sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
 
+  # Requires user input
   useradd -m -G wheel ${BACKEND_USER}
   passwd ${BACKEND_USER}
   passwd -l root

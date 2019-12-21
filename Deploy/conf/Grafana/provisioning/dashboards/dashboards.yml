@@ -2,7 +2,7 @@ apiVersion: 1
 
 providers:
   - name: default
-    folder: 'General'
+    folder: 'Host'
     type: file
     options:
       path: /var/lib/grafana/dashboards
