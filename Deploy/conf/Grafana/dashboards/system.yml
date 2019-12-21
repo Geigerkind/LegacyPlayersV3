@@ -17,12 +17,12 @@
     }
     ]
   },
-  "description": "Dynamic Dashboard covering metrics for: 1 VM, n VMs or All VMs.\n",
+  "description": "Node Exporter 0.18",
   "editable": true,
   "gnetId": 9096,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1576927845200,
+  "id": 2,
+  "iteration": 1576944234852,
   "links": [
   {
     "icon": "external link",
@@ -42,6 +42,101 @@
       "x": 0,
       "y": 0
     },
+    "id": 122,
+    "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "hiddenSeries": false,
+      "id": 124,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Backend Requests",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+      {
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      },
+      {
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+    ],
+    "title": "Backend",
+    "type": "row"
+  },
+  {
+    "collapsed": true,
+    "datasource": null,
+    "gridPos": {
+      "h": 1,
+      "w": 24,
+      "x": 0,
+      "y": 1
+    },
     "id": 62,
     "panels": [
     {
@@ -52,7 +147,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 1
+        "y": 10
       },
       "id": 81,
       "links": [],
@@ -121,7 +216,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 16
       },
       "hiddenSeries": false,
       "id": 79,
@@ -264,7 +359,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 21
       },
       "hiddenSeries": false,
       "id": 119,
@@ -378,7 +473,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 1
+      "y": 2
     },
     "id": 88,
     "panels": [
@@ -788,7 +883,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 2
+      "y": 3
     },
     "id": 107,
     "panels": [
@@ -803,7 +898,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
@@ -811,7 +905,6 @@
         "x": 0,
         "y": 3
       },
-      "hiddenSeries": false,
       "id": 83,
       "legend": {
         "alignAsTable": true,
@@ -836,9 +929,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -867,7 +957,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Entropy (bits)",
       "tooltip": {
@@ -876,6 +965,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -918,7 +1008,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 3
+      "y": 4
     },
     "id": 105,
     "panels": [
@@ -942,7 +1032,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 24
       },
       "hiddenSeries": false,
       "id": 78,
@@ -1066,7 +1156,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 28
       },
       "hiddenSeries": false,
       "id": 77,
@@ -1187,7 +1277,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 32
       },
       "hiddenSeries": false,
       "id": 76,
@@ -1290,7 +1380,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 4
+      "y": 5
     },
     "id": 92,
     "panels": [
@@ -1302,11 +1392,10 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 58
       },
       "id": 58,
       "links": [],
-      "options": {},
       "pageSize": 40,
       "scroll": false,
       "showHeader": true,
@@ -1381,16 +1470,14 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 64
       },
       "height": "260px",
-      "hiddenSeries": false,
       "id": 2,
       "legend": {
         "alignAsTable": true,
@@ -1419,9 +1506,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1450,7 +1534,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "CPU Used",
       "tooltip": {
@@ -1500,7 +1583,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 5
+      "y": 6
     },
     "id": 94,
     "panels": [
@@ -1518,16 +1601,14 @@
       "editable": true,
       "error": false,
       "fill": 6,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 59
       },
       "height": "",
-      "hiddenSeries": false,
       "id": 6,
       "legend": {
         "alignAsTable": true,
@@ -1553,9 +1634,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1584,7 +1662,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Memory Used",
       "tooltip": {
@@ -1593,6 +1670,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -1635,15 +1713,13 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 63
       },
-      "hiddenSeries": false,
       "id": 23,
       "legend": {
         "alignAsTable": true,
@@ -1663,9 +1739,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1694,7 +1767,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Swap Used",
       "tooltip": {
@@ -1703,6 +1775,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -1745,7 +1818,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 6
+      "y": 7
     },
     "id": 90,
     "panels": [
@@ -1760,15 +1833,13 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 78
       },
-      "hiddenSeries": false,
       "id": 110,
       "legend": {
         "alignAsTable": true,
@@ -1788,9 +1859,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1819,7 +1887,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Disk I/O Utilisation",
       "tooltip": {
@@ -1828,6 +1895,7 @@
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -1869,15 +1937,13 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 83
       },
-      "hiddenSeries": false,
       "id": 46,
       "legend": {
         "alignAsTable": true,
@@ -1897,9 +1963,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -1928,7 +1991,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Disk IOPs",
       "tooltip": {
@@ -1937,6 +1999,7 @@
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -1980,16 +2043,14 @@
       "editable": true,
       "error": false,
       "fill": 6,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 87
       },
       "height": "",
-      "hiddenSeries": false,
       "id": 53,
       "legend": {
         "alignAsTable": true,
@@ -2018,9 +2079,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2058,7 +2116,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Disk Write Latency (ms)",
       "tooltip": {
@@ -2067,6 +2124,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -2111,16 +2169,14 @@
       "editable": true,
       "error": false,
       "fill": 6,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 92
       },
       "height": "",
-      "hiddenSeries": false,
       "id": 102,
       "legend": {
         "alignAsTable": true,
@@ -2149,9 +2205,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2189,7 +2242,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Disk Read Latency (ms)",
       "tooltip": {
@@ -2198,6 +2250,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -2242,16 +2295,14 @@
       "editable": true,
       "error": false,
       "fill": 6,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 97
       },
       "height": "",
-      "hiddenSeries": false,
       "id": 111,
       "legend": {
         "alignAsTable": true,
@@ -2271,9 +2322,6 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2310,7 +2358,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Disk Throughput",
       "tooltip": {
@@ -2319,6 +2366,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -2361,7 +2409,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 7
+      "y": 8
     },
     "id": 60,
     "panels": [
@@ -2376,7 +2424,6 @@
       "editable": true,
       "error": false,
       "fill": 2,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 9,
@@ -2384,7 +2431,6 @@
         "x": 0,
         "y": 8
       },
-      "hiddenSeries": false,
       "id": 71,
       "legend": {
         "alignAsTable": true,
@@ -2402,9 +2448,6 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2433,7 +2476,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Filesystem Device Error",
       "tooltip": {
@@ -2442,6 +2484,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -2485,7 +2528,6 @@
       "editable": true,
       "error": false,
       "fill": 2,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 12,
@@ -2493,7 +2535,6 @@
         "x": 0,
         "y": 17
       },
-      "hiddenSeries": false,
       "id": 69,
       "legend": {
         "alignAsTable": true,
@@ -2513,9 +2554,6 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2544,7 +2582,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Filesystem Space Used",
       "tooltip": {
@@ -2553,6 +2590,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -2595,7 +2633,6 @@
       "editable": true,
       "error": false,
       "fill": 2,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 11,
@@ -2603,7 +2640,6 @@
         "x": 0,
         "y": 29
       },
-      "hiddenSeries": false,
       "id": 70,
       "legend": {
         "alignAsTable": true,
@@ -2623,9 +2659,6 @@
       "linewidth": 2,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -2654,7 +2687,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Filesystem Inodes Used",
       "tooltip": {
@@ -2663,6 +2695,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -2705,7 +2738,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 8
+      "y": 9
     },
     "id": 109,
     "panels": [
@@ -2949,7 +2982,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 9
+      "y": 10
     },
     "id": 86,
     "panels": [
@@ -2964,7 +2997,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 5,
@@ -2972,7 +3004,6 @@
         "x": 0,
         "y": 10
       },
-      "hiddenSeries": false,
       "id": 112,
       "legend": {
         "alignAsTable": true,
@@ -2992,9 +3023,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3030,7 +3058,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Network Interface State",
       "tooltip": {
@@ -3039,6 +3066,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3082,7 +3110,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -3090,7 +3117,6 @@
         "x": 0,
         "y": 15
       },
-      "hiddenSeries": false,
       "id": 43,
       "legend": {
         "alignAsTable": true,
@@ -3110,9 +3136,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3162,7 +3185,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Network IN/OUT Drops",
       "tooltip": {
@@ -3171,6 +3193,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3213,7 +3236,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -3221,7 +3243,6 @@
         "x": 12,
         "y": 15
       },
-      "hiddenSeries": false,
       "id": 44,
       "legend": {
         "alignAsTable": true,
@@ -3241,9 +3262,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3293,7 +3311,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Network IN/OUT Errors",
       "tooltip": {
@@ -3302,6 +3319,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3344,7 +3362,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 8,
@@ -3352,7 +3369,6 @@
         "x": 0,
         "y": 23
       },
-      "hiddenSeries": false,
       "id": 21,
       "legend": {
         "alignAsTable": true,
@@ -3372,9 +3388,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3460,7 +3473,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Network IN/OUT Traffic",
       "tooltip": {
@@ -3469,6 +3481,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3512,7 +3525,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
@@ -3520,7 +3532,6 @@
         "x": 0,
         "y": 31
       },
-      "hiddenSeries": false,
       "id": 42,
       "legend": {
         "alignAsTable": true,
@@ -3540,9 +3551,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3610,7 +3618,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Network IN/OUT Packets",
       "tooltip": {
@@ -3619,6 +3626,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3661,7 +3669,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 5,
@@ -3669,7 +3676,6 @@
         "x": 0,
         "y": 38
       },
-      "hiddenSeries": false,
       "id": 103,
       "legend": {
         "alignAsTable": true,
@@ -3694,9 +3700,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3740,7 +3743,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "Network MTU (bytes)",
       "tooltip": {
@@ -3749,6 +3751,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3818,7 +3821,6 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {},
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3862,6 +3864,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -3905,7 +3908,7 @@
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 10
+      "y": 11
     },
     "id": 96,
     "panels": [
@@ -3920,7 +3923,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
@@ -3928,7 +3930,6 @@
         "x": 0,
         "y": 11
       },
-      "hiddenSeries": false,
       "id": 84,
       "legend": {
         "alignAsTable": true,
@@ -3955,9 +3956,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -3986,7 +3984,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "NTP Sanity",
       "tooltip": {
@@ -3995,6 +3992,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -4037,7 +4035,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
@@ -4045,7 +4042,6 @@
         "x": 0,
         "y": 15
       },
-      "hiddenSeries": false,
       "id": 27,
       "legend": {
         "alignAsTable": true,
@@ -4072,9 +4068,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -4103,7 +4096,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "NTP Leap Seconds",
       "tooltip": {
@@ -4112,6 +4104,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -4154,7 +4147,6 @@
       "editable": true,
       "error": false,
       "fill": 1,
-      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 4,
@@ -4162,7 +4154,6 @@
         "x": 0,
         "y": 19
       },
-      "hiddenSeries": false,
       "id": 97,
       "legend": {
         "alignAsTable": true,
@@ -4185,9 +4176,6 @@
       }
       ],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -4216,7 +4204,6 @@
       }
       ],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
       "title": "NTP Stratum",
       "tooltip": {
@@ -4225,6 +4212,7 @@
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -4261,338 +4249,321 @@
     "type": "row"
   },
   {
-    "collapsed": false,
+    "collapsed": true,
     "datasource": null,
     "gridPos": {
       "h": 1,
       "w": 24,
       "x": 0,
-      "y": 11
-    },
-    "id": 114,
-    "panels": [],
-    "title": "Processes",
-    "type": "row"
-  },
-  {
-    "aliasColors": {},
-    "bars": false,
-    "dashLength": 10,
-    "dashes": false,
-    "datasource": "$datasource",
-    "decimals": null,
-    "description": "Used THREADS from a total available of 100%.\n- THREADS Threshold:\n >Critical: > 85% Used THREADS",
-    "fill": 1,
-    "fillGradient": 0,
-    "gridPos": {
-      "h": 4,
-      "w": 24,
-      "x": 0,
       "y": 12
     },
-    "hiddenSeries": false,
-    "id": 116,
-    "legend": {
-      "alignAsTable": true,
-      "avg": true,
-      "current": true,
-      "max": true,
-      "min": true,
-      "rightSide": true,
-      "show": true,
-      "total": false,
-      "values": true
-    },
-    "lines": true,
-    "linewidth": 1,
-    "links": [],
-    "nullPointMode": "null",
-    "options": {
-      "dataLinks": []
-    },
-    "percentage": false,
-    "pointradius": 5,
-    "points": false,
-    "renderer": "flot",
-    "seriesOverrides": [],
-    "spaceLength": 10,
-    "stack": false,
-    "steppedLine": false,
-    "targets": [
+    "id": 114,
+    "panels": [
     {
-      "expr": "(node_processes_threads{alias=~\"$host\"} / node_processes_max_threads{alias=~\"$host\"}) * 100",
-      "format": "time_series",
-      "intervalFactor": 1,
-      "legendFormat": "Threads Used: {{alias}}",
-      "refId": "A"
-    }
-    ],
-    "thresholds": [
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "$datasource",
+      "decimals": null,
+      "description": "Used THREADS from a total available of 100%.\n- THREADS Threshold:\n >Critical: > 85% Used THREADS",
+      "fill": 1,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 116,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+      {
+        "expr": "(node_processes_threads{alias=~\"$host\"} / node_processes_max_threads{alias=~\"$host\"}) * 100",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Threads Used: {{alias}}",
+        "refId": "A"
+      }
+      ],
+      "thresholds": [
+      {
+        "colorMode": "critical",
+        "fill": false,
+        "line": true,
+        "op": "gt",
+        "value": 85,
+        "yaxis": "left"
+      }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Processes: Threads Used",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+      {
+        "format": "percent",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": "0",
+        "show": true
+      },
+      {
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
     {
-      "colorMode": "critical",
-      "fill": false,
-      "line": true,
-      "op": "gt",
-      "value": 85,
-      "yaxis": "left"
-    }
-    ],
-    "timeFrom": null,
-    "timeRegions": [],
-    "timeShift": null,
-    "title": "Processes: Threads Used",
-    "tooltip": {
-      "shared": true,
-      "sort": 0,
-      "value_type": "individual"
-    },
-    "type": "graph",
-    "xaxis": {
-      "buckets": null,
-      "mode": "time",
-      "name": null,
-      "show": true,
-      "values": []
-    },
-    "yaxes": [
-    {
-      "format": "percent",
-      "label": null,
-      "logBase": 1,
-      "max": null,
-      "min": "0",
-      "show": true
-    },
-    {
-      "format": "short",
-      "label": null,
-      "logBase": 1,
-      "max": null,
-      "min": null,
-      "show": true
-    }
-    ],
-    "yaxis": {
-      "align": false,
-      "alignLevel": null
-    }
-  },
-  {
-    "aliasColors": {},
-    "bars": false,
-    "dashLength": 10,
-    "dashes": false,
-    "datasource": "$datasource",
-    "decimals": 0,
-    "description": "PROCESS STATE CODES:\n   - R  running or runnable (on run queue)\n   - D  uninterruptible sleep (usually IO)\n   - S  interruptible sleep (waiting for an event to complete)\n    - Z  defunct/zombie, terminated but not reaped by its parent\n    - T  stopped, either by a job control signal or because it is being traced\n\n- Find and kill Zombie:\n  - $ ps aux | awk {'print $8'}|grep -c Z\n  - $ ps aux | awk '{ print $8 \" \" $2 }' | grep -wc Z\n  - $ ps aux |grep \"defunct\" OR ps aux |grep Z\n  - $ ps aux | awk '{ print $8 \" \" $2 }' | grep -w Z\n  - $ ps aux | grep Z\n  >Kill: \n   - $ kill -s SIGCHLD pid (pid = id parent process)\n   - $ pstree -process and $ kill -9 pid (pid parent process)",
-    "fill": 1,
-    "fillGradient": 0,
-    "gridPos": {
-      "h": 6,
-      "w": 24,
-      "x": 0,
-      "y": 16
-    },
-    "hiddenSeries": false,
-    "id": 117,
-    "legend": {
-      "alignAsTable": true,
-      "avg": true,
-      "current": true,
-      "max": true,
-      "min": true,
-      "rightSide": true,
-      "show": true,
-      "sort": "max",
-      "sortDesc": true,
-      "total": false,
-      "values": true
-    },
-    "lines": true,
-    "linewidth": 1,
-    "links": [
-    {
-      "title": "Processes",
-      "url": "https://idea.popcount.org/2012-12-11-linux-process-states/"
-    }
-    ],
-    "nullPointMode": "null",
-    "options": {
-      "dataLinks": []
-    },
-    "percentage": false,
-    "pointradius": 5,
-    "points": false,
-    "renderer": "flot",
-    "seriesOverrides": [],
-    "spaceLength": 10,
-    "stack": false,
-    "steppedLine": false,
-    "targets": [
-    {
-      "expr": "node_processes_state{alias=~\"$host\"}",
-      "format": "time_series",
-      "intervalFactor": 1,
-      "legendFormat": "Processes State  (  {{state}} ):  {{alias}}",
-      "refId": "A"
-    }
-    ],
-    "thresholds": [],
-    "timeFrom": null,
-    "timeRegions": [],
-    "timeShift": null,
-    "title": "Processes: State",
-    "tooltip": {
-      "shared": true,
-      "sort": 0,
-      "value_type": "individual"
-    },
-    "type": "graph",
-    "xaxis": {
-      "buckets": null,
-      "mode": "time",
-      "name": null,
-      "show": true,
-      "values": []
-    },
-    "yaxes": [
-    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "$datasource",
       "decimals": 0,
-      "format": "none",
-      "label": null,
-      "logBase": 1,
-      "max": null,
-      "min": "0",
-      "show": true
+      "description": "PROCESS STATE CODES:\n   - R  running or runnable (on run queue)\n   - D  uninterruptible sleep (usually IO)\n   - S  interruptible sleep (waiting for an event to complete)\n    - Z  defunct/zombie, terminated but not reaped by its parent\n    - T  stopped, either by a job control signal or because it is being traced\n\n- Find and kill Zombie:\n  - $ ps aux | awk {'print $8'}|grep -c Z\n  - $ ps aux | awk '{ print $8 \" \" $2 }' | grep -wc Z\n  - $ ps aux |grep \"defunct\" OR ps aux |grep Z\n  - $ ps aux | awk '{ print $8 \" \" $2 }' | grep -w Z\n  - $ ps aux | grep Z\n  >Kill: \n   - $ kill -s SIGCHLD pid (pid = id parent process)\n   - $ pstree -process and $ kill -9 pid (pid parent process)",
+      "fill": 1,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 117,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [
+      {
+        "title": "Processes",
+        "url": "https://idea.popcount.org/2012-12-11-linux-process-states/"
+      }
+      ],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+      {
+        "expr": "node_processes_state{alias=~\"$host\"}",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Processes State  (  {{state}} ):  {{alias}}",
+        "refId": "A"
+      }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Processes: State",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+      {
+        "decimals": 0,
+        "format": "none",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": "0",
+        "show": true
+      },
+      {
+        "decimals": 0,
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "$datasource",
       "decimals": 0,
-      "format": "short",
-      "label": null,
-      "logBase": 1,
-      "max": null,
-      "min": null,
-      "show": true
+      "description": "kernel/system statistics:\n- Number of processes in runnable state.  (Linux 2.5.45 onward.)\n-   Number of processes blocked waiting for I/O to complete.  (Linux 2.5.45 onward.)",
+      "fill": 1,
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 118,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [
+      {
+        "title": "kernel/system statistics",
+        "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s2-proc-stat"
+      },
+      {
+        "title": "kernel/system statistics",
+        "url": "http://man7.org/linux/man-pages/man5/proc.5.html"
+      }
+      ],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+      {
+        "expr": "node_procs_blocked{alias=~\"$host\"}",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Processes Blocked:  {{alias}}",
+        "refId": "A"
+      },
+      {
+        "expr": "node_procs_running{alias=~\"$host\"}",
+        "format": "time_series",
+        "intervalFactor": 1,
+        "legendFormat": "Processes Running:  {{alias}}",
+        "refId": "B"
+      }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Nr. Processes: Running & Blocked",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+      {
+        "decimals": 0,
+        "format": "none",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": "0",
+        "show": true
+      },
+      {
+        "decimals": 0,
+        "format": "short",
+        "label": null,
+        "logBase": 1,
+        "max": null,
+        "min": null,
+        "show": true
+      }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
     ],
-    "yaxis": {
-      "align": false,
-      "alignLevel": null
-    }
-  },
-  {
-    "aliasColors": {},
-    "bars": false,
-    "dashLength": 10,
-    "dashes": false,
-    "datasource": "$datasource",
-    "decimals": 0,
-    "description": "kernel/system statistics:\n- Number of processes in runnable state.  (Linux 2.5.45 onward.)\n-   Number of processes blocked waiting for I/O to complete.  (Linux 2.5.45 onward.)",
-    "fill": 1,
-    "fillGradient": 0,
-    "gridPos": {
-      "h": 5,
-      "w": 24,
-      "x": 0,
-      "y": 22
-    },
-    "hiddenSeries": false,
-    "id": 118,
-    "legend": {
-      "alignAsTable": true,
-      "avg": true,
-      "current": true,
-      "max": true,
-      "min": true,
-      "rightSide": true,
-      "show": true,
-      "sort": "max",
-      "sortDesc": true,
-      "total": false,
-      "values": true
-    },
-    "lines": true,
-    "linewidth": 1,
-    "links": [
-    {
-      "title": "kernel/system statistics",
-      "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s2-proc-stat"
-    },
-    {
-      "title": "kernel/system statistics",
-      "url": "http://man7.org/linux/man-pages/man5/proc.5.html"
-    }
-    ],
-    "nullPointMode": "null",
-    "options": {
-      "dataLinks": []
-    },
-    "percentage": false,
-    "pointradius": 5,
-    "points": false,
-    "renderer": "flot",
-    "seriesOverrides": [],
-    "spaceLength": 10,
-    "stack": false,
-    "steppedLine": false,
-    "targets": [
-    {
-      "expr": "node_procs_blocked{alias=~\"$host\"}",
-      "format": "time_series",
-      "intervalFactor": 1,
-      "legendFormat": "Processes Blocked:  {{alias}}",
-      "refId": "A"
-    },
-    {
-      "expr": "node_procs_running{alias=~\"$host\"}",
-      "format": "time_series",
-      "intervalFactor": 1,
-      "legendFormat": "Processes Running:  {{alias}}",
-      "refId": "B"
-    }
-    ],
-    "thresholds": [],
-    "timeFrom": null,
-    "timeRegions": [],
-    "timeShift": null,
-    "title": "Nr. Processes: Running & Blocked",
-    "tooltip": {
-      "shared": true,
-      "sort": 0,
-      "value_type": "individual"
-    },
-    "type": "graph",
-    "xaxis": {
-      "buckets": null,
-      "mode": "time",
-      "name": null,
-      "show": true,
-      "values": []
-    },
-    "yaxes": [
-    {
-      "decimals": 0,
-      "format": "none",
-      "label": null,
-      "logBase": 1,
-      "max": null,
-      "min": "0",
-      "show": true
-    },
-    {
-      "decimals": 0,
-      "format": "short",
-      "label": null,
-      "logBase": 1,
-      "max": null,
-      "min": null,
-      "show": true
-    }
-    ],
-    "yaxis": {
-      "align": false,
-      "alignLevel": null
-    }
+    "title": "Processes",
+    "type": "row"
   }
   ],
   "refresh": false,
@@ -4600,8 +4571,7 @@
   "style": "dark",
   "tags": [
     "grafana",
-    "prometheus",
-    "noe_exporter 0.17"
+    "prometheus"
   ],
   "templating": {
     "list": [
@@ -4678,14 +4648,16 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
     "collapse": false,
     "enable": true,
+    "hidden": false,
     "notice": false,
     "now": true,
+    "nowDelay": "",
     "refresh_intervals": [
       "5s",
       "10s",
@@ -4714,7 +4686,7 @@
     "type": "timepicker"
   },
   "timezone": "browser",
-  "title": "Host",
+  "title": "System Stats",
   "uid": "H0xWYyyik",
-  "version": 1
+  "version": 6
 }
