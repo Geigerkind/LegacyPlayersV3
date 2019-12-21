@@ -33,8 +33,8 @@ fn main() {
   let mut igniter = rocket::ignite();
   igniter = igniter.manage(account);
   igniter = igniter.attach(prometheus.clone());
+  igniter = igniter.mount("/metrics", prometheus);
   igniter = igniter.mount("/API/", routes![api_overview]);
-  igniter = igniter.mount("/API/metrics", prometheus);
   igniter = igniter.mount("/API/account/", routes![
     account::transfer::api::api,
     account::transfer::login::login,

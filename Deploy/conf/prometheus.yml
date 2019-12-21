@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['http://localhost:8000']
+
+  - job_name: 'system'
+    static_configs:
+      - targets: ['http://localhost:9100']

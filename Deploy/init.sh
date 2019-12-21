@@ -90,6 +90,35 @@ function installRust {
   rustup default nightly
 }
 
+function initPrometheus {
+  pacman -S --noconfirm prometheus prometheus-node-exporter
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/prometheus.yml /etc/prometheus/
+  systemctl enable prometheus.service
+  systemctl enable prometheus-node-exporter.service
+  systemctl start node_exporter.service
+  systemctl start prometheus.service
+}
+
+function initGrafana {
+  pacman -S --noconfirm grafana
+  mkdir /var/lib/grafana/provisioning
+  mkdir /var/lib/grafana/dashboards
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/provisioning/* /var/lib/grafana/provisioning/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/dashboards/* /var/lib/grafana/dashboards/
+  sed -i "s/;provisioning = conf\/provisioning/provisioning = \/var\/lib\/grafana\/provisioning/g"
+  systemctl enable grafana
+  systemctl start grafana
+}
+
+function initUfw {
+  pacman -S --noconfirm ufw
+  ufw default deny incoming
+  ufw allow 2222
+  ufw allow 443
+  systemctl enable ufw
+  yes | ufw enable
+}
+
 function initServer {
   # Requires user input
   sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
@@ -133,6 +162,9 @@ function initServer {
   initNginx
   initMariaDb
   initPostfix
+  initPrometheus
+  initGrafana
+  initUfw
 }
 
 initServer
