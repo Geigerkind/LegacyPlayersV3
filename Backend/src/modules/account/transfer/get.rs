@@ -7,6 +7,7 @@ use crate::modules::account::guard::Authenticate;
 use crate::modules::account::material::Account;
 use crate::modules::account::tools::GetAccountInformation;
 
+#[openapi]
 #[get("/get")]
 pub fn get_account_information(me: State<Account>, auth: Authenticate) -> Result<Json<AccountInformation>, Failure>
 {

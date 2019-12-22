@@ -1,8 +1,12 @@
 use std::io::Cursor;
 
+use okapi::openapi3::Responses;
 use rocket::{Request, Response};
 use rocket::http::Status;
 use rocket::response::Responder;
+use rocket_okapi::gen::OpenApiGenerator;
+use rocket_okapi::response::OpenApiResponder;
+use rocket_okapi::util::add_schema_response;
 use schemars::JsonSchema;
 
 #[derive(Debug, JsonSchema)]
@@ -51,5 +55,28 @@ impl Responder<'static> for Failure {
       .status(status)
       .sized_body(Cursor::new(body))
       .ok()
+  }
+}
+
+impl OpenApiResponder<'static> for Failure {
+  fn responses(gen: &mut OpenApiGenerator) -> rocket_okapi::Result<Responses> {
+    let mut responses = Responses::default();
+    let schema = gen.json_schema::<String>();
+    add_schema_response(&mut responses, 520, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 521, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 522, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 523, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 524, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 525, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 526, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 527, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 528, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 529, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 530, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 531, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 532, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 533, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 599, "text/plain", schema.clone())?;
+    Ok(responses)
   }
 }

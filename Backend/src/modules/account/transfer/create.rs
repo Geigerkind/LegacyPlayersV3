@@ -6,6 +6,7 @@ use crate::modules::account::guard::Authenticate;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::Create;
 
+#[openapi]
 #[post("/create", format = "application/json", data = "<params>")]
 pub fn create(me: State<Account>, params: Json<CreateMember>) -> Result<Json<APIToken>, Failure>
 {
@@ -13,6 +14,7 @@ pub fn create(me: State<Account>, params: Json<CreateMember>) -> Result<Json<API
     .and_then(|api_token| Ok(Json(api_token)))
 }
 
+#[openapi]
 #[get("/create/<id>")]
 pub fn confirm(me: State<Account>, id: String) -> Result<(), Failure>
 {
@@ -22,7 +24,8 @@ pub fn confirm(me: State<Account>, id: String) -> Result<(), Failure>
   Err(Failure::Unknown)
 }
 
-#[post("/create/resend", format = "application/json")]
+#[openapi]
+#[post("/create/resend")]
 pub fn resend_confirm(me: State<Account>, auth: Authenticate) -> Result<(), Failure>
 {
   if me.send_confirmation(auth.0) {

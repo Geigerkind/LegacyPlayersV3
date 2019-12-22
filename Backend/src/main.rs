@@ -3,8 +3,11 @@ extern crate language;
 extern crate mail;
 #[macro_use]
 extern crate mysql_connection;
+extern crate okapi;
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate rocket_okapi;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
@@ -12,7 +15,9 @@ extern crate str_util;
 extern crate time_util;
 extern crate validator;
 
-use rocket_contrib::json::Json;
+use rocket_okapi::swagger_ui::make_swagger_ui;
+use rocket_okapi::swagger_ui::SwaggerUIConfig;
+use rocket_okapi::swagger_ui::UrlObject;
 use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::account;
@@ -20,11 +25,6 @@ use crate::modules::account::Account;
 
 pub mod dto;
 pub mod modules;
-
-#[get("/")]
-fn api_overview() -> Json<Vec<String>> {
-  Json(vec!["/API/account/".to_string()])
-}
 
 fn main() {
   let account: account::Account = account::Account::default();
@@ -34,9 +34,17 @@ fn main() {
   igniter = igniter.manage(account);
   igniter = igniter.attach(prometheus.clone());
   igniter = igniter.mount("/metrics", prometheus);
-  igniter = igniter.mount("/API/", routes![api_overview]);
-  igniter = igniter.mount("/API/account/", routes![
-    account::transfer::api::api,
+  igniter = igniter.mount("/API/",
+                          make_swagger_ui(&SwaggerUIConfig {
+                            url: None,
+                            urls: Some(vec![
+                              UrlObject {
+                                name: "Account".to_string(),
+                                url: "/API/account/openapi.json".to_string(),
+                              }
+                            ]),
+                          }));
+  igniter = igniter.mount("/API/account/", routes_with_openapi![
     account::transfer::login::login,
     account::transfer::token::create_token, account::transfer::token::get_tokens, account::transfer::token::delete_token, account::transfer::token::prolong_token,
     account::transfer::delete::request, account::transfer::delete::confirm,

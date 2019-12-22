@@ -6,16 +6,17 @@ edition = "2018"
 
 [dependencies]
 rocket = "*"
+rocket_prometheus = "*"
+rocket_okapi = { git = "https://github.com/Geigerkind/okapi" }
+okapi = { git = "https://github.com/Geigerkind/okapi" }
 schemars = "*"
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
-rocket_prometheus = "*"
 mail = { path = "sub_crates/mail" }
 validator = { path = "sub_crates/validator" }
 str_util = { path = "sub_crates/str_util" }
 language = { path = "sub_crates/language" }
-expose_api = { path = "sub_crates/expose_api" }
 time_util = { path = "sub_crates/time_util" }
 mysql_connection = { path = "sub_crates/mysql_connection" }
 

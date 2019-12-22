@@ -5,6 +5,7 @@ use crate::modules::account::dto::{Credentials, Failure};
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::Login;
 
+#[openapi]
 #[post("/login", format = "application/json", data = "<params>")]
 pub fn login(me: State<Account>, params: Json<Credentials>) -> Result<Json<APIToken>, Failure> {
   me.login(&params.mail, &params.password)
