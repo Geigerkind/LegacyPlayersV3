@@ -20,5 +20,7 @@ export const environment = {
         mail: '{{WEBCLIENT_OWNER_MAIL}}',
         website: 'https://{{WEBCLIENT_WEBSITE_DOMAIN}}',
         image_sources: '{{WEBCLIENT_IMAGE_SOURCES}}'
-    }
+    },
+
+    github: '{{WEBCLIENT_GITHUB_URL}}'
 };

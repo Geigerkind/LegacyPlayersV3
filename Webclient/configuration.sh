@@ -11,6 +11,7 @@ WEBCLIENT_WEBSITE_DOMAIN="yajla.com"
 WEBCLIENT_WEBSITE_NOSCRIPT_MESSAGE="This website requires JavaScript to be enabled!"
 WEBCLIENT_WEBSITE_SEARCH_URL="search?q="
 WEBCLIENT_WEBSITE_SEARCH_VARIABLE="search_term_string"
+WEBCLIENT_GITHUB_URL="Geigerkind\/LegacyPlayersV3"
 
 WEBCLIENT_OWNER_ADDRESS="Kiebitzhagen 5"
 WEBCLIENT_OWNER_CITY="21217 Seevetal"

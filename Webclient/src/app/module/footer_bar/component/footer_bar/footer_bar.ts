@@ -10,6 +10,7 @@ export class FooterBarComponent {
     @Output() consent: EventEmitter<boolean> = new EventEmitter();
 
     copyRightArguments: any = {company: environment.company, year: (new Date()).getFullYear().toString()};
+    githubLink: string = environment.github;
 
     show_consent(): void {
         this.consent.emit(true);
