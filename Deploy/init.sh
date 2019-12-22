@@ -108,6 +108,9 @@ function initGrafana {
   cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/dashboards/* /var/lib/grafana/dashboards/
   sed -i "s/;provisioning = conf\/provisioning/provisioning = \/var\/lib\/grafana\/provisioning/g" /etc/grafana.ini
   sed -i "s/;domain = localhost/domain = ${DOMAIN}/g" /etc/grafana.ini
+  sed -i "s/;reporting_enabled = true/reporting_enabled = false/g" /etc/grafana.ini
+  sed -i "s/;check_for_updates = true/check_for_updates = false/g" /etc/grafana.ini
+  sed -i "s/;enabled = false/enabled = true/g" /etc/grafana.ini
   sed -i "s/;root_url = http:\/\/localhost:3000/root_url = https:\/\/${DOMAIN}\/grafana\//g" /etc/grafana.ini
   systemctl enable grafana
   systemctl start grafana

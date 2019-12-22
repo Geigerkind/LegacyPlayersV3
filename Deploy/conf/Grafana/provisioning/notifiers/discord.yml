@@ -5,4 +5,4 @@ notifiers:
     type: discord
     uid: discord
     settings:
-      url: 'https://discordapp.com/api/webhooks/657869345057275924/LZ3_euYQUDHGXhGePT4vhBluWVPgl0vxc_DIeqij0_AnYxnO6adiOPKi9vS_wi6KglRV'
+      url: ''
