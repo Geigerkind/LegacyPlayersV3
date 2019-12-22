@@ -194,8 +194,13 @@ function deploy {
   pacman -Syu --noconfirm
 
   cd /root/${REPOSITORY_NAME}
+
   git stash
-  git pull
+  GIT_RESPONSE=$(git pull)
+  if [ "${GIT_RESPONSE}" == "Already up to date." ]; then
+        exit;
+  fi;
+
   cd /root
 
   optimizeAssets
