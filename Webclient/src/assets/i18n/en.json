@@ -70,7 +70,8 @@
         "niceToKnow": {
             "title": "Nice to know",
             "restApi": "Rest API",
-            "github": "Github"
+            "github": "Github",
+            "grafana": "System health"
         },
         "needHelp": {
             "title": "Need help?",
