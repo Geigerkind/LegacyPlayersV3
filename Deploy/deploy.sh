@@ -9,7 +9,7 @@ function cleanAssetCache {
   cd /root/cache/assets/
   for filename in $(find . -name "*.png") $(find . -name "*.jpg") $(find . -name "*.jpeg"); do
     if [ ! -f "${filename}" ]; then
-      continue
+        continue
     fi
 
     FILENAME_WITHOUT_PREFIX=${filename:2}
@@ -30,7 +30,7 @@ function optimizeJpg {
   MEDIA_DIR='/root/cache/assets/'
   for filename in $(find . -name "*.jpg") $(find . -name "*.jpeg"); do
     if [ ! -f "${filename}" ]; then
-      continue
+        continue
     fi
 
     while [ $(pgrep -c -P$$) -gt ${NUM_CORES} ]; do
@@ -43,6 +43,10 @@ function optimizeJpg {
 
     if [ ! -d "${TARGETDIR}" ]; then
         mkdir -p ${TARGETDIR};
+    fi
+
+    if [ -f "${TARGETDIR}/${BASEFILENAME}" ]; then
+        continue
     fi
 
     guetzli --quality 84 --nomemlimit ${filename} ${TARGETDIR}/${BASEFILENAME} > /dev/null 2> /dev/null &
@@ -54,7 +58,7 @@ function optimizePng {
   MEDIA_DIR='/root/cache/assets/'
   for filename in $(find . -name "*.png"); do
     if [ ! -f "${filename}" ]; then
-      continue
+        continue
     fi
 
     while [ $(pgrep -c -P$$) -gt ${NUM_CORES} ]; do
@@ -69,6 +73,10 @@ function optimizePng {
         mkdir -p ${TARGETDIR};
     fi
 
+    if [ -f "${TARGETDIR}/${BASEFILENAME}" ]; then
+        continue
+    fi
+
     zopflipng --iterations=5 --filters=2me --lossy_8bit --lossy_transparent -y ${filename} ${TARGETDIR}/${BASEFILENAME} > /dev/null 2> /dev/null &
   done
   cd /root
@@ -76,12 +84,17 @@ function optimizePng {
 function convertToWebp {
   for filename in $(find /root/cache/assets/ -name "*.png") $(find /root/cache/assets/ -name "*.jpg") $(find /root/cache/assets/ -name "*.jpeg"); do
     if [ ! -f "${filename}" ]; then
-      continue
+        continue
     fi
 
     while [ $(pgrep -c -P$$) -gt ${NUM_CORES} ]; do
         sleep 0.5;
     done
+
+    if [ -f "${filename}.webp" ]; then
+        continue
+    fi
+
     cwebp -q 30 ${filename} -o ${filename}.webp > /dev/null 2> /dev/null &
   done
 }
