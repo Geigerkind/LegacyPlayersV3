@@ -1,6 +1,6 @@
 REPOSITORY_NAME='LegacyPlayersV3'
 REPOSITORY='https://github.com/Geigerkind/LegacyPlayersV3'
-DOMAIN='beta.legacyplayers.com'
+DOMAIN='yajla.com'
 HOST_USER='root'
 BACKEND_USER='rpll'
 HOST_IP='51.38.99.189'
