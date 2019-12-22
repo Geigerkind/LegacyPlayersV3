@@ -121,6 +121,7 @@ function initUfw {
   ufw default deny incoming
   ufw allow 2222
   ufw allow 443
+  ufw allow 5000
   systemctl enable ufw
   yes | ufw enable
 }
