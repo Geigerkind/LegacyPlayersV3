@@ -8,10 +8,7 @@
         margin: 0 $spacing * 0.25;
     }
 
-    $minWidth: 100px;
-
     .mainItem {
-        min-width: $minWidth;
         height: 100%;
 
         CaretButton {
@@ -43,15 +40,14 @@
         padding: 0;
         list-style: none;
         position: absolute;
-        min-width: $minWidth;
 
         &:hover {
             display: block !important;
         }
 
         li {
-            width: calc(100% - #{$spacing} * 0.5);
-            padding: $spacing * 0.5 0 $spacing * 0.5 $spacing * 0.5;
+            width: calc(100% - #{$spacing});
+            padding: $spacing * 0.5;
             border-top: 1px solid $tdc_accent;
 
             &:first-child {

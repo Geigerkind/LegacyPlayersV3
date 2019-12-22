@@ -13,9 +13,7 @@ $navBarHeight: 50px;
     justify-content: flex-start;
 
     #logo {
-        background: url("/assets/icon/logo.png");
-        background-repeat: no-repeat;
-        background-position: center;
+        background: url("/assets/icon/logo.png") no-repeat center;
         background-size: 75% 75%;
         height: 100%;
         width: $navBarHeight;
