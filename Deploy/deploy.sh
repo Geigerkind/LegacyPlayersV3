@@ -161,6 +161,10 @@ function updateConfigs {
 
   # Grafana
   cp -rf /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/provisioning/* /var/lib/grafana/provisioning/
+  # Replacing discord webhook
+  WEBHOOK_URL=$(cat /root/Keys/discord_webhook | sed -e 's/[\/&]/\\&/g')
+  sed -i "s/\{\{DISCORD_WEBHOOK\}\}/${WEBHOOK_URL}/g" /var/lib/grafana/provisioning/notifiers/discord.yml
+
   cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/dashboards/* /var/lib/grafana/dashboards/
 
   # Prometheus

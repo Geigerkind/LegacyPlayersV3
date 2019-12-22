@@ -5,4 +5,4 @@ notifiers:
     type: discord
     uid: discord
     settings:
-      url: 'http://edit.me'
+      url: '{{DISCORD_WEBHOOK}}'
