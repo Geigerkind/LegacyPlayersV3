@@ -47,9 +47,17 @@ $columnHeight: 40px;
         border-radius: 0 0 3px 3px;
 
         @media (max-width: 820px) {
-            display: none;
+            transform: scaleY(0);
+            transform-origin: top;
+            overflow: hidden;
+            transition: transform 0.1s;
+
             &.open {
-                display: block;
+                transform: scaleY(1);
+
+                li, li a {
+                    height: $columnHeight;
+                }
             }
         }
 
@@ -59,7 +67,7 @@ $columnHeight: 40px;
 
             &, a {
                 display: block;
-                height: $columnHeight;
+                height: 0;
                 line-height: $columnHeight;
                 font-size: 20px;
             }
