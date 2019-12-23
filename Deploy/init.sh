@@ -139,7 +139,7 @@ function initServer {
   passwd -l root
 
   pacman -Sy
-  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban
+  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip
 
   # Fail2Ban configuration
   sed -i "s/maxretry = 5/maxretry = 3/g" /etc/sudoers
