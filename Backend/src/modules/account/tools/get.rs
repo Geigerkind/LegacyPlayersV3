@@ -23,6 +23,7 @@ impl GetAccountInformation for Account {
       mail: entry.mail.clone(),
       nickname: entry.nickname.clone(),
       mail_confirmed: entry.mail_confirmed,
+      access_rights: entry.access_rights
     })
   }
 }

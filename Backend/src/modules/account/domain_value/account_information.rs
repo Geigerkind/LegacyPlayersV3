@@ -6,4 +6,5 @@ pub struct AccountInformation {
   pub mail: String,
   pub nickname: String,
   pub mail_confirmed: bool,
+  pub access_rights: u32
 }

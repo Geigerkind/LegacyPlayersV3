@@ -72,6 +72,7 @@ impl Create for Account {
           forgot_password: false,
           delete_account: false,
           new_mail: String::new(),
+          access_rights: 0
         });
       } else {
         return Err(Failure::Unknown);
