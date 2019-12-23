@@ -106,8 +106,8 @@ function initGrafana {
   mkdir /var/lib/grafana/dashboards
   cp -r /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/provisioning/* /var/lib/grafana/provisioning/
   # Replacing discord webhook
-  WEBHOOK_URL=$(cat /root/Keys/discord_webhook | sed -e 's/[\/&]/\\&/g')
-  sed -i "s/\{\{DISCORD_WEBHOOK\}\}/${WEBHOOK_URL}/g" /var/lib/grafana/provisioning/notifiers/discord.yml
+  WEBHOOK_URL=$(cat /root/Keys/discord_webhook | sed -e 's/[\/&\:\.\_-]/\\&/g')
+  sed -i -r "s/\{\{DISCORD_WEBHOOK\}\}/${WEBHOOK_URL}/g" /var/lib/grafana/provisioning/notifiers/discord.yml
 
   cp /root/${REPOSITORY_NAME}/Deploy/conf/Grafana/dashboards/* /var/lib/grafana/dashboards/
   sed -i "s/;provisioning = conf\/provisioning/provisioning = \/var\/lib\/grafana\/provisioning/g" /etc/grafana.ini
