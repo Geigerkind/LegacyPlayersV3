@@ -60,14 +60,16 @@ $navBarHeight: 50px;
         }
 
         #itemListContainer {
-            height: initial;
-            display: none;
+            transform: scaleY(0);
+            transform-origin: top;
+            overflow: hidden;
             width: 100%;
             position: absolute;
             top: $navBarHeight;
+            transition: transform 0.34s;
 
             &.open {
-                display: block;
+                transform: scaleY(1);
             }
         }
 

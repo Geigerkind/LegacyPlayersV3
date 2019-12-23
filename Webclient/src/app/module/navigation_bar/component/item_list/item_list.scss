@@ -74,6 +74,7 @@
         margin: 0;
         background: $tdc_darker;
         border-bottom: 1px solid $tdc_accent;
+        overflow: hidden;
 
         .mainItem {
             width: 100%;
@@ -100,18 +101,25 @@
         }
 
         ul {
-            display: none;
+            transform: scaleY(0);
+            transform-origin: top;
             width: calc(100% - #{$spacing} * 4);
             margin: 0;
             padding: 0 $spacing * 2 0 $spacing * 2;
             list-style: none;
+            transition: transform 0.1s;
+            overflow: hidden;
 
             &.open {
-                display: block;
+                transform: scaleY(1);
+
+                li {
+                    height: $columnHeight * 0.65;
+                }
             }
 
             li {
-                height: $columnHeight * 0.65;
+                height: 0;
                 border-top: 1px solid $tdc_accent;
 
                 a {
