@@ -154,7 +154,7 @@ function updateConfigs {
   postmap /etc/postfix/virtual
 
   # Mariadb
-  cp /root/${REPOSITORY_NAME}/Deploy/conf/my.conf /etc/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/my.cnf /etc/
 
   # Nginx
   cp /root/${REPOSITORY_NAME}/Deploy/conf/nginx.conf /etc/nginx/
@@ -225,10 +225,10 @@ function deploy {
   stopServices
   certbot renew
 
+  updateConfigs
   deployDatabase
   deployWebclient
   deployBackend
-  updateConfigs
   waitForJobs
 
   startServices
