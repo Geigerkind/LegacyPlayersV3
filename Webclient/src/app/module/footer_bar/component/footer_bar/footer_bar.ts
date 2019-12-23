@@ -11,6 +11,7 @@ export class FooterBarComponent {
 
     copyRightArguments: any = {company: environment.company, year: (new Date()).getFullYear().toString()};
     githubLink: string = environment.github;
+    discordLink: string = environment.discord;
 
     show_consent(): void {
         this.consent.emit(true);

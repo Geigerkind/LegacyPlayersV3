@@ -22,5 +22,6 @@ export const environment = {
         image_sources: '{{WEBCLIENT_IMAGE_SOURCES}}'
     },
 
-    github: '{{WEBCLIENT_GITHUB_URL}}'
+    github: '{{WEBCLIENT_GITHUB_URL}}',
+    discord: '{{WEBCLIENT_DISCORD_INVITE}}'
 };
