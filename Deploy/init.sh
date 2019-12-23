@@ -179,4 +179,4 @@ function initServer {
 }
 
 initServer
-bash /root/${REPOSITORY_NAME}/Deploy/deploy.sh
+bash /root/${REPOSITORY_NAME}/Deploy/deploy.sh 1

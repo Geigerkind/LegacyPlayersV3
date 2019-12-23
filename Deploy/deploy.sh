@@ -214,7 +214,7 @@ function deploy {
 
   git stash
   GIT_RESPONSE=$(git pull)
-  if [ "${GIT_RESPONSE}" == "Already up to date." ]; then
+  if [ "${GIT_RESPONSE}" == "Already up to date." ] && [ -z "${1}" ]; then
         exit;
   fi;
 
