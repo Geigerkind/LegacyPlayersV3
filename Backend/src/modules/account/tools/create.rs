@@ -50,14 +50,14 @@ impl Create for Account {
       let salt: String = random::alphanumeric(16);
       let pass: String = sha3::hash(&[password, &salt]);
 
-      if self.db_main.execute_wparams("INSERT IGNORE INTO member (`mail`, `password`, `nickname`, `salt`, `joined`) VALUES (:mail, :pass, :nickname, :salt, UNIX_TIMESTAMP())", params!(
+      if self.db_main.execute_wparams("INSERT IGNORE INTO account_member (`mail`, `password`, `nickname`, `salt`, `joined`) VALUES (:mail, :pass, :nickname, :salt, UNIX_TIMESTAMP())", params!(
       "nickname" => nickname.clone(),
       "mail" => lower_mail.clone(),
       "pass" => pass.clone(),
       "salt" => salt.clone()
       ),
       ) {
-        member_id = self.db_main.select_wparams_value("SELECT id FROM member WHERE mail = :mail", &|mut row| {
+        member_id = self.db_main.select_wparams_value("SELECT id FROM account_member WHERE mail = :mail", &|mut row| {
           row.take(0).unwrap()
         }, params!(
         "mail" => lower_mail.clone()
@@ -116,7 +116,7 @@ impl Create for Account {
     }
 
     let member_id = *confirm_id_res.unwrap();
-    if self.db_main.execute_wparams("UPDATE member SET mail_confirmed=1 WHERE id=:id", params!(
+    if self.db_main.execute_wparams("UPDATE account_member SET mail_confirmed=1 WHERE id=:id", params!(
       "id" => member_id
     )) {
       let entry = member.get_mut(&member_id).unwrap();

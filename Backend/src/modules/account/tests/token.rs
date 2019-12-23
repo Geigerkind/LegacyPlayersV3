@@ -20,7 +20,7 @@ mod tests {
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     assert!(account.validate_token(&api_token.token).is_some());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='cvcbmnbjfie@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='cvcbmnbjfie@jaylappTest.dev'");
   }
 
   #[test]
@@ -50,7 +50,7 @@ mod tests {
     assert!(account.validate_token(&api_token_two.token).is_none());
     assert!(account.validate_token(&api_token_three.token).is_some());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='klsdkfsowerf@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='klsdkfsowerf@jaylappTest.dev'");
   }
 
   #[test]
@@ -68,7 +68,7 @@ mod tests {
     assert_eq!(tokens.len(), 1);
     assert_eq!(tokens[0].token, api_token.token);
 
-    account.db_main.execute("DELETE FROM member WHERE mail='fhfgjhfgjfghfjg@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='fhfgjhfgjfghfjg@jaylappTest.dev'");
   }
 
   #[test]
@@ -92,7 +92,7 @@ mod tests {
     assert!(account.delete_token(new_token.id, api_token.member_id).is_ok());
     assert!(account.validate_token(&new_token.token).is_none());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='sadgsdfgsddfgsdg@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='sadgsdfgsddfgsdg@jaylappTest.dev'");
   }
 
   #[test]
@@ -116,6 +116,6 @@ mod tests {
     let in_thirty_days = time_util::get_ts_from_now_in_secs(30);
     assert!(in_thirty_days - new_token.unwrap().exp_date <= 5);
 
-    account.db_main.execute("DELETE FROM member WHERE mail='sdfjikoijhsdfuhiihud@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='sdfjikoijhsdfuhiihud@jaylappTest.dev'");
   }
 }

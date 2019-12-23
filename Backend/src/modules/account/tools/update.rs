@@ -37,7 +37,7 @@ impl Update for Account {
         }
       }
 
-      if self.db_main.execute_wparams("UPDATE member SET nickname=:nickname WHERE id=:id", params!(
+      if self.db_main.execute_wparams("UPDATE account_member SET nickname=:nickname WHERE id=:id", params!(
       "nickname" => new_nickname.clone(),
       "id" => member_id
     )) {
@@ -74,7 +74,7 @@ impl Update for Account {
       hash = sha3::hash(&[new_password, &entry.salt]);
     }
 
-    if self.db_main.execute_wparams("UPDATE member SET password=:password WHERE id=:id", params!(
+    if self.db_main.execute_wparams("UPDATE account_member SET password=:password WHERE id=:id", params!(
       "password" => hash.clone(),
       "id" => member_id
     )) {
@@ -133,7 +133,7 @@ impl Update for Account {
           let mut member = self.member.write().unwrap();
           let member_entry = member.get_mut(member_id).unwrap();
           let lower_mail = member_entry.new_mail.clone();
-          if self.clear_tokens(*member_id).is_ok() && self.db_main.execute_wparams("UPDATE member SET mail=:mail WHERE id=:id", params!(
+          if self.clear_tokens(*member_id).is_ok() && self.db_main.execute_wparams("UPDATE account_member SET mail=:mail WHERE id=:id", params!(
             "mail" => lower_mail.clone(),
             "id" => member_id
           )) {

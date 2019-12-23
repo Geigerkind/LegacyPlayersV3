@@ -23,7 +23,7 @@ mod tests {
     assert!(changed_name.is_ok());
     assert_eq!(changed_name.unwrap().nickname, "SomeUsername".to_string());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='ijofsdiojsdfgiuhig@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='ijofsdiojsdfgiuhig@jaylappTest.dev'");
   }
 
   #[test]
@@ -41,7 +41,7 @@ mod tests {
     let changed_name = account.change_name("", api_token.member_id);
     assert!(changed_name.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='siodjfijsiojiospq@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='siodjfijsiojiospq@jaylappTest.dev'");
   }
 
   #[test]
@@ -60,7 +60,7 @@ mod tests {
     println!("{:?}", changed_name);
     assert!(changed_name.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='ihsdfoiosdf@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='ihsdfoiosdf@jaylappTest.dev'");
   }
 
   #[test]
@@ -87,8 +87,8 @@ mod tests {
     let changed_name = account.change_name(&post_obj_two.nickname, api_token.member_id);
     assert!(changed_name.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='oasijidhaais@jaylappTest.dev'");
-    account.db_main.execute("DELETE FROM member WHERE mail='guhzasooas@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='oasijidhaais@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='guhzasooas@jaylappTest.dev'");
   }
 
   #[test]
@@ -106,7 +106,7 @@ mod tests {
     let changed_password = account.change_password("", api_token.member_id);
     assert!(changed_password.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='mvfhhbvidsd@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='mvfhhbvidsd@jaylappTest.dev'");
   }
 
   #[test]
@@ -128,7 +128,7 @@ mod tests {
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
 
-    account.db_main.execute("DELETE FROM member WHERE mail='xdsdfgsdgs@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='xdsdfgsdgs@jaylappTest.dev'");
   }
 
   #[test]
@@ -146,7 +146,7 @@ mod tests {
     let changed_mail = account.request_change_mail("", api_token.member_id);
     assert!(changed_mail.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='nsigsvbsdsd@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='nsigsvbsdsd@jaylappTest.dev'");
   }
 
   #[test]
@@ -164,7 +164,7 @@ mod tests {
     let changed_mail = account.request_change_mail("asiudfuhisduifs", api_token.member_id);
     assert!(changed_mail.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='asiudfuhisduifs@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='asiudfuhisduifs@jaylappTest.dev'");
   }
 
   #[test]
@@ -191,8 +191,8 @@ mod tests {
     let changed_mail = account.request_change_mail(&post_obj_two.credentials.mail, api_token.member_id);
     assert!(changed_mail.is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='csdazgtsdczas@jaylappTest.dev'");
-    account.db_main.execute("DELETE FROM member WHERE mail='bdvshudvbsdv@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='csdazgtsdczas@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bdvshudvbsdv@jaylappTest.dev'");
   }
 
   #[test]
@@ -227,6 +227,6 @@ mod tests {
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
 
-    account.db_main.execute("DELETE FROM member WHERE mail='xdssdfsdfg2@bla.de'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='xdssdfsdfg2@bla.de'");
   }
 }

@@ -43,7 +43,7 @@ mod tests {
     println!("{:?}", receive_forgot);
     assert!(receive_forgot.is_ok());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='fscngsuzfdcsv@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='fscngsuzfdcsv@jaylappTest.dev'");
   }
 
   #[test]

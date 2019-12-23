@@ -28,6 +28,6 @@ mod tests {
     let acc_info = account.get(login.member_id);
     assert!(acc_info.is_ok());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='ijfeuhifsduhisdfuhiuhisdf@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='ijfeuhifsduhisdfuhiuhisdf@jaylappTest.dev'");
   }
 }

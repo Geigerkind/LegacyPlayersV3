@@ -17,7 +17,7 @@ impl Delete for Account {
   {
     let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
     let mut member = self.member.write().unwrap();
-    if self.db_main.execute_wparams("UPDATE member SET delete_account=1 WHERE id=:id", params!("id" => member_id)) {
+    if self.db_main.execute_wparams("UPDATE account_member SET delete_account=1 WHERE id=:id", params!("id" => member_id)) {
       let entry = member.get_mut(&member_id).unwrap();
       entry.delete_account = true;
 
@@ -49,7 +49,7 @@ impl Delete for Account {
 
     // Due to foreign key constraints, other tables depending on the member_id will also be deleted
     let member_id = *delete_confirmation_res.unwrap();
-    if self.db_main.execute_wparams("DELETE FROM member WHERE id = :id", params!(
+    if self.db_main.execute_wparams("DELETE FROM account_member WHERE id = :id", params!(
       "id" => member_id
     )) {
       {// Remove all other fields that somehow point to this member_id

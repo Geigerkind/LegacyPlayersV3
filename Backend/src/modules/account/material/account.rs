@@ -49,7 +49,7 @@ impl Account {
     self.clean_tokens();
 
     // We are a little wasteful here because we do not insert it directly but rather create a vector first and then copy it over
-    for entry in self.db_main.select("SELECT id, nickname, mail, password, salt, mail_confirmed, forgot_password, delete_account, new_mail, access_rights FROM member", &|mut row| {
+    for entry in self.db_main.select("SELECT id, nickname, mail, password, salt, mail_confirmed, forgot_password, delete_account, new_mail, access_rights FROM account_member", &|mut row| {
       Member {
         id: row.take(0).unwrap(),
         nickname: row.take(1).unwrap(),
@@ -86,7 +86,7 @@ impl Account {
       member.insert(entry.id, entry);
     }
 
-    for entry in self.db_main.select("SELECT id, member_id, token, purpose, exp_date FROM api_token", &|mut row| {
+    for entry in self.db_main.select("SELECT id, member_id, token, purpose, exp_date FROM account_api_token", &|mut row| {
       APIToken {
         id: row.take(0).unwrap(),
         member_id: row.take(1).unwrap(),
@@ -101,6 +101,6 @@ impl Account {
   }
 
   fn clean_tokens(&self) {
-    self.db_main.execute("DELETE FROM api_token WHERE exp_date < UNIX_TIMESTAMP()");
+    self.db_main.execute("DELETE FROM account_api_token WHERE exp_date < UNIX_TIMESTAMP()");
   }
 }

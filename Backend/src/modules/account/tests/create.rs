@@ -22,7 +22,7 @@ mod tests {
     let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
     assert!(login.is_ok());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='mail@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='mail@jaylappTest.dev'");
   }
 
   #[test]
@@ -39,7 +39,7 @@ mod tests {
     let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='bla@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bla@jaylappTest.dev'");
   }
 
   #[test]
@@ -64,8 +64,8 @@ mod tests {
     let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     assert!(account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).is_err());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='bla2@jaylappTest.dev'");
-    account.db_main.execute("DELETE FROM member WHERE mail='bla3@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bla2@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bla3@jaylappTest.dev'");
   }
 
   #[test]
@@ -160,6 +160,6 @@ mod tests {
     let confirmed_information = account.get(login.member_id).unwrap();
     assert!(confirmed_information.mail_confirmed);
 
-    account.db_main.execute("DELETE FROM member WHERE mail='someNameWuuuuh@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='someNameWuuuuh@jaylappTest.dev'");
   }
 }

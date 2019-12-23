@@ -40,7 +40,7 @@ impl Forgot for Account {
     }
 
     let unwrapped_member_id = member_id.unwrap();
-    if self.db_main.execute_wparams("UPDATE member SET forgot_password=1 WHERE id=:id", params!("id" => unwrapped_member_id)) {
+    if self.db_main.execute_wparams("UPDATE account_member SET forgot_password=1 WHERE id=:id", params!("id" => unwrapped_member_id)) {
       let entry = member.get_mut(&unwrapped_member_id).unwrap();
       let forgot_id = sha3::hash(&[&unwrapped_member_id.to_string(), "forgot", &entry.salt]);
 
@@ -67,7 +67,7 @@ impl Forgot for Account {
         Some(member_id) => {
           user_id = *member_id;
           let mut member = self.member.write().unwrap();
-          if self.db_main.execute_wparams("UPDATE member SET forgot_password=0 WHERE id=:id", params!(
+          if self.db_main.execute_wparams("UPDATE account_member SET forgot_password=0 WHERE id=:id", params!(
             "id" => *member_id
           )) {
             let entry = member.get_mut(member_id).unwrap();

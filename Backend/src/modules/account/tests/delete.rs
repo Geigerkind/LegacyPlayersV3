@@ -21,7 +21,7 @@ mod tests {
     let issue_delete = account.issue_delete(val_pair.member_id);
     assert!(issue_delete.is_ok());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='hdfgfdgdfd@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='hdfgfdgdfd@jaylappTest.dev'");
   }
 
   #[test]
@@ -39,6 +39,6 @@ mod tests {
     let issue_delete = account.issue_delete(val_pair.member_id);
     assert!(issue_delete.is_ok());
 
-    account.db_main.execute("DELETE FROM member WHERE mail='hfghsdssdgdfg@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='hfghsdssdgdfg@jaylappTest.dev'");
   }
 }

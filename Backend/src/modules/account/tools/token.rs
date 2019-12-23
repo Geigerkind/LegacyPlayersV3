@@ -58,7 +58,7 @@ impl Token for Account {
     let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
     let mut api_token = self.api_tokens.write().unwrap();
 
-    if !self.db_main.execute_wparams("DELETE FROM api_token WHERE member_id=:member_id", params!(
+    if !self.db_main.execute_wparams("DELETE FROM account_api_token WHERE member_id=:member_id", params!(
       "member_id" => member_id
     )) {
       return Err(Failure::Unknown);
@@ -179,7 +179,7 @@ impl Token for Account {
     // Continue to update the token
     let mut api_tokens = self.api_tokens.write().unwrap();
     let exp_date = time_util::get_ts_from_now_in_secs(days as u64);
-    if self.db_main.execute_wparams("UPDATE api_token SET exp_date=:exp_date WHERE id=:id AND member_id=:member_id", params!(
+    if self.db_main.execute_wparams("UPDATE account_api_token SET exp_date=:exp_date WHERE id=:id AND member_id=:member_id", params!(
       "exp_date" => exp_date,
       "id" => token_id,
       "member_id" => member_id
