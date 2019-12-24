@@ -281,9 +281,11 @@ _mysql_want_help() {
 }
 
 extract_sql() {
-  cd /docker-entrypoint-initdb.d
-  bash merger.sh
-  cp merge.sql /initFiles/
+  cd /testExtract
+  cp -r /docker-entrypoint-initdb.d/* /testExtract/
+  rm ./db_patch_count
+  bash ./merger.sh
+  cp ./merge.sql /initFiles/
 }
 
 _main() {
