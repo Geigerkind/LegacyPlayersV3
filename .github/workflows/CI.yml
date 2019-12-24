@@ -16,6 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - run: cd .github/actions/backend && docker-compose up -d
+      - run: cd Database/patches && unzip "*.zip" && cd ../../.github/actions/backend && docker-compose up -d
       - run: docker build -t docker_backend .github/actions/backend
       - run: docker run -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" --network host docker_backend
