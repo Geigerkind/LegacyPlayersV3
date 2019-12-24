@@ -281,14 +281,9 @@ _mysql_want_help() {
 }
 
 extract_sql() {
-  for filename in /docker-entrypoint-initdb.d/*.zip
-  do
-    if [ -f "${filename}" ]; then
-      if [ ! -f "/initFiles/$(basename ${filename%.*}).sql" ]; then
-        unzip ${filename} -d /initFiles
-      fi
-    fi
-  done
+  cd /docker-entrypoint-initdb.d
+  bash merger.sh
+  cp merge.sql /initFiles/
 }
 
 _main() {

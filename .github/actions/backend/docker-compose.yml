@@ -3,7 +3,7 @@ services:
   mariadb:
     build: ./mariadb
     volumes:
-    - ./../../../Database/patches:/docker-entrypoint-initdb.d
+    - ./../../../Database:/docker-entrypoint-initdb.d
     ports:
     - '5555:3306'
     environment:
