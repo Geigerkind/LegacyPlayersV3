@@ -101,7 +101,7 @@ impl Token for Account {
     let mut api_tokens = self.api_tokens.write().unwrap();
 
     if !self.db_main.execute_wparams(
-      "INSERT INTO api_token (member_id, token, purpose, exp_date) VALUES (:member_id, :token, :purpose, :exp_date)",
+      "INSERT INTO account_api_token (member_id, token, purpose, exp_date) VALUES (:member_id, :token, :purpose, :exp_date)",
       params!(
         "member_id" => member_id,
         "token" => token.clone(),
@@ -113,7 +113,7 @@ impl Token for Account {
     }
 
     match self.db_main.select_wparams_value(
-      "SELECT id, member_id, token, purpose, exp_date FROM api_token WHERE member_id=:member_id AND token=:token",
+      "SELECT id, member_id, token, purpose, exp_date FROM account_api_token WHERE member_id=:member_id AND token=:token",
       &|mut row| {
         APIToken {
           id: row.take(0).unwrap(),
@@ -147,7 +147,7 @@ impl Token for Account {
     let mut api_tokens = self.api_tokens.write().unwrap();
 
     if !self.db_main.execute_wparams(
-      "DELETE FROM api_token WHERE id=:id AND member_id=:member_id",
+      "DELETE FROM account_api_token WHERE id=:id AND member_id=:member_id",
       params!(
         "id" => token_id,
         "member_id" => member_id
