@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   mariadb:
-    image: mariadb:10.4.8
+    image: ./mariadb
     volumes:
     - ./../../../Database/patches:/docker-entrypoint-initdb.d
     ports:
