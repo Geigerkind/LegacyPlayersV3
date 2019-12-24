@@ -234,4 +234,4 @@ function deploy {
   startServices
 }
 
-deploy
+deploy ${1}
