@@ -18,4 +18,7 @@ jobs:
       - uses: actions/checkout@master
       - run: cd Database/patches && unzip "*.zip" && cd ../../.github/actions/backend && docker-compose up -d
       - run: docker build -t docker_backend .github/actions/backend
+      - uses: jakejarvis/wait-action@master
+        with:
+          time: '300s'
       - run: docker run -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" --network host docker_backend
