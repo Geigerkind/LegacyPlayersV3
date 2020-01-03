@@ -138,7 +138,7 @@ function initServer {
   passwd ${BACKEND_USER}
   passwd -l root
 
-  pacman -Sy
+  pacman -Syyu
   pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip
 
   # Fail2Ban configuration
