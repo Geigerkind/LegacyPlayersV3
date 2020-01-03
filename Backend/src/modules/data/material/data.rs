@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
+use okapi::openapi3::ParameterStyle::Label;
 
 use crate::modules::data::domain_value::{Expansion, Language};
 
@@ -40,27 +41,23 @@ trait Init {
 
 impl Init for HashMap<u8, Expansion> {
   fn init(&mut self, db: &MySQLConnection) {
-    for expansion in db.select("SELECT * FROM data_expansion", &|mut row| {
+    db.select("SELECT * FROM data_expansion", &|mut row| {
       Expansion {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
       }
-    }) {
-      self.insert(expansion.id, expansion);
-    }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
 }
 
 impl Init for HashMap<u8, Language> {
   fn init(&mut self, db: &MySQLConnection) {
-    for language in db.select("SELECT * FROM data_language", &|mut row| {
+    db.select("SELECT * FROM data_language", &|mut row| {
       Language {
         id: row.take(0).unwrap(),
         name: row.take(1).unwrap(),
-        short_code: row.take(2).unwrap()
+        short_code: row.take(2).unwrap(),
       }
-    }) {
-      self.insert(language.id, language);
-    }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
 }
