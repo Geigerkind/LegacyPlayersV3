@@ -126,7 +126,7 @@ function initUfw {
   ufw allow 443
   ufw allow 5000
   systemctl enable ufw
-  yes | ufw enable
+  #yes | ufw enable
 }
 
 function initServer {
@@ -185,3 +185,6 @@ function initServer {
 
 initServer
 bash /root/${REPOSITORY_NAME}/Deploy/deploy.sh 1
+echo "DONE! The server will restart now. Please enable ufw using: 'ufw enable', when it is back up!"
+sleep 5s
+reboot
