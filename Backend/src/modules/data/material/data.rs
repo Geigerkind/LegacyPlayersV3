@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
-use okapi::openapi3::ParameterStyle::Label;
 
 use crate::modules::data::domain_value::{Expansion, Language};
 

@@ -7,7 +7,6 @@ HOST_IP='51.38.99.189'
 DB_PASSWORD=$(cat /root/Keys/db_password)
 
 function fixCertificates {
-  pacman -S --noconfirm ca-certificates
   if [ ! -f "/etc/ssl/certs/ca-certificates.crt" ]; then
     cd /etc/ssl/certs
     cat *.pem >> ca-certificates.crt
@@ -138,7 +137,7 @@ function initServer {
   passwd ${BACKEND_USER}
   passwd -l root
 
-  pacman -Syyu
+  pacman -Syyuu --noconfirm
   pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip
 
   # Fail2Ban configuration
