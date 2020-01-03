@@ -43,7 +43,7 @@ function initNginx {
 function initMariaDb {
   pacman -S --noconfirm mariadb
   mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-  cp ~/${REPOSITORY_NAME}/Deploy/conf/my.conf /etc/
+  cp ~/${REPOSITORY_NAME}/Deploy/conf/my.cnf /etc/
   systemctl enable mysqld
   systemctl start mysqld
   mysql -u root mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'"
