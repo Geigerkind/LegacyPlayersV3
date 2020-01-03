@@ -1,9 +1,10 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::account::dto::{Credentials, Failure};
+use crate::modules::account::dto::Credentials;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::Login;
+use crate::dto::Failure;
 
 #[openapi]
 #[post("/login", format = "application/json", data = "<params>")]

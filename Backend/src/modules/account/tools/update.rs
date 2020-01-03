@@ -6,7 +6,7 @@ use validator::domain_value::PasswordFailure;
 use validator::tools::{valid_mail, valid_nickname, valid_password};
 
 use crate::modules::account::domain_value::AccountInformation;
-use crate::modules::account::dto::Failure;
+use crate::dto::Failure;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::{GetAccountInformation, Token};
 

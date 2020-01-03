@@ -4,7 +4,7 @@ use mail;
 use mysql_connection::tools::Execute;
 use str_util::{sha3, strformat};
 
-use crate::modules::account::dto::Failure;
+use crate::dto::Failure;
 use crate::modules::account::material::Account;
 
 pub trait Delete {

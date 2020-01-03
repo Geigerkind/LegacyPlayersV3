@@ -19,7 +19,7 @@ pub struct Account {
   pub requires_mail_confirmation: RwLock<HashMap<String, u32>>,
 }
 
-// Important: Always lock resources bottom to to, in order to prevent running into a deadlock
+// Important: Always lock resources bottom to too, in order to prevent running into a deadlock
 // Also: Write locks may not be acquired within a query
 impl Default for Account {
   fn default() -> Self

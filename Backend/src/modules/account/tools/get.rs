@@ -1,5 +1,5 @@
 use crate::modules::account::domain_value::AccountInformation;
-use crate::modules::account::dto::Failure;
+use crate::dto::Failure;
 use crate::modules::account::material::Account;
 
 pub trait GetAccountInformation {

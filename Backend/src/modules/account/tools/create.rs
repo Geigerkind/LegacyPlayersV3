@@ -6,7 +6,7 @@ use str_util::{random, sha3, strformat};
 use validator::domain_value::PasswordFailure;
 use validator::tools::{valid_mail, valid_nickname, valid_password};
 
-use crate::modules::account::dto::Failure;
+use crate::dto::Failure;
 use crate::modules::account::material::{Account, APIToken, Member};
 use crate::modules::account::tools::Token;
 

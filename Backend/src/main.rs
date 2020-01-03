@@ -21,17 +21,21 @@ use rocket_okapi::swagger_ui::UrlObject;
 use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::account;
-use crate::modules::account::Account;
+use crate::modules::data;
 
 pub mod dto;
 pub mod modules;
 
 fn main() {
-  let account: account::Account = account::Account::default();
-  Account::init(&account);
+  let account = account::Account::default();
+  account::Account::init(&account);
+  let data = data::Data::default();
+
   let prometheus = PrometheusMetrics::new();
   let mut igniter = rocket::ignite();
   igniter = igniter.manage(account);
+  igniter = igniter.manage(data);
+
   igniter = igniter.attach(prometheus.clone());
   igniter = igniter.mount("/metrics", prometheus);
   igniter = igniter.mount("/API/",
@@ -52,5 +56,10 @@ fn main() {
     account::transfer::get::get_account_information,
     account::transfer::forgot::receive_confirmation, account::transfer::forgot::send_confirmation,
     account::transfer::update::request_mail, account::transfer::update::confirm_mail, account::transfer::update::password, account::transfer::update::nickname]);
+
+  igniter = igniter.mount("/API/data/", routes_with_openapi![
+    data::transfer::expansion::get_expansion
+  ]);
+
   igniter.launch();
 }
