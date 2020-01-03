@@ -57,7 +57,7 @@ fn main() {
     account::transfer::update::request_mail, account::transfer::update::confirm_mail, account::transfer::update::password, account::transfer::update::nickname]);
 
   igniter = igniter.mount("/API/data/", routes_with_openapi![
-    data::transfer::expansion::get_expansion
+    data::transfer::expansion::get_expansion, data::transfer::expansion::get_all_expansions
   ]);
 
   igniter.launch();
