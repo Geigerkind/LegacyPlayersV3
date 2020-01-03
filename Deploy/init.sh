@@ -137,7 +137,13 @@ function initServer {
   passwd ${BACKEND_USER}
   passwd -l root
 
-  pacman -Syyuu --noconfirm
+  # Temporary
+  pacman -S zstd --noconfirm
+  wget https://www.archlinux.de/download/core/os/x86_64/libarchive-3.4.1-1-x86_64.pkg.tar.zst
+  zstd -d libarchive-3.4.1-1-x86_64.pkg.tar.zst
+  pacman -U libarchive-3.4.1-1-x86_64.pkg.tar --noconfirm
+
+  pacman -Syu --noconfirm
   pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip
 
   # Fail2Ban configuration
