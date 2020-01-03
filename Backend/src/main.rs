@@ -62,7 +62,8 @@ fn main() {
 
   igniter = igniter.mount("/API/data/", routes_with_openapi![
     data::transfer::expansion::get_expansion, data::transfer::expansion::get_all_expansions,
-    data::transfer::language::get_language, data::transfer::language::get_all_languages
+    data::transfer::language::get_language, data::transfer::language::get_all_languages,
+    data::transfer::localization::get_localization
   ]);
 
   igniter.launch();

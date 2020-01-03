@@ -3,13 +3,14 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, Language};
+use crate::modules::data::domain_value::{Expansion, Language, Localization};
 
 #[derive(Debug)]
 pub struct Data {
   pub db_main: MySQLConnection,
   pub expansions: HashMap<u8, Expansion>,
   pub languages: HashMap<u8, Language>,
+  pub localization: Vec<HashMap<u32, String>>
 }
 
 impl Default for Data {
@@ -19,6 +20,7 @@ impl Default for Data {
       db_main: MySQLConnection::new("main"),
       expansions: HashMap::new(),
       languages: HashMap::new(),
+      localization: Vec::new()
     }
   }
 }
@@ -28,6 +30,10 @@ impl Data {
   {
     self.expansions.init(&self.db_main);
     self.languages.init(&self.db_main);
+    for _i in 0..self.languages.len() {
+      self.localization.push(HashMap::new());
+    }
+    self.localization.init(&self.db_main);
     self
   }
 }
@@ -58,5 +64,19 @@ impl Init for HashMap<u8, Language> {
         short_code: row.take(2).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for Vec<HashMap<u32, String>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_localization ORDER BY language_id, id", &|mut row| {
+      Localization {
+        language_id: row.take(0).unwrap(),
+        id: row.take(1).unwrap(),
+        content: row.take(2).unwrap()
+      }
+    }).iter().for_each(|localization| {
+      self.get_mut(localization.language_id as usize - 1).unwrap().insert(localization.id, localization.content.to_owned());
+    });
   }
 }
