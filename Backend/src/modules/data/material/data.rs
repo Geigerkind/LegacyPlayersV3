@@ -14,18 +14,18 @@ pub struct Data {
 impl Default for Data {
   fn default() -> Self
   {
-    let mut data = Data {
+    Data {
       db_main: MySQLConnection::new("main"),
       expansions: HashMap::new(),
-    };
-    Data::init(&mut data);
-    data
+    }
   }
 }
 
 impl Data {
-  fn init(&mut self) {
+  pub fn init(mut self) -> Self
+  {
     self.expansions.init(&self.db_main);
+    self
   }
 }
 

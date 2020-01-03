@@ -27,9 +27,8 @@ pub mod dto;
 pub mod modules;
 
 fn main() {
-  let account = account::Account::default();
-  account::Account::init(&account);
-  let data = data::Data::default();
+  let account = account::Account::default().init();
+  let data = data::Data::default().init();
 
   let prometheus = PrometheusMetrics::new();
   let mut igniter = rocket::ignite();
