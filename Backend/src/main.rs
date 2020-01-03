@@ -44,6 +44,10 @@ fn main() {
                               UrlObject {
                                 name: "Account".to_string(),
                                 url: "/API/account/openapi.json".to_string(),
+                              },
+                              UrlObject {
+                                name: "Data".to_string(),
+                                url: "/API/data/openapi.json".to_string(),
                               }
                             ]),
                           }));
