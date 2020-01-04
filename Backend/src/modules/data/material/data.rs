@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, Language, Localization, Race};
+use crate::modules::data::domain_value::{Expansion, Language, Localization, Race, Profession};
 
 #[derive(Debug)]
 pub struct Data {
@@ -12,6 +12,7 @@ pub struct Data {
   pub languages: HashMap<u8, Language>,
   pub localization: Vec<HashMap<u32, String>>,
   pub races: HashMap<u8, Race>,
+  pub professions: HashMap<u8, Profession>
 }
 
 impl Default for Data {
@@ -22,7 +23,8 @@ impl Default for Data {
       expansions: HashMap::new(),
       languages: HashMap::new(),
       localization: Vec::new(),
-      races: HashMap::new()
+      races: HashMap::new(),
+      professions: HashMap::new()
     }
   }
 }
@@ -37,6 +39,7 @@ impl Data {
     }
     self.localization.init(&self.db_main);
     self.races.init(&self.db_main);
+    self.professions.init(&self.db_main);
     self
   }
 }
@@ -88,6 +91,17 @@ impl Init for HashMap<u8, Race> {
   fn init(&mut self, db: &MySQLConnection) {
     db.select("SELECT * FROM data_race", &|mut row| {
       Race {
+        id: row.take(0).unwrap(),
+        localization_id: row.take(1).unwrap(),
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for HashMap<u8, Profession> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_profession", &|mut row| {
+      Profession {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
       }

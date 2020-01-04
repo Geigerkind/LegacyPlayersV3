@@ -64,7 +64,8 @@ fn main() {
     data::transfer::expansion::get_expansion, data::transfer::expansion::get_all_expansions,
     data::transfer::language::get_language, data::transfer::language::get_all_languages,
     data::transfer::localization::get_localization,
-    data::transfer::race::get_race, data::transfer::race::get_all_races
+    data::transfer::race::get_race, data::transfer::race::get_all_races,
+    data::transfer::profession::get_profession, data::transfer::profession::get_all_professions
   ]);
 
   igniter.launch();

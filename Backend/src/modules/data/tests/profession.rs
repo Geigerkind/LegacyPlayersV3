@@ -1,0 +1,22 @@
+#[cfg(test)]
+mod tests {
+  use crate::modules::data::Data;
+  use crate::modules::data::tools::RetrieveProfession;
+
+  #[test]
+  fn get_profession() {
+    let data = Data::default().init();
+    let profession = data.get_profession(1);
+    assert!(profession.is_some());
+    assert_eq!(profession.unwrap().id, 1);
+    let no_profession = data.get_profession(0);
+    assert!(no_profession.is_none());
+  }
+
+  #[test]
+  fn get_all_professions() {
+    let data = Data::default().init();
+    let professions = data.get_all_professions();
+    assert!(professions.len() > 0);
+  }
+}
