@@ -4,6 +4,7 @@ pub use self::localization::RetrieveLocalization;
 pub use self::race::RetrieveRace;
 pub use self::profession::RetrieveProfession;
 pub use self::server::RetrieveServer;
+pub use self::hero_class::RetrieveHeroClass;
 
 mod expansion;
 mod language;
@@ -11,3 +12,4 @@ mod localization;
 mod race;
 mod profession;
 mod server;
+mod hero_class;
