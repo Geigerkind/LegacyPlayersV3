@@ -57,9 +57,6 @@ impl Data {
     self.professions.init(&self.db_main);
     self.servers.init(&self.db_main);
     self.hero_classes.init(&self.db_main);
-    for _i in 0..self.expansions.len() {
-      self.spells.push(HashMap::new());
-    }
     self.spells.init(&self.db_main);
     self.dispel_types.init(&self.db_main);
     self.power_types.init(&self.db_main);
@@ -167,6 +164,7 @@ impl Init for HashMap<u8, HeroClass> {
 
 impl Init for Vec<HashMap<u32, Spell>> {
   fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
     db.select("SELECT * FROM data_spell ORDER BY expansion_id, id", &|mut row| {
       Spell {
         expansion_id: row.take(0).unwrap(),
@@ -187,6 +185,10 @@ impl Init for Vec<HashMap<u32, Spell>> {
         aura_localization_id: row.take(15).unwrap()
       }
     }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
       self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
   }
