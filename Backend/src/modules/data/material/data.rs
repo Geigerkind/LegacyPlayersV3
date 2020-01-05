@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType};
 
 #[derive(Debug)]
 pub struct Data {
@@ -18,6 +18,7 @@ pub struct Data {
   pub spells: Vec<HashMap<u32, Spell>>,
   pub dispel_types: HashMap<u8, DispelType>,
   pub power_types: HashMap<u8, PowerType>,
+  pub stat_types: HashMap<u8, StatType>,
 }
 
 impl Default for Data {
@@ -35,6 +36,7 @@ impl Default for Data {
       spells: Vec::new(),
       dispel_types: HashMap::new(),
       power_types: HashMap::new(),
+      stat_types: HashMap::new(),
     }
   }
 }
@@ -58,6 +60,7 @@ impl Data {
     self.spells.init(&self.db_main);
     self.dispel_types.init(&self.db_main);
     self.power_types.init(&self.db_main);
+    self.stat_types.init(&self.db_main);
     self
   }
 }
@@ -197,6 +200,17 @@ impl Init for HashMap<u8, PowerType> {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
         color: row.take(2).unwrap(),
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for HashMap<u8, StatType> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_stat_type", &|mut row| {
+      StatType {
+        id: row.take(0).unwrap(),
+        localization_id: row.take(1).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }

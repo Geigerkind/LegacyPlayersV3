@@ -8,3 +8,4 @@ mod hero_class;
 mod spell;
 mod dispel_type;
 mod power_type;
+mod stat_type;

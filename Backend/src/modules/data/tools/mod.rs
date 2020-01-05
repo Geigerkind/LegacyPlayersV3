@@ -8,6 +8,7 @@ pub use self::hero_class::RetrieveHeroClass;
 pub use self::spell::RetrieveSpell;
 pub use self::dispel_type::RetrieveDispelType;
 pub use self::power_type::RetrievePowerType;
+pub use self::stat_type::RetrieveStatType;
 
 mod expansion;
 mod language;
@@ -19,3 +20,4 @@ mod hero_class;
 mod spell;
 mod dispel_type;
 mod power_type;
+mod stat_type;
