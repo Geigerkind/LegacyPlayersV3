@@ -67,7 +67,8 @@ fn main() {
     data::transfer::race::get_race, data::transfer::race::get_all_races,
     data::transfer::profession::get_profession, data::transfer::profession::get_all_professions,
     data::transfer::server::get_server, data::transfer::server::get_all_servers,
-    data::transfer::hero_class::get_hero_class, data::transfer::hero_class::get_all_hero_classes
+    data::transfer::hero_class::get_hero_class, data::transfer::hero_class::get_all_hero_classes,
+    data::transfer::spell::get_spell
   ]);
 
   igniter.launch();

@@ -5,3 +5,4 @@ mod race;
 mod profession;
 mod server;
 mod hero_class;
+mod spell;
