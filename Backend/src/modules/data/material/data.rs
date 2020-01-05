@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType};
 
 #[derive(Debug)]
 pub struct Data {
@@ -16,6 +16,7 @@ pub struct Data {
   pub servers: HashMap<u32, Server>,
   pub hero_classes: HashMap<u8, HeroClass>,
   pub spells: Vec<HashMap<u32, Spell>>,
+  pub dispel_types: HashMap<u8, DispelType>,
 }
 
 impl Default for Data {
@@ -31,6 +32,7 @@ impl Default for Data {
       servers: HashMap::new(),
       hero_classes: HashMap::new(),
       spells: Vec::new(),
+      dispel_types: HashMap::new(),
     }
   }
 }
@@ -52,6 +54,7 @@ impl Data {
       self.spells.push(HashMap::new());
     }
     self.spells.init(&self.db_main);
+    self.dispel_types.init(&self.db_main);
     self
   }
 }
@@ -169,5 +172,17 @@ impl Init for Vec<HashMap<u32, Spell>> {
     }).iter().for_each(|result| {
       self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
+  }
+}
+
+impl Init for HashMap<u8, DispelType> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_spell_dispel_type", &|mut row| {
+      DispelType {
+        id: row.take(0).unwrap(),
+        localization_id: row.take(1).unwrap(),
+        color: row.take(2).unwrap(),
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
 }

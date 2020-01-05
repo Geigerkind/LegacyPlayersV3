@@ -6,6 +6,7 @@ pub use self::profession::RetrieveProfession;
 pub use self::server::RetrieveServer;
 pub use self::hero_class::RetrieveHeroClass;
 pub use self::spell::RetrieveSpell;
+pub use self::dispel_type::RetrieveDispelType;
 
 mod expansion;
 mod language;
@@ -15,3 +16,4 @@ mod profession;
 mod server;
 mod hero_class;
 mod spell;
+mod dispel_type;
