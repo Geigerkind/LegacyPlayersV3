@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_profession() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(5));
     let profession = data.get_profession(1);
     assert!(profession.is_some());
     assert_eq!(profession.unwrap().id, 1);
@@ -15,7 +15,7 @@ mod tests {
 
   #[test]
   fn get_all_professions() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(5));
     let professions = data.get_all_professions();
     assert!(professions.len() > 0);
   }

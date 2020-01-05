@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_race() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(4));
     let race = data.get_race(1);
     assert!(race.is_some());
     assert_eq!(race.unwrap().id, 1);
@@ -15,7 +15,7 @@ mod tests {
 
   #[test]
   fn get_all_races() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(4));
     let races = data.get_all_races();
     assert!(races.len() > 0);
   }

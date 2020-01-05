@@ -48,23 +48,29 @@ impl Default for Data {
 }
 
 impl Data {
-  pub fn init(mut self) -> Self
+  pub fn init(mut self, debug_collection: Option<u8>) -> Self
   {
-    self.expansions.init(&self.db_main);
-    self.languages.init(&self.db_main);
-    self.localization.init(&self.db_main);
-    self.races.init(&self.db_main);
-    self.professions.init(&self.db_main);
-    self.servers.init(&self.db_main);
-    self.hero_classes.init(&self.db_main);
-    self.spells.init(&self.db_main);
-    self.dispel_types.init(&self.db_main);
-    self.power_types.init(&self.db_main);
-    self.stat_types.init(&self.db_main);
-    self.spell_effects.init(&self.db_main);
-    self.npcs.init(&self.db_main);
-    self.icons.init(&self.db_main);
+    let init_flag = debug_collection.unwrap_or(0);
+
+    if self::Data::should_init(init_flag, 1) { self.expansions.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 2) { self.languages.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 3) { self.localization.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 4) { self.races.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 5) { self.professions.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 6) { self.servers.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 7) { self.hero_classes.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 8) { self.spells.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 9) { self.dispel_types.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 10) { self.power_types.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 11) { self.stat_types.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 12) { self.spell_effects.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 13) { self.npcs.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 14) { self.icons.init(&self.db_main); }
     self
+  }
+
+  fn should_init(init_flag: u8, trigger_flag: u8) -> bool {
+    return init_flag == 0 || init_flag == trigger_flag;
   }
 }
 

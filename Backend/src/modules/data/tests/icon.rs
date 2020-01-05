@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_icon() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(14));
     let icon = data.get_icon(1);
     assert!(icon.is_some());
     assert_eq!(icon.unwrap().id, 1);

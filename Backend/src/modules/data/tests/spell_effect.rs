@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_spell_effects() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(12));
     let spell_effects = data.get_spell_effects(1, 1);
     assert!(spell_effects.is_some());
     let spell_effects_vec = spell_effects.unwrap();

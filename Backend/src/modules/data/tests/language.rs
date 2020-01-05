@@ -4,8 +4,8 @@ mod tests {
   use crate::modules::data::tools::RetrieveLanguage;
 
   #[test]
-  fn get_expansion() {
-    let data = Data::default().init();
+  fn get_language() {
+    let data = Data::default().init(Some(2));
     let language = data.get_language(1);
     assert!(language.is_some());
     assert_eq!(language.unwrap().id, 1);
@@ -14,8 +14,8 @@ mod tests {
   }
 
   #[test]
-  fn get_all_expansions() {
-    let data = Data::default().init();
+  fn get_all_languages() {
+    let data = Data::default().init(Some(2));
     let languages = data.get_all_languages();
     assert!(languages.len() > 0);
   }

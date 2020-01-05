@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_localization() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(3));
     let localization = data.get_localization(1, 1);
     assert!(localization.is_some());
     let unwrapped_localization = localization.unwrap();

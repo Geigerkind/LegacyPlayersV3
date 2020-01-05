@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_spell() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(8));
     let spell = data.get_spell(1, 1);
     assert!(spell.is_some());
     let unpacked_spell = spell.unwrap();

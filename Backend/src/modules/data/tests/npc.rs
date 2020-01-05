@@ -5,7 +5,7 @@ mod tests {
 
   #[test]
   fn get_npc() {
-    let data = Data::default().init();
+    let data = Data::default().init(Some(13));
     let npc = data.get_npc(1, 1);
     assert!(npc.is_some());
     let unpacked_npc = npc.unwrap();
