@@ -7,6 +7,7 @@ pub use self::server::Server;
 pub use self::hero_class::HeroClass;
 pub use self::spell::Spell;
 pub use self::dispel_type::DispelType;
+pub use self::power_type::PowerType;
 
 mod expansion;
 mod language;
@@ -17,3 +18,4 @@ mod server;
 mod hero_class;
 mod spell;
 mod dispel_type;
+mod power_type;
