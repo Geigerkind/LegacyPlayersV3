@@ -10,7 +10,7 @@ pub struct Data {
   pub db_main: MySQLConnection,
   pub expansions: HashMap<u8, Expansion>,
   pub languages: HashMap<u8, Language>,
-  pub localization: Vec<HashMap<u32, String>>,
+  pub localization: Vec<HashMap<u32, Localization>>,
   pub races: HashMap<u8, Race>,
   pub professions: HashMap<u8, Profession>,
   pub servers: HashMap<u32, Server>,
@@ -52,9 +52,6 @@ impl Data {
   {
     self.expansions.init(&self.db_main);
     self.languages.init(&self.db_main);
-    for _i in 0..self.languages.len() {
-      self.localization.push(HashMap::new());
-    }
     self.localization.init(&self.db_main);
     self.races.init(&self.db_main);
     self.professions.init(&self.db_main);
@@ -103,16 +100,21 @@ impl Init for HashMap<u8, Language> {
   }
 }
 
-impl Init for Vec<HashMap<u32, String>> {
+impl Init for Vec<HashMap<u32, Localization>> {
   fn init(&mut self, db: &MySQLConnection) {
+    let mut last_language_id = 0;
     db.select("SELECT * FROM data_localization ORDER BY language_id, id", &|mut row| {
       Localization {
         language_id: row.take(0).unwrap(),
         id: row.take(1).unwrap(),
         content: row.take(2).unwrap(),
       }
-    }).iter().for_each(|localization| {
-      self.get_mut(localization.language_id as usize - 1).unwrap().insert(localization.id, localization.content.to_owned());
+    }).iter().for_each(|result| {
+      if result.language_id != last_language_id {
+        self.push(HashMap::new());
+        last_language_id = result.language_id;
+      }
+      self.get_mut(result.language_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
   }
 }
