@@ -73,6 +73,7 @@ fn main() {
     data::transfer::power_type::get_power_type, data::transfer::power_type::get_all_power_types,
     data::transfer::stat_type::get_stat_type, data::transfer::stat_type::get_all_stat_types,
     data::transfer::spell_effect::get_spell_effects,
+    data::transfer::npc::get_npc,
   ]);
 
   igniter.launch();

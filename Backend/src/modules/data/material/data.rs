@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC};
 
 #[derive(Debug)]
 pub struct Data {
@@ -20,6 +20,7 @@ pub struct Data {
   pub power_types: HashMap<u8, PowerType>,
   pub stat_types: HashMap<u8, StatType>,
   pub spell_effects: Vec<HashMap<u32, Vec<SpellEffect>>>,
+  pub npcs: Vec<HashMap<u32, NPC>>,
 }
 
 impl Default for Data {
@@ -39,6 +40,7 @@ impl Default for Data {
       power_types: HashMap::new(),
       stat_types: HashMap::new(),
       spell_effects: Vec::new(),
+      npcs: Vec::new(),
     }
   }
 }
@@ -64,6 +66,7 @@ impl Data {
     self.power_types.init(&self.db_main);
     self.stat_types.init(&self.db_main);
     self.spell_effects.init(&self.db_main);
+    self.npcs.init(&self.db_main);
     self
   }
 }
@@ -244,6 +247,28 @@ impl Init for Vec<HashMap<u32, Vec<SpellEffect>>> {
         last_spell_id = result.spell_id;
       }
       expansion_vec.get_mut(&result.spell_id).unwrap().push(result.to_owned());
+    });
+  }
+}
+
+impl Init for Vec<HashMap<u32, NPC>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    db.select("SELECT * FROM data_npc ORDER BY expansion_id, id", &|mut row| {
+      NPC {
+        expansion_id: row.take(0).unwrap(),
+        id: row.take(1).unwrap(),
+        localization_id: row.take(2).unwrap(),
+        is_boss: row.take(3).unwrap(),
+        friend: row.take(4).unwrap(),
+        family: row.take(5).unwrap(),
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
   }
 }

@@ -10,6 +10,7 @@ pub use self::dispel_type::RetrieveDispelType;
 pub use self::power_type::RetrievePowerType;
 pub use self::stat_type::RetrieveStatType;
 pub use self::spell_effect::RetrieveSpellEffect;
+pub use self::npc::RetrieveNPC;
 
 mod expansion;
 mod language;
@@ -23,3 +24,4 @@ mod dispel_type;
 mod power_type;
 mod stat_type;
 mod spell_effect;
+mod npc;
