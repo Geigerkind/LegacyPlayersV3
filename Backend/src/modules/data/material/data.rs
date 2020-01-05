@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon};
 
 #[derive(Debug)]
 pub struct Data {
@@ -21,6 +21,7 @@ pub struct Data {
   pub stat_types: HashMap<u8, StatType>,
   pub spell_effects: Vec<HashMap<u32, Vec<SpellEffect>>>,
   pub npcs: Vec<HashMap<u32, NPC>>,
+  pub icons: HashMap<u16, Icon>,
 }
 
 impl Default for Data {
@@ -41,6 +42,7 @@ impl Default for Data {
       stat_types: HashMap::new(),
       spell_effects: Vec::new(),
       npcs: Vec::new(),
+      icons: HashMap::new()
     }
   }
 }
@@ -67,6 +69,7 @@ impl Data {
     self.stat_types.init(&self.db_main);
     self.spell_effects.init(&self.db_main);
     self.npcs.init(&self.db_main);
+    self.icons.init(&self.db_main);
     self
   }
 }
@@ -269,6 +272,19 @@ impl Init for Vec<HashMap<u32, NPC>> {
         last_expansion_id = result.expansion_id;
       }
       self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
+    });
+  }
+}
+
+impl Init for HashMap<u16, Icon> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_icon ORDER BY id", &|mut row| {
+      Icon {
+        id: row.take(0).unwrap(),
+        name: row.take(1).unwrap(),
+      }
+    }).iter().for_each(|icon| {
+      self.insert(icon.id, icon.to_owned());
     });
   }
 }

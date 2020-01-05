@@ -11,6 +11,7 @@ pub use self::power_type::PowerType;
 pub use self::stat_type::StatType;
 pub use self::spell_effect::SpellEffect;
 pub use self::npc::NPC;
+pub use self::icon::Icon;
 
 mod expansion;
 mod language;
@@ -25,3 +26,4 @@ mod power_type;
 mod stat_type;
 mod spell_effect;
 mod npc;
+mod icon;

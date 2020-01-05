@@ -74,6 +74,7 @@ fn main() {
     data::transfer::stat_type::get_stat_type, data::transfer::stat_type::get_all_stat_types,
     data::transfer::spell_effect::get_spell_effects,
     data::transfer::npc::get_npc,
+    data::transfer::icon::get_icon,
   ]);
 
   igniter.launch();

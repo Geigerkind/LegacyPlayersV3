@@ -11,6 +11,7 @@ pub use self::power_type::RetrievePowerType;
 pub use self::stat_type::RetrieveStatType;
 pub use self::spell_effect::RetrieveSpellEffect;
 pub use self::npc::RetrieveNPC;
+pub use self::icon::RetrieveIcon;
 
 mod expansion;
 mod language;
@@ -25,3 +26,4 @@ mod power_type;
 mod stat_type;
 mod spell_effect;
 mod npc;
+mod icon;
