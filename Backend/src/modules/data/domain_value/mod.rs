@@ -12,6 +12,7 @@ pub use self::stat_type::StatType;
 pub use self::spell_effect::SpellEffect;
 pub use self::npc::NPC;
 pub use self::icon::Icon;
+pub use self::item::Item;
 
 mod expansion;
 mod language;
@@ -27,3 +28,4 @@ mod stat_type;
 mod spell_effect;
 mod npc;
 mod icon;
+mod item;

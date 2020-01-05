@@ -12,3 +12,4 @@ pub mod stat_type;
 pub mod spell_effect;
 pub mod npc;
 pub mod icon;
+pub mod item;

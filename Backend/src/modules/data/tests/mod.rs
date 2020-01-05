@@ -11,3 +11,4 @@ mod power_type;
 mod stat_type;
 mod spell_effect;
 mod icon;
+mod item;

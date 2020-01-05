@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item};
 
 #[derive(Debug)]
 pub struct Data {
@@ -22,6 +22,7 @@ pub struct Data {
   pub spell_effects: Vec<HashMap<u32, Vec<SpellEffect>>>,
   pub npcs: Vec<HashMap<u32, NPC>>,
   pub icons: HashMap<u16, Icon>,
+  pub items: Vec<HashMap<u32, Item>>,
 }
 
 impl Default for Data {
@@ -42,7 +43,8 @@ impl Default for Data {
       stat_types: HashMap::new(),
       spell_effects: Vec::new(),
       npcs: Vec::new(),
-      icons: HashMap::new()
+      icons: HashMap::new(),
+      items: Vec::new(),
     }
   }
 }
@@ -66,6 +68,7 @@ impl Data {
     if self::Data::should_init(init_flag, 12) { self.spell_effects.init(&self.db_main); }
     if self::Data::should_init(init_flag, 13) { self.npcs.init(&self.db_main); }
     if self::Data::should_init(init_flag, 14) { self.icons.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 15) { self.items.init(&self.db_main); }
     self
   }
 
@@ -295,6 +298,36 @@ impl Init for HashMap<u16, Icon> {
       }
     }).iter().for_each(|icon| {
       self.insert(icon.id, icon.to_owned());
+    });
+  }
+}
+
+impl Init for Vec<HashMap<u32, Item>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    db.select("SELECT * FROM data_item ORDER BY expansion_id, id", &|mut row| {
+      Item {
+        expansion_id: row.take(0).unwrap(),
+        id: row.take(1).unwrap(),
+        localization_id: row.take(2).unwrap(),
+        icon: row.take(3).unwrap(),
+        quality: row.take(4).unwrap(),
+        inventory_type: row.take(5).unwrap(),
+        class_id: row.take(6).unwrap(),
+        required_level: row.take(7).unwrap(),
+        bonding: row.take_opt(8).unwrap().ok(),
+        sheath: row.take_opt(9).unwrap().ok(),
+        itemset: row.take_opt(10).unwrap().ok(),
+        max_durability: row.take(11).unwrap(),
+        item_level: row.take(12).unwrap(),
+        delay: row.take(13).unwrap(),
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
   }
 }

@@ -12,6 +12,7 @@ pub use self::stat_type::RetrieveStatType;
 pub use self::spell_effect::RetrieveSpellEffect;
 pub use self::npc::RetrieveNPC;
 pub use self::icon::RetrieveIcon;
+pub use self::item::RetrieveItem;
 
 mod expansion;
 mod language;
@@ -27,3 +28,4 @@ mod stat_type;
 mod spell_effect;
 mod npc;
 mod icon;
+mod item;

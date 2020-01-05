@@ -75,6 +75,7 @@ fn main() {
     data::transfer::spell_effect::get_spell_effects,
     data::transfer::npc::get_npc,
     data::transfer::icon::get_icon,
+    data::transfer::item::get_item,
   ]);
 
   igniter.launch();
