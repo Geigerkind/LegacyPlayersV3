@@ -71,7 +71,8 @@ fn main() {
     data::transfer::spell::get_spell,
     data::transfer::dispel_type::get_dispel_type, data::transfer::dispel_type::get_all_dispel_types,
     data::transfer::power_type::get_power_type, data::transfer::power_type::get_all_power_types,
-    data::transfer::stat_type::get_stat_type, data::transfer::stat_type::get_all_stat_types
+    data::transfer::stat_type::get_stat_type, data::transfer::stat_type::get_all_stat_types,
+    data::transfer::spell_effect::get_spell_effects,
   ]);
 
   igniter.launch();

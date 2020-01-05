@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect};
 
 #[derive(Debug)]
 pub struct Data {
@@ -19,6 +19,7 @@ pub struct Data {
   pub dispel_types: HashMap<u8, DispelType>,
   pub power_types: HashMap<u8, PowerType>,
   pub stat_types: HashMap<u8, StatType>,
+  pub spell_effects: Vec<HashMap<u32, Vec<SpellEffect>>>,
 }
 
 impl Default for Data {
@@ -37,6 +38,7 @@ impl Default for Data {
       dispel_types: HashMap::new(),
       power_types: HashMap::new(),
       stat_types: HashMap::new(),
+      spell_effects: Vec::new(),
     }
   }
 }
@@ -61,6 +63,7 @@ impl Data {
     self.dispel_types.init(&self.db_main);
     self.power_types.init(&self.db_main);
     self.stat_types.init(&self.db_main);
+    self.spell_effects.init(&self.db_main);
     self
   }
 }
@@ -213,5 +216,34 @@ impl Init for HashMap<u8, StatType> {
         localization_id: row.take(1).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for Vec<HashMap<u32, Vec<SpellEffect>>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    let mut last_spell_id = 0;
+    db.select("SELECT * FROM data_spell_effect ORDER BY expansion_id, spell_id, id", &|mut row| {
+      SpellEffect {
+        id: row.take(0).unwrap(),
+        expansion_id: row.take(1).unwrap(),
+        spell_id: row.take(2).unwrap(),
+        points_lower: row.take(3).unwrap(),
+        points_upper: row.take(4).unwrap(),
+        chain_targets: row.take(5).unwrap(),
+        radius: row.take(6).unwrap(),
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      let expansion_vec = self.get_mut(result.expansion_id as usize - 1).unwrap();
+      if result.spell_id != last_spell_id {
+        expansion_vec.insert(result.spell_id, Vec::new());
+        last_spell_id = result.spell_id;
+      }
+      expansion_vec.get_mut(&result.spell_id).unwrap().push(result.to_owned());
+    });
   }
 }

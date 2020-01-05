@@ -9,3 +9,4 @@ mod spell;
 mod dispel_type;
 mod power_type;
 mod stat_type;
+mod spell_effect;

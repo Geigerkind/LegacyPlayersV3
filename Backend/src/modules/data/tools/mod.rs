@@ -9,6 +9,7 @@ pub use self::spell::RetrieveSpell;
 pub use self::dispel_type::RetrieveDispelType;
 pub use self::power_type::RetrievePowerType;
 pub use self::stat_type::RetrieveStatType;
+pub use self::spell_effect::RetrieveSpellEffect;
 
 mod expansion;
 mod language;
@@ -21,3 +22,4 @@ mod spell;
 mod dispel_type;
 mod power_type;
 mod stat_type;
+mod spell_effect;

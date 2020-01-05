@@ -9,3 +9,4 @@ pub mod spell;
 pub mod dispel_type;
 pub mod power_type;
 pub mod stat_type;
+pub mod spell_effect;
