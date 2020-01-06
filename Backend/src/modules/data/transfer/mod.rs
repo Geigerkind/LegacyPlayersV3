@@ -13,3 +13,4 @@ pub mod spell_effect;
 pub mod npc;
 pub mod icon;
 pub mod item;
+pub mod gem;

@@ -12,3 +12,4 @@ mod stat_type;
 mod spell_effect;
 mod icon;
 mod item;
+mod gem;

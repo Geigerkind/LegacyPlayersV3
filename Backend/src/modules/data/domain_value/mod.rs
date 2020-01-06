@@ -13,6 +13,7 @@ pub use self::spell_effect::SpellEffect;
 pub use self::npc::NPC;
 pub use self::icon::Icon;
 pub use self::item::Item;
+pub use self::gem::Gem;
 
 mod expansion;
 mod language;
@@ -29,3 +30,4 @@ mod spell_effect;
 mod npc;
 mod icon;
 mod item;
+mod gem;

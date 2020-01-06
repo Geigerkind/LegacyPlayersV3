@@ -13,6 +13,7 @@ pub use self::spell_effect::RetrieveSpellEffect;
 pub use self::npc::RetrieveNPC;
 pub use self::icon::RetrieveIcon;
 pub use self::item::RetrieveItem;
+pub use self::gem::RetrieveGem;
 
 mod expansion;
 mod language;
@@ -29,3 +30,4 @@ mod spell_effect;
 mod npc;
 mod icon;
 mod item;
+mod gem;

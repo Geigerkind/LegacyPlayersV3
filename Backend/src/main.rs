@@ -76,6 +76,7 @@ fn main() {
     data::transfer::npc::get_npc,
     data::transfer::icon::get_icon,
     data::transfer::item::get_item,
+    data::transfer::gem::get_gem,
   ]);
 
   igniter.launch();
