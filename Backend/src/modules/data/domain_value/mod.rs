@@ -14,6 +14,7 @@ pub use self::npc::NPC;
 pub use self::icon::Icon;
 pub use self::item::Item;
 pub use self::gem::Gem;
+pub use self::stat::Stat;
 
 mod expansion;
 mod language;
@@ -31,3 +32,4 @@ mod npc;
 mod icon;
 mod item;
 mod gem;
+mod stat;

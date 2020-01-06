@@ -14,6 +14,7 @@ pub use self::npc::RetrieveNPC;
 pub use self::icon::RetrieveIcon;
 pub use self::item::RetrieveItem;
 pub use self::gem::RetrieveGem;
+pub use self::enchant::RetrieveEnchant;
 
 mod expansion;
 mod language;
@@ -31,3 +32,4 @@ mod npc;
 mod icon;
 mod item;
 mod gem;
+mod enchant;

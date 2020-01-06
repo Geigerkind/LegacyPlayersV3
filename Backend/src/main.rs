@@ -77,6 +77,7 @@ fn main() {
     data::transfer::icon::get_icon,
     data::transfer::item::get_item,
     data::transfer::gem::get_gem,
+    data::transfer::enchant::get_enchant,
   ]);
 
   igniter.launch();

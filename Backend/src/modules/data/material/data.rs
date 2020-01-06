@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat};
+use crate::modules::data::material::Enchant;
 
 #[derive(Debug)]
 pub struct Data {
@@ -24,6 +25,7 @@ pub struct Data {
   pub icons: HashMap<u16, Icon>,
   pub items: Vec<HashMap<u32, Item>>,
   pub gems: Vec<HashMap<u32, Gem>>,
+  pub enchants: Vec<HashMap<u32, Enchant>>,
 }
 
 impl Default for Data {
@@ -47,6 +49,7 @@ impl Default for Data {
       icons: HashMap::new(),
       items: Vec::new(),
       gems: Vec::new(),
+      enchants: Vec::new(),
     }
   }
 }
@@ -72,6 +75,7 @@ impl Data {
     if self::Data::should_init(init_flag, 14) { self.icons.init(&self.db_main); }
     if self::Data::should_init(init_flag, 15) { self.items.init(&self.db_main); }
     if self::Data::should_init(init_flag, 16) { self.gems.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 17) { self.enchants.init(&self.db_main); }
     self
   }
 
@@ -351,6 +355,38 @@ impl Init for Vec<HashMap<u32, Gem>> {
         last_expansion_id = result.expansion_id;
       }
       self.get_mut(result.expansion_id as usize - 2).unwrap().insert(result.item_id, result.to_owned());
+    });
+  }
+}
+
+impl Init for Vec<HashMap<u32, Enchant>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    db.select("SELECT * FROM data_enchant ORDER BY expansion_id, id", &|mut row| {
+      let mut stats = Vec::new();
+      for i in (3..8).step_by(2) {
+        let stat_type = row.take_opt(i).unwrap().ok();
+        let stat_value = row.take_opt(i+1).unwrap().ok();
+        if stat_type.is_none() {
+          break;
+        }
+        stats.push(Stat {
+          stat_type: stat_type.unwrap(),
+          stat_value: stat_value.unwrap()
+        });
+      }
+      Enchant {
+        expansion_id: row.take(0).unwrap(),
+        id: row.take(1).unwrap(),
+        localization_id: row.take(2).unwrap(),
+        stats
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
   }
 }

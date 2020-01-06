@@ -13,3 +13,4 @@ mod spell_effect;
 mod icon;
 mod item;
 mod gem;
+mod enchant;

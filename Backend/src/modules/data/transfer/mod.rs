@@ -14,3 +14,4 @@ pub mod npc;
 pub mod icon;
 pub mod item;
 pub mod gem;
+pub mod enchant;
