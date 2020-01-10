@@ -26,6 +26,7 @@ pub use self::item_random_property::ItemRandomProperty;
 pub use self::item_sheath::ItemSheath;
 pub use self::item_socket::ItemSocket;
 pub use self::itemset_name::ItemsetName;
+pub use self::itemset_effect::ItemsetEffect;
 
 mod expansion;
 mod language;
@@ -55,3 +56,4 @@ mod item_random_property;
 mod item_sheath;
 mod item_socket;
 mod itemset_name;
+mod itemset_effect;

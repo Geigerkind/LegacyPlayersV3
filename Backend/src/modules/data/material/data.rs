@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath, ItemSocket, ItemsetName};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath, ItemSocket, ItemsetName, ItemsetEffect};
 use crate::modules::data::material::{Enchant, ItemStat};
 
 #[derive(Debug)]
@@ -38,6 +38,7 @@ pub struct Data {
   pub item_sockets: Vec<HashMap<u32, ItemSocket>>,
   pub item_stats: Vec<HashMap<u32, Vec<ItemStat>>>,
   pub itemset_names: Vec<HashMap<u16, ItemsetName>>,
+  pub itemset_effects: Vec<HashMap<u16, Vec<ItemsetEffect>>>,
 }
 
 impl Default for Data {
@@ -74,6 +75,7 @@ impl Default for Data {
       item_sockets: Vec::new(),
       item_stats: Vec::new(),
       itemset_names: Vec::new(),
+      itemset_effects: Vec::new(),
     }
   }
 }
@@ -112,6 +114,7 @@ impl Data {
     if self::Data::should_init(init_flag, 27) { self.item_sockets.init(&self.db_main); }
     if self::Data::should_init(init_flag, 28) { self.item_stats.init(&self.db_main); }
     if self::Data::should_init(init_flag, 29) { self.itemset_names.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 30) { self.itemset_effects.init(&self.db_main); }
     self
   }
 
@@ -636,6 +639,33 @@ impl Init for Vec<HashMap<u16, ItemsetName>> {
         last_expansion_id = result.expansion_id;
       }
       self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
+    });
+  }
+}
+
+impl Init for Vec<HashMap<u16, Vec<ItemsetEffect>>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    let mut last_itemset_id = 0;
+    db.select("SELECT * FROM data_itemset_effect ORDER BY expansion_id, itemset_id, id", &|mut row| {
+      ItemsetEffect {
+        id: row.take(0).unwrap(),
+        expansion_id: row.take(1).unwrap(),
+        itemset_id: row.take(2).unwrap(),
+        threshold: row.take(3).unwrap(),
+        spell_id: row.take(4).unwrap(),
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      let expansion_vec = self.get_mut(result.expansion_id as usize - 1).unwrap();
+      if result.itemset_id != last_itemset_id {
+        expansion_vec.insert(result.itemset_id, Vec::new());
+        last_itemset_id = result.itemset_id;
+      }
+      expansion_vec.get_mut(&result.itemset_id).unwrap().push(result.to_owned());
     });
   }
 }

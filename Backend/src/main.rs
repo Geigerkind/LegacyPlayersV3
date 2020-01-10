@@ -90,6 +90,7 @@ fn main() {
     data::transfer::item_socket::get_item_socket,
     data::transfer::item_stat::get_item_stats,
     data::transfer::itemset_name::get_itemset_name,
+    data::transfer::itemset_effect::get_itemset_effects,
   ]);
 
   igniter.launch();

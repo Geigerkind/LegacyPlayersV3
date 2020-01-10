@@ -27,6 +27,7 @@ pub use self::item_sheath::RetrieveItemSheath;
 pub use self::item_socket::RetrieveItemSocket;
 pub use self::item_stat::RetrieveItemStat;
 pub use self::itemset_name::RetrieveItemsetName;
+pub use self::itemset_effect::RetrieveItemsetEffect;
 
 mod expansion;
 mod language;
@@ -57,3 +58,4 @@ mod item_sheath;
 mod item_socket;
 mod item_stat;
 mod itemset_name;
+mod itemset_effect;
