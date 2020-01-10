@@ -88,6 +88,7 @@ fn main() {
     data::transfer::item_random_property::get_item_random_property,
     data::transfer::item_sheath::get_item_sheath, data::transfer::item_sheath::get_all_item_sheaths,
     data::transfer::item_socket::get_item_socket,
+    data::transfer::item_stat::get_item_stats,
   ]);
 
   igniter.launch();

@@ -25,3 +25,4 @@ mod item_quality;
 mod item_random_property;
 mod item_sheath;
 mod item_socket;
+mod item_stat;
