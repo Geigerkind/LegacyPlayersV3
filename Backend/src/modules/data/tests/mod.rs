@@ -18,3 +18,4 @@ mod item_bonding;
 mod item_class;
 mod item_damage;
 mod npc;
+mod item_damage_type;

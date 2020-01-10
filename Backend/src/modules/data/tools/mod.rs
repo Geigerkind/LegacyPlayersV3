@@ -18,6 +18,7 @@ pub use self::enchant::RetrieveEnchant;
 pub use self::item_bonding::RetrieveItemBonding;
 pub use self::item_class::RetrieveItemClass;
 pub use self::item_damage::RetrieveItemDamage;
+pub use self::item_damage_type::RetrieveItemDamageType;
 
 mod expansion;
 mod language;
@@ -39,3 +40,4 @@ mod enchant;
 mod item_bonding;
 mod item_class;
 mod item_damage;
+mod item_damage_type;

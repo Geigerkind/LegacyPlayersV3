@@ -81,6 +81,7 @@ fn main() {
     data::transfer::item_bonding::get_item_bonding, data::transfer::item_bonding::get_all_item_bondings,
     data::transfer::item_class::get_item_class, data::transfer::item_class::get_all_item_classes,
     data::transfer::item_damage::get_item_damage,
+    data::transfer::item_damage_type::get_item_damage_type, data::transfer::item_damage_type::get_all_item_damage_types,
   ]);
 
   igniter.launch();

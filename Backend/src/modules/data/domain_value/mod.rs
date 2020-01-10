@@ -18,6 +18,7 @@ pub use self::stat::Stat;
 pub use self::item_bonding::ItemBonding;
 pub use self::item_class::ItemClass;
 pub use self::item_damage::ItemDamage;
+pub use self::item_damage_type::ItemDamageType;
 
 mod expansion;
 mod language;
@@ -39,3 +40,4 @@ mod stat;
 mod item_bonding;
 mod item_class;
 mod item_damage;
+mod item_damage_type;
