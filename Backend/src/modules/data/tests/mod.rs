@@ -20,3 +20,4 @@ mod item_damage;
 mod npc;
 mod item_damage_type;
 mod item_effect;
+mod item_inventory_type;

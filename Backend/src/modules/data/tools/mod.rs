@@ -20,6 +20,7 @@ pub use self::item_class::RetrieveItemClass;
 pub use self::item_damage::RetrieveItemDamage;
 pub use self::item_damage_type::RetrieveItemDamageType;
 pub use self::item_effect::RetrieveItemEffect;
+pub use self::item_inventory_type::RetrieveItemInventoryType;
 
 mod expansion;
 mod language;
@@ -43,3 +44,4 @@ mod item_class;
 mod item_damage;
 mod item_damage_type;
 mod item_effect;
+mod item_inventory_type;
