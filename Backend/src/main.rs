@@ -82,6 +82,7 @@ fn main() {
     data::transfer::item_class::get_item_class, data::transfer::item_class::get_all_item_classes,
     data::transfer::item_damage::get_item_damage,
     data::transfer::item_damage_type::get_item_damage_type, data::transfer::item_damage_type::get_all_item_damage_types,
+    data::transfer::item_effect::get_item_effect,
   ]);
 
   igniter.launch();

@@ -19,3 +19,4 @@ mod item_class;
 mod item_damage;
 mod npc;
 mod item_damage_type;
+mod item_effect;
