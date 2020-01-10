@@ -24,6 +24,7 @@ pub use self::item_inventory_type::ItemInventoryType;
 pub use self::item_quality::ItemQuality;
 pub use self::item_random_property::ItemRandomProperty;
 pub use self::item_sheath::ItemSheath;
+pub use self::item_socket::ItemSocket;
 
 mod expansion;
 mod language;
@@ -51,3 +52,4 @@ mod item_inventory_type;
 mod item_quality;
 mod item_random_property;
 mod item_sheath;
+mod item_socket;
