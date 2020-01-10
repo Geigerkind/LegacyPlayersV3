@@ -26,3 +26,4 @@ pub mod item_random_property;
 pub mod item_sheath;
 pub mod item_socket;
 pub mod item_stat;
+pub mod itemset_name;

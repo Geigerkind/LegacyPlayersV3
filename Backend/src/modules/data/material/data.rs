@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath, ItemSocket};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath, ItemSocket, ItemsetName};
 use crate::modules::data::material::{Enchant, ItemStat};
 
 #[derive(Debug)]
@@ -37,6 +37,7 @@ pub struct Data {
   pub item_sheaths: HashMap<u8, ItemSheath>,
   pub item_sockets: Vec<HashMap<u32, ItemSocket>>,
   pub item_stats: Vec<HashMap<u32, Vec<ItemStat>>>,
+  pub itemset_names: Vec<HashMap<u16, ItemsetName>>,
 }
 
 impl Default for Data {
@@ -72,6 +73,7 @@ impl Default for Data {
       item_sheaths: HashMap::new(),
       item_sockets: Vec::new(),
       item_stats: Vec::new(),
+      itemset_names: Vec::new(),
     }
   }
 }
@@ -109,6 +111,7 @@ impl Data {
     if self::Data::should_init(init_flag, 26) { self.item_sheaths.init(&self.db_main); }
     if self::Data::should_init(init_flag, 27) { self.item_sockets.init(&self.db_main); }
     if self::Data::should_init(init_flag, 28) { self.item_stats.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 29) { self.itemset_names.init(&self.db_main); }
     self
   }
 
@@ -614,6 +617,25 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
         last_item_id = result.item_id;
       }
       expansion_vec.get_mut(&result.item_id).unwrap().push(result.to_owned());
+    });
+  }
+}
+
+impl Init for Vec<HashMap<u16, ItemsetName>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    db.select("SELECT * FROM data_itemset_name ORDER BY expansion_id, id", &|mut row| {
+      ItemsetName {
+        expansion_id: row.take(0).unwrap(),
+        id: row.take(1).unwrap(),
+        localization_id: row.take(2).unwrap()
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
   }
 }
