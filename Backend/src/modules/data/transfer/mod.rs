@@ -17,3 +17,4 @@ pub mod gem;
 pub mod enchant;
 pub mod item_bonding;
 pub mod item_class;
+pub mod item_damage;

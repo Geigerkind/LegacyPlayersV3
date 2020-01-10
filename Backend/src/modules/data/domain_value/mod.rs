@@ -17,6 +17,7 @@ pub use self::gem::Gem;
 pub use self::stat::Stat;
 pub use self::item_bonding::ItemBonding;
 pub use self::item_class::ItemClass;
+pub use self::item_damage::ItemDamage;
 
 mod expansion;
 mod language;
@@ -37,3 +38,4 @@ mod gem;
 mod stat;
 mod item_bonding;
 mod item_class;
+mod item_damage;
