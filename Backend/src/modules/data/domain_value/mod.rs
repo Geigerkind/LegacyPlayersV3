@@ -21,6 +21,7 @@ pub use self::item_damage::ItemDamage;
 pub use self::item_damage_type::ItemDamageType;
 pub use self::item_effect::ItemEffect;
 pub use self::item_inventory_type::ItemInventoryType;
+pub use self::item_quality::ItemQuality;
 
 mod expansion;
 mod language;
@@ -45,3 +46,4 @@ mod item_damage;
 mod item_damage_type;
 mod item_effect;
 mod item_inventory_type;
+mod item_quality;
