@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass};
 use crate::modules::data::material::Enchant;
 
 #[derive(Debug)]
@@ -27,6 +27,7 @@ pub struct Data {
   pub gems: Vec<HashMap<u32, Gem>>,
   pub enchants: Vec<HashMap<u32, Enchant>>,
   pub item_bondings: HashMap<u8, ItemBonding>,
+  pub item_classes: HashMap<u8, ItemClass>,
 }
 
 impl Default for Data {
@@ -52,6 +53,7 @@ impl Default for Data {
       gems: Vec::new(),
       enchants: Vec::new(),
       item_bondings: HashMap::new(),
+      item_classes: HashMap::new(),
     }
   }
 }
@@ -79,6 +81,7 @@ impl Data {
     if self::Data::should_init(init_flag, 16) { self.gems.init(&self.db_main); }
     if self::Data::should_init(init_flag, 17) { self.enchants.init(&self.db_main); }
     if self::Data::should_init(init_flag, 18) { self.item_bondings.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 19) { self.item_classes.init(&self.db_main); }
     self
   }
 
@@ -400,6 +403,19 @@ impl Init for HashMap<u8, ItemBonding> {
       ItemBonding {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for HashMap<u8, ItemClass> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_item_class", &|mut row| {
+      ItemClass {
+        id: row.take(0).unwrap(),
+        item_class: row.take(1).unwrap(),
+        item_sub_class: row.take(2).unwrap(),
+        localization_id: row.take(3).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }

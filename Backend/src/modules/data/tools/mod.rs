@@ -16,6 +16,7 @@ pub use self::item::RetrieveItem;
 pub use self::gem::RetrieveGem;
 pub use self::enchant::RetrieveEnchant;
 pub use self::item_bonding::RetrieveItemBonding;
+pub use self::item_class::RetrieveItemClass;
 
 mod expansion;
 mod language;
@@ -35,3 +36,4 @@ mod item;
 mod gem;
 mod enchant;
 mod item_bonding;
+mod item_class;

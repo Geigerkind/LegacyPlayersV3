@@ -15,3 +15,4 @@ mod item;
 mod gem;
 mod enchant;
 mod item_bonding;
+mod item_class;
