@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath};
 use crate::modules::data::material::Enchant;
 
 #[derive(Debug)]
@@ -33,7 +33,8 @@ pub struct Data {
   pub item_effects: Vec<HashMap<u32, ItemEffect>>,
   pub item_inventory_types: HashMap<u8, ItemInventoryType>,
   pub item_qualities: HashMap<u8, ItemQuality>,
-  pub item_random_properties: Vec<HashMap<u32, ItemRandomProperty>>
+  pub item_random_properties: Vec<HashMap<u32, ItemRandomProperty>>,
+  pub item_sheaths: HashMap<u8, ItemSheath>,
 }
 
 impl Default for Data {
@@ -66,6 +67,7 @@ impl Default for Data {
       item_inventory_types: HashMap::new(),
       item_qualities: HashMap::new(),
       item_random_properties: Vec::new(),
+      item_sheaths: HashMap::new(),
     }
   }
 }
@@ -100,6 +102,7 @@ impl Data {
     if self::Data::should_init(init_flag, 23) { self.item_inventory_types.init(&self.db_main); }
     if self::Data::should_init(init_flag, 24) { self.item_qualities.init(&self.db_main); }
     if self::Data::should_init(init_flag, 25) { self.item_random_properties.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 26) { self.item_sheaths.init(&self.db_main); }
     self
   }
 
@@ -539,5 +542,16 @@ impl Init for Vec<HashMap<u32, ItemRandomProperty>> {
       }
       self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
     });
+  }
+}
+
+impl Init for HashMap<u8, ItemSheath> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_item_sheath", &|mut row| {
+      ItemSheath {
+        id: row.take(0).unwrap(),
+        localization_id: row.take(1).unwrap(),
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
 }

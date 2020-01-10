@@ -86,6 +86,7 @@ fn main() {
     data::transfer::item_inventory_type::get_item_inventory_type, data::transfer::item_inventory_type::get_all_item_inventory_types,
     data::transfer::item_quality::get_item_quality, data::transfer::item_quality::get_all_item_qualities,
     data::transfer::item_random_property::get_item_random_property,
+    data::transfer::item_sheath::get_item_sheath, data::transfer::item_sheath::get_all_item_sheaths,
   ]);
 
   igniter.launch();

@@ -23,6 +23,7 @@ pub use self::item_effect::ItemEffect;
 pub use self::item_inventory_type::ItemInventoryType;
 pub use self::item_quality::ItemQuality;
 pub use self::item_random_property::ItemRandomProperty;
+pub use self::item_sheath::ItemSheath;
 
 mod expansion;
 mod language;
@@ -49,3 +50,4 @@ mod item_effect;
 mod item_inventory_type;
 mod item_quality;
 mod item_random_property;
+mod item_sheath;
