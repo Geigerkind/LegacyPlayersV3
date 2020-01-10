@@ -15,6 +15,7 @@ pub use self::icon::RetrieveIcon;
 pub use self::item::RetrieveItem;
 pub use self::gem::RetrieveGem;
 pub use self::enchant::RetrieveEnchant;
+pub use self::item_bonding::RetrieveItemBonding;
 
 mod expansion;
 mod language;
@@ -33,3 +34,4 @@ mod icon;
 mod item;
 mod gem;
 mod enchant;
+mod item_bonding;

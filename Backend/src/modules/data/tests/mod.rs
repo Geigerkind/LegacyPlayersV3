@@ -14,3 +14,4 @@ mod icon;
 mod item;
 mod gem;
 mod enchant;
+mod item_bonding;

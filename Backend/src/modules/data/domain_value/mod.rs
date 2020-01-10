@@ -15,6 +15,7 @@ pub use self::icon::Icon;
 pub use self::item::Item;
 pub use self::gem::Gem;
 pub use self::stat::Stat;
+pub use self::item_bonding::ItemBonding;
 
 mod expansion;
 mod language;
@@ -33,3 +34,4 @@ mod icon;
 mod item;
 mod gem;
 mod stat;
+mod item_bonding;

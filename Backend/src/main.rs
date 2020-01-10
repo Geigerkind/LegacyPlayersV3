@@ -78,6 +78,7 @@ fn main() {
     data::transfer::item::get_item,
     data::transfer::gem::get_gem,
     data::transfer::enchant::get_enchant,
+    data::transfer::item_bonding::get_item_bonding, data::transfer::item_bonding::get_all_item_bondings,
   ]);
 
   igniter.launch();
