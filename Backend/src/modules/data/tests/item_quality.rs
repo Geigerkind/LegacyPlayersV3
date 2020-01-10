@@ -14,7 +14,7 @@ mod tests {
   }
 
   #[test]
-  fn get_all_item_qualitys() {
+  fn get_all_item_qualities() {
     let data = Data::default().init(Some(24));
     let item_qualities = data.get_all_item_qualities();
     assert!(item_qualities.len() > 0);
