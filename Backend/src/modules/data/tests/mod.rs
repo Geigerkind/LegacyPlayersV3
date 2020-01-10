@@ -22,3 +22,4 @@ mod item_damage_type;
 mod item_effect;
 mod item_inventory_type;
 mod item_quality;
+mod item_random_property;

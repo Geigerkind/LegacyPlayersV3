@@ -22,3 +22,4 @@ pub mod item_damage_type;
 pub mod item_effect;
 pub mod item_inventory_type;
 pub mod item_quality;
+pub mod item_random_property;

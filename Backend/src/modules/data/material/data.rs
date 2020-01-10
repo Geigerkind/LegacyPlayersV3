@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty};
 use crate::modules::data::material::Enchant;
 
 #[derive(Debug)]
@@ -33,6 +33,7 @@ pub struct Data {
   pub item_effects: Vec<HashMap<u32, ItemEffect>>,
   pub item_inventory_types: HashMap<u8, ItemInventoryType>,
   pub item_qualities: HashMap<u8, ItemQuality>,
+  pub item_random_properties: Vec<HashMap<u32, ItemRandomProperty>>
 }
 
 impl Default for Data {
@@ -64,6 +65,7 @@ impl Default for Data {
       item_effects: Vec::new(),
       item_inventory_types: HashMap::new(),
       item_qualities: HashMap::new(),
+      item_random_properties: Vec::new(),
     }
   }
 }
@@ -97,6 +99,7 @@ impl Data {
     if self::Data::should_init(init_flag, 22) { self.item_effects.init(&self.db_main); }
     if self::Data::should_init(init_flag, 23) { self.item_inventory_types.init(&self.db_main); }
     if self::Data::should_init(init_flag, 24) { self.item_qualities.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 25) { self.item_random_properties.init(&self.db_main); }
     self
   }
 
@@ -509,5 +512,32 @@ impl Init for HashMap<u8, ItemQuality> {
         color: row.take(2).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for Vec<HashMap<u32, ItemRandomProperty>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut last_expansion_id = 0;
+    db.select("SELECT * FROM data_item_random_property ORDER BY expansion_id, id", &|mut row| {
+      let mut enchant_ids = Vec::new();
+      for i in 3..8 {
+        let enchant_id = row.take_opt(i).unwrap().ok();
+        if enchant_id.is_some() {
+          enchant_ids.push(enchant_id.unwrap());
+        }
+      }
+      ItemRandomProperty {
+        expansion_id: row.take(0).unwrap(),
+        id: row.take(1).unwrap(),
+        localization_id: row.take(2).unwrap(),
+        enchant_ids
+      }
+    }).iter().for_each(|result| {
+      if result.expansion_id != last_expansion_id {
+        self.push(HashMap::new());
+        last_expansion_id = result.expansion_id;
+      }
+      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
+    });
   }
 }

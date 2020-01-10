@@ -22,6 +22,7 @@ pub use self::item_damage_type::RetrieveItemDamageType;
 pub use self::item_effect::RetrieveItemEffect;
 pub use self::item_inventory_type::RetrieveItemInventoryType;
 pub use self::item_quality::RetrieveItemQuality;
+pub use self::item_random_property::RetrieveItemRandomProperty;
 
 mod expansion;
 mod language;
@@ -47,3 +48,4 @@ mod item_damage_type;
 mod item_effect;
 mod item_inventory_type;
 mod item_quality;
+mod item_random_property;
