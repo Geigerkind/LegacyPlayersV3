@@ -28,7 +28,7 @@ pub enum Failure {
   TokenPurposeLength,
 
   /* Armory */
-  InvalidUID,
+  InvalidInput,
 
   Unknown,
 }
@@ -57,7 +57,7 @@ impl Responder<'static> for Failure {
       Failure::TokenPurposeLength => Status::new(533, ""),
 
       /* Armory */
-      Failure::InvalidUID => Status::new(534, "Invalid UID"),
+      Failure::InvalidInput => Status::new(534, "Invalid UID"),
 
       Failure::Unknown => Status::new(599, ""),
     };
