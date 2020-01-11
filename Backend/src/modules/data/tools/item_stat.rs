@@ -1,5 +1,5 @@
 use crate::modules::data::Data;
-use crate::modules::data::material::ItemStat;
+use crate::modules::data::domain_value::ItemStat;
 
 pub trait RetrieveItemStat {
   fn get_item_stats(&self, expansion_id: u8, item_id: u32) -> Option<Vec<ItemStat>>;

@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath, ItemSocket, ItemsetName, ItemsetEffect};
-use crate::modules::data::material::{Enchant, ItemStat};
+use crate::modules::data::domain_value::{Expansion, HeroClass, Language, Localization, Profession, Race, Server, Spell, DispelType, PowerType, StatType, SpellEffect, NPC, Icon, Item, Gem, Stat, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemSheath, ItemSocket, ItemsetName, ItemsetEffect, Enchant, ItemStat};
 
 #[derive(Debug)]
 pub struct Data {

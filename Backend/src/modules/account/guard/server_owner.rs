@@ -1,4 +1,4 @@
-use okapi::openapi3::{Parameter, ParameterValue, Responses, Server};
+use okapi::openapi3::{Parameter, ParameterValue, Responses};
 use rocket::http::Status;
 use rocket::outcome::Outcome::*;
 use rocket::request::{self, FromRequest, Request, State};

@@ -2,7 +2,7 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
-use crate::modules::data::material::Enchant;
+use crate::modules::data::domain_value::Enchant;
 use crate::modules::data::tools::RetrieveEnchant;
 
 #[openapi]

@@ -1,4 +1,4 @@
-use crate::modules::armory::material::CharacterInfo;
+use crate::modules::armory::domain_value::CharacterInfo;
 
 #[derive(Debug)]
 pub struct CharacterHistory {

@@ -1,5 +1,5 @@
 use crate::modules::data::Data;
-use crate::modules::data::material::Enchant;
+use crate::modules::data::domain_value::Enchant;
 
 pub trait RetrieveEnchant {
   fn get_enchant(&self, expansion_id: u8, enchant_id: u32) -> Option<Enchant>;

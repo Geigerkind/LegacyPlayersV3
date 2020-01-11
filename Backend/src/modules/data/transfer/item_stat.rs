@@ -3,7 +3,7 @@ use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
 use crate::modules::data::tools::RetrieveItemStat;
-use crate::modules::data::material::ItemStat;
+use crate::modules::data::domain_value::ItemStat;
 
 #[openapi]
 #[get("/item_stat/<expansion_id>/<item_id>")]

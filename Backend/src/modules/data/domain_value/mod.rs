@@ -27,6 +27,8 @@ pub use self::item_sheath::ItemSheath;
 pub use self::item_socket::ItemSocket;
 pub use self::itemset_name::ItemsetName;
 pub use self::itemset_effect::ItemsetEffect;
+pub use self::enchant::Enchant;
+pub use self::item_stat::ItemStat;
 
 mod expansion;
 mod language;
@@ -57,3 +59,5 @@ mod item_sheath;
 mod item_socket;
 mod itemset_name;
 mod itemset_effect;
+mod enchant;
+mod item_stat;

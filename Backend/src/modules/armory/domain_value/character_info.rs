@@ -1,4 +1,4 @@
-use crate::modules::armory::material::Gear;
+use crate::modules::armory::domain_value::Gear;
 
 #[derive(Debug)]
 pub struct CharacterInfo {
