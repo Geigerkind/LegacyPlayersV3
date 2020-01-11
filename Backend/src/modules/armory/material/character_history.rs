@@ -1,6 +1,6 @@
 use crate::modules::armory::domain_value::CharacterInfo;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 pub struct CharacterHistory {
   pub id: u32,
   pub character_id: u32,

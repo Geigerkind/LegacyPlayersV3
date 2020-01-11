@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 pub struct CharacterItem {
   pub id: u32,
   pub item_id: u32,
