@@ -26,21 +26,23 @@ impl SetCharacterHistory for Armory {
     let character_id = character_id_res.unwrap();
     let guild_id = update_character_history.guild_name.as_ref().and_then(|guild_name| self.get_guild_id_by_name(server_id, guild_name.clone()));
 
-    // Check whether this is a new entry or just the same as previously
-    let mut characters = self.characters.write().unwrap();
-    let character = characters.get_mut(&character_id).unwrap();
+    { // Check whether this is a new entry or just the same as previously
+      let mut characters = self.characters.write().unwrap();
+      let character = characters.get_mut(&character_id).unwrap();
 
-    if character.last_update.is_some() {
-      let mut last_update = character.last_update.as_mut().unwrap();
-      if last_update.guild_id == guild_id
-        && last_update.guild_rank == update_character_history.guild_rank
-        && last_update.character_name == update_character_history.character_name
-        && last_update.character_info.compare_by_value(&update_character_history.character_info)
-      {
-        last_update.timestamp = time_util::now();
-        return Ok(last_update.clone());
+      if character.last_update.is_some() {
+        let mut last_update = character.last_update.as_mut().unwrap();
+        if last_update.guild_id == guild_id
+          && last_update.guild_rank == update_character_history.guild_rank
+          && last_update.character_name == update_character_history.character_name
+          && last_update.character_info.compare_by_value(&update_character_history.character_info)
+        {
+          // TODO: Update DB as well
+          last_update.timestamp = time_util::now();
+          return Ok(last_update.clone());
+        }
       }
     } // Else create a new history point and assign it to this character
-    self.create_character_history(update_character_history)
+    self.create_character_history(server_id, update_character_history)
   }
 }
