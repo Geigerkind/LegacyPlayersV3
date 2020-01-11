@@ -1,12 +1,13 @@
 pub use self::create_character::CreateCharacter;
-pub use self::set_character::SetCharacter;
-pub use self::get_character::GetCharacter;
-pub use self::get_guild::GetGuild;
 pub use self::create_character_history::CreateCharacterHistory;
-pub use self::set_character_history::SetCharacterHistory;
 pub use self::create_character_info::CreateCharacterInfo;
-pub use self::create_gear::CreateGear;
 pub use self::create_character_item::CreateCharacterItem;
+pub use self::create_gear::CreateGear;
+pub use self::get_character::GetCharacter;
+pub use self::get_character_info::GetCharacterInfo;
+pub use self::get_guild::GetGuild;
+pub use self::set_character::SetCharacter;
+pub use self::set_character_history::SetCharacterHistory;
 
 mod create_character;
 mod set_character;
@@ -17,3 +18,4 @@ mod set_character_history;
 mod create_character_info;
 mod create_gear;
 mod create_character_item;
+mod get_character_info;

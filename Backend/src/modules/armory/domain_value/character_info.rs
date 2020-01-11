@@ -9,7 +9,7 @@ pub struct CharacterInfo {
   pub gender: bool,
   pub profession1: Option<u8>,
   pub profession2: Option<u8>,
-  pub talent_specification: Option<String>,
+  pub talent_specialization: Option<String>,
   pub faction: bool,
   pub race_id: u8,
 }
@@ -25,7 +25,7 @@ impl CharacterInfo {
           || (self.profession2 == other.profession1
                 && self.profession1 == other.profession2)
           )
-      && self.talent_specification == other.talent_specification
+      && self.talent_specialization == other.talent_specialization
       && self.faction == other.faction
       && self.race_id == other.race_id;
   }

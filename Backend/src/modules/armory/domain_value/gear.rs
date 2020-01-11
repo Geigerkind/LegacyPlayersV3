@@ -2,6 +2,7 @@ use crate::modules::armory::domain_value::CharacterItem;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Gear {
+  pub id: u32,
   pub head: Option<CharacterItem>,
   pub neck: Option<CharacterItem>,
   pub shoulder: Option<CharacterItem>,
