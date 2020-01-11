@@ -11,6 +11,7 @@ use schemars::JsonSchema;
 
 #[derive(Debug, JsonSchema)]
 pub enum Failure {
+  /* Account */
   InvalidCredentials,
   InvalidMail,
   InvalidNickname,
@@ -25,6 +26,10 @@ pub enum Failure {
   TooManyDays,
   DateInThePast,
   TokenPurposeLength,
+
+  /* Armory */
+  InvalidUID,
+
   Unknown,
 }
 
@@ -32,6 +37,7 @@ impl Responder<'static> for Failure {
   fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
     let mut body: String = String::new();
     let status = match self {
+      /* Account */
       Failure::InvalidCredentials => Status::new(520, ""),
       Failure::InvalidMail => Status::new(521, ""),
       Failure::InvalidNickname => Status::new(522, ""),
@@ -49,6 +55,10 @@ impl Responder<'static> for Failure {
       Failure::TooManyDays => Status::new(531, ""),
       Failure::DateInThePast => Status::new(532, ""),
       Failure::TokenPurposeLength => Status::new(533, ""),
+
+      /* Armory */
+      Failure::InvalidUID => Status::new(534, "Invalid UID"),
+
       Failure::Unknown => Status::new(599, ""),
     };
     Response::build()

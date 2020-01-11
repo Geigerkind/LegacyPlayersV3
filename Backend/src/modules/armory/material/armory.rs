@@ -5,12 +5,13 @@ use mysql_connection::tools::Select;
 
 use crate::modules::armory::material::{Character, CharacterHistory};
 use crate::modules::armory::domain_value::{CharacterInfo, Gear, CharacterItem, Guild};
+use std::sync::RwLock;
 
 #[derive(Debug)]
 pub struct Armory {
   pub db_main: MySQLConnection,
-  pub characters: HashMap<u32, Character>,
-  pub guilds: HashMap<u32, Guild>,
+  pub characters: RwLock<HashMap<u32, Character>>,
+  pub guilds: RwLock<HashMap<u32, Guild>>,
 }
 
 impl Default for Armory {
@@ -18,8 +19,8 @@ impl Default for Armory {
   {
     Armory {
       db_main: MySQLConnection::new("main"),
-      characters: HashMap::new(),
-      guilds: HashMap::new(),
+      characters: RwLock::new(HashMap::new()),
+      guilds: RwLock::new(HashMap::new()),
     }
   }
 }
@@ -27,8 +28,8 @@ impl Default for Armory {
 impl Armory {
   pub fn init(mut self) -> Self
   {
-    self.characters.init(&self.db_main);
-    self.guilds.init(&self.db_main);
+    self.characters.write().unwrap().init(&self.db_main);
+    self.guilds.write().unwrap().init(&self.db_main);
     self
   }
 }

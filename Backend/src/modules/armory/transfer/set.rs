@@ -9,8 +9,7 @@ use crate::modules::armory::tools::SetCharacter;
 
 #[openapi]
 #[post("/set", format = "application/json", data = "<character>")]
-pub fn set_character(me: State<Armory>, owner: ServerOwner, character: Json<Character>) -> Result<Json<u32>, Failure>
+pub fn set_character(me: State<Armory>, owner: ServerOwner, character: Json<Character>) -> Result<(), Failure>
 {
-  me.set_character(owner.0, character.into_inner())
-    .and_then(|character_id| Ok(Json(character_id)))
+  me.set_character(owner.0, character.into_inner()).and_then(|_| Ok(()))
 }
