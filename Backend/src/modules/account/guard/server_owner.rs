@@ -9,12 +9,10 @@ use rocket_okapi::request::{OpenApiFromRequest};
 use rocket_okapi::response::OpenApiResponder;
 use rocket_okapi::util::add_schema_response;
 
-use crate::modules::account::Account;
-use crate::modules::account::tools::Token;
 use crate::modules::account::guard::Authenticate;
 use crate::modules::data::Data;
 
-pub struct ServerOwner(pub u32, pub u32);
+pub struct ServerOwner(pub u32);
 
 impl<'a, 'r> FromRequest<'a, 'r> for ServerOwner {
   type Error = ();
@@ -34,7 +32,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for ServerOwner {
         }
 
         let (id, _) = server_res.unwrap();
-        Success(ServerOwner(authenticate.0, *id))
+        Success(ServerOwner(*id))
       })
   }
 }

@@ -1,5 +1,4 @@
 use crate::modules::data::Data;
-use crate::modules::data::domain_value::Server;
 use crate::modules::data::dto::AvailableServer;
 
 pub trait RetrieveServer {
