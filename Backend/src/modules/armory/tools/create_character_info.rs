@@ -29,7 +29,9 @@ impl CreateCharacterInfo for Armory {
       "race" => character_info.race_id
     );
     if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `faction`, `race`) VALUES (:gear_id, :hero_class, :level, :gender, :profession1, :profession2, :talent_specialization, :faction, :race)", params.clone()) {
-      return self.get_character_info_by_value(character_info.to_owned());
+      let mut new_character_info = character_info.clone();
+      new_character_info.gear = gear;
+      return self.get_character_info_by_value(new_character_info.to_owned());
     }
 
     Err(Failure::Unknown)

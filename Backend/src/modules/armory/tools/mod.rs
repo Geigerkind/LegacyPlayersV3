@@ -8,6 +8,7 @@ pub use self::get_character_info::GetCharacterInfo;
 pub use self::get_guild::GetGuild;
 pub use self::set_character::SetCharacter;
 pub use self::set_character_history::SetCharacterHistory;
+pub use self::get_gear::GetGear;
 
 mod create_character;
 mod set_character;
@@ -19,3 +20,4 @@ mod create_character_info;
 mod create_gear;
 mod create_character_item;
 mod get_character_info;
+mod get_gear;
