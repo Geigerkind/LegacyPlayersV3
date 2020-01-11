@@ -2,11 +2,11 @@ use crate::modules::data::Data;
 use crate::modules::data::domain_value::ItemRandomProperty;
 
 pub trait RetrieveItemRandomProperty {
-  fn get_item_random_property(&self, expansion_id: u8, random_property_id: u32) -> Option<ItemRandomProperty>;
+  fn get_item_random_property(&self, expansion_id: u8, random_property_id: u16) -> Option<ItemRandomProperty>;
 }
 
 impl RetrieveItemRandomProperty for Data {
-  fn get_item_random_property(&self, expansion_id: u8, random_property_id: u32) -> Option<ItemRandomProperty> {
+  fn get_item_random_property(&self, expansion_id: u8, random_property_id: u16) -> Option<ItemRandomProperty> {
     if expansion_id == 0 {
       return None;
     }

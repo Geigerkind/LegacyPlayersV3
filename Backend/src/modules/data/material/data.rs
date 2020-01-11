@@ -33,7 +33,7 @@ pub struct Data {
   pub item_effects: Vec<HashMap<u32, ItemEffect>>,
   pub item_inventory_types: HashMap<u8, ItemInventoryType>,
   pub item_qualities: HashMap<u8, ItemQuality>,
-  pub item_random_properties: Vec<HashMap<u32, ItemRandomProperty>>,
+  pub item_random_properties: Vec<HashMap<u16, ItemRandomProperty>>,
   pub item_sheaths: HashMap<u8, ItemSheath>,
   pub item_sockets: Vec<HashMap<u32, ItemSocket>>,
   pub item_stats: Vec<HashMap<u32, Vec<ItemStat>>>,
@@ -530,7 +530,7 @@ impl Init for HashMap<u8, ItemQuality> {
   }
 }
 
-impl Init for Vec<HashMap<u32, ItemRandomProperty>> {
+impl Init for Vec<HashMap<u16, ItemRandomProperty>> {
   fn init(&mut self, db: &MySQLConnection) {
     let mut last_expansion_id = 0;
     db.select("SELECT * FROM data_item_random_property ORDER BY expansion_id, id", &|mut row| {
