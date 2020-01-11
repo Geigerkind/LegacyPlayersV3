@@ -61,7 +61,7 @@ impl SetCharacter for Armory {
       if last_update.guild_id == guild_id
         && last_update.guild_rank == update_character_history.guild_rank
         && last_update.character_name == update_character_history.character_name
-      //&& last_update.character_info == update_character_history.character_info // TODO: Id Problem
+        && last_update.character_info.compare_by_value(&update_character_history.character_info)
       {
         last_update.timestamp = time_util::now();
         return Ok(last_update.clone());
