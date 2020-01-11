@@ -2,5 +2,6 @@
 pub struct Server {
   pub id: u32,
   pub expansion_id: u8,
-  pub name: String
+  pub name: String,
+  pub owner: Option<u32>
 }

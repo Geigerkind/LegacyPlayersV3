@@ -1,4 +1,4 @@
-#![feature(proc_macro_hygiene, decl_macro)]
+#![feature(proc_macro_hygiene, decl_macro, option_result_contains)]
 extern crate language;
 extern crate mail;
 #[macro_use]

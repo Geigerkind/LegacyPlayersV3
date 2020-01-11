@@ -200,6 +200,7 @@ impl Init for HashMap<u32, Server> {
         id: row.take(0).unwrap(),
         expansion_id: row.take(1).unwrap(),
         name: row.take(2).unwrap(),
+        owner: row.take_opt(3).unwrap().ok(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
