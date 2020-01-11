@@ -1,6 +1,6 @@
 use crate::modules::armory::domain_value::Gear;
 
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterInfo {
   pub id: u32,
   pub gear: Gear,

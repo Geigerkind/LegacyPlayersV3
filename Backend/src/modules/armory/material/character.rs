@@ -1,6 +1,6 @@
 use crate::modules::armory::material::CharacterHistory;
 
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Character {
   pub id: u32,
   pub server_id: u32,

@@ -101,6 +101,7 @@ fn main() {
   ]);
 
   igniter = igniter.mount("/API/armory/", routes_with_openapi![
+    armory::transfer::set::set_character
   ]);
 
   igniter.launch();
