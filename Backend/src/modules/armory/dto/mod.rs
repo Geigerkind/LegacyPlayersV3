@@ -1,5 +1,5 @@
-pub use self::create_character::CreateCharacter;
-pub use self::create_character_history::CreateCharacterHistory;
+pub use self::character::CharacterDto;
+pub use self::character_history::CharacterHistoryDto;
 
-mod create_character;
-mod create_character_history;
+mod character;
+mod character_history;

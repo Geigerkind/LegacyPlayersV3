@@ -2,15 +2,15 @@ use crate::modules::armory::material::{Character, CharacterHistory};
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, CreateCharacter};
-use crate::modules::armory::dto::{CreateCharacter as CreateCharacterDto, CreateCharacterHistory as CreateCharacterHistoryDto};
+use crate::modules::armory::dto::{CharacterDto, CharacterHistoryDto};
 
 pub trait SetCharacter {
-  fn set_character(&self, server_id: u32, update_character: CreateCharacterDto) -> Result<Character, Failure>;
-  fn set_character_history(&self, character_id: u32, update_character_history: CreateCharacterHistoryDto) -> Result<CharacterHistory, Failure>;
+  fn set_character(&self, server_id: u32, update_character: CharacterDto) -> Result<Character, Failure>;
+  fn set_character_history(&self, character_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
 }
 
 impl SetCharacter for Armory {
-  fn set_character(&self, server_id: u32, update_character: CreateCharacterDto) -> Result<Character, Failure> {
+  fn set_character(&self, server_id: u32, update_character: CharacterDto) -> Result<Character, Failure> {
     // Validation
     if update_character.server_uid == 0 {
       return Err(Failure::InvalidUID);
@@ -35,7 +35,7 @@ impl SetCharacter for Armory {
     self.get_character(character_id).ok_or(Failure::Unknown)
   }
 
-  fn set_character_history(&self, character_id: u32, update_character_history: CreateCharacterHistoryDto) -> Result<CharacterHistory, Failure> {
+  fn set_character_history(&self, character_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
     // Validation
     unimplemented!()
   }
