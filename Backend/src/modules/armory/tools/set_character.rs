@@ -2,14 +2,16 @@ use crate::modules::armory::material::{Character, CharacterHistory};
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, CreateCharacter};
+use crate::modules::armory::dto::{CreateCharacter as CreateCharacterDto, CreateCharacterHistory as CreateCharacterHistoryDto};
 
 pub trait SetCharacter {
-  fn set_character(&self, server_id: u32, update_character: Character) -> Result<Character, Failure>;
-  fn set_character_history(&self, character_id: u32, update_character_history: CharacterHistory) -> Result<CharacterHistory, Failure>;
+  fn set_character(&self, server_id: u32, update_character: CreateCharacterDto) -> Result<Character, Failure>;
+  fn set_character_history(&self, character_id: u32, update_character_history: CreateCharacterHistoryDto) -> Result<CharacterHistory, Failure>;
 }
 
 impl SetCharacter for Armory {
-  fn set_character(&self, server_id: u32, update_character: Character) -> Result<Character, Failure> {
+  fn set_character(&self, server_id: u32, update_character: CreateCharacterDto) -> Result<Character, Failure> {
+    // Validation
     if update_character.server_uid == 0 {
       return Err(Failure::InvalidUID);
     }
@@ -23,8 +25,8 @@ impl SetCharacter for Armory {
     let character_id = character_id_res.unwrap();
 
     // Set the character history
-    if update_character.last_update.is_some() {
-      let character_history_res = self.set_character_history(character_id, update_character.last_update.unwrap());
+    if update_character.character_history.is_some() {
+      let character_history_res = self.set_character_history(character_id, update_character.character_history.unwrap());
       if character_history_res.is_err() {
         return Err(character_history_res.err().unwrap());
       }
@@ -33,7 +35,8 @@ impl SetCharacter for Armory {
     self.get_character(character_id).ok_or(Failure::Unknown)
   }
 
-  fn set_character_history(&self, character_id: u32, update_character_history: CharacterHistory) -> Result<CharacterHistory, Failure> {
+  fn set_character_history(&self, character_id: u32, update_character_history: CreateCharacterHistoryDto) -> Result<CharacterHistory, Failure> {
+    // Validation
     unimplemented!()
   }
 }
