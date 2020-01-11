@@ -4,12 +4,13 @@ use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
 use crate::modules::armory::material::{Character, CharacterHistory};
-use crate::modules::armory::domain_value::{CharacterInfo, Gear, CharacterItem};
+use crate::modules::armory::domain_value::{CharacterInfo, Gear, CharacterItem, Guild};
 
 #[derive(Debug)]
 pub struct Armory {
   pub db_main: MySQLConnection,
   pub characters: HashMap<u32, Character>,
+  pub guilds: HashMap<u32, Guild>,
 }
 
 impl Default for Armory {
@@ -18,6 +19,7 @@ impl Default for Armory {
     Armory {
       db_main: MySQLConnection::new("main"),
       characters: HashMap::new(),
+      guilds: HashMap::new(),
     }
   }
 }
@@ -26,6 +28,7 @@ impl Armory {
   pub fn init(mut self) -> Self
   {
     self.characters.init(&self.db_main);
+    self.guilds.init(&self.db_main);
     self
   }
 }
@@ -118,5 +121,17 @@ impl Init for HashMap<u32, Character> {
         }
       }
     }).iter().for_each(|result| { self.get_mut(&result.character_id).unwrap().last_update = Some(result.to_owned()) });
+  }
+}
+
+impl Init for HashMap<u32, Guild> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM armory_guild", &|mut row| {
+      Guild {
+        id: row.take(0).unwrap(),
+        server_id: row.take(1).unwrap(),
+        name: row.take(2).unwrap(),
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
 }
