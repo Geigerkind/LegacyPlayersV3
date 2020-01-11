@@ -5,6 +5,6 @@ pub struct CharacterHistoryDto {
   pub character_uid: u64,
   pub character_info: CharacterInfo,
   pub character_name: String,
-  pub guild_name: String,
-  pub guild_rank: String
+  pub guild_name: Option<String>,
+  pub guild_rank: Option<String>
 }

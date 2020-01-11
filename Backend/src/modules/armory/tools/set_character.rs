@@ -37,6 +37,8 @@ impl SetCharacter for Armory {
 
   fn set_character_history(&self, character_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
     // Validation
+    update_character_history.
+
     unimplemented!()
   }
 }
