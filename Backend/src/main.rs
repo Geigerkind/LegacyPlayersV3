@@ -22,6 +22,7 @@ use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::account;
 use crate::modules::data;
+use crate::modules::armory;
 
 pub mod dto;
 pub mod modules;
@@ -29,11 +30,13 @@ pub mod modules;
 fn main() {
   let account = account::Account::default().init();
   let data = data::Data::default().init(None);
+  let armory = armory::Armory::default().init();
 
   let prometheus = PrometheusMetrics::new();
   let mut igniter = rocket::ignite();
   igniter = igniter.manage(account);
   igniter = igniter.manage(data);
+  igniter = igniter.manage(armory);
 
   igniter = igniter.attach(prometheus.clone());
   igniter = igniter.mount("/metrics", prometheus);
@@ -48,6 +51,10 @@ fn main() {
                               UrlObject {
                                 name: "Data".to_string(),
                                 url: "/API/data/openapi.json".to_string(),
+                              },
+                              UrlObject {
+                                name: "Armory".to_string(),
+                                url: "/API/armory/openapi.json".to_string(),
                               }
                             ]),
                           }));
@@ -91,6 +98,9 @@ fn main() {
     data::transfer::item_stat::get_item_stats,
     data::transfer::itemset_name::get_itemset_name,
     data::transfer::itemset_effect::get_itemset_effects,
+  ]);
+
+  igniter = igniter.mount("/API/armory/", routes_with_openapi![
   ]);
 
   igniter.launch();
