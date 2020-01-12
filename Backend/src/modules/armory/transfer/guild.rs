@@ -5,7 +5,7 @@ use crate::dto::Failure;
 use crate::modules::account::guard::ServerOwner;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::Guild;
-use crate::modules::armory::tools::{GetGuild, DeleteGuild};
+use crate::modules::armory::tools::{GetGuild, DeleteGuild, CreateGuild};
 
 #[openapi]
 #[get("/guild/<id>")]
@@ -19,6 +19,13 @@ pub fn get_guild(me: State<Armory>, id: u32) -> Result<Json<Guild>, Failure>
 pub fn get_guild_by_name(me: State<Armory>, server_id: u32, guild_name: String) -> Result<Json<Guild>, Failure>
 {
   me.get_guild_by_name(server_id, guild_name).and_then(|guild| Some(Json(guild))).ok_or(Failure::InvalidInput)
+}
+
+#[openapi]
+#[post("/guild", format = "application/json", data = "<guild_name>")]
+pub fn create_guild(me: State<Armory>, owner: ServerOwner, guild_name: Json<String>) -> Result<(), Failure>
+{
+  me.create_guild(owner.0, guild_name.into_inner()).and_then(|_| Ok(()))
 }
 
 #[openapi]
