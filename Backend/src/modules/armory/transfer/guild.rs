@@ -15,13 +15,6 @@ pub fn get_guild(me: State<Armory>, id: u32) -> Result<Json<Guild>, Failure>
 }
 
 #[openapi]
-#[get("/guild/<server_id>/<guild_name>")]
-pub fn get_guild_by_name(me: State<Armory>, server_id: u32, guild_name: String) -> Result<Json<Guild>, Failure>
-{
-  me.get_guild_by_name(server_id, guild_name).and_then(|guild| Some(Json(guild))).ok_or(Failure::InvalidInput)
-}
-
-#[openapi]
 #[get("/guild/by_name/<guild_name>")]
 pub fn get_guilds_by_name(me: State<Armory>, guild_name: String) -> Json<Vec<Guild>>
 {
