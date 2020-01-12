@@ -13,7 +13,7 @@ pub trait GetGear {
 impl GetGear for Armory {
   fn get_gear(&self, gear_id: u32) -> Result<Gear, Failure> {
     let params = params!(
-      "id" => character_info_id
+      "id" => gear_id
     );
     // Note: This implementation should not be very fast
     self.db_main.select_wparams_value("SELECT * FROM armory_gear WHERE id=:id", &|mut row| {
