@@ -44,7 +44,7 @@ impl GetCharacterInfo for Armory {
       "race" => character_info.race_id
     );
     self.db_main.select_wparams_value("SELECT id FROM armory_character_info WHERE gear_id=:gear_id AND hero_class=:hero_class AND level=:level AND gender=:gender AND profession1=:profession1 AND profession2=:profession2 AND talent_specialization=:talent_specialization AND faction=:faction AND race=:race", &|mut row| {
-      let mut new_character_info = character_info.clone();
+      let mut new_character_info = character_info.to_owned();
       new_character_info.id = row.take(1).unwrap();
       new_character_info
     }, params);
