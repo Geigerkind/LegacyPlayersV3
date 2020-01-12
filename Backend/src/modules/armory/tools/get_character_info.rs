@@ -12,9 +12,9 @@ pub trait GetCharacterInfo {
 impl GetCharacterInfo for Armory {
   fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure> {
     let params = params!(
-      "character_info_id" => character_info_id
+      "id" => character_info_id
     );
-    self.db_main.select_wparams_value("SELECT * FROM armory_character_info WHERE character_info_id=:character_info_id", &|mut row| {
+    self.db_main.select_wparams_value("SELECT * FROM armory_character_info WHERE id=:id", &|mut row| {
       CharacterInfo {
         id: row.take(0).unwrap(),
         gear: self.get_gear(row.take(1).unwrap()).unwrap(),
