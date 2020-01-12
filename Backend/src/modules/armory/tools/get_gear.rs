@@ -1,23 +1,24 @@
-use crate::dto::Failure;
-use crate::modules::armory::domain_value::Gear;
-use crate::modules::armory::Armory;
 use mysql_connection::tools::Select;
-use crate::modules::armory::tools::{GetCharacterItem, GetCharacterInfo};
+
+use crate::dto::Failure;
+use crate::modules::armory::Armory;
+use crate::modules::armory::domain_value::CharacterGear;
+use crate::modules::armory::dto::CharacterGearDto;
+use crate::modules::armory::tools::GetCharacterItem;
 
 pub trait GetGear {
-  fn get_gear(&self, gear_id: u32) -> Result<Gear, Failure>;
-  // Note: Gear = GearDto here
-  fn get_gear_by_value(&self, gear: Gear) -> Result<Gear, Failure>;
+  fn get_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure>;
+  fn get_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
 }
 
 impl GetGear for Armory {
-  fn get_gear(&self, gear_id: u32) -> Result<Gear, Failure> {
+  fn get_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure> {
     let params = params!(
       "id" => gear_id
     );
     // Note: This implementation should not be very fast
     self.db_main.select_wparams_value("SELECT * FROM armory_gear WHERE id=:id", &|mut row| {
-      Gear {
+      CharacterGear {
         id: row.take(0).unwrap(),
         head: row.take_opt(1).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
         neck: row.take_opt(2).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
@@ -43,7 +44,8 @@ impl GetGear for Armory {
     Err(Failure::Unknown)
   }
 
-  fn get_gear_by_value(&self, gear: Gear) -> Result<Gear, Failure> {
+  fn get_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
+    // TODO: This should return a failure if one of these items produces a failure!
     let head = gear.head.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let neck = gear.neck.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let shoulder = gear.shoulder.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
@@ -87,7 +89,7 @@ impl GetGear for Armory {
     );
     // Note: This implementation should not be very fast
     self.db_main.select_wparams_value("SELECT id FROM armory_gear WHERE head=:head AND neck=:neck AND shoulder=:shoulder AND back=:back AND chest=:chest AND shirt=:shirt AND tabard=:tabard AND wrist=:wrist AND main_hand=:main_hand AND off_hand=:off_hand AND ternary_hand=:ternary_hand AND glove=:glove AND belt=:belt AND leg=:leg AND boot=:boot AND ring1=:ring1 AND ring2=:ring2 AND trinket1=:trinket1 AND trinket2=:trinket2", &|mut row| {
-      Gear {
+      CharacterGear {
         id: row.take(1).unwrap(),
         head: head.to_owned(),
         neck: neck.to_owned(),
@@ -107,7 +109,7 @@ impl GetGear for Armory {
         ring1: ring1.to_owned(),
         ring2: ring2.to_owned(),
         trinket1: trinket1.to_owned(),
-        trinket2: trinket2.to_owned()
+        trinket2: trinket2.to_owned(),
       }
     }, params);
 

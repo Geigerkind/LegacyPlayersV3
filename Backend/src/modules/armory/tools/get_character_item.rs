@@ -2,11 +2,11 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
 use mysql_connection::tools::Select;
+use crate::modules::armory::dto::CharacterItemDto;
 
 pub trait GetCharacterItem {
   fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, Failure>;
-  // Here CharacterItem = CharacterItemDto
-  fn get_character_item_by_value(&self, character_item: CharacterItem) -> Result<CharacterItem, Failure>;
+  fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, Failure>;
 }
 
 impl GetCharacterItem for Armory {
@@ -31,7 +31,7 @@ impl GetCharacterItem for Armory {
     Err(Failure::Unknown)
   }
 
-  fn get_character_item_by_value(&self, character_item: CharacterItem) -> Result<CharacterItem, Failure> {
+  fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, Failure> {
     let params = params!(
       "item_id" => character_item.item_id,
       "random_property_id" => character_item.random_property_id,
@@ -42,9 +42,7 @@ impl GetCharacterItem for Armory {
       "gem_id4" => character_item.gem_ids.get(3).cloned().unwrap(),
     );
     self.db_main.select_wparams_value("SELECT id FROM armory_item WHERE item_id=:item_id AND random_property_id=:random_property_id AND enchant_id=:enchant_id AND gem_id1=:gem_id1 AND gem_id2=:gem_id2 AND gem_id3=:gem_id3 AND gem_id4=:gem_id4", &|mut row| {
-      let mut new_character_item = character_item.to_owned();
-      new_character_item.id = row.take(0).unwrap();
-      new_character_item
+      return self.get_character_item(row.take(0).unwrap());
     }, params);
     Err(Failure::Unknown)
   }

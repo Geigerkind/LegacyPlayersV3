@@ -4,7 +4,7 @@ use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
 use crate::modules::armory::material::{Character, CharacterHistory};
-use crate::modules::armory::domain_value::{CharacterInfo, Gear, CharacterItem, Guild};
+use crate::modules::armory::domain_value::{CharacterInfo, CharacterGear, CharacterItem, Guild};
 use std::sync::RwLock;
 
 #[derive(Debug)]
@@ -98,7 +98,7 @@ impl Init for HashMap<u32, Character> {
           talent_specialization: row.take_opt(14).unwrap().ok(),
           faction: row.take(15).unwrap(),
           race_id: row.take(16).unwrap(),
-          gear: Gear {
+          gear: CharacterGear {
             id: row.take(17).unwrap(),
             head: gear_slots.pop().unwrap(),
             neck: gear_slots.pop().unwrap(),

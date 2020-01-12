@@ -1,9 +1,10 @@
-use crate::modules::armory::domain_value::Gear;
+use crate::modules::armory::domain_value::CharacterGear;
+use crate::modules::armory::dto::CharacterInfoDto;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterInfo {
   pub id: u32,
-  pub gear: Gear,
+  pub gear: CharacterGear,
   pub hero_class_id: u8,
   pub level: u8,
   pub gender: bool,
@@ -15,7 +16,7 @@ pub struct CharacterInfo {
 }
 
 impl CharacterInfo {
-  pub fn compare_by_value(&self, other: &CharacterInfo) -> bool {
+  pub fn compare_by_value(&self, other: &CharacterInfoDto) -> bool {
     return self.gear.compare_by_value(&other.gear)
       && self.hero_class_id == other.hero_class_id
       && self.level == other.level

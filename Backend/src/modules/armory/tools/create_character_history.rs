@@ -2,10 +2,9 @@ use mysql_connection::tools::{Execute, Select};
 
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use crate::modules::armory::domain_value::CharacterInfo;
 use crate::modules::armory::dto::CharacterHistoryDto;
 use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{GetCharacter, GetGuild, CreateCharacterInfo};
+use crate::modules::armory::tools::{CreateCharacterInfo, GetCharacter, GetGuild};
 
 pub trait CreateCharacterHistory {
   fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
@@ -41,7 +40,7 @@ impl CreateCharacterHistory for Armory {
           character_name: character_history_dto.character_name.to_owned(),
           guild_id,
           guild_rank: character_history_dto.guild_rank.to_owned(),
-          timestamp: row.take(1).unwrap()
+          timestamp: row.take(1).unwrap(),
         }
       }, params);
       characters.get_mut(&character_id).unwrap().last_update = character_history_res;

@@ -1,7 +1,8 @@
 use crate::modules::armory::domain_value::CharacterItem;
+use crate::modules::armory::dto::{CharacterGearDto, CharacterItemDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-pub struct Gear {
+pub struct CharacterGear {
   pub id: u32,
   pub head: Option<CharacterItem>,
   pub neck: Option<CharacterItem>,
@@ -24,8 +25,8 @@ pub struct Gear {
   pub trinket2: Option<CharacterItem>,
 }
 
-impl Gear {
-  pub fn compare_by_value(&self, other: &Gear) -> bool {
+impl CharacterGear {
+  pub fn compare_by_value(&self, other: &CharacterGearDto) -> bool {
     return self.head.is_eq_by_value(&other.head)
       && self.neck.is_eq_by_value(&other.neck)
       && self.shoulder.is_eq_by_value(&other.shoulder)
@@ -49,11 +50,11 @@ impl Gear {
 }
 
 trait EqByValue {
-  fn is_eq_by_value(&self, other: &Option<CharacterItem>) -> bool;
+  fn is_eq_by_value(&self, other: &Option<CharacterItemDto>) -> bool;
 }
 
 impl EqByValue for Option<CharacterItem> {
-  fn is_eq_by_value(&self, other: &Option<CharacterItem>) -> bool {
+  fn is_eq_by_value(&self, other: &Option<CharacterItemDto>) -> bool {
     return (self.is_some() && other.is_some() && self.as_ref().unwrap().compare_by_value(other.as_ref().unwrap()))
       || (self.is_none() && other.is_none());
   }

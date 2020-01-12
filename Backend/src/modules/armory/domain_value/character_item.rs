@@ -1,3 +1,5 @@
+use crate::modules::armory::dto::CharacterItemDto;
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterItem {
   pub id: u32,
@@ -8,7 +10,7 @@ pub struct CharacterItem {
 }
 
 impl CharacterItem {
-  pub fn compare_by_value(&self, other: &CharacterItem) -> bool {
+  pub fn compare_by_value(&self, other: &CharacterItemDto) -> bool {
     return self.item_id == other.item_id
       && self.random_property_id == other.random_property_id
       && self.enchant_id == other.enchant_id

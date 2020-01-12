@@ -1,16 +1,24 @@
-use crate::dto::Failure;
-use crate::modules::armory::domain_value::CharacterInfo;
-use crate::modules::armory::Armory;
 use mysql_connection::tools::Execute;
+
+use crate::dto::Failure;
+use crate::modules::armory::Armory;
+use crate::modules::armory::domain_value::CharacterInfo;
+use crate::modules::armory::dto::CharacterInfoDto;
 use crate::modules::armory::tools::{CreateGear, GetCharacterInfo};
 
 pub trait CreateCharacterInfo {
-  // Here CharacterInfo = CharacterInfoDto
-  fn create_character_info(&self, character_info: CharacterInfo) -> Result<CharacterInfo, Failure>;
+  fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure>;
 }
 
 impl CreateCharacterInfo for Armory {
-  fn create_character_info(&self, character_info: CharacterInfo) -> Result<CharacterInfo, Failure> {
+  fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure> {
+    // Return existing one first
+    let existing_character_info = self.get_character_info_by_value(character_info.clone());
+    if existing_character_info.is_ok() {
+      return existing_character_info;
+    }
+
+    // Create the gear needed
     let gear_res = self.create_gear(character_info.gear.to_owned());
     if gear_res.is_err() {
       return Err(gear_res.err().unwrap());
@@ -29,9 +37,7 @@ impl CreateCharacterInfo for Armory {
       "race" => character_info.race_id
     );
     if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `faction`, `race`) VALUES (:gear_id, :hero_class, :level, :gender, :profession1, :profession2, :talent_specialization, :faction, :race)", params.clone()) {
-      let mut new_character_info = character_info.to_owned();
-      new_character_info.gear = gear;
-      return self.get_character_info_by_value(new_character_info.to_owned());
+      return self.get_character_info_by_value(character_info.to_owned());
     }
 
     Err(Failure::Unknown)
