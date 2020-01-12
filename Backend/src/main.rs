@@ -21,8 +21,8 @@ use rocket_okapi::swagger_ui::UrlObject;
 use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::account;
-use crate::modules::data;
 use crate::modules::armory;
+use crate::modules::data;
 
 pub mod dto;
 pub mod modules;

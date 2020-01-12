@@ -1,9 +1,10 @@
+use mysql_connection::tools::Execute;
+
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::CharacterHistoryDto;
 use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::tools::{CreateCharacterHistory, GetCharacter, GetGuild};
-use mysql_connection::tools::Execute;
 
 pub trait SetCharacterHistory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;

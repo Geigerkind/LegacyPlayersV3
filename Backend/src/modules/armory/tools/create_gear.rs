@@ -1,9 +1,10 @@
+use mysql_connection::tools::Execute;
+
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterGear;
 use crate::modules::armory::dto::CharacterGearDto;
-use mysql_connection::tools::Execute;
-use crate::modules::armory::tools::{GetGear, CreateCharacterItem};
+use crate::modules::armory::tools::{CreateCharacterItem, GetGear};
 
 pub trait CreateGear {
   fn create_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure>;

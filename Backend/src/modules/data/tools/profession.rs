@@ -1,5 +1,5 @@
-use crate::modules::data::domain_value::Profession;
 use crate::modules::data::Data;
+use crate::modules::data::domain_value::Profession;
 
 pub trait RetrieveProfession {
   fn get_profession(&self, id: u8) -> Option<Profession>;

@@ -1,8 +1,9 @@
-use crate::dto::Failure;
-use crate::modules::armory::domain_value::Guild;
-use crate::modules::armory::Armory;
-use crate::modules::armory::tools::GetGuild;
 use mysql_connection::tools::Execute;
+
+use crate::dto::Failure;
+use crate::modules::armory::Armory;
+use crate::modules::armory::domain_value::Guild;
+use crate::modules::armory::tools::GetGuild;
 
 pub trait CreateGuild {
   fn create_guild(&self, server_id: u32, name: String) -> Result<Guild, Failure>;

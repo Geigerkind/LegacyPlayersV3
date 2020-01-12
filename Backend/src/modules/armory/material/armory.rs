@@ -1,11 +1,11 @@
 use std::collections::HashMap;
+use std::sync::RwLock;
 
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
+use crate::modules::armory::domain_value::{CharacterGear, CharacterInfo, CharacterItem, Guild};
 use crate::modules::armory::material::{Character, CharacterHistory};
-use crate::modules::armory::domain_value::{CharacterInfo, CharacterGear, CharacterItem, Guild};
-use std::sync::RwLock;
 
 #[derive(Debug)]
 pub struct Armory {

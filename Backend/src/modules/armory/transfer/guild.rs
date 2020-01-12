@@ -5,7 +5,7 @@ use crate::dto::Failure;
 use crate::modules::account::guard::ServerOwner;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::Guild;
-use crate::modules::armory::tools::{GetGuild, DeleteGuild, CreateGuild, UpdateGuild};
+use crate::modules::armory::tools::{CreateGuild, DeleteGuild, GetGuild, UpdateGuild};
 
 #[openapi]
 #[get("/guild/<id>")]

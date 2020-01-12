@@ -1,9 +1,10 @@
-use crate::modules::armory::domain_value::CharacterInfo;
+use mysql_connection::tools::Select;
+
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use mysql_connection::tools::Select;
-use crate::modules::armory::tools::GetGear;
+use crate::modules::armory::domain_value::CharacterInfo;
 use crate::modules::armory::dto::CharacterInfoDto;
+use crate::modules::armory::tools::GetGear;
 
 pub trait GetCharacterInfo {
   fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure>;

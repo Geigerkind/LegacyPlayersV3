@@ -2,8 +2,8 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveSpellEffect;
 use crate::modules::data::domain_value::SpellEffect;
+use crate::modules::data::tools::RetrieveSpellEffect;
 
 #[openapi]
 #[get("/spell_effect/<expansion_id>/<spell_id>")]

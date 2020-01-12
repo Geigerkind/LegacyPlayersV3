@@ -5,7 +5,7 @@ use rocket::request::{self, FromRequest, Request, State};
 use rocket::Response;
 use rocket::response::Responder;
 use rocket_okapi::gen::OpenApiGenerator;
-use rocket_okapi::request::{OpenApiFromRequest};
+use rocket_okapi::request::OpenApiFromRequest;
 use rocket_okapi::response::OpenApiResponder;
 use rocket_okapi::util::add_schema_response;
 

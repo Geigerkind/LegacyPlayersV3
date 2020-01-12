@@ -1,8 +1,9 @@
-use rocket_contrib::json::Json;
-use crate::modules::data::Data;
 use rocket::State;
-use crate::modules::data::tools::RetrieveLocalization;
+use rocket_contrib::json::Json;
+
+use crate::modules::data::Data;
 use crate::modules::data::domain_value::Localization;
+use crate::modules::data::tools::RetrieveLocalization;
 
 #[openapi]
 #[get("/localization/<language_id>/<localization_id>")]

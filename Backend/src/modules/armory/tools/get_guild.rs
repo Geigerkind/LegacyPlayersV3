@@ -1,5 +1,5 @@
-use crate::modules::armory::domain_value::Guild;
 use crate::modules::armory::Armory;
+use crate::modules::armory::domain_value::Guild;
 
 pub trait GetGuild {
   fn get_guild_id_by_name(&self, server_id: u32, name: String) -> Option<u32>;

@@ -1,6 +1,7 @@
+use mysql_connection::tools::Execute;
+
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use mysql_connection::tools::Execute;
 
 pub trait UpdateGuild {
   fn update_guild_name(&self, id: u32, guild_name: String) -> Result<(), Failure>;

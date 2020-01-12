@@ -2,8 +2,8 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveItemsetEffect;
 use crate::modules::data::domain_value::ItemsetEffect;
+use crate::modules::data::tools::RetrieveItemsetEffect;
 
 #[openapi]
 #[get("/itemset_effect/<expansion_id>/<itemset_id>")]

@@ -2,8 +2,8 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveGem;
 use crate::modules::data::domain_value::Gem;
+use crate::modules::data::tools::RetrieveGem;
 
 #[openapi]
 #[get("/gem/<expansion_id>/<gem_id>")]

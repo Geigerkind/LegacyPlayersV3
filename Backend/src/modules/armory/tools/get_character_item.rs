@@ -1,7 +1,8 @@
+use mysql_connection::tools::Select;
+
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
-use mysql_connection::tools::Select;
 use crate::modules::armory::dto::CharacterItemDto;
 
 pub trait GetCharacterItem {

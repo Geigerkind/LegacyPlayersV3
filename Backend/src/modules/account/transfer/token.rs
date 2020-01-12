@@ -1,11 +1,11 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
+use crate::dto::Failure;
 use crate::modules::account::dto::{CreateToken, ProlongToken};
 use crate::modules::account::guard::Authenticate;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::Token;
-use crate::dto::Failure;
 
 #[openapi]
 #[post("/token", format = "application/json", data = "<params>")]

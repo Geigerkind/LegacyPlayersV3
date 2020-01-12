@@ -2,11 +2,11 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::dto::Failure;
-use crate::modules::armory::Armory;
 use crate::modules::account::guard::ServerOwner;
-use crate::modules::armory::tools::{SetCharacter, GetCharacter, DeleteCharacter};
+use crate::modules::armory::Armory;
 use crate::modules::armory::dto::CharacterDto;
 use crate::modules::armory::material::Character;
+use crate::modules::armory::tools::{DeleteCharacter, GetCharacter, SetCharacter};
 
 #[openapi]
 #[post("/character", format = "application/json", data = "<character>")]

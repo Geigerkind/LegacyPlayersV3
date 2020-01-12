@@ -1,6 +1,7 @@
+use mysql_connection::tools::Execute;
+
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use mysql_connection::tools::Execute;
 use crate::modules::armory::tools::GetCharacter;
 
 pub trait DeleteCharacter {

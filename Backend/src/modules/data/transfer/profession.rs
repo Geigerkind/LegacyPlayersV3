@@ -2,8 +2,8 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveProfession;
 use crate::modules::data::domain_value::Profession;
+use crate::modules::data::tools::RetrieveProfession;
 
 #[openapi]
 #[get("/profession/<id>")]

@@ -4,7 +4,7 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::CharacterHistoryDto;
 use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{CreateCharacterInfo, GetCharacter, CreateGuild};
+use crate::modules::armory::tools::{CreateCharacterInfo, CreateGuild, GetCharacter};
 
 pub trait CreateCharacterHistory {
   fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
