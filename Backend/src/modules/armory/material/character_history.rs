@@ -10,3 +10,9 @@ pub struct CharacterHistory {
   pub guild_rank: Option<String>,
   pub timestamp: u64
 }
+
+impl PartialEq for CharacterHistory {
+  fn eq(&self, other: &Self) -> bool {
+    self.id == other.id
+  }
+}
