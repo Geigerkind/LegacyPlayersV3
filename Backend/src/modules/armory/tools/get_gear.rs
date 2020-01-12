@@ -45,7 +45,6 @@ impl GetGear for Armory {
   }
 
   fn get_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
-    // TODO: This should return a failure if one of these items produces a failure!
     let head = gear.head.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let neck = gear.neck.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let shoulder = gear.shoulder.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
