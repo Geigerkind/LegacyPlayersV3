@@ -102,7 +102,7 @@ fn main() {
 
   igniter = igniter.mount("/API/armory/", routes_with_openapi![
     armory::transfer::character::set_character, armory::transfer::character::get_character, armory::transfer::character::get_character_by_uid,
-    armory::transfer::guild::get_guild,
+    armory::transfer::guild::get_guild, armory::transfer::guild::get_guild_by_name,
   ]);
 
   igniter.launch();
