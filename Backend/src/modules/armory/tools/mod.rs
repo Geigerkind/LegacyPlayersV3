@@ -14,6 +14,7 @@ pub use self::get_guild::GetGuild;
 pub use self::set_character::SetCharacter;
 pub use self::set_character_history::SetCharacterHistory;
 pub use self::update_guild::UpdateGuild;
+pub use self::get_character_history::GetCharacterHistory;
 
 mod create_character;
 mod set_character;
@@ -31,3 +32,4 @@ mod delete_character;
 mod create_guild;
 mod delete_guild;
 mod update_guild;
+mod get_character_history;
