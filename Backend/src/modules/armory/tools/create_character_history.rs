@@ -4,7 +4,7 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::CharacterHistoryDto;
 use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{CreateCharacterInfo, GetCharacter, GetGuild, CreateGuild};
+use crate::modules::armory::tools::{CreateCharacterInfo, GetCharacter, CreateGuild};
 
 pub trait CreateCharacterHistory {
   fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
@@ -16,9 +16,7 @@ impl CreateCharacterHistory for Armory {
   // It has been checked that the previous value is not the same
   fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
     let character_id = self.get_character_id_by_uid(server_id, character_history_dto.character_uid).unwrap();
-    let guild_id = character_history_dto.guild_name.as_ref()
-                                .and_then(|guild_name| self.get_guild_id_by_name(server_id, guild_name.clone())
-                                  .or_else(|| self.create_guild(server_id, guild_name.clone()).and_then(|guild| Ok(guild.id)).ok()));
+    let guild_id = character_history_dto.guild_name.as_ref().and_then(|guild_name| self.create_guild(server_id, guild_name.clone()).and_then(|guild| Ok(guild.id)).ok());
     let character_info_res = self.create_character_info(character_history_dto.character_info.to_owned());
     if character_info_res.is_err() {
       return Err(character_info_res.err().unwrap());
