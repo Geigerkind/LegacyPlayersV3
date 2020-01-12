@@ -24,9 +24,9 @@ pub fn get_character(me: State<Armory>, id: u32) -> Result<Json<Character>, Fail
 
 #[openapi]
 #[get("/character/by_name/<name>")]
-pub fn get_character_by_name(me: State<Armory>, name: String) -> Json<Vec<Character>>
+pub fn get_characters_by_name(me: State<Armory>, name: String) -> Json<Vec<Character>>
 {
-  Json(me.get_character_by_name(name))
+  Json(me.get_characters_by_name(name))
 }
 
 #[openapi]

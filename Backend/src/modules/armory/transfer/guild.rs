@@ -22,6 +22,13 @@ pub fn get_guild_by_name(me: State<Armory>, server_id: u32, guild_name: String) 
 }
 
 #[openapi]
+#[get("/guild/by_name/<guild_name>")]
+pub fn get_guilds_by_name(me: State<Armory>, guild_name: String) -> Json<Vec<Guild>>
+{
+  Json(me.get_guilds_by_name(guild_name))
+}
+
+#[openapi]
 #[post("/guild", format = "application/json", data = "<guild_name>")]
 pub fn create_guild(me: State<Armory>, owner: ServerOwner, guild_name: Json<String>) -> Result<(), Failure>
 {
