@@ -138,7 +138,7 @@ function deployWebclient {
 function deployBackend {
   echo "Deploying backend"
   cd /root/${REPOSITORY_NAME}/Backend
-  rustup toolchain install nightly
+  rustup update
   cargo update
   cargo build --release --all-features --jobs ${NUM_CORES}
   cargo install --path ./ --force
