@@ -13,6 +13,7 @@ pub use self::get_character_item::GetCharacterItem;
 pub use self::delete_character::DeleteCharacter;
 pub use self::create_guild::CreateGuild;
 pub use self::delete_guild::DeleteGuild;
+pub use self::update_guild::UpdateGuild;
 
 mod create_character;
 mod set_character;
@@ -29,3 +30,4 @@ mod get_character_item;
 mod delete_character;
 mod create_guild;
 mod delete_guild;
+mod update_guild;

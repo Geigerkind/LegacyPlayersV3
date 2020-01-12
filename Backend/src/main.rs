@@ -104,7 +104,7 @@ fn main() {
     armory::transfer::character::set_character, armory::transfer::character::get_character, armory::transfer::character::get_character_by_uid,
     armory::transfer::character::delete_character, armory::transfer::character::delete_character_by_uid,
     armory::transfer::guild::get_guild, armory::transfer::guild::get_guild_by_name, armory::transfer::guild::delete_guild,
-    armory::transfer::guild::delete_guild_by_name, armory::transfer::guild::create_guild,
+    armory::transfer::guild::delete_guild_by_name, armory::transfer::guild::create_guild, armory::transfer::guild::update_guild_name
   ]);
 
   igniter.launch();
