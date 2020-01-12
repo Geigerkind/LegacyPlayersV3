@@ -32,6 +32,20 @@ impl GetCharacterItem for Armory {
   }
 
   fn get_character_item_by_value(&self, character_item: CharacterItem) -> Result<CharacterItem, Failure> {
-    unimplemented!()
+    let params = params!(
+      "item_id" => character_item.item_id,
+      "random_property_id" => character_item.random_property_id,
+      "enchant_id" => character_item.enchant_id,
+      "gem_id1" => character_item.gem_ids.get(0).cloned().unwrap(),
+      "gem_id2" => character_item.gem_ids.get(1).cloned().unwrap(),
+      "gem_id3" => character_item.gem_ids.get(2).cloned().unwrap(),
+      "gem_id4" => character_item.gem_ids.get(3).cloned().unwrap(),
+    );
+    self.db_main.select_wparams_value("SELECT id FROM armory_item WHERE item_id=:item_id AND random_property_id=:random_property_id AND enchant_id=:enchant_id AND gem_id1=:gem_id1 AND gem_id2=:gem_id2 AND gem_id3=:gem_id3 AND gem_id4=:gem_id4", &|mut row| {
+      let mut new_character_item = character_item.to_owned();
+      new_character_item.id = row.take(0).unwrap();
+      new_character_item
+    }, params);
+    Err(Failure::Unknown)
   }
 }
