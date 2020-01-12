@@ -3,6 +3,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::dto::CharacterHistoryDto;
 use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::tools::{CreateCharacterHistory, GetCharacter, GetGuild};
+use mysql_connection::tools::Execute;
 
 pub trait SetCharacterHistory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
@@ -37,9 +38,15 @@ impl SetCharacterHistory for Armory {
           && last_update.character_name == update_character_history.character_name
           && last_update.character_info.compare_by_value(&update_character_history.character_info)
         {
-          // TODO: Update DB as well
-          last_update.timestamp = time_util::now();
-          return Ok(last_update.clone());
+          let now = time_util::now();
+          if self.db_main.execute_wparams("UPDATE armory_character_history SET `timestamp` = :timestamp WHERE id=:id", params!(
+            "timestamp" => now.clone(),
+            "id" => last_update.id
+          )) {
+            last_update.timestamp = now.to_owned();
+            return Ok(last_update.clone());
+          }
+          return Err(Failure::Unknown);
         }
       }
     } // Else create a new history point and assign it to this character
