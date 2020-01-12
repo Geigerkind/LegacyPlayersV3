@@ -2,9 +2,10 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::dto::Failure;
+use crate::modules::account::guard::ServerOwner;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::Guild;
-use crate::modules::armory::tools::GetGuild;
+use crate::modules::armory::tools::{GetGuild, DeleteGuild};
 
 #[openapi]
 #[get("/guild/<id>")]
@@ -18,4 +19,18 @@ pub fn get_guild(me: State<Armory>, id: u32) -> Result<Json<Guild>, Failure>
 pub fn get_guild_by_name(me: State<Armory>, server_id: u32, guild_name: String) -> Result<Json<Guild>, Failure>
 {
   me.get_guild_by_name(server_id, guild_name).and_then(|guild| Some(Json(guild))).ok_or(Failure::InvalidInput)
+}
+
+#[openapi]
+#[delete("/guild/<id>")]
+pub fn delete_guild(me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(), Failure>
+{
+  me.delete_guild(id)
+}
+
+#[openapi]
+#[delete("/guild/name/<name>")]
+pub fn delete_guild_by_name(me: State<Armory>, owner: ServerOwner, name: String) -> Result<(), Failure>
+{
+  me.delete_guild_by_name(owner.0, name)
 }

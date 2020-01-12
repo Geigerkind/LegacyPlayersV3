@@ -36,3 +36,10 @@ pub fn delete_character(me: State<Armory>, _owner: ServerOwner, id: u32) -> Resu
   me.delete_character(id)
 }
 
+#[openapi]
+#[delete("/character/uid/<uid>")]
+pub fn delete_character_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<(), Failure>
+{
+  me.delete_character_by_uid(owner.0, uid)
+}
+
