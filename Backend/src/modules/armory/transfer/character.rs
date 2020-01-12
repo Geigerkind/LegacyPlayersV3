@@ -4,7 +4,7 @@ use rocket_contrib::json::Json;
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::account::guard::ServerOwner;
-use crate::modules::armory::tools::{SetCharacter, GetCharacter};
+use crate::modules::armory::tools::{SetCharacter, GetCharacter, DeleteCharacter};
 use crate::modules::armory::dto::CharacterDto;
 use crate::modules::armory::material::Character;
 
@@ -27,5 +27,12 @@ pub fn get_character(me: State<Armory>, id: u32) -> Result<Json<Character>, Fail
 pub fn get_character_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<Json<Character>, Failure>
 {
   me.get_character_by_uid(owner.0, uid).and_then(|character| Some(Json(character))).ok_or(Failure::InvalidInput)
+}
+
+#[openapi]
+#[delete("/character/<id>")]
+pub fn delete_character(me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(), Failure>
+{
+  me.delete_character(id)
 }
 

@@ -10,6 +10,8 @@ pub use self::set_character::SetCharacter;
 pub use self::set_character_history::SetCharacterHistory;
 pub use self::get_gear::GetGear;
 pub use self::get_character_item::GetCharacterItem;
+pub use self::delete_character::DeleteCharacter;
+pub use self::create_guild::CreateGuild;
 
 mod create_character;
 mod set_character;
@@ -23,3 +25,5 @@ mod create_character_item;
 mod get_character_info;
 mod get_gear;
 mod get_character_item;
+mod delete_character;
+mod create_guild;
