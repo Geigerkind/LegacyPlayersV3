@@ -5,6 +5,8 @@ use mysql_connection::tools::Select;
 
 pub trait GetCharacterItem {
   fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, Failure>;
+  // Here CharacterItem = CharacterItemDto
+  fn get_character_item_by_value(&self, character_item: CharacterItem) -> Result<CharacterItem, Failure>;
 }
 
 impl GetCharacterItem for Armory {
@@ -27,5 +29,9 @@ impl GetCharacterItem for Armory {
       }
     }, params);
     Err(Failure::Unknown)
+  }
+
+  fn get_character_item_by_value(&self, character_item: CharacterItem) -> Result<CharacterItem, Failure> {
+    unimplemented!()
   }
 }
