@@ -2,6 +2,7 @@ use crate::modules::armory::domain_value::CharacterInfo;
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use mysql_connection::tools::Select;
+use crate::modules::armory::tools::GetGear;
 
 pub trait GetCharacterInfo {
   fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure>;
@@ -10,7 +11,24 @@ pub trait GetCharacterInfo {
 
 impl GetCharacterInfo for Armory {
   fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure> {
-    unimplemented!()
+    let params = params!(
+      "character_info_id" => character_info_id
+    );
+    self.db_main.select_wparams_value("SELECT * FROM armory_character_info WHERE character_info_id=:character_info_id", &|mut row| {
+      CharacterInfo {
+        id: row.take(0).unwrap(),
+        gear: self.get_gear(row.take(1).unwrap()).unwrap(),
+        hero_class_id: row.take(2).unwrap(),
+        level: row.take(3).unwrap(),
+        gender: row.take(4).unwrap(),
+        profession1: row.take_opt(5).unwrap().ok(),
+        profession2: row.take_opt(6).unwrap().ok(),
+        talent_specialization: row.take_opt(7).unwrap().ok(),
+        faction: row.take(8).unwrap(),
+        race_id: row.take(9).unwrap()
+      }
+    }, params);
+    Err(Failure::Unknown)
   }
 
   fn get_character_info_by_value(&self, character_info: CharacterInfo) -> Result<CharacterInfo, Failure> {
