@@ -43,7 +43,7 @@ pub fn delete_guild(me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(
 }
 
 #[openapi]
-#[delete("/guild/name/<name>")]
+#[delete("/guild/by_name/<name>")]
 pub fn delete_guild_by_name(me: State<Armory>, owner: ServerOwner, name: String) -> Result<(), Failure>
 {
   me.delete_guild_by_name(owner.0, name)

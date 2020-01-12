@@ -23,7 +23,14 @@ pub fn get_character(me: State<Armory>, id: u32) -> Result<Json<Character>, Fail
 }
 
 #[openapi]
-#[get("/character/uid/<uid>")]
+#[get("/character/by_name/<name>")]
+pub fn get_character_by_name(me: State<Armory>, name: String) -> Json<Vec<Character>>
+{
+  Json(me.get_character_by_name(name))
+}
+
+#[openapi]
+#[get("/character/by_uid/<uid>")]
 pub fn get_character_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<Json<Character>, Failure>
 {
   me.get_character_by_uid(owner.0, uid).and_then(|character| Some(Json(character))).ok_or(Failure::InvalidInput)
@@ -37,7 +44,7 @@ pub fn delete_character(me: State<Armory>, _owner: ServerOwner, id: u32) -> Resu
 }
 
 #[openapi]
-#[delete("/character/uid/<uid>")]
+#[delete("/character/by_uid/<uid>")]
 pub fn delete_character_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<(), Failure>
 {
   me.delete_character_by_uid(owner.0, uid)
