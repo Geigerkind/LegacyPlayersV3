@@ -15,11 +15,10 @@ impl SetCharacter for Armory {
       return Err(Failure::InvalidInput);
     }
 
-    // Exists the character ? get char : create char
-    let character_id_res = self.get_character_id_by_uid(server_id, update_character.server_uid)
-      .or_else(|| self.create_character(server_id, update_character.server_uid).ok());
-    if character_id_res.is_none() {
-      return Err(Failure::Unknown);
+    // Create the character if necessary
+    let character_id_res = self.create_character(server_id, update_character.server_uid);
+    if character_id_res.is_err() {
+      return Err(character_id_res.err().unwrap());
     }
     let character_id = character_id_res.unwrap();
 

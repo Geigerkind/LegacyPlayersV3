@@ -3,6 +3,7 @@ use mysql_connection::tools::{Execute, Select};
 use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::material::Character;
+use crate::modules::armory::tools::GetCharacter;
 
 pub trait CreateCharacter {
   fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, Failure>;
@@ -10,6 +11,12 @@ pub trait CreateCharacter {
 
 impl CreateCharacter for Armory {
   fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, Failure> {
+    // If character exists already, return this one
+    let exisiting_character = self.get_character_id_by_uid(server_id, server_uid);
+    if exisiting_character.is_some() {
+      return Ok(exisiting_character.unwrap());
+    }
+
     let mut characters = self.characters.write().unwrap();
     if self.db_main.execute_wparams("INSERT INTO armory_character (`server_id`, `server_uid`) VALUES (:server_id, :server_uid)", params!(
       "server_id" => server_id,

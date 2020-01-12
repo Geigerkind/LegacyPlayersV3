@@ -11,12 +11,11 @@ pub trait CreateCharacterHistory {
 }
 
 impl CreateCharacterHistory for Armory {
-  // Assumptions:
-  // Char exists
-  // It has been checked that the previous value is not the same
+  // Assumption: It has been checked that the previous value is not the same
+  // Assumption: Character exists
   fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
     let character_id = self.get_character_id_by_uid(server_id, character_history_dto.character_uid).unwrap();
-    let guild_id = character_history_dto.guild_name.as_ref().and_then(|guild_name| self.create_guild(server_id, guild_name.clone()).and_then(|guild| Ok(guild.id)).ok());
+    let guild_id = character_history_dto.guild.as_ref().and_then(|guild_dto| self.create_guild(server_id, guild_dto.to_owned()).and_then(|guild| Ok(guild.id)).ok());
     let character_info_res = self.create_character_info(character_history_dto.character_info.to_owned());
     if character_info_res.is_err() {
       return Err(character_info_res.err().unwrap());

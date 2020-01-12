@@ -4,7 +4,8 @@ use rocket_contrib::json::Json;
 use crate::dto::Failure;
 use crate::modules::account::guard::ServerOwner;
 use crate::modules::armory::Armory;
-use crate::modules::armory::domain_value::Guild;
+use crate::modules::armory::dto::GuildDto;
+use crate::modules::armory::material::Guild;
 use crate::modules::armory::tools::{CreateGuild, DeleteGuild, GetGuild, UpdateGuild};
 
 #[openapi]
@@ -22,17 +23,17 @@ pub fn get_guilds_by_name(me: State<Armory>, guild_name: String) -> Json<Vec<Gui
 }
 
 #[openapi]
-#[post("/guild", format = "application/json", data = "<guild_name>")]
-pub fn create_guild(me: State<Armory>, owner: ServerOwner, guild_name: Json<String>) -> Result<(), Failure>
+#[post("/guild", format = "application/json", data = "<guild>")]
+pub fn create_guild(me: State<Armory>, owner: ServerOwner, guild: Json<GuildDto>) -> Result<(), Failure>
 {
-  me.create_guild(owner.0, guild_name.into_inner()).and_then(|_| Ok(()))
+  me.create_guild(owner.0, guild.into_inner()).and_then(|_| Ok(()))
 }
 
 #[openapi]
-#[post("/guild/<guild_id>", format = "application/json", data = "<guild_name>")]
-pub fn update_guild_name(me: State<Armory>, _owner: ServerOwner, guild_id: u32, guild_name: Json<String>) -> Result<(), Failure>
+#[post("/guild/<uid>", format = "application/json", data = "<guild_name>")]
+pub fn update_guild_name(me: State<Armory>, owner: ServerOwner, uid: u64, guild_name: Json<String>) -> Result<(), Failure>
 {
-  me.update_guild_name(guild_id, guild_name.into_inner()).and_then(|_| Ok(()))
+  me.update_guild_name(owner.0, uid, guild_name.into_inner()).and_then(|_| Ok(()))
 }
 
 #[openapi]
@@ -43,8 +44,8 @@ pub fn delete_guild(me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(
 }
 
 #[openapi]
-#[delete("/guild/by_name/<name>")]
-pub fn delete_guild_by_name(me: State<Armory>, owner: ServerOwner, name: String) -> Result<(), Failure>
+#[delete("/guild/by_uid/<uid>")]
+pub fn delete_guild_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<(), Failure>
 {
-  me.delete_guild_by_name(owner.0, name)
+  me.delete_guild_by_uid(owner.0, uid)
 }

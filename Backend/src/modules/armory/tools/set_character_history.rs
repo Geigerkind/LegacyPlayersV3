@@ -4,7 +4,7 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::CharacterHistoryDto;
 use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{CreateCharacterHistory, GetCharacter, GetGuild};
+use crate::modules::armory::tools::{CreateCharacterHistory, GetCharacter, CreateGuild};
 
 pub trait SetCharacterHistory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
@@ -14,9 +14,13 @@ impl SetCharacterHistory for Armory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
     // Validation
     if update_character_history.character_name.is_empty()
-      || update_character_history.guild_name.contains(&String::new())
       || update_character_history.guild_rank.contains(&String::new()) {
       return Err(Failure::InvalidInput);
+    } else if update_character_history.guild.is_some() {
+      let guild = update_character_history.guild.as_ref().unwrap();
+      if guild.server_uid == 0 || guild.name.is_empty() {
+        return Err(Failure::InvalidInput);
+      }
     }
 
     // Check if this character exists
@@ -26,7 +30,7 @@ impl SetCharacterHistory for Armory {
     }
 
     let character_id = character_id_res.unwrap();
-    let guild_id = update_character_history.guild_name.as_ref().and_then(|guild_name| self.get_guild_id_by_name(server_id, guild_name.clone()));
+    let guild_id = update_character_history.guild.as_ref().and_then(|guild_dto| self.create_guild(server_id, guild_dto.clone()).ok().and_then(|gld| Some(gld.id)));
 
     { // Check whether this is a new entry or just the same as previously
       let mut characters = self.characters.write().unwrap();

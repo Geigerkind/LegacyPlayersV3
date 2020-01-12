@@ -6,7 +6,7 @@ use crate::modules::armory::tools::GetGuild;
 
 pub trait DeleteGuild {
   fn delete_guild(&self, id: u32) -> Result<(), Failure>;
-  fn delete_guild_by_name(&self, server_id: u32, name: String) -> Result<(), Failure>;
+  fn delete_guild_by_uid(&self, server_id: u32, uid: u64) -> Result<(), Failure>;
 }
 
 impl DeleteGuild for Armory {
@@ -20,7 +20,7 @@ impl DeleteGuild for Armory {
     Err(Failure::InvalidInput)
   }
 
-  fn delete_guild_by_name(&self, server_id: u32, name: String) -> Result<(), Failure> {
-    self.get_guild_id_by_name(server_id, name).ok_or(Failure::InvalidInput).and_then(|id| self.delete_guild(id))
+  fn delete_guild_by_uid(&self, server_id: u32, uid: u64) -> Result<(), Failure> {
+    self.get_guild_id_by_uid(server_id, uid).ok_or(Failure::InvalidInput).and_then(|id| self.delete_guild(id))
   }
 }

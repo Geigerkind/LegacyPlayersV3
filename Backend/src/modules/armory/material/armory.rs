@@ -4,8 +4,8 @@ use std::sync::RwLock;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::armory::domain_value::{CharacterGear, CharacterInfo, CharacterItem, Guild};
-use crate::modules::armory::material::{Character, CharacterHistory};
+use crate::modules::armory::domain_value::{CharacterGear, CharacterInfo, CharacterItem};
+use crate::modules::armory::material::{Character, CharacterHistory, Guild};
 
 #[derive(Debug)]
 pub struct Armory {
@@ -131,8 +131,9 @@ impl Init for HashMap<u32, Guild> {
     db.select("SELECT * FROM armory_guild", &|mut row| {
       Guild {
         id: row.take(0).unwrap(),
-        server_id: row.take(1).unwrap(),
-        name: row.take(2).unwrap(),
+        server_uid: row.take(1).unwrap(),
+        server_id: row.take(2).unwrap(),
+        name: row.take(3).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
