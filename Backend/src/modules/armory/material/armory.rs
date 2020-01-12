@@ -26,7 +26,7 @@ impl Default for Armory {
 }
 
 impl Armory {
-  pub fn init(mut self) -> Self
+  pub fn init(self) -> Self
   {
     self.characters.write().unwrap().init(&self.db_main);
     self.guilds.write().unwrap().init(&self.db_main);
