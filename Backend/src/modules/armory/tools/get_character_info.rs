@@ -36,18 +36,17 @@ impl GetCharacterInfo for Armory {
   fn get_character_info_by_value(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure> {
     let params = params!(
       "gear_id" => self.get_gear_by_value(character_info.gear.clone()).unwrap().id,
-      "hero_class" => character_info.hero_class_id,
+      "hero_class_id" => character_info.hero_class_id,
       "level" => character_info.level,
       "gender" => character_info.gender,
       "profession1" => character_info.profession1.clone(),
       "profession2" => character_info.profession2.clone(),
       "talent_specialization" => character_info.talent_specialization.clone(),
       "faction" => character_info.faction,
-      "race" => character_info.race_id
+      "race_id" => character_info.race_id
     );
     self.db_main.select_wparams_value("SELECT id FROM armory_character_info WHERE gear_id=:gear_id AND hero_class=:hero_class AND level=:level AND gender=:gender AND profession1=:profession1 AND profession2=:profession2 AND talent_specialization=:talent_specialization AND faction=:faction AND race=:race", &|mut row| {
-      return self.get_character_info(row.take(0).unwrap());
-    }, params);
-    Err(Failure::Unknown)
+      self.get_character_info(row.take(0).unwrap())
+    }, params).unwrap_or_else(|| Err(Failure::Unknown))
   }
 }
