@@ -4,7 +4,7 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterInfo;
 use crate::modules::armory::dto::CharacterInfoDto;
-use crate::modules::armory::tools::GetGear;
+use crate::modules::armory::tools::GetCharacterGear;
 
 pub trait GetCharacterInfo {
   fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure>;
@@ -19,7 +19,7 @@ impl GetCharacterInfo for Armory {
     self.db_main.select_wparams_value("SELECT * FROM armory_character_info WHERE id=:id", &|mut row| {
       CharacterInfo {
         id: row.take(0).unwrap(),
-        gear: self.get_gear(row.take(1).unwrap()).unwrap(),
+        gear: self.get_character_gear(row.take(1).unwrap()).unwrap(),
         hero_class_id: row.take(2).unwrap(),
         level: row.take(3).unwrap(),
         gender: row.take(4).unwrap(),
@@ -35,7 +35,7 @@ impl GetCharacterInfo for Armory {
 
   fn get_character_info_by_value(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure> {
     let params = params!(
-      "gear_id" => self.get_gear_by_value(character_info.gear.clone()).unwrap().id,
+      "gear_id" => self.get_character_gear_by_value(character_info.gear.clone()).unwrap().id,
       "hero_class_id" => character_info.hero_class_id,
       "level" => character_info.level,
       "gender" => character_info.gender,

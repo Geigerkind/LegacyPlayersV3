@@ -17,20 +17,13 @@ fn create_character_item() {
   assert!(character_item_res.is_ok());
 
   let character_item = character_item_res.unwrap();
-  assert_eq!(character_item.item_id, character_item_dto.item_id);
-  assert_eq!(character_item.random_property_id, character_item_dto.random_property_id);
-  assert_eq!(character_item.enchant_id, character_item_dto.enchant_id);
-  assert_eq!(character_item.gem_ids, character_item_dto.gem_ids);
+  assert!(character_item.compare_by_value(&character_item_dto));
 
   let character_item2_res = armory.get_character_item(character_item.id);
   assert!(character_item2_res.is_ok());
 
   let character_item2 = character_item2_res.unwrap();
-  assert_eq!(character_item2.id, character_item.id);
-  assert_eq!(character_item2.item_id, character_item_dto.item_id);
-  assert_eq!(character_item2.random_property_id, character_item_dto.random_property_id);
-  assert_eq!(character_item2.enchant_id, character_item_dto.enchant_id);
-  assert_eq!(character_item2.gem_ids, character_item_dto.gem_ids);
+  assert!(character_item2.deep_eq(&character_item));
 
   armory.db_main.execute("DELETE FROM armory_item WHERE item_id = 19019");
 }

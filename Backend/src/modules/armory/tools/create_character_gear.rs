@@ -4,16 +4,16 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterGear;
 use crate::modules::armory::dto::CharacterGearDto;
-use crate::modules::armory::tools::{CreateCharacterItem, GetGear};
+use crate::modules::armory::tools::{CreateCharacterItem, GetCharacterGear};
 
-pub trait CreateGear {
-  fn create_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
+pub trait CreateCharacterGear {
+  fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
 }
 
-impl CreateGear for Armory {
-  fn create_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
+impl CreateCharacterGear for Armory {
+  fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
     // Check if it already exists
-    let existing_gear = self.get_gear_by_value(character_gear.clone());
+    let existing_gear = self.get_character_gear_by_value(character_gear.clone());
     if existing_gear.is_ok() {
       return existing_gear;
     }
@@ -174,8 +174,8 @@ impl CreateGear for Armory {
       "trinket1" => trinket1,
       "trinket2" => trinket2,
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)", params.clone()) {
-      return self.get_gear_by_value(character_gear);
+    if self.db_main.execute_wparams("INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)", params) {
+      return self.get_character_gear_by_value(character_gear);
     }
 
     Err(Failure::Unknown)

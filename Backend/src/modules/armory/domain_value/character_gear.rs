@@ -25,7 +25,36 @@ pub struct CharacterGear {
   pub trinket2: Option<CharacterItem>,
 }
 
+impl PartialEq for CharacterGear {
+  fn eq(&self, other: &Self) -> bool {
+    self.id == other.id
+  }
+}
+
 impl CharacterGear {
+  pub fn deep_eq(&self, other: &Self) -> bool {
+    self.id == other.id
+      && self.head.is_eq(&other.head)
+      && self.neck.is_eq(&other.neck)
+      && self.shoulder.is_eq(&other.shoulder)
+      && self.back.is_eq(&other.back)
+      && self.chest.is_eq(&other.chest)
+      && self.shirt.is_eq(&other.shirt)
+      && self.tabard.is_eq(&other.tabard)
+      && self.wrist.is_eq(&other.wrist)
+      && self.main_hand.is_eq(&other.main_hand)
+      && self.off_hand.is_eq(&other.off_hand)
+      && self.ternary_hand.is_eq(&other.ternary_hand)
+      && self.glove.is_eq(&other.glove)
+      && self.belt.is_eq(&other.belt)
+      && self.leg.is_eq(&other.leg)
+      && self.boot.is_eq(&other.boot)
+      && self.ring1.is_eq(&other.ring1)
+      && self.ring2.is_eq(&other.ring2)
+      && self.trinket1.is_eq(&other.trinket1)
+      && self.trinket2.is_eq(&other.trinket2)
+  }
+
   pub fn compare_by_value(&self, other: &CharacterGearDto) -> bool {
     return self.head.is_eq_by_value(&other.head)
       && self.neck.is_eq_by_value(&other.neck)
@@ -51,11 +80,17 @@ impl CharacterGear {
 
 trait EqByValue {
   fn is_eq_by_value(&self, other: &Option<CharacterItemDto>) -> bool;
+  fn is_eq(&self, other: &Option<CharacterItem>) -> bool;
 }
 
 impl EqByValue for Option<CharacterItem> {
   fn is_eq_by_value(&self, other: &Option<CharacterItemDto>) -> bool {
     return (self.is_some() && other.is_some() && self.as_ref().unwrap().compare_by_value(other.as_ref().unwrap()))
       || (self.is_none() && other.is_none());
+  }
+
+  fn is_eq(&self, other: &Option<CharacterItem>) -> bool {
+    (self.is_none() && other.is_none()) ||
+      (self.is_some() && other.is_some() && self.as_ref().unwrap().deep_eq(other.as_ref().unwrap()))
   }
 }

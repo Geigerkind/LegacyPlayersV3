@@ -1,5 +1,6 @@
 pub use self::material::Armory;
 
+#[cfg(test)]
 mod tests;
 
 mod tools;

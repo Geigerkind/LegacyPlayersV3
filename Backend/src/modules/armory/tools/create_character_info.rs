@@ -4,7 +4,7 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterInfo;
 use crate::modules::armory::dto::CharacterInfoDto;
-use crate::modules::armory::tools::{CreateGear, GetCharacterInfo};
+use crate::modules::armory::tools::{CreateCharacterGear, GetCharacterInfo};
 
 pub trait CreateCharacterInfo {
   fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure>;
@@ -19,7 +19,7 @@ impl CreateCharacterInfo for Armory {
     }
 
     // Create the gear needed
-    let gear_res = self.create_gear(character_info.gear.to_owned());
+    let gear_res = self.create_character_gear(character_info.gear.to_owned());
     if gear_res.is_err() {
       return Err(gear_res.err().unwrap());
     }

@@ -9,7 +9,21 @@ pub struct CharacterItem {
   pub gem_ids: Vec<Option<u32>>
 }
 
+impl PartialEq for CharacterItem {
+  fn eq(&self, other: &Self) -> bool {
+    self.id == other.id
+  }
+}
+
 impl CharacterItem {
+  pub fn deep_eq(&self, other: &Self) -> bool {
+    self.id == other.id
+    && self.item_id == other.item_id
+    && self.random_property_id == other.random_property_id
+    && self.enchant_id == other.enchant_id
+    && self.gem_ids == other.gem_ids
+  }
+
   pub fn compare_by_value(&self, other: &CharacterItemDto) -> bool {
     return self.item_id == other.item_id
       && self.random_property_id == other.random_property_id

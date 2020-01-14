@@ -6,19 +6,19 @@ use crate::modules::armory::domain_value::CharacterGear;
 use crate::modules::armory::dto::CharacterGearDto;
 use crate::modules::armory::tools::GetCharacterItem;
 
-pub trait GetGear {
-  fn get_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure>;
-  fn get_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
+pub trait GetCharacterGear {
+  fn get_character_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure>;
+  fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
 }
 
-impl GetGear for Armory {
-  fn get_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure> {
+impl GetCharacterGear for Armory {
+  fn get_character_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure> {
     let params = params!(
       "id" => gear_id
     );
     // Note: This implementation should not be very fast
     self.db_main.select_wparams_value("SELECT * FROM armory_gear WHERE id=:id", &|mut row| {
-      CharacterGear {
+      Ok(CharacterGear {
         id: row.take(0).unwrap(),
         head: row.take_opt(1).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
         neck: row.take_opt(2).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
@@ -39,12 +39,11 @@ impl GetGear for Armory {
         ring2: row.take_opt(17).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
         trinket1: row.take_opt(18).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
         trinket2: row.take_opt(19).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
-      }
-    }, params);
-    Err(Failure::Unknown)
+      })
+    }, params).unwrap_or_else(|| Err(Failure::Unknown))
   }
 
-  fn get_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
+  fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
     let head = gear.head.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let neck = gear.neck.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let shoulder = gear.shoulder.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
@@ -87,9 +86,28 @@ impl GetGear for Armory {
       "trinket2" => trinket2.as_ref().and_then(|item| Some(item.id)),
     );
     // Note: This implementation should not be very fast
-    self.db_main.select_wparams_value("SELECT id FROM armory_gear WHERE head=:head AND neck=:neck AND shoulder=:shoulder AND back=:back AND chest=:chest AND shirt=:shirt AND tabard=:tabard AND wrist=:wrist AND main_hand=:main_hand AND off_hand=:off_hand AND ternary_hand=:ternary_hand AND glove=:glove AND belt=:belt AND leg=:leg AND boot=:boot AND ring1=:ring1 AND ring2=:ring2 AND trinket1=:trinket1 AND trinket2=:trinket2", &|mut row| {
-      CharacterGear {
-        id: row.take(1).unwrap(),
+    self.db_main.select_wparams_value("SELECT id FROM armory_gear WHERE \
+      ((ISNULL(:head) AND ISNULL(head)) OR head = :head) \
+      AND ((ISNULL(:neck) AND ISNULL(neck)) OR neck = :neck) \
+      AND ((ISNULL(:shoulder) AND ISNULL(shoulder)) OR shoulder = :shoulder) \
+      AND ((ISNULL(:back) AND ISNULL(back)) OR back = :back) \
+      AND ((ISNULL(:chest) AND ISNULL(chest)) OR chest = :chest) \
+      AND ((ISNULL(:shirt) AND ISNULL(shirt)) OR shirt = :shirt) \
+      AND ((ISNULL(:tabard) AND ISNULL(tabard)) OR tabard = :tabard) \
+      AND ((ISNULL(:wrist) AND ISNULL(wrist)) OR wrist = :wrist) \
+      AND ((ISNULL(:main_hand) AND ISNULL(main_hand)) OR main_hand = :main_hand) \
+      AND ((ISNULL(:off_hand) AND ISNULL(off_hand)) OR off_hand = :off_hand) \
+      AND ((ISNULL(:ternary_hand) AND ISNULL(ternary_hand)) OR ternary_hand = :ternary_hand) \
+      AND ((ISNULL(:glove) AND ISNULL(glove)) OR glove = :glove) \
+      AND ((ISNULL(:belt) AND ISNULL(belt)) OR belt = :belt) \
+      AND ((ISNULL(:leg) AND ISNULL(leg)) OR leg = :leg) \
+      AND ((ISNULL(:boot) AND ISNULL(boot)) OR boot = :boot) \
+      AND ((ISNULL(:ring1) AND ISNULL(ring1)) OR ring1 = :ring1) \
+      AND ((ISNULL(:ring2) AND ISNULL(ring2)) OR ring2 = :ring2) \
+      AND ((ISNULL(:trinket1) AND ISNULL(trinket1)) OR trinket1 = :trinket1) \
+      AND ((ISNULL(:trinket2) AND ISNULL(trinket2)) OR trinket2 = :trinket2)", &|mut row| {
+      Ok(CharacterGear {
+        id: row.take(0).unwrap(),
         head: head.to_owned(),
         neck: neck.to_owned(),
         shoulder: shoulder.to_owned(),
@@ -109,9 +127,7 @@ impl GetGear for Armory {
         ring2: ring2.to_owned(),
         trinket1: trinket1.to_owned(),
         trinket2: trinket2.to_owned(),
-      }
-    }, params);
-
-    unimplemented!()
+      })
+    }, params).unwrap_or_else(|| Err(Failure::Unknown))
   }
 }
