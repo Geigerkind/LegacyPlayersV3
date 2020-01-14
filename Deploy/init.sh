@@ -3,7 +3,7 @@ REPOSITORY='https://github.com/Geigerkind/LegacyPlayersV3'
 DOMAIN='beta.legacyplayers.com'
 HOST_USER='root'
 BACKEND_USER='rpll'
-HOST_IP='51.38.99.189'
+HOST_IP='51.38.125.33'
 DB_PASSWORD=$(cat /root/Keys/db_password)
 
 function fixCertificates {
