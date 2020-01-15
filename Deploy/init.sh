@@ -143,6 +143,7 @@ function initServer {
   zstd -d libarchive-3.4.1-1-x86_64.pkg.tar.zst
   pacman -U libarchive-3.4.1-1-x86_64.pkg.tar --noconfirm
 
+  pacman -S archlinux-keyring --noconfirm
   pacman -Syu --noconfirm
   pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip
 
