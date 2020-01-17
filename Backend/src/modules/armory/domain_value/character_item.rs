@@ -13,6 +13,10 @@ impl PartialEq for CharacterItem {
   fn eq(&self, other: &Self) -> bool {
     self.id == other.id
   }
+
+  fn ne(&self, other: &Self) -> bool {
+    self.id != other.id
+  }
 }
 
 impl CharacterItem {

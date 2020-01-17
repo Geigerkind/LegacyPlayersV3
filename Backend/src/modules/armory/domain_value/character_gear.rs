@@ -29,6 +29,10 @@ impl PartialEq for CharacterGear {
   fn eq(&self, other: &Self) -> bool {
     self.id == other.id
   }
+
+  fn ne(&self, other: &Self) -> bool {
+    self.id != other.id
+  }
 }
 
 impl CharacterGear {

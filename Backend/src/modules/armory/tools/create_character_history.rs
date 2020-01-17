@@ -31,7 +31,10 @@ impl CreateCharacterHistory for Armory {
       "guild_rank" => character_history_dto.guild_rank.clone()
     );
     if self.db_main.execute_wparams("INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `guild_id`, `guild_rank`, `timestamp`) VALUES (:character_id, :character_info_id, :character_name, :guild_id, :guild_rank, UNIX_TIMESTAMP())", params.clone()) {
-      let character_history_res = self.db_main.select_wparams_value("SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name AND guild_id=:guild_id AND guild_rank=:guild_rank AND timestamp >= UNIX_TIMESTAMP()-60", &|mut row| {
+      let character_history_res = self.db_main.select_wparams_value("SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name \
+      AND ((ISNULL(:guild_id) AND ISNULL(guild_id)) OR guild_id = :guild_id) \
+      AND ((ISNULL(:guild_rank) AND ISNULL(guild_rank)) OR guild_rank = :guild_rank) \
+      AND timestamp >= UNIX_TIMESTAMP()-60", &|mut row| {
         CharacterHistory {
           id: row.take(0).unwrap(),
           character_id,
@@ -42,7 +45,10 @@ impl CreateCharacterHistory for Armory {
           timestamp: row.take(1).unwrap(),
         }
       }, params);
-      characters.get_mut(&character_id).unwrap().last_update = character_history_res;
+      characters.get_mut(&character_id).unwrap().last_update = character_history_res.clone();
+      if character_history_res.is_some() {
+        return Ok(character_history_res.unwrap());
+      }
     }
 
     Err(Failure::Unknown)

@@ -15,6 +15,16 @@ pub struct CharacterInfo {
   pub race_id: u8,
 }
 
+impl PartialEq for CharacterInfo {
+  fn eq(&self, other: &Self) -> bool {
+    self.id == other.id
+  }
+
+  fn ne(&self, other: &Self) -> bool {
+    self.id != other.id
+  }
+}
+
 impl CharacterInfo {
   pub fn compare_by_value(&self, other: &CharacterInfoDto) -> bool {
     self.gear.compare_by_value(&other.gear)

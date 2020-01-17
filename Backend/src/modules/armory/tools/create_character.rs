@@ -12,9 +12,9 @@ pub trait CreateCharacter {
 impl CreateCharacter for Armory {
   fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, Failure> {
     // If character exists already, return this one
-    let exisiting_character = self.get_character_id_by_uid(server_id, server_uid);
-    if exisiting_character.is_some() {
-      return Ok(exisiting_character.unwrap());
+    let existing_character = self.get_character_id_by_uid(server_id, server_uid);
+    if existing_character.is_some() {
+      return Ok(existing_character.unwrap());
     }
 
     let mut characters = self.characters.write().unwrap();
@@ -34,9 +34,12 @@ impl CreateCharacter for Armory {
         "server_id" => server_id,
         "server_uid" => server_uid,
       ));
+
       if character_res.is_some() {
         let character = character_res.unwrap();
-        characters.insert(character.id, character);
+        let character_id = character.id;
+        characters.insert(character_id, character);
+        return Ok(character_id);
       }
     }
 

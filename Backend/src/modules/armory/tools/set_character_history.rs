@@ -14,7 +14,10 @@ impl SetCharacterHistory for Armory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
     // Validation
     if update_character_history.character_name.is_empty()
-      || update_character_history.guild_rank.contains(&String::new()) {
+      || update_character_history.guild_rank.contains(&String::new())
+      || (update_character_history.guild.is_some() && update_character_history.guild_rank.is_none())
+      || (update_character_history.guild_rank.is_some() && update_character_history.guild.is_none())
+    {
       return Err(Failure::InvalidInput);
     } else if update_character_history.guild.is_some() {
       let guild = update_character_history.guild.as_ref().unwrap();
