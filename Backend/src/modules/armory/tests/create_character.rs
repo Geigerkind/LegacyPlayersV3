@@ -8,7 +8,7 @@ use crate::modules::armory::tools::{SetCharacter, GetCharacter};
 
 #[test]
 fn set_character() {
-  let armory = Armory::default().init();
+  let armory = Armory::default();
   let character_info_dto = CharacterInfoDto {
     gear: CharacterGearDto {
       head: Some(CharacterItemDto {

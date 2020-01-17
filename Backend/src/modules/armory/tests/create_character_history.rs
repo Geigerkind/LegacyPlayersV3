@@ -6,7 +6,7 @@ use std::{time, thread};
 
 #[test]
 fn set_character_history() {
-  let armory = Armory::default().init();
+  let armory = Armory::default();
   let character_dto = CharacterDto {
     server_uid: 123124,
     character_history: None,

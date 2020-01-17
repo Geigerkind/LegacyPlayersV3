@@ -5,7 +5,7 @@ use mysql_connection::tools::Execute;
 
 #[test]
 fn create_character_info() {
-  let armory = Armory::default().init();
+  let armory = Armory::default();
   let character_info_dto = CharacterInfoDto {
     gear: CharacterGearDto {
       head: Some(CharacterItemDto {

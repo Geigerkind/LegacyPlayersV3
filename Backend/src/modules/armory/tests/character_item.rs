@@ -5,7 +5,7 @@ use mysql_connection::tools::Execute;
 
 #[test]
 fn create_character_item() {
-  let armory = Armory::default().init();
+  let armory = Armory::default();
   let character_item_dto = CharacterItemDto {
     item_id: 19019,
     random_property_id: None,
