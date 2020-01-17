@@ -17,7 +17,7 @@ pub struct CharacterInfo {
 
 impl CharacterInfo {
   pub fn compare_by_value(&self, other: &CharacterInfoDto) -> bool {
-    return self.gear.compare_by_value(&other.gear)
+    self.gear.compare_by_value(&other.gear)
       && self.hero_class_id == other.hero_class_id
       && self.level == other.level
       && self.gender == other.gender
@@ -28,6 +28,19 @@ impl CharacterInfo {
           )
       && self.talent_specialization == other.talent_specialization
       && self.faction == other.faction
-      && self.race_id == other.race_id;
+      && self.race_id == other.race_id
+  }
+
+  pub fn deep_eq(&self, other: &Self) -> bool {
+    self.id == other.id
+      && self.gear.deep_eq(&other.gear)
+      && self.hero_class_id == other.hero_class_id
+      && self.level == other.level
+      && self.gender == other.gender
+      && self.profession1 == other.profession1
+      && self.profession2 == other.profession2
+      && self.talent_specialization == other.talent_specialization
+      && self.faction == other.faction
+      && self.race_id == other.race_id
   }
 }

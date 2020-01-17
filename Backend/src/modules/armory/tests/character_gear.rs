@@ -120,7 +120,21 @@ fn create_character_gear() {
   let character_gear2 = character_gear_res2.unwrap();
   assert!(character_gear2.deep_eq(&character_gear));
 
-  armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!(
-    "id" => character_gear.id
-  ));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.head.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.neck.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.shoulder.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.back.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.chest.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.wrist.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.main_hand.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.ternary_hand.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.glove.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.belt.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.leg.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.boot.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.ring1.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.ring2.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.trinket1.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_gear.trinket2.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_gear.id));
 }

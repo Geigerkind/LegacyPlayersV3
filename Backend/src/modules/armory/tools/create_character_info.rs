@@ -36,7 +36,7 @@ impl CreateCharacterInfo for Armory {
       "faction" => character_info.faction,
       "race_id" => character_info.race_id
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `faction`, `race`) VALUES (:gear_id, :hero_class, :level, :gender, :profession1, :profession2, :talent_specialization, :faction, :race)", params.clone()) {
+    if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `faction`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :faction, :race_id)", params.clone()) {
       return self.get_character_info_by_value(character_info.to_owned());
     }
 
