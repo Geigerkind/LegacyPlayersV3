@@ -23,6 +23,7 @@ use rocket_prometheus::PrometheusMetrics;
 use crate::modules::account;
 use crate::modules::armory;
 use crate::modules::data;
+use crate::modules::tooltip;
 
 pub mod dto;
 pub mod modules;
@@ -31,12 +32,14 @@ fn main() {
   let account = account::Account::default().init();
   let data = data::Data::default().init(None);
   let armory = armory::Armory::default().init();
+  let tooltip = tooltip::Tooltip::default().init();
 
   let prometheus = PrometheusMetrics::new();
   let mut igniter = rocket::ignite();
   igniter = igniter.manage(account);
   igniter = igniter.manage(data);
   igniter = igniter.manage(armory);
+  igniter = igniter.manage(tooltip);
 
   igniter = igniter.attach(prometheus.clone());
   igniter = igniter.mount("/metrics", prometheus);
@@ -55,6 +58,10 @@ fn main() {
                               UrlObject {
                                 name: "Armory".to_string(),
                                 url: "/API/armory/openapi.json".to_string(),
+                              },
+                              UrlObject {
+                                name: "Tooltip".to_string(),
+                                url: "/API/tooltip/openapi.json".to_string(),
                               }
                             ]),
                           }));
@@ -107,6 +114,8 @@ fn main() {
     armory::transfer::guild::delete_guild_by_uid, armory::transfer::guild::create_guild, armory::transfer::guild::update_guild_name,
     armory::transfer::character_history::set_character_history, armory::transfer::character_history::get_character_history, armory::transfer::character_history::delete_character_history,
   ]);
+
+  igniter = igniter.mount("/API/tooltip/", routes_with_openapi![]);
 
   igniter.launch();
 }
