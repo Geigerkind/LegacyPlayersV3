@@ -16,7 +16,7 @@ impl DeleteCharacterHistory for Armory {
     let character_history = character_history_res.unwrap();
 
     let mut characters = self.characters.write().unwrap();
-    if self.db_main.execute_wparams("DELETE FROM character_history WHERE id=:id", params!(
+    if self.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!(
       "id" => character_history_id
     )) {
       let mut character = characters.get_mut(&character_history.character_id).unwrap();

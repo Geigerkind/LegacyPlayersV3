@@ -55,7 +55,6 @@ fn change_name_invalid_content() {
 
   let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
   let changed_name = account.change_name("ihsdfoiosdf ihsdfoiosdf", api_token.member_id);
-  println!("{:?}", changed_name);
   assert!(changed_name.is_err());
 
   account.db_main.execute("DELETE FROM account_member WHERE mail='ihsdfoiosdf@jaylappTest.dev'");

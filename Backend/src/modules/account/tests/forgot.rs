@@ -38,7 +38,6 @@ fn send_forgot_password_user_exists_and_receive() {
   }
   let forgot_id = sha3::hash(&[&val_pair.member_id.to_string(), "forgot", &salt]);
   let receive_forgot = account.recv_forgot_password(&forgot_id);
-  println!("{:?}", receive_forgot);
   assert!(receive_forgot.is_ok());
 
   account.db_main.execute("DELETE FROM account_member WHERE mail='fscngsuzfdcsv@jaylappTest.dev'");

@@ -173,8 +173,8 @@ fn set_character() {
   assert!(delete_result.is_ok());
 
   // Check if it was actually deleted
-  let character3 = armory.get_character(character.id);
-  assert!(character3.is_none());
+  let character_res3 = armory.get_character(character.id);
+  assert!(character_res3.is_none());
 
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.head.unwrap().id));
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.neck.unwrap().id));
