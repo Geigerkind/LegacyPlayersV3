@@ -4,7 +4,7 @@ use crate::modules::armory::tools::{CreateGuild, GetGuild};
 use mysql_connection::tools::Execute;
 
 #[test]
-fn create_guild() {
+fn guild() {
   let armory = Armory::default();
   let guild_dto = GuildDto {
     server_uid: 23423214,

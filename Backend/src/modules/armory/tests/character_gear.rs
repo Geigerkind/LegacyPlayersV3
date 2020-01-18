@@ -4,7 +4,7 @@ use crate::modules::armory::tools::{CreateCharacterGear, GetCharacterGear};
 use mysql_connection::tools::Execute;
 
 #[test]
-fn create_character_gear() {
+fn character_gear() {
   let armory = Armory::default();
   let character_gear_dto = CharacterGearDto {
     head: Some(CharacterItemDto {
