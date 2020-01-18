@@ -25,10 +25,10 @@ impl CreateGuild for Armory {
 
     // Else create one
     let mut guilds = self.guilds.write().unwrap();
-    if self.db_main.execute_wparams("INSERT INTO armory_guild (`server_id`, `server_uid`, `guild_name`) VALUES (:server_id, :guild_name)", params!(
+    if self.db_main.execute_wparams("INSERT INTO armory_guild (`server_id`, `server_uid`, `guild_name`) VALUES (:server_id, :server_uid, :guild_name)", params!(
       "server_id" => server_id,
       "server_uid" => guild.server_uid,
-      "guild_name" => guild.name.to_owned()
+      "guild_name" => guild.name.clone()
     )) {
       let guild_id = self.db_main.select_wparams_value("SELECT id FROM armory_guild WHERE server_id=:server_id AND server_uid=:server_uid", &|mut row| {
         let id: u32 = row.take(0).unwrap();
@@ -41,7 +41,7 @@ impl CreateGuild for Armory {
       let new_guild = Guild {
         id: guild_id,
         server_uid: guild.server_uid,
-        name: guild.name,
+        name: guild.name.to_owned(),
         server_id
       };
       guilds.insert(new_guild.id, new_guild.clone());
