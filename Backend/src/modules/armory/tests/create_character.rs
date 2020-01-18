@@ -4,7 +4,7 @@ use mysql_connection::tools::Execute;
 
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
-use crate::modules::armory::tools::{SetCharacter, GetCharacter};
+use crate::modules::armory::tools::{SetCharacter, GetCharacter, DeleteCharacter};
 
 #[test]
 fn set_character() {
@@ -167,6 +167,15 @@ fn set_character() {
   assert!(character2.deep_eq(&set_character2));
 
   let character_history = character.last_update.unwrap();
+
+  // Deleting the character
+  let delete_result = armory.delete_character(character.id);
+  assert!(delete_result.is_ok());
+
+  // Check if it was actually deleted
+  let character3 = armory.get_character(character.id);
+  assert!(character3.is_none());
+
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.head.unwrap().id));
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.neck.unwrap().id));
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.shoulder.unwrap().id));
