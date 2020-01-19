@@ -6,9 +6,9 @@ mod tests;
 #[cfg(test)]
 mod benchmarks;
 
-mod tools;
-mod material;
-mod domain_value;
 mod dto;
 
+pub mod tools;
+pub mod material;
+pub mod domain_value;
 pub mod transfer;

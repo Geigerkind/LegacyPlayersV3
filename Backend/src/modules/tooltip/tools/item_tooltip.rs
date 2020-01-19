@@ -1,12 +1,15 @@
 use crate::dto::Failure;
+use crate::modules::armory::Armory;
+use crate::modules::armory::domain_value::CharacterItem;
+use crate::modules::armory::tools::GetCharacterGear;
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveEnchant, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription};
-use crate::modules::tooltip::domain_value::{ItemSet, ItemTooltip, SetEffect, SetItem, Socket, SocketSlot, Stat, WeaponDamage, WeaponStat};
+use crate::modules::data::tools::{RetrieveEnchant, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription, RetrieveGem};
+use crate::modules::tooltip::domain_value::{ItemSet, ItemTooltip, SetEffect, SetItem, Socket, SocketSlot, Stat, WeaponDamage, WeaponStat, SocketSlotItem};
 use crate::modules::tooltip::Tooltip;
 
 pub trait RetrieveItemTooltip {
   fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, Failure>;
-  fn get_character_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, Failure>;
+  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, Failure>;
 }
 
 impl RetrieveItemTooltip for Tooltip {
@@ -50,6 +53,7 @@ impl RetrieveItemTooltip for Tooltip {
     let mut item_set = item.itemset.and_then(|itemset_id| data.get_itemset_name(expansion_id, itemset_id).and_then(|itemset_name| Some(ItemSet {
       name: data.get_localization(language_id, itemset_name.localization_id).and_then(|localization| Some(localization.content)).unwrap(),
       set_items: data.get_itemset_item_ids(expansion_id, itemset_id).unwrap().iter().map(|item_id| SetItem {
+        item_id: item_id.clone(),
         active: false,
         name: data.get_item(expansion_id, *item_id).and_then(|item| data.get_localization(language_id, item.localization_id).and_then(|localization| Some(localization.content))).unwrap(),
       }).collect(),
@@ -88,7 +92,155 @@ impl RetrieveItemTooltip for Tooltip {
     })
   }
 
-  fn get_character_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, Failure> {
-    unimplemented!()
+  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, Failure> {
+    let item_tooltip_res = self.get_item(data, language_id, expansion_id, item_id);
+    if item_tooltip_res.is_err() {
+      return Err(item_tooltip_res.err().unwrap());
+    }
+    let mut item_tooltip = item_tooltip_res.unwrap();
+
+    let character_gear_res = armory.get_character_gear(character_gear_id);
+    if character_gear_res.is_err() {
+      return Ok(item_tooltip);
+    }
+    let character_gear = character_gear_res.unwrap();
+
+    // If we have an itemset, check which of these items is active
+    if item_tooltip.item_set.is_some() {
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.head);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.neck);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.shoulder);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.back);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.chest);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.shirt);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.tabard);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.wrist);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.glove);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.belt);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.leg);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.boot);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.ring1);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.ring2);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.trinket1);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.trinket2);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.main_hand);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.off_hand);
+      check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.ternary_hand);
+    }
+
+    // Apply the enchant
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.head, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.neck, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.shoulder, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.back, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.chest, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.shirt, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.tabard, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.wrist, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.main_hand, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.off_hand, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.ternary_hand, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.glove, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.belt, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.leg, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.boot, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.ring1, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.ring2, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.trinket1, item_id);
+    try_apply_enchant(data, expansion_id, language_id, &mut item_tooltip.enchant, &character_gear.trinket2, item_id);
+
+    // Fill sockets
+    if item_tooltip.socket.is_some() {
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.head, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.neck, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.shoulder, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.back, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.chest, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.shirt, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.tabard, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.wrist, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.main_hand, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.off_hand, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.ternary_hand, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.glove, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.belt, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.leg, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.boot, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.ring1, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.ring2, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.trinket1, item_id);
+      try_fill_socket(data, expansion_id, language_id, item_tooltip.socket.as_mut().unwrap(), &character_gear.trinket2, item_id);
+    }
+
+    Ok(item_tooltip)
+  }
+}
+
+fn check_is_active(items_to_check: &mut Vec<SetItem>, item: &Option<CharacterItem>) {
+  if item.is_none() {
+    return;
+  }
+
+  let item_id = item.as_ref().unwrap().item_id;
+  for itm in items_to_check {
+    if itm.item_id == item_id {
+      itm.active = true;
+    }
+  }
+}
+
+fn try_apply_enchant(data: &Data, expansion_id: u8, language_id: u8, enchant: &mut Option<String>, item: &Option<CharacterItem>, item_id: u32) {
+  if item.is_none() {
+    return;
+  }
+
+  let item_res = item.as_ref().unwrap();
+  if item_res.item_id != item_id || item_res.enchant_id.is_none() {
+    return;
+  }
+  *enchant = data.get_enchant(expansion_id, item_res.enchant_id.unwrap())
+    .and_then(|enchant| data.get_localization(language_id, enchant.localization_id)
+      .and_then(|localization| Some(localization.content)));
+}
+
+fn try_fill_socket(data: &Data, expansion_id: u8, language_id: u8, socket: &mut Socket, item: &Option<CharacterItem>, item_id: u32) {
+  if item.is_none() {
+    return;
+  }
+
+  let item_res = item.as_ref().unwrap();
+  if item_res.item_id != item_id || item_res.enchant_id.is_none() {
+    return;
+  }
+
+  let socket_slots_length = socket.slots.len();
+  for i in 0..item_res.gem_ids.len() {
+    let gem_opt = item_res.gem_ids.get(i).unwrap();
+    if gem_opt.is_none() {
+      continue;
+    }
+
+    let gem_item_res = data.get_item(expansion_id, gem_opt.unwrap());
+    if gem_item_res.is_none() {
+      continue;
+    }
+    let gem_item = gem_item_res.unwrap();
+    let gem = data.get_gem(expansion_id, gem_item.id).unwrap();
+    let socket_item = Some(SocketSlotItem {
+      icon: data.get_icon(gem_item.icon).unwrap().name,
+      effect: data.get_enchant(expansion_id, gem.enchant_id)
+                .and_then(|enchant| data.get_localization(language_id, enchant.localization_id)
+                  .and_then(|localization| Some(localization.content))).unwrap(),
+      flag: gem.flag
+    });
+
+    if i < socket_slots_length {
+      socket.slots[i].item = socket_item.to_owned();
+    } else {
+      socket.slots.push(SocketSlot {
+        flag: socket_item.as_ref().unwrap().flag,
+        item: socket_item.to_owned(),
+      });
+    }
   }
 }
