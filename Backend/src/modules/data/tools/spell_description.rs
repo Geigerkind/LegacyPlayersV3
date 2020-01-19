@@ -12,7 +12,7 @@ pub trait SpellDescription {
 impl SpellDescription for Data {
   fn get_localized_spell_description(&self, expansion_id: u8, language_id: u8, spell_id: u32) -> Option<String> {
     lazy_static! {
-      static ref RE: Regex = Regex::new(r"\$(\d+)(s\d|x\d|a\d|d)").unwrap();
+      static ref RE: Regex = Regex::new(r"\$(\d+)(s\d|x\d|a\d|o\d|d)").unwrap();
     }
 
     let spell_res = self.get_spell(expansion_id, spell_id);
@@ -27,6 +27,7 @@ impl SpellDescription for Data {
     template = template.replace("$d", &format_duration(&self.dictionary, language_id, spell.duration.abs() as u32));
     for i in 0..spell_effects.len() {
       template = template.replace(&format!("$s{}", i+1), &spell_effects[i].points_upper.abs().to_string());
+      template = template.replace(&format!("$o{}", i+1), &spell_effects[i].points_upper.to_string());
       template = template.replace(&format!("$x{}", i+1), &spell_effects[i].chain_targets.to_string());
       template = template.replace(&format!("$a{}", i+1), &spell_effects[i].radius.to_string());
       if RE.is_match(&template) {
@@ -47,6 +48,7 @@ impl SpellDescription for Data {
           let inner_spell_effects = self.get_spell_effects(expansion_id, inner_spell_id).unwrap();
           for i in 0..inner_spell_effects.len() {
             temp_res = temp_res.replace(&format!("${}s{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].points_upper.abs().to_string());
+            temp_res = temp_res.replace(&format!("${}o{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].points_upper.abs().to_string());
             temp_res = temp_res.replace(&format!("${}x{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].chain_targets.to_string());
             temp_res = temp_res.replace(&format!("${}a{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].radius.to_string());
           }
