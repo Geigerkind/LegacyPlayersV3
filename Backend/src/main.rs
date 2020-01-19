@@ -115,7 +115,9 @@ fn main() {
     armory::transfer::character_history::set_character_history, armory::transfer::character_history::get_character_history, armory::transfer::character_history::delete_character_history,
   ]);
 
-  igniter = igniter.mount("/API/tooltip/", routes_with_openapi![]);
+  igniter = igniter.mount("/API/tooltip/", routes_with_openapi![
+    tooltip::transfer::item_tooltip::get_item, tooltip::transfer::item_tooltip::get_character_item,
+  ]);
 
   igniter.launch();
 }
