@@ -9,7 +9,7 @@ use crate::modules::tooltip::tools::RetrieveSpellTooltip;
 use crate::modules::tooltip::Tooltip;
 
 #[openapi]
-#[get("/item/<id>")]
+#[get("/spell/<id>")]
 pub fn get_spell(me: State<Tooltip>, data: State<Data>, language: Language, expansion: Expansion, id: u32) -> Result<Json<SpellTooltip>, Failure>
 {
   me.get_spell(&data, language.0, expansion.0, id).and_then(|tooltip| Ok(Json(tooltip)))
