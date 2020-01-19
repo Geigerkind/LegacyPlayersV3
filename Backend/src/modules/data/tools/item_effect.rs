@@ -2,11 +2,11 @@ use crate::modules::data::Data;
 use crate::modules::data::domain_value::ItemEffect;
 
 pub trait RetrieveItemEffect {
-  fn get_item_effect(&self, expansion_id: u8, item_id: u32) -> Option<ItemEffect>;
+  fn get_item_effect(&self, expansion_id: u8, item_id: u32) -> Option<Vec<ItemEffect>>;
 }
 
 impl RetrieveItemEffect for Data {
-  fn get_item_effect(&self, expansion_id: u8, item_id: u32) -> Option<ItemEffect> {
+  fn get_item_effect(&self, expansion_id: u8, item_id: u32) -> Option<Vec<ItemEffect>> {
     if expansion_id == 0 {
       return None;
     }

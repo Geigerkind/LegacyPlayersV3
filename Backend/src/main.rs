@@ -14,6 +14,8 @@ extern crate serde_json;
 extern crate str_util;
 extern crate time_util;
 extern crate validator;
+#[macro_use] extern crate lazy_static;
+extern crate regex;
 
 use rocket_okapi::swagger_ui::make_swagger_ui;
 use rocket_okapi::swagger_ui::SwaggerUIConfig;
@@ -103,7 +105,7 @@ fn main() {
     data::transfer::item_sheath::get_item_sheath, data::transfer::item_sheath::get_all_item_sheaths,
     data::transfer::item_socket::get_item_socket,
     data::transfer::item_stat::get_item_stats,
-    data::transfer::itemset_name::get_itemset_name,
+    data::transfer::itemset_name::get_itemset_name, data::transfer::itemset_name::get_itemset_item_ids,
     data::transfer::itemset_effect::get_itemset_effects,
   ]);
 

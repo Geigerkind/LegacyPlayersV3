@@ -7,7 +7,7 @@ use crate::modules::data::tools::RetrieveItemEffect;
 
 #[openapi]
 #[get("/item_effect/<expansion_id>/<item_id>")]
-pub fn get_item_effect(me: State<Data>, expansion_id: u8, item_id: u32) -> Option<Json<ItemEffect>> {
+pub fn get_item_effect(me: State<Data>, expansion_id: u8, item_id: u32) -> Option<Json<Vec<ItemEffect>>> {
   me.get_item_effect(expansion_id, item_id)
     .and_then(|result| Some(Json(result)))
 }

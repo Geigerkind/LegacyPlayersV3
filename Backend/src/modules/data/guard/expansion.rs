@@ -9,39 +9,42 @@ use rocket_okapi::request::OpenApiFromRequest;
 use rocket_okapi::response::OpenApiResponder;
 
 use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveLanguage;
+use crate::modules::data::tools::RetrieveExpansion;
 
-pub struct Language(pub u8);
+pub struct Expansion(pub u8);
 
-impl<'a, 'r> FromRequest<'a, 'r> for Language {
+impl<'a, 'r> FromRequest<'a, 'r> for Expansion {
   type Error = ();
 
   fn from_request(req: &'a Request<'r>) -> request::Outcome<Self, ()> {
-    let lang_header = req.headers().get_one("X-Language");
-    if lang_header.is_none() {
-      return Success(Language(1));
+    let expansion_header = req.headers().get_one("X-Expansion");
+    if expansion_header.is_none() {
+      return Failure((Status::NotFound, ()));
     }
 
-    let lang_short_code = lang_header.unwrap().to_lowercase();
+    let expansion_res = expansion_header.unwrap().parse::<u8>();
+    if expansion_res.is_err() {
+      return Failure((Status::NotFound, ()));
+    }
+    let expansion = expansion_res.unwrap();
+
     let data_res = req.guard::<State<'_, Data>>();
     if data_res.is_failure() {
-      return Success(Language(1));
+      return Failure((Status::NotFound, ()));
     }
 
     let data = data_res.unwrap();
-    let language = data.get_language_by_short_code(lang_short_code).and_then(|language| Some(language.id));
-    if language.is_none() {
-      return Success(Language(1));
+    match data.get_expansion(expansion) {
+      Some(_) => Success(Expansion(expansion)),
+      None => Failure((Status::NotFound, ()))
     }
-
-    Success(Language(language.unwrap()))
   }
 }
 
-impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Language {
+impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Expansion {
   fn request_parameter(_: &mut OpenApiGenerator, _: String) -> rocket_okapi::Result<Parameter> {
     Ok(Parameter {
-      name: "X-Language".to_owned(),
+      name: "X-Expansion".to_owned(),
       location: "header".to_owned(),
       description: None,
       required: true,
@@ -62,13 +65,13 @@ impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Language {
 
 // This implementation is required from OpenAPI, it does nothing here
 // and is not supposed to be used!
-impl Responder<'static> for Language {
+impl Responder<'static> for Expansion {
   fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
-    Response::build().status(Status::Ok).ok()
+    Response::build().status(Status::NotFound).ok()
   }
 }
 
-impl OpenApiResponder<'static> for Language {
+impl OpenApiResponder<'static> for Expansion {
   fn responses(_: &mut OpenApiGenerator) -> rocket_okapi::Result<Responses> {
     Ok(Responses::default())
   }

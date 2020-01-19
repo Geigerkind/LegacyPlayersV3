@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 
+use language::material::Dictionary;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
 use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType};
+use crate::modules::data::language::init::Init as DictionaryInit;
 
 #[derive(Debug)]
 pub struct Data {
   pub db_main: MySQLConnection,
+  pub dictionary: Dictionary,
   pub expansions: HashMap<u8, Expansion>,
   pub languages: HashMap<u8, Language>,
   pub localization: Vec<HashMap<u32, Localization>>,
@@ -27,9 +30,9 @@ pub struct Data {
   pub enchants: Vec<HashMap<u32, Enchant>>,
   pub item_bondings: HashMap<u8, ItemBonding>,
   pub item_classes: HashMap<u8, ItemClass>,
-  pub item_damages: Vec<HashMap<u32, ItemDamage>>,
+  pub item_damages: Vec<HashMap<u32, Vec<ItemDamage>>>,
   pub item_damage_types: HashMap<u8, ItemDamageType>,
-  pub item_effects: Vec<HashMap<u32, ItemEffect>>,
+  pub item_effects: Vec<HashMap<u32, Vec<ItemEffect>>>,
   pub item_inventory_types: HashMap<u8, ItemInventoryType>,
   pub item_qualities: HashMap<u8, ItemQuality>,
   pub item_random_properties: Vec<HashMap<u16, ItemRandomProperty>>,
@@ -43,8 +46,11 @@ pub struct Data {
 impl Default for Data {
   fn default() -> Self
   {
+    let dictionary = Dictionary::default();
+    Dictionary::init(&dictionary);
     Data {
       db_main: MySQLConnection::new("main"),
+      dictionary,
       expansions: HashMap::new(),
       languages: HashMap::new(),
       localization: Vec::new(),
@@ -237,7 +243,7 @@ impl Init for Vec<HashMap<u32, Spell>> {
         duration: row.take(12).unwrap(),
         icon: row.take(13).unwrap(),
         description_localization_id: row.take(14).unwrap(),
-        aura_localization_id: row.take(15).unwrap()
+        aura_localization_id: row.take(15).unwrap(),
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -360,13 +366,13 @@ impl Init for Vec<HashMap<u32, Item>> {
         quality: row.take(4).unwrap(),
         inventory_type: row.take(5).unwrap(),
         class_id: row.take(6).unwrap(),
-        required_level: row.take(7).unwrap(),
+        required_level: row.take_opt(7).unwrap().ok(),
         bonding: row.take_opt(8).unwrap().ok(),
         sheath: row.take_opt(9).unwrap().ok(),
         itemset: row.take_opt(10).unwrap().ok(),
-        max_durability: row.take(11).unwrap(),
-        item_level: row.take(12).unwrap(),
-        delay: row.take(13).unwrap(),
+        max_durability: row.take_opt(11).unwrap().ok(),
+        item_level: row.take_opt(12).unwrap().ok(),
+        delay: row.take_opt(13).unwrap().ok(),
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -386,7 +392,7 @@ impl Init for Vec<HashMap<u32, Gem>> {
         expansion_id: row.take(0).unwrap(),
         item_id: row.take(1).unwrap(),
         enchant_id: row.take(2).unwrap(),
-        flag: row.take(3).unwrap()
+        flag: row.take(3).unwrap(),
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -405,20 +411,20 @@ impl Init for Vec<HashMap<u32, Enchant>> {
       let mut stats = Vec::new();
       for i in (3..8).step_by(2) {
         let stat_type = row.take_opt(i).unwrap().ok();
-        let stat_value = row.take_opt(i+1).unwrap().ok();
+        let stat_value = row.take_opt(i + 1).unwrap().ok();
         if stat_type.is_none() {
           break;
         }
         stats.push(Stat {
           stat_type: stat_type.unwrap(),
-          stat_value: stat_value.unwrap()
+          stat_value: stat_value.unwrap(),
         });
       }
       Enchant {
         expansion_id: row.take(0).unwrap(),
         id: row.take(1).unwrap(),
         localization_id: row.take(2).unwrap(),
-        stats
+        stats,
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -454,9 +460,10 @@ impl Init for HashMap<u8, ItemClass> {
   }
 }
 
-impl Init for Vec<HashMap<u32, ItemDamage>> {
+impl Init for Vec<HashMap<u32, Vec<ItemDamage>>> {
   fn init(&mut self, db: &MySQLConnection) {
     let mut last_expansion_id = 0;
+    let mut last_item_id = 0;
     db.select("SELECT * FROM data_item_dmg ORDER BY expansion_id, item_id, id", &|mut row| {
       ItemDamage {
         id: row.take(0).unwrap(),
@@ -471,7 +478,12 @@ impl Init for Vec<HashMap<u32, ItemDamage>> {
         self.push(HashMap::new());
         last_expansion_id = result.expansion_id;
       }
-      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.item_id, result.to_owned());
+      let item_damage_map = self.get_mut(result.expansion_id as usize - 1).unwrap();
+      if result.item_id != last_item_id {
+        item_damage_map.insert(result.item_id, Vec::new());
+        last_item_id = result.item_id;
+      }
+      item_damage_map.get_mut(&result.item_id).unwrap().push(result.to_owned());
     });
   }
 }
@@ -487,22 +499,28 @@ impl Init for HashMap<u8, ItemDamageType> {
   }
 }
 
-impl Init for Vec<HashMap<u32, ItemEffect>> {
+impl Init for Vec<HashMap<u32, Vec<ItemEffect>>> {
   fn init(&mut self, db: &MySQLConnection) {
     let mut last_expansion_id = 0;
+    let mut last_item_id = 0;
     db.select("SELECT id, expansion_id, item_id, spell_id FROM data_item_effect ORDER BY expansion_id, item_id, id", &|mut row| {
       ItemEffect {
         id: row.take(0).unwrap(),
         expansion_id: row.take(1).unwrap(),
         item_id: row.take(2).unwrap(),
-        spell_id: row.take(3).unwrap()
+        spell_id: row.take(3).unwrap(),
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
         self.push(HashMap::new());
         last_expansion_id = result.expansion_id;
       }
-      self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.item_id, result.to_owned());
+      let item_effect_map = self.get_mut(result.expansion_id as usize - 1).unwrap();
+      if result.item_id != last_item_id {
+        item_effect_map.insert(result.item_id, Vec::new());
+        last_item_id = result.item_id;
+      }
+      item_effect_map.get_mut(&result.item_id).unwrap().push(result.to_owned());
     });
   }
 }
@@ -545,7 +563,7 @@ impl Init for Vec<HashMap<u16, ItemRandomProperty>> {
         expansion_id: row.take(0).unwrap(),
         id: row.take(1).unwrap(),
         localization_id: row.take(2).unwrap(),
-        enchant_ids
+        enchant_ids,
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -583,7 +601,7 @@ impl Init for Vec<HashMap<u32, ItemSocket>> {
         expansion_id: row.take(0).unwrap(),
         item_id: row.take(1).unwrap(),
         bonus: row.take(2).unwrap(),
-        slots
+        slots,
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -599,7 +617,7 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
   fn init(&mut self, db: &MySQLConnection) {
     let mut last_expansion_id = 0;
     let mut last_item_id = 0;
-    db.select("SELECT * FROM data_item_stat ORDER BY expansion_id, item_id", &|mut row| {
+    db.select("SELECT * FROM data_item_stat WHERE stat_type IN (1,2,3,4,5,6,27,28,29,30,31) ORDER BY expansion_id, item_id", &|mut row| {
       ItemStat {
         id: row.take(0).unwrap(),
         expansion_id: row.take(1).unwrap(),
@@ -607,7 +625,7 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
         stat: Stat {
           stat_type: row.take(3).unwrap(),
           stat_value: row.take(4).unwrap(),
-        }
+        },
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
@@ -631,7 +649,7 @@ impl Init for Vec<HashMap<u16, ItemsetName>> {
       ItemsetName {
         expansion_id: row.take(0).unwrap(),
         id: row.take(1).unwrap(),
-        localization_id: row.take(2).unwrap()
+        localization_id: row.take(2).unwrap(),
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {

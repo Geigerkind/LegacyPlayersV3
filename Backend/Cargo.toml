@@ -20,6 +20,8 @@ language = { path = "sub_crates/language" }
 time_util = { path = "sub_crates/time_util" }
 mysql_connection = { path = "sub_crates/mysql_connection" }
 time = "*"
+lazy_static = "*"
+regex = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

@@ -2,11 +2,11 @@ use crate::modules::data::Data;
 use crate::modules::data::domain_value::ItemDamage;
 
 pub trait RetrieveItemDamage {
-  fn get_item_damage(&self, expansion_id: u8, item_id: u32) -> Option<ItemDamage>;
+  fn get_item_damage(&self, expansion_id: u8, item_id: u32) -> Option<Vec<ItemDamage>>;
 }
 
 impl RetrieveItemDamage for Data {
-  fn get_item_damage(&self, expansion_id: u8, item_id: u32) -> Option<ItemDamage> {
+  fn get_item_damage(&self, expansion_id: u8, item_id: u32) -> Option<Vec<ItemDamage>> {
     if expansion_id == 0 {
       return None;
     }

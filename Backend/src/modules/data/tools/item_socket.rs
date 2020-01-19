@@ -7,7 +7,7 @@ pub trait RetrieveItemSocket {
 
 impl RetrieveItemSocket for Data {
   fn get_item_socket(&self, expansion_id: u8, item_id: u32) -> Option<ItemSocket> {
-    if expansion_id == 0 {
+    if expansion_id < 2 {
       return None;
     }
 

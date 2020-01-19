@@ -28,6 +28,7 @@ pub use self::server::RetrieveServer;
 pub use self::spell::RetrieveSpell;
 pub use self::spell_effect::RetrieveSpellEffect;
 pub use self::stat_type::RetrieveStatType;
+pub use self::spell_description::SpellDescription;
 
 mod expansion;
 mod language;
@@ -59,3 +60,4 @@ mod item_socket;
 mod item_stat;
 mod itemset_name;
 mod itemset_effect;
+mod spell_description;

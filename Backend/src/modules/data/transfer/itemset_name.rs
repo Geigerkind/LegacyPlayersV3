@@ -11,3 +11,10 @@ pub fn get_itemset_name(me: State<Data>, expansion_id: u8, itemset_id: u16) -> O
   me.get_itemset_name(expansion_id, itemset_id)
     .and_then(|result| Some(Json(result)))
 }
+
+#[openapi]
+#[get("/itemset_ids/<expansion_id>/<itemset_id>")]
+pub fn get_itemset_item_ids(me: State<Data>, expansion_id: u8, itemset_id: u16) -> Option<Json<Vec<u32>>> {
+  me.get_itemset_item_ids(expansion_id, itemset_id)
+    .and_then(|result| Some(Json(result)))
+}
