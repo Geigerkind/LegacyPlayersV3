@@ -8,6 +8,8 @@ pub use self::set_effect::SetEffect;
 pub use self::socket::Socket;
 pub use self::socket_slot::SocketSlot;
 pub use self::socket_slot_item::SocketSlotItem;
+pub use self::spell_tooltip::SpellTooltip;
+pub use self::spell_cost::SpellCost;
 
 mod item_tooltip;
 mod stat;
@@ -19,3 +21,5 @@ mod set_effect;
 mod socket;
 mod socket_slot;
 mod socket_slot_item;
+mod spell_tooltip;
+mod spell_cost;
