@@ -21,31 +21,31 @@ fn set_character(_: &mut Bencher) {
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
             head: Some(CharacterItemDto {
-                item_id: 40427,
+                item_id: 40329,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             neck: Some(CharacterItemDto {
-                item_id: 39310,
+                item_id: 40069,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             shoulder: Some(CharacterItemDto {
-                item_id: 39415,
+                item_id: 40494,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             back: Some(CharacterItemDto {
-                item_id: 40526,
+                item_id: 40252,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             chest: Some(CharacterItemDto {
-                item_id: 41907,
+                item_id: 40471,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
@@ -53,73 +53,68 @@ fn set_character(_: &mut Bencher) {
             shirt: None,
             tabard: None,
             wrist: Some(CharacterItemDto {
-                item_id: 39271,
+                item_id: 40186,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             main_hand: Some(CharacterItemDto {
-                item_id: 40698,
+                item_id: 39422,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
-            off_hand: Some(CharacterItemDto {
-                item_id: 37038,
-                random_property_id: None,
-                enchant_id: None,
-                gem_ids: vec![None, None, None, None],
-            }),
+            off_hand: None,
             ternary_hand: Some(CharacterItemDto {
-                item_id: 39192,
+                item_id: 33509,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             glove: Some(CharacterItemDto {
-                item_id: 39735,
+                item_id: 39557,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             belt: Some(CharacterItemDto {
-                item_id: 37189,
+                item_id: 40694,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             leg: Some(CharacterItemDto {
-                item_id: 39723,
+                item_id: 40493,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             boot: Some(CharacterItemDto {
-                item_id: 42110,
+                item_id: 40748,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             ring1: Some(CharacterItemDto {
-                item_id: 37232,
+                item_id: 40370,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             ring2: Some(CharacterItemDto {
-                item_id: 40682,
+                item_id: 39141,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             trinket1: Some(CharacterItemDto {
-                item_id: 37873,
+                item_id: 37220,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
             }),
             trinket2: Some(CharacterItemDto {
-                item_id: 37232,
+                item_id: 44063,
                 random_property_id: None,
                 enchant_id: None,
                 gem_ids: vec![None, None, None, None],
@@ -166,7 +161,6 @@ fn set_character(_: &mut Bencher) {
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.chest.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.wrist.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.main_hand.unwrap().id));
-      armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.off_hand.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.ternary_hand.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.glove.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.belt.unwrap().id));
