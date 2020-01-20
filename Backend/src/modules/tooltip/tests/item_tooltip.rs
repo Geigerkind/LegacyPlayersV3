@@ -2,6 +2,10 @@ use crate::modules::tooltip::Tooltip;
 use crate::modules::data::Data;
 use crate::modules::tooltip::tools::RetrieveItemTooltip;
 use crate::modules::tooltip::domain_value::SetItem;
+use crate::modules::armory::Armory;
+use crate::modules::armory::tools::SetCharacter;
+use crate::modules::armory::dto::{CharacterGearDto, CharacterItemDto, CharacterInfoDto, CharacterHistoryDto, CharacterDto};
+use mysql_connection::tools::Execute;
 
 #[test]
 fn avenger_breastplate() {
@@ -111,4 +115,84 @@ fn thunderfury_weapon_stat() {
   assert_eq!(item_tooltip.weapon_stat.as_ref().unwrap().damage_sources[1].damage_min, 16);
   assert_eq!(item_tooltip.weapon_stat.as_ref().unwrap().damage_sources[1].damage_max, 30);
   assert!(item_tooltip.weapon_stat.as_ref().unwrap().damage_sources[1].damage_type.contains(&"Nature".to_string()));
+}
+
+#[test]
+fn shadowmourne_socketed_and_enchanted() {
+  let tooltip = Tooltip::default().init();
+  let data = Data::default().init(None);
+  let armory = Armory::default();
+
+  let character_info_dto = CharacterInfoDto {
+    gear: CharacterGearDto {
+      head: None,
+      neck: None,
+      shoulder: None,
+      back: None,
+      chest: None,
+      shirt: None,
+      tabard: None,
+      wrist: None,
+      main_hand: Some(CharacterItemDto {
+        item_id: 49623,
+        random_property_id: None,
+        enchant_id: Some(266),
+        gem_ids: vec![None, Some(23094), Some(23094), None],
+      }),
+      off_hand: None,
+      ternary_hand: None,
+      glove: None,
+      belt: None,
+      leg: None,
+      boot: None,
+      ring1: None,
+      ring2: None,
+      trinket1: None,
+      trinket2: None,
+    },
+    hero_class_id: 1,
+    level: 23,
+    gender: false,
+    profession1: Some(4),
+    profession2: None,
+    talent_specialization: None,
+    faction: true,
+    race_id: 4,
+  };
+  let character_history_dto = CharacterHistoryDto {
+    character_uid: 43356,
+    character_info: character_info_dto.to_owned(),
+    character_name: "sdgsdfsd".to_string(),
+    guild: None,
+    guild_rank: None,
+  };
+  let character_dto = CharacterDto {
+    server_uid: 43356,
+    character_history: Some(character_history_dto.to_owned()),
+  };
+
+  let character_res = armory.set_character(3, character_dto);
+  assert!(character_res.is_ok());
+  let character = character_res.unwrap();
+
+  let result = tooltip.get_character_item(&data, &armory, 1, 3, 49623, character.last_update.as_ref().unwrap().character_info.gear.id);
+  assert!(result.is_ok());
+
+  let item_tooltip = result.unwrap();
+  assert!(item_tooltip.enchant.contains(&"Fishing Lure (+100 Fishing Skill)".to_string()));
+  assert_eq!(item_tooltip.socket.as_ref().unwrap().socket_bonus, "+8 Strength");
+  assert_eq!(item_tooltip.socket.as_ref().unwrap().slots.len(), 3);
+  assert_eq!(item_tooltip.socket.as_ref().unwrap().slots.iter().filter(|slot| slot.flag == 2 && slot.item.is_none()).count(), 1);
+  assert!(item_tooltip.socket.as_ref().unwrap().slots[0].item.is_none());
+  assert!(item_tooltip.socket.as_ref().unwrap().slots[1].item.is_some());
+  assert_eq!(item_tooltip.socket.as_ref().unwrap().slots[1].item.as_ref().unwrap().effect, "+7 Spell Power");
+  assert!(item_tooltip.socket.as_ref().unwrap().slots[2].item.is_some());
+  assert_eq!(item_tooltip.socket.as_ref().unwrap().slots[2].item.as_ref().unwrap().effect, "+7 Spell Power");
+
+  let character_history = character.last_update.unwrap();
+  armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.main_hand.unwrap().id));
+  armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
+  armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
+  armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
+  armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
 }
