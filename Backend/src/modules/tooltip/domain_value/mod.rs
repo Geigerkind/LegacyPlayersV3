@@ -6,6 +6,7 @@ pub use self::set_effect::SetEffect;
 pub use self::socket_slot::SocketSlot;
 pub use self::socket_slot_item::SocketSlotItem;
 pub use self::spell_cost::SpellCost;
+pub use self::character_guild::CharacterGuild;
 
 mod stat;
 mod weapon_stat;
@@ -15,3 +16,4 @@ mod set_effect;
 mod socket_slot;
 mod socket_slot_item;
 mod spell_cost;
+mod character_guild;
