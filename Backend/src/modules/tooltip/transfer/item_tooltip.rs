@@ -5,9 +5,9 @@ use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
 use crate::modules::data::guard::{Expansion, Language};
-use crate::modules::tooltip::domain_value::ItemTooltip;
 use crate::modules::tooltip::tools::RetrieveItemTooltip;
 use crate::modules::tooltip::Tooltip;
+use crate::modules::tooltip::material::ItemTooltip;
 
 #[openapi]
 #[get("/item/<id>")]

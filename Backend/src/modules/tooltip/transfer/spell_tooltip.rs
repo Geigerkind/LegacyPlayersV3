@@ -4,9 +4,9 @@ use rocket_contrib::json::Json;
 use crate::dto::Failure;
 use crate::modules::data::Data;
 use crate::modules::data::guard::{Expansion, Language};
-use crate::modules::tooltip::domain_value::SpellTooltip;
 use crate::modules::tooltip::tools::RetrieveSpellTooltip;
 use crate::modules::tooltip::Tooltip;
+use crate::modules::tooltip::material::SpellTooltip;
 
 #[openapi]
 #[get("/spell/<id>")]

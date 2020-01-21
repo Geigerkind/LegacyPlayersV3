@@ -1,8 +1,9 @@
-use crate::modules::tooltip::domain_value::{SpellTooltip, SpellCost};
+use crate::modules::tooltip::domain_value::SpellCost;
 use crate::dto::Failure;
 use crate::modules::tooltip::Tooltip;
 use crate::modules::data::Data;
 use crate::modules::data::tools::{RetrieveSpell, RetrieveLocalization, RetrieveIcon, SpellDescription, RetrievePowerType};
+use crate::modules::tooltip::material::SpellTooltip;
 
 pub trait RetrieveSpellTooltip {
   fn get_spell(&self, data: &Data, language_id: u8, expansion_id: u8, spell_id: u32) -> Result<SpellTooltip, Failure>;

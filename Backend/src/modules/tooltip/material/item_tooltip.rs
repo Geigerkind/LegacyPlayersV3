@@ -1,4 +1,5 @@
-use crate::modules::tooltip::domain_value::{Stat, ItemSet, Socket, WeaponStat};
+use crate::modules::tooltip::domain_value::{Stat, ItemSet, WeaponStat};
+use crate::modules::tooltip::material::Socket;
 
 #[derive(Debug, Clone, Serialize, JsonSchema)]
 pub struct ItemTooltip {

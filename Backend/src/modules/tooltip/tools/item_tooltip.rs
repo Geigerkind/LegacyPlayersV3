@@ -4,8 +4,9 @@ use crate::modules::armory::domain_value::CharacterItem;
 use crate::modules::armory::tools::GetCharacterGear;
 use crate::modules::data::Data;
 use crate::modules::data::tools::{RetrieveEnchant, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription, RetrieveGem};
-use crate::modules::tooltip::domain_value::{ItemSet, ItemTooltip, SetEffect, SetItem, Socket, SocketSlot, Stat, WeaponDamage, WeaponStat, SocketSlotItem};
+use crate::modules::tooltip::domain_value::{ItemSet, SetEffect, SocketSlot, Stat, WeaponDamage, WeaponStat, SocketSlotItem};
 use crate::modules::tooltip::Tooltip;
+use crate::modules::tooltip::material::{ItemTooltip, SetItem, Socket};
 
 pub trait RetrieveItemTooltip {
   fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, Failure>;
