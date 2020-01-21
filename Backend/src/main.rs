@@ -120,6 +120,7 @@ fn main() {
   igniter = igniter.mount("/API/tooltip/", routes_with_openapi![
     tooltip::transfer::item_tooltip::get_item, tooltip::transfer::item_tooltip::get_character_item,
     tooltip::transfer::spell_tooltip::get_spell,
+    tooltip::transfer::character_tooltip::get_character,
   ]);
 
   igniter.launch();
