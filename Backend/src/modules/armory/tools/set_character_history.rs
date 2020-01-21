@@ -7,11 +7,11 @@ use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::tools::{CreateCharacterHistory, GetCharacter, CreateGuild};
 
 pub trait SetCharacterHistory {
-  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
+  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, Failure>;
 }
 
 impl SetCharacterHistory for Armory {
-  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
+  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure> {
     // Validation
     if update_character_history.character_name.is_empty()
       || update_character_history.guild_rank.contains(&String::new())
@@ -27,7 +27,7 @@ impl SetCharacterHistory for Armory {
     }
 
     // Check if this character exists
-    let character_id_res = self.get_character_id_by_uid(server_id, update_character_history.character_uid);
+    let character_id_res = self.get_character_id_by_uid(server_id, character_uid);
     if character_id_res.is_none() {
       return Err(Failure::InvalidInput);
     }
@@ -58,6 +58,6 @@ impl SetCharacterHistory for Armory {
         }
       }
     } // Else create a new history point and assign it to this character
-    self.create_character_history(server_id, update_character_history)
+    self.create_character_history(server_id, update_character_history, character_uid)
   }
 }

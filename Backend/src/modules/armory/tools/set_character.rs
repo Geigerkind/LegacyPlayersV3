@@ -24,7 +24,7 @@ impl SetCharacter for Armory {
 
     // Set the character history
     if update_character.character_history.is_some() {
-      let character_history_res = self.set_character_history(server_id, update_character.character_history.unwrap());
+      let character_history_res = self.set_character_history(server_id, update_character.character_history.unwrap(), update_character.server_uid);
       if character_history_res.is_err() {
         return Err(character_history_res.err().unwrap());
       }

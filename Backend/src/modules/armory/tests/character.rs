@@ -126,7 +126,6 @@ fn set_character() {
     race_id: 4,
   };
   let character_history_dto = CharacterHistoryDto {
-    character_uid: 1231245,
     character_info: character_info_dto.to_owned(),
     character_name: "Pansipeter".to_string(),
     guild: Some(GuildDto {

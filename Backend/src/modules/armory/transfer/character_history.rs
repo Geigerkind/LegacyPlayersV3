@@ -9,10 +9,10 @@ use crate::modules::armory::tools::{SetCharacterHistory, GetCharacterHistory, De
 use crate::modules::armory::material::CharacterHistory;
 
 #[openapi]
-#[post("/character_history", format = "application/json", data = "<character_history>")]
-pub fn set_character_history(me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>) -> Result<(), Failure>
+#[post("/character_history/<character_uid>", format = "application/json", data = "<character_history>")]
+pub fn set_character_history(me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>, character_uid: u64) -> Result<(), Failure>
 {
-  me.set_character_history(owner.0, character_history.into_inner()).and_then(|_| Ok(()))
+  me.set_character_history(owner.0, character_history.into_inner(), character_uid).and_then(|_| Ok(()))
 }
 
 #[openapi]

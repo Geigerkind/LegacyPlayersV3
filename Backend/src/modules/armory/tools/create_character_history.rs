@@ -7,14 +7,14 @@ use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::tools::{CreateCharacterInfo, CreateGuild, GetCharacter};
 
 pub trait CreateCharacterHistory {
-  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure>;
+  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure>;
 }
 
 impl CreateCharacterHistory for Armory {
   // Assumption: It has been checked that the previous value is not the same
   // Assumption: Character exists
-  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, Failure> {
-    let character_id = self.get_character_id_by_uid(server_id, character_history_dto.character_uid).unwrap();
+  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure> {
+    let character_id = self.get_character_id_by_uid(server_id, character_uid).unwrap();
     let guild_id = character_history_dto.guild.as_ref().and_then(|guild_dto| self.create_guild(server_id, guild_dto.to_owned()).and_then(|guild| Ok(guild.id)).ok());
     let character_info_res = self.create_character_info(character_history_dto.character_info.to_owned());
     if character_info_res.is_err() {

@@ -128,7 +128,6 @@ fn set_character_history() {
     race_id: 6,
   };
   let character_history_dto = CharacterHistoryDto {
-    character_uid: 123124,
     character_info: character_info_dto.to_owned(),
     character_name: "Peterpansi".to_string(),
     guild: Some(GuildDto {
@@ -144,7 +143,7 @@ fn set_character_history() {
   let set_character = set_character_res.unwrap();
   assert!(set_character.compare_by_value(&character_dto));
 
-  let set_character_history_res = armory.set_character_history(3, character_history_dto.clone());
+  let set_character_history_res = armory.set_character_history(3, character_history_dto.clone(), set_character.server_uid);
   assert!(set_character_history_res.is_ok());
 
   let set_character_history = set_character_history_res.unwrap();
@@ -158,7 +157,7 @@ fn set_character_history() {
 
   // Sleeping 2 seconds in order to cause an timestamp update in the DB
   thread::sleep(time::Duration::from_millis(2000));
-  let set_character_history_res2 = armory.set_character_history(3, character_history_dto.clone());
+  let set_character_history_res2 = armory.set_character_history(3, character_history_dto.clone(), set_character.server_uid);
   assert!(set_character_history_res2.is_ok());
 
   let set_character_history2 = set_character_history_res2.unwrap();

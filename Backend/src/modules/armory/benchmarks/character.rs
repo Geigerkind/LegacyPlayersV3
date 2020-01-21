@@ -130,7 +130,6 @@ fn set_character(_: &mut Bencher) {
         race_id: 6,
     };
     let character_history_dto = CharacterHistoryDto {
-        character_uid: 12312452,
         character_info: character_info_dto.to_owned(),
         character_name: "sdfsdgsdg".to_string(),
         guild: Some(GuildDto {

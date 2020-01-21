@@ -50,7 +50,6 @@ fn character_tooltip() {
         race_id: 4,
     };
     let character_history_dto = CharacterHistoryDto {
-        character_uid: 433356,
         character_info: character_info_dto.to_owned(),
         character_name: "sdgsdfsd".to_string(),
         guild: Some(GuildDto {
