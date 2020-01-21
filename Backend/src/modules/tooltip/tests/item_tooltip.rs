@@ -1,7 +1,7 @@
 use crate::modules::tooltip::Tooltip;
 use crate::modules::data::Data;
 use crate::modules::tooltip::tools::RetrieveItemTooltip;
-use crate::modules::tooltip::domain_value::SetItem;
+use crate::modules::tooltip::domain_value::{SetItem, Stat};
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::SetCharacter;
 use crate::modules::armory::dto::{CharacterGearDto, CharacterItemDto, CharacterInfoDto, CharacterHistoryDto, CharacterDto};
@@ -26,16 +26,26 @@ fn avenger_breastplate() {
   assert!(item_tooltip.armor.is_none());
   assert!(item_tooltip.stats.is_some());
   assert_eq!(item_tooltip.stats.as_ref().unwrap().len(), 5);
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[0].value, 23);
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[0].name, "Strength");
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[1].value, 12);
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[1].name, "Agility");
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[2].value, 24);
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[2].name, "Stamina");
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[3].value, 24);
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[3].name, "Intellect");
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[4].value, 11);
-  assert_eq!(item_tooltip.stats.as_ref().unwrap()[4].name, "Spirit");
+  assert!(item_tooltip.stats.as_ref().unwrap().contains(&Stat {
+    value: 23,
+    name: "Strength".to_string()
+  }));
+  assert!(item_tooltip.stats.as_ref().unwrap().contains(&Stat {
+    value: 12,
+    name: "Agility".to_string()
+  }));
+  assert!(item_tooltip.stats.as_ref().unwrap().contains(&Stat {
+    value: 24,
+    name: "Stamina".to_string()
+  }));
+  assert!(item_tooltip.stats.as_ref().unwrap().contains(&Stat {
+    value: 24,
+    name: "Intellect".to_string()
+  }));
+  assert!(item_tooltip.stats.as_ref().unwrap().contains(&Stat {
+    value: 11,
+    name: "Spirit".to_string()
+  }));
   assert!(item_tooltip.durability.contains(&165));
   assert!(item_tooltip.item_level.contains(&88));
   assert!(item_tooltip.required_level.contains(&60));
