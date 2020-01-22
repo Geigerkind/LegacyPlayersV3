@@ -24,13 +24,11 @@ impl RetrieveCharacterTooltip for Tooltip {
         }
         let character_history = character.last_update.unwrap();
 
-        // TODO: Improve data representation here
-        let guild_rank = character_history.guild_rank.to_owned();
-        let guild = character_history.guild_id
-            .and_then(|id| armory.get_guild(id)
+        let guild = character_history.guild
+            .and_then(|character_guild| armory.get_guild(character_guild.guild_id)
                 .and_then(|guild| Some(CharacterGuild {
                     name: guild.name.to_owned(),
-                    rank: guild_rank.unwrap().to_owned()
+                    rank: character_guild.rank.to_owned()
                 })));
 
         Ok(CharacterTooltip {

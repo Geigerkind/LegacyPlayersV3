@@ -14,16 +14,12 @@ impl SetCharacterHistory for Armory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure> {
     // Validation
     if update_character_history.character_name.is_empty()
-      || update_character_history.guild_rank.contains(&String::new())
-      || (update_character_history.guild.is_some() && update_character_history.guild_rank.is_none())
-      || (update_character_history.guild_rank.is_some() && update_character_history.guild.is_none())
+      || (update_character_history.guild.is_some() && (
+          update_character_history.guild.as_ref().unwrap().rank.is_empty()
+          || update_character_history.guild.as_ref().unwrap().guild.name.is_empty()
+          || update_character_history.guild.as_ref().unwrap().guild.server_uid == 0))
     {
       return Err(Failure::InvalidInput);
-    } else if update_character_history.guild.is_some() {
-      let guild = update_character_history.guild.as_ref().unwrap();
-      if guild.server_uid == 0 || guild.name.is_empty() {
-        return Err(Failure::InvalidInput);
-      }
     }
 
     // Check if this character exists
@@ -33,7 +29,7 @@ impl SetCharacterHistory for Armory {
     }
 
     let character_id = character_id_res.unwrap();
-    let guild_id = update_character_history.guild.as_ref().and_then(|guild_dto| self.create_guild(server_id, guild_dto.clone()).ok().and_then(|gld| Some(gld.id)));
+    let guild_id = update_character_history.guild.as_ref().and_then(|chr_guild_dto| self.create_guild(server_id, chr_guild_dto.guild.clone()).ok().and_then(|gld| Some(gld.id)));
 
     { // Check whether this is a new entry or just the same as previously
       let mut characters = self.characters.write().unwrap();
@@ -41,8 +37,9 @@ impl SetCharacterHistory for Armory {
 
       if character.last_update.is_some() {
         let mut last_update = character.last_update.as_mut().unwrap();
-        if last_update.guild_id == guild_id
-          && last_update.guild_rank == update_character_history.guild_rank
+        if ((last_update.guild.is_none() && guild_id.is_none())
+            || (last_update.guild.is_some() && guild_id.is_some() && last_update.guild.as_ref().unwrap().guild_id == *guild_id.as_ref().unwrap()
+                  && last_update.guild.as_ref().unwrap().rank == update_character_history.guild.as_ref().unwrap().rank))
           && last_update.character_name == update_character_history.character_name
           && last_update.character_info.compare_by_value(&update_character_history.character_info)
         {

@@ -4,7 +4,7 @@ use std::sync::RwLock;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::armory::domain_value::{CharacterGear, CharacterInfo, CharacterItem};
+use crate::modules::armory::domain_value::{CharacterGear, CharacterInfo, CharacterItem, CharacterGuild};
 use crate::modules::armory::material::{Character, CharacterHistory, Guild};
 
 #[derive(Debug)]
@@ -85,8 +85,10 @@ impl Init for HashMap<u32, Character> {
         id: row.take(0).unwrap(),
         character_id: row.take(1).unwrap(),
         character_name: row.take(3).unwrap(),
-        guild_id: row.take_opt(4).unwrap().ok(),
-        guild_rank: row.take_opt(5).unwrap().ok(),
+        guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
+          guild_id,
+          rank: row.take(5).unwrap()
+        })),
         timestamp: row.take(6).unwrap(),
         character_info: CharacterInfo {
           id: row.take(7).unwrap(),

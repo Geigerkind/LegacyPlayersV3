@@ -3,7 +3,7 @@ use std::{thread, time};
 use mysql_connection::tools::Execute;
 
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
+use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto};
 use crate::modules::armory::tools::{SetCharacter, GetCharacter, DeleteCharacter};
 
 #[test]
@@ -127,11 +127,13 @@ fn set_character() {
   let character_history_dto = CharacterHistoryDto {
     character_info: character_info_dto.to_owned(),
     character_name: "Pansipeter".to_string(),
-    guild: Some(GuildDto {
-      name: "GuildSample".to_string(),
-      server_uid: 12346,
+    guild: Some(CharacterGuildDto {
+      guild: GuildDto {
+        name: "GuildSample".to_string(),
+        server_uid: 12346,
+      },
+      rank: "Officer".to_string()
     }),
-    guild_rank: Some("Officer".to_string()),
   };
   let character_dto = CharacterDto {
     server_uid: 1231245,
@@ -195,5 +197,5 @@ fn set_character() {
   armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
   armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
   armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
-  armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.guild_id.unwrap()));
+  armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.guild.unwrap().guild_id));
 }

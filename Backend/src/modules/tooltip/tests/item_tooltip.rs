@@ -174,7 +174,6 @@ fn shadowmourne_socketed_and_enchanted() {
         character_info: character_info_dto.to_owned(),
         character_name: "sdgsdfsd".to_string(),
         guild: None,
-        guild_rank: None,
     };
     let character_dto = CharacterDto {
         server_uid: 43356,
