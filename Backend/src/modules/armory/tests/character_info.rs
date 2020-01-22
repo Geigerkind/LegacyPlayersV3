@@ -119,7 +119,6 @@ fn character_info() {
     profession1: None,
     profession2: Some(2),
     talent_specialization: None,
-    faction: false,
     race_id: 3
   };
 

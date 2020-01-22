@@ -122,7 +122,6 @@ fn set_character() {
     profession1: Some(4),
     profession2: Some(3),
     talent_specialization: None,
-    faction: true,
     race_id: 4,
   };
   let character_history_dto = CharacterHistoryDto {

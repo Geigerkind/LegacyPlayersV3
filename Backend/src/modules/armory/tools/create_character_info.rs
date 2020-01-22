@@ -33,10 +33,9 @@ impl CreateCharacterInfo for Armory {
       "profession1" => character_info.profession1.clone(),
       "profession2" => character_info.profession2.clone(),
       "talent_specialization" => character_info.talent_specialization.clone(),
-      "faction" => character_info.faction,
       "race_id" => character_info.race_id
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `faction`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :faction, :race_id)", params.clone()) {
+    if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params.clone()) {
       return self.get_character_info_by_value(character_info.to_owned());
     }
 

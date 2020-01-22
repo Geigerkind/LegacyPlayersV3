@@ -126,7 +126,6 @@ fn set_character(_: &mut Bencher) {
         profession1: None,
         profession2: Some(3),
         talent_specialization: None,
-        faction: true,
         race_id: 6,
     };
     let character_history_dto = CharacterHistoryDto {

@@ -9,6 +9,5 @@ pub struct CharacterInfoDto {
   pub profession1: Option<u8>,
   pub profession2: Option<u8>,
   pub talent_specialization: Option<String>,
-  pub faction: bool,
   pub race_id: u8,
 }

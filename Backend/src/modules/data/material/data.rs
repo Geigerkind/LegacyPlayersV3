@@ -182,6 +182,7 @@ impl Init for HashMap<u8, Race> {
       Race {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
+        faction: row.take(2).unwrap()
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }

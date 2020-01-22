@@ -168,7 +168,6 @@ fn shadowmourne_socketed_and_enchanted() {
         profession1: Some(4),
         profession2: None,
         talent_specialization: None,
-        faction: true,
         race_id: 4,
     };
     let character_history_dto = CharacterHistoryDto {

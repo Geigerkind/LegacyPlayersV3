@@ -24,7 +24,7 @@ fn character_tooltip() {
             tabard: None,
             wrist: None,
             main_hand: Some(CharacterItemDto {
-                item_id: 19019,
+                item_id: 17,
                 random_property_id: None,
                 enchant_id: Some(266),
                 gem_ids: vec![None, Some(23094), Some(23094), None],
@@ -46,7 +46,6 @@ fn character_tooltip() {
         profession1: Some(4),
         profession2: None,
         talent_specialization: None,
-        faction: true,
         race_id: 4,
     };
     let character_history_dto = CharacterHistoryDto {
@@ -84,6 +83,6 @@ fn character_tooltip() {
     armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
+    armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character.id));
     armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.guild_id.unwrap()));
 }
