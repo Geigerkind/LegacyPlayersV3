@@ -166,10 +166,12 @@
             "purpose": "Purpose",
             "typePurpose": "Purpose of the token",
             "generate": "Generate",
-            "token": "Token",
             "action": "Action",
             "remove": "Remove",
-            "expiration": "Expiration date"
+            "expiration": "Expiration date",
+            "tokenNote": "Copy this token. You will not be able to retrieve it again!",
+            "createdToken": "Generated token",
+            "back": "Back"
         },
         "delete": {
             "delete": "Delete account",

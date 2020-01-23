@@ -18,26 +18,32 @@ impl Token for Account {
   fn get_all_token(&self, member_id: u32) -> Vec<APIToken> {
     let api_tokens = self.api_tokens.read().unwrap();
     match api_tokens.get(&member_id) {
-      Some(token_vec) => token_vec.to_vec(),
+      Some(token_vec) => token_vec.iter().map(|api_token| {
+        let mut new_token = api_token.clone();
+        new_token.token = None;
+        new_token
+      }).collect(),
       None => Vec::new()
     }
   }
 
   fn validate_token(&self, api_token: &str) -> Option<u32> {
+    let db_token = sha3::hash(&[api_token, &"token".to_owned()]);
+
     // Check if token exists and if its still valid!
     let mut token_id = None;
     let member_id;
     {
       let api_token_to_member_id = self.api_token_to_member_id.read().unwrap();
       let api_tokens = self.api_tokens.read().unwrap();
-      let result = api_token_to_member_id.get(api_token);
+      let result = api_token_to_member_id.get(&db_token);
       if result.is_none() {
         return None;
       }
       member_id = *result.unwrap();
       let token_vec = api_tokens.get(&member_id).unwrap();
       for entry in token_vec {
-        if entry.token == api_token {
+        if entry.token.contains(&db_token) {
           if entry.exp_date >= time_util::now() {
             return Some(member_id);
           }
@@ -65,7 +71,7 @@ impl Token for Account {
     }
 
     for api_token in api_token.get(&member_id).unwrap() {
-      api_token_to_member_id.remove(&api_token.token);
+      api_token_to_member_id.remove(api_token.token.as_ref().unwrap());
     }
     api_token.get_mut(&member_id).unwrap().clear();
 
@@ -88,12 +94,14 @@ impl Token for Account {
       return Err(Failure::TokenPurposeLength);
     }
 
-    let token: String;
+    let real_token: String;
+    let db_token: String;
     {
       let member = self.member.read().unwrap();
       let member_entry = member.get(&member_id).unwrap();
       let salt: String = random::alphanumeric(16);
-      token = sha3::hash(&[&member_entry.mail, &member_entry.password, &salt]);
+      real_token = sha3::hash(&[&member_entry.mail, &member_entry.password, &salt]);
+      db_token = sha3::hash(&[&real_token, &"token".to_owned()]);
     }
 
     // The following part needs to be transactional
@@ -104,7 +112,7 @@ impl Token for Account {
       "INSERT INTO account_api_token (member_id, token, purpose, exp_date) VALUES (:member_id, :token, :purpose, :exp_date)",
       params!(
         "member_id" => member_id,
-        "token" => token.clone(),
+        "token" => db_token.clone(),
         "purpose" => purpose,
         "exp_date" => exp_date
       ),
@@ -118,14 +126,14 @@ impl Token for Account {
         APIToken {
           id: row.take(0).unwrap(),
           member_id: row.take(1).unwrap(),
-          token: row.take(2).unwrap(),
+          token: Some(row.take(2).unwrap()),
           purpose: row.take(3).unwrap(),
           exp_date: row.take(4).unwrap(),
         }
       },
       params!(
         "member_id" => member_id,
-        "token" => token.clone()
+        "token" => db_token.clone()
       ),
     ) {
       Some(token) => {
@@ -134,8 +142,14 @@ impl Token for Account {
         } else {
           api_tokens.get_mut(&member_id).unwrap().push(token.clone());
         }
-        api_token_to_member_id.insert(token.token.clone(), member_id);
-        Ok(token)
+        api_token_to_member_id.insert(db_token.to_owned(), member_id);
+        Ok(APIToken {
+          id: token.id,
+          member_id: token.member_id,
+          token: Some(real_token.to_owned()),
+          purpose: token.purpose,
+          exp_date: token.exp_date
+        })
       }
       None => return Err(Failure::Unknown)
     }
@@ -161,7 +175,7 @@ impl Token for Account {
         let token_vec = api_tokens.get_mut(&member_id).unwrap();
         {
           let api_token = token_vec.get(token_index).unwrap();
-          api_token_to_member_id.remove(&api_token.token);
+          api_token_to_member_id.remove(api_token.token.as_ref().unwrap());
         }
         token_vec.remove(token_index);
         Ok(())

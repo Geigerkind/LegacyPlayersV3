@@ -9,6 +9,7 @@ import {APITokensService} from "./service/api_tokens";
 import {FormsModule} from "@angular/forms";
 import {DateInputModule} from "../../../../template/input/date_input/module";
 import {FormValidDirectiveModule} from "../../../../directive/form_valid/module";
+import {BriefNoteModule} from "../../../../template/brief_note/module";
 
 @NgModule({
     declarations: [APITokensComponent],
@@ -20,7 +21,8 @@ import {FormValidDirectiveModule} from "../../../../directive/form_valid/module"
         ConfirmButtonModule,
         APITokensRouting,
         FormsModule,
-        FormValidDirectiveModule
+        FormValidDirectiveModule,
+        BriefNoteModule
     ],
     exports: [APITokensComponent],
     providers: [APITokensService]

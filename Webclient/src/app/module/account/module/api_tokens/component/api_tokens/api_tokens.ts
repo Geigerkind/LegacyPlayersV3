@@ -4,11 +4,13 @@ import {APITokensService} from "../../service/api_tokens";
 import {APIToken} from "../../../../domain_value/api_token";
 import {CreateToken} from "../../dto/create_token";
 import {APIFailure} from "../../../../../../domain_value/api_failure";
+import {DatePipe} from "@angular/common";
 
 @Component({
     selector: "APITokens",
     templateUrl: "./api_tokens.html",
-    styleUrls: ["./api_tokens.scss"]
+    styleUrls: ["./api_tokens.scss"],
+    providers: [DatePipe]
 })
 export class APITokensComponent {
     disabledSubmit: boolean = false;
@@ -18,8 +20,12 @@ export class APITokensComponent {
     exp_date: Date = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
     min_exp_date: Date = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
     tokenList: Array<[APIToken, boolean]> = [];
+    generatedToken: APIToken;
 
-    constructor(private apiTokensService: APITokensService) {
+    constructor(
+        private apiTokensService: APITokensService,
+        private datePipe: DatePipe
+    ) {
         this.get_tokens();
     }
 
@@ -45,12 +51,21 @@ export class APITokensComponent {
         }, () => token_pair[1] = false);
     }
 
+    toEuropeanDate(timestamp: number): string {
+        return this.datePipe.transform(new Date(timestamp*1000), 'dd.MM.yyyy');
+    }
+
+    clearGeneratedToken(): void {
+        this.generatedToken = undefined;
+    }
+
     private get_tokens(): void {
         this.apiTokensService.get((tokens) => this.retrieve_tokens(tokens));
     }
 
     private add_token_success(api_token: APIToken): void {
         this.tokenList.push([api_token, false]);
+        this.generatedToken = api_token;
         this.disabledSubmit = false;
     }
 

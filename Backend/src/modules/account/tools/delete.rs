@@ -72,7 +72,7 @@ impl Delete for Account {
 
         // Taking care of api_tokens
         for api_token in api_token.get(&member_id).unwrap() {
-          api_token_to_member_id.remove(&api_token.token);
+          api_token_to_member_id.remove(&api_token.token.as_ref().unwrap().clone());
         }
         api_token.get_mut(&member_id).unwrap().clear();
         api_token.remove(&member_id);

@@ -5,6 +5,36 @@
     display: block;
     position: relative;
 
+    .generatedTokenContainer {
+        margin-top: $spacing;
+
+        div {
+            min-height: 10px;
+            overflow: hidden;
+            position: relative;
+
+            GeneralInput {
+                width: calc(100% - 130px - #{$spacing} * 0.5);
+                float: left;
+                margin-right: $spacing * 0.5;
+            }
+
+            ConfirmButton {
+                float: left;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+
+                &::ng-deep button {
+                    min-width: 130px;
+                    min-height: 32px;
+                    font-size: 14px;
+                }
+            }
+        }
+
+    }
+
     .purposeForm {
         display: flex;
         flex-direction: row;
@@ -36,7 +66,7 @@
             }
 
             ConfirmButton {
-                margin: 0;
+                margin: $spacing 0 0;
             }
         }
     }
@@ -52,15 +82,14 @@
             min-width: 400px;
 
             div {
-                &:first-child {
-                    flex: 1;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+
+                &:nth-child(1), &:nth-child(2) {
+                    width: calc(50% - 60px);
+                    text-align: center;
                 }
 
-                &:nth-child(2) {
-                    width: 120px;
-                    text-align: center;
+                &:first-child {
+                    text-align: left;
                 }
 
                 &:nth-child(3) {
