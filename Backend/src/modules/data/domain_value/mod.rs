@@ -29,6 +29,7 @@ pub use self::spell::Spell;
 pub use self::spell_effect::SpellEffect;
 pub use self::stat::Stat;
 pub use self::stat_type::StatType;
+pub use self::title::Title;
 
 mod expansion;
 mod language;
@@ -61,3 +62,4 @@ mod itemset_name;
 mod itemset_effect;
 mod enchant;
 mod item_stat;
+mod title;

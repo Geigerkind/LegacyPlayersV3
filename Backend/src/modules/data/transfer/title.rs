@@ -1,0 +1,21 @@
+use rocket::State;
+use rocket_contrib::json::Json;
+
+use crate::modules::data::Data;
+use crate::modules::data::domain_value::Title;
+use crate::modules::data::tools::RetrieveTitle;
+
+#[openapi]
+#[get("/title/<id>")]
+pub fn get_title(me: State<Data>, id: u16) -> Option<Json<Title>>
+{
+  me.get_title(id)
+    .and_then(|title| Some(Json(title)))
+}
+
+#[openapi]
+#[get("/title")]
+pub fn get_all_titles(me: State<Data>) -> Json<Vec<Title>>
+{
+  Json(me.get_all_titles())
+}

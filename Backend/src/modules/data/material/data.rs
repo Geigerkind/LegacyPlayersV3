@@ -4,7 +4,7 @@ use language::material::Dictionary;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType};
+use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title};
 use crate::modules::data::language::init::Init as DictionaryInit;
 
 #[derive(Debug)]
@@ -41,6 +41,7 @@ pub struct Data {
   pub item_stats: Vec<HashMap<u32, Vec<ItemStat>>>,
   pub itemset_names: Vec<HashMap<u16, ItemsetName>>,
   pub itemset_effects: Vec<HashMap<u16, Vec<ItemsetEffect>>>,
+  pub titles: HashMap<u16, Title>
 }
 
 impl Default for Data {
@@ -81,6 +82,7 @@ impl Default for Data {
       item_stats: Vec::new(),
       itemset_names: Vec::new(),
       itemset_effects: Vec::new(),
+      titles: HashMap::new(),
     }
   }
 }
@@ -120,6 +122,7 @@ impl Data {
     if self::Data::should_init(init_flag, 28) { self.item_stats.init(&self.db_main); }
     if self::Data::should_init(init_flag, 29) { self.itemset_names.init(&self.db_main); }
     if self::Data::should_init(init_flag, 30) { self.itemset_effects.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 31) { self.titles.init(&self.db_main); }
     self
   }
 
@@ -686,5 +689,16 @@ impl Init for Vec<HashMap<u16, Vec<ItemsetEffect>>> {
       }
       expansion_vec.get_mut(&result.itemset_id).unwrap().push(result.to_owned());
     });
+  }
+}
+
+impl Init for HashMap<u16, Title> {
+  fn init(&mut self, db: &MySQLConnection) {
+    db.select("SELECT * FROM data_title", &|mut row| {
+      Title {
+        id: row.take(0).unwrap(),
+        localization_id: row.take(1).unwrap()
+      }
+    }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }
 }

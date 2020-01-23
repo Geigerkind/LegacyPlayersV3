@@ -29,6 +29,7 @@ pub use self::spell::RetrieveSpell;
 pub use self::spell_effect::RetrieveSpellEffect;
 pub use self::stat_type::RetrieveStatType;
 pub use self::spell_description::SpellDescription;
+pub use self::title::RetrieveTitle;
 
 mod expansion;
 mod language;
@@ -61,3 +62,4 @@ mod item_stat;
 mod itemset_name;
 mod itemset_effect;
 mod spell_description;
+mod title;
