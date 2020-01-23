@@ -20,6 +20,9 @@ architecture and aims to scale to thousands of visitors.
 The goal is to unite the Legacy-WoW community in this hub and persist all the memories
 of raids, characters and PvP as well as to provide useful tools.
 
+## Licence
+LegacyPlayers is licensed under the AGPLv3 license for all open source applications. A commercial license is required for all commercial applications (i.e. non open-source applications) (including sites and apps you plan to sell or monetize).
+
 ## Installation
 1. Install **docker**, **docker-compose**, **rustup**
 2. Using rustup, install the **nightly** toolchain and set it to default
