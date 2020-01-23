@@ -32,8 +32,9 @@ impl CharacterItem {
     return self.item_id == other.item_id
       && self.random_property_id == other.random_property_id
       && self.enchant_id == other.enchant_id
-      && self.gem_ids.iter().all(|gem_flag|
-          self.gem_ids.iter().filter(|x| *x == gem_flag).count()
-            == other.gem_ids.iter().filter(|x| *x == gem_flag).count());
+      && self.gem_ids.iter().all(|gem_flag| (gem_flag.is_some() &&
+          self.gem_ids.iter().filter(|x| x.is_some() && x.unwrap() == gem_flag.unwrap()).count()
+            == other.gem_ids.iter().filter(|x| x.is_some() && x.unwrap() == gem_flag.unwrap()).count())
+          || (gem_flag.is_none() && self.gem_ids.iter().filter(|x| x.is_some()).count() == other.gem_ids.iter().filter(|x| x.is_some()).count()));
   }
 }
