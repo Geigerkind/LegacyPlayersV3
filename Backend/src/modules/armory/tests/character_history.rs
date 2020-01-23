@@ -1,5 +1,5 @@
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto};
+use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto, CharacterFacialDto};
 use crate::modules::armory::tools::{SetCharacterHistory, SetCharacter, GetCharacterHistory, DeleteCharacterHistory};
 use mysql_connection::tools::Execute;
 use std::{time, thread};
@@ -132,6 +132,13 @@ fn set_character_history() {
     character_title: Some(172),
     profession_skill_points1: Some(32),
     profession_skill_points2: Some(450),
+    facial: Some(CharacterFacialDto {
+      skin_color: 1,
+      face_style: 2,
+      hair_style: 1,
+      hair_color: 2,
+      facial_hair: 1
+    }),
     character_guild: Some(CharacterGuildDto {
       guild: GuildDto {
         name: "SampleGuild123".to_string(),
@@ -197,6 +204,7 @@ fn set_character_history() {
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.trinket1.unwrap().id));
   armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.trinket2.unwrap().id));
   armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
+  armory.db_main.execute_wparams("DELETE FROM armory_character_facial WHERE id=:id", params!("id" => character_history.facial.unwrap().id));
   armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
   armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
   armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));

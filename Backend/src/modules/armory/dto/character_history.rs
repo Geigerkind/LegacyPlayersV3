@@ -1,4 +1,4 @@
-use crate::modules::armory::dto::{CharacterInfoDto, CharacterGuildDto};
+use crate::modules::armory::dto::{CharacterInfoDto, CharacterGuildDto, CharacterFacialDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistoryDto {
@@ -7,5 +7,6 @@ pub struct CharacterHistoryDto {
   pub character_guild: Option<CharacterGuildDto>,
   pub character_title: Option<u16>,
   pub profession_skill_points1: Option<u16>,
-  pub profession_skill_points2: Option<u16>
+  pub profession_skill_points2: Option<u16>,
+  pub facial: Option<CharacterFacialDto>
 }

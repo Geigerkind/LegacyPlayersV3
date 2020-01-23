@@ -1,4 +1,4 @@
-use crate::modules::armory::domain_value::{CharacterInfo, CharacterGuild};
+use crate::modules::armory::domain_value::{CharacterInfo, CharacterGuild, CharacterFacial};
 use crate::modules::armory::dto::CharacterHistoryDto;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -11,6 +11,7 @@ pub struct CharacterHistory {
   pub character_title: Option<u16>,
   pub profession_skill_points1: Option<u16>,
   pub profession_skill_points2: Option<u16>,
+  pub facial: Option<CharacterFacial>,
   pub timestamp: u64
 }
 
@@ -34,6 +35,7 @@ impl CharacterHistory {
       && self.character_title == other.character_title
       && self.profession_skill_points1 == other.profession_skill_points1
       && self.profession_skill_points2 == other.profession_skill_points2
+      && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().deep_eq(other.facial.as_ref().unwrap())))
       && self.timestamp == other.timestamp
   }
 
@@ -46,6 +48,7 @@ impl CharacterHistory {
       && self.character_title == other.character_title
       && self.profession_skill_points1 == other.profession_skill_points1
       && self.profession_skill_points2 == other.profession_skill_points2
+      && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().compare_by_value(other.facial.as_ref().unwrap())))
     // Technically we should also compare character_id => character_uid and guild_id => guild_dto
     // But this would require to make a get call
   }

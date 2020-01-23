@@ -54,6 +54,7 @@ fn character_tooltip() {
         character_title: None,
         profession_skill_points1: None,
         profession_skill_points2: Some(320),
+        facial: None,
         character_guild: Some(CharacterGuildDto {
           guild: GuildDto {
             server_uid: 324234234,

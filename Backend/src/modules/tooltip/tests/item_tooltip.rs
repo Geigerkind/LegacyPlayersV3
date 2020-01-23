@@ -177,6 +177,7 @@ fn shadowmourne_socketed_and_enchanted() {
         profession_skill_points1: Some(75),
         profession_skill_points2: None,
         character_guild: None,
+        facial: None
     };
     let character_dto = CharacterDto {
         server_uid: 43356,

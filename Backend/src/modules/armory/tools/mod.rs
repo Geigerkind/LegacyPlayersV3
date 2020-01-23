@@ -16,6 +16,8 @@ pub use self::set_character_history::SetCharacterHistory;
 pub use self::update_guild::UpdateGuild;
 pub use self::get_character_history::GetCharacterHistory;
 pub use self::delete_character_history::DeleteCharacterHistory;
+pub use self::create_character_facial::CreateCharacterFacial;
+pub use self::get_character_facial::GetCharacterFacial;
 
 mod create_character;
 mod set_character;
@@ -35,3 +37,5 @@ mod delete_guild;
 mod update_guild;
 mod get_character_history;
 mod delete_character_history;
+mod create_character_facial;
+mod get_character_facial;

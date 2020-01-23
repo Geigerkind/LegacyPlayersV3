@@ -2,7 +2,7 @@ use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::Armory;
 use crate::dto::Failure;
 use mysql_connection::tools::Select;
-use crate::modules::armory::tools::GetCharacterInfo;
+use crate::modules::armory::tools::{GetCharacterInfo, GetCharacterFacial};
 use crate::modules::armory::domain_value::CharacterGuild;
 
 pub trait GetCharacterHistory {
@@ -29,7 +29,8 @@ impl GetCharacterHistory for Armory {
         character_title: row.take_opt(6).unwrap().ok(),
         profession_skill_points1: row.take_opt(7).unwrap().ok(),
         profession_skill_points2: row.take_opt(8).unwrap().ok(),
-        timestamp: row.take(9).unwrap()
+        facial: row.take_opt(9).unwrap().ok().and_then(|facial_id| self.get_character_facial(facial_id).ok()),
+        timestamp: row.take(10).unwrap()
       })
     }, params!(
       "id" => character_history_id

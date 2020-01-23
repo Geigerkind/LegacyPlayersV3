@@ -6,7 +6,7 @@ use test::Bencher;
 use mysql_connection::tools::Execute;
 
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto};
+use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto, CharacterFacialDto};
 use crate::modules::armory::tools::{SetCharacter};
 use self::time::PreciseTime;
 
@@ -134,6 +134,13 @@ fn set_character(_: &mut Bencher) {
         character_title: None,
         profession_skill_points1: Some(35),
         profession_skill_points2: Some(23),
+        facial: Some(CharacterFacialDto {
+          skin_color: 2,
+          face_style: 3,
+          hair_style: 2,
+          hair_color: 3,
+          facial_hair: 2
+        }),
         character_guild: Some(CharacterGuildDto {
           guild: GuildDto {
             name: "sgfdfhgdfg".to_string(),
@@ -174,6 +181,7 @@ fn set_character(_: &mut Bencher) {
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.trinket1.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.trinket2.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
+      armory.db_main.execute_wparams("DELETE FROM armory_character_facial WHERE id=:id", params!("id" => character_history.facial.unwrap().id));
       armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
       armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
       armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));

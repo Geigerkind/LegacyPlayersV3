@@ -4,3 +4,4 @@ mod character_info;
 mod character_history;
 mod character;
 mod guild;
+mod character_facial;
