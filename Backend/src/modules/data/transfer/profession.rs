@@ -7,7 +7,7 @@ use crate::modules::data::tools::RetrieveProfession;
 
 #[openapi]
 #[get("/profession/<id>")]
-pub fn get_profession(me: State<Data>, id: u8) -> Option<Json<Profession>>
+pub fn get_profession(me: State<Data>, id: u16) -> Option<Json<Profession>>
 {
   me.get_profession(id)
     .and_then(|profession| Some(Json(profession)))

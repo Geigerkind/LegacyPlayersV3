@@ -124,7 +124,7 @@ fn set_character(_: &mut Bencher) {
         level: 20,
         gender: false,
         profession1: None,
-        profession2: Some(3),
+        profession2: Some(186),
         talent_specialization: None,
         race_id: 6,
     };

@@ -119,8 +119,8 @@ fn set_character() {
     hero_class_id: 7,
     level: 80,
     gender: false,
-    profession1: Some(4),
-    profession2: Some(3),
+    profession1: Some(186),
+    profession2: Some(182),
     talent_specialization: None,
     race_id: 4,
   };

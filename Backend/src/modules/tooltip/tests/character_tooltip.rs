@@ -43,7 +43,7 @@ fn character_tooltip() {
         hero_class_id: 2,
         level: 24,
         gender: false,
-        profession1: Some(4),
+        profession1: Some(171),
         profession2: None,
         talent_specialization: None,
         race_id: 4,

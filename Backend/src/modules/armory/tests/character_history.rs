@@ -121,7 +121,7 @@ fn set_character_history() {
     hero_class_id: 5,
     level: 80,
     gender: true,
-    profession1: Some(3),
+    profession1: Some(202),
     profession2: None,
     talent_specialization: None,
     race_id: 6,

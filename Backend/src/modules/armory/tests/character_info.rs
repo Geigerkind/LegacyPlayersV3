@@ -117,7 +117,7 @@ fn character_info() {
     level: 70,
     gender: true,
     profession1: None,
-    profession2: Some(2),
+    profession2: Some(333),
     talent_specialization: None,
     race_id: 3
   };

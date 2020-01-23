@@ -4,9 +4,9 @@ use crate::modules::data::tools::RetrieveProfession;
 #[test]
 fn get_profession() {
   let data = Data::default().init(Some(5));
-  let profession = data.get_profession(1);
+  let profession = data.get_profession(182);
   assert!(profession.is_some());
-  assert_eq!(profession.unwrap().id, 1);
+  assert_eq!(profession.unwrap().id, 182);
   let no_profession = data.get_profession(0);
   assert!(no_profession.is_none());
 }

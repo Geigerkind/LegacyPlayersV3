@@ -165,7 +165,7 @@ fn shadowmourne_socketed_and_enchanted() {
         hero_class_id: 1,
         level: 23,
         gender: false,
-        profession1: Some(4),
+        profession1: Some(202),
         profession2: None,
         talent_specialization: None,
         race_id: 4,

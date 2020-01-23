@@ -15,7 +15,7 @@ pub struct Data {
   pub languages: HashMap<u8, Language>,
   pub localization: Vec<HashMap<u32, Localization>>,
   pub races: HashMap<u8, Race>,
-  pub professions: HashMap<u8, Profession>,
+  pub professions: HashMap<u16, Profession>,
   pub servers: HashMap<u32, Server>,
   pub hero_classes: HashMap<u8, HeroClass>,
   pub spells: Vec<HashMap<u32, Spell>>,
@@ -188,7 +188,7 @@ impl Init for HashMap<u8, Race> {
   }
 }
 
-impl Init for HashMap<u8, Profession> {
+impl Init for HashMap<u16, Profession> {
   fn init(&mut self, db: &MySQLConnection) {
     db.select("SELECT * FROM data_profession", &|mut row| {
       Profession {
