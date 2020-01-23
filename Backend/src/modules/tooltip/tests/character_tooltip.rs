@@ -51,6 +51,7 @@ fn character_tooltip() {
     let character_history_dto = CharacterHistoryDto {
         character_info: character_info_dto.to_owned(),
         character_name: "sdgsdfsd".to_string(),
+        character_title: None,
         character_guild: Some(CharacterGuildDto {
           guild: GuildDto {
             server_uid: 324234234,

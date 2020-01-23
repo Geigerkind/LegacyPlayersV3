@@ -127,6 +127,7 @@ fn set_character() {
   let character_history_dto = CharacterHistoryDto {
     character_info: character_info_dto.to_owned(),
     character_name: "Pansipeter".to_string(),
+    character_title: Some(23),
     character_guild: Some(CharacterGuildDto {
       guild: GuildDto {
         name: "GuildSample".to_string(),

@@ -28,13 +28,15 @@ impl CreateCharacterHistory for Armory {
       "character_id" => character_id,
       "character_info_id" => character_info.id,
       "character_name" => character_history_dto.character_name.clone(),
+      "title" => character_history_dto.character_title.clone(),
       "guild_id" => guild_id.clone(),
       "guild_rank" => character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.clone()))
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `guild_id`, `guild_rank`, `timestamp`) VALUES (:character_id, :character_info_id, :character_name, :guild_id, :guild_rank, UNIX_TIMESTAMP())", params.clone()) {
+    if self.db_main.execute_wparams("INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, `guild_id`, `guild_rank`, `timestamp`) VALUES (:character_id, :character_info_id, :character_name, :title, :guild_id, :guild_rank, UNIX_TIMESTAMP())", params.clone()) {
       let character_history_res = self.db_main.select_wparams_value("SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name \
       AND ((ISNULL(:guild_id) AND ISNULL(guild_id)) OR guild_id = :guild_id) \
       AND ((ISNULL(:guild_rank) AND ISNULL(guild_rank)) OR guild_rank = :guild_rank) \
+      AND ((ISNULL(:title) AND ISNULL(title)) OR title = :title) \
       AND timestamp >= UNIX_TIMESTAMP()-60", &|mut row| {
         CharacterHistory {
           id: row.take(0).unwrap(),
@@ -45,6 +47,7 @@ impl CreateCharacterHistory for Armory {
             guild_id: id.clone(),
             rank: character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.clone())).unwrap()
           })),
+          character_title: character_history_dto.character_title,
           timestamp: row.take(1).unwrap(),
         }
       }, params);

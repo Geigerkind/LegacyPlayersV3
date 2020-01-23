@@ -8,6 +8,7 @@ pub struct CharacterHistory {
   pub character_info: CharacterInfo,
   pub character_name: String,
   pub character_guild: Option<CharacterGuild>,
+  pub character_title: Option<u16>,
   pub timestamp: u64
 }
 
@@ -28,6 +29,7 @@ impl CharacterHistory {
       && self.character_name == other.character_name
       && ((self.character_guild.is_none() && other.character_guild.is_none())
           || (self.character_guild.is_some() && other.character_guild.is_some() && self.character_guild.as_ref().unwrap().deep_eq(other.character_guild.as_ref().unwrap())))
+      && self.character_title == other.character_title
       && self.timestamp == other.timestamp
   }
 
@@ -37,6 +39,7 @@ impl CharacterHistory {
       && ((self.character_guild.is_none() && other.character_guild.is_none())
           || (self.character_guild.is_some() && other.character_guild.is_some()
     )         && self.character_guild.as_ref().unwrap().compare_by_value(other.character_guild.as_ref().unwrap()))
+      && self.character_title == other.character_title
     // Technically we should also compare character_id => character_uid and guild_id => guild_dto
     // But this would require to make a get call
   }

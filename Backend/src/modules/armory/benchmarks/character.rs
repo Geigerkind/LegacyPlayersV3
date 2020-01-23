@@ -131,6 +131,7 @@ fn set_character(_: &mut Bencher) {
     let character_history_dto = CharacterHistoryDto {
         character_info: character_info_dto.to_owned(),
         character_name: "sdfsdgsdg".to_string(),
+        character_title: None,
         character_guild: Some(CharacterGuildDto {
           guild: GuildDto {
             name: "sgfdfhgdfg".to_string(),

@@ -26,7 +26,8 @@ impl GetCharacterHistory for Armory {
           guild_id,
           rank: row.take(5).unwrap()
         })),
-        timestamp: row.take(6).unwrap()
+        character_title: row.take_opt(6).unwrap().ok(),
+        timestamp: row.take(7).unwrap()
       })
     }, params!(
       "id" => character_history_id

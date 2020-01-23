@@ -41,6 +41,7 @@ impl SetCharacterHistory for Armory {
             || (last_update.character_guild.is_some() && guild_id.is_some() && last_update.character_guild.as_ref().unwrap().guild_id == *guild_id.as_ref().unwrap()
                   && last_update.character_guild.as_ref().unwrap().rank == update_character_history.character_guild.as_ref().unwrap().rank))
           && last_update.character_name == update_character_history.character_name
+          && last_update.character_title == update_character_history.character_title
           && last_update.character_info.compare_by_value(&update_character_history.character_info)
         {
           let now = time_util::now();
