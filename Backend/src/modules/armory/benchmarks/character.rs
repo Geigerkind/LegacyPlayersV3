@@ -132,6 +132,8 @@ fn set_character(_: &mut Bencher) {
         character_info: character_info_dto.to_owned(),
         character_name: "sdfsdgsdg".to_string(),
         character_title: None,
+        profession_skill_points1: Some(35),
+        profession_skill_points2: Some(23),
         character_guild: Some(CharacterGuildDto {
           guild: GuildDto {
             name: "sgfdfhgdfg".to_string(),

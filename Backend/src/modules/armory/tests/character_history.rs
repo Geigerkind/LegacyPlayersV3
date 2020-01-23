@@ -130,6 +130,8 @@ fn set_character_history() {
     character_info: character_info_dto.to_owned(),
     character_name: "Peterpansi".to_string(),
     character_title: Some(172),
+    profession_skill_points1: Some(32),
+    profession_skill_points2: Some(450),
     character_guild: Some(CharacterGuildDto {
       guild: GuildDto {
         name: "SampleGuild123".to_string(),

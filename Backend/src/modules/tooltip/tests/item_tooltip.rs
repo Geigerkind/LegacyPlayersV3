@@ -174,6 +174,8 @@ fn shadowmourne_socketed_and_enchanted() {
         character_info: character_info_dto.to_owned(),
         character_name: "sdgsdfsd".to_string(),
         character_title: Some(14),
+        profession_skill_points1: Some(75),
+        profession_skill_points2: None,
         character_guild: None,
     };
     let character_dto = CharacterDto {

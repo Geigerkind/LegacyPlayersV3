@@ -27,7 +27,9 @@ impl GetCharacterHistory for Armory {
           rank: row.take(5).unwrap()
         })),
         character_title: row.take_opt(6).unwrap().ok(),
-        timestamp: row.take(7).unwrap()
+        profession_skill_points1: row.take_opt(7).unwrap().ok(),
+        profession_skill_points2: row.take_opt(8).unwrap().ok(),
+        timestamp: row.take(9).unwrap()
       })
     }, params!(
       "id" => character_history_id

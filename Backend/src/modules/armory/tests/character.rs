@@ -128,6 +128,8 @@ fn set_character() {
     character_info: character_info_dto.to_owned(),
     character_name: "Pansipeter".to_string(),
     character_title: Some(23),
+    profession_skill_points1: None,
+    profession_skill_points2: Some(423),
     character_guild: Some(CharacterGuildDto {
       guild: GuildDto {
         name: "GuildSample".to_string(),

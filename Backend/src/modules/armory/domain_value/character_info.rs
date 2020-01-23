@@ -30,11 +30,8 @@ impl CharacterInfo {
       && self.hero_class_id == other.hero_class_id
       && self.level == other.level
       && self.gender == other.gender
-      && ((self.profession1 == other.profession1
-            && self.profession2 == other.profession2)
-          || (self.profession2 == other.profession1
-                && self.profession1 == other.profession2)
-          )
+      && self.profession1 == other.profession1
+      && self.profession2 == other.profession2
       && self.talent_specialization == other.talent_specialization
       && self.race_id == other.race_id
   }
