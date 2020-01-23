@@ -51,7 +51,7 @@ fn character_tooltip() {
     let character_history_dto = CharacterHistoryDto {
         character_info: character_info_dto.to_owned(),
         character_name: "sdgsdfsd".to_string(),
-        guild: Some(CharacterGuildDto {
+        character_guild: Some(CharacterGuildDto {
           guild: GuildDto {
             server_uid: 324234234,
             name: "Testadsdfsfdsf".to_string()
@@ -77,8 +77,8 @@ fn character_tooltip() {
     assert_eq!(tooltip.name, character_history_dto.character_name);
     assert_eq!(tooltip.server, server.name);
     assert!(tooltip.guild.is_some());
-    assert_eq!(tooltip.guild.as_ref().unwrap().name, character_history_dto.guild.as_ref().unwrap().guild.name);
-    assert_eq!(tooltip.guild.as_ref().unwrap().rank, character_history_dto.guild.as_ref().unwrap().rank);
+    assert_eq!(tooltip.guild.as_ref().unwrap().name, character_history_dto.character_guild.as_ref().unwrap().guild.name);
+    assert_eq!(tooltip.guild.as_ref().unwrap().rank, character_history_dto.character_guild.as_ref().unwrap().rank);
 
     let character_history = character.last_update.unwrap();
     armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.main_hand.unwrap().id));
@@ -86,5 +86,5 @@ fn character_tooltip() {
     armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.guild.unwrap().guild_id));
+    armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
 }

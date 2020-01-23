@@ -173,7 +173,7 @@ fn shadowmourne_socketed_and_enchanted() {
     let character_history_dto = CharacterHistoryDto {
         character_info: character_info_dto.to_owned(),
         character_name: "sdgsdfsd".to_string(),
-        guild: None,
+        character_guild: None,
     };
     let character_dto = CharacterDto {
         server_uid: 43356,

@@ -4,5 +4,5 @@ use crate::modules::armory::dto::{CharacterInfoDto, CharacterGuildDto};
 pub struct CharacterHistoryDto {
   pub character_info: CharacterInfoDto,
   pub character_name: String,
-  pub guild: Option<CharacterGuildDto>
+  pub character_guild: Option<CharacterGuildDto>
 }

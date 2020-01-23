@@ -22,7 +22,7 @@ impl GetCharacterHistory for Armory {
         character_id: row.take(1).unwrap(),
         character_info: character_info.unwrap(),
         character_name: row.take(3).unwrap(),
-        guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
+        character_guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
           guild_id,
           rank: row.take(5).unwrap()
         })),

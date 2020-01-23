@@ -127,7 +127,7 @@ fn set_character() {
   let character_history_dto = CharacterHistoryDto {
     character_info: character_info_dto.to_owned(),
     character_name: "Pansipeter".to_string(),
-    guild: Some(CharacterGuildDto {
+    character_guild: Some(CharacterGuildDto {
       guild: GuildDto {
         name: "GuildSample".to_string(),
         server_uid: 12346,
@@ -197,5 +197,5 @@ fn set_character() {
   armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
   armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
   armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
-  armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.guild.unwrap().guild_id));
+  armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
 }

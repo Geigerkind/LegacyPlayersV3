@@ -86,7 +86,7 @@ impl Init for HashMap<u32, Character> {
         id: row.take(0).unwrap(),
         character_id: row.take(1).unwrap(),
         character_name: row.take(3).unwrap(),
-        guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
+        character_guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
           guild_id,
           rank: row.take(5).unwrap()
         })),

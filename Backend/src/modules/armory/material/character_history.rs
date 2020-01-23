@@ -7,7 +7,7 @@ pub struct CharacterHistory {
   pub character_id: u32,
   pub character_info: CharacterInfo,
   pub character_name: String,
-  pub guild: Option<CharacterGuild>,
+  pub character_guild: Option<CharacterGuild>,
   pub timestamp: u64
 }
 
@@ -26,17 +26,17 @@ impl CharacterHistory {
       && self.character_id == other.character_id
       && self.character_info.deep_eq(&other.character_info)
       && self.character_name == other.character_name
-      && ((self.guild.is_none() && other.guild.is_none())
-          || (self.guild.is_some() && other.guild.is_some() && self.guild.as_ref().unwrap().deep_eq(other.guild.as_ref().unwrap())))
+      && ((self.character_guild.is_none() && other.character_guild.is_none())
+          || (self.character_guild.is_some() && other.character_guild.is_some() && self.character_guild.as_ref().unwrap().deep_eq(other.character_guild.as_ref().unwrap())))
       && self.timestamp == other.timestamp
   }
 
   pub fn compare_by_value(&self, other: &CharacterHistoryDto) -> bool {
     self.character_info.compare_by_value(&other.character_info)
       && self.character_name == other.character_name
-      && ((self.guild.is_none() && other.guild.is_none())
-          || (self.guild.is_some() && other.guild.is_some()
-    )         && self.guild.as_ref().unwrap().compare_by_value(other.guild.as_ref().unwrap()))
+      && ((self.character_guild.is_none() && other.character_guild.is_none())
+          || (self.character_guild.is_some() && other.character_guild.is_some()
+    )         && self.character_guild.as_ref().unwrap().compare_by_value(other.character_guild.as_ref().unwrap()))
     // Technically we should also compare character_id => character_uid and guild_id => guild_dto
     // But this would require to make a get call
   }

@@ -24,7 +24,7 @@ impl RetrieveCharacterTooltip for Tooltip {
         }
         let character_history = character.last_update.unwrap();
 
-        let guild = character_history.guild
+        let guild = character_history.character_guild
             .and_then(|character_guild| armory.get_guild(character_guild.guild_id)
                 .and_then(|guild| Some(CharacterGuild {
                     name: guild.name.to_owned(),
