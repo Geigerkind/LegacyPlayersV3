@@ -23,4 +23,8 @@ $headerSize: 50px;
         white-space: nowrap;
         font-size: 20px;
     }
+
+    GeneralInput, NumberInput, DateInput, SelectInput {
+        width: calc(100% - #{$headerSize} * 0.5 - 5px);
+    }
 }
