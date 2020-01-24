@@ -13,12 +13,12 @@ $rowHeight: 40px;
     background: $tdc_darker;
     border-radius: 0 0 3px 3px;
 
-    div {
+    div, FooterPager {
         height: inherit;
         line-height: $rowHeight;
+    }
 
-        &:last-child {
-            margin-left: auto;
-        }
+    FooterPager {
+        margin-left: auto;
     }
 }

@@ -7,7 +7,6 @@ import {Component} from "@angular/core";
 })
 export class TableFooterComponent {
 
-    leftText: string = '1 to 10 of 100 total';
-    rightText: string = 'Test';
+    leftText: string = '100 total';
 
 }
