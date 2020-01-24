@@ -1,1 +1,3 @@
-BODY
+<div class="tableBodyRow" *ngFor="let columns of rows">
+    <BodyTd *ngFor="let column of columns" [specification]="column"></BodyTd>
+</div>

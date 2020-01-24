@@ -1,0 +1,16 @@
+@import "./../../../../../../../styles/global";
+
+$headerSize: 50px;
+
+:host {
+    display: block;
+    height: $headerSize;
+
+    div {
+        line-height: $headerSize;
+    }
+
+    .number {
+        text-align: right;
+    }
+}

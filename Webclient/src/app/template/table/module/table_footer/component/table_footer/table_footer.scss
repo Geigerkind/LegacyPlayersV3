@@ -1,7 +1,9 @@
+@import "./../../../../../../../styles/global";
+
 :host {
     display: block;
     width: 100%;
 
-    // DEBUG
-    background: blue;
+    background: $tdc_darker;
+    border-radius: 0 0 3px 3px;
 }
