@@ -52,7 +52,7 @@ export class APITokensComponent {
     }
 
     toEuropeanDate(timestamp: number): string {
-        return this.datePipe.transform(new Date(timestamp*1000), 'dd.MM.yyyy');
+        return this.datePipe.transform(new Date(timestamp * 1000), 'dd.MM.yyyy');
     }
 
     clearGeneratedToken(): void {

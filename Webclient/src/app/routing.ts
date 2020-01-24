@@ -31,6 +31,7 @@ const routes: Routes = [
         path: "confirm/:type/:confirm_id",
         loadChildren: () => import("./module/confirm/module").then(m => m.ConfirmModule),
     },
+    {path: "armory", loadChildren: () => import("./module/armory/module").then(m => m.ArmoryModule)},
     {path: "privacy", loadChildren: () => import("./module/privacy/module").then(m => m.PrivacyModule)},
     {path: "imprint", loadChildren: () => import("./module/imprint/module").then(m => m.ImprintModule)}
 ];

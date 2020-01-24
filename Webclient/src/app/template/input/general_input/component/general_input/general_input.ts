@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from "@angular/core";
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {escapeRegExp} from "../../../../../stdlib/escapeRegExp";
 import {FormFailure} from "../../../../../material/form_failure";
 
@@ -7,7 +7,7 @@ import {FormFailure} from "../../../../../material/form_failure";
     templateUrl: "./general_input.html",
     styleUrls: ["./general_input.scss"]
 })
-export class GeneralInputComponent {
+export class GeneralInputComponent implements OnInit {
     touched: boolean = false;
     pattern: string;
 
@@ -20,6 +20,7 @@ export class GeneralInputComponent {
     @Input() min_spec: string;
     @Input() max_spec: string;
     @Input() name: string;
+    @Input() autoFocus: boolean = false;
 
     @Output() valueChange: EventEmitter<string> = new EventEmitter<string>();
     valueData = "";
@@ -27,6 +28,12 @@ export class GeneralInputComponent {
 
     constructor() {
         this.updatePattern();
+    }
+
+    ngOnInit(): void {
+        if (this.autoFocus) {
+            this.inputRef.nativeElement.focus();
+        }
     }
 
     @Input()
