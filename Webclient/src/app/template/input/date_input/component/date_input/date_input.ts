@@ -1,9 +1,11 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {FormFailure} from "../../../../../material/form_failure";
+import {DatePipe} from "@angular/common";
 
 @Component({
     selector: "DateInput",
-    templateUrl: "./date_input.html"
+    templateUrl: "./date_input.html",
+    providers: [DatePipe]
 })
 export class DateInputComponent {
     @Input() required: boolean;
@@ -13,9 +15,14 @@ export class DateInputComponent {
     @Input() formFailure: FormFailure;
     @Input() min_date: Date;
     @Input() max_date: Date;
+    @Input() autoFocus: boolean = false;
 
     @Output() valueChange: EventEmitter<Date> = new EventEmitter<Date>();
     valueData: Date;
+
+    constructor(
+        private dataPipe: DatePipe
+    ) {}
 
     @Input()
     get value(): Date {
@@ -33,8 +40,8 @@ export class DateInputComponent {
     }
 
     passDate(dateVal: Date): string {
-        if (!dateVal)
+        if (!dateVal || !dateVal.getTime || !dateVal.getTime())
             return '';
-        return dateVal.toISOString().slice(0, 10);
+        return this.dataPipe.transform(dateVal, 'yyyy-MM-dd');
     }
 }

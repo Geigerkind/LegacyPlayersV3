@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {escapeRegExp} from "../../../../../stdlib/escapeRegExp";
 import {FormFailure} from "../../../../../material/form_failure";
 
@@ -7,7 +7,7 @@ import {FormFailure} from "../../../../../material/form_failure";
     templateUrl: "./general_input.html",
     styleUrls: ["./general_input.scss"]
 })
-export class GeneralInputComponent implements OnInit {
+export class GeneralInputComponent implements AfterViewInit {
     touched: boolean = false;
     pattern: string;
 
@@ -30,7 +30,7 @@ export class GeneralInputComponent implements OnInit {
         this.updatePattern();
     }
 
-    ngOnInit(): void {
+    ngAfterViewInit(): void {
         if (this.autoFocus) {
             this.inputRef.nativeElement.focus();
         }
@@ -56,6 +56,9 @@ export class GeneralInputComponent implements OnInit {
     }
 
     set formFailure(newValue: FormFailure) {
+        if (!newValue)
+            return;
+
         this.formFailureData = newValue;
         this.updatePattern();
         this.formFailureData.subscribe(() => this.updatePattern());

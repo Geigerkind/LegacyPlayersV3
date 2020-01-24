@@ -1,5 +1,1 @@
-<HeaderTd labelKey="Test column 1"></HeaderTd>
-<HeaderTd labelKey="Test column 2"></HeaderTd>
-<HeaderTd labelKey="Test column 3"></HeaderTd>
-<HeaderTd labelKey="Test column 4"></HeaderTd>
-<HeaderTd labelKey="Test column 5"></HeaderTd>
+<HeaderTd *ngFor="let column of head_columns" [specification]="column"></HeaderTd>

@@ -5,6 +5,9 @@ import {HeaderTdComponent} from "./component/header_td/header_td";
 import {TranslateModule} from "@ngx-translate/core";
 import {SortButtonModule} from "../../../button/sort_button/module";
 import {GeneralInputModule} from "../../../input/general_input/module";
+import {DateInputModule} from "../../../input/date_input/module";
+import {NumberInputModule} from "../../../input/number_input/module";
+import {SelectInputModule} from "../../../input/select_input/module";
 
 @NgModule({
     declarations: [TableHeaderComponent, HeaderTdComponent],
@@ -12,7 +15,10 @@ import {GeneralInputModule} from "../../../input/general_input/module";
         CommonModule,
         TranslateModule,
         SortButtonModule,
-        GeneralInputModule
+        GeneralInputModule,
+        DateInputModule,
+        NumberInputModule,
+        SelectInputModule
     ],
     exports: [TableHeaderComponent]
 })
