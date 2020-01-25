@@ -3,6 +3,7 @@ use crate::modules::data::Data;
 use crate::modules::armory::Armory;
 use crate::dto::SelectOption;
 use crate::modules::data::tools::{RetrieveLocalization, RetrieveRace, RetrieveServer, RetrieveHeroClass};
+use std::cmp::Ordering;
 
 pub trait PerformCharacterSearch {
   fn get_character_search_result(&self, data: &Data, language_id: u8, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult>;
@@ -11,7 +12,7 @@ pub trait PerformCharacterSearch {
 impl PerformCharacterSearch for Armory {
   fn get_character_search_result(&self, data: &Data, language_id: u8, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult> {
     let characters = self.characters.read().unwrap();
-    let mut result = characters.iter()
+    let mut result: Vec<CharacterSearchResult> = characters.iter()
       .filter(|(_, character)| character.last_update.is_some())
       .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))
       .filter(|(_, character)| filter.name.filter.is_none() || character.last_update.as_ref().unwrap().character_name.contains(filter.name.filter.as_ref().unwrap()))
@@ -37,7 +38,71 @@ impl PerformCharacterSearch for Armory {
         }
       })
       .collect();
-    //result.sort_by();
+    result.sort_by(|left: &CharacterSearchResult, right: &CharacterSearchResult| {
+      if let Some(sorting) = filter.name.sorting {
+        let ordering = left.name.cmp(&right.name);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.server.sorting {
+        let ordering = left.server.value.cmp(&right.server.value);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.gender.sorting {
+        let ordering = left.gender.value.cmp(&right.gender.value);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.race.sorting {
+        let ordering = left.race.value.cmp(&right.race.value);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.faction.sorting {
+        let ordering = left.faction.value.cmp(&right.faction.value);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.hero_class.sorting {
+        let ordering = left.hero_class.value.cmp(&right.hero_class.value);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.last_updated.sorting {
+        let ordering = left.last_updated.cmp(&right.last_updated);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering,sorting);
+        }
+      }
+
+      return Ordering::Equal;
+    });
     result
   }
+}
+
+fn negate_ordering(ordering: Ordering, sorting: bool) -> Ordering {
+  if ordering == Ordering::Less {
+    if sorting {
+      return Ordering::Less;
+    }
+    return Ordering::Greater;
+  }
+  if sorting {
+    return Ordering::Greater;
+  }
+  return Ordering::Less;
 }
