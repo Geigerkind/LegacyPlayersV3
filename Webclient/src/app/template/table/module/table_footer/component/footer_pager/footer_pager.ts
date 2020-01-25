@@ -7,10 +7,19 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 })
 export class FooterPagerComponent {
 
+    numPagesData: number;
     currentPage: number = 1;
-    @Input() numPages: number;
 
     @Output() pageChanged: EventEmitter<number> = new EventEmitter<number>();
+    @Input()
+    set numPages(page: number) {
+        this.numPagesData = page;
+        if (this.currentPage > page)
+            this.goToFirstPage();
+    }
+    get numPages(): number {
+        return this.numPagesData;
+    }
 
     goToFirstPage(): void {
         this.currentPage = 1;
