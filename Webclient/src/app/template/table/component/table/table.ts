@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {WindowService} from "../../../../styling_service/window";
 import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";

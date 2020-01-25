@@ -69,6 +69,13 @@ $columnHeight: 50px;
         }
 
         &.isVisible {
+            @keyframes openMenu {
+                0% { max-height: $columnHeight }
+                100% { max-height: 1000px }
+            }
+            animation: openMenu;
+            animation-duration: 0.5s;
+            animation-timing-function: linear;
             max-height: none;
         }
     }

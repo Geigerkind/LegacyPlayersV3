@@ -103,11 +103,11 @@
         ul {
             transform: scaleY(0);
             transform-origin: top;
+            transition: transform 0.1s;
             width: calc(100% - #{$spacing} * 4);
             margin: 0;
             padding: 0 $spacing * 2 0 $spacing * 2;
             list-style: none;
-            transition: transform 0.1s;
             overflow: hidden;
 
             &.open {
