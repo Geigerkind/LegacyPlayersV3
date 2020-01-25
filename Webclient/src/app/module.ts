@@ -61,7 +61,7 @@ export function createTranslateLoader(http: HttpClient) {
         WindowService,
         {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
-        {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true},
+        {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true}
     ],
     bootstrap: [AppComponent],
     entryComponents: [CookieBannerComponent]

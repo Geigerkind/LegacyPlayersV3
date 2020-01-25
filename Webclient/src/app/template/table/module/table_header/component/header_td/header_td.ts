@@ -14,7 +14,7 @@ export class HeaderTdComponent implements OnInit {
 
     showFilter: boolean = false;
     filterValueData: any;
-    filterRange: SelectOption[];
+    filterRange: Array<SelectOption>;
 
     set filterValue(value: any) {
         this.filterValueData = value;
@@ -36,12 +36,12 @@ export class HeaderTdComponent implements OnInit {
         if (this.specification.type === 3) {
             this.filterRange = [{value: 0, labelKey: this.specification.labelKey}];
             if (this.specification.type_range)
-                this.specification.type_range.forEach((item, i) => this.filterRange.push({value: i+1, labelKey: item}));
+                this.specification.type_range.forEach((item, i) => this.filterRange.push({value: i + 1, labelKey: item}));
         }
     }
 
     defaultFilterValue(): any {
-        if (this.specification.type == 2)
+        if (this.specification.type === 2)
             return null;
         else if (this.specification.type > 1)
             return 0;

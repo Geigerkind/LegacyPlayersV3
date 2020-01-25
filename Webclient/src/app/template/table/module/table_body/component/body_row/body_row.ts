@@ -7,5 +7,5 @@ import {BodyColumn} from "../../domain_value/body_column";
     styleUrls: ["./body_row.scss"]
 })
 export class BodyRowComponent {
-    @Input() columns: BodyColumn[];
+    @Input() columns: Array<BodyColumn>;
 }

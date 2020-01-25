@@ -15,26 +15,26 @@ export class TableComponent {
 
     @Output() filterOrPageChanged: EventEmitter<object> = new EventEmitter<object>();
 
-    @Input() responsiveHeadColumns: number[] = [0, 2];
+    @Input() responsiveHeadColumns: Array<number> = [0, 2];
     @Input() responsiveModeWidthInPx: number = 500;
     @Input() enableHeader: boolean = true;
     @Input() enableFooter: boolean = true;
     @Input() clientSide: boolean = true;
-    @Input() headColumns: HeaderColumn[] = [];
+    @Input() headColumns: Array<HeaderColumn> = [];
 
     @Input()
-    set bodyRows(rows: BodyColumn[][]) {
+    set bodyRows(rows: Array<Array<BodyColumn>>) {
         this.bodyRowsData = rows;
         this.currentFilter = table_init_filter(this.headColumns);
         this.setCurrentPageRows();
     }
 
-    get bodyRows(): BodyColumn[][] {
+    get bodyRows(): Array<Array<BodyColumn>> {
         return this.bodyRowsData;
     }
 
-    bodyRowsData: BodyColumn[][] = [];
-    currentPageRows: BodyColumn[][] = [];
+    bodyRowsData: Array<Array<BodyColumn>> = [];
+    currentPageRows: Array<Array<BodyColumn>> = [];
     isResponsiveMode: boolean = false;
     numItems: number = 0;
 
@@ -51,8 +51,8 @@ export class TableComponent {
         this.currentPageData = page - 1;
         if (this.clientSide)
             this.setCurrentPageRows();
-        else if (this.currentFilter["page"] !== this.currentPageData) {
-            this.currentFilter["page"] = this.currentPageData;
+        else if (this.currentFilter.page !== this.currentPageData) {
+            this.currentFilter.page = this.currentPageData;
             this.filterOrPageChanged.emit(this.currentFilter);
         }
     }
@@ -64,7 +64,7 @@ export class TableComponent {
     handleFilterChanged(filter: string): void {
         const result = JSON.parse(filter);
         this.currentFilter = result;
-        this.currentFilter["page"] = this.currentPage;
+        this.currentFilter.page = this.currentPage;
         if (this.clientSide)
             this.setCurrentPageRows();
         else
@@ -79,13 +79,13 @@ export class TableComponent {
                 this.bodyRowsData.length : (this.currentPage + 1) * TableComponent.PAGE_SIZE);
     }
 
-    private applyFilter(): BodyColumn[][] {
+    private applyFilter(): Array<Array<BodyColumn>> {
         if (!this.clientSide)
             return this.bodyRowsData;
 
         return this.bodyRowsData
             .filter(row => row.every((column, index) => {
-                let filter = this.currentFilter[this.headColumns[index].filter_name].filter;
+                const filter = this.currentFilter[this.headColumns[index].filter_name].filter;
                 return !filter || filter.toString() === column.content || (
                     column.type === 0 && column.content.includes(filter)
                 ) || (
@@ -94,7 +94,7 @@ export class TableComponent {
             }))
             .sort((leftRow, rightRow) => {
                 for (let index = 0; index < leftRow.length; ++index) {
-                    let filterSorting = this.currentFilter[this.headColumns[index].filter_name].sorting;
+                    const filterSorting = this.currentFilter[this.headColumns[index].filter_name].sorting;
                     if (filterSorting === null)
                         continue;
 

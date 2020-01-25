@@ -8,17 +8,17 @@ import {HeaderColumn} from "../../domain_value/header_column";
 })
 export class TableHeaderComponent {
 
-    @Input() responsiveHeadColumns: number[];
+    @Input() responsiveHeadColumns: Array<number>;
     @Input() isResponsiveMode: boolean;
-    @Input() columns: HeaderColumn[];
+    @Input() columns: Array<HeaderColumn>;
 
     @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 
-    getResponsiveHeaderColumns(columns: HeaderColumn[]): HeaderColumn[] {
+    getResponsiveHeaderColumns(columns: Array<HeaderColumn>): Array<HeaderColumn> {
         return columns.filter((_, index) => this.responsiveHeadColumns.includes(index));
     }
 
-    getResponsiveBodyColumns(columns: HeaderColumn[]): HeaderColumn[] {
+    getResponsiveBodyColumns(columns: Array<HeaderColumn>): Array<HeaderColumn> {
         return columns.filter((_, index) => !this.responsiveHeadColumns.includes(index));
     }
 

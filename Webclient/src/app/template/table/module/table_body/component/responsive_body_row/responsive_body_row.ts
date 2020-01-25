@@ -7,8 +7,8 @@ import {BodyColumn} from "../../domain_value/body_column";
     styleUrls: ["./responsive_body_row.scss"]
 })
 export class ResponsiveBodyRowComponent {
-    @Input() responsiveHeaderColumns: BodyColumn[];
-    @Input() responsiveBodyColumns: BodyColumn[];
+    @Input() responsiveHeaderColumns: Array<BodyColumn>;
+    @Input() responsiveBodyColumns: Array<BodyColumn>;
 
     isVisible: boolean = false;
 

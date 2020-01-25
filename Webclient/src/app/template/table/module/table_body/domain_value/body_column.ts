@@ -1,4 +1,4 @@
 export interface BodyColumn {
-    type: number,
-    content: any
+    type: number;
+    content: any;
 }

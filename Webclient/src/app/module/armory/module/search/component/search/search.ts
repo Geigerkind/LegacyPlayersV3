@@ -12,7 +12,7 @@ import {init_body_columns_from_result} from "../../../../../../template/table/ut
 })
 export class SearchComponent {
 
-    character_header_columns: HeaderColumn[] = [
+    character_header_columns: Array<HeaderColumn> = [
         { index: 0, filter_name: 'name', labelKey: "Name", type: 0, type_range: null },
         { index: 1, filter_name: 'gender', labelKey: "Gender", type: 3, type_range: ['General.gender_0', 'General.gender_1'] },
         { index: 2, filter_name: 'server', labelKey: "Server", type: 3, type_range: ['0', '1', '2'] },
@@ -22,7 +22,7 @@ export class SearchComponent {
         { index: 6, filter_name: 'last_updated', labelKey: "Last update", type: 2, type_range: null },
     ];
 
-    character_body_columns: BodyColumn[][] = [];
+    character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
 
     constructor(

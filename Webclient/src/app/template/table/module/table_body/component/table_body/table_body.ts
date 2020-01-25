@@ -8,15 +8,15 @@ import {BodyColumn} from "../../domain_value/body_column";
 })
 export class TableBodyComponent {
 
-    @Input() responsiveHeadColumns: number[];
+    @Input() responsiveHeadColumns: Array<number>;
     @Input() isResponsiveMode: boolean;
-    @Input() rows: BodyColumn[][];
+    @Input() rows: Array<Array<BodyColumn>>;
 
-    getResponsiveHeaderColumns(columns: BodyColumn[]): BodyColumn[] {
+    getResponsiveHeaderColumns(columns: Array<BodyColumn>): Array<BodyColumn> {
         return columns.filter((_, index) => this.responsiveHeadColumns.includes(index));
     }
 
-    getResponsiveBodyColumns(columns: BodyColumn[]): BodyColumn[] {
+    getResponsiveBodyColumns(columns: Array<BodyColumn>): Array<BodyColumn> {
         return columns.filter((_, index) => !this.responsiveHeadColumns.includes(index));
     }
 }
