@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {WindowService} from "../../../../styling_service/window";
 import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";
@@ -11,6 +11,8 @@ import {HeaderColumn} from "../../module/table_header/domain_value/header_column
 export class TableComponent {
 
     static readonly PAGE_SIZE: number = 10;
+
+    @Output() filterOrPageChanged: EventEmitter<object> = new EventEmitter<object>();
 
     @Input() responsiveHeadColumns: number[] = [0,2];
     @Input() responsiveModeWidthInPx: number = 500;
@@ -27,6 +29,7 @@ export class TableComponent {
     @Input()
     set bodyRows(rows: BodyColumn[][]) {
         this.bodyRowsData = rows;
+        this.initFilter();
         this.setCurrentPageRows();
     }
     get bodyRows(): BodyColumn[][] {
@@ -64,7 +67,11 @@ export class TableComponent {
 
     set currentPage(page: number) {
         this.currentPageData = page - 1;
-        this.setCurrentPageRows();
+        this.currentFilter["page"] = this.currentPageData;
+        if (this.clientSide)
+            this.setCurrentPageRows();
+        else
+            this.filterOrPageChanged.emit(this.currentFilter);
     }
     get currentPage(): number {
         return this.currentPageData;
@@ -72,7 +79,18 @@ export class TableComponent {
 
     handleFilterChanged(filter: object): void {
         this.currentFilter = filter;
-        this.setCurrentPageRows();
+        this.currentFilter["page"] = this.currentPage;
+        if (this.clientSide)
+            this.setCurrentPageRows();
+        else
+            this.filterOrPageChanged.emit(this.currentFilter);
+    }
+
+    private initFilter(): void {
+        this.headColumns.forEach(item => {
+            this.currentPage["filter_" + item.index] = null;
+            this.currentPage["sort_" + item.index] = null;
+        })
     }
 
     private setCurrentPageRows(): void {
@@ -89,10 +107,10 @@ export class TableComponent {
 
         return this.bodyRowsData
             .filter(row => row.every((column, index) =>
-                !this.currentFilter[index] || this.currentFilter[index].toString() === column.content || (
-                    column.type === 0 && column.content.includes(this.currentFilter[index])
+                !this.currentFilter["filter_" + index] || this.currentFilter["filter_" + index].toString() === column.content || (
+                    column.type === 0 && column.content.includes(this.currentFilter["filter_" + index])
                 ) || (
-                    column.type === 3 && this.headColumns[index].type_range[this.currentFilter[index]-1] === column.content
+                    column.type === 3 && this.headColumns[index].type_range[this.currentFilter["filter_" + index]-1] === column.content
                 )))
             .sort((leftRow, rightRow) => {
                for (let index=0; index<leftRow.length; ++index) {

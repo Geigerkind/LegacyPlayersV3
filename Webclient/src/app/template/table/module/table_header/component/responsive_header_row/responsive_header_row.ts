@@ -17,11 +17,11 @@ export class ResponsiveHeaderRowComponent implements OnInit {
 
     ngOnInit(): void {
         this.responsiveHeaderColumns.forEach(item => {
-            this.currentFilter[item.index] = null;
+            this.currentFilter["filter_" + item.index] = null;
             this.currentFilter["sort_" + item.index] = null;
         });
         this.responsiveBodyColumns.forEach(item => {
-            this.currentFilter[item.index] = null;
+            this.currentFilter["filter_" + item.index] = null;
             this.currentFilter["sort_" + item.index] = null;
         });
     }
@@ -31,7 +31,7 @@ export class ResponsiveHeaderRowComponent implements OnInit {
     }
 
     emitFilter(index: number, filter: any): void {
-        this.currentFilter[index] = filter;
+        this.currentFilter["filter_" + index] = filter;
         this.filterChanged.emit(this.currentFilter);
     }
 

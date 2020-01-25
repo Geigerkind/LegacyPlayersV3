@@ -15,13 +15,13 @@ export class HeaderRowComponent implements OnInit {
 
     ngOnInit(): void {
         this.columns.forEach(item => {
-            this.currentFilter[item.index] = null;
+            this.currentFilter["filter_" + item.index] = null;
             this.currentFilter["sort_" + item.index] = null;
         });
     }
 
     emitFilter(index: number, filter: any): void {
-        this.currentFilter[index] = filter;
+        this.currentFilter["filter_" + index] = filter;
         this.filterChanged.emit(this.currentFilter);
     }
 
