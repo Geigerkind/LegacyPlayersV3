@@ -1,5 +1,5 @@
 <span>{{ labelKey | translate }}</span>
-<input #generalInput (focus)="touch()" (input)="value=$event.currentTarget.value" (invalid)="touch()"
+<input #generalInput (focus)="touch()" (input)="value=$event.currentTarget.value" (change)="value=$event.currentTarget.value" (invalid)="touch()"
        [attr.data-validity]="formFailure.invalidityMsg | translate:formFailure.msgArgs" [attr.max]="max_spec"
        [attr.pattern]="pattern" [attr.placeholder]="placeholderKey | translate" [class.touched]="touched" [maxLength]="maximum_length"
        [min]="min_spec" [name]="name" [required]="required"

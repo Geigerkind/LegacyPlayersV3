@@ -42,7 +42,7 @@ export class GeneralInputComponent implements AfterViewInit {
     }
 
     set value(newValue: string) {
-        if (this.valueData !== undefined && this.valueData !== newValue) {
+        if (this.valueData !== newValue) {
             this.formFailure.isInvalid = false;
             this.touch();
             this.valueChange.emit(newValue);

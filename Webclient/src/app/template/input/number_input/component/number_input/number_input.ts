@@ -25,7 +25,7 @@ export class NumberInputComponent {
     }
 
     set value(newValue: number) {
-        if (this.valueData !== undefined && this.valueData !== newValue)
+        if (this.valueData !== newValue)
             this.valueChange.emit(newValue);
         this.valueData = newValue;
     }

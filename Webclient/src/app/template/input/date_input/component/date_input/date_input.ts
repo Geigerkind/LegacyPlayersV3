@@ -30,7 +30,7 @@ export class DateInputComponent {
     }
 
     set value(newValue: Date) {
-        if (this.valueData !== undefined && this.valueData.getTime() !== newValue.getTime())
+        if ((newValue && (!this.valueData || this.valueData.getTime() !== newValue.getTime())) || (this.valueData && !newValue))
             this.valueChange.emit(newValue);
         this.valueData = newValue;
     }

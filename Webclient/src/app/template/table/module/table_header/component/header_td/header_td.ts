@@ -18,7 +18,11 @@ export class HeaderTdComponent implements OnInit {
     set filterValue(value: any) {
         this.filterValueData = value;
         if (!this.isFilterDefault()) {
-            this.filterChanged.emit(this.filterValueData);
+            console.log(this.filterValueData)
+            if (this.specification.type === 2)
+                this.filterChanged.emit(new Date(this.filterValueData).getTime());
+            else
+                this.filterChanged.emit(this.filterValueData);
         } else {
             this.filterChanged.emit(null);
         }
@@ -37,10 +41,9 @@ export class HeaderTdComponent implements OnInit {
     }
 
     defaultFilterValue(): any {
-        if (this.specification.type == 2) {
-            const now = new Date();
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-        } else if (this.specification.type > 0)
+        if (this.specification.type == 2)
+            return null;
+        else if (this.specification.type > 1)
             return 0;
         return '';
     }
@@ -55,7 +58,7 @@ export class HeaderTdComponent implements OnInit {
     }
 
     private isFilterDefault(): boolean {
-        return (this.specification.type == 2 && this.filterValue.getTime() === this.defaultFilterValue().getTime()) || this.filterValue === this.defaultFilterValue();
+        return this.filterValue === this.defaultFilterValue() || (this.specification.type === 2 && this.filterValue.getTime && !this.filterValue.getTime());
     }
 
 }

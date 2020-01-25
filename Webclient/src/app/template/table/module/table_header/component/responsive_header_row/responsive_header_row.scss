@@ -27,6 +27,10 @@ $columnHeight: 50px;
             }
         }
 
+        :last-child {
+            padding-bottom: $spacing / 2;
+        }
+
         .responsiveHeader {
             display: flex;
             flex-direction: row;
