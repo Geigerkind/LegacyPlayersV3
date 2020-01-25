@@ -1,5 +1,6 @@
 export interface HeaderColumn {
     index: number,
+    filter_name: string,
     labelKey: string,
     // 0 => Text
     // 1 => Number

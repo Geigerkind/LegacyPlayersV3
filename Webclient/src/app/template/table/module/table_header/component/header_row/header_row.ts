@@ -9,24 +9,31 @@ import {HeaderColumn} from "../../domain_value/header_column";
 export class HeaderRowComponent implements OnInit {
 
     @Input() columns: HeaderColumn[];
-    @Output() filterChanged: EventEmitter<object> = new EventEmitter<object>();
+    @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 
     currentFilter: object = {};
 
     ngOnInit(): void {
         this.columns.forEach(item => {
-            this.currentFilter["filter_" + item.index] = null;
-            this.currentFilter["sort_" + item.index] = null;
+            this.currentFilter[item.filter_name] = {
+                filter: null,
+                sorting: null
+            };
         });
     }
 
-    emitFilter(index: number, filter: any): void {
-        this.currentFilter["filter_" + index] = filter;
-        this.filterChanged.emit(this.currentFilter);
+    emitFilter(filter_name: string, filter: any): void {
+        if (this.currentFilter[filter_name]["filter"] !== filter) {
+            this.currentFilter[filter_name]["filter"] = filter;
+            this.filterChanged.emit(JSON.stringify(this.currentFilter));
+        }
     }
 
-    emitSort(index: number, state: number | null): void {
-        this.currentFilter["sort_" + index] = state === null ? null : state == 1;
-        this.filterChanged.emit(this.currentFilter);
+    emitSort(filter_name: string, state: number | null): void {
+        const newStateValue = state === null ? null : state === 1;
+        if (this.currentFilter[filter_name]["sorting"] !== newStateValue) {
+            this.currentFilter[filter_name]["sorting"] = newStateValue;
+            this.filterChanged.emit(JSON.stringify(this.currentFilter));
+        }
     }
 }

@@ -10,19 +10,23 @@ export class ResponsiveHeaderRowComponent implements OnInit {
 
     @Input() responsiveHeaderColumns: HeaderColumn[];
     @Input() responsiveBodyColumns: HeaderColumn[];
-    @Output() filterChanged: EventEmitter<object> = new EventEmitter<object>();
+    @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 
     isVisible: boolean = false;
     currentFilter: object = {};
 
     ngOnInit(): void {
         this.responsiveHeaderColumns.forEach(item => {
-            this.currentFilter["filter_" + item.index] = null;
-            this.currentFilter["sort_" + item.index] = null;
+            this.currentFilter[item.filter_name] = {
+                filter: null,
+                sorting: null
+            };
         });
         this.responsiveBodyColumns.forEach(item => {
-            this.currentFilter["filter_" + item.index] = null;
-            this.currentFilter["sort_" + item.index] = null;
+            this.currentFilter[item.filter_name] = {
+                filter: null,
+                sorting: null
+            };
         });
     }
 
@@ -30,13 +34,18 @@ export class ResponsiveHeaderRowComponent implements OnInit {
         this.isVisible = !this.isVisible;
     }
 
-    emitFilter(index: number, filter: any): void {
-        this.currentFilter["filter_" + index] = filter;
-        this.filterChanged.emit(this.currentFilter);
+    emitFilter(filter_name: string, filter: any): void {
+        if (this.currentFilter[filter_name]["filter"] !== filter) {
+            this.currentFilter[filter_name]["filter"] = filter;
+            this.filterChanged.emit(JSON.stringify(this.currentFilter));
+        }
     }
 
-    emitSort(index: number, state: number | null): void {
-        this.currentFilter["sort_" + index] = state === null ? null : state == 1;
-        this.filterChanged.emit(this.currentFilter);
+    emitSort(filter_name: string, state: number | null): void {
+        const newStateValue = state === null ? null : state === 1;
+        if (this.currentFilter[filter_name]["sorting"] !== newStateValue) {
+            this.currentFilter[filter_name]["sorting"] = newStateValue;
+            this.filterChanged.emit(JSON.stringify(this.currentFilter));
+        }
     }
 }

@@ -12,7 +12,7 @@ export class TableHeaderComponent {
     @Input() isResponsiveMode: boolean;
     @Input() columns: HeaderColumn[];
 
-    @Output() filterChanged: EventEmitter<object> = new EventEmitter<object>();
+    @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 
     getResponsiveHeaderColumns(columns: HeaderColumn[]): HeaderColumn[] {
         return columns.filter((_, index) => this.responsiveHeadColumns.includes(index));
@@ -22,7 +22,7 @@ export class TableHeaderComponent {
         return columns.filter((_, index) => !this.responsiveHeadColumns.includes(index));
     }
 
-    bubbleFilter(filter: object): void {
+    bubbleFilter(filter: string): void {
         this.filterChanged.emit(filter);
     }
 }

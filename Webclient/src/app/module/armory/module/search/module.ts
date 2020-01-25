@@ -4,6 +4,7 @@ import {SearchComponent} from "./component/search/search";
 import {CommonModule} from "@angular/common";
 import {TableModule} from "../../../../template/table/module";
 import {SearchRouting} from "./routing";
+import {CharacterSearchService} from "./service/character_search";
 
 @NgModule({
     declarations: [SearchComponent],
@@ -13,7 +14,10 @@ import {SearchRouting} from "./routing";
         SearchRouting,
         TableModule
     ],
-    exports: [SearchComponent]
+    exports: [SearchComponent],
+    providers: [
+        CharacterSearchService
+    ]
 })
 export class SearchModule {
 }
