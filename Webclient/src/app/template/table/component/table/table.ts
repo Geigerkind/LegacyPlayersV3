@@ -16,8 +16,7 @@ export class TableComponent {
     @Input() responsiveModeWidthInPx: number = 500;
     @Input() enableHeader: boolean = true;
     @Input() enableFooter: boolean = true;
-    @Input() filterClientSide: boolean = true;
-    @Input() pageClientSide: boolean = true;
+    @Input() clientSide: boolean = true;
     @Input() headColumns: HeaderColumn[] = [
         {index: 0, labelKey: 'Test column 1', type: 0, type_range: undefined},
         {index: 1, labelKey: 'Test column 2', type: 1, type_range: undefined},
@@ -85,7 +84,7 @@ export class TableComponent {
     }
 
     private applyFilter(): BodyColumn[][] {
-        if (!this.filterClientSide)
+        if (!this.clientSide)
             return this.bodyRowsData;
 
         return this.bodyRowsData
