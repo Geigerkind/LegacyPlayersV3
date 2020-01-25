@@ -202,5 +202,8 @@
     },
     "Confirm": {
         "wait": "Validating..."
+    },
+    "Table": {
+        "total": "{{amount}} total"
     }
 }
