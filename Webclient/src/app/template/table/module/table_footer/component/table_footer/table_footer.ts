@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
     selector: "TableFooter",
@@ -8,5 +8,11 @@ import {Component} from "@angular/core";
 export class TableFooterComponent {
 
     leftText: string = '100 total';
+    @Input() numPages: number;
 
+    @Output() pageChanged: EventEmitter<number> = new EventEmitter<number>();
+
+    bubblePageChanged(pageNumber: number) {
+        this.pageChanged.emit(pageNumber);
+    }
 }

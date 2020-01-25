@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
     selector: "FooterPager",
@@ -7,25 +7,32 @@ import {Component} from "@angular/core";
 })
 export class FooterPagerComponent {
 
-    private static readonly PAGE_SIZE: number = 10;
     currentPage: number = 1;
-    numPages: number = 10;
+    @Input() numPages: number;
+
+    @Output() pageChanged: EventEmitter<number> = new EventEmitter<number>();
 
     goToFirstPage(): void {
         this.currentPage = 1;
+        this.pageChanged.emit(this.currentPage);
     }
 
     goToLastPage(): void {
         this.currentPage = this.numPages;
+        this.pageChanged.emit(this.currentPage);
     }
 
     goToNextPage(): void {
-        if (this.currentPage + 1 <= this.numPages)
+        if (this.currentPage + 1 <= this.numPages) {
             ++this.currentPage;
+            this.pageChanged.emit(this.currentPage);
+        }
     }
 
     goToPreviousPage(): void {
-        if (this.currentPage - 1 >= 1)
+        if (this.currentPage - 1 >= 1) {
             --this.currentPage;
+            this.pageChanged.emit(this.currentPage);
+        }
     }
 }

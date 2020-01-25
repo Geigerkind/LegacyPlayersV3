@@ -1,2 +1,2 @@
 <div>{{ leftText | translate }}</div>
-<FooterPager></FooterPager>
+<FooterPager [numPages]="numPages" (pageChanged)="bubblePageChanged($event)"></FooterPager>

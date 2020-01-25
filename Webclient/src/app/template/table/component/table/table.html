@@ -1,3 +1,3 @@
 <TableHeader [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [columns]="headColumns" *ngIf="enableHeader"></TableHeader>
-<TableBody [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [rows]="bodyRows"></TableBody>
-<TableFooter *ngIf="enableFooter"></TableFooter>
+<TableBody [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [rows]="getCurrentPage()"></TableBody>
+<TableFooter [numPages]="getNumPages()" (pageChanged)="currentPage=$event" *ngIf="enableFooter"></TableFooter>
