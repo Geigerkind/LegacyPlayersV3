@@ -20,7 +20,7 @@ export class HeaderTdComponent implements OnInit {
         this.filterValueData = value;
         if (!this.isFilterDefault()) {
             if (this.specification.type === 2)
-                this.filterChanged.emit(new Date(this.filterValueData).getTime());
+                this.filterChanged.emit(Math.ceil(new Date(this.filterValueData).getTime() / 1000));
             else
                 this.filterChanged.emit(this.filterValueData);
         } else {

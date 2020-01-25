@@ -20,8 +20,14 @@ impl PerformCharacterSearch for Armory {
       .filter(|(_, character)| filter.race.filter.is_none() || filter.race.filter.contains(&character.last_update.as_ref().unwrap().character_info.race_id))
       .filter(|(_, character)| filter.gender.filter.is_none() || ((*filter.gender.filter.as_ref().unwrap()) != 0) == character.last_update.as_ref().unwrap().character_info.gender)
       .filter(|(_, character)| filter.hero_class.filter.is_none() || filter.hero_class.filter.contains(&character.last_update.as_ref().unwrap().character_info.hero_class_id))
-      // TODO
-      .filter(|(_, character)| filter.last_updated.filter.is_none() || filter.last_updated.filter.contains(&character.last_update.as_ref().unwrap().timestamp))
+      .filter(|(_, character)| {
+        if filter.last_updated.filter.is_none() {
+          return true;
+        }
+        let filter_timestamp = filter.last_updated.filter.as_ref().unwrap().clone();
+        let current_timestamp = character.last_update.as_ref().unwrap().timestamp;
+        return current_timestamp >= filter_timestamp && current_timestamp <= filter_timestamp + 24*60*60;
+      })
       .filter(|(_, character)| filter.faction.filter.is_none() || data.get_race(character.last_update.as_ref().unwrap().character_info.race_id).unwrap().faction as u8 == *filter.faction.filter.as_ref().unwrap())
       // This is also very expensive
       .filter(|(_, character)| {
