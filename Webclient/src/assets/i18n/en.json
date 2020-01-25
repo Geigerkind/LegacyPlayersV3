@@ -27,6 +27,18 @@
         "faction_0": "Horde",
         "faction_1": "Alliance"
     },
+    "Armory": {
+        "Search": {
+            "name": "Name",
+            "guild": "Guild",
+            "gender": "Gender",
+            "server": "Server",
+            "race": "Race",
+            "faction": "Faction",
+            "hero_class": "Class",
+            "last_update": "Last update"
+        }
+    },
     "CookieBanner": {
         "notification": {
             "saved": "Your consent settings have been saved!"
