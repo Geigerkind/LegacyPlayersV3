@@ -6,6 +6,8 @@ pub use self::character_item::CharacterItemDto;
 pub use self::guild::GuildDto;
 pub use self::character_guild::CharacterGuildDto;
 pub use self::character_facial::CharacterFacialDto;
+pub use self::character_search_filter::CharacterSearchFilter;
+pub use self::character_search_result::CharacterSearchResult;
 
 mod character;
 mod character_history;
@@ -15,3 +17,5 @@ mod character_gear;
 mod guild;
 mod character_guild;
 mod character_facial;
+mod character_search_filter;
+mod character_search_result;

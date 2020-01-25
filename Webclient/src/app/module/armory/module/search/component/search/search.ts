@@ -17,7 +17,7 @@ export class SearchComponent {
         { index: 3, filter_name: 'race', labelKey: "Race", type: 3, type_range: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] },
         { index: 4, filter_name: 'faction', labelKey: "Faction", type: 3, type_range: ['0', '1'] },
         { index: 5, filter_name: 'hero_class', labelKey: "Class", type: 3, type_range: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] },
-        { index: 6, filter_name: 'last_updated', labelKey: "Last update", type: 1, type_range: null },
+        { index: 6, filter_name: 'last_updated', labelKey: "Last update", type: 2, type_range: null },
     ];
 
     character_body_columns: BodyColumn[][] = [];
@@ -60,17 +60,15 @@ export class SearchComponent {
     }
 
     filterCharacterSearch(filter: any): void {
-        console.log(filter);
         this.characterSearchService.search_characters(filter, (result) => {
             this.character_body_columns = result.map(row => {
                 const result = [];
                 this.character_header_columns.forEach(entry => result.push({
                     type: entry.type,
-                    content: entry.type === 3 ? row[entry.filter_name].value.toString() : row[entry.filter_name].toString()
+                    content: entry.type === 3 ? row[entry.filter_name].label_key.toString() : (entry.type === 2 ? row[entry.filter_name] * 1000 : row[entry.filter_name]).toString()
                 }));
                 return result;
             });
-            console.log(this.character_body_columns);
         }, () => {})
 
     }

@@ -21,6 +21,12 @@
         "mail_confirm": "A confirmation mail has been send to you!",
         "reset_mail_confirm": "A mail has been send to the specified address!"
     },
+    "General": {
+        "gender_0": "Male",
+        "gender_1": "Female",
+        "faction_0": "Horde",
+        "faction_1": "Alliance"
+    },
     "CookieBanner": {
         "notification": {
             "saved": "Your consent settings have been saved!"

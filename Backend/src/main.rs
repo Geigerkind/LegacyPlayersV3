@@ -116,6 +116,7 @@ fn main() {
     armory::transfer::guild::get_guild, armory::transfer::guild::get_guilds_by_name, armory::transfer::guild::delete_guild,
     armory::transfer::guild::delete_guild_by_uid, armory::transfer::guild::create_guild, armory::transfer::guild::update_guild_name,
     armory::transfer::character_history::set_character_history, armory::transfer::character_history::get_character_history, armory::transfer::character_history::delete_character_history,
+    armory::transfer::character_search::get_character_search_result,
   ]);
 
   igniter = igniter.mount("/API/tooltip/", routes_with_openapi![

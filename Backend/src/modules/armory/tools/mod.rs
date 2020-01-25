@@ -18,6 +18,7 @@ pub use self::get_character_history::GetCharacterHistory;
 pub use self::delete_character_history::DeleteCharacterHistory;
 pub use self::create_character_facial::CreateCharacterFacial;
 pub use self::get_character_facial::GetCharacterFacial;
+pub use self::character_search::PerformCharacterSearch;
 
 mod create_character;
 mod set_character;
@@ -39,3 +40,4 @@ mod get_character_history;
 mod delete_character_history;
 mod create_character_facial;
 mod get_character_facial;
+mod character_search;
