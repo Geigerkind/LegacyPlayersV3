@@ -16,7 +16,7 @@ impl PerformCharacterSearch for Armory {
       .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))
       .filter(|(_, character)| filter.name.filter.is_none() || character.last_update.as_ref().unwrap().character_name.contains(filter.name.filter.as_ref().unwrap()))
       .filter(|(_, character)| filter.race.filter.is_none() || filter.race.filter.contains(&character.last_update.as_ref().unwrap().character_info.race_id))
-      .filter(|(_, character)| filter.gender.filter.is_none() || filter.gender.filter.contains(&(character.last_update.as_ref().unwrap().character_info.gender as u8)))
+      .filter(|(_, character)| filter.gender.filter.is_none() || ((*filter.gender.filter.as_ref().unwrap()) != 0) == character.last_update.as_ref().unwrap().character_info.gender)
       .filter(|(_, character)| filter.hero_class.filter.is_none() || filter.hero_class.filter.contains(&character.last_update.as_ref().unwrap().character_info.hero_class_id))
       // TODO
       .filter(|(_, character)| filter.last_updated.filter.is_none() || filter.last_updated.filter.contains(&character.last_update.as_ref().unwrap().timestamp))

@@ -1,8 +1,8 @@
 <div class="headerRow" [class.isVisible]="isVisible">
     <div class="responsiveHeader">
         <CaretButton (click)="toggleVisibility()"></CaretButton>
-        <HeaderTd (filterChanged)="emitFilter(column.filter_name, $event)" (sortChanged)="emitSort(column.filter_name, $event)" [specification]="column" *ngFor="let column of responsiveHeaderColumns"></HeaderTd>
+        <HeaderTd (filterChanged)="emitFilter(column, $event)" (sortChanged)="emitSort(column, $event)" [specification]="column" *ngFor="let column of responsiveHeaderColumns"></HeaderTd>
     </div>
-    <HeaderTd (filterChanged)="emitFilter(column.filter_name, $event)" (sortChanged)="emitSort(column.filter_name, $event)" [specification]="column" *ngFor="let column of responsiveBodyColumns"></HeaderTd>
+    <HeaderTd (filterChanged)="emitFilter(column, $event)" (sortChanged)="emitSort(column, $event)" [specification]="column" *ngFor="let column of responsiveBodyColumns"></HeaderTd>
 </div>
 
