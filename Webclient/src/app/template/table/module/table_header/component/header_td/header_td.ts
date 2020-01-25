@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {HeaderColumn} from "../../domain_value/header_column";
 import {SelectOption} from "../../../../../input/select_input/domain_value/select_option";
 
@@ -9,10 +9,23 @@ import {SelectOption} from "../../../../../input/select_input/domain_value/selec
 })
 export class HeaderTdComponent implements OnInit {
     @Input() specification: HeaderColumn;
+    @Output() filterChanged: EventEmitter<any> = new EventEmitter<any>();
 
     showFilter: boolean = false;
-    filterValue: any;
+    filterValueData: any;
     filterRange: SelectOption[];
+
+    set filterValue(value: any) {
+        this.filterValueData = value;
+        if (!this.isFilterDefault()) {
+            this.filterChanged.emit(this.filterValueData);
+        } else {
+            this.filterChanged.emit(null);
+        }
+    }
+    get filterValue(): any {
+        return this.filterValueData;
+    }
 
     ngOnInit(): void {
         this.filterValue = this.defaultFilterValue();
@@ -37,9 +50,12 @@ export class HeaderTdComponent implements OnInit {
     }
 
     leaveFocus(): void {
-        if ((this.specification.type == 2 && this.filterValue.getTime() === this.defaultFilterValue().getTime()) || this.filterValue == this.defaultFilterValue()) {
+        if (this.isFilterDefault())
             this.showFilter = false;
-        }
+    }
+
+    private isFilterDefault(): boolean {
+        return (this.specification.type == 2 && this.filterValue.getTime() === this.defaultFilterValue().getTime()) || this.filterValue === this.defaultFilterValue();
     }
 
 }

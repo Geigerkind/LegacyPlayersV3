@@ -1,2 +1,2 @@
-<HeaderRow *ngIf="!isResponsiveMode" [columns]="columns"></HeaderRow>
-<ResponsiveHeaderRow *ngIf="isResponsiveMode" [responsiveHeaderColumns]="getResponsiveHeaderColumns(columns)" [responsiveBodyColumns]="getResponsiveBodyColumns(columns)"></ResponsiveHeaderRow>
+<HeaderRow *ngIf="!isResponsiveMode" (filterChanged)="bubbleFilter($event)" [columns]="columns"></HeaderRow>
+<ResponsiveHeaderRow *ngIf="isResponsiveMode" (filterChanged)="bubbleFilter($event)" [responsiveHeaderColumns]="getResponsiveHeaderColumns(columns)" [responsiveBodyColumns]="getResponsiveBodyColumns(columns)"></ResponsiveHeaderRow>

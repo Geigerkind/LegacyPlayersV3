@@ -1,4 +1,5 @@
 export interface HeaderColumn {
+    index: number,
     labelKey: string,
     // 0 => Text
     // 1 => Number
