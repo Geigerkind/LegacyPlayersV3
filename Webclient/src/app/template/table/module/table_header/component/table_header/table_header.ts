@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {HeaderColumn} from "../../domain_value/header_column";
 
 @Component({
@@ -8,11 +8,15 @@ import {HeaderColumn} from "../../domain_value/header_column";
 })
 export class TableHeaderComponent {
 
-    head_columns: HeaderColumn[] = [
-        {labelKey: 'Test column 1', type: 0, type_range: undefined},
-        {labelKey: 'Test column 2', type: 1, type_range: undefined},
-        {labelKey: 'Test column 3', type: 2, type_range: undefined},
-        {labelKey: 'Test column 4', type: 3, type_range: undefined},
-        {labelKey: 'Test column 5', type: 3, type_range: ['Test1', 'Test2', 'Test3']}
-    ];
+    @Input() responsiveHeadColumns: number[];
+    @Input() isResponsiveMode: boolean;
+    @Input() columns: HeaderColumn[];
+
+    getResponsiveHeaderColumns(columns: HeaderColumn[]): HeaderColumn[] {
+        return columns.filter((_, index) => this.responsiveHeadColumns.includes(index));
+    }
+
+    getResponsiveBodyColumns(columns: HeaderColumn[]): HeaderColumn[] {
+        return columns.filter((_, index) => !this.responsiveHeadColumns.includes(index));
+    }
 }

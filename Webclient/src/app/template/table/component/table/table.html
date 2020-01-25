@@ -1,3 +1,3 @@
-<TableHeader *ngIf="enableHeader"></TableHeader>
+<TableHeader [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [columns]="headColumns" *ngIf="enableHeader"></TableHeader>
 <TableBody [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [rows]="bodyRows"></TableBody>
 <TableFooter *ngIf="enableFooter"></TableFooter>

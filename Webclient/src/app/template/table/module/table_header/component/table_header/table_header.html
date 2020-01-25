@@ -1,1 +1,2 @@
-<HeaderTd *ngFor="let column of head_columns" [specification]="column"></HeaderTd>
+<HeaderRow *ngIf="!isResponsiveMode" [columns]="columns"></HeaderRow>
+<ResponsiveHeaderRow *ngIf="isResponsiveMode" [responsiveHeaderColumns]="getResponsiveHeaderColumns(columns)" [responsiveBodyColumns]="getResponsiveBodyColumns(columns)"></ResponsiveHeaderRow>

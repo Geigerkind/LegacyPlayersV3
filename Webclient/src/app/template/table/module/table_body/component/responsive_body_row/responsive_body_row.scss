@@ -20,7 +20,7 @@ $columnHeight: 50px;
             display: flex;
             flex-direction: row;
 
-            BodyTd {
+            BodyTd:first-child {
                 margin-left: 0;
             }
         }

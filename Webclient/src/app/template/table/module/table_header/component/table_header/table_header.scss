@@ -1,42 +1,6 @@
 @import "./../../../../../../../styles/global";
 
 :host {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-
-    padding: 0 $spacing / 2;
-    width: calc(100% - #{$spacing});
-
-    background: $tdc_darker;
-    border-radius: 3px 3px 0 0;
-
-    HeaderTd {
-        margin-left: $spacing / 2;
-
-        &:first-child {
-            margin:0;
-        }
-    }
-
-    HeaderTd {
-        flex-basis: 100%;
-    }
-
-    .htd-col {
-        flex-basis: 100%;
-    }
-
-    .htd-col-2 {
-        flex-basis: 50%;
-    }
-
-    .htd-col-3 {
-        flex-basis: 33.3%;
-    }
-
-    .htd-col-4 {
-        flex-basis: 25%;
-    }
-
+    display: block;
+    width: 100%;
 }

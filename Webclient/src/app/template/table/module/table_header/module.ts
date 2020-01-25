@@ -8,9 +8,12 @@ import {GeneralInputModule} from "../../../input/general_input/module";
 import {DateInputModule} from "../../../input/date_input/module";
 import {NumberInputModule} from "../../../input/number_input/module";
 import {SelectInputModule} from "../../../input/select_input/module";
+import {HeaderRowComponent} from "./component/header_row/header_row";
+import {ResponsiveHeaderRowComponent} from "./component/responsive_header_row/responsive_header_row";
+import {CaretButtonModule} from "../../../button/caret_button/module";
 
 @NgModule({
-    declarations: [TableHeaderComponent, HeaderTdComponent],
+    declarations: [TableHeaderComponent, HeaderTdComponent, HeaderRowComponent, ResponsiveHeaderRowComponent],
     imports: [
         CommonModule,
         TranslateModule,
@@ -18,7 +21,8 @@ import {SelectInputModule} from "../../../input/select_input/module";
         GeneralInputModule,
         DateInputModule,
         NumberInputModule,
-        SelectInputModule
+        SelectInputModule,
+        CaretButtonModule
     ],
     exports: [TableHeaderComponent]
 })
