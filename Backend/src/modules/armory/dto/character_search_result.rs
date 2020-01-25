@@ -1,4 +1,5 @@
 use crate::dto::SelectOption;
+use crate::modules::armory::material::Guild;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterSearchResult {
@@ -8,5 +9,6 @@ pub struct CharacterSearchResult {
   pub server: SelectOption<u32>,
   pub hero_class: SelectOption<u8>,
   pub name: String,
+  pub guild: Option<Guild>,
   pub last_updated: u64
 }
