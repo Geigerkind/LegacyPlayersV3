@@ -1,3 +1,8 @@
-<div class="tableBodyRow" *ngFor="let columns of rows">
-    <BodyTd *ngFor="let column of columns" [specification]="column"></BodyTd>
-</div>
+<ng-container *ngIf="isResponsiveMode">
+    <ResponsiveBodyRow [responsiveBodyColumns]="getResponsiveBodyColumns(columns)" [responsiveHeaderColumns]="getResponsiveHeaderColumns(columns)" *ngFor="let columns of rows; index as i">
+    </ResponsiveBodyRow>
+</ng-container>
+
+<ng-container *ngIf="!isResponsiveMode">
+    <BodyRow [columns]="columns" *ngFor="let columns of rows"></BodyRow>
+</ng-container>

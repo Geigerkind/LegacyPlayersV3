@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {BodyColumn} from "../../domain_value/body_column";
 
 @Component({
@@ -8,20 +8,15 @@ import {BodyColumn} from "../../domain_value/body_column";
 })
 export class TableBodyComponent {
 
-    rows: BodyColumn[][] = [
-        [
-            { type: 0, content: 'Test 1' },
-            { type: 0, content: 'Test 2' },
-            { type: 0, content: 'Test 3' },
-            { type: 0, content: 'Test 4' },
-            { type: 0, content: 'Test 5' }
-        ],
-        [
-            { type: 0, content: 'Test 1' },
-            { type: 0, content: 'Test 2' },
-            { type: 0, content: 'Test 3' },
-            { type: 0, content: 'Test 4' },
-            { type: 0, content: 'Test 5' }
-        ]
-    ];
+    @Input() responsiveHeadColumns: number[];
+    @Input() isResponsiveMode: boolean;
+    @Input() rows: BodyColumn[][];
+
+    getResponsiveHeaderColumns(columns: BodyColumn[]): BodyColumn[] {
+        return columns.filter((_, index) => this.responsiveHeadColumns.includes(index));
+    }
+
+    getResponsiveBodyColumns(columns: BodyColumn[]): BodyColumn[] {
+        return columns.filter((_, index) => !this.responsiveHeadColumns.includes(index));
+    }
 }
