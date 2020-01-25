@@ -22,6 +22,7 @@ import {LoadingBarInterceptor} from "./service/interceptor/loading_bar";
 import {AuthenticationService} from "./service/authentication";
 import {AuthenticationInterceptor} from "./service/interceptor/authentication";
 import {WindowService} from "./styling_service/window";
+import {LanguageInterceptor} from "./service/interceptor/language";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -59,7 +60,8 @@ export function createTranslateLoader(http: HttpClient) {
         AuthenticationService,
         WindowService,
         {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true},
-        {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true}
+        {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
+        {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true},
     ],
     bootstrap: [AppComponent],
     entryComponents: [CookieBannerComponent]
