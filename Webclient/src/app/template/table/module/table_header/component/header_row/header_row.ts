@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {HeaderColumn} from "../../domain_value/header_column";
+import {table_init_filter} from "../../../../utility/table_init_filter";
 
 @Component({
     selector: "HeaderRow",
@@ -14,12 +15,7 @@ export class HeaderRowComponent implements OnInit {
     currentFilter: object = {};
 
     ngOnInit(): void {
-        this.columns.forEach(item => {
-            this.currentFilter[item.filter_name] = {
-                filter: null,
-                sorting: null
-            };
-        });
+        this.currentFilter = table_init_filter(this.columns);
     }
 
     emitFilter(filter_name: string, filter: any): void {

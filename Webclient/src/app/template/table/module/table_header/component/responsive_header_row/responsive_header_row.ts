@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {HeaderColumn} from "../../domain_value/header_column";
+import {table_create_empty_filter} from "../../../../utility/table_init_filter";
 
 @Component({
     selector: "ResponsiveHeaderRow",
@@ -16,18 +17,8 @@ export class ResponsiveHeaderRowComponent implements OnInit {
     currentFilter: object = {};
 
     ngOnInit(): void {
-        this.responsiveHeaderColumns.forEach(item => {
-            this.currentFilter[item.filter_name] = {
-                filter: null,
-                sorting: null
-            };
-        });
-        this.responsiveBodyColumns.forEach(item => {
-            this.currentFilter[item.filter_name] = {
-                filter: null,
-                sorting: null
-            };
-        });
+        this.responsiveHeaderColumns.forEach(item => this.currentFilter[item.filter_name] = table_create_empty_filter());
+        this.responsiveBodyColumns.forEach(item => this.currentFilter[item.filter_name] = table_create_empty_filter());
     }
 
     toggleVisibility(): void {

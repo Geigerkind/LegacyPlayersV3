@@ -2,6 +2,7 @@ import {Component} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {CharacterSearchService} from "../../service/character_search";
+import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 
 @Component({
     selector: "Search",
@@ -26,37 +27,7 @@ export class SearchComponent {
     constructor(
         private characterSearchService: CharacterSearchService
     ) {
-        this.filterCharacterSearch({
-            page: 0,
-            name: {
-                filter: null,
-                sorting: null
-            },
-            gender: {
-                filter: null,
-                sorting: null
-            },
-            server: {
-                filter: null,
-                sorting: null
-            },
-            race: {
-                filter: null,
-                sorting: null
-            },
-            faction: {
-                filter: null,
-                sorting: null
-            },
-            hero_class: {
-                filter: null,
-                sorting: null
-            },
-            last_updated: {
-                filter: null,
-                sorting: null
-            },
-        });
+        this.filterCharacterSearch(table_init_filter(this.character_header_columns));
     }
 
     filterCharacterSearch(filter: any): void {

@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {WindowService} from "../../../../styling_service/window";
 import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";
+import {table_init_filter} from "../../utility/table_init_filter";
 
 @Component({
     selector: "Table",
@@ -24,7 +25,7 @@ export class TableComponent {
     @Input()
     set bodyRows(rows: BodyColumn[][]) {
         this.bodyRowsData = rows;
-        this.initFilter();
+        this.currentFilter = table_init_filter(this.headColumns);
         this.setCurrentPageRows();
     }
 
@@ -68,16 +69,6 @@ export class TableComponent {
             this.setCurrentPageRows();
         else
             this.filterOrPageChanged.emit(this.currentFilter);
-    }
-
-    private initFilter(): void {
-        this.currentFilter["page"] = 0;
-        this.headColumns.forEach(item => {
-            this.currentFilter[item.filter_name] = {
-                filter: null,
-                sorting: null
-            };
-        })
     }
 
     private setCurrentPageRows(): void {
