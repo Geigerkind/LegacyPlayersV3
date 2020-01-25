@@ -16,8 +16,14 @@ export class ResponsiveHeaderRowComponent implements OnInit {
     currentFilter: object = {};
 
     ngOnInit(): void {
-        this.responsiveHeaderColumns.forEach(item => this.currentFilter[item.index] = null);
-        this.responsiveBodyColumns.forEach(item => this.currentFilter[item.index] = null);
+        this.responsiveHeaderColumns.forEach(item => {
+            this.currentFilter[item.index] = null;
+            this.currentFilter["sort_" + item.index] = null;
+        });
+        this.responsiveBodyColumns.forEach(item => {
+            this.currentFilter[item.index] = null;
+            this.currentFilter["sort_" + item.index] = null;
+        });
     }
 
     toggleVisibility(): void {
@@ -29,4 +35,8 @@ export class ResponsiveHeaderRowComponent implements OnInit {
         this.filterChanged.emit(this.currentFilter);
     }
 
+    emitSort(index: number, state: number | null): void {
+        this.currentFilter["sort_" + index] = state === null ? null : state == 1;
+        this.filterChanged.emit(this.currentFilter);
+    }
 }

@@ -10,6 +10,7 @@ import {SelectOption} from "../../../../../input/select_input/domain_value/selec
 export class HeaderTdComponent implements OnInit {
     @Input() specification: HeaderColumn;
     @Output() filterChanged: EventEmitter<any> = new EventEmitter<any>();
+    @Output() sortChanged: EventEmitter<number | null> = new EventEmitter<number | null>();
 
     showFilter: boolean = false;
     filterValueData: any;
@@ -18,7 +19,6 @@ export class HeaderTdComponent implements OnInit {
     set filterValue(value: any) {
         this.filterValueData = value;
         if (!this.isFilterDefault()) {
-            console.log(this.filterValueData)
             if (this.specification.type === 2)
                 this.filterChanged.emit(new Date(this.filterValueData).getTime());
             else
@@ -55,6 +55,10 @@ export class HeaderTdComponent implements OnInit {
     leaveFocus(): void {
         if (this.isFilterDefault())
             this.showFilter = false;
+    }
+
+    sortStateChanged(state: number): void {
+        this.sortChanged.emit(state === 0 ? null : state);
     }
 
     private isFilterDefault(): boolean {

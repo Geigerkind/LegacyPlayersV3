@@ -14,11 +14,19 @@ export class HeaderRowComponent implements OnInit {
     currentFilter: object = {};
 
     ngOnInit(): void {
-        this.columns.forEach(item => this.currentFilter[item.index] = null);
+        this.columns.forEach(item => {
+            this.currentFilter[item.index] = null;
+            this.currentFilter["sort_" + item.index] = null;
+        });
     }
 
     emitFilter(index: number, filter: any): void {
         this.currentFilter[index] = filter;
+        this.filterChanged.emit(this.currentFilter);
+    }
+
+    emitSort(index: number, state: number | null): void {
+        this.currentFilter["sort_" + index] = state === null ? null : state == 1;
         this.filterChanged.emit(this.currentFilter);
     }
 }

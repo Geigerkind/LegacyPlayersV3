@@ -1,1 +1,1 @@
-<HeaderTd (filterChanged)="emitFilter(column.index, $event)" [specification]="column" *ngFor="let column of columns"></HeaderTd>
+<HeaderTd (filterChanged)="emitFilter(column.index, $event)" (sortChanged)="emitSort(column.index, $event)" [specification]="column" *ngFor="let column of columns"></HeaderTd>

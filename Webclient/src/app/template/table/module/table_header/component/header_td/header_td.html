@@ -1,4 +1,4 @@
-<SortButton></SortButton>
+<SortButton (state)="sortStateChanged($event)"></SortButton>
 <div *ngIf="!showFilter" (click)="columnClicked()" class="headerTdLabel">{{ specification.labelKey | translate }}</div>
 <GeneralInput *ngIf="showFilter && specification.type == 0" type="text" [placeholderKey]="specification.labelKey" [autoFocus]="true" [(value)]="filterValue" (focusout)="leaveFocus()"></GeneralInput>
 <NumberInput *ngIf="showFilter && specification.type == 1" type="number" [placeholderKey]="specification.labelKey" [autoFocus]="true" [(value)]="filterValue" (focusout)="leaveFocus()"></NumberInput>
