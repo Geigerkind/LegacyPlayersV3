@@ -6,6 +6,8 @@ import {table_init_filter} from "../../../../../../template/table/utility/table_
 import {init_body_columns_from_result} from "../../../../../../template/table/utility/table_init_body";
 import {DataService} from "../../../../../../service/data";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
+import {Localized} from "../../../../../../domain_value/localized";
+import {Race} from "../../../../../../domain_value/race";
 
 @Component({
     selector: "Search",
@@ -39,14 +41,7 @@ export class SearchComponent {
             filter_name: 'race',
             labelKey: "Armory.Search.race",
             type: 3,
-            type_range: [{value: -1, labelKey: "Armory.Search.race"}, {value: 1, labelKey: '1'}, {
-                value: 2,
-                labelKey: '2'
-            }, {value: 3, labelKey: '3'}, {value: 4, labelKey: '4'}, {value: 5, labelKey: '5'},
-                {value: 6, labelKey: '6'}, {value: 7, labelKey: '7'}, {value: 8, labelKey: '8'}, {
-                    value: 9,
-                    labelKey: '9'
-                }, {value: 10, labelKey: '10'}]
+            type_range: [{value: -1, labelKey: "Armory.Search.race"}]
         },
         {
             index: 5,
@@ -85,6 +80,10 @@ export class SearchComponent {
         this.dataService.get_all_servers((servers: AvailableServer[]) => servers.forEach(server => this.character_header_columns[3].type_range.push({
             value: server.id,
             labelKey: server.name
+        })));
+        this.dataService.get_all_races((races: Localized<Race>[]) => races.forEach(race => this.character_header_columns[4].type_range.push({
+            value: race.base.id,
+            labelKey: race.localization
         })));
         this.filterCharacterSearch(table_init_filter(this.character_header_columns));
     }

@@ -81,6 +81,7 @@ fn main() {
     data::transfer::language::get_language, data::transfer::language::get_all_languages, data::transfer::language::get_language_by_short_code,
     data::transfer::localization::get_localization,
     data::transfer::race::get_race, data::transfer::race::get_all_races,
+    data::transfer::race::get_race_localized, data::transfer::race::get_all_races_localized,
     data::transfer::profession::get_profession, data::transfer::profession::get_all_professions,
     data::transfer::server::get_server, data::transfer::server::get_all_servers,
     data::transfer::hero_class::get_hero_class, data::transfer::hero_class::get_all_hero_classes,
