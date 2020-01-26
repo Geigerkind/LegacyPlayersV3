@@ -63,9 +63,10 @@ export class SearchComponent {
         },
         {index: 7, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null},
     ];
-
     character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
+    responsiveHeadColumns: Array<number> = [0,1];
+    responsiveModeWidthInPx: number = 1100;
 
     constructor(
         private characterSearchService: CharacterSearchService,
