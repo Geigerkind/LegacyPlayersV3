@@ -1,3 +1,6 @@
 <div [class.number]="specification.type == 1">
-    {{ bodyContentToString() | translate }}
+    <HeroClass  *ngIf="specification.sub_type === 1" [hero_class_id]="specification.content" [hero_class_label]="bodyContentToString()"></HeroClass>
+    <ng-container *ngIf="!specification.sub_type">
+        {{ bodyContentToString() | translate }}
+    </ng-container>
 </div>

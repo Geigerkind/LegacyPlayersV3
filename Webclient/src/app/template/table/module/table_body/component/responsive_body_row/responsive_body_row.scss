@@ -4,6 +4,7 @@ $columnHeight: 50px;
 
 :host {
     display: block;
+    background: $theme_dominant_color;
 
     .tableResponsiveBodyRow {
         display: flex;
@@ -13,7 +14,6 @@ $columnHeight: 50px;
         max-height: $columnHeight;
         overflow: hidden;
 
-        background: $theme_dominant_color;
         border-bottom: 1px solid $tdc_accent;
 
         .responsiveHeader {

@@ -7,7 +7,6 @@ import {DataService} from "../../../../../../service/data";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {Localized} from "../../../../../../domain_value/localized";
 import {HeroClass} from "../../../../../../domain_value/hero_class";
-import {BodyRow} from "../../../../../../template/table/module/table_body/domain_value/body_row";
 
 @Component({
     selector: "Search",
@@ -63,23 +62,28 @@ export class SearchComponent {
 
                     body_columns.push({
                         type: 3,
-                        content: row.character.last_update.character_info.hero_class_id.toString()
+                        content: row.character.last_update.character_info.hero_class_id.toString(),
+                        sub_type: 1
                     });
                     body_columns.push({
                         type: 0,
-                        content: row.character.last_update.character_name
+                        content: row.character.last_update.character_name,
+                        sub_type: null
                     });
                     body_columns.push({
                         type: 0,
-                        content: !row.guild ? '' : row.guild.name
+                        content: !row.guild ? '' : row.guild.name,
+                        sub_type: null
                     });
                     body_columns.push({
                         type: 3,
-                        content: row.character.server_id.toString()
+                        content: row.character.server_id.toString(),
+                        sub_type: null
                     });
                     body_columns.push({
                         type: 2,
-                        content: row.character.last_update.timestamp.toString()
+                        content: row.character.last_update.timestamp.toString(),
+                        sub_type: null
                     });
 
                     // TODO: Dont save faction color here
