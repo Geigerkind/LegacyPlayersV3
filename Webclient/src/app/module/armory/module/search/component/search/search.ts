@@ -37,7 +37,7 @@ export class SearchComponent {
     character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
     responsiveHeadColumns: Array<number> = [0,1];
-    responsiveModeWidthInPx: number = 1100;
+    responsiveModeWidthInPx: number = 720;
 
     constructor(
         private characterSearchService: CharacterSearchService,

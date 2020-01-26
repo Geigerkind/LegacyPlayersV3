@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
 import {WindowService} from "../../../../styling_service/window";
 import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";
@@ -9,7 +9,7 @@ import {table_init_filter} from "../../utility/table_init_filter";
     templateUrl: "./table.html",
     styleUrls: ["./table.scss"]
 })
-export class TableComponent {
+export class TableComponent implements OnChanges {
 
     static readonly PAGE_SIZE: number = 10;
 
@@ -47,6 +47,10 @@ export class TableComponent {
         private windowService: WindowService
     ) {
         this.windowService.screenWidth$.subscribe((width) => this.isResponsiveMode = width <= this.responsiveModeWidthInPx);
+    }
+
+    ngOnChanges(): void {
+        this.isResponsiveMode = this.windowService.screenWidth$.getValue() <= this.responsiveModeWidthInPx;
     }
 
     set currentPage(page: number) {
