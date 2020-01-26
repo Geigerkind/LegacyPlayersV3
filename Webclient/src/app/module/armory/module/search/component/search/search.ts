@@ -36,18 +36,18 @@ export class SearchComponent {
     ];
     character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
-    responsiveHeadColumns: Array<number> = [0,1];
+    responsiveHeadColumns: Array<number> = [0, 1];
     responsiveModeWidthInPx: number = 720;
 
     constructor(
         private characterSearchService: CharacterSearchService,
         private dataService: DataService
     ) {
-        this.dataService.get_all_servers((servers: AvailableServer[]) => servers.forEach(server => this.character_header_columns[3].type_range.push({
+        this.dataService.get_all_servers((servers: Array<AvailableServer>) => servers.forEach(server => this.character_header_columns[3].type_range.push({
             value: server.id,
             labelKey: server.name
         })));
-        this.dataService.get_all_hero_classes((hero_classes: Localized<HeroClass>[]) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
+        this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
             value: hero_class.base.id,
             labelKey: hero_class.localization
         })));
@@ -58,7 +58,7 @@ export class SearchComponent {
         this.characterSearchService.search_characters(filter,
             (result) => {
                 this.character_body_columns = result.map(row => {
-                    const body_columns: BodyColumn[] = [];
+                    const body_columns: Array<BodyColumn> = [];
 
                     body_columns.push({
                         type: 3,

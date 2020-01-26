@@ -9,7 +9,7 @@ import {BodyColumn} from "../../domain_value/body_column";
 export class ResponsiveBodyRowComponent {
     @Input() responsiveHeadColumns: Array<number>;
     @Input() columns: Array<BodyColumn>;
-    @Input() typeRange: Map<number, string>[];
+    @Input() typeRange: Array<Map<number, string>>;
 
     isVisible: boolean = false;
 
@@ -18,10 +18,10 @@ export class ResponsiveBodyRowComponent {
     }
 
     getResponsiveHeaderColumns(): any {
-        return this.columns.map((columns, index) => { return { i: index, c: columns }; }).filter(result => this.responsiveHeadColumns.includes(result.i));
+        return this.columns.map((columns, index) => ({ i: index, c: columns })).filter(result => this.responsiveHeadColumns.includes(result.i));
     }
 
     getResponsiveBodyColumns(): any {
-        return this.columns.map((columns, index) => { return { i: index, c: columns }; }).filter(result => !this.responsiveHeadColumns.includes(result.i));
+        return this.columns.map((columns, index) => ({ i: index, c: columns })).filter(result => !this.responsiveHeadColumns.includes(result.i));
     }
 }

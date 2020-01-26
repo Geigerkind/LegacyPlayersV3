@@ -18,7 +18,7 @@ export class BodyTdComponent {
 
     bodyContentToString(): string {
         if (this.specification.type === 2)
-            return this.datePipe.transform(new Date(Number(this.specification.content)*1000), 'dd.MM.yyyy');
+            return this.datePipe.transform(new Date(Number(this.specification.content) * 1000), 'dd.MM.yyyy');
         if (this.specification.type === 3 && this.typeRange.has(Number(this.specification.content)))
             return this.typeRange.get(Number(this.specification.content));
         return this.specification.content;

@@ -12,9 +12,9 @@ export class TableBodyComponent implements OnChanges {
     @Input() responsiveHeadColumns: Array<number>;
     @Input() isResponsiveMode: boolean;
     @Input() rows: Array<BodyRow>;
-    @Input() headColumns: HeaderColumn[];
+    @Input() headColumns: Array<HeaderColumn>;
 
-    internalTypeRange: Map<number,string>[] = [];
+    internalTypeRange: Array<Map<number, string>> = [];
 
     ngOnChanges(): void {
         this.updateInternalTypeRange();
