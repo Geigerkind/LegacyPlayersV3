@@ -24,8 +24,8 @@
     "General": {
         "gender_0": "Male",
         "gender_1": "Female",
-        "faction_0": "Horde",
-        "faction_1": "Alliance"
+        "faction_1": "Horde",
+        "faction_0": "Alliance"
     },
     "Armory": {
         "Search": {

@@ -20,7 +20,7 @@ export class HeaderRowComponent implements OnInit {
 
     emitFilter(column: any, filter: any): void {
         if (this.currentFilter[column.filter_name].filter !== filter) {
-            this.currentFilter[column.filter_name].filter = filter === null ? null : (column.type === 3 ? filter - 1 : filter);
+            this.currentFilter[column.filter_name].filter = filter;
             this.filterChanged.emit(JSON.stringify(this.currentFilter));
         }
     }

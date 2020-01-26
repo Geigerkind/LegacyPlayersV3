@@ -3,4 +3,4 @@
 <GeneralInput *ngIf="showFilter && specification.type == 0" type="text" [placeholderKey]="specification.labelKey" [autoFocus]="true" [(value)]="filterValue" (focusout)="leaveFocus()"></GeneralInput>
 <NumberInput *ngIf="showFilter && specification.type == 1" type="number" [placeholderKey]="specification.labelKey" [autoFocus]="true" [(value)]="filterValue" (focusout)="leaveFocus()"></NumberInput>
 <DateInput *ngIf="showFilter && specification.type == 2" [placeholderKey]="specification.labelKey" [autoFocus]="true" [(value)]="filterValue" (focusout)="leaveFocus()"></DateInput>
-<SelectInput *ngIf="showFilter && specification.type == 3" [(value)]="filterValue" [options]="filterRange" [autoFocus]="true" (focusout)="leaveFocus()"></SelectInput>
+<SelectInput *ngIf="showFilter && specification.type == 3" [(value)]="filterValue" [options]="specification.type_range" [autoFocus]="true" (focusout)="leaveFocus()"></SelectInput>

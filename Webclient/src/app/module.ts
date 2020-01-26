@@ -23,6 +23,7 @@ import {AuthenticationService} from "./service/authentication";
 import {AuthenticationInterceptor} from "./service/interceptor/authentication";
 import {WindowService} from "./styling_service/window";
 import {LanguageInterceptor} from "./service/interceptor/language";
+import {DataService} from "./service/data";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -56,6 +57,7 @@ export function createTranslateLoader(http: HttpClient) {
         NotificationService,
         TranslationService,
         LoadingBarService,
+        DataService,
         APIService,
         AuthenticationService,
         WindowService,

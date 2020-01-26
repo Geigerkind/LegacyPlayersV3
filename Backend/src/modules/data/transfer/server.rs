@@ -3,7 +3,8 @@ use rocket_contrib::json::Json;
 
 use crate::modules::data::Data;
 use crate::modules::data::dto::AvailableServer;
-use crate::modules::data::tools::RetrieveServer;
+use crate::modules::data::guard::Language;
+use crate::modules::data::tools::{RetrieveLocalization, RetrieveServer};
 
 #[openapi]
 #[get("/server/<id>")]

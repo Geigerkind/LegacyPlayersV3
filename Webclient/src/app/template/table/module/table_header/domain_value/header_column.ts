@@ -1,3 +1,5 @@
+import {SelectOption} from "../../../../input/select_input/domain_value/select_option";
+
 export interface HeaderColumn {
     index: number;
     filter_name: string;
@@ -7,5 +9,5 @@ export interface HeaderColumn {
     // 2 => Date
     // 3 => Select
     type: number;
-    type_range: Array<string> | undefined;
+    type_range: Array<SelectOption> | null;
 }

@@ -89,7 +89,7 @@ export class TableComponent {
                 return !filter || filter.toString() === column.content || (
                     column.type === 0 && column.content.includes(filter)
                 ) || (
-                    column.type === 3 && this.headColumns[index].type_range[filter - 1] === column.content
+                    column.type === 3 && this.headColumns[index].type_range[filter - 1].labelKey === column.content
                 );
             }))
             .sort((leftRow, rightRow) => {
