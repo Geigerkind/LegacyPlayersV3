@@ -7,6 +7,7 @@ import {DataService} from "../../../../../../service/data";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {Localized} from "../../../../../../domain_value/localized";
 import {HeroClass} from "../../../../../../domain_value/hero_class";
+import {BodyRow} from "../../../../../../template/table/module/table_body/domain_value/body_row";
 
 @Component({
     selector: "Search",
@@ -81,7 +82,11 @@ export class SearchComponent {
                         content: row.character.last_update.timestamp.toString()
                     });
 
-                    return body_columns;
+                    // TODO: Dont save faction color here
+                    return {
+                        color: row.faction ? '#372727' : '#272f37',
+                        columns: body_columns
+                    };
                 });
             },
             () => {

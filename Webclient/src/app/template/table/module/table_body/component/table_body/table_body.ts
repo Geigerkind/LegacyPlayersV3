@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges} from "@angular/core";
-import {BodyColumn} from "../../domain_value/body_column";
 import {HeaderColumn} from "../../../table_header/domain_value/header_column";
+import {BodyRow} from "../../domain_value/body_row";
 
 @Component({
     selector: "TableBody",
@@ -11,7 +11,7 @@ export class TableBodyComponent implements OnChanges {
 
     @Input() responsiveHeadColumns: Array<number>;
     @Input() isResponsiveMode: boolean;
-    @Input() rows: Array<Array<BodyColumn>>;
+    @Input() rows: Array<BodyRow>;
     @Input() headColumns: HeaderColumn[];
 
     internalTypeRange: Map<number,string>[] = [];
