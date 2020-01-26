@@ -10,4 +10,5 @@ export interface HeaderColumn {
     // 3 => Select
     type: number;
     type_range: Array<SelectOption> | null;
+    col_type: number;
 }

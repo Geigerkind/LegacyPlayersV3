@@ -1,1 +1,3 @@
-<BodyTd *ngFor="let column of columns; index as i" [typeRange]="typeRange[i]" [specification]="column"></BodyTd>
+<BodyTd [class.col-0]="colTypes[i] === 0" [class.col-1]="colTypes[i] === 1"
+        [class.col-2]="colTypes[i] === 2" [class.col-3]="colTypes[i] === 3"
+        *ngFor="let column of columns; index as i" [typeRange]="typeRange[i]" [specification]="column"></BodyTd>

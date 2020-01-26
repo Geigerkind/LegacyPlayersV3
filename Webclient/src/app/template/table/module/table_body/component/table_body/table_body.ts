@@ -15,9 +15,11 @@ export class TableBodyComponent implements OnChanges {
     @Input() headColumns: Array<HeaderColumn>;
 
     internalTypeRange: Array<Map<number, string>> = [];
+    colTypes: Array<number> = [];
 
     ngOnChanges(): void {
         this.updateInternalTypeRange();
+        this.updateColTypes();
     }
 
     updateInternalTypeRange(): void {
@@ -33,5 +35,9 @@ export class TableBodyComponent implements OnChanges {
                 }
             }
         });
+    }
+
+    updateColTypes(): void {
+        this.colTypes = this.headColumns.map(item => item.col_type);
     }
 }

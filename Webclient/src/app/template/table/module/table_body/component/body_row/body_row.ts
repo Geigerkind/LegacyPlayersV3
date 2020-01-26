@@ -9,4 +9,5 @@ import {BodyColumn} from "../../domain_value/body_column";
 export class BodyRowComponent {
     @Input() columns: Array<BodyColumn>;
     @Input() typeRange: Array<Map<number, string>>;
+    @Input() colTypes: Array<number>;
 }

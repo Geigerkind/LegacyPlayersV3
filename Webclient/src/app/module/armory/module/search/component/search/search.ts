@@ -21,23 +21,25 @@ export class SearchComponent {
             filter_name: 'hero_class',
             labelKey: "Armory.Search.hero_class",
             type: 3,
-            type_range: [{value: -1, labelKey: "Armory.Search.hero_class"}]
+            type_range: [{value: -1, labelKey: "Armory.Search.hero_class"}],
+            col_type: 1
         },
-        {index: 1, filter_name: 'name', labelKey: "Armory.Search.name", type: 0, type_range: null},
-        {index: 2, filter_name: 'guild', labelKey: "Armory.Search.guild", type: 0, type_range: null},
+        {index: 1, filter_name: 'name', labelKey: "Armory.Search.name", type: 0, type_range: null, col_type: 0},
+        {index: 2, filter_name: 'guild', labelKey: "Armory.Search.guild", type: 0, type_range: null, col_type: 0},
         {
             index: 3,
             filter_name: 'server',
             labelKey: "Armory.Search.server",
             type: 3,
-            type_range: [{value: -1, labelKey: "Armory.Search.server"}]
+            type_range: [{value: -1, labelKey: "Armory.Search.server"}],
+            col_type: 0
         },
-        {index: 4, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null},
+        {index: 4, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null, col_type: 1},
     ];
     character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
     responsiveHeadColumns: Array<number> = [0, 1];
-    responsiveModeWidthInPx: number = 720;
+    responsiveModeWidthInPx: number = 840;
 
     constructor(
         private characterSearchService: CharacterSearchService,

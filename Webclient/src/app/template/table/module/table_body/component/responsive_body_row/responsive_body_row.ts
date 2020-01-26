@@ -10,6 +10,7 @@ export class ResponsiveBodyRowComponent {
     @Input() responsiveHeadColumns: Array<number>;
     @Input() columns: Array<BodyColumn>;
     @Input() typeRange: Array<Map<number, string>>;
+    @Input() colTypes: Array<number>;
 
     isVisible: boolean = false;
 
