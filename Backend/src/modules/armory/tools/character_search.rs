@@ -1,24 +1,22 @@
-use crate::modules::armory::dto::{CharacterSearchResult, CharacterSearchFilter};
-use crate::modules::data::Data;
-use crate::modules::armory::Armory;
-use crate::dto::SelectOption;
-use crate::modules::data::tools::{RetrieveLocalization, RetrieveRace, RetrieveServer, RetrieveHeroClass};
 use std::cmp::Ordering;
+
+use crate::modules::armory::Armory;
+use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult};
 use crate::modules::armory::tools::GetGuild;
+use crate::modules::data::Data;
+use crate::modules::data::tools::RetrieveRace;
 
 pub trait PerformCharacterSearch {
-  fn get_character_search_result(&self, data: &Data, language_id: u8, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult>;
+  fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult>;
 }
 
 impl PerformCharacterSearch for Armory {
-  fn get_character_search_result(&self, data: &Data, language_id: u8, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult> {
+  fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult> {
     let characters = self.characters.read().unwrap();
     let mut result: Vec<CharacterSearchResult> = characters.iter()
       .filter(|(_, character)| character.last_update.is_some())
       .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))
       .filter(|(_, character)| filter.name.filter.is_none() || character.last_update.as_ref().unwrap().character_name.contains(filter.name.filter.as_ref().unwrap()))
-      .filter(|(_, character)| filter.race.filter.is_none() || filter.race.filter.contains(&character.last_update.as_ref().unwrap().character_info.race_id))
-      .filter(|(_, character)| filter.gender.filter.is_none() || ((*filter.gender.filter.as_ref().unwrap()) != 0) == character.last_update.as_ref().unwrap().character_info.gender)
       .filter(|(_, character)| filter.hero_class.filter.is_none() || filter.hero_class.filter.contains(&character.last_update.as_ref().unwrap().character_info.hero_class_id))
       .filter(|(_, character)| {
         if filter.last_updated.filter.is_none() {
@@ -26,10 +24,9 @@ impl PerformCharacterSearch for Armory {
         }
         let filter_timestamp = filter.last_updated.filter.as_ref().unwrap().clone();
         let current_timestamp = character.last_update.as_ref().unwrap().timestamp;
-        return current_timestamp >= filter_timestamp && current_timestamp <= filter_timestamp + 24*60*60;
+        return current_timestamp >= filter_timestamp && current_timestamp <= filter_timestamp + 24 * 60 * 60;
       })
-      .filter(|(_, character)| filter.faction.filter.is_none() || data.get_race(character.last_update.as_ref().unwrap().character_info.race_id).unwrap().faction as u8 == *filter.faction.filter.as_ref().unwrap())
-      // This is also very expensive
+      // This is very expensive
       .filter(|(_, character)| {
         if filter.guild.filter.is_none() {
           return true;
@@ -41,35 +38,38 @@ impl PerformCharacterSearch for Armory {
         }
         return false;
       })
+      .skip((filter.page * 10) as usize)
       .take(10)
       .map(|(_, character)| {
-        let gender = character.last_update.as_ref().unwrap().character_info.gender as u8;
         let race_id = character.last_update.as_ref().unwrap().character_info.race_id;
-        let hero_class_id = character.last_update.as_ref().unwrap().character_info.hero_class_id;
-        let faction = data.get_race(race_id).unwrap().faction as u8;
         CharacterSearchResult {
-          gender: SelectOption { label_key: "General.gender_".to_owned() + &gender.to_string(), value: gender },
-          race: SelectOption { label_key: data.get_localization(language_id, data.get_race(race_id).unwrap().localization_id).unwrap().content.to_owned(), value: race_id },
-          faction: SelectOption { label_key: "General.faction_".to_owned() + &faction.to_string(), value: faction },
-          server: SelectOption { label_key: data.get_server(character.server_id).unwrap().name.to_owned(), value: character.server_id },
-          hero_class: SelectOption { label_key: data.get_localization(language_id, data.get_hero_class(hero_class_id).unwrap().localization_id).unwrap().content.to_owned(), value: hero_class_id },
-          name: character.last_update.as_ref().unwrap().character_name.clone(),
+          faction: data.get_race(race_id).unwrap().faction,
           guild: character.last_update.as_ref().unwrap().character_guild.as_ref().and_then(|character_guild| self.get_guild(character_guild.guild_id)),
-          last_updated: character.last_update.as_ref().unwrap().timestamp
+          character: character.clone(),
         }
       })
       .collect();
     result.sort_by(|left: &CharacterSearchResult, right: &CharacterSearchResult| {
-      if let Some(sorting) = filter.name.sorting {
-        let ordering = left.name.cmp(&right.name);
+      if let Some(sorting) = filter.hero_class.sorting {
+        let ordering = left.character.last_update.as_ref().unwrap().character_info.hero_class_id
+                        .cmp(&right.character.last_update.as_ref().unwrap().character_info.hero_class_id);
         if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
+          return negate_ordering(ordering, sorting);
+        }
+      }
+
+      if let Some(sorting) = filter.name.sorting {
+        let ordering = left.character.last_update.as_ref().unwrap().character_name
+                                .cmp(&right.character.last_update.as_ref().unwrap().character_name);
+        if ordering != Ordering::Equal {
+          return negate_ordering(ordering, sorting);
         }
       }
 
       if let Some(sorting) = filter.guild.sorting {
         if left.guild.is_some() && right.guild.is_some() {
-          let ordering = left.guild.as_ref().unwrap().name.cmp(&right.guild.as_ref().unwrap().name);
+          let ordering = left.guild.as_ref().unwrap().name
+                                  .cmp(&right.guild.as_ref().unwrap().name);
           if ordering != Ordering::Equal {
             return negate_ordering(ordering, sorting);
           }
@@ -77,44 +77,17 @@ impl PerformCharacterSearch for Armory {
       }
 
       if let Some(sorting) = filter.server.sorting {
-        let ordering = left.server.value.cmp(&right.server.value);
+        let ordering = left.character.server_id.cmp(&right.character.server_id);
         if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
-        }
-      }
-
-      if let Some(sorting) = filter.gender.sorting {
-        let ordering = left.gender.value.cmp(&right.gender.value);
-        if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
-        }
-      }
-
-      if let Some(sorting) = filter.race.sorting {
-        let ordering = left.race.value.cmp(&right.race.value);
-        if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
-        }
-      }
-
-      if let Some(sorting) = filter.faction.sorting {
-        let ordering = left.faction.value.cmp(&right.faction.value);
-        if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
-        }
-      }
-
-      if let Some(sorting) = filter.hero_class.sorting {
-        let ordering = left.hero_class.value.cmp(&right.hero_class.value);
-        if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
+          return negate_ordering(ordering, sorting);
         }
       }
 
       if let Some(sorting) = filter.last_updated.sorting {
-        let ordering = left.last_updated.cmp(&right.last_updated);
+        let ordering = left.character.last_update.as_ref().unwrap().timestamp
+                                .cmp(&right.character.last_update.as_ref().unwrap().timestamp);
         if ordering != Ordering::Equal {
-          return negate_ordering(ordering,sorting);
+          return negate_ordering(ordering, sorting);
         }
       }
 
