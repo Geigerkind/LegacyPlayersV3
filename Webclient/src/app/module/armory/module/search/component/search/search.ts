@@ -8,6 +8,7 @@ import {DataService} from "../../../../../../service/data";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {Localized} from "../../../../../../domain_value/localized";
 import {Race} from "../../../../../../domain_value/race";
+import {HeroClass} from "../../../../../../domain_value/hero_class";
 
 @Component({
     selector: "Search",
@@ -58,14 +59,7 @@ export class SearchComponent {
             filter_name: 'hero_class',
             labelKey: "Armory.Search.hero_class",
             type: 3,
-            type_range: [{value: -1, labelKey: "Armory.Search.hero_class"}, {value: 1, labelKey: '1'}, {
-                value: 2,
-                labelKey: '2'
-            }, {value: 3, labelKey: '3'}, {value: 4, labelKey: '4'}, {value: 5, labelKey: '5'},
-                {value: 6, labelKey: '6'}, {value: 7, labelKey: '7'}, {value: 8, labelKey: '8'}, {
-                    value: 9,
-                    labelKey: '9'
-                }, {value: 10, labelKey: '10'}]
+            type_range: [{value: -1, labelKey: "Armory.Search.hero_class"}]
         },
         {index: 7, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null},
     ];
@@ -84,6 +78,10 @@ export class SearchComponent {
         this.dataService.get_all_races((races: Localized<Race>[]) => races.forEach(race => this.character_header_columns[4].type_range.push({
             value: race.base.id,
             labelKey: race.localization
+        })));
+        this.dataService.get_all_hero_classes((hero_classes: Localized<HeroClass>[]) => hero_classes.forEach(hero_class => this.character_header_columns[6].type_range.push({
+            value: hero_class.base.id,
+            labelKey: hero_class.localization
         })));
         this.filterCharacterSearch(table_init_filter(this.character_header_columns));
     }
