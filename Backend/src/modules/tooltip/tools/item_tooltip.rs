@@ -1,23 +1,23 @@
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
 use crate::modules::armory::tools::GetCharacterGear;
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveEnchant, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription, RetrieveGem};
-use crate::modules::tooltip::domain_value::{ItemSet, SetEffect, SocketSlot, Stat, WeaponDamage, WeaponStat, SocketSlotItem};
-use crate::modules::tooltip::Tooltip;
+use crate::modules::data::tools::{RetrieveEnchant, RetrieveGem, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription};
+use crate::modules::tooltip::domain_value::{ItemSet, SetEffect, SocketSlot, SocketSlotItem, Stat, WeaponDamage, WeaponStat};
+use crate::modules::tooltip::dto::TooltipFailure;
 use crate::modules::tooltip::material::{ItemTooltip, SetItem, Socket};
+use crate::modules::tooltip::Tooltip;
 
 pub trait RetrieveItemTooltip {
-  fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, Failure>;
-  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, Failure>;
+  fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, TooltipFailure>;
+  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, TooltipFailure>;
 }
 
 impl RetrieveItemTooltip for Tooltip {
-  fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, Failure> {
+  fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, TooltipFailure> {
     let item_res = data.get_item(expansion_id, item_id);
     if item_res.is_none() {
-      return Err(Failure::InvalidInput);
+      return Err(TooltipFailure::InvalidInput);
     }
     let item = item_res.unwrap();
 
@@ -93,7 +93,7 @@ impl RetrieveItemTooltip for Tooltip {
     })
   }
 
-  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, Failure> {
+  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, TooltipFailure> {
     let item_tooltip_res = self.get_item(data, language_id, expansion_id, item_id);
     if item_tooltip_res.is_err() {
       return Err(item_tooltip_res.err().unwrap());
@@ -230,9 +230,9 @@ fn try_fill_socket(data: &Data, expansion_id: u8, language_id: u8, socket: &mut 
     let socket_item = Some(SocketSlotItem {
       icon: data.get_icon(gem_item.icon).unwrap().name,
       effect: data.get_enchant(expansion_id, gem.enchant_id)
-                .and_then(|enchant| data.get_localization(language_id, enchant.localization_id)
-                  .and_then(|localization| Some(localization.content))).unwrap(),
-      flag: gem.flag
+        .and_then(|enchant| data.get_localization(language_id, enchant.localization_id)
+          .and_then(|localization| Some(localization.content))).unwrap(),
+      flag: gem.flag,
     });
 
     if i < socket_slots_length {

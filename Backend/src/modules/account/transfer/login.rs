@@ -1,7 +1,7 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::dto::Failure;
+use crate::modules::account::dto::Failure;
 use crate::modules::account::dto::Credentials;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::Login;

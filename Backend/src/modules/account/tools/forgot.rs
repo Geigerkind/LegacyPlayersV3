@@ -5,7 +5,7 @@ use mysql_connection::tools::Execute;
 use str_util::{random, sha3, strformat};
 use validator::tools::valid_mail;
 
-use crate::dto::Failure;
+use crate::modules::account::dto::Failure;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::{Token, Update};
 

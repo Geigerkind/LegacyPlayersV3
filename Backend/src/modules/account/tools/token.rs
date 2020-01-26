@@ -2,7 +2,7 @@ use mysql_connection::tools::{Execute, Select};
 use str_util::{random, sha3};
 use time_util;
 
-use crate::dto::Failure;
+use crate::modules::account::dto::Failure;
 use crate::modules::account::material::{Account, APIToken};
 
 pub trait Token {

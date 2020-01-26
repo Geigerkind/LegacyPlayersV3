@@ -1,16 +1,15 @@
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterFacial;
 use mysql_connection::tools::Select;
-use crate::modules::armory::dto::CharacterFacialDto;
+use crate::modules::armory::dto::{CharacterFacialDto, ArmoryFailure};
 
 pub trait GetCharacterFacial {
-  fn get_character_facial(&self, facial_id: u32) -> Result<CharacterFacial, Failure>;
-  fn get_character_facial_by_value(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, Failure>;
+  fn get_character_facial(&self, facial_id: u32) -> Result<CharacterFacial, ArmoryFailure>;
+  fn get_character_facial_by_value(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure>;
 }
 
 impl GetCharacterFacial for Armory {
-  fn get_character_facial(&self, facial_id: u32) -> Result<CharacterFacial, Failure> {
+  fn get_character_facial(&self, facial_id: u32) -> Result<CharacterFacial, ArmoryFailure> {
     let params = params!(
       "id" => facial_id
     );
@@ -23,10 +22,10 @@ impl GetCharacterFacial for Armory {
         hair_color: row.take(4).unwrap(),
         facial_hair: row.take(5).unwrap(),
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_facial".to_owned())))
   }
 
-  fn get_character_facial_by_value(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, Failure> {
+  fn get_character_facial_by_value(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure> {
     let params = params!(
       "skin_color" => character_facial_dto.skin_color,
       "face_style" => character_facial_dto.face_style,
@@ -48,6 +47,6 @@ impl GetCharacterFacial for Armory {
         hair_color: row.take(4).unwrap(),
         facial_hair: row.take(5).unwrap(),
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_facial_by_value".to_owned())))
   }
 }

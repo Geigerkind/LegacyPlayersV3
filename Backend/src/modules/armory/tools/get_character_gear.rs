@@ -1,18 +1,17 @@
 use mysql_connection::tools::Select;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterGear;
-use crate::modules::armory::dto::CharacterGearDto;
+use crate::modules::armory::dto::{CharacterGearDto, ArmoryFailure};
 use crate::modules::armory::tools::GetCharacterItem;
 
 pub trait GetCharacterGear {
-  fn get_character_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure>;
-  fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
+  fn get_character_gear(&self, gear_id: u32) -> Result<CharacterGear, ArmoryFailure>;
+  fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
 }
 
 impl GetCharacterGear for Armory {
-  fn get_character_gear(&self, gear_id: u32) -> Result<CharacterGear, Failure> {
+  fn get_character_gear(&self, gear_id: u32) -> Result<CharacterGear, ArmoryFailure> {
     let params = params!(
       "id" => gear_id
     );
@@ -40,10 +39,10 @@ impl GetCharacterGear for Armory {
         trinket1: row.take_opt(18).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
         trinket2: row.take_opt(19).unwrap().ok().and_then(|id| self.get_character_item(id).ok()),
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_gear".to_owned())))
   }
 
-  fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
+  fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
     let head = gear.head.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let neck = gear.neck.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
     let shoulder = gear.shoulder.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
@@ -128,6 +127,6 @@ impl GetCharacterGear for Armory {
         trinket1: trinket1.to_owned(),
         trinket2: trinket2.to_owned(),
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_gear_by_value".to_owned())))
   }
 }

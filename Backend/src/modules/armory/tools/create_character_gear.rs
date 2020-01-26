@@ -1,17 +1,16 @@
 use mysql_connection::tools::Execute;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterGear;
-use crate::modules::armory::dto::CharacterGearDto;
+use crate::modules::armory::dto::{CharacterGearDto, ArmoryFailure};
 use crate::modules::armory::tools::{CreateCharacterItem, GetCharacterGear};
 
 pub trait CreateCharacterGear {
-  fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure>;
+  fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
 }
 
 impl CreateCharacterGear for Armory {
-  fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, Failure> {
+  fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
     // Check if it already exists
     let existing_gear = self.get_character_gear_by_value(character_gear.clone());
     if existing_gear.is_ok() {
@@ -178,6 +177,6 @@ impl CreateCharacterGear for Armory {
       return self.get_character_gear_by_value(character_gear);
     }
 
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("create_character_gear".to_owned()))
   }
 }

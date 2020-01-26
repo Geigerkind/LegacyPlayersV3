@@ -1,20 +1,19 @@
 use mysql_connection::tools::{Execute, Select};
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::CharacterHistoryDto;
-use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{CreateCharacterInfo, CreateGuild, GetCharacter, CreateCharacterFacial};
 use crate::modules::armory::domain_value::CharacterGuild;
+use crate::modules::armory::dto::{ArmoryFailure, CharacterHistoryDto};
+use crate::modules::armory::material::CharacterHistory;
+use crate::modules::armory::tools::{CreateCharacterFacial, CreateCharacterInfo, CreateGuild, GetCharacter};
 
 pub trait CreateCharacterHistory {
-  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure>;
+  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl CreateCharacterHistory for Armory {
   // Assumption: It has been checked that the previous value is not the same
   // Assumption: Character exists
-  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure> {
+  fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
     let character_id = self.get_character_id_by_uid(server_id, character_uid).unwrap();
     let mut guild_id = None;
     if character_history_dto.character_guild.is_some() {
@@ -68,7 +67,7 @@ impl CreateCharacterHistory for Armory {
           character_name: character_history_dto.character_name.to_owned(),
           character_guild: guild_id.and_then(|id| Some(CharacterGuild {
             guild_id: id.clone(),
-            rank: character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.clone())).unwrap()
+            rank: character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.clone())).unwrap(),
           })),
           character_title: character_history_dto.character_title,
           profession_skill_points1: character_history_dto.profession_skill_points1,
@@ -83,6 +82,6 @@ impl CreateCharacterHistory for Armory {
       }
     }
 
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("create_character_history".to_owned()))
   }
 }

@@ -11,7 +11,6 @@ use schemars::JsonSchema;
 
 #[derive(Debug, JsonSchema)]
 pub enum Failure {
-  /* Account */
   InvalidCredentials,
   InvalidMail,
   InvalidNickname,
@@ -26,10 +25,6 @@ pub enum Failure {
   TooManyDays,
   DateInThePast,
   TokenPurposeLength,
-
-  /* Armory */
-  InvalidInput,
-
   Unknown,
 }
 
@@ -37,29 +32,24 @@ impl Responder<'static> for Failure {
   fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
     let mut body: String = String::new();
     let status = match self {
-      /* Account */
-      Failure::InvalidCredentials => Status::new(520, ""),
-      Failure::InvalidMail => Status::new(521, ""),
-      Failure::InvalidNickname => Status::new(522, ""),
+      Failure::InvalidCredentials => Status::new(520, "InvalidCredentials"),
+      Failure::InvalidMail => Status::new(521, "InvalidMail"),
+      Failure::InvalidNickname => Status::new(522, "InvalidNickname"),
       Failure::PwnedPassword(timed_pwned) => {
         body = timed_pwned.to_string();
-        Status::new(523, "")
+        Status::new(523, "PwnedPassword")
       }
-      Failure::PasswordTooShort => Status::new(524, ""),
-      Failure::MailIsInUse => Status::new(525, ""),
-      Failure::NicknameIsInUse => Status::new(526, ""),
-      Failure::InvalidUrl => Status::new(527, ""),
-      Failure::MailSend => Status::new(528, ""),
-      Failure::DeleteNotIssued => Status::new(529, ""),
-      Failure::ForgotNotIssued => Status::new(530, ""),
-      Failure::TooManyDays => Status::new(531, ""),
-      Failure::DateInThePast => Status::new(532, ""),
-      Failure::TokenPurposeLength => Status::new(533, ""),
-
-      /* Armory */
-      Failure::InvalidInput => Status::new(534, "Invalid UID"),
-
-      Failure::Unknown => Status::new(599, ""),
+      Failure::PasswordTooShort => Status::new(524, "PasswordTooShort"),
+      Failure::MailIsInUse => Status::new(525, "MailIsInUse"),
+      Failure::NicknameIsInUse => Status::new(526, "NicknameIsInUse"),
+      Failure::InvalidUrl => Status::new(527, "InvalidUrl"),
+      Failure::MailSend => Status::new(528, "MailSend"),
+      Failure::DeleteNotIssued => Status::new(529, "DeleteNotIssued"),
+      Failure::ForgotNotIssued => Status::new(530, "ForgotNotIssued"),
+      Failure::TooManyDays => Status::new(531, "TooManyDays"),
+      Failure::DateInThePast => Status::new(532, "DateInThePast"),
+      Failure::TokenPurposeLength => Status::new(533, "TokenPurposeLength"),
+      Failure::Unknown => Status::new(599, "Unknown"),
     };
     Response::build()
       .status(status)

@@ -1,16 +1,16 @@
 use mysql_connection::tools::{Execute, Select};
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::material::Character;
 use crate::modules::armory::tools::GetCharacter;
+use crate::modules::armory::dto::ArmoryFailure;
 
 pub trait CreateCharacter {
-  fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, Failure>;
+  fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
 }
 
 impl CreateCharacter for Armory {
-  fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, Failure> {
+  fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
     // If character exists already, return this one
     let existing_character = self.get_character_id_by_uid(server_id, server_uid);
     if existing_character.is_some() {
@@ -43,6 +43,6 @@ impl CreateCharacter for Armory {
       }
     }
 
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("create_character".to_owned()))
   }
 }

@@ -1,17 +1,16 @@
 use mysql_connection::tools::Execute;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterInfo;
-use crate::modules::armory::dto::CharacterInfoDto;
+use crate::modules::armory::dto::{ArmoryFailure, CharacterInfoDto};
 use crate::modules::armory::tools::{CreateCharacterGear, GetCharacterInfo};
 
 pub trait CreateCharacterInfo {
-  fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure>;
+  fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
 }
 
 impl CreateCharacterInfo for Armory {
-  fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure> {
+  fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
     // Return existing one first
     let existing_character_info = self.get_character_info_by_value(character_info.clone());
     if existing_character_info.is_ok() {
@@ -39,6 +38,6 @@ impl CreateCharacterInfo for Armory {
       return self.get_character_info_by_value(character_info.to_owned());
     }
 
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("create_character_info".to_owned()))
   }
 }

@@ -1,17 +1,16 @@
 use mysql_connection::tools::Select;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
-use crate::modules::armory::dto::CharacterItemDto;
+use crate::modules::armory::dto::{ArmoryFailure, CharacterItemDto};
 
 pub trait GetCharacterItem {
-  fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, Failure>;
-  fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, Failure>;
+  fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, ArmoryFailure>;
+  fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
 }
 
 impl GetCharacterItem for Armory {
-  fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, Failure> {
+  fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, ArmoryFailure> {
     let params = params!(
       "id" => character_item_id
     );
@@ -26,12 +25,12 @@ impl GetCharacterItem for Armory {
           row.take_opt(5).unwrap().ok(),
           row.take_opt(6).unwrap().ok(),
           row.take_opt(7).unwrap().ok()
-        ]
+        ],
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_item".to_owned())))
   }
 
-  fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, Failure> {
+  fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
     let params = params!(
       "item_id" => character_item.item_id,
       "random_property_id" => character_item.random_property_id,
@@ -58,8 +57,8 @@ impl GetCharacterItem for Armory {
           row.take_opt(5).unwrap().ok(),
           row.take_opt(6).unwrap().ok(),
           row.take_opt(7).unwrap().ok()
-        ]
+        ],
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_item_by_value".to_owned())))
   }
 }

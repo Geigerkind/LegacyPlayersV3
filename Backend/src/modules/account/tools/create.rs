@@ -6,7 +6,7 @@ use str_util::{random, sha3, strformat};
 use validator::domain_value::PasswordFailure;
 use validator::tools::{valid_mail, valid_nickname, valid_password};
 
-use crate::dto::Failure;
+use crate::modules::account::dto::Failure;
 use crate::modules::account::material::{Account, APIToken, Member};
 use crate::modules::account::tools::Token;
 
@@ -72,7 +72,7 @@ impl Create for Account {
           forgot_password: false,
           delete_account: false,
           new_mail: String::new(),
-          access_rights: 0
+          access_rights: 0,
         });
       } else {
         return Err(Failure::Unknown);

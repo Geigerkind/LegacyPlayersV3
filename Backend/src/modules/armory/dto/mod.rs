@@ -19,3 +19,6 @@ mod character_guild;
 mod character_facial;
 mod character_search_filter;
 mod character_search_result;
+
+pub use self::armory_failure::ArmoryFailure;
+mod armory_failure;

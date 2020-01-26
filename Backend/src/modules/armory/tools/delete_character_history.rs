@@ -1,17 +1,18 @@
-use crate::dto::Failure;
-use crate::modules::armory::Armory;
 use mysql_connection::tools::Execute;
+
+use crate::modules::armory::Armory;
+use crate::modules::armory::dto::ArmoryFailure;
 use crate::modules::armory::tools::GetCharacterHistory;
 
 pub trait DeleteCharacterHistory {
-  fn delete_character_history(&self, character_history_id: u32) -> Result<(), Failure>;
+  fn delete_character_history(&self, character_history_id: u32) -> Result<(), ArmoryFailure>;
 }
 
 impl DeleteCharacterHistory for Armory {
-  fn delete_character_history(&self, character_history_id: u32) -> Result<(), Failure> {
+  fn delete_character_history(&self, character_history_id: u32) -> Result<(), ArmoryFailure> {
     let character_history_res = self.get_character_history(character_history_id);
     if character_history_res.is_err() {
-      return Err(Failure::InvalidInput);
+      return Err(ArmoryFailure::InvalidInput);
     }
     let character_history = character_history_res.unwrap();
 
@@ -29,6 +30,6 @@ impl DeleteCharacterHistory for Armory {
       }
       return Ok(());
     }
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("delete_character_history".to_owned()))
   }
 }

@@ -1,31 +1,30 @@
 use mysql_connection::tools::Execute;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::CharacterHistoryDto;
+use crate::modules::armory::dto::{ArmoryFailure, CharacterHistoryDto};
 use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{CreateCharacterHistory, GetCharacter, CreateGuild};
+use crate::modules::armory::tools::{CreateCharacterHistory, CreateGuild, GetCharacter};
 
 pub trait SetCharacterHistory {
-  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, Failure>;
+  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl SetCharacterHistory for Armory {
-  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, Failure> {
+  fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
     // Validation
     if update_character_history.character_name.is_empty()
       || (update_character_history.character_guild.is_some() && (
-          update_character_history.character_guild.as_ref().unwrap().rank.is_empty()
-          || update_character_history.character_guild.as_ref().unwrap().guild.name.is_empty()
-          || update_character_history.character_guild.as_ref().unwrap().guild.server_uid == 0))
+      update_character_history.character_guild.as_ref().unwrap().rank.is_empty()
+        || update_character_history.character_guild.as_ref().unwrap().guild.name.is_empty()
+        || update_character_history.character_guild.as_ref().unwrap().guild.server_uid == 0))
     {
-      return Err(Failure::InvalidInput);
+      return Err(ArmoryFailure::InvalidInput);
     }
 
     // Check if this character exists
     let character_id_res = self.get_character_id_by_uid(server_id, character_uid);
     if character_id_res.is_none() {
-      return Err(Failure::InvalidInput);
+      return Err(ArmoryFailure::InvalidInput);
     }
 
     let character_id = character_id_res.unwrap();
@@ -49,7 +48,7 @@ impl SetCharacterHistory for Armory {
             last_update.timestamp = now.to_owned();
             return Ok(last_update.clone());
           }
-          return Err(Failure::Unknown);
+          return Err(ArmoryFailure::Database("set_character_history".to_owned()));
         }
       }
     } // Else create a new history point and assign it to this character

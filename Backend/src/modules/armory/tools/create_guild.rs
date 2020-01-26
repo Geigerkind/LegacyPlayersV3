@@ -1,20 +1,19 @@
 use mysql_connection::tools::{Execute, Select};
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::GuildDto;
+use crate::modules::armory::dto::{ArmoryFailure, GuildDto};
 use crate::modules::armory::material::Guild;
 use crate::modules::armory::tools::GetGuild;
 
 pub trait CreateGuild {
-  fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, Failure>;
+  fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
 }
 
 impl CreateGuild for Armory {
-  fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, Failure> {
+  fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
     // Validation
     if guild.server_uid == 0 {
-      return Err(Failure::InvalidInput);
+      return Err(ArmoryFailure::InvalidInput);
     }
 
     // Check if it already exists, if so return existing one
@@ -42,13 +41,13 @@ impl CreateGuild for Armory {
         id: guild_id,
         server_uid: guild.server_uid,
         name: guild.name.to_owned(),
-        server_id
+        server_id,
       };
       guilds.insert(new_guild.id, new_guild.clone());
 
       return Ok(new_guild.to_owned());
     }
 
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("create_guild".to_owned()))
   }
 }

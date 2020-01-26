@@ -1,17 +1,16 @@
 use mysql_connection::tools::Execute;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
-use crate::modules::armory::dto::CharacterItemDto;
+use crate::modules::armory::dto::{ArmoryFailure, CharacterItemDto};
 use crate::modules::armory::tools::GetCharacterItem;
 
 pub trait CreateCharacterItem {
-  fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, Failure>;
+  fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
 }
 
 impl CreateCharacterItem for Armory {
-  fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, Failure> {
+  fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
     // If it already exists, return this one
     let existing_item = self.get_character_item_by_value(character_item.clone());
     if existing_item.is_ok() {
@@ -31,6 +30,6 @@ impl CreateCharacterItem for Armory {
       return self.get_character_item_by_value(character_item);
     }
 
-    Err(Failure::Unknown)
+    Err(ArmoryFailure::Database("create_character_item".to_owned()))
   }
 }

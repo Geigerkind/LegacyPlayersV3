@@ -1,18 +1,17 @@
 use mysql_connection::tools::Select;
 
-use crate::dto::Failure;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterInfo;
-use crate::modules::armory::dto::CharacterInfoDto;
+use crate::modules::armory::dto::{ArmoryFailure, CharacterInfoDto};
 use crate::modules::armory::tools::GetCharacterGear;
 
 pub trait GetCharacterInfo {
-  fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure>;
-  fn get_character_info_by_value(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure>;
+  fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure>;
+  fn get_character_info_by_value(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
 }
 
 impl GetCharacterInfo for Armory {
-  fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, Failure> {
+  fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure> {
     let params = params!(
       "id" => character_info_id
     );
@@ -26,12 +25,12 @@ impl GetCharacterInfo for Armory {
         profession1: row.take_opt(5).unwrap().ok(),
         profession2: row.take_opt(6).unwrap().ok(),
         talent_specialization: row.take_opt(7).unwrap().ok(),
-        race_id: row.take(8).unwrap()
+        race_id: row.take(8).unwrap(),
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_info".to_owned())))
   }
 
-  fn get_character_info_by_value(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, Failure> {
+  fn get_character_info_by_value(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
     let character_gear_res = self.get_character_gear_by_value(character_info.gear.clone());
     if character_gear_res.is_err() {
       return Err(character_gear_res.err().unwrap());
@@ -62,8 +61,8 @@ impl GetCharacterInfo for Armory {
         profession1: row.take_opt(5).unwrap().ok(),
         profession2: row.take_opt(6).unwrap().ok(),
         talent_specialization: row.take_opt(7).unwrap().ok(),
-        race_id: row.take(8).unwrap()
+        race_id: row.take(8).unwrap(),
       })
-    }, params).unwrap_or_else(|| Err(Failure::Unknown))
+    }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_info_by_value".to_owned())))
   }
 }

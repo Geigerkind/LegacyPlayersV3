@@ -2,7 +2,7 @@ use language::domain_value::Language;
 use language::tools::Get;
 use str_util::sha3;
 
-use crate::dto::Failure;
+use crate::modules::account::dto::Failure;
 use crate::modules::account::material::{Account, APIToken};
 use crate::modules::account::tools::Token;
 

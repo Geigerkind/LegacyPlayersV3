@@ -1,6 +1,6 @@
 use rocket::State;
 
-use crate::dto::Failure;
+use crate::modules::account::dto::Failure;
 use crate::modules::account::guard::Authenticate;
 use crate::modules::account::material::Account;
 use crate::modules::account::tools::Delete;
