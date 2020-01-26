@@ -5,7 +5,7 @@ import {CharacterSearchService} from "../../service/character_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {init_body_columns_from_result} from "../../../../../../template/table/utility/table_init_body";
 import {DataService} from "../../../../../../service/data";
-import {Server} from "../../../../../../domain_value/server";
+import {AvailableServer} from "../../../../../../domain_value/available_server";
 
 @Component({
     selector: "Search",
@@ -82,7 +82,7 @@ export class SearchComponent {
         private characterSearchService: CharacterSearchService,
         private dataService: DataService
     ) {
-        this.dataService.get_all_servers((servers: Server[]) => servers.forEach(server => this.character_header_columns[3].type_range.push({
+        this.dataService.get_all_servers((servers: AvailableServer[]) => servers.forEach(server => this.character_header_columns[3].type_range.push({
             value: server.id,
             labelKey: server.name
         })));
