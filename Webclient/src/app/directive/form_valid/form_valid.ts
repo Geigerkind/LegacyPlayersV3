@@ -1,13 +1,18 @@
-import {AfterViewInit, Directive, ElementRef, HostListener} from '@angular/core';
+import {AfterViewInit, Directive, ElementRef, HostListener, OnDestroy} from '@angular/core';
 
 @Directive({
     selector: '[formValid]'
 })
-export class FormValidDirective implements AfterViewInit {
+export class FormValidDirective implements AfterViewInit, OnDestroy {
     private static readonly UPDATE_INTERVAL: number = 500;
+    private continueInterval: boolean = true;
 
     constructor(private form: ElementRef) {
-        setInterval(() => this.updateValidity(), FormValidDirective.UPDATE_INTERVAL);
+        setTimeout(() => this.onUpdate(), FormValidDirective.UPDATE_INTERVAL);
+    }
+
+    ngOnDestroy(): void {
+        this.continueInterval = false;
     }
 
     ngAfterViewInit(): void {
@@ -17,6 +22,12 @@ export class FormValidDirective implements AfterViewInit {
     @HostListener('input')
     onInput(): void {
         this.updateValidity();
+    }
+
+    private onUpdate(): void {
+        this.updateValidity();
+        if (this.continueInterval)
+            setTimeout(() => this.onUpdate(), FormValidDirective.UPDATE_INTERVAL);
     }
 
     private updateValidity(): void {
