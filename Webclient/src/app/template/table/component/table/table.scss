@@ -5,4 +5,18 @@
     width: 100%;
     border: 1px solid $tdc_accent;
     border-radius: 3px 3px 3px 3px;
+    position: relative;
+
+    Minimizer {
+        position: absolute;
+        height: 14px;
+        width: 14px;
+        top: 3px;
+        right: 3px;
+    }
+
+    .minimized {
+        max-height: 50px;
+        overflow: hidden;
+    }
 }

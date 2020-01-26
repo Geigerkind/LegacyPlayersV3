@@ -41,6 +41,8 @@ export class TableComponent {
     private currentPageData: number = 0;
     private currentFilter: any = {};
 
+    isMinimized: boolean = false;
+
     constructor(
         private windowService: WindowService
     ) {
@@ -59,6 +61,10 @@ export class TableComponent {
 
     get currentPage(): number {
         return this.currentPageData;
+    }
+
+    toggleMinimize(): void {
+        this.isMinimized = !this.isMinimized;
     }
 
     handleFilterChanged(filter: string): void {
