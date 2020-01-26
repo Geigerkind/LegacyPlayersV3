@@ -1,8 +1,8 @@
 <ng-container *ngIf="isResponsiveMode">
-    <ResponsiveBodyRow [responsiveBodyColumns]="getResponsiveBodyColumns(columns)" [responsiveHeaderColumns]="getResponsiveHeaderColumns(columns)" *ngFor="let columns of rows; index as i">
+    <ResponsiveBodyRow [typeRange]="internalTypeRange" [responsiveHeadColumns]="responsiveHeadColumns" [columns]="columns" *ngFor="let columns of rows; index as i">
     </ResponsiveBodyRow>
 </ng-container>
 
 <ng-container *ngIf="!isResponsiveMode">
-    <BodyRow [columns]="columns" *ngFor="let columns of rows"></BodyRow>
+    <BodyRow [typeRange]="internalTypeRange" [columns]="columns" *ngFor="let columns of rows"></BodyRow>
 </ng-container>

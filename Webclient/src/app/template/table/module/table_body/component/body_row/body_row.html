@@ -1,1 +1,1 @@
-<BodyTd *ngFor="let column of columns" [specification]="column"></BodyTd>
+<BodyTd *ngFor="let column of columns; index as i" [typeRange]="typeRange[i]" [specification]="column"></BodyTd>

@@ -88,8 +88,6 @@ export class TableComponent {
                 const filter = this.currentFilter[this.headColumns[index].filter_name].filter;
                 return !filter || filter.toString() === column.content || (
                     column.type === 0 && column.content.includes(filter)
-                ) || (
-                    column.type === 3 && this.headColumns[index].type_range[filter - 1].labelKey === column.content
                 );
             }))
             .sort((leftRow, rightRow) => {
@@ -102,7 +100,7 @@ export class TableComponent {
                     const rightColumn: BodyColumn = rightRow[index];
                     const sorting: number = filterSorting === false ? 1 : -1;
 
-                    if (leftColumn.type === 0 || leftColumn.type === 3) {
+                    if (leftColumn.type === 0) {
                         const result = leftColumn.content.localeCompare(rightColumn.content);
                         if (result === 0)
                             continue;

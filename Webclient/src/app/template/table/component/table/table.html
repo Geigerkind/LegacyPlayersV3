@@ -1,3 +1,3 @@
 <TableHeader (filterChanged)="handleFilterChanged($event)" [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [columns]="headColumns" *ngIf="enableHeader"></TableHeader>
-<TableBody [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [rows]="currentPageRows"></TableBody>
+<TableBody [headColumns]="headColumns" [responsiveHeadColumns]="responsiveHeadColumns" [isResponsiveMode]="isResponsiveMode" [rows]="currentPageRows"></TableBody>
 <TableFooter [numItems]="numItems" (pageChanged)="currentPage=$event" *ngIf="enableFooter"></TableFooter>

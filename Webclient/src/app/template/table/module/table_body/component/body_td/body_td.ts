@@ -10,6 +10,7 @@ import {DatePipe} from "@angular/common";
 })
 export class BodyTdComponent {
     @Input() specification: BodyColumn;
+    @Input() typeRange: Map<number, string>;
 
     constructor(
         private datePipe: DatePipe
@@ -18,6 +19,8 @@ export class BodyTdComponent {
     bodyContentToString(): string {
         if (this.specification.type === 2)
             return this.datePipe.transform(new Date(Number(this.specification.content)*1000), 'dd.MM.yyyy');
+        if (this.specification.type === 3 && this.typeRange.has(Number(this.specification.content)))
+            return this.typeRange.get(Number(this.specification.content));
         return this.specification.content;
     }
 }

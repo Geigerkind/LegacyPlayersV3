@@ -1,7 +1,7 @@
 <div class="tableResponsiveBodyRow" [class.isVisible]="isVisible">
     <div class="responsiveHeader">
         <CaretButton (click)="toggleVisibility()"></CaretButton>
-        <BodyTd *ngFor="let column of responsiveHeaderColumns" [specification]="column"></BodyTd>
+        <BodyTd *ngFor="let column of getResponsiveHeaderColumns()" [typeRange]="typeRange[column.i]" [specification]="column.c"></BodyTd>
     </div>
-    <BodyTd *ngFor="let column of responsiveBodyColumns" [specification]="column"></BodyTd>
+    <BodyTd *ngFor="let column of getResponsiveBodyColumns()" [typeRange]="typeRange[column.i]" [specification]="column.c"></BodyTd>
 </div>

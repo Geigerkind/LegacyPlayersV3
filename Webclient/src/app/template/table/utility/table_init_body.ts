@@ -7,7 +7,7 @@ export function init_body_columns_from_result(result: any, header: Array<HeaderC
         header.forEach(entry => {
             let content;
             if (entry.type === 3) {
-                content = row[entry.filter_name].label_key.toString();
+                content = row[entry.filter_name].value.toString();
             } else if (entry.type === 2) {
                 const now = new Date(row[entry.filter_name]*1000);
                 content = (new Date(now.getFullYear(), now.getMonth(), now.getDate())).getTime() / 1000;
