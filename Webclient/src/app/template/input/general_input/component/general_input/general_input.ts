@@ -7,7 +7,7 @@ import {FormFailure} from "../../../../../material/form_failure";
     templateUrl: "./general_input.html",
     styleUrls: ["./general_input.scss"]
 })
-export class GeneralInputComponent implements AfterViewInit {
+export class GeneralInputComponent implements AfterViewInit, OnInit {
     touched: boolean = false;
     pattern: string;
 
@@ -25,9 +25,16 @@ export class GeneralInputComponent implements AfterViewInit {
     @Output() valueChange: EventEmitter<string> = new EventEmitter<string>();
     valueData = "";
     formFailureData: FormFailure = FormFailure.empty();
+    autoComplete: string = 'on';
 
     constructor() {
         this.updatePattern();
+    }
+
+    ngOnInit(): void {
+        if (this.type === 'date') {
+            this.autoComplete = 'off';
+        }
     }
 
     ngAfterViewInit(): void {
