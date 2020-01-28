@@ -40,6 +40,7 @@ export class SearchComponent {
     clientSide: boolean = false;
     responsiveHeadColumns: Array<number> = [0, 1];
     responsiveModeWidthInPx: number = 840;
+    num_characters: number = 0;
 
     constructor(
         private characterSearchService: CharacterSearchService,
@@ -58,8 +59,9 @@ export class SearchComponent {
 
     filterCharacterSearch(filter: any): void {
         this.characterSearchService.search_characters(filter,
-            (result) => {
-                this.character_body_columns = result.map(row => {
+            (search_result) => {
+                this.num_characters = search_result.num_items;
+                this.character_body_columns = search_result.result.map(row => {
                     const body_columns: Array<BodyColumn> = [];
 
                     body_columns.push({

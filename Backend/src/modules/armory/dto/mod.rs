@@ -8,6 +8,7 @@ pub use self::character_guild::CharacterGuildDto;
 pub use self::character_facial::CharacterFacialDto;
 pub use self::character_search_filter::CharacterSearchFilter;
 pub use self::character_search_result::CharacterSearchResult;
+pub use self::search_result::SearchResult;
 
 mod character;
 mod character_history;
@@ -19,6 +20,7 @@ mod character_guild;
 mod character_facial;
 mod character_search_filter;
 mod character_search_result;
+mod search_result;
 
 pub use self::armory_failure::ArmoryFailure;
 mod armory_failure;

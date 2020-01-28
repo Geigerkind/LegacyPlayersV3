@@ -22,6 +22,7 @@ export class TableComponent implements OnChanges {
     @Input() enableFooter: boolean = true;
     @Input() clientSide: boolean = true;
     @Input() headColumns: Array<HeaderColumn> = [];
+    @Input() numItems: number = 0;
 
     @Input()
     set bodyRows(rows: Array<BodyRow>) {
@@ -37,7 +38,6 @@ export class TableComponent implements OnChanges {
     bodyRowsData: Array<BodyRow> = [];
     currentPageRows: Array<BodyRow> = [];
     isResponsiveMode: boolean = false;
-    numItems: number = 0;
 
     private currentPageData: number = 0;
     private currentFilter: any = {};
@@ -58,7 +58,7 @@ export class TableComponent implements OnChanges {
         this.currentPageData = page - 1;
         if (this.clientSide)
             this.setCurrentPageRows();
-        else if (this.currentFilter.page !== this.currentPageData) {
+        else {
             this.currentFilter.page = this.currentPageData;
             this.filterOrPageChanged.emit(this.currentFilter);
         }
@@ -84,10 +84,14 @@ export class TableComponent implements OnChanges {
 
     private setCurrentPageRows(): void {
         const rows = this.applyFilter();
-        this.numItems = rows.length;
-        this.currentPageRows = rows
-            .slice(this.currentPage * TableComponent.PAGE_SIZE, (this.currentPage + 1) * TableComponent.PAGE_SIZE >= this.bodyRowsData.length ?
-                this.bodyRowsData.length : (this.currentPage + 1) * TableComponent.PAGE_SIZE);
+        if (this.clientSide) {
+            this.numItems = rows.length;
+            this.currentPageRows = rows
+                .slice(this.currentPage * TableComponent.PAGE_SIZE, (this.currentPage + 1) * TableComponent.PAGE_SIZE >= this.bodyRowsData.length ?
+                    this.bodyRowsData.length : (this.currentPage + 1) * TableComponent.PAGE_SIZE);
+        } else {
+            this.currentPageRows = this.bodyRowsData;
+        }
     }
 
     private applyFilter(): Array<BodyRow> {

@@ -1,19 +1,19 @@
 use std::cmp::Ordering;
 
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult};
+use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult, SearchResult};
 use crate::modules::armory::tools::GetGuild;
 use crate::modules::data::Data;
 use crate::modules::data::tools::RetrieveRace;
 
 pub trait PerformCharacterSearch {
-  fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult>;
+  fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult>;
 }
 
 impl PerformCharacterSearch for Armory {
-  fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> Vec<CharacterSearchResult> {
+  fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult> {
     let characters = self.characters.read().unwrap();
-    let mut result: Vec<CharacterSearchResult> = characters.iter()
+    let intermediate = characters.iter()
       .filter(|(_, character)| character.last_update.is_some())
       .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))
       .filter(|(_, character)| filter.name.filter.is_none() || character.last_update.as_ref().unwrap().character_name.contains(filter.name.filter.as_ref().unwrap()))
@@ -37,7 +37,9 @@ impl PerformCharacterSearch for Armory {
           }
         }
         return false;
-      })
+      });
+    let num_characters = intermediate.clone().count();
+    let mut result: Vec<CharacterSearchResult> = intermediate
       .skip((filter.page * 10) as usize)
       .take(10)
       .map(|(_, character)| {
@@ -45,7 +47,7 @@ impl PerformCharacterSearch for Armory {
         CharacterSearchResult {
           faction: data.get_race(race_id).unwrap().faction,
           guild: character.last_update.as_ref().unwrap().character_guild.as_ref().and_then(|character_guild| self.get_guild(character_guild.guild_id)),
-          character: character.clone(),
+          character: character.clone()
         }
       })
       .collect();
@@ -93,7 +95,10 @@ impl PerformCharacterSearch for Armory {
 
       return Ordering::Equal;
     });
-    result
+    SearchResult {
+      result,
+      num_items: num_characters
+    }
   }
 }
 
