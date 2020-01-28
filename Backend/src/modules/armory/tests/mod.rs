@@ -5,3 +5,4 @@ mod character_history;
 mod character;
 mod guild;
 mod character_facial;
+mod character_search;
