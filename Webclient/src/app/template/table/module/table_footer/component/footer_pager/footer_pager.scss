@@ -16,8 +16,10 @@ $buttonSize: 20px;
 
     div:nth-child(3) {
         text-align: center;
-        width: 60px;
+        min-width: 60px;
         cursor: default;
+        white-space: nowrap;
+        padding-right: $spacing;
     }
 
     .firstPage {
