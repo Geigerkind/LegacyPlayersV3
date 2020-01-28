@@ -140,7 +140,7 @@ function deployBackend {
   cd /root/${REPOSITORY_NAME}/Backend
   rustup update
   cargo update
-  cargo build --release --all-features --jobs ${NUM_CORES}
+  cargo build --release --jobs ${NUM_CORES}
   cargo install --path ./ --force
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
   cp .env_prod /home/${BACKEND_USER}/.env
