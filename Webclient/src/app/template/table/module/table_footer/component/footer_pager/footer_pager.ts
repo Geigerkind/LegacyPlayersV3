@@ -15,7 +15,7 @@ export class FooterPagerComponent {
     set numPages(page: number) {
         this.numPagesData = page;
         if (this.currentPage > page)
-            this.goToFirstPage();
+            this.currentPage = 1;
     }
     get numPages(): number {
         return this.numPagesData;
