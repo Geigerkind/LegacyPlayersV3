@@ -26,6 +26,7 @@ fn character_tooltip() {
             main_hand: Some(CharacterItemDto {
                 item_id: 17,
                 random_property_id: None,
+                random_property_scaling_coefficient: None,
                 enchant_id: Some(266),
                 gem_ids: vec![None, Some(23094), Some(23094), None],
             }),

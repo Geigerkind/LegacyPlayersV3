@@ -8,7 +8,8 @@ fn character_item() {
   let armory = Armory::default();
   let character_item_dto = CharacterItemDto {
     item_id: 19019,
-    random_property_id: None,
+    random_property_id: Some(1023),
+    random_property_scaling_coefficient: None,
     enchant_id: Some(684),
     gem_ids: vec![None, None, None, None]
   };

@@ -35,7 +35,7 @@ pub struct Data {
   pub item_effects: Vec<HashMap<u32, Vec<ItemEffect>>>,
   pub item_inventory_types: HashMap<u8, ItemInventoryType>,
   pub item_qualities: HashMap<u8, ItemQuality>,
-  pub item_random_properties: Vec<HashMap<u16, ItemRandomProperty>>,
+  pub item_random_properties: Vec<HashMap<i16, ItemRandomProperty>>,
   pub item_sheaths: HashMap<u8, ItemSheath>,
   pub item_sockets: Vec<HashMap<u32, ItemSocket>>,
   pub item_stats: Vec<HashMap<u32, Vec<ItemStat>>>,
@@ -552,7 +552,7 @@ impl Init for HashMap<u8, ItemQuality> {
   }
 }
 
-impl Init for Vec<HashMap<u16, ItemRandomProperty>> {
+impl Init for Vec<HashMap<i16, ItemRandomProperty>> {
   fn init(&mut self, db: &MySQLConnection) {
     let mut last_expansion_id = 0;
     db.select("SELECT * FROM data_item_random_property ORDER BY expansion_id, id", &|mut row| {
@@ -563,11 +563,19 @@ impl Init for Vec<HashMap<u16, ItemRandomProperty>> {
           enchant_ids.push(enchant_id.unwrap());
         }
       }
+      let mut scaling_coefficients = Vec::new();
+      for i in 8..13 {
+        let coefficient = row.take_opt(i).unwrap().ok();
+        if coefficient.is_some() {
+          scaling_coefficients.push(coefficient.unwrap());
+        }
+      }
       ItemRandomProperty {
         expansion_id: row.take(0).unwrap(),
         id: row.take(1).unwrap(),
         localization_id: row.take(2).unwrap(),
         enchant_ids,
+        scaling_coefficients
       }
     }).iter().for_each(|result| {
       if result.expansion_id != last_expansion_id {
