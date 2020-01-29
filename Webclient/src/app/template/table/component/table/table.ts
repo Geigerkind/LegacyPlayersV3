@@ -2,8 +2,8 @@ import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
 import {WindowService} from "../../../../styling_service/window";
 import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";
-import {table_init_filter} from "../../utility/table_init_filter";
 import {BodyRow} from "../../module/table_body/domain_value/body_row";
+import {table_init_filter} from "../../utility/table_init_filter";
 
 @Component({
     selector: "Table",
@@ -27,7 +27,6 @@ export class TableComponent implements OnChanges {
     @Input()
     set bodyRows(rows: Array<BodyRow>) {
         this.bodyRowsData = rows;
-        this.currentFilter = table_init_filter(this.headColumns);
         this.setCurrentPageRows();
     }
 
@@ -40,7 +39,7 @@ export class TableComponent implements OnChanges {
     isResponsiveMode: boolean = false;
 
     private currentPageData: number = 0;
-    private currentFilter: any = {};
+    private currentFilter: any;
 
     isMinimized: boolean = false;
 
@@ -51,6 +50,8 @@ export class TableComponent implements OnChanges {
     }
 
     ngOnChanges(): void {
+        if (!this.currentFilter)
+            this.currentFilter = table_init_filter(this.headColumns);
         this.isResponsiveMode = this.windowService.screenWidth$.getValue() <= this.responsiveModeWidthInPx;
     }
 
