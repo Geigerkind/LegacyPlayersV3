@@ -11,35 +11,35 @@ fn character_info() {
       head: Some(CharacterItemDto {
         item_id: 31012,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       neck: Some(CharacterItemDto {
         item_id: 33281,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       shoulder: Some(CharacterItemDto {
         item_id: 31022,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       back: Some(CharacterItemDto {
         item_id: 33592,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       chest: Some(CharacterItemDto {
         item_id: 31016,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
@@ -48,84 +48,84 @@ fn character_info() {
       wrist: Some(CharacterItemDto {
         item_id: 32577,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       main_hand: Some(CharacterItemDto {
         item_id: 32500,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       off_hand: Some(CharacterItemDto {
         item_id: 30882,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       ternary_hand: Some(CharacterItemDto {
         item_id: 28523,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       glove: Some(CharacterItemDto {
         item_id: 32328,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       belt: Some(CharacterItemDto {
         item_id: 32258,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       leg: Some(CharacterItemDto {
         item_id: 31019,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       boot: Some(CharacterItemDto {
         item_id: 33324,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       ring1: Some(CharacterItemDto {
         item_id: 32528,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       ring2: Some(CharacterItemDto {
         item_id: 33498,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       trinket1: Some(CharacterItemDto {
         item_id: 13503,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       }),
       trinket2: Some(CharacterItemDto {
         item_id: 32496,
         random_property_id: None,
-        random_property_scaling_coefficient: None,
+        random_property_scaling_factor: None,
         enchant_id: None,
         gem_ids: vec![None, None, None, None]
       })

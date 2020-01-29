@@ -19,7 +19,7 @@ impl GetCharacterItem for Armory {
         id: row.take(0).unwrap(),
         item_id: row.take(1).unwrap(),
         random_property_id: row.take_opt(2).unwrap().ok(),
-        random_property_scaling_coefficient: row.take_opt(3).unwrap().ok(),
+        random_property_scaling_factor: row.take_opt(3).unwrap().ok(),
         enchant_id: row.take_opt(4).unwrap().ok(),
         gem_ids: vec![
           row.take_opt(5).unwrap().ok(),
@@ -35,7 +35,7 @@ impl GetCharacterItem for Armory {
     let params = params!(
       "item_id" => character_item.item_id,
       "random_property_id" => character_item.random_property_id,
-      "random_property_scaling_factor" => character_item.random_property_scaling_coefficient,
+      "random_property_scaling_factor" => character_item.random_property_scaling_factor,
       "enchant_id" => character_item.enchant_id,
       "gem_id1" => character_item.gem_ids.get(0).cloned(),
       "gem_id2" => character_item.gem_ids.get(1).cloned(),
@@ -54,7 +54,7 @@ impl GetCharacterItem for Armory {
         id: row.take(0).unwrap(),
         item_id: row.take(1).unwrap(),
         random_property_id: row.take_opt(2).unwrap().ok(),
-        random_property_scaling_coefficient: row.take_opt(3).unwrap().ok(),
+        random_property_scaling_factor: row.take_opt(3).unwrap().ok(),
         enchant_id: row.take_opt(4).unwrap().ok(),
         gem_ids: vec![
           row.take_opt(5).unwrap().ok(),

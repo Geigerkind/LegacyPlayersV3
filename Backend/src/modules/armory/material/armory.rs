@@ -72,7 +72,7 @@ impl Init for HashMap<u32, Character> {
           id: id.unwrap(),
           item_id: row.take(i+1).unwrap(),
           random_property_id: row.take_opt(i+2).unwrap().ok(),
-          random_property_scaling_coefficient: row.take_opt(i+3).unwrap().ok(),
+          random_property_scaling_factor: row.take_opt(i+3).unwrap().ok(),
           enchant_id: row.take_opt(i+4).unwrap().ok(),
           gem_ids: vec![
             row.take_opt(i+5).unwrap().ok(),

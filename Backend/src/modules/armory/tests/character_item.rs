@@ -9,7 +9,7 @@ fn character_item() {
   let character_item_dto = CharacterItemDto {
     item_id: 19019,
     random_property_id: Some(1023),
-    random_property_scaling_coefficient: None,
+    random_property_scaling_factor: None,
     enchant_id: Some(684),
     gem_ids: vec![None, None, None, None]
   };

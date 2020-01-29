@@ -13,7 +13,7 @@ impl CreateCharacterItem for Armory {
   fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
     // Validation
     if character_item.random_property_id.is_some() && *character_item.random_property_id.as_ref().unwrap() < 0
-      && character_item.random_property_scaling_coefficient.is_none() {
+      && character_item.random_property_scaling_factor.is_none() {
       return Err(ArmoryFailure::InvalidInput);
     }
 
@@ -26,7 +26,7 @@ impl CreateCharacterItem for Armory {
     let params = params!(
       "item_id" => character_item.item_id,
       "random_property_id" => character_item.random_property_id,
-      "random_property_scaling_factor" => character_item.random_property_scaling_coefficient,
+      "random_property_scaling_factor" => character_item.random_property_scaling_factor,
       "enchant_id" => character_item.enchant_id,
       "gem_id1" => character_item.gem_ids.get(0).cloned(),
       "gem_id2" => character_item.gem_ids.get(1).cloned(),
