@@ -25,7 +25,7 @@ export class TooltipComponent {
                 this.tooltipService.loadCharacterTooltip(args.character_id, result => {
                     this.tooltipType = args.type;
                     this.tooltipPayload = result;
-                    console.log("RESULT", result);
+                    this.iconPath = "/assets/wow_hero_classes/c" + result.hero_class_id + ".png";
                 });
             }
         });

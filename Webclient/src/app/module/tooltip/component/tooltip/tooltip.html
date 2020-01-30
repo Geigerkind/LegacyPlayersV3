@@ -1,4 +1,6 @@
-<div *ngIf="iconPath" class="tt_icon"></div>
+<div *ngIf="iconPath" class="tt_icon">
+    <img [src]="iconPath" />
+</div>
 <CharacterTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 1"></CharacterTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}

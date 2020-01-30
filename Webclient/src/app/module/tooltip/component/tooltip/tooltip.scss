@@ -24,5 +24,11 @@
         background: $tdc_darker;
         border: 1px solid $tdc_accent;
         border-radius: 3px 3px 3px 3px;
+
+        img {
+            height: 48px;
+            width: 48px;
+            border-radius: 3px 3px 3px 3px;
+        }
     }
 }
