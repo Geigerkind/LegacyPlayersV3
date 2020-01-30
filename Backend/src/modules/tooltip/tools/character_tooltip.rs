@@ -1,7 +1,7 @@
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, GetGuild};
 use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveServer;
+use crate::modules::data::tools::{RetrieveServer, RetrieveRace};
 use crate::modules::tooltip::domain_value::CharacterGuild;
 use crate::modules::tooltip::dto::TooltipFailure;
 use crate::modules::tooltip::material::CharacterTooltip;
@@ -31,10 +31,18 @@ impl RetrieveCharacterTooltip for Tooltip {
           rank: character_guild.rank.to_owned(),
         })));
 
+    let server = data.get_server(character.server_id).unwrap();
+    let race = data.get_race(character_history.character_info.race_id).unwrap();
+
     Ok(CharacterTooltip {
       name: character_history.character_name.to_owned(),
-      server: data.get_server(character.server_id).unwrap().name.to_owned(),
+      server: server.name,
       guild,
+      faction: race.faction,
+      hero_class_id: character_history.character_info.hero_class_id,
+      expansion_id: server.expansion_id,
+      race_id: race.id,
+      gender: character_history.character_info.gender
     })
   }
 }

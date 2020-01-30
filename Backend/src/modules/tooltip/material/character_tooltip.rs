@@ -5,4 +5,9 @@ pub struct CharacterTooltip {
     pub name: String,
     pub server: String,
     pub guild: Option<CharacterGuild>,
+    pub faction: bool,
+    pub hero_class_id: u8,
+    pub expansion_id: u8,
+    pub race_id: u8,
+    pub gender: bool
 }

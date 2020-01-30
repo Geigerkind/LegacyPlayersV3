@@ -17,3 +17,50 @@ $success: darken(#DFF2BF, 20%);
 $warning: darken(#FEEFB3, 20%);
 $error: darken(#FFD2D2, 20%);
 $information: darken(#BDE5F8, 20%);
+
+$alliance: #372727;
+$horde: #272f37;
+
+$expansions: (
+    1: $font_default, // vanilla
+    2: green, // tbc
+    3: lighten(blue, 10%) // wotlk
+);
+
+$factions: (
+    0: lighten(#272f37, 20%), // horde
+    1: lighten(#372727, 20%) // alliance
+);
+
+$hero_classes: (
+    1: #C79C6E, // warrior
+    2: #F58CBA, // paladin
+    3: #ABD473, // hunter
+    4: #FFF569, // rogue
+    5: #FFFFFF, // priest
+    6: #C41F3B, // death knight
+    7: #0070DE, // shaman
+    8: #69CCF0, // mage
+    9: #9482C9, // warlock
+    10: #C41F3B, // monk
+    11: #FF7D0A, // druid
+    12: #A330C9, // demon hunter
+);
+
+@each $name, $value in $expansions {
+    .expansion_#{$name} {
+        color: $value;
+    }
+}
+
+@each $name, $value in $factions {
+    .faction_#{$name} {
+        color: $value;
+    }
+}
+
+@each $name, $value in $hero_classes {
+    .hero_class_#{$name} {
+        color: $value;
+    }
+}

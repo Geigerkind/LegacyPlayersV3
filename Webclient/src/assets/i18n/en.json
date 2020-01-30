@@ -30,7 +30,7 @@
     "Tooltip": {
         "loading": "Loading...",
         "CharacterTooltip": {
-            "title": "{{name}}, {{rank}} of {{guild}}"
+            "guild": "{{rank}} of {{guild}}"
         }
     },
     "Armory": {

@@ -1,0 +1,15 @@
+@import "src/styles/global";
+
+:host {
+    span:first-child, span:nth-child(2) {
+        font-size: 18px;
+    }
+
+    span:first-child img {
+        display: inline;
+        height: 14px;
+        width: 14px;
+        border-radius: 3px 3px 3px 3px;
+        border: 1px solid $tdc_accent;
+    }
+}
