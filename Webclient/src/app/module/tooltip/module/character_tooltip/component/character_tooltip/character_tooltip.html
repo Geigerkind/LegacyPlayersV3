@@ -1,0 +1,5 @@
+<div class="tt_row">
+    <span *ngIf="payload.guild">{{ 'Tooltip.CharacterTooltip.title' | translate: { name: payload.name, guild: payload.guild.name, rank: payload.guild.rank } }}</span>
+    <span *ngIf="!payload.guild"> {{ payload.name }}</span>
+</div>
+<div class="tt_row"> {{ payload.server }} </div>

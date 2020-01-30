@@ -27,6 +27,12 @@
         "faction_1": "Horde",
         "faction_0": "Alliance"
     },
+    "Tooltip": {
+        "loading": "Loading...",
+        "CharacterTooltip": {
+            "title": "{{name}}, {{rank}} of {{guild}}"
+        }
+    },
     "Armory": {
         "Search": {
             "name": "Name",

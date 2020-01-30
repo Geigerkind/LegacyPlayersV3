@@ -24,6 +24,9 @@ import {AuthenticationInterceptor} from "./service/interceptor/authentication";
 import {WindowService} from "./styling_service/window";
 import {LanguageInterceptor} from "./service/interceptor/language";
 import {DataService} from "./service/data";
+import {TooltipModule} from "./module/tooltip/module";
+import {TooltipControllerService} from "./service/tooltip_controller";
+import {MousePositionService} from "./styling_service/mouse_position";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -50,7 +53,8 @@ export function createTranslateLoader(http: HttpClient) {
         ReactiveComponentLoaderModule.withModule({
             moduleId: "cookie_banner",
             loadChildren: "./module/cookie_banner/module#CookieBannerModule"
-        })
+        }),
+        TooltipModule
     ],
     providers: [
         SettingsService,
@@ -61,6 +65,8 @@ export function createTranslateLoader(http: HttpClient) {
         APIService,
         AuthenticationService,
         WindowService,
+        TooltipControllerService,
+        MousePositionService,
         {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true}

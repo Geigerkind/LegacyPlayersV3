@@ -67,27 +67,34 @@ export class SearchComponent {
                     body_columns.push({
                         type: 3,
                         content: row.character.last_update.character_info.hero_class_id.toString(),
-                        sub_type: 1
+                        sub_type: 1,
+                        sub_type_args: null
                     });
                     body_columns.push({
                         type: 0,
                         content: row.character.last_update.character_name,
-                        sub_type: null
+                        sub_type: 2,
+                        sub_type_args: {
+                            character_id: row.character.id
+                        }
                     });
                     body_columns.push({
                         type: 0,
                         content: !row.guild ? '' : row.guild.name,
-                        sub_type: null
+                        sub_type: null,
+                        sub_type_args: null
                     });
                     body_columns.push({
                         type: 3,
                         content: row.character.server_id.toString(),
-                        sub_type: null
+                        sub_type: null,
+                        sub_type_args: null
                     });
                     body_columns.push({
                         type: 2,
                         content: row.character.last_update.timestamp.toString(),
-                        sub_type: null
+                        sub_type: null,
+                        sub_type_args: null
                     });
 
                     // TODO: Dont save faction color here

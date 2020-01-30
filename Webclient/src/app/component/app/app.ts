@@ -23,9 +23,11 @@ export class AppComponent implements OnInit {
         selector: "CookieBanner"
     };
 
-    constructor(private translationService: TranslationService,
-                private settingsService: SettingsService,
-                private router: Router) {
+    constructor(
+        private translationService: TranslationService,
+        private settingsService: SettingsService,
+        private router: Router
+    ) {
         this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
         (window as any).addEventListener("beforeinstallprompt", (e) => setTimeout((evnt) => this.prompt_for_pwa(evnt), AppComponent.PWA_PROMPT_TIME, e));
     }
