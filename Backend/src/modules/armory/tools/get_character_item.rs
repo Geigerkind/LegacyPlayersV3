@@ -19,13 +19,12 @@ impl GetCharacterItem for Armory {
         id: row.take(0).unwrap(),
         item_id: row.take(1).unwrap(),
         random_property_id: row.take_opt(2).unwrap().ok(),
-        random_property_scaling_factor: row.take_opt(3).unwrap().ok(),
-        enchant_id: row.take_opt(4).unwrap().ok(),
+        enchant_id: row.take_opt(3).unwrap().ok(),
         gem_ids: vec![
+          row.take_opt(4).unwrap().ok(),
           row.take_opt(5).unwrap().ok(),
           row.take_opt(6).unwrap().ok(),
-          row.take_opt(7).unwrap().ok(),
-          row.take_opt(8).unwrap().ok()
+          row.take_opt(7).unwrap().ok()
         ],
       })
     }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_item".to_owned())))
@@ -35,7 +34,6 @@ impl GetCharacterItem for Armory {
     let params = params!(
       "item_id" => character_item.item_id,
       "random_property_id" => character_item.random_property_id,
-      "random_property_scaling_factor" => character_item.random_property_scaling_factor,
       "enchant_id" => character_item.enchant_id,
       "gem_id1" => character_item.gem_ids.get(0).cloned(),
       "gem_id2" => character_item.gem_ids.get(1).cloned(),
@@ -44,7 +42,6 @@ impl GetCharacterItem for Armory {
     );
     self.db_main.select_wparams_value("SELECT * FROM armory_item WHERE item_id=:item_id \
       AND ((ISNULL(:random_property_id) AND ISNULL(random_property_id)) OR random_property_id = :random_property_id) \
-      AND ((ISNULL(:random_property_scaling_factor) AND ISNULL(random_property_scaling_factor)) OR random_property_scaling_factor = :random_property_scaling_factor) \
       AND ((ISNULL(:enchant_id) AND ISNULL(enchant_id)) OR enchant_id = :enchant_id) \
       AND ((ISNULL(:gem_id1) AND ISNULL(gem_id1)) OR gem_id1 = :gem_id1) \
       AND ((ISNULL(:gem_id2) AND ISNULL(gem_id2)) OR gem_id2 = :gem_id2) \
@@ -54,13 +51,12 @@ impl GetCharacterItem for Armory {
         id: row.take(0).unwrap(),
         item_id: row.take(1).unwrap(),
         random_property_id: row.take_opt(2).unwrap().ok(),
-        random_property_scaling_factor: row.take_opt(3).unwrap().ok(),
-        enchant_id: row.take_opt(4).unwrap().ok(),
+        enchant_id: row.take_opt(3).unwrap().ok(),
         gem_ids: vec![
+          row.take_opt(4).unwrap().ok(),
           row.take_opt(5).unwrap().ok(),
           row.take_opt(6).unwrap().ok(),
-          row.take_opt(7).unwrap().ok(),
-          row.take_opt(8).unwrap().ok()
+          row.take_opt(7).unwrap().ok()
         ],
       })
     }, params).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_item_by_value".to_owned())))

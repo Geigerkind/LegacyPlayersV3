@@ -61,7 +61,7 @@ impl Init for HashMap<u32, Character> {
     // Load the actual newest character history data
     db.select("SELECT ach.*, acf.*, aci.*, ag.id, ai1.*, ai2.*, ai3.*, ai4.*, ai5.*, ai6.*, ai7.*, ai8.*, ai9.*, ai10.*, ai11.*, ai12.*, ai13.*, ai14.*, ai15.*, ai16.*, ai17.*, ai18.*, ai19.* FROM armory_character_history ach JOIN (SELECT MAX(id) id FROM armory_character_history GROUP BY character_id) ach_max ON ach.id = ach_max.id LEFT JOIN armory_character_facial acf ON acf.id = ach.facial JOIN armory_character_info aci ON ach.character_info_id = aci.id JOIN armory_gear ag ON aci.gear_id = ag.id LEFT JOIN armory_item ai1 ON ag.head = ai1.id LEFT JOIN armory_item ai2 ON ag.neck = ai2.id LEFT JOIN armory_item ai3 ON ag.shoulder = ai3.id LEFT JOIN armory_item ai4 ON ag.back = ai4.id LEFT JOIN armory_item ai5 ON ag.chest = ai5.id LEFT JOIN armory_item ai6 ON ag.shirt = ai6.id LEFT JOIN armory_item ai7 ON ag.tabard = ai7.id LEFT JOIN armory_item ai8 ON ag.wrist = ai8.id LEFT JOIN armory_item ai9 ON ag.main_hand = ai9.id LEFT JOIN armory_item ai10 ON ag.off_hand = ai10.id LEFT JOIN armory_item ai11 ON ag.ternary_hand = ai11.id LEFT JOIN armory_item ai12 ON ag.glove = ai12.id LEFT JOIN armory_item ai13 ON ag.belt = ai13.id LEFT JOIN armory_item ai14 ON ag.leg = ai14.id LEFT JOIN armory_item ai15 ON ag.boot = ai15.id LEFT JOIN armory_item ai16 ON ag.ring1 = ai16.id LEFT JOIN armory_item ai17 ON ag.ring2 = ai17.id LEFT JOIN armory_item ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id", &|mut row| {
       let mut gear_slots: Vec<Option<CharacterItem>> = Vec::new();
-      for i in (27..197).step_by(9) {
+      for i in (27..179).step_by(8) {
         let id = row.take_opt(i).unwrap().ok();
         if id.is_none() {
           gear_slots.push(None);
@@ -72,13 +72,12 @@ impl Init for HashMap<u32, Character> {
           id: id.unwrap(),
           item_id: row.take(i+1).unwrap(),
           random_property_id: row.take_opt(i+2).unwrap().ok(),
-          random_property_scaling_factor: row.take_opt(i+3).unwrap().ok(),
-          enchant_id: row.take_opt(i+4).unwrap().ok(),
+          enchant_id: row.take_opt(i+3).unwrap().ok(),
           gem_ids: vec![
+            row.take_opt(i+4).unwrap().ok(),
             row.take_opt(i+5).unwrap().ok(),
             row.take_opt(i+6).unwrap().ok(),
-            row.take_opt(i+7).unwrap().ok(),
-            row.take_opt(i+8).unwrap().ok()
+            row.take_opt(i+7).unwrap().ok()
           ]
         }));
       }

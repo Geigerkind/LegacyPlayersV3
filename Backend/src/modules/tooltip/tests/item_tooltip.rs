@@ -148,7 +148,6 @@ fn shadowmourne_socketed_and_enchanted() {
             main_hand: Some(CharacterItemDto {
                 item_id: 49623,
                 random_property_id: None,
-                random_property_scaling_factor: None,
                 enchant_id: Some(266),
                 gem_ids: vec![None, Some(23094), Some(23094), None],
             }),

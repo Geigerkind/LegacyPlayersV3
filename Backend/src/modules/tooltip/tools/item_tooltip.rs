@@ -2,7 +2,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
 use crate::modules::armory::tools::GetCharacterGear;
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveEnchant, RetrieveGem, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription, RetrieveItemRandomProperty};
+use crate::modules::data::tools::{RetrieveEnchant, RetrieveGem, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription, RetrieveItemRandomProperty, RetrieveItemRandomPropertyPoints};
 use crate::modules::tooltip::domain_value::{ItemSet, SetEffect, SocketSlot, SocketSlotItem, Stat, WeaponDamage, WeaponStat};
 use crate::modules::tooltip::dto::TooltipFailure;
 use crate::modules::tooltip::material::{ItemTooltip, SetItem, Socket};
@@ -174,25 +174,25 @@ impl RetrieveItemTooltip for Tooltip {
     }
 
     // Apply the random item property if it exists
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.head, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.neck, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.shoulder, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.back, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.chest, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.shirt, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.tabard, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.wrist, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.main_hand, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.off_hand, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.ternary_hand, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.glove, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.belt, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.leg, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.boot, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.ring1, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.ring2, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.trinket1, item_id);
-    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.trinket2, item_id);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.head, item_id, 0);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.neck, item_id, 2);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.shoulder, item_id, 1);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.back, item_id, 2);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.chest, item_id, 0);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.shirt, item_id, 0);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.tabard, item_id, 0);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.wrist, item_id, 2);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.main_hand, item_id, 3);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.off_hand, item_id, 3);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.ternary_hand, item_id, 4);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.glove, item_id, 1);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.belt, item_id, 1);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.leg, item_id, 0);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.boot, item_id, 1);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.ring1, item_id, 2);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.ring2, item_id, 2);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.trinket1, item_id, 1);
+    try_apply_random_item_property(data, expansion_id, language_id, &mut item_tooltip, &character_gear.trinket2, item_id, 1);
 
     Ok(item_tooltip)
   }
@@ -267,7 +267,7 @@ fn try_fill_socket(data: &Data, expansion_id: u8, language_id: u8, socket: &mut 
   }
 }
 
-fn try_apply_random_item_property(data: &Data, expansion_id: u8, language_id: u8, item_tooltip: &mut ItemTooltip, item: &Option<CharacterItem>, item_id: u32) {
+fn try_apply_random_item_property(data: &Data, expansion_id: u8, language_id: u8, item_tooltip: &mut ItemTooltip, item: &Option<CharacterItem>, item_id: u32, suffix_index: u8) {
   if item.is_none() {
     return;
   }
@@ -280,18 +280,39 @@ fn try_apply_random_item_property(data: &Data, expansion_id: u8, language_id: u8
   let random_property_id = item_res.random_property_id.as_ref().unwrap();
   let item_random_property = data.get_item_random_property(expansion_id, *random_property_id).unwrap();
   let property_suffix = data.get_localization(language_id, item_random_property.localization_id).unwrap().content;
+  let data_item = data.get_item(expansion_id, item_res.item_id).unwrap();
+  let property_points = data_item.item_level
+    .and_then(|level| data.get_item_random_property_points(expansion_id, level));
 
   item_tooltip.name += &(" ".to_owned() + &property_suffix);
 
   for i in 0..item_random_property.enchant_ids.len() {
     let enchant_id = item_random_property.enchant_ids[i];
     let enchant = data.get_enchant(expansion_id, enchant_id).unwrap();
-    let mut effect_value = data.get_localization(language_id, enchant.localization_id).unwrap().content;
+    let effect_value = data.get_localization(language_id, enchant.localization_id).unwrap().content;
     if *random_property_id < 0 {
       let coefficient_value = item_random_property.scaling_coefficients[i];
-      let scaling_factor = item_res.random_property_scaling_factor.as_ref().unwrap().clone();
-      effect_value = effect_value.replace("$i", ((coefficient_value * scaling_factor as u32) as f64 / 10000.0).round().to_string().as_str());
+      let scaling_factor;
+      if data_item.quality == 3 {
+        scaling_factor = property_points.as_ref().unwrap().good[suffix_index as usize];
+      } else if data_item.quality == 4 {
+        scaling_factor = property_points.as_ref().unwrap().rare[suffix_index as usize];
+      } else if data_item.quality == 5 {
+        scaling_factor = property_points.as_ref().unwrap().epic[suffix_index as usize];
+      } else {
+        scaling_factor = 0;
+      }
+
+      let stat_value = ((coefficient_value * scaling_factor as u32) as f64 / 10000.0).round() as u16;
+      item_tooltip.stats.as_mut().unwrap().push(Stat {
+        value: stat_value.to_owned(),
+        name: effect_value.replace("+$i ", "").to_owned()
+      });
+    } else {
+      item_tooltip.stats.as_mut().unwrap().push(Stat {
+        value: 0,
+        name: effect_value.to_owned()
+      });
     }
-    item_tooltip.item_effects.as_mut().unwrap().push(effect_value);
   }
 }
