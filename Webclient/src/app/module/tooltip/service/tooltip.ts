@@ -19,7 +19,7 @@ export class TooltipService {
         this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_CHARACTER_TOOLTIP + "/" + character_id, on_success);
     }
 
-    loadCharacterItemTooltip(gear_id: number, item_id: number, on_success: any): void {
-        this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_ITEM_TOOLTIP + "/" + gear_id + "/" + item_id, on_success);
+    loadCharacterItemTooltip(history_id: number, item_id: number, on_success: any): void {
+        this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_ITEM_TOOLTIP + "/" + history_id + "/" + item_id, on_success);
     }
 }

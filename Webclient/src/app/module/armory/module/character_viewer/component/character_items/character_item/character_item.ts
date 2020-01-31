@@ -7,7 +7,7 @@ import {Component, Input} from "@angular/core";
 })
 export class CharacterItemComponent {
 
-    @Input() gear_id: number;
+    @Input() history_id: number;
     @Input() item: any;
     @Input() piece: string;
 

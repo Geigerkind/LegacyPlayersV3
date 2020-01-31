@@ -1,16 +1,17 @@
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterItem;
-use crate::modules::armory::tools::GetCharacterGear;
+use crate::modules::armory::tools::GetCharacterHistory;
 use crate::modules::data::Data;
 use crate::modules::data::tools::{RetrieveEnchant, RetrieveGem, RetrieveIcon, RetrieveItem, RetrieveItemBonding, RetrieveItemClass, RetrieveItemDamage, RetrieveItemDamageType, RetrieveItemEffect, RetrieveItemInventoryType, RetrieveItemsetEffect, RetrieveItemsetName, RetrieveItemSheath, RetrieveItemSocket, RetrieveItemStat, RetrieveLocalization, RetrieveStatType, SpellDescription, RetrieveItemRandomProperty, RetrieveItemRandomPropertyPoints};
 use crate::modules::tooltip::domain_value::{ItemSet, SetEffect, SocketSlot, SocketSlotItem, Stat, WeaponDamage, WeaponStat};
 use crate::modules::tooltip::dto::TooltipFailure;
 use crate::modules::tooltip::material::{ItemTooltip, SetItem, Socket};
 use crate::modules::tooltip::Tooltip;
+use crate::modules::tooltip::tools::RetrieveCharacterTooltip;
 
 pub trait RetrieveItemTooltip {
   fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, TooltipFailure>;
-  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, TooltipFailure>;
+  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, TooltipFailure>;
 }
 
 impl RetrieveItemTooltip for Tooltip {
@@ -93,18 +94,21 @@ impl RetrieveItemTooltip for Tooltip {
     })
   }
 
-  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, expansion_id: u8, item_id: u32, character_gear_id: u32) -> Result<ItemTooltip, TooltipFailure> {
+  fn get_character_item(&self, data: &Data, armory: &Armory, language_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, TooltipFailure> {
+    let character_history_res = armory.get_character_history(character_history_id);
+    if character_history_res.is_err() {
+      return Err(TooltipFailure::InvalidInput);
+    }
+    let character_history = character_history_res.unwrap();
+    let character = self.get_character(data, armory, character_history.character_id).unwrap();
+    let character_gear = character_history.character_info.gear;
+    let expansion_id = character.expansion_id;
+
     let item_tooltip_res = self.get_item(data, language_id, expansion_id, item_id);
     if item_tooltip_res.is_err() {
       return Err(item_tooltip_res.err().unwrap());
     }
     let mut item_tooltip = item_tooltip_res.unwrap();
-
-    let character_gear_res = armory.get_character_gear(character_gear_id);
-    if character_gear_res.is_err() {
-      return Ok(item_tooltip);
-    }
-    let character_gear = character_gear_res.unwrap();
 
     // If we have an itemset, check which of these items is active
     if item_tooltip.item_set.is_some() {

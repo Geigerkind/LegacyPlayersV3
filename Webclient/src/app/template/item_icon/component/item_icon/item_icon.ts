@@ -10,7 +10,7 @@ export class ItemIconComponent {
     @Input() size: number = 32;
     @Input() quality: number = 0;
     @Input() item_id: number;
-    @Input() gear_id: number;
+    @Input() history_id: number;
     @Input() iconPath: string;
 
 }
