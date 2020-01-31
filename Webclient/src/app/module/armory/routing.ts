@@ -4,7 +4,8 @@ import {ArmoryComponent} from "./component/armory/armory";
 
 const routes: Routes = [{
     path: "", component: ArmoryComponent, children: [
-        {path: "", loadChildren: () => import("./module/search/module").then(m => m.SearchModule)}
+        {path: "", loadChildren: () => import("./module/search/module").then(m => m.SearchModule)},
+        {path: "character/:character_id", loadChildren: () => import("./module/character_viewer/module").then(m => m.CharacterViewerModule)}
     ]
 }];
 

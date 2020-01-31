@@ -1,0 +1,11 @@
+:host {
+    display: block;
+
+    Icon {
+        border-radius: 3px 3px 3px 3px;
+
+        &::ng-deep img {
+            border: none;
+        }
+    }
+}

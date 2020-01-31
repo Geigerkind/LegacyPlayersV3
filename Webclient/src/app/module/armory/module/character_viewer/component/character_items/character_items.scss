@@ -1,0 +1,84 @@
+@import "src/styles/global";
+
+:host {
+    display: block;
+    position: relative;
+    max-width: 500px;
+
+    .cr_bg {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+
+        &.faction_1 {
+            background-image: url('/assets/armory/logo-alliance.png');
+        }
+
+        &.faction_0 {
+            background-image: url('/assets/armory/logo-horde.png');
+        }
+    }
+
+    .cr_name {
+        display: flex;
+        flex-direction: row;
+        height: 32px;
+
+        * {
+            display: block;
+            height: 32px;
+            font-size: 24px;
+            margin-right: $spacing / 3;
+        }
+
+        span {
+            line-height: 36px;
+        }
+
+        SelectInput {
+            width: 140px;
+            margin-left: auto;
+
+            ::ng-deep select {
+                margin-top: 0;
+            }
+        }
+    }
+
+    .cr_guild {
+        height: 36px;
+        width: 100%;
+        font-size: 20px;
+        line-height: 36px;
+    }
+
+    .cr_row {
+        display: flex;
+        flex-direction: row;
+
+        height: 50px;
+        width: 100%;
+
+        margin-bottom: $spacing / 2;
+
+        ItemIcon:last-child {
+            margin-left: auto;
+        }
+
+        .cr_weapon_row {
+            display: flex;
+            flex-direction: row;
+            margin: 0 auto;
+
+            ItemIcon:nth-child(2) {
+                margin: 0 $spacing / 2;
+            }
+        }
+
+        &:last-child ItemIcon:last-child {
+            margin: 0;
+        }
+    }
+}

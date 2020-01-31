@@ -27,6 +27,12 @@ export class TooltipComponent {
                     this.tooltipPayload = result;
                     this.iconPath = "/assets/wow_hero_classes/c" + result.hero_class_id + ".png";
                 });
+            } else if (args.type === 2) {
+                this.tooltipService.loadCharacterItemTooltip(args.gear_id, args.item_id, result => {
+                    this.tooltipType = args.type;
+                    this.tooltipPayload = result;
+                    this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
+                });
             }
         });
     }

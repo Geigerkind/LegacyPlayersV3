@@ -1,8 +1,8 @@
 <div [class.number]="specification.type == 1">
     <HeroClass  *ngIf="specification.sub_type === 1" [hero_class_id]="specification.content" [hero_class_label]="bodyContentToString()"></HeroClass>
-    <span *ngIf="specification.sub_type === 2" [showTooltip]="{ type: 1, character_id: specification.sub_type_args.character_id }">
+    <a *ngIf="specification.sub_type === 2" [showTooltip]="{ type: 1, character_id: specification.sub_type_args.character_id }" routerLink="/armory/character/{{ specification.sub_type_args.character_id }}">
         {{ bodyContentToString() | translate }}
-    </span>
+    </a>
     <ng-container *ngIf="!specification.sub_type">
         {{ bodyContentToString() | translate }}
     </ng-container>

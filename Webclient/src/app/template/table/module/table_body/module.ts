@@ -8,10 +8,11 @@ import {BodyRowComponent} from "./component/body_row/body_row";
 import {ResponsiveBodyRowComponent} from "./component/responsive_body_row/responsive_body_row";
 import {HeroClassComponent} from "./component/row_components/hero_class/hero_class";
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
+import {RouterModule} from "@angular/router";
 
 @NgModule({
     declarations: [TableBodyComponent, BodyTdComponent, BodyRowComponent, ResponsiveBodyRowComponent, HeroClassComponent],
-    imports: [CommonModule, TranslateModule, CaretButtonModule, ShowTooltipDirectiveModule],
+    imports: [CommonModule, TranslateModule, CaretButtonModule, ShowTooltipDirectiveModule, RouterModule],
     exports: [TableBodyComponent]
 })
 export class TableBodyModule {

@@ -43,6 +43,9 @@
             "faction": "Faction",
             "hero_class": "Class",
             "last_update": "Updated"
+        },
+        "Viewer": {
+            "guild": "{{rank}} of {{guild}}"
         }
     },
     "CookieBanner": {
