@@ -9,5 +9,6 @@ export class IconComponent {
 
     @Input() iconPath: string;
     @Input() size: number = 32;
+    @Input() border: boolean = true;
 
 }

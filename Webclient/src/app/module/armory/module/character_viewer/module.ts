@@ -7,9 +7,10 @@ import {CharacterItemsComponent} from "./component/character_items/character_ite
 import {IconModule} from "../../../../template/icon/module";
 import {SelectInputModule} from "../../../../template/input/select_input/module";
 import {ItemIconModule} from "../../../../template/item_icon/module";
+import {CharacterItemComponent} from "./component/character_items/character_item/character_item";
 
 @NgModule({
-    declarations: [CharacterViewerComponent, CharacterItemsComponent],
+    declarations: [CharacterViewerComponent, CharacterItemsComponent, CharacterItemComponent],
     imports: [
         CommonModule,
         TranslateModule,

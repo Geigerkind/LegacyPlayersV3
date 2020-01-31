@@ -21,7 +21,7 @@ export class SearchComponent {
             filter_name: 'hero_class',
             labelKey: "Armory.Search.hero_class",
             type: 3,
-            type_range: [{value: -1, labelKey: "Armory.Search.hero_class"}],
+            type_range: [{value: -1, label_key: "Armory.Search.hero_class"}],
             col_type: 1
         },
         {index: 1, filter_name: 'name', labelKey: "Armory.Search.name", type: 0, type_range: null, col_type: 0},
@@ -31,7 +31,7 @@ export class SearchComponent {
             filter_name: 'server',
             labelKey: "Armory.Search.server",
             type: 3,
-            type_range: [{value: -1, labelKey: "Armory.Search.server"}],
+            type_range: [{value: -1, label_key: "Armory.Search.server"}],
             col_type: 0
         },
         {index: 4, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null, col_type: 1},
@@ -48,11 +48,11 @@ export class SearchComponent {
     ) {
         this.dataService.get_all_servers((servers: Array<AvailableServer>) => servers.forEach(server => this.character_header_columns[3].type_range.push({
             value: server.id,
-            labelKey: server.name
+            label_key: server.name
         })));
         this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
             value: hero_class.base.id,
-            labelKey: hero_class.localization
+            label_key: hero_class.localization
         })));
         this.filterCharacterSearch(table_init_filter(this.character_header_columns));
     }

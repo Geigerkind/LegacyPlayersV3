@@ -5,12 +5,17 @@
     position: relative;
     max-width: 500px;
 
+    * {
+        z-index: 1;
+    }
+
     .cr_bg {
         position: absolute;
         height: 100%;
         width: 100%;
         background-repeat: no-repeat;
         background-position: center center;
+        z-index: 0;
 
         &.faction_1 {
             background-image: url('/assets/armory/logo-alliance.png');
@@ -25,6 +30,7 @@
         display: flex;
         flex-direction: row;
         height: 32px;
+        z-index: 0;
 
         * {
             display: block;
@@ -63,7 +69,7 @@
 
         margin-bottom: $spacing / 2;
 
-        ItemIcon:last-child {
+        CharacterItem:last-child {
             margin-left: auto;
         }
 
@@ -72,12 +78,12 @@
             flex-direction: row;
             margin: 0 auto;
 
-            ItemIcon:nth-child(2) {
+            CharacterItem:nth-child(2) {
                 margin: 0 $spacing / 2;
             }
         }
 
-        &:last-child ItemIcon:last-child {
+        &:last-child CharacterItem:last-child {
             margin: 0;
         }
     }

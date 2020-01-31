@@ -1,51 +1,50 @@
-<div class="cr_bg faction_{{ character.last_update.character_info.faction ? 1 : 0 }}"></div>
+<div class="cr_bg faction_{{ character.faction ? 1 : 0 }}"></div>
 <div class="cr_name">
-    <Icon iconPath="/assets/wow_race_gender/rg{{ character.last_update.character_info.race_id }}-{{ character.last_update.character_info.gender ? 1 : 0 }}.png" [size]="32"></Icon>
-    <Icon iconPath="/assets/wow_hero_classes/c{{ character.last_update.character_info.hero_class_id }}.png" [size]="32"></Icon>
-    <span>{{ character.last_update.character_name }}</span>
-    <span>{{ character.last_update.character_info.level }}</span>
+    <Icon iconPath="/assets/wow_race_gender/rg{{ character.race_id }}-{{ character.gender ? 1 : 0 }}.png" [size]="32"></Icon>
+    <Icon iconPath="/assets/wow_hero_classes/c{{ character.hero_class_id }}.png" [size]="32"></Icon>
+    <span>{{ character.name + ' ' + character.level }} </span>
 
-    <SelectInput></SelectInput>
+    <SelectInput [value]="character.history_id" [options]="character.history"></SelectInput>
 </div>
-<div class="cr_guild" *ngIf="character.last_update.character_guild">
-    {{ 'Armory.Viewer.guild' | translate: { rank: character.last_update.character_guild.rank, guild: character.last_update.character_guild.guild_id } }}
-</div>
-<div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+<div class="cr_guild" *ngIf="character.guild">
+    {{ 'Armory.Viewer.guild' | translate: { rank: character.guild.rank, guild: character.guild.name } }}
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.head" piece="head"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.glove" piece="glove"></CharacterItem>
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.neck" piece="neck"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.belt" piece="belt"></CharacterItem>
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.shoulder" piece="shoulder"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.leg" piece="leg"></CharacterItem>
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.back" piece="back"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.boot" piece="boot"></CharacterItem>
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.chest" piece="chest"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.ring1" piece="ring1"></CharacterItem>
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.tabard" piece="tabard"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.ring2" piece="ring"></CharacterItem>
 </div>
 <div class="cr_row">
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.shirt" piece="shirt"></CharacterItem>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.trinket1" piece="trinket"></CharacterItem>
+</div>
+<div class="cr_row">
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.wrist" piece="wrist"></CharacterItem>
 
     <div class="cr_weapon_row">
-        <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-        <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
-        <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+        <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.main_hand" piece="main_hand"></CharacterItem>
+        <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.off_hand" piece="off_hand"></CharacterItem>
+        <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.ternary_hand" piece="ternary_hand"></CharacterItem>
     </div>
 
-    <ItemIcon [size]="48" [iconPath]="'/assets/wow_icon/spell_nature_polymorph_cow.jpg'" [item_id]="29242" [gear_id]="26" [quality]="5"></ItemIcon>
+    <CharacterItem [gear_id]="character.gear.gear_id" [item]="character.gear.trinket2" piece="trinket"></CharacterItem>
 </div>

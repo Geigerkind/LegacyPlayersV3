@@ -19,7 +19,7 @@ export class CharacterViewerComponent {
     }
 
     private loadCharacter(character_id: number): void {
-        this.characterViewerService.get_character(character_id, result => this.character = result);
+        this.characterViewerService.get_character_viewer(character_id, result => this.character = result);
 
         // DEBUG
         setTimeout(() => console.log(this.character), 500);
