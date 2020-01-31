@@ -110,6 +110,7 @@ fn main() {
     data::transfer::itemset_name::get_itemset_name, data::transfer::itemset_name::get_itemset_item_ids,
     data::transfer::itemset_effect::get_itemset_effects,
     data::transfer::title::get_title, data::transfer::title::get_all_titles,
+    data::transfer::item_random_property_points::get_item_random_property_points,
   ]);
 
   igniter = igniter.mount("/API/armory/", routes_with_openapi![

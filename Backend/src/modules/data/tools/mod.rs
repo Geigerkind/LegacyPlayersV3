@@ -30,6 +30,7 @@ pub use self::spell_effect::RetrieveSpellEffect;
 pub use self::stat_type::RetrieveStatType;
 pub use self::spell_description::SpellDescription;
 pub use self::title::RetrieveTitle;
+pub use self::item_random_property_points::RetrieveItemRandomPropertyPoints;
 
 mod expansion;
 mod language;
@@ -63,3 +64,4 @@ mod itemset_name;
 mod itemset_effect;
 mod spell_description;
 mod title;
+mod item_random_property_points;

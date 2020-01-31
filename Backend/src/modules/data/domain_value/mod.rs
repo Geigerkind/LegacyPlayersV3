@@ -31,6 +31,7 @@ pub use self::stat::Stat;
 pub use self::stat_type::StatType;
 pub use self::title::Title;
 pub use self::localized::Localized;
+pub use self::item_random_property_points::ItemRandomPropertyPoints;
 
 mod expansion;
 mod language;
@@ -65,3 +66,4 @@ mod enchant;
 mod item_stat;
 mod title;
 mod localized;
+mod item_random_property_points;

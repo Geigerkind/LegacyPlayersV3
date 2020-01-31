@@ -4,7 +4,7 @@ use language::material::Dictionary;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title};
+use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title, ItemRandomPropertyPoints};
 use crate::modules::data::language::init::Init as DictionaryInit;
 
 #[derive(Debug)]
@@ -41,7 +41,8 @@ pub struct Data {
   pub item_stats: Vec<HashMap<u32, Vec<ItemStat>>>,
   pub itemset_names: Vec<HashMap<u16, ItemsetName>>,
   pub itemset_effects: Vec<HashMap<u16, Vec<ItemsetEffect>>>,
-  pub titles: HashMap<u16, Title>
+  pub titles: HashMap<u16, Title>,
+  pub item_random_property_points: HashMap<u8, Vec<ItemRandomPropertyPoints>>,
 }
 
 impl Default for Data {
@@ -83,6 +84,7 @@ impl Default for Data {
       itemset_names: Vec::new(),
       itemset_effects: Vec::new(),
       titles: HashMap::new(),
+      item_random_property_points: HashMap::new(),
     }
   }
 }
@@ -123,6 +125,7 @@ impl Data {
     if self::Data::should_init(init_flag, 29) { self.itemset_names.init(&self.db_main); }
     if self::Data::should_init(init_flag, 30) { self.itemset_effects.init(&self.db_main); }
     if self::Data::should_init(init_flag, 31) { self.titles.init(&self.db_main); }
+    if self::Data::should_init(init_flag, 32) { self.item_random_property_points.init(&self.db_main); }
     self
   }
 
@@ -708,5 +711,46 @@ impl Init for HashMap<u16, Title> {
         localization_id: row.take(1).unwrap()
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+  }
+}
+
+impl Init for HashMap<u8, Vec<ItemRandomPropertyPoints>> {
+  fn init(&mut self, db: &MySQLConnection) {
+    let mut current_vec = Vec::new();
+    db.select("SELECT * FROM data_item_random_property_points ORDER BY expansion_id, item_level", &|mut row| {
+      ItemRandomPropertyPoints {
+        item_level: row.take(0).unwrap(),
+        expansion_id: row.take(1).unwrap(),
+        epic: [
+          row.take(2).unwrap(),
+          row.take(3).unwrap(),
+          row.take(4).unwrap(),
+          row.take(5).unwrap(),
+          row.take(6).unwrap(),
+        ],
+        rare: [
+          row.take(7).unwrap(),
+          row.take(8).unwrap(),
+          row.take(9).unwrap(),
+          row.take(10).unwrap(),
+          row.take(11).unwrap(),
+        ],
+        good: [
+          row.take(12).unwrap(),
+          row.take(13).unwrap(),
+          row.take(14).unwrap(),
+          row.take(15).unwrap(),
+          row.take(16).unwrap(),
+        ]
+      }
+    }).iter().for_each(|result| {
+      if result.item_level == 300 {
+        current_vec.push(result.clone());
+        self.insert(result.expansion_id, current_vec.to_owned());
+        current_vec = Vec::new();
+      } else {
+        current_vec.push(result.to_owned());
+      }
+    });
   }
 }

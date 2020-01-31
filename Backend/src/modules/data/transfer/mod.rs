@@ -29,3 +29,4 @@ pub mod item_stat;
 pub mod itemset_name;
 pub mod itemset_effect;
 pub mod title;
+pub mod item_random_property_points;
