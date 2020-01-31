@@ -1,5 +1,5 @@
 <div class="tt_row">
-    <span class="hero_class_{{ payload.hero_class_id }}">{{ payload.name + ', ' }}</span>
-    <span *ngIf="payload.guild" [class.faction_0]="!payload.faction" [class.faction_1]="payload.faction">{{ 'Tooltip.CharacterTooltip.guild' | translate: { name: payload.name, guild: payload.guild.name, rank: payload.guild.rank } }}</span>
+    <span class="hero_class_{{ payload.hero_class_id }}">{{ payload.name }}</span>
+    <span *ngIf="payload.guild" [class.faction_0]="!payload.faction" [class.faction_1]="payload.faction">{{ ', ' }} {{ 'Tooltip.CharacterTooltip.guild' | translate: { name: payload.name, guild: payload.guild.name, rank: payload.guild.rank } }}</span>
 </div>
 <div class="tt_row expansion_{{ payload.expansion_id }}"> {{ payload.server }} </div>
