@@ -24,4 +24,11 @@ export class CharacterViewerComponent {
         // DEBUG
         setTimeout(() => console.log(this.character), 500);
     }
+
+    loadCharacterByHistoryId(character_history_id: number): void {
+        console.log("History_changed => ", character_history_id);
+        this.characterViewerService.get_character_viewer_by_history(character_history_id, this.character.character_id, result => this.character = result);
+        // DEBUG
+        setTimeout(() => console.log(this.character), 500);
+    }
 }

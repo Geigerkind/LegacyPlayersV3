@@ -1,7 +1,7 @@
 use mysql_connection::tools::{Execute, Select};
 
 use crate::modules::armory::Armory;
-use crate::modules::armory::domain_value::CharacterGuild;
+use crate::modules::armory::domain_value::{CharacterGuild, HistoryMoment};
 use crate::modules::armory::dto::{ArmoryFailure, CharacterHistoryDto};
 use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::tools::{CreateCharacterFacial, CreateCharacterInfo, CreateGuild, GetCharacter};
@@ -76,7 +76,12 @@ impl CreateCharacterHistory for Armory {
           timestamp: row.take(1).unwrap(),
         }
       }, params);
-      characters.get_mut(&character_id).unwrap().last_update = character_history_res.clone();
+      let mut character = characters.get_mut(&character_id).unwrap();
+      character.last_update = character_history_res.clone();
+      character.history_moments.push(HistoryMoment {
+        id: character_history_res.as_ref().unwrap().id,
+        timestamp: character_history_res.as_ref().unwrap().timestamp
+      });
       if character_history_res.is_some() {
         return Ok(character_history_res.unwrap());
       }

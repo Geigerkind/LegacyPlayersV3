@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges} from "@angular/core";
+import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
 import {DatePipe} from "@angular/common";
 
 @Component({
@@ -10,6 +10,7 @@ import {DatePipe} from "@angular/common";
 export class CharacterItemsComponent implements OnChanges {
 
     @Input() character: any;
+    @Output() historyChanged: EventEmitter<number> = new EventEmitter<number>();
 
     constructor(
         private datePipe: DatePipe
@@ -21,7 +22,13 @@ export class CharacterItemsComponent implements OnChanges {
             const newHistoryMoment = history_moment;
             newHistoryMoment.label_key = this.datePipe.transform(new Date(history_moment.label_key*1000), 'dd.MM.yy hh:mm a');
             return newHistoryMoment;
-        })
+        });
+    }
+
+    emitHistory(history_id: number): void {
+        if (history_id === this.character.history_id)
+            return;
+        this.historyChanged.emit(history_id);
     }
 
 }
