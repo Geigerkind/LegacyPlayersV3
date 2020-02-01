@@ -32,6 +32,7 @@ pub use self::stat_type::StatType;
 pub use self::title::Title;
 pub use self::localized::Localized;
 pub use self::item_random_property_points::ItemRandomPropertyPoints;
+pub use self::hero_class_talent::HeroClassTalent;
 
 mod expansion;
 mod language;
@@ -67,3 +68,4 @@ mod item_stat;
 mod title;
 mod localized;
 mod item_random_property_points;
+mod hero_class_talent;

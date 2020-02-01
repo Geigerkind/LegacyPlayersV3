@@ -4,7 +4,7 @@ use language::material::Dictionary;
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
-use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title, ItemRandomPropertyPoints};
+use crate::modules::data::domain_value::{DispelType, Enchant, Expansion, Gem, HeroClass, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemsetEffect, ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title, ItemRandomPropertyPoints, HeroClassTalent};
 use crate::modules::data::language::init::Init as DictionaryInit;
 
 #[derive(Debug)]
@@ -226,8 +226,22 @@ impl Init for HashMap<u8, HeroClass> {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
         color: row.take(2).unwrap(),
+        talents: [HeroClassTalent { icon: 0, localization_id: 0 }; 3]
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
+
+    db.select("SELECT * FROM data_hero_class_spec", &|mut row| {
+      let hero_class_id: u8 = row.take(0).unwrap();
+      let index: u8 = row.take(1).unwrap();
+      let icon: u16 = row.take(2).unwrap();
+      let localization_id: u32 = row.take(3).unwrap();
+      (hero_class_id, index, icon, localization_id)
+    }).iter().for_each(|result| {
+      self.get_mut(&result.0).unwrap().talents[result.1 as usize] = HeroClassTalent {
+        icon: result.2,
+        localization_id: result.3
+      };
+    });
   }
 }
 

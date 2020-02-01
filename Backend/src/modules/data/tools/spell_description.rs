@@ -34,7 +34,7 @@ impl SpellDescription for Data {
       if RE.is_match(&template) {
         let mut temp_res = template.clone();
         for capture in RE.captures_iter(&template) {
-          if capture.len() <= 1 {
+          if capture.len() <= 2 {
             continue;
           }
 

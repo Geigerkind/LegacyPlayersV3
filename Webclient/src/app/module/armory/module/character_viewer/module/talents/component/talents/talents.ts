@@ -10,9 +10,13 @@ export class TalentsComponent {
 
     @Input() talents: TalentSpecializationDto;
 
-    // TODO
     getTalentBreakdown(): string {
-        return '0/8/53';
+        return this.talents.description
+            .split('|')
+            .map(spec => [...spec]
+                .map(talent => Number(talent))
+            .reduce((acc, item) => acc += item))
+            .join('/');
     }
 
 }

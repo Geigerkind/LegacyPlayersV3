@@ -1,8 +1,8 @@
-use crate::modules::armory::dto::{CharacterViewerDto, ArmoryFailure, CharacterViewerGearDto, CharacterViewerGuildDto, CharacterViewerItemDto, CharacterViewerProfessionDto};
+use crate::modules::armory::dto::{CharacterViewerDto, ArmoryFailure, CharacterViewerGearDto, CharacterViewerGuildDto, CharacterViewerItemDto, CharacterViewerProfessionDto, CharacterViewerTalentsDto};
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, GetCharacterHistory, GetGuild};
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession};
+use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession, RetrieveHeroClass};
 use crate::dto::SelectOption;
 use crate::modules::armory::domain_value::CharacterItem;
 
@@ -51,6 +51,19 @@ impl CharacterViewer for Armory {
         point_max: profession_points_max
       })));
 
+    let talent_specialization = character_history.character_info.talent_specialization.clone()
+      .and_then(|description| {
+        let hero_class = data.get_hero_class(character_history.character_info.hero_class_id).unwrap();
+        let breakdown = description.split('|').map(|spec| spec.chars().map(|talent| talent.to_digit(10).unwrap()).sum::<u32>()).collect::<Vec<u32>>();
+        let breakdown_max = breakdown.iter().max().unwrap();
+        let breakdown_index = breakdown.iter().position(|value| *value == *breakdown_max).unwrap();
+        Some(CharacterViewerTalentsDto {
+          icon: data.get_icon(hero_class.talents[breakdown_index].icon).unwrap().name,
+          name: data.get_localization(language_id, hero_class.talents[breakdown_index].localization_id).unwrap().content,
+          description: description.to_owned()
+        })
+      });
+
     Ok(CharacterViewerDto {
       history_id: character_history_id,
       character_id,
@@ -95,7 +108,8 @@ impl CharacterViewer for Armory {
         trinket2: character_history.character_info.gear.trinket2.and_then(|inner| Some(character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)))
       },
       profession1,
-      profession2
+      profession2,
+      talent_specialization
     })
   }
 

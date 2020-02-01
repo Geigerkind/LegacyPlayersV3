@@ -1,4 +1,4 @@
-use crate::modules::armory::dto::{CharacterViewerGuildDto, CharacterViewerGearDto, CharacterViewerProfessionDto};
+use crate::modules::armory::dto::{CharacterViewerGuildDto, CharacterViewerGearDto, CharacterViewerProfessionDto, CharacterViewerTalentsDto};
 use crate::dto::SelectOption;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -16,4 +16,5 @@ pub struct CharacterViewerDto {
   pub gear: CharacterViewerGearDto,
   pub profession1: Option<CharacterViewerProfessionDto>,
   pub profession2: Option<CharacterViewerProfessionDto>,
+  pub talent_specialization: Option<CharacterViewerTalentsDto>
 }
