@@ -3,13 +3,15 @@ import {CharacterViewerComponent} from "./component/character_viewer/character_v
 import {CommonModule} from "@angular/common";
 import {CharacterViewerRouting} from "./routing";
 import {CharacterItemsModule} from "./module/character_items/module";
+import {ProfessionModule} from "./module/profession/module";
 
 @NgModule({
     declarations: [CharacterViewerComponent],
     imports: [
         CommonModule,
         CharacterViewerRouting,
-        CharacterItemsModule
+        CharacterItemsModule,
+        ProfessionModule
     ],
     exports: [CharacterViewerComponent]
 })

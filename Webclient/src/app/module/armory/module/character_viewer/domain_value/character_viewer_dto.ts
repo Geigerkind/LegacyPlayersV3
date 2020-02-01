@@ -1,4 +1,5 @@
 import {SelectOption} from "../../../../../template/input/select_input/domain_value/select_option";
+import {ProfessionDto} from "./profession_dto";
 
 export interface CharacterViewerDto {
     history_id: number;
@@ -32,5 +33,7 @@ export interface CharacterViewerDto {
         ring2: { item_id: number, quality: number, icon: string } | undefined;
         trinket1: { item_id: number, quality: number, icon: string } | undefined;
         trinket2: { item_id: number, quality: number, icon: string } | undefined;
-    }
+    },
+    profession1: ProfessionDto | undefined;
+    profession2: ProfessionDto | undefined;
 }

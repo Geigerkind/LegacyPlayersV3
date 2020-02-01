@@ -1,8 +1,8 @@
-use crate::modules::armory::dto::{CharacterViewerDto, ArmoryFailure, CharacterViewerGearDto, CharacterViewerGuildDto, CharacterViewerItemDto};
+use crate::modules::armory::dto::{CharacterViewerDto, ArmoryFailure, CharacterViewerGearDto, CharacterViewerGuildDto, CharacterViewerItemDto, CharacterViewerProfessionDto};
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, GetCharacterHistory, GetGuild};
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization};
+use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession};
 use crate::dto::SelectOption;
 use crate::modules::armory::domain_value::CharacterItem;
 
@@ -28,6 +28,28 @@ impl CharacterViewer for Armory {
 
     let race = data.get_race(character_history.character_info.race_id).unwrap();
     let server = data.get_server(character_res.server_id).unwrap();
+
+    let mut profession_points_max: u16 = 300;
+    if server.expansion_id == 2 {
+      profession_points_max = 375;
+    } else if server.expansion_id == 3 {
+      profession_points_max = 450;
+    }
+
+    let profession1 = character_history.character_info.profession1
+      .and_then(|profession_id| data.get_profession(profession_id).and_then(|profession| Some(CharacterViewerProfessionDto {
+        icon: "temp".to_owned(), // TODO
+        name: data.get_localization(language_id, profession.localization_id).unwrap().content,
+        points: character_history.profession_skill_points1.unwrap(),
+        point_max: profession_points_max
+      })));
+    let profession2  = character_history.character_info.profession2
+      .and_then(|profession_id| data.get_profession(profession_id).and_then(|profession| Some(CharacterViewerProfessionDto {
+        icon: "temp".to_owned(), // TODO
+        name: data.get_localization(language_id, profession.localization_id).unwrap().content,
+        points: character_history.profession_skill_points2.unwrap(),
+        point_max: profession_points_max
+      })));
 
     Ok(CharacterViewerDto {
       history_id: character_history_id,
@@ -71,7 +93,9 @@ impl CharacterViewer for Armory {
         ring2: character_history.character_info.gear.ring2.and_then(|inner| Some(character_item_to_character_item_viewer_dto(data, server.expansion_id, inner))),
         trinket1: character_history.character_info.gear.trinket1.and_then(|inner| Some(character_item_to_character_item_viewer_dto(data, server.expansion_id, inner))),
         trinket2: character_history.character_info.gear.trinket2.and_then(|inner| Some(character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)))
-      }
+      },
+      profession1,
+      profession2
     })
   }
 

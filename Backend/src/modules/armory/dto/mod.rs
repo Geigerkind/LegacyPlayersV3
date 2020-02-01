@@ -9,10 +9,12 @@ pub use self::character_facial::CharacterFacialDto;
 pub use self::character_search_filter::CharacterSearchFilter;
 pub use self::character_search_result::CharacterSearchResult;
 pub use self::search_result::SearchResult;
+
 pub use self::character_viewer::CharacterViewerDto;
 pub use self::character_viewer_guild::CharacterViewerGuildDto;
 pub use self::character_viewer_gear::CharacterViewerGearDto;
 pub use self::character_viewer_item::CharacterViewerItemDto;
+pub use self::character_viewer_profession::CharacterViewerProfessionDto;
 
 mod character;
 mod character_history;
@@ -30,6 +32,7 @@ mod character_viewer;
 mod character_viewer_guild;
 mod character_viewer_gear;
 mod character_viewer_item;
+mod character_viewer_profession;
 
 pub use self::armory_failure::ArmoryFailure;
 mod armory_failure;
