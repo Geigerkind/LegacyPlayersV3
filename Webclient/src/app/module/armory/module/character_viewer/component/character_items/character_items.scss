@@ -35,7 +35,7 @@
         * {
             display: block;
             height: 32px;
-            font-size: 24px;
+            font-size: 20px;
             margin-right: $spacing / 3;
         }
 
@@ -44,11 +44,12 @@
         }
 
         SelectInput {
-            width: 140px;
+            max-width: 130px;
             margin-left: auto;
 
             ::ng-deep select {
                 margin-top: 0;
+                font-size: 12px;
             }
         }
     }
@@ -56,7 +57,7 @@
     .cr_guild {
         height: 36px;
         width: 100%;
-        font-size: 20px;
+        font-size: 18px;
         line-height: 36px;
     }
 
