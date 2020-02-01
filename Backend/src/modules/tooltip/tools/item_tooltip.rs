@@ -16,6 +16,7 @@ pub trait RetrieveItemTooltip {
 
 impl RetrieveItemTooltip for Tooltip {
   fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, TooltipFailure> {
+    let item_stat_effects = [7,8,37,23,24,10,11,12,42,38,39,40,41,9,13,21,43];
     let item_res = data.get_item(expansion_id, item_id);
     if item_res.is_none() {
       return Err(TooltipFailure::InvalidInput);
@@ -45,12 +46,12 @@ impl RetrieveItemTooltip for Tooltip {
 
     let item_stats = data.get_item_stats(expansion_id, item_id);
     let stats: Option<Vec<Stat>> = item_stats.as_ref()
-      .and_then(|inner_item_stats| Some(inner_item_stats.iter().map(|item_stat| Stat {
+      .and_then(|inner_item_stats| Some(inner_item_stats.iter().filter(|stat| stat.stat.stat_type != 34 && !item_stat_effects.contains(&stat.stat.stat_type)).map(|item_stat| Stat {
         value: item_stat.stat.stat_value,
         name: data.get_stat_type(item_stat.stat.stat_type).and_then(|stat_type| data.get_localization(language_id, stat_type.localization_id).and_then(|localization| Some(localization.content))).unwrap(),
       }).collect()));
 
-    let armor = item_stats.and_then(|inner_item_stats| inner_item_stats.iter().find(|item_stat| item_stat.stat.stat_type == 34).and_then(|armor| Some(armor.stat.stat_value)));
+    let armor = item_stats.as_ref().and_then(|inner_item_stats| inner_item_stats.iter().find(|item_stat| item_stat.stat.stat_type == 34).and_then(|armor| Some(armor.stat.stat_value)));
 
     let mut item_set = item.itemset.and_then(|itemset_id| data.get_itemset_name(expansion_id, itemset_id).and_then(|itemset_name| Some(ItemSet {
       name: data.get_localization(language_id, itemset_name.localization_id).and_then(|localization| Some(localization.content)).unwrap(),
@@ -69,9 +70,22 @@ impl RetrieveItemTooltip for Tooltip {
       item_set.as_mut().unwrap().set_effects.sort_by(|left, right| left.threshold.cmp(&right.threshold));
     }
 
-    let item_effects = data.get_item_effect(expansion_id, item_id)
+    let mut item_effects = data.get_item_effect(expansion_id, item_id)
       .and_then(|inner_item_effects| Some(inner_item_effects
         .iter().map(|item_effect| data.get_localized_spell_description(expansion_id, language_id, item_effect.spell_id).unwrap()).collect()));
+
+    if item_stats.is_some() {
+      let inner_item_stats = item_stats.as_ref().unwrap();
+      inner_item_stats.iter().filter(|item_stat| item_stat_effects.contains(&item_stat.stat.stat_type))
+        .for_each(|item_stat| {
+          if item_effects.is_none() {
+            item_effects = Some(Vec::new());
+          }
+
+          item_effects.as_mut().unwrap().insert(0, get_item_stat_effect_localization(data, language_id, item_stat.stat.stat_type)
+            .replace("$s1", &item_stat.stat.stat_value.to_string()))
+        });
+    }
 
     Ok(ItemTooltip {
       item_id,
@@ -201,6 +215,78 @@ impl RetrieveItemTooltip for Tooltip {
 
     Ok(item_tooltip)
   }
+}
+
+fn get_item_stat_effect_localization(data: &Data, language_id: u8, stat_type: u8) -> String {
+  // Hit rating
+  if stat_type == 7 {
+    return data.get_localization(language_id, 94916).unwrap().content.to_owned();
+  }
+  // Critical strike rating
+  if stat_type == 8 {
+    return data.get_localization(language_id, 94896).unwrap().content.to_owned();
+  }
+  // Attack power
+  if stat_type == 9 {
+    return data.get_localization(language_id, 72837).unwrap().content.to_owned();
+  }
+  // Dodge rating
+  if stat_type == 10 {
+    return data.get_localization(language_id, 94902).unwrap().content.to_owned();
+  }
+  // Parry rating
+  if stat_type == 11 {
+    return data.get_localization(language_id, 94929).unwrap().content.to_owned();
+  }
+  // Block rating
+  if stat_type == 12 {
+    return data.get_localization(language_id, 119756).unwrap().content.to_owned();
+  }
+  // Mana regeneration
+  if stat_type == 21 {
+    return data.get_localization(language_id, 74829).unwrap().content.to_owned();
+  }
+  // Defense rating
+  if stat_type == 22 {
+    return data.get_localization(language_id, 94562).unwrap().content.to_owned();
+  }
+  // Spell hit rating
+  if stat_type == 23 {
+    return data.get_localization(language_id, 119761).unwrap().content.to_owned();
+  }
+  // Spell critical strike rating
+  if stat_type == 24 {
+    return data.get_localization(language_id, 119759).unwrap().content.to_owned();
+  }
+  // Haste rating
+  if stat_type == 37 {
+    return data.get_localization(language_id, 119758).unwrap().content.to_owned();
+  }
+  // Expertise rating
+  if stat_type == 38 {
+    return data.get_localization(language_id, 119757).unwrap().content.to_owned();
+  }
+  // Resilience rating
+  if stat_type == 39 {
+    return data.get_localization(language_id, 119762).unwrap().content.to_owned();
+  }
+  // Spell penetration rating
+  if stat_type == 40 {
+    return data.get_localization(language_id, 119763).unwrap().content.to_owned();
+  }
+  // Armor penetration rating
+  if stat_type == 41 {
+    return data.get_localization(language_id, 118332).unwrap().content.to_owned();
+  }
+  // Spell haste rating
+  if stat_type == 42 {
+    return data.get_localization(language_id, 119760).unwrap().content.to_owned();
+  }
+  // Health regeneration
+  if stat_type == 43 {
+    return data.get_localization(language_id, 74816).unwrap().content.to_owned();
+  }
+  return "!?!".to_owned();
 }
 
 fn check_is_active(items_to_check: &mut Vec<SetItem>, item: &Option<CharacterItem>) {

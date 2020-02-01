@@ -632,7 +632,7 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
   fn init(&mut self, db: &MySQLConnection) {
     let mut last_expansion_id = 0;
     let mut last_item_id = 0;
-    db.select("SELECT * FROM data_item_stat WHERE stat_type IN (1,2,3,4,5,6,27,28,29,30,31) ORDER BY expansion_id, item_id", &|mut row| {
+    db.select("SELECT * FROM data_item_stat WHERE stat_type IN (1,2,3,4,5,6,27,28,29,30,31) OR stat_type = 34 OR (expansion_id > 1 AND stat_type IN (7,8,37,22,23,24,10,11,12,42,38,39,40,41)) AND (expansion_id>2 AND stat_type IN (9,13,21,43)) ORDER BY expansion_id, item_id", &|mut row| {
       ItemStat {
         id: row.take(0).unwrap(),
         expansion_id: row.take(1).unwrap(),
