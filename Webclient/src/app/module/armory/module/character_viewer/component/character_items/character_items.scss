@@ -29,7 +29,7 @@
     .cr_name {
         display: flex;
         flex-direction: row;
-        height: 32px;
+        height: 36px;
         z-index: 0;
 
         * {
@@ -58,6 +58,10 @@
         width: 100%;
         font-size: 20px;
         line-height: 36px;
+    }
+
+    .cr_row:first-child {
+        margin-top: $spacing;
     }
 
     .cr_row {

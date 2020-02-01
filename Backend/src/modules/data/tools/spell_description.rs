@@ -12,7 +12,7 @@ pub trait SpellDescription {
 impl SpellDescription for Data {
   fn get_localized_spell_description(&self, expansion_id: u8, language_id: u8, spell_id: u32) -> Option<String> {
     lazy_static! {
-      static ref RE: Regex = Regex::new(r"\$(\d+)(s\d|x\d|a\d|o\d|d)").unwrap();
+      static ref RE: Regex = Regex::new(r"\$(\d+)(s\d|x\d|a\d|o\d|m\d|d)").unwrap();
     }
 
     let spell_res = self.get_spell(expansion_id, spell_id);
@@ -34,15 +34,19 @@ impl SpellDescription for Data {
       if RE.is_match(&template) {
         let mut temp_res = template.clone();
         for capture in RE.captures_iter(&template) {
+          if capture.len() <= 1 {
+            continue;
+          }
+
           let inner_spell_id_res = capture[1].parse::<u32>();
           if inner_spell_id_res.is_err() {
-            return Some(template);
+            continue;
           }
           let inner_spell_id = inner_spell_id_res.unwrap();
 
           let inner_spell_res = self.get_spell(expansion_id, inner_spell_id);
           if inner_spell_res.is_none() {
-            return Some(template);
+            continue;
           }
           let inner_spell = inner_spell_res.unwrap();
           temp_res = temp_res.replace(&format!("${}d", capture[1].to_string()), &format_duration(&self.dictionary, language_id, inner_spell.duration.abs() as u32));
