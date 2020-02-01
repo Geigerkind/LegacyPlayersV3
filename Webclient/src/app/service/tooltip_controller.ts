@@ -29,6 +29,7 @@ export class TooltipControllerService extends ObserverPattern {
 
     hideTooltip(): void {
         this.getTooltip().style.display = 'none';
+        this.notify(callback => callback.call(callback, { type: undefined }));
     }
 
     private getTooltip(): any {

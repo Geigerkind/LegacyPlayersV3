@@ -20,6 +20,7 @@ export class TooltipComponent {
         this.tooltipControllerService.subscribe(args => {
             this.tooltipType = undefined;
             this.tooltipPayload = undefined;
+            this.iconPath = undefined;
 
             if (args.type === 1) {
                 this.tooltipService.loadCharacterTooltip(args.character_id, result => {

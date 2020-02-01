@@ -31,6 +31,22 @@
         "loading": "Loading...",
         "CharacterTooltip": {
             "guild": "{{rank}} of {{guild}}"
+        },
+        "ItemTooltip": {
+            "armor": "{{amount}} Armor",
+            "statPositive": "+{{value}} {{name}}",
+            "statNegative": "+{{value}} {{name}}",
+            "socket1": "Meta socket",
+            "socket2": "Red socket",
+            "socket4": "Yellow socket",
+            "socket8": "Blue socket",
+            "socketBonus": "Socket Bonus: {{effect}}",
+            "durability": "Durability {{amount}}/{{amount}}",
+            "itemLevel": "Item Level {{level}}",
+            "requiredLevel": "Requires Level {{level}}",
+            "weaponSpeed": "Speed {{speed}}s",
+            "weaponDamageElement": "{{damage_min}} - {{damage_max}} {{damage_type}} Damage",
+            "weaponDamagePhysical": "{{damage_min}} - {{damage_max}} Damage"
         }
     },
     "Armory": {

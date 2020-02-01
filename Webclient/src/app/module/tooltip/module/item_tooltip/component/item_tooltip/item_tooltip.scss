@@ -1,0 +1,10 @@
+:host {
+    .split {
+        display: flex;
+        flex-direction: row;
+
+        div:last-child {
+            margin-left: auto;
+        }
+    }
+}

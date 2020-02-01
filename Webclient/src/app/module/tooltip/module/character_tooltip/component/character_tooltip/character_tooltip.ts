@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {CharacterTooltip} from "../domain_value/character_tooltip";
+import {CharacterTooltip} from "../../domain_value/character_tooltip";
 
 @Component({
     selector: "CharacterTooltip",
