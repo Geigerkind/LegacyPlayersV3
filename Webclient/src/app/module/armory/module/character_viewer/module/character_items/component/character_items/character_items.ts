@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
 import {DatePipe} from "@angular/common";
-import {CharacterViewerDto} from "../../domain_value/character_viewer_dto";
+import {CharacterViewerDto} from "../../../../domain_value/character_viewer_dto";
 
 @Component({
     selector: "CharacterItems",
