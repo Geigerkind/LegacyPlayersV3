@@ -188,7 +188,7 @@ fn shadowmourne_socketed_and_enchanted() {
     assert!(character_res.is_ok());
     let character = character_res.unwrap();
 
-    let result = tooltip.get_character_item(&data, &armory, 1, 3, 49623, character.last_update.as_ref().unwrap().character_info.gear.id);
+    let result = tooltip.get_character_item(&data, &armory, 1, 49623, character.last_update.as_ref().unwrap().id);
     assert!(result.is_ok());
 
     let item_tooltip = result.unwrap();
