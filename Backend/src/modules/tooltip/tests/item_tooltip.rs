@@ -25,7 +25,7 @@ fn avenger_breastplate() {
     assert!(item_tooltip.inventory_type.contains(&"Chest".to_string()));
     assert!(item_tooltip.sheath_type.is_none());
     assert!(item_tooltip.sub_class.contains(&"Plate".to_string()));
-    assert!(item_tooltip.armor.is_none());
+    assert!(item_tooltip.armor.is_some());
     assert!(item_tooltip.stats.is_some());
     assert_eq!(item_tooltip.stats.as_ref().unwrap().len(), 5);
     assert!(item_tooltip.stats.as_ref().unwrap().contains(&Stat {
