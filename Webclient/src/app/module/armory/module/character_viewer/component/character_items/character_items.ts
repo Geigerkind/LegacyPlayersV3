@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
 import {DatePipe} from "@angular/common";
+import {CharacterViewerDto} from "../../domain_value/character_viewer_dto";
 
 @Component({
     selector: "CharacterItems",
@@ -9,7 +10,7 @@ import {DatePipe} from "@angular/common";
 })
 export class CharacterItemsComponent implements OnChanges {
 
-    @Input() character: any;
+    @Input() character: CharacterViewerDto;
     @Output() historyChanged: EventEmitter<number> = new EventEmitter<number>();
 
     constructor(
@@ -27,7 +28,7 @@ export class CharacterItemsComponent implements OnChanges {
         });
         this.character.history = this.character.history.map(history_moment => {
             const newHistoryMoment = history_moment;
-            newHistoryMoment.label_key = this.datePipe.transform(new Date(history_moment.label_key * 1000), 'dd.MM.yy hh:mm a');
+            newHistoryMoment.label_key = this.datePipe.transform(new Date(Number(history_moment.label_key) * 1000), 'dd.MM.yy hh:mm a');
             return newHistoryMoment;
         });
     }

@@ -1,6 +1,7 @@
 import {Component} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {CharacterViewerService} from "../../service/character_viewer";
+import {CharacterViewerDto} from "../../domain_value/character_viewer_dto";
 
 @Component({
     selector: "CharacterViewer",
@@ -9,7 +10,7 @@ import {CharacterViewerService} from "../../service/character_viewer";
 })
 export class CharacterViewerComponent {
 
-    character: any; // TODO TYPE
+    character: CharacterViewerDto;
 
     constructor(
         private activatedRouteService: ActivatedRoute,
