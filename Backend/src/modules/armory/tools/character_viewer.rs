@@ -38,14 +38,14 @@ impl CharacterViewer for Armory {
 
     let profession1 = character_history.character_info.profession1
       .and_then(|profession_id| data.get_profession(profession_id).and_then(|profession| Some(CharacterViewerProfessionDto {
-        icon: "temp".to_owned(), // TODO
+        icon: data.get_icon(profession.icon).unwrap().name,
         name: data.get_localization(language_id, profession.localization_id).unwrap().content,
         points: character_history.profession_skill_points1.unwrap(),
         point_max: profession_points_max
       })));
     let profession2  = character_history.character_info.profession2
       .and_then(|profession_id| data.get_profession(profession_id).and_then(|profession| Some(CharacterViewerProfessionDto {
-        icon: "temp".to_owned(), // TODO
+        icon: data.get_icon(profession.icon).unwrap().name,
         name: data.get_localization(language_id, profession.localization_id).unwrap().content,
         points: character_history.profession_skill_points2.unwrap(),
         point_max: profession_points_max

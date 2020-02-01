@@ -200,6 +200,7 @@ impl Init for HashMap<u16, Profession> {
       Profession {
         id: row.take(0).unwrap(),
         localization_id: row.take(1).unwrap(),
+        icon: row.take(2).unwrap(),
       }
     }).iter().for_each(|result| { self.insert(result.id, result.to_owned()); });
   }

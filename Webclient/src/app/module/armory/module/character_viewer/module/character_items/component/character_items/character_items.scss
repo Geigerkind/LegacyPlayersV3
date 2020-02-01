@@ -3,7 +3,7 @@
 :host {
     display: block;
     position: relative;
-    max-width: 500px;
+    width: 100%;
 
     * {
         z-index: 1;
@@ -29,8 +29,9 @@
     .cr_name {
         display: flex;
         flex-direction: row;
-        height: 36px;
-        z-index: 0;
+        height: 34px;
+        white-space: nowrap;
+        margin-bottom: $spacing / 2;
 
         * {
             display: block;
@@ -40,7 +41,7 @@
         }
 
         span {
-            line-height: 36px;
+            line-height: 34px;
         }
 
         SelectInput {
@@ -55,14 +56,11 @@
     }
 
     .cr_guild {
-        height: 36px;
+        min-height: 24px;
         width: 100%;
         font-size: 18px;
-        line-height: 36px;
-    }
-
-    .cr_row:first-child {
-        margin-top: $spacing;
+        line-height: 24px;
+        margin-bottom: $spacing / 2;
     }
 
     .cr_row {

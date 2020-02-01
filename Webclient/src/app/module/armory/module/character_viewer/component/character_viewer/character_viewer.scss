@@ -1,0 +1,59 @@
+@import "src/styles/global";
+
+:host {
+    display: block;
+
+    CharacterItems, .rightBar {
+        float:left;
+    }
+
+    @media (min-width: 658px) {
+        CharacterItems {
+            width: calc(100% - 225px - #{$spacing} / 2);
+            margin-right: $spacing / 2;
+        }
+    }
+
+    @media (min-width: 733px) {
+        CharacterItems {
+            width: 500px;
+            margin-right: $spacing / 2;
+        }
+    }
+
+
+
+    .rightBar {
+        Profession {
+            margin-bottom: $spacing / 2;
+        }
+
+        @media (max-width: 549px) {
+            width: 100%;
+        }
+        @media (min-width: 550px) {
+            width: 100%;
+            Profession {
+                width: calc(50% - #{$spacing} * 0.25);
+                float: left;
+
+                &:first-child {
+                    margin-right: $spacing / 2;
+                }
+            }
+        }
+        @media (min-width: 658px) {
+            width: 225px;
+            Profession {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+        @media (min-width: 733px) {
+            width: calc(100% - 500px - #{$spacing} / 2);
+        }
+        @media (min-width: 940px) {
+            width: 400px;
+        }
+    }
+}

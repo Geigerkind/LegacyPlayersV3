@@ -3,7 +3,8 @@
 :host {
     display: block;
     min-height: 50px;
-    max-width: calc(400px - #{$spacing});
+    width: 100%;
+    overflow: hidden;
 
     * {
         display: block;
