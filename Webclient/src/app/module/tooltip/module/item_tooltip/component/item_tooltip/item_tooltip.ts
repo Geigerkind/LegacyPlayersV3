@@ -11,7 +11,7 @@ export class ItemTooltipComponent {
     @Input() payload: ItemTooltip;
 
     validSocketBonus(socket: any): boolean {
-        return socket.slots.every((slot) => slot.item && slot.flag === slot.item.flag)
+        return socket.slots.every((slot) => slot.item && slot.flag === slot.item.flag);
     }
 
     isEffectActive(items: any, threshold: number): boolean {
