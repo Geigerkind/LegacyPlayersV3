@@ -55,10 +55,14 @@ impl RetrieveItemTooltip for Tooltip {
 
     let mut item_set = item.itemset.and_then(|itemset_id| data.get_itemset_name(expansion_id, itemset_id).and_then(|itemset_name| Some(ItemSet {
       name: data.get_localization(language_id, itemset_name.localization_id).and_then(|localization| Some(localization.content)).unwrap(),
-      set_items: data.get_itemset_item_ids(expansion_id, itemset_id).unwrap().iter().map(|item_id| SetItem {
-        item_id: item_id.clone(),
-        active: false,
-        name: data.get_item(expansion_id, *item_id).and_then(|item| data.get_localization(language_id, item.localization_id).and_then(|localization| Some(localization.content))).unwrap(),
+      set_items: data.get_itemset_item_ids(expansion_id, itemset_id).unwrap().iter().map(|item_id| {
+        let item = data.get_item(expansion_id, *item_id).unwrap();
+        SetItem {
+          item_id: item_id.clone(),
+          active: false,
+          item_level: item.item_level.unwrap(),
+          name: data.get_localization(language_id, item.localization_id).and_then(|localization| Some(localization.content)).unwrap(),
+        }
       }).collect(),
       set_effects: data.get_itemset_effects(expansion_id, itemset_id).unwrap().iter().map(|itemset_effect| SetEffect {
         threshold: itemset_effect.threshold,
@@ -146,6 +150,13 @@ impl RetrieveItemTooltip for Tooltip {
       check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.main_hand);
       check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.off_hand);
       check_is_active(item_tooltip.item_set.as_mut().unwrap().set_items.as_mut(), &character_gear.ternary_hand);
+
+      // For PvP sets all seasons count, but it should always only be one of each category be shown.
+      // Gray items are shown of none of the type is equipped of another or same season
+      // The gray item shown is equivalent ot the item name
+      // If an item is active, it is always shown, and all of the same category are filtered out
+      // So technically it should be right that all items are shown => Work of frontend to filter non set specific items
+      // I will include the item level of each item, such that it is easier to find the same seasons items
     }
 
     // Apply the enchant

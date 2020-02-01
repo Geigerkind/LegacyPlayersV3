@@ -49,7 +49,7 @@
 <div *ngIf="payload.item_set">
     <br />
     <div class="item_quality_0">{{ payload.item_set.name }}</div>
-    <div *ngFor="let item of payload.item_set.set_items">
+    <div *ngFor="let item of getFilteredSetItems()">
         <span *ngIf="item.active" class="item_quality_3">{{ item.name }}</span>
         <span *ngIf="!item.active" class="item_quality_1">{{ item.name }}</span>
     </div>

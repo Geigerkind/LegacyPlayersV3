@@ -18,4 +18,8 @@ export class ItemTooltipComponent {
         return items.filter(item => item.active).length >= threshold;
     }
 
+    getFilteredSetItems(): any {
+        return this.payload.item_set.set_items.filter(item => item.active || item.item_level === this.payload.item_level);
+    }
+
 }
