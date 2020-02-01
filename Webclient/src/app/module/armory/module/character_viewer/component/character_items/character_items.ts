@@ -18,6 +18,13 @@ export class CharacterItemsComponent implements OnChanges {
     }
 
     ngOnChanges(): void {
+        this.character.history.sort((left, right) => {
+            const leftNum = Number(left.label_key);
+            const rightNum = Number(right.label_key);
+            if (leftNum === rightNum) return 0;
+            if (leftNum < rightNum) return 1;
+            return -1;
+        });
         this.character.history = this.character.history.map(history_moment => {
             const newHistoryMoment = history_moment;
             newHistoryMoment.label_key = this.datePipe.transform(new Date(history_moment.label_key*1000), 'dd.MM.yy hh:mm a');
