@@ -1,5 +1,6 @@
 import {SelectOption} from "../../../../../template/input/select_input/domain_value/select_option";
 import {ProfessionDto} from "./profession_dto";
+import {TalentSpecializationDto} from "./talent_specialization_dto";
 
 export interface CharacterViewerDto {
     history_id: number;
@@ -36,4 +37,5 @@ export interface CharacterViewerDto {
     };
     profession1: ProfessionDto | undefined;
     profession2: ProfessionDto | undefined;
+    talent_specialization: TalentSpecializationDto | undefined;
 }

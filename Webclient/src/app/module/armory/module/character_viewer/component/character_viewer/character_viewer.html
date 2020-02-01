@@ -1,6 +1,7 @@
 <ng-container *ngIf="character">
     <CharacterItems [character]="character" (historyChanged)="loadCharacterByHistoryId($event)"></CharacterItems>
     <div class="rightBar">
+        <Talents *ngIf="character.talent_specialization" [talents]="character.talent_specialization"></Talents>
         <Profession *ngIf="character.profession1" [profession]="character.profession1"></Profession>
         <Profession *ngIf="character.profession2" [profession]="character.profession2"></Profession>
     </div>
