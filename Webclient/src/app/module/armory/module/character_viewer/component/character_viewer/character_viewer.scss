@@ -1,7 +1,11 @@
 @import "src/styles/global";
 
 :host {
-    display: block;
+    display: flex;
+    justify-content: center;
+    @media (max-width: 775px) {
+        display: block;
+    }
 
     CharacterItems, .rightBar {
         float:left;
@@ -14,7 +18,7 @@
         }
     }
 
-    @media (min-width: 733px) {
+    @media (min-width: 775px) {
         CharacterItems {
             width: 500px;
             margin-right: $spacing / 2;
@@ -49,7 +53,7 @@
                 margin-right: 0;
             }
         }
-        @media (min-width: 733px) {
+        @media (min-width: 775px) {
             width: calc(100% - 500px - #{$spacing} / 2);
         }
         @media (min-width: 940px) {
