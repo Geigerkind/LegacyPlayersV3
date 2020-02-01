@@ -33,7 +33,7 @@ export interface CharacterViewerDto {
         ring2: { item_id: number, quality: number, icon: string } | undefined;
         trinket1: { item_id: number, quality: number, icon: string } | undefined;
         trinket2: { item_id: number, quality: number, icon: string } | undefined;
-    },
+    };
     profession1: ProfessionDto | undefined;
     profession2: ProfessionDto | undefined;
 }
