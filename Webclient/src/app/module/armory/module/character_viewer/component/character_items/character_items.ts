@@ -27,7 +27,7 @@ export class CharacterItemsComponent implements OnChanges {
         });
         this.character.history = this.character.history.map(history_moment => {
             const newHistoryMoment = history_moment;
-            newHistoryMoment.label_key = this.datePipe.transform(new Date(history_moment.label_key*1000), 'dd.MM.yy hh:mm a');
+            newHistoryMoment.label_key = this.datePipe.transform(new Date(history_moment.label_key * 1000), 'dd.MM.yy hh:mm a');
             return newHistoryMoment;
         });
     }
