@@ -28,7 +28,7 @@ impl CreateCharacter for Armory {
           server_id,
           server_uid,
           last_update: None,
-          history_ids: Vec::new()
+          history_moments: Vec::new()
         }
       }, params!(
         "server_id" => server_id,

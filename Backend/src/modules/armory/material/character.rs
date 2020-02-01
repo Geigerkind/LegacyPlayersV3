@@ -1,5 +1,6 @@
 use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::dto::CharacterDto;
+use crate::modules::armory::domain_value::HistoryMoment;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Character {
@@ -7,7 +8,7 @@ pub struct Character {
   pub server_id: u32,
   pub server_uid: u64,
   pub last_update: Option<CharacterHistory>,
-  pub history_ids: Vec<u32>,
+  pub history_moments: Vec<HistoryMoment>,
 }
 
 impl PartialEq for Character {
@@ -33,6 +34,6 @@ impl Character {
       && self.server_uid == other.server_uid
       && ((self.last_update.is_none() && other.last_update.is_none())
           || (self.last_update.is_some() && other.last_update.is_some() && self.last_update.as_ref().unwrap().deep_eq(other.last_update.as_ref().unwrap())))
-      && self.history_ids == other.history_ids
+      && self.history_moments == other.history_moments
   }
 }

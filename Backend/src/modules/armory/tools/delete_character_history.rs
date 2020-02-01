@@ -21,11 +21,12 @@ impl DeleteCharacterHistory for Armory {
       "id" => character_history_id
     )) {
       let mut character = characters.get_mut(&character_history.character_id).unwrap();
-      character.history_ids.remove_item(&character_history_id);
+      let hm = character.history_moments.iter().find(|history_moment| history_moment.id == character_history_id).unwrap().clone();
+      character.history_moments.remove_item(&hm);
       if character.last_update.contains(&character_history) {
-        let last_id = character.history_ids.last();
+        let last_id = character.history_moments.last();
         if last_id.is_some() {
-          character.last_update = self.get_character_history(last_id.unwrap().clone()).ok();
+          character.last_update = self.get_character_history(last_id.unwrap().id).ok();
         }
       }
       return Ok(());

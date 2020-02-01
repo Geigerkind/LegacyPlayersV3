@@ -14,7 +14,7 @@ pub trait CharacterViewer {
 impl CharacterViewer for Armory {
   fn get_character_viewer_by_history_id(&self, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
     let character = self.get_character(character_id);
-    if character.is_none() || character.as_ref().unwrap().last_update.is_none() || !character.as_ref().unwrap().history_ids.contains(&character_history_id) {
+    if character.is_none() || character.as_ref().unwrap().last_update.is_none() || character.as_ref().unwrap().history_moments.iter().find(|hm| hm.id == character_history_id).is_none() {
       return Err(ArmoryFailure::InvalidInput);
     }
     let character_res = character.unwrap();
@@ -46,9 +46,9 @@ impl CharacterViewer for Armory {
         name: self.get_guild(guild.guild_id).unwrap().name,
         rank: guild.rank
       })),
-      history: character_res.history_ids.iter().map(|id| SelectOption {
-        value: *id,
-        label_key: (*id).to_string() // TODO: Efficient way to get TS!
+      history: character_res.history_moments.iter().map(|history_moment| SelectOption {
+        value: history_moment.id,
+        label_key: history_moment.timestamp.to_string()
       }).collect(),
       gear: CharacterViewerGearDto {
         gear_id: character_history.character_info.gear.id,
