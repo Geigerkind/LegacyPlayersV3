@@ -74,6 +74,7 @@ impl RetrieveItemTooltip for Tooltip {
         .iter().map(|item_effect| data.get_localized_spell_description(expansion_id, language_id, item_effect.spell_id).unwrap()).collect()));
 
     Ok(ItemTooltip {
+      item_id,
       name: data.get_localization(language_id, item.localization_id).unwrap().content,
       icon: data.get_icon(item.icon).unwrap().name,
       quality: item.quality,

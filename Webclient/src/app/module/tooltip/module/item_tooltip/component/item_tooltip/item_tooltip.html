@@ -59,3 +59,4 @@
         <span *ngIf="!isEffectActive(payload.item_set.set_items, effect.threshold)" class="item_quality_1">{{ '(' + effect.threshold + ') ' +  effect.description }}</span>
     </div>
 </div>
+<div class="item_quality_0">{{ 'Tooltip.ItemTooltip.itemId' | translate:{ id: payload.item_id } }}</div>

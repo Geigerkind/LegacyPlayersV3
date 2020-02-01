@@ -3,6 +3,7 @@ use crate::modules::tooltip::material::Socket;
 
 #[derive(Debug, Clone, Serialize, JsonSchema)]
 pub struct ItemTooltip {
+  pub item_id: u32,
   pub name: String,
   pub icon: String,
   pub quality: u8,

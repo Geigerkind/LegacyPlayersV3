@@ -1,4 +1,5 @@
 export interface ItemTooltip {
+    item_id: number;
     name: string;
     icon: string;
     quality: number;
