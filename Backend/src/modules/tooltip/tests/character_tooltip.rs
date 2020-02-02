@@ -53,8 +53,8 @@ fn character_tooltip() {
     character_info: character_info_dto.to_owned(),
     character_name: "sdgsdfsd".to_string(),
     character_title: None,
-    profession_skill_points1: None,
-    profession_skill_points2: Some(320),
+    profession_skill_points1: Some(320),
+    profession_skill_points2: None,
     facial: None,
     character_guild: Some(CharacterGuildDto {
       guild: GuildDto {
