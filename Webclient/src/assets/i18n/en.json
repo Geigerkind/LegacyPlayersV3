@@ -34,6 +34,7 @@
         },
         "ItemTooltip": {
             "armor": "{{amount}} Armor",
+            "statLabel": "{{name}}",
             "statPositive": "+{{value}} {{name}}",
             "statNegative": "+{{value}} {{name}}",
             "socket1": "Meta socket",

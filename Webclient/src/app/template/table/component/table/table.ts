@@ -59,7 +59,7 @@ export class TableComponent implements OnChanges {
         this.currentPageData = page - 1;
         if (this.clientSide)
             this.setCurrentPageRows();
-        else if (this.numItems > 0) {
+        else {
             this.currentFilter.page = this.currentPageData;
             this.filterOrPageChanged.emit(this.currentFilter);
         }

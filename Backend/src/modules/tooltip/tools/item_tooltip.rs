@@ -389,6 +389,10 @@ fn try_apply_random_item_property(data: &Data, expansion_id: u8, language_id: u8
 
   item_tooltip.name += &(" ".to_owned() + &property_suffix);
 
+  if item_tooltip.stats.is_none() {
+    item_tooltip.stats = Some(Vec::new());
+  }
+
   for i in 0..item_random_property.enchant_ids.len() {
     let enchant_id = item_random_property.enchant_ids[i];
     let enchant = data.get_enchant(expansion_id, enchant_id).unwrap();

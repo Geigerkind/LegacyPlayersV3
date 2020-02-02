@@ -23,7 +23,8 @@
     </div>
 </div>
 <div *ngFor="let stat of payload.stats">
-    <div *ngIf="stat.value >= 0">{{ 'Tooltip.ItemTooltip.statPositive' | translate:stat }}</div>
+    <div *ngIf="stat.value === 0">{{ 'Tooltip.ItemTooltip.statLabel' | translate:{ name: stat.name } }}</div>
+    <div *ngIf="stat.value > 0">{{ 'Tooltip.ItemTooltip.statPositive' | translate:stat }}</div>
     <div *ngIf="stat.value < 0">{{ 'Tooltip.ItemTooltip.statNegative' | translate:stat }}</div>
 </div>
 <div *ngIf="payload.enchant" class="item_quality_3">{{ payload.enchant }}</div>
