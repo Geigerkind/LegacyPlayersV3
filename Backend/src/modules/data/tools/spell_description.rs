@@ -13,7 +13,7 @@ pub trait SpellDescription {
 impl SpellDescription for Data {
   fn get_localized_spell_description(&self, expansion_id: u8, language_id: u8, spell_id: u32) -> Option<String> {
     lazy_static! {
-      static ref RE: Regex = Regex::new(r"\$(\d+)(s\d|x\d|a\d|o\d|m\d|d|o)").unwrap();
+      static ref RE: Regex = Regex::new(r"\$(\d+)(s\d|x\d|a\d|o\d|m\d|M\d|d|o)").unwrap();
     }
 
     let spell_res = self.get_spell(expansion_id, spell_id);
@@ -25,16 +25,19 @@ impl SpellDescription for Data {
       .and_then(|localization| Some(localization.content)).unwrap();
 
     let spell_effects = self.get_spell_effects(expansion_id, spell_id).unwrap();
+    template = template.replace("$d1", &format_duration(&self.dictionary, language_id, spell.duration.abs() as u32));
     template = template.replace("$d", &format_duration(&self.dictionary, language_id, spell.duration.abs() as u32));
     for i in 0..spell_effects.len() {
       template = template.replace(&format!("$s{}", i + 1), &spell_effects[i].points_upper.abs().to_string());
-      template = template.replace(&format!("${{$m{}/1000}}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
-      template = template.replace(&format!("${{$m{}/-10}}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 10.0).abs()));
       template = template.replace(&format!("${{$m{}/-1000}}.1", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("${{$m{}/-1000}}.2", i + 1), &format!("{:.2}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
+      template = template.replace(&format!("${{$m{}/1000}}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
+      template = template.replace(&format!("${{$m{}/-1000}}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
+      template = template.replace(&format!("${{$m{}/-10}}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 10.0).abs()));
       template = template.replace(&format!("$/1000;s{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("$/1000;S{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("$/10;s{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 10.0).abs()));
+      template = template.replace(&format!("$M{}", i + 1), &spell_effects[i].points_upper.to_string());
       template = template.replace(&format!("$o{}", i + 1), &spell_effects[i].points_upper.to_string());
       template = template.replace(&format!("$x{}", i + 1), &spell_effects[i].chain_targets.to_string());
       template = template.replace(&format!("$a{}", i + 1), &spell_effects[i].radius.to_string());
@@ -58,14 +61,16 @@ impl SpellDescription for Data {
             continue;
           }
           let inner_spell = inner_spell_res.unwrap();
+          temp_res = temp_res.replace(&format!("${}d1", capture[1].to_string()), &format_duration(&self.dictionary, language_id, inner_spell.duration.abs() as u32));
           temp_res = temp_res.replace(&format!("${}d", capture[1].to_string()), &format_duration(&self.dictionary, language_id, inner_spell.duration.abs() as u32));
           let inner_spell_effects = self.get_spell_effects(expansion_id, inner_spell_id).unwrap();
           for i in 0..inner_spell_effects.len() {
             temp_res = temp_res.replace(&format!("${}s{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].points_upper.abs().to_string());
-            temp_res = temp_res.replace(&format!("${}{{$m{}/1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
-            temp_res = temp_res.replace(&format!("${}{{$m{}/-10}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 10.0).abs()));
             temp_res = temp_res.replace(&format!("${{${}m{}/-1000}}.1", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
-            temp_res = temp_res.replace(&format!("${{${}m{}/-1000}}.1", capture[1].to_string(), i + 1), &format!("{:.2}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
+            temp_res = temp_res.replace(&format!("${{${}m{}/-1000}}.2", capture[1].to_string(), i + 1), &format!("{:.2}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
+            temp_res = temp_res.replace(&format!("${}{{$m{}/1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
+            temp_res = temp_res.replace(&format!("${}{{$m{}/-1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
+            temp_res = temp_res.replace(&format!("${}{{$m{}/-10}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 10.0).abs()));
             temp_res = temp_res.replace(&format!("${}/1000;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}/1000;S{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}/10;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 10.0).abs()));
