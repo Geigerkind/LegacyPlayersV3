@@ -15,7 +15,7 @@ export class CharacterItemsComponent implements OnInit {
     @Output() historyChanged: EventEmitter<number> = new EventEmitter<number>();
 
     selectedHistoryId: number;
-    selectedHistoryEntries: SelectOption[];
+    selectedHistoryEntries: Array<SelectOption>;
 
     constructor(
         private datePipe: DatePipe
