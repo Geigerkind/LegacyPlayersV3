@@ -30,7 +30,9 @@ impl SpellDescription for Data {
       template = template.replace(&format!("$s{}", i + 1), &spell_effects[i].points_upper.abs().to_string());
       template = template.replace(&format!("${{$m{}/1000}}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("${{$m{}/-1000}}.1", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
+      template = template.replace(&format!("${{$m{}/-1000}}.2", i + 1), &format!("{:.2}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("$/1000;s{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
+      template = template.replace(&format!("$/1000;S{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("$/10;s{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 10.0).abs()));
       template = template.replace(&format!("$o{}", i + 1), &spell_effects[i].points_upper.to_string());
       template = template.replace(&format!("$x{}", i + 1), &spell_effects[i].chain_targets.to_string());
@@ -61,7 +63,9 @@ impl SpellDescription for Data {
             temp_res = temp_res.replace(&format!("${}s{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].points_upper.abs().to_string());
             temp_res = temp_res.replace(&format!("${}{{$m{}/1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${{${}m{}/-1000}}.1", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
+            temp_res = temp_res.replace(&format!("${{${}m{}/-1000}}.1", capture[1].to_string(), i + 1), &format!("{:.2}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}/1000;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
+            temp_res = temp_res.replace(&format!("${}/1000;S{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}/10;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 10.0).abs()));
             temp_res = temp_res.replace(&format!("${}o{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].points_upper.abs().to_string());
             temp_res = temp_res.replace(&format!("${}x{}", capture[1].to_string(), i + 1), &inner_spell_effects[i].chain_targets.to_string());
