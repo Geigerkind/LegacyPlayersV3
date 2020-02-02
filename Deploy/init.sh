@@ -20,7 +20,6 @@ function initCertificates {
   chmod -R 600 ~/Keys/ovh.ini
   # Requires user input
   certbot certonly --dns-ovh --dns-ovh-credentials ~/Keys/ovh.ini -d ${DOMAIN} -d smtp.${DOMAIN}
-  echo "0 0,12 * * * root python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew" | tee -a /etc/crontab > /dev/null
 }
 
 function installZopfli {
@@ -46,6 +45,8 @@ function initMariaDb {
   cp ~/${REPOSITORY_NAME}/Deploy/conf/my.cnf /etc/
   systemctl enable mysqld
   systemctl start mysqld
+  mysql -u root mysql -e "CREATE USER 'rpll' IDENTIFIED BY '${DB_PASSWORD}'"
+  mysql -u root mysql -e "GRANT USAGE ON *.* TO 'rpll'@localhost IDENTIFIED BY '${DB_PASSWORD}'"
   mysql -u root mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWORD}'"
   systemctl restart mysqld
   cd ~/${REPOSITORY_NAME}/Database
@@ -53,6 +54,7 @@ function initMariaDb {
   mysql -uroot -p${DB_PASSWORD} < merge.sql
   rm merge.sql
   cd ~
+  mysql -u root -p${DB_PASSWORD} mysql -e "GRANT ALL PRIVILEGES ON main.* TO 'rpll'@localhost"
   systemctl restart mysqld
 }
 
@@ -150,6 +152,10 @@ function initServer {
   # Fail2Ban configuration
   sed -i "s/maxretry = 5/maxretry = 3/g" /etc/sudoers
 
+  mkdir /root/DB_BACKUPS
+  mount -o remount,rw,nosuid,nodev,noexec,relatime,hidepid=2 /proc
+  echo "proc /proc proc defaults,nosuid,nodev,noexec,relatime,hidepid=2 0 0" >> /etc/fstab
+
   fixCertificates
   installRust
   installZopfli
@@ -166,10 +172,15 @@ function initServer {
   cd /root
   cp /root/${REPOSITORY_NAME}/Deploy/conf/backend.service /etc/systemd/system/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/deploy.service /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/backup_db.service /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/backup_db.timer /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/certbot_renew.service /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/certbot_renew.timer /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable backend.service
   systemctl enable deploy.service
-  systemctl enable deploy.service
+  systemctl enable backup_db.timer
+  systemctl enable certbot_renew.timer
   systemctl enable fail2ban
   systemctl start fail2ban
   systemctl start deploy
@@ -182,6 +193,9 @@ function initServer {
   initPrometheus
   initGrafana
   initUfw
+
+  systemctl start backup_db.timer
+  systemctl start certbot_renew.timer
 }
 
 initServer
