@@ -187,5 +187,4 @@ fn set_character(_: &mut Bencher) {
       armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
       armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
     }
-    println!("Execution time of set_character: {} ms/iter", 0.000001 * (average_ns.iter().sum::<i64>()/num_iterations) as f64);
 }

@@ -12,6 +12,7 @@ pub trait CreateCharacterInfo {
 impl CreateCharacterInfo for Armory {
   fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
     // Return existing one first
+
     let existing_character_info = self.get_character_info_by_value(character_info.clone());
     if existing_character_info.is_ok() {
       return existing_character_info;

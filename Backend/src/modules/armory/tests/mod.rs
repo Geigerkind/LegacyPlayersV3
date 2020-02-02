@@ -6,3 +6,4 @@ mod character;
 mod guild;
 mod character_facial;
 mod character_search;
+mod character_viewer;

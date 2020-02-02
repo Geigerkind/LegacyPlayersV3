@@ -43,25 +43,44 @@ impl GetCharacterGear for Armory {
   }
 
   fn get_character_gear_by_value(&self, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
-    let head = gear.head.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let neck = gear.neck.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let shoulder = gear.shoulder.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let back = gear.back.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let chest = gear.chest.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let shirt = gear.shirt.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let tabard = gear.tabard.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let wrist = gear.wrist.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let main_hand = gear.main_hand.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let off_hand = gear.off_hand.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let ternary_hand = gear.ternary_hand.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let glove = gear.glove.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let belt = gear.belt.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let leg = gear.leg.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let boot = gear.boot.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let ring1 = gear.ring1.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let ring2 = gear.ring2.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let trinket1 = gear.trinket1.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
-    let trinket2 = gear.trinket2.and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    let head = gear.head.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if head.is_none() && gear.head.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let neck = gear.neck.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if neck.is_none() && gear.neck.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let shoulder = gear.shoulder.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if shoulder.is_none() && gear.shoulder.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let back = gear.back.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if back.is_none() && gear.back.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let chest = gear.chest.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if chest.is_none() && gear.chest.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let shirt = gear.shirt.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if shirt.is_none() && gear.shirt.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let tabard = gear.tabard.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if tabard.is_none() && gear.tabard.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let wrist = gear.wrist.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if wrist.is_none() && gear.wrist.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let main_hand = gear.main_hand.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if main_hand.is_none() && gear.main_hand.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let off_hand = gear.off_hand.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if off_hand.is_none() && gear.off_hand.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let ternary_hand = gear.ternary_hand.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if ternary_hand.is_none() && gear.ternary_hand.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let glove = gear.glove.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if glove.is_none() && gear.glove.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let belt = gear.belt.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if belt.is_none() && gear.belt.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let leg = gear.leg.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if leg.is_none() && gear.leg.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let boot = gear.boot.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if boot.is_none() && gear.boot.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let ring1 = gear.ring1.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if ring1.is_none() && gear.ring1.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let ring2 = gear.ring2.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if ring2.is_none() && gear.ring2.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let trinket1 = gear.trinket1.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if trinket1.is_none() && gear.trinket1.is_some() { return Err(ArmoryFailure::InvalidInput); }
+    let trinket2 = gear.trinket2.as_ref().and_then(|item| self.get_character_item_by_value(item.to_owned()).ok());
+    if trinket2.is_none() && gear.trinket2.is_some() { return Err(ArmoryFailure::InvalidInput); }
 
     let params = params!(
       "head" => head.as_ref().and_then(|item| Some(item.id)),
