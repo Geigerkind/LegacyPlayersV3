@@ -4,7 +4,7 @@
     <Icon iconPath="/assets/wow_hero_classes/c{{ character.hero_class_id }}.png" [size]="32"></Icon>
     <span>{{ character.name + ' ' + character.level }} </span>
 
-    <SelectInput [value]="character.history_id" [options]="character.history" (valueChange)="emitHistory($event)"></SelectInput>
+    <SelectInput [value]="selectedHistoryId" [options]="selectedHistoryEntries" (valueChange)="emitHistory($event)"></SelectInput>
 </div>
 <div class="cr_guild" *ngIf="character.guild">
     {{ 'Armory.Viewer.guild' | translate: { rank: character.guild.rank, guild: character.guild.name } }}
