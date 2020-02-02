@@ -24,6 +24,16 @@ impl CreateCharacterInfo for Armory {
     }
     let gear = gear_res.unwrap();
 
+    // Check if this breakdown is effectively null, i.e. 000|000|000
+    let mut talent_specialization = None;
+    if character_info.talent_specialization.is_some() {
+      if character_info.talent_specialization.as_ref().unwrap()
+          .split('|').map(|spec| spec.chars().map(|talent| talent.to_digit(10)
+          .unwrap()).sum::<u32>()).sum::<u32>() > 0 {
+        talent_specialization = character_info.talent_specialization.clone();
+      }
+    }
+
     let params = params!(
       "gear_id" => gear.id,
       "hero_class_id" => character_info.hero_class_id,
@@ -31,7 +41,7 @@ impl CreateCharacterInfo for Armory {
       "gender" => character_info.gender,
       "profession1" => character_info.profession1.clone(),
       "profession2" => character_info.profession2.clone(),
-      "talent_specialization" => character_info.talent_specialization.clone(),
+      "talent_specialization" => talent_specialization,
       "race_id" => character_info.race_id
     );
     if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params.clone()) {
