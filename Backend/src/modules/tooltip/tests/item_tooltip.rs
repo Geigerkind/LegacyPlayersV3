@@ -67,30 +67,35 @@ fn avenger_breastplate() {
     active: false,
     name: "Avenger's Pauldrons".to_string(),
     item_level: 78,
+    inventory_type: 3
   }));
   assert!(item_tooltip.item_set.as_ref().unwrap().set_items.contains(&SetItem {
     item_id: 21389,
     active: false,
     name: "Avenger's Breastplate".to_string(),
     item_level: 88,
+    inventory_type: 5
   }));
   assert!(item_tooltip.item_set.as_ref().unwrap().set_items.contains(&SetItem {
     item_id: 21388,
     active: false,
     name: "Avenger's Greaves".to_string(),
     item_level: 78,
+    inventory_type: 8
   }));
   assert!(item_tooltip.item_set.as_ref().unwrap().set_items.contains(&SetItem {
     item_id: 21390,
     active: false,
     name: "Avenger's Legguards".to_string(),
     item_level: 81,
+    inventory_type: 7
   }));
   assert!(item_tooltip.item_set.as_ref().unwrap().set_items.contains(&SetItem {
     item_id: 21387,
     active: false,
     name: "Avenger's Crown".to_string(),
     item_level: 81,
+    inventory_type: 1
   }));
   assert_eq!(item_tooltip.item_set.as_ref().unwrap().set_effects.len(), 2);
   assert_eq!(item_tooltip.item_set.as_ref().unwrap().set_effects[0].threshold, 3);

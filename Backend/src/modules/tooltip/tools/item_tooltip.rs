@@ -61,6 +61,7 @@ impl RetrieveItemTooltip for Tooltip {
           item_id: item_id.clone(),
           active: false,
           item_level: item.item_level.unwrap(),
+          inventory_type: item.inventory_type.unwrap(),
           name: data.get_localization(language_id, item.localization_id).and_then(|localization| Some(localization.content)).unwrap(),
         }
       }).collect(),

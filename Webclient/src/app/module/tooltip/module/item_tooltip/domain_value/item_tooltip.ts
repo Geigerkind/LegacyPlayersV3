@@ -13,7 +13,7 @@ export interface ItemTooltip {
     item_level: number | undefined;
     required_level: number | undefined;
     item_effects: Array<string> | undefined;
-    item_set: { name: string, set_items: Array<{ item_id: number, active: boolean, name: string, item_level: number }>, set_effects: Array<{ threshold: number, description: string }> } | undefined;
+    item_set: { name: string, set_items: Array<{ item_id: number, active: boolean, name: string, item_level: number, inventory_type: number }>, set_effects: Array<{ threshold: number, description: string }> } | undefined;
     socket: { socket_bonus: string, slots: Array<{ flag: number, item: { icon: string, effect: string, flag: number } | undefined }> } | undefined;
     enchant: string | undefined;
     weapon_stat: { delay: number, damage_sources: Array<{ damage_min: number, damage_max: number, damage_type: string | undefined }> } | undefined;

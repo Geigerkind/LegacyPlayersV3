@@ -19,7 +19,23 @@ export class ItemTooltipComponent {
     }
 
     getFilteredSetItems(): any {
-        return this.payload.item_set.set_items.filter(item => item.active || item.item_level === this.payload.item_level);
+        return this.payload.item_set.set_items
+            .filter(item => item.active || item.item_level === this.payload.item_level)
+            .sort((left, right) => {
+                if (left.active === right.active) return 0;
+                if (left.active !== right.active) return 1;
+                return -1;
+            })
+            .reduce((acc, item) => {
+                if (item.active || !acc.find(inner_item => inner_item.inventory_type === item.inventory_type))
+                    acc.push(item);
+                return acc;
+            }, [])
+            .sort((left, right) => {
+                if (left.inventory_type === right.inventory_type) return 0;
+                if (left.inventory_type > right.inventory_type) return 1;
+                return -1;
+            });
     }
 
 }
