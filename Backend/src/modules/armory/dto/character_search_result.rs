@@ -1,8 +1,9 @@
-use crate::modules::armory::material::{Guild, Character};
+use crate::modules::armory::dto::{CharacterSearchGuildDto, CharacterSearchCharacterDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterSearchResult {
-  pub character: Character,
-  pub guild: Option<Guild>,
-  pub faction: bool
+  pub guild: Option<CharacterSearchGuildDto>,
+  pub character: CharacterSearchCharacterDto,
+  pub faction: bool,
+  pub timestamp: u64
 }

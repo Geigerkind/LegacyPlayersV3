@@ -66,16 +66,16 @@ export class SearchComponent {
 
                     body_columns.push({
                         type: 3,
-                        content: row.character.last_update.character_info.hero_class_id.toString(),
+                        content: row.character.hero_class_id.toString(),
                         sub_type: 1,
                         sub_type_args: null
                     });
                     body_columns.push({
                         type: 0,
-                        content: row.character.last_update.character_name,
+                        content: row.character.name,
                         sub_type: 2,
                         sub_type_args: {
-                            character_id: row.character.id
+                            character_id: row.character.character_id
                         }
                     });
                     body_columns.push({
@@ -92,7 +92,7 @@ export class SearchComponent {
                     });
                     body_columns.push({
                         type: 2,
-                        content: row.character.last_update.timestamp.toString(),
+                        content: row.timestamp.toString(),
                         sub_type: null,
                         sub_type_args: null
                     });

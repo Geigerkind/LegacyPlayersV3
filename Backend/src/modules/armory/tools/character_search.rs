@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult, SearchResult};
+use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult, SearchResult, CharacterSearchGuildDto, CharacterSearchCharacterDto};
 use crate::modules::armory::tools::GetGuild;
 use crate::modules::data::Data;
 use crate::modules::data::tools::RetrieveRace;
@@ -47,23 +47,32 @@ impl PerformCharacterSearch for Armory {
         let race_id = character.last_update.as_ref().unwrap().character_info.race_id;
         CharacterSearchResult {
           faction: data.get_race(race_id).unwrap().faction,
-          guild: character.last_update.as_ref().unwrap().character_guild.as_ref().and_then(|character_guild| self.get_guild(character_guild.guild_id)),
-          character: character.clone()
+          guild: character.last_update.as_ref().unwrap().character_guild.as_ref()
+            .and_then(|character_guild| self.get_guild(character_guild.guild_id)
+              .and_then(|guild| Some(CharacterSearchGuildDto {
+                guild_id: guild.id,
+                name: guild.name.to_owned()
+              }))),
+          character: CharacterSearchCharacterDto {
+            character_id: character.id,
+            name: character.last_update.as_ref().unwrap().character_name.clone(),
+            hero_class_id: character.last_update.as_ref().unwrap().character_info.hero_class_id,
+            server_id: character.server_id
+          },
+          timestamp: character.last_update.as_ref().unwrap().timestamp
         }
       })
       .collect();
     result.sort_by(|left: &CharacterSearchResult, right: &CharacterSearchResult| {
       if let Some(sorting) = filter.hero_class.sorting {
-        let ordering = left.character.last_update.as_ref().unwrap().character_info.hero_class_id
-                        .cmp(&right.character.last_update.as_ref().unwrap().character_info.hero_class_id);
+        let ordering = left.character.hero_class_id.cmp(&right.character.hero_class_id);
         if ordering != Ordering::Equal {
           return negate_ordering(ordering, sorting);
         }
       }
 
       if let Some(sorting) = filter.name.sorting {
-        let ordering = left.character.last_update.as_ref().unwrap().character_name
-                                .cmp(&right.character.last_update.as_ref().unwrap().character_name);
+        let ordering = left.character.name.cmp(&right.character.name);
         if ordering != Ordering::Equal {
           return negate_ordering(ordering, sorting);
         }
@@ -71,8 +80,7 @@ impl PerformCharacterSearch for Armory {
 
       if let Some(sorting) = filter.guild.sorting {
         if left.guild.is_some() && right.guild.is_some() {
-          let ordering = left.guild.as_ref().unwrap().name
-                                  .cmp(&right.guild.as_ref().unwrap().name);
+          let ordering = left.guild.as_ref().unwrap().name.cmp(&right.guild.as_ref().unwrap().name);
           if ordering != Ordering::Equal {
             return negate_ordering(ordering, sorting);
           }
@@ -87,8 +95,7 @@ impl PerformCharacterSearch for Armory {
       }
 
       if let Some(sorting) = filter.last_updated.sorting {
-        let ordering = left.character.last_update.as_ref().unwrap().timestamp
-                                .cmp(&right.character.last_update.as_ref().unwrap().timestamp);
+        let ordering = left.timestamp.cmp(&right.timestamp);
         if ordering != Ordering::Equal {
           return negate_ordering(ordering, sorting);
         }
