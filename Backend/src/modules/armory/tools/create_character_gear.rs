@@ -173,10 +173,13 @@ impl CreateCharacterGear for Armory {
       "trinket1" => trinket1,
       "trinket2" => trinket2,
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)", params) {
-      return self.get_character_gear_by_value(character_gear);
-    }
 
+    // It may fail due to the unique constraint if a race condition occurs
+    self.db_main.execute_wparams("INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)", params);
+    let char_gear = self.get_character_gear_by_value(character_gear);
+    if char_gear.is_ok() {
+      return Ok(char_gear.unwrap());
+    }
     Err(ArmoryFailure::Database("create_character_gear".to_owned()))
   }
 }

@@ -45,10 +45,13 @@ impl CreateCharacterInfo for Armory {
       "talent_specialization" => talent_specialization,
       "race_id" => character_info.race_id
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params.clone()) {
-      return self.get_character_info_by_value(character_info.to_owned());
-    }
 
+    // It may fail due to the unique constraint if a race condition occurs
+    self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params.clone());
+    let char_info = self.get_character_info_by_value(character_info.to_owned());
+    if char_info.is_ok() {
+      return Ok(char_info.unwrap());
+    }
     Err(ArmoryFailure::Database("create_character_info".to_owned()))
   }
 }

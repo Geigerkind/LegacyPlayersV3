@@ -23,8 +23,12 @@ impl CreateCharacterFacial for Armory {
       "hair_color" => character_facial_dto.hair_color,
       "facial_hair" => character_facial_dto.facial_hair,
     );
-    if self.db_main.execute_wparams("INSERT INTO armory_character_facial (`skin_color`, `face_style`, `hair_style`, `hair_color`, `facial_hair`) VALUES (:skin_color, :face_style, :hair_style, :hair_color, :facial_hair)", params.clone()) {
-      return self.get_character_facial_by_value(character_facial_dto.clone());
+
+    // It may fail due to the unique constraint if a race condition occurs
+    self.db_main.execute_wparams("INSERT INTO armory_character_facial (`skin_color`, `face_style`, `hair_style`, `hair_color`, `facial_hair`) VALUES (:skin_color, :face_style, :hair_style, :hair_color, :facial_hair)", params.clone());
+    let char_facial = self.get_character_facial_by_value(character_facial_dto.clone());
+    if char_facial.is_ok() {
+      return Ok(char_facial.unwrap());
     }
 
     Err(ArmoryFailure::Database("create_character_facial".to_owned()))
