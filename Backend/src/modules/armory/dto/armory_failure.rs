@@ -12,6 +12,7 @@ use std::io::Cursor;
 pub enum ArmoryFailure {
   InvalidInput,
   Database(String),
+  ImplausibleInput
 }
 
 impl Responder<'static> for ArmoryFailure {
@@ -26,6 +27,10 @@ impl Responder<'static> for ArmoryFailure {
         body = hint.clone();
         Status::new(535, "Database")
       },
+      ArmoryFailure::ImplausibleInput => {
+        body = "Implausible input!".to_owned();
+        Status::new(536, "ImplausibleInput")
+      }
     };
     Response::build()
       .status(status)
@@ -40,6 +45,7 @@ impl OpenApiResponder<'static> for ArmoryFailure {
     let schema = gen.json_schema::<String>();
     add_schema_response(&mut responses, 534, "text/plain", schema.clone())?;
     add_schema_response(&mut responses, 535, "text/plain", schema.clone())?;
+    add_schema_response(&mut responses, 536, "text/plain", schema.clone())?;
     Ok(responses)
   }
 }

@@ -4,6 +4,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{ArmoryFailure, CharacterHistoryDto};
 use crate::modules::armory::material::CharacterHistory;
 use crate::modules::armory::tools::{CreateCharacterHistory, CreateGuild, GetCharacter};
+use crate::dto::CheckPlausability;
 
 pub trait SetCharacterHistory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
@@ -12,13 +13,8 @@ pub trait SetCharacterHistory {
 impl SetCharacterHistory for Armory {
   fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
     // Validation
-    if update_character_history.character_name.is_empty()
-      || (update_character_history.character_guild.is_some() && (
-      update_character_history.character_guild.as_ref().unwrap().rank.is_empty()
-        || update_character_history.character_guild.as_ref().unwrap().guild.name.is_empty()
-        || update_character_history.character_guild.as_ref().unwrap().guild.server_uid == 0))
-    {
-      return Err(ArmoryFailure::InvalidInput);
+    if !update_character_history.is_plausible() {
+      return Err(ArmoryFailure::ImplausibleInput);
     }
 
     // Check if this character exists

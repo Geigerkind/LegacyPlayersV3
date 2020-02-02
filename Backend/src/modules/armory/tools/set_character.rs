@@ -2,6 +2,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{ArmoryFailure, CharacterDto};
 use crate::modules::armory::material::Character;
 use crate::modules::armory::tools::{CreateCharacter, GetCharacter, SetCharacterHistory};
+use crate::dto::CheckPlausability;
 
 pub trait SetCharacter {
   fn set_character(&self, server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure>;
@@ -10,8 +11,8 @@ pub trait SetCharacter {
 impl SetCharacter for Armory {
   fn set_character(&self, server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure> {
     // Validation
-    if update_character.server_uid == 0 {
-      return Err(ArmoryFailure::InvalidInput);
+    if !update_character.is_plausible() {
+      return Err(ArmoryFailure::ImplausibleInput);
     }
 
     // Create the character if necessary
