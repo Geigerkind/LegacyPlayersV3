@@ -145,7 +145,7 @@ function initServer {
 
   pacman -S archlinux-keyring --noconfirm
   pacman -Syu --noconfirm
-  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip
+  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip vim zip
 
   # Fail2Ban configuration
   sed -i "s/maxretry = 5/maxretry = 3/g" /etc/sudoers

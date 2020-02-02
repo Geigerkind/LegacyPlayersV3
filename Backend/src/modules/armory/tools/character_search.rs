@@ -39,9 +39,10 @@ impl PerformCharacterSearch for Armory {
         return false;
       });
     let num_characters = intermediate.clone().count();
+
+    // This is very inefficient!
     let mut result: Vec<CharacterSearchResult> = intermediate
       .skip((filter.page * 10) as usize)
-      .take(10)
       .map(|(_, character)| {
         let race_id = character.last_update.as_ref().unwrap().character_info.race_id;
         CharacterSearchResult {
@@ -96,7 +97,7 @@ impl PerformCharacterSearch for Armory {
       return Ordering::Equal;
     });
     SearchResult {
-      result,
+      result: result.iter().take(10).map(|cs| cs.to_owned()).collect::<Vec<CharacterSearchResult>>(),
       num_items: num_characters
     }
   }
