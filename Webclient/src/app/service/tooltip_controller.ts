@@ -15,14 +15,13 @@ export class TooltipControllerService extends ObserverPattern {
         super();
     }
 
-    positionTooltip(): void {
-        const tooltip = this.getTooltip();
-        tooltip.style.top = this.mousePositionService.y_pos - 70 + "px";
-        tooltip.style.left = this.mousePositionService.x_pos + 20 + "px";
+    positionTooltip(isMobile: boolean): void {
+        if (isMobile) this.positionMobile();
+        else this.positionDesktop();
     }
 
-    showTooltip(args: any): void {
-        this.positionTooltip();
+    showTooltip(args: any, isMobile: boolean): void {
+        this.positionTooltip(isMobile);
         this.getTooltip().style.display = 'block';
         this.notify(callback => callback.call(callback, args));
     }
@@ -39,5 +38,17 @@ export class TooltipControllerService extends ObserverPattern {
         const tooltip = document.getElementById("global_tooltip");
         if (!!tooltip) this.savedReference = tooltip;
         return tooltip;
+    }
+
+    private positionDesktop(): void {
+        const tooltip = this.getTooltip();
+        tooltip.style.top = this.mousePositionService.y_pos - 70 + "px";
+        tooltip.style.left = this.mousePositionService.x_pos + 20 + "px";
+    }
+
+    private positionMobile(): void {
+        const tooltip = this.getTooltip();
+        tooltip.style.top = this.mousePositionService.y_pos + 30 + "px";
+        tooltip.style.left = "54px";
     }
 }
