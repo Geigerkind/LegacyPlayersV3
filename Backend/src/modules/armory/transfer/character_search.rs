@@ -1,8 +1,9 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
+use crate::dto::SearchResult;
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult, SearchResult};
+use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult};
 use crate::modules::armory::tools::PerformCharacterSearch;
 use crate::modules::data::Data;
 

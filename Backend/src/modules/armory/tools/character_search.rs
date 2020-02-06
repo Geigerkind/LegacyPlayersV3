@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 
+use crate::dto::SearchResult;
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{CharacterSearchFilter, CharacterSearchResult, SearchResult, CharacterSearchGuildDto, CharacterSearchCharacterDto};
+use crate::modules::armory::dto::{CharacterSearchCharacterDto, CharacterSearchFilter, CharacterSearchGuildDto, CharacterSearchResult};
 use crate::modules::armory::tools::GetGuild;
 use crate::modules::data::Data;
 use crate::modules::data::tools::RetrieveRace;
@@ -54,15 +55,15 @@ impl PerformCharacterSearch for Armory {
             .and_then(|character_guild| self.get_guild(character_guild.guild_id)
               .and_then(|guild| Some(CharacterSearchGuildDto {
                 guild_id: guild.id,
-                name: guild.name.to_owned()
+                name: guild.name.to_owned(),
               }))),
           character: CharacterSearchCharacterDto {
             character_id: character.id,
             name: character.last_update.as_ref().unwrap().character_name.clone(),
             hero_class_id: character.last_update.as_ref().unwrap().character_info.hero_class_id,
-            server_id: character.server_id
+            server_id: character.server_id,
           },
-          timestamp: character.last_update.as_ref().unwrap().timestamp
+          timestamp: character.last_update.as_ref().unwrap().timestamp,
         }
       })
       .collect();
@@ -108,7 +109,7 @@ impl PerformCharacterSearch for Armory {
     });
     SearchResult {
       result: result.iter().take(10).map(|cs| cs.to_owned()).collect::<Vec<CharacterSearchResult>>(),
-      num_items: num_characters
+      num_items: num_characters,
     }
   }
 }
