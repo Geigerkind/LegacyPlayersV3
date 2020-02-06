@@ -98,8 +98,8 @@ export class TableComponent implements OnChanges {
         return this.bodyRowsData
             .filter(row => row.columns.every((column, index) => {
                 const filter = this.currentFilter[this.headColumns[index].filter_name].filter;
-                return !filter || filter.toString() === column.content || (
-                    column.type === 0 && column.content.includes(filter)
+                return !filter || filter.toString().toLowerCase() === column.content.toString().toLowerCase() || (
+                    column.type === 0 && column.content.toString().toLowerCase().includes(filter.toString().toLowerCase())
                 );
             }))
             .sort((leftRow, rightRow) => {
