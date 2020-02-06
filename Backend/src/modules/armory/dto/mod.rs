@@ -7,12 +7,9 @@ pub use self::guild::GuildDto;
 pub use self::character_guild::CharacterGuildDto;
 pub use self::character_facial::CharacterFacialDto;
 
-pub use self::character_search_filter::CharacterSearchFilter;
-pub use self::character_search_result::CharacterSearchResult;
 pub use self::search_result::SearchResult;
-pub use self::character_search_guild::CharacterSearchGuildDto;
-pub use self::character_search_character::CharacterSearchCharacterDto;
 
+pub use self::character_search::*;
 pub use self::character_viewer::*;
 
 mod character;
@@ -25,10 +22,7 @@ mod character_guild;
 mod character_facial;
 
 mod search_result;
-mod character_search_filter;
-mod character_search_result;
-mod character_search_guild;
-mod character_search_character;
+mod character_search;
 
 mod character_viewer;
 
