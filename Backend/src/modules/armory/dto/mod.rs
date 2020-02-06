@@ -13,12 +13,7 @@ pub use self::search_result::SearchResult;
 pub use self::character_search_guild::CharacterSearchGuildDto;
 pub use self::character_search_character::CharacterSearchCharacterDto;
 
-pub use self::character_viewer::CharacterViewerDto;
-pub use self::character_viewer_guild::CharacterViewerGuildDto;
-pub use self::character_viewer_gear::CharacterViewerGearDto;
-pub use self::character_viewer_item::CharacterViewerItemDto;
-pub use self::character_viewer_profession::CharacterViewerProfessionDto;
-pub use self::character_viewer_talents::CharacterViewerTalentsDto;
+pub use self::character_viewer::*;
 
 mod character;
 mod character_history;
@@ -36,11 +31,6 @@ mod character_search_guild;
 mod character_search_character;
 
 mod character_viewer;
-mod character_viewer_guild;
-mod character_viewer_gear;
-mod character_viewer_item;
-mod character_viewer_profession;
-mod character_viewer_talents;
 
 pub use self::armory_failure::ArmoryFailure;
 mod armory_failure;
