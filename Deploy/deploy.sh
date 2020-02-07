@@ -146,7 +146,8 @@ function deployBackend {
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
   cp .env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
-  echo "\nMYSQL_DNS=\"mysql://rpll:${DB_PASSWORD}@127.0.0.1/\"" >> /home/${BACKEND_USER}/.env
+  echo "" >> /home/${BACKEND_USER}/.env
+  echo "MYSQL_DNS=\"mysql://rpll:${DB_PASSWORD}@127.0.0.1/\"" >> /home/${BACKEND_USER}/.env
   cd /root
 }
 
