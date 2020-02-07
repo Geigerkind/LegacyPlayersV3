@@ -7,9 +7,6 @@ edition = "2018"
 [dependencies]
 rocket = "*"
 mysql_connection = { path = "./../../Backend/sub_crates/mysql_connection" }
-serde = "*"
-serde_derive = "*"
-serde_json = "*"
 
 [dependencies.rocket_contrib]
 version = "*"
