@@ -9,6 +9,7 @@ import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {ConsentTableModule} from "./module/consent_table/module";
+import {FooterBarModule} from "./module/footer_bar/module";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -28,7 +29,8 @@ export function createTranslateLoader(http: HttpClient) {
             }
         }),
         Routing,
-        ConsentTableModule
+        ConsentTableModule,
+        FooterBarModule
     ],
     providers: [TranslationService],
     bootstrap: [App]
