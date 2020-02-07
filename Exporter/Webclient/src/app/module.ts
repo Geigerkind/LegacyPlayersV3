@@ -5,11 +5,17 @@ import {Routing} from './routing';
 import {App} from './component/app';
 import {NavigationBarModule} from "./module/navigation_bar/module";
 import {TranslationService} from "./service/translation";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {ConsentTableModule} from "./module/consent_table/module";
 import {FooterBarModule} from "./module/footer_bar/module";
+import {LoadingBarService} from "./service/loading_bar";
+import {RouterLoadingBarModule} from "./module/router_loading_bar/module";
+import {NotificationService} from "./service/notification";
+import {LoadingBarInterceptor} from "./service/interceptor/loading_bar";
+import {APIService} from "./service/api";
+import {NotificationListModule} from "./module/notification_list/module";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -19,6 +25,7 @@ export function createTranslateLoader(http: HttpClient) {
     declarations: [App],
     imports: [
         BrowserModule,
+        RouterLoadingBarModule,
         NavigationBarModule,
         HttpClientModule,
         TranslateModule.forRoot({
@@ -30,9 +37,16 @@ export function createTranslateLoader(http: HttpClient) {
         }),
         Routing,
         ConsentTableModule,
-        FooterBarModule
+        FooterBarModule,
+        NotificationListModule,
     ],
-    providers: [TranslationService],
+    providers: [
+        LoadingBarService,
+        TranslationService,
+        NotificationService,
+        APIService,
+        {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true, deps: [LoadingBarService]},
+    ],
     bootstrap: [App]
 })
 export class Module {

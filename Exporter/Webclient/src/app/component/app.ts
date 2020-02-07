@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {TranslationService} from "../service/translation";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'root',
@@ -10,6 +11,7 @@ export class App {
   title = 'LP Consent Manager';
 
   constructor(
-      private translationService: TranslationService
+      private translationService: TranslationService,
+      private router: Router
   ) {}
 }

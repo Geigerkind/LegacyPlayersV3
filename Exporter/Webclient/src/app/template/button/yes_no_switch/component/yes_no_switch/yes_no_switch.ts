@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
     selector: "YesNoSwitch",
@@ -7,6 +7,17 @@ import {Component, Input} from "@angular/core";
 })
 export class YesNoSwitchComponent {
 
-    @Input() state: boolean;
+    stateData: boolean;
+    @Output() stateChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+
+    @Input()
+    set state(newState: boolean) {
+        if (this.stateData !== undefined && this.stateData !== newState)
+            this.stateChange.emit(newState);
+        this.stateData = newState;
+    }
+    get state(): boolean {
+        return this.stateData;
+    }
 
 }

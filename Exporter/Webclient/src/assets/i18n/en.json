@@ -1,4 +1,10 @@
 {
+    "serverResponses": {
+        "521": "Consent has already been given!",
+        "522": "No consent has been given yet!",
+        "523": "None of your characters is the guild master of this guild!",
+        "524": "Something went wrong, please try again!"
+    },
     "NavigationBar": {
         "manager": "Consent Manager"
     },
