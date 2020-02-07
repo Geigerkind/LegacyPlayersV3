@@ -16,6 +16,8 @@ import {NotificationService} from "./service/notification";
 import {LoadingBarInterceptor} from "./service/interceptor/loading_bar";
 import {APIService} from "./service/api";
 import {NotificationListModule} from "./module/notification_list/module";
+import {SettingsService} from "./service/settings";
+import {AuthenticationInterceptor} from "./service/interceptor/authentication";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -44,8 +46,10 @@ export function createTranslateLoader(http: HttpClient) {
         LoadingBarService,
         TranslationService,
         NotificationService,
+        SettingsService,
         APIService,
         {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true, deps: [LoadingBarService]},
+        {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true, deps: [SettingsService]},
     ],
     bootstrap: [App]
 })

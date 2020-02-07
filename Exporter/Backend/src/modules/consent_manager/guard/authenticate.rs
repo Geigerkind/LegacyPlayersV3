@@ -17,7 +17,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
     if auth_header.is_none() {
       return Failure((Status::Unauthorized, ()));
     }
-    let split: Vec<&str> = auth_header.unwrap().split(",").collect();
+
+    let split: Vec<&str> = auth_header.unwrap().split("|").collect();
     if split.len() != 2 {
       return Failure((Status::Unauthorized, ()));
     }
