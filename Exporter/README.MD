@@ -6,6 +6,11 @@ LegacyPlayers gives you the ability to export and manage your server specific da
 * Use LPs armory, PvP and PvE log viewer as a service by your server for your player
 * Let player manage consent, such that GDPR compliance is ensured
 
+# Disclaimer
+This is merely a suggestion  of an implementation for the export mechanism with privacy in mind.
+Feel free to fork this exporter and modify it such that it suits your needs. You can also implement
+of fully custom system using the API specified on the website's swagger UI.
+
 # How does it work?
 LegacyPlayers requires you to implement two endpoints and mount a docker container in your server environment.
 * A plugin for your world server that exports raid and pvp data to the container
