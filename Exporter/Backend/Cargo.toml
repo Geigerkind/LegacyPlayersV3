@@ -1,0 +1,17 @@
+[package]
+name = "backend"
+version = "0.1.0"
+authors = ["Tom Dymel <tom@dymel.dev>"]
+edition = "2018"
+
+[dependencies]
+rocket = "*"
+mysql_connection = { path = "./../../Backend/sub_crates/mysql_connection" }
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+
+[dependencies.rocket_contrib]
+version = "*"
+default-features = false
+features = ["json"]
