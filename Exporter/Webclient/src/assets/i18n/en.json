@@ -1,5 +1,11 @@
 {
     "NavigationBar": {
-        "manager": "Manager"
+        "manager": "Consent Manager"
+    },
+    "ArmoryExporter": {
+        "title": "Armory-Data Export",
+        "description": "Armory data includes all information about your character, i.e. name, title, level, guild, gear, professions, talents etc.",
+        "characterName": "Character name",
+        "consent": "Consent"
     }
 }

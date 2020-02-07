@@ -1,13 +1,17 @@
+@import "src/styles/global";
+
 :host {
     display: flex;
     flex-direction: column;
     min-height: 100%;
     overflow: auto;
 
-    main {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
+    NavigationBar {
+        margin-bottom: $spacing;
+    }
+
+    ConsentTable {
+        width: calc(100% - #{$spacing} * 2);
+        align-self: center;
     }
 }
