@@ -15,8 +15,8 @@ impl PerformCharacterSearch for Armory {
   fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult> {
     let mut filter = filter.to_owned();
     let characters = self.characters.read().unwrap();
-    if filter.name.filter.is_some() { filter.name.filter = filter.name.filter.replace(filter.name.filter.as_ref().unwrap().to_lowercase()); }
-    if filter.guild.filter.is_some() { filter.guild.filter = filter.guild.filter.replace(filter.guild.filter.as_ref().unwrap().to_lowercase()); }
+    if filter.name.filter.is_some() { *filter.name.filter.as_mut().unwrap() = filter.name.filter.as_ref().unwrap().to_lowercase(); }
+    if filter.guild.filter.is_some() { *filter.guild.filter.as_mut().unwrap() = filter.guild.filter.as_ref().unwrap().to_lowercase(); }
     let intermediate = characters.iter()
       .filter(|(_, character)| character.last_update.is_some())
       .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))

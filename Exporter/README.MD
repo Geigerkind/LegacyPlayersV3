@@ -22,7 +22,7 @@ You need to implement in your website's account panel a link to the docker conta
 
 TODO: Picture of the consent manager
 
-* The user can specify the characters that the player wants to export
+* The player can specify the characters that the player wants to export
 * If a character is the guild master of some guild, the player can specify whether the guild's raid logs are
 exported
 * The player can choose to delete data of a character
