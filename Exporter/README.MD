@@ -20,7 +20,7 @@ consent. The picture below outlines its functionality.
 You need to implement in your website's account panel a link to the docker container's consent manager
 (how is specified below). The consent manager takes care of the rest:  
 
-TODO: Picture of the consent manager
+![ConsentManager](ConsentManager.png)
 
 * The player can specify the characters that the player wants to export
 * If a character is the guild master of some guild, the player can specify whether the guild's raid logs are
