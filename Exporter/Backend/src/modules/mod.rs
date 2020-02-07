@@ -1,3 +1,3 @@
 pub use self::consent_manager::ConsentManager;
 
-mod consent_manager;
+pub mod consent_manager;
