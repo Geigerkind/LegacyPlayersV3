@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 rocket = "*"
+hyper = "*"
 mysql_connection = { path = "./../../Backend/sub_crates/mysql_connection" }
 
 [dependencies.rocket_contrib]

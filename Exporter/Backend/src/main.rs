@@ -1,6 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use] extern crate mysql_connection;
 #[macro_use] extern crate rocket;
+extern crate hyper;
 
 mod dto;
 mod modules;
