@@ -8,6 +8,7 @@ use rocket::http::Status;
 pub enum Failure {
   ConsentAlreadyGiven,
   NoConsentGivenYet,
+  NotTheGuildMaster,
   Database
 }
 
@@ -16,7 +17,8 @@ impl Responder<'static> for Failure {
     let status = match self {
       Failure::ConsentAlreadyGiven => Status::new(520, "ConsentAlreadyGiven"),
       Failure::NoConsentGivenYet => Status::new(521, "NoConsentGivenYet"),
-      Failure::Database => Status::new(522, "Database"),
+      Failure::NotTheGuildMaster => Status::new(522, "NotTheGuildMaster"),
+      Failure::Database => Status::new(523, "Database"),
     };
     Response::build()
       .status(status)

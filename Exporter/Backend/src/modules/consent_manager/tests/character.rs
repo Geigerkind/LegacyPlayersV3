@@ -1,5 +1,6 @@
 use crate::modules::ConsentManager;
 use crate::modules::consent_manager::tools::CharacterConsent;
+use mysql_connection::tools::Execute;
 
 #[test]
 fn character_consent() {
@@ -20,4 +21,7 @@ fn character_consent() {
 
   let consent_manager3 = ConsentManager::default().init();
   assert!(!consent_manager3.has_given_consent(character_id));
+
+  // Cleanup
+  consent_manager.db_lp_consent.execute_wparams("DELETE FROM character_consent WHERE character_id=:character_id", params!("character_id" => character_id));
 }
