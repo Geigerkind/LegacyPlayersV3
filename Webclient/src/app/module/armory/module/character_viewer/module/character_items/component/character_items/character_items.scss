@@ -17,11 +17,11 @@
         background-position: center center;
         z-index: 0;
 
-        &.faction_1 {
+        &.faction_0 {
             background-image: url('/assets/armory/logo-alliance.png');
         }
 
-        &.faction_0 {
+        &.faction_1 {
             background-image: url('/assets/armory/logo-horde.png');
         }
     }
