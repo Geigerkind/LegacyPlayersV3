@@ -1,7 +1,7 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::ops::Shr;
-use std::thread;
+use std::{thread, env};
 use std::time::Duration;
 
 use crate::modules::{ArmoryExporter, CharacterDto};
@@ -13,7 +13,7 @@ use std::collections::HashMap;
 
 impl Run for ArmoryExporter {
   fn run(&mut self) {
-    let rate = 5; // TODO: Env
+    let rate = env::var("CHARACTER_FETCH_INTERVAL_IN_SEC").unwrap().parse::<u64>().unwrap();
     let sleep_duration_rate = Duration::new(rate, 0);
     loop {
       thread::sleep(sleep_duration_rate);
@@ -92,9 +92,9 @@ impl Run for ArmoryExporter {
 }
 
 fn get_server_uid(id: u32) -> u64 {
-  let salt = "TODO: RANDOM SALT"; // TODO
+  let salt = env::var("UID_SALT").unwrap();
   let mut hasher = DefaultHasher::new();
-  (id.to_string() + salt).hash(&mut hasher);
+  (id.to_string() + &salt).hash(&mut hasher);
   hasher.finish()
 }
 

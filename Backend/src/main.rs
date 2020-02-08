@@ -16,11 +16,13 @@ extern crate time_util;
 extern crate validator;
 #[macro_use] extern crate lazy_static;
 extern crate regex;
+extern crate dotenv;
 
 use rocket_okapi::swagger_ui::make_swagger_ui;
 use rocket_okapi::swagger_ui::SwaggerUIConfig;
 use rocket_okapi::swagger_ui::UrlObject;
 use rocket_prometheus::PrometheusMetrics;
+use dotenv::dotenv;
 
 use crate::modules::account;
 use crate::modules::armory;
@@ -31,6 +33,8 @@ pub mod dto;
 pub mod modules;
 
 fn main() {
+  dotenv().ok();
+
   let account = account::Account::default().init();
   let data = data::Data::default().init(None);
   let armory = armory::Armory::default().init();

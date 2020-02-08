@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
-use std::sync::{RwLock, Mutex};
+use std::env;
+use std::sync::{Mutex, RwLock};
+use std::sync::mpsc::Sender;
 
 use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
-use std::sync::mpsc::Sender;
 
 #[derive(Debug)]
 pub struct ConsentManager {
@@ -17,11 +18,11 @@ pub struct ConsentManager {
 impl Default for ConsentManager {
   fn default() -> Self {
     ConsentManager {
-      db_lp_consent: MySQLConnection::new("lp_consent"),
+      db_lp_consent: MySQLConnection::new_with_dns("lp_consent", env::var("LP_CONSENT_MYSQL_DNS").unwrap().as_str()),
       character_consent: RwLock::new(BTreeSet::new()),
       guild_consent: RwLock::new(BTreeSet::new()),
       sender_character_consent: Mutex::new(None),
-      sender_guild_consent: Mutex::new(None)
+      sender_guild_consent: Mutex::new(None),
     }
   }
 }

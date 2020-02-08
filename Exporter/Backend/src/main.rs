@@ -8,8 +8,10 @@ extern crate reqwest;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate dotenv;
 
 use std::thread;
+use dotenv::dotenv;
 
 use modules::ConsentManager;
 
@@ -24,6 +26,8 @@ pub trait Run {
 }
 
 fn main() {
+  dotenv().ok();
+
   let mut consent_manager = ConsentManager::default();
   let mut transport_layer = TransportLayer::default().init();
   let mut armory_exporter = ArmoryExporter::default().init();

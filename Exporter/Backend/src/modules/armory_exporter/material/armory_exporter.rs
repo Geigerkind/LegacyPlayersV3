@@ -6,6 +6,7 @@ use mysql_connection::tools::Select;
 
 use crate::modules::armory_exporter::domain_value::MetaTalent;
 use crate::modules::CharacterDto;
+use std::env;
 
 #[derive(Debug)]
 pub struct ArmoryExporter {
@@ -20,8 +21,8 @@ pub struct ArmoryExporter {
 impl Default for ArmoryExporter {
   fn default() -> Self {
     ArmoryExporter {
-      db_characters: MySQLConnection::new("characters"),
-      db_lp_consent: MySQLConnection::new("lp_consent"),
+      db_characters: MySQLConnection::new_with_dns("characters", env::var("CHARACTER_MYSQL_DNS").unwrap().as_str()),
+      db_lp_consent: MySQLConnection::new_with_dns("lp_consent", env::var("LP_CONSENT_MYSQL_DNS").unwrap().as_str()),
       sender_character: None,
       last_fetch_time: 0,
       gem_enchant_id_to_item_id: HashMap::new(),
@@ -33,7 +34,7 @@ impl Default for ArmoryExporter {
 impl ArmoryExporter {
   pub fn init(mut self) -> Self
   {
-    let expansion_id = 2; // TODO: Env
+    let expansion_id = env::var("EXPANSION_ID").unwrap().parse::<u8>().unwrap();
 
     self.last_fetch_time = self.db_lp_consent.select_value("SELECT last_fetch FROM meta_data", &|mut row| {
       let last_fetch: u64 = row.take(0).unwrap();

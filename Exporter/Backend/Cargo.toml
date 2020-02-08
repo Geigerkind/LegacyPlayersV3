@@ -13,6 +13,7 @@ time_util = { path = "./../../Backend/sub_crates/time_util" }
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
+dotenv = "*"
 
 [dependencies.rocket_contrib]
 version = "*"
