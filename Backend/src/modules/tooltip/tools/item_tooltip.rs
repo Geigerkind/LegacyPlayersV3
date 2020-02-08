@@ -16,7 +16,7 @@ pub trait RetrieveItemTooltip {
 
 impl RetrieveItemTooltip for Tooltip {
   fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, TooltipFailure> {
-    let item_stat_effects = [7,8,37,23,24,10,11,12,42,38,39,40,41,9,13,21,43];
+    let item_stat_effects = [7,8,37,23,24,10,11,12,42,38,39,40,41,9,13,21,43,22];
     let item_res = data.get_item(expansion_id, item_id);
     if item_res.is_none() {
       return Err(TooltipFailure::InvalidInput);
