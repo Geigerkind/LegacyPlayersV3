@@ -4,6 +4,7 @@ extern crate hyper;
 extern crate mysql_connection;
 #[macro_use]
 extern crate rocket;
+extern crate time_util;
 
 use std::thread;
 

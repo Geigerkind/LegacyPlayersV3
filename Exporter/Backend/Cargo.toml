@@ -8,6 +8,7 @@ edition = "2018"
 rocket = "*"
 hyper = "*"
 mysql_connection = { path = "./../../Backend/sub_crates/mysql_connection" }
+time_util = { path = "./../../Backend/sub_crates/time_util" }
 
 [dependencies.rocket_contrib]
 version = "*"
