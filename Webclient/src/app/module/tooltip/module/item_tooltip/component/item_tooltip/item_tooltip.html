@@ -32,8 +32,8 @@
     <div *ngFor="let slot of payload.socket.slots">
         <div *ngIf="slot.item">
             <Icon [size]="12" iconPath="/assets/wow_icon/{{ slot.item.icon }}.jpg"></Icon>
-            <span *ngIf="slot.flag === slot.item.flag" class="item_quality_2">{{ ' ' + slot.item.effect }}</span>
-            <span *ngIf="slot.flag !== slot.item.flag" class="item_quality_1">{{ ' ' + slot.item.effect }}</span>
+            <span *ngIf="gemMatches(slot.flag, slot.item.flag)" class="item_quality_2">{{ ' ' + slot.item.effect }}</span>
+            <span *ngIf="!gemMatches(slot.flag, slot.item.flag)" class="item_quality_1">{{ ' ' + slot.item.effect }}</span>
         </div>
         <div *ngIf="!slot.item">
             <Icon [size]="12" iconPath="/assets/tooltip/socket{{ slot.flag }}.gif"></Icon>

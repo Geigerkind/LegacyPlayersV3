@@ -334,7 +334,7 @@ fn try_fill_socket(data: &Data, expansion_id: u8, language_id: u8, socket: &mut 
   }
 
   let item_res = item.as_ref().unwrap();
-  if item_res.item_id != item_id || item_res.enchant_id.is_none() {
+  if item_res.item_id != item_id {
     return;
   }
 
@@ -410,7 +410,7 @@ fn try_apply_random_item_property(data: &Data, expansion_id: u8, language_id: u8
         scaling_factor = 0;
       }
 
-      let stat_value = ((coefficient_value * scaling_factor as u32) as f64 / 10000.0).round() as u16;
+      let stat_value = ((coefficient_value * scaling_factor as u32) as f64 / 10000.0).floor() as u16;
       item_tooltip.stats.as_mut().unwrap().push(Stat {
         value: stat_value.to_owned(),
         name: effect_value.replace("+$i ", "").to_owned()
