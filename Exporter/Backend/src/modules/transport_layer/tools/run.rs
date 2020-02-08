@@ -35,7 +35,7 @@ impl Run for TransportLayer {
           .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
           .body(serde_json::to_string(&received.1).unwrap())
           .send();
-        println!("Response okay => {:?}", response.is_ok());
+        println!("Response okay => {:?} for {} ({})", response.is_ok(), received.1.character_history.unwrap().character_name, received.1.server_uid);
       } else {
         thread::sleep(sleep_duration_wait);
       }
