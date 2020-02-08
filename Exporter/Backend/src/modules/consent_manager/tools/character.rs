@@ -1,6 +1,7 @@
 use crate::dto::Failure;
 use crate::modules::ConsentManager;
 use mysql_connection::tools::Execute;
+use crate::modules::consent_manager::tools::broadcast::BroadcastConsent;
 
 pub trait CharacterConsent {
   fn has_given_consent(&self, character_id: u32) -> bool;
@@ -25,6 +26,7 @@ impl CharacterConsent for ConsentManager {
                                             "character_id" => character_id
                                           )) {
       character_consent.insert(character_id);
+      self.broadcast_character(false, character_id);
       return Ok(())
     }
     Err(Failure::Database)
@@ -42,6 +44,7 @@ impl CharacterConsent for ConsentManager {
                                             "character_id" => character_id
                                           )) {
       character_consent.remove(&character_id);
+      self.broadcast_character(true, character_id);
       return Ok(())
     }
     Err(Failure::Database)

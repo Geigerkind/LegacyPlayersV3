@@ -3,9 +3,7 @@ use std::io::Read;
 use hyper::Client;
 use rocket::http::Status;
 use rocket::outcome::Outcome::*;
-use rocket::request::{self, FromRequest, Request, State};
-use rocket::Response;
-use rocket::response::Responder;
+use rocket::request::{self, FromRequest, Request};
 
 pub struct Authenticate;
 

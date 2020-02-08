@@ -1,6 +1,7 @@
 use crate::dto::Failure;
 use crate::modules::ConsentManager;
 use mysql_connection::tools::Execute;
+use crate::modules::consent_manager::tools::broadcast::BroadcastConsent;
 
 pub trait GuildConsent {
   fn has_given_consent(&self, guild_id: u32) -> bool;
@@ -31,6 +32,7 @@ impl GuildConsent for ConsentManager {
                                             "character_id" => character_id
                                           )) {
       guild_consent.insert(guild_id);
+      self.broadcast_guild(false, guild_id);
       return Ok(())
     }
     Err(Failure::Database)
@@ -52,6 +54,7 @@ impl GuildConsent for ConsentManager {
                                             "guild_id" => guild_id
                                           )) {
       guild_consent.remove(&guild_id);
+      self.broadcast_guild(true, guild_id);
       return Ok(())
     }
     Err(Failure::Database)
