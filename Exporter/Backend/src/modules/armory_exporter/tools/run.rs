@@ -1,13 +1,13 @@
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::thread;
 use std::time::Duration;
 
-use crate::modules::armory_exporter::tools::{RetrieveRecentOfflineCharacters, RetrieveCharacterSkills, RetrieveCharacterItems};
 use crate::modules::{ArmoryExporter, CharacterDto};
-use crate::Run;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use crate::modules::transport_layer::{CharacterHistoryDto, CharacterInfoDto, CharacterGearDto, CharacterItemDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
+use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters};
+use crate::modules::transport_layer::{CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, CharacterGuildDto, GuildDto};
+use crate::Run;
 
 impl Run for ArmoryExporter {
   fn run(&mut self) {
@@ -21,6 +21,7 @@ impl Run for ArmoryExporter {
         println!("Processing {} ({})", character_table.name, character_table.character_id);
         let professions = self.get_profession_skills(character_table.character_id);
         let gear = self.get_character_items(character_table.character_id);
+        let guild = self.get_character_guild(character_table.character_id);
 
         let character_title;
         if character_table.chosen_title == 0 { character_title = None; } else { character_title = Some(character_table.chosen_title as u16); }
@@ -47,7 +48,7 @@ impl Run for ArmoryExporter {
                 ring1: get_item_slot(10, &gear),
                 ring2: get_item_slot(11, &gear),
                 trinket1: get_item_slot(12, &gear),
-                trinket2: get_item_slot(13, &gear)
+                trinket2: get_item_slot(13, &gear),
               },
               hero_class_id: character_table.hero_class_id,
               level: character_table.level,
@@ -55,25 +56,31 @@ impl Run for ArmoryExporter {
               profession1: professions.get(0).and_then(|skill| Some(skill.skill_id as u16)),
               profession2: professions.get(1).and_then(|skill| Some(skill.skill_id as u16)),
               talent_specialization: None, // TODO
-              race_id: character_table.race_id
+              race_id: character_table.race_id,
             },
             character_name: character_table.name.to_owned(),
-            character_guild: None, // TODO
+            character_guild: guild.and_then(|char_guild_table| Some(CharacterGuildDto {
+              guild: GuildDto {
+                server_uid: get_server_uid(char_guild_table.guild_id),
+                name: char_guild_table.guild_name.to_owned()
+              },
+              rank: char_guild_table.rank_name.to_owned()
+            })),
             character_title,
             profession_skill_points1: professions.get(0).and_then(|skill| Some(skill.value as u16)),
             profession_skill_points2: professions.get(1).and_then(|skill| Some(skill.value as u16)),
-            facial: None // TODO
-          })
+            facial: None, // TODO
+          }),
         }));
       });
     }
   }
 }
 
-fn get_server_uid(character_id: u32) -> u64 {
+fn get_server_uid(id: u32) -> u64 {
   let salt = "TODO: RANDOM SALT"; // TODO
   let mut hasher = DefaultHasher::new();
-  (character_id.to_string() + salt).hash(&mut hasher);
+  (id.to_string() + salt).hash(&mut hasher);
   hasher.finish()
 }
 
