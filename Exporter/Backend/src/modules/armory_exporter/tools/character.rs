@@ -11,7 +11,7 @@ impl RetrieveRecentOfflineCharacters for ArmoryExporter {
     let last_fetch_time = self.last_fetch_time;
     self.last_fetch_time = time_util::now();
     self.db_characters.select_wparams("SELECT guid, name, race, class, gender, level, chosenTitle, playerBytes, playerBytes2 FROM characters \
-      WHERE logout_time < :now AND logout_time > :last_fetch_time", &|mut row| CharacterTable {
+      WHERE online=0 AND logout_time > :last_fetch_time", &|mut row| CharacterTable {
       character_id: row.take(0).unwrap(),
       name: row.take(1).unwrap(),
       race_id: row.take(2).unwrap(),
@@ -22,8 +22,7 @@ impl RetrieveRecentOfflineCharacters for ArmoryExporter {
       playerbytes1: row.take(7).unwrap(),
       playerbytes2: row.take(8).unwrap()
     }, params!(
-      "last_fetch_time" => last_fetch_time,
-      "now" => self.last_fetch_time
+      "last_fetch_time" => last_fetch_time
     )).to_vec()
   }
 }
