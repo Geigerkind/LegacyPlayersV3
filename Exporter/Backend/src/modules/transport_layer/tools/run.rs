@@ -15,7 +15,7 @@ impl Run for TransportLayer {
       let receiver = self.receiver_character.as_ref().unwrap();
       let received = receiver.try_recv();
       if received.is_ok() {
-        println!("{}", received.unwrap());
+        println!("{:?}", received.unwrap());
       }
     }
   }

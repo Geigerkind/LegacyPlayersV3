@@ -10,7 +10,7 @@ use std::thread;
 
 use modules::ConsentManager;
 
-use crate::modules::{ArmoryExporter, TransportLayer};
+use crate::modules::{ArmoryExporter, TransportLayer, CharacterDto};
 use std::sync::mpsc;
 
 mod dto;
@@ -25,7 +25,7 @@ fn main() {
   let mut transport_layer = TransportLayer::default().init();
   let mut armory_exporter = ArmoryExporter::default().init();
 
-  let (s_char, r_char) = mpsc::channel::<String>();
+  let (s_char, r_char) = mpsc::channel::<(u32, CharacterDto)>();
   let (s_char_consent, r_char_consent) = mpsc::channel::<(bool, u32)>();
   let (s_guild_consent, r_guild_consent) = mpsc::channel::<(bool, u32)>();
 

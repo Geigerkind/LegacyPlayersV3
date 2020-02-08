@@ -1,10 +1,13 @@
-use mysql_connection::material::MySQLConnection;
 use std::sync::mpsc::Sender;
+
+use mysql_connection::material::MySQLConnection;
+
+use crate::modules::CharacterDto;
 
 #[derive(Debug)]
 pub struct ArmoryExporter {
   pub db_characters: MySQLConnection,
-  pub sender_character: Option<Sender<String>>,
+  pub sender_character: Option<Sender<(u32, CharacterDto)>>,
   pub last_fetch_time: u64
 }
 
