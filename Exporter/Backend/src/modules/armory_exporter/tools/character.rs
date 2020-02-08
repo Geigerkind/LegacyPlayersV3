@@ -9,7 +9,6 @@ pub trait RetrieveRecentOfflineCharacters {
 impl RetrieveRecentOfflineCharacters for ArmoryExporter {
   fn get_recent_offline_characters(&mut self) -> Vec<CharacterTable> {
     let last_fetch_time = self.last_fetch_time;
-    self.last_fetch_time = time_util::now();
     self.db_characters.select_wparams("SELECT guid, name, race, class, gender, level, chosenTitle, playerBytes, playerBytes2 FROM characters \
       WHERE online=0 AND logout_time > :last_fetch_time", &|mut row| CharacterTable {
       character_id: row.take(0).unwrap(),

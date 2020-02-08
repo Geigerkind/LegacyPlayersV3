@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use crate::modules::{ArmoryExporter, CharacterDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
-use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData};
+use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents};
 use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
 use crate::Run;
 use std::collections::HashMap;
@@ -18,12 +18,16 @@ impl Run for ArmoryExporter {
     loop {
       thread::sleep(sleep_duration_rate);
       println!("Exporting next batch of characters...");
-
-      self.get_recent_offline_characters().iter().for_each(|character_table| {
+      let offline_characters= self.get_recent_offline_characters();
+      if !offline_characters.is_empty() {
+        self.last_fetch_time = time_util::now();
+      }
+      offline_characters.iter().for_each(|character_table| {
         println!("Processing {} ({})", character_table.name, character_table.character_id);
         let professions = self.get_profession_skills(character_table.character_id);
         let gear = self.get_character_items(character_table.character_id);
         let guild = self.get_character_guild(character_table.character_id);
+        let talent = self.get_character_talent(character_table.character_id);
 
         let character_title;
         if character_table.chosen_title == 0 { character_title = None; } else { character_title = Some(character_table.chosen_title as u16); }
@@ -57,7 +61,7 @@ impl Run for ArmoryExporter {
               gender: character_table.gender != 0,
               profession1: professions.get(0).and_then(|skill| Some(skill.skill_id as u16)),
               profession2: professions.get(1).and_then(|skill| Some(skill.skill_id as u16)),
-              talent_specialization: None, // TODO
+              talent_specialization: Some(talent),
               race_id: character_table.race_id,
             },
             character_name: character_table.name.to_owned(),
