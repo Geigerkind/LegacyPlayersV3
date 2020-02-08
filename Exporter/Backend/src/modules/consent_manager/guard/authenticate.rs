@@ -1,6 +1,3 @@
-use std::io::Read;
-
-use hyper::Client;
 use rocket::http::Status;
 use rocket::outcome::Outcome::*;
 use rocket::request::{self, FromRequest, Request};
@@ -27,12 +24,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
     }
     let account_id = account_id_res.unwrap();
 
-    let client = Client::new();
     let uri = format!("http://localhost:8001/token_validator/{}/{}", token, account_id);
-    let resp = client.get(&uri).send();
-    let mut buffer: [u8; 4] = [0; 4];
-    let result = resp.unwrap().read(&mut buffer);
-    if result.is_err() || (buffer != [116, 114, 117, 101] && buffer != [49, 0, 0, 0]) {
+    let resp = reqwest::blocking::get(&uri);
+    if resp.is_err() {
+      return Failure((Status::Unauthorized, ()));
+    }
+
+    let json_res = resp.unwrap().json::<bool>();
+    if json_res.is_err() || json_res.unwrap() == false {
       return Failure((Status::Unauthorized, ()));
     }
 

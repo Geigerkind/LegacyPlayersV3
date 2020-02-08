@@ -11,8 +11,10 @@ use crate::modules::armory_exporter::domain_value::CharacterItemTable;
 
 impl Run for ArmoryExporter {
   fn run(&mut self) {
+    let rate = 60; // TODO: Env
+    let sleep_duration_rate = Duration::new(rate, 0);
     loop {
-      thread::sleep(Duration::new(1, 0));
+      thread::sleep(sleep_duration_rate);
       println!("Exporting next batch of characters...");
 
       self.get_recent_offline_characters().iter().for_each(|character_table| {

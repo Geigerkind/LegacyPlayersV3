@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CharacterItemDto {
   pub item_id: u32,
   pub random_property_id: Option<i16>,

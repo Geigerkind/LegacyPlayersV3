@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CharacterFacialDto {
   pub skin_color: u8,
   pub face_style: u8,

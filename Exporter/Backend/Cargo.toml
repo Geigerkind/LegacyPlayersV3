@@ -6,9 +6,13 @@ edition = "2018"
 
 [dependencies]
 rocket = "*"
-hyper = "*"
+reqwest = { version = "*", features = ["blocking", "json"] }
+tokio = { version = "*", features = ["full"] }
 mysql_connection = { path = "./../../Backend/sub_crates/mysql_connection" }
 time_util = { path = "./../../Backend/sub_crates/time_util" }
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

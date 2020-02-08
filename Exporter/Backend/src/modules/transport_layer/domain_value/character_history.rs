@@ -1,6 +1,6 @@
 use crate::modules::transport_layer::{CharacterInfoDto, CharacterGuildDto, CharacterFacialDto};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CharacterHistoryDto {
   pub character_info: CharacterInfoDto,
   pub character_name: String,

@@ -1,7 +1,6 @@
 use std::collections::BTreeSet;
 use std::sync::mpsc::Receiver;
-
-use hyper::Client;
+use reqwest::blocking::Client;
 
 use crate::modules::CharacterDto;
 

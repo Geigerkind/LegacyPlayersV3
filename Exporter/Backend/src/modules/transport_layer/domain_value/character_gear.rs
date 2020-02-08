@@ -1,6 +1,6 @@
 use crate::modules::transport_layer::CharacterItemDto;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CharacterGearDto {
   pub head: Option<CharacterItemDto>,
   pub neck: Option<CharacterItemDto>,
