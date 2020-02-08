@@ -6,5 +6,7 @@ pub struct CharacterTable {
   pub hero_class_id: u8,
   pub gender: u8,
   pub level: u8,
-  pub chosen_title: u32
+  pub chosen_title: u32,
+  pub playerbytes1: u32,
+  pub playerbytes2: u32
 }

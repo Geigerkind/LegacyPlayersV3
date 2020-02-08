@@ -6,8 +6,9 @@ use std::time::Duration;
 use crate::modules::{ArmoryExporter, CharacterDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
 use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters};
-use crate::modules::transport_layer::{CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, CharacterGuildDto, GuildDto};
+use crate::modules::transport_layer::{CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, CharacterGuildDto, GuildDto, CharacterFacialDto};
 use crate::Run;
+use std::ops::Shr;
 
 impl Run for ArmoryExporter {
   fn run(&mut self) {
@@ -69,7 +70,13 @@ impl Run for ArmoryExporter {
             character_title,
             profession_skill_points1: professions.get(0).and_then(|skill| Some(skill.value as u16)),
             profession_skill_points2: professions.get(1).and_then(|skill| Some(skill.value as u16)),
-            facial: None, // TODO
+            facial: Some(CharacterFacialDto {
+              skin_color: (character_table.playerbytes1 % 256 as u32) as u8,
+              face_style: (character_table.playerbytes1.shr(8) % 256 as u32) as u8,
+              hair_style: (character_table.playerbytes1.shr(16) % 256 as u32 ) as u8,
+              hair_color: (character_table.playerbytes1.shr(24) % 256 as u32) as u8,
+              facial_hair: (character_table.playerbytes2 % 256 as u32) as u8
+            })
           }),
         }));
       });
