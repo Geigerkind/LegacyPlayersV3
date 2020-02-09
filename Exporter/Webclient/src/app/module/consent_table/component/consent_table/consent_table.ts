@@ -8,15 +8,12 @@ import {ConsentService} from "../../service/consent";
 })
 export class ConsentTableComponent {
 
-    sampleCharacters: Array<{ character_id: number, hero_class_id: number, name: string, consent: boolean }> = [
-        { character_id: 1, hero_class_id: 2, name: "Peter", consent: true },
-        { character_id: 2, hero_class_id: 3, name: "PeterPan", consent: true },
-        { character_id: 3, hero_class_id: 4, name: "PanPeter", consent: false }
-    ];
+    sampleCharacters: Array<{ character_id: number, hero_class_id: number, character_name: string, consent: boolean }> = [];
 
     constructor(
         private consentService: ConsentService
     ) {
+        this.consentService.get_characters(result => this.sampleCharacters = result);
     }
 
     handleConsent(character_id: number, state: boolean) {

@@ -19,7 +19,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
         // TODO: REMOVE: DEBUG
         this.settingsService.set("API_TOKEN", {
             "token": "abc",
-            "account_id": 42
+            "account_id": 5
         });
 
         // Check if the token exists

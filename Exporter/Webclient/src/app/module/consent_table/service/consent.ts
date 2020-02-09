@@ -12,6 +12,10 @@ export class ConsentService {
     ) {
     }
 
+    get_characters(on_success: any): void {
+        this.apiService.get(ConsentService.URL_CONSENT_CHARACTER, on_success);
+    }
+
     give_character_consent(character_id: number, on_success: any): void {
         this.apiService.post(ConsentService.URL_CONSENT_CHARACTER + '/' + character_id, on_success);
     }

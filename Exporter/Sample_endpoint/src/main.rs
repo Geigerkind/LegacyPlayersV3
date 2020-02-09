@@ -5,7 +5,7 @@ use rocket_contrib::json::Json;
 
 #[get("/<token>/<account_id>")]
 fn validate_token(token: String, account_id: u32) -> Json<bool> {
-  Json(token == "abc" && account_id == 42)
+  Json(token == "abc" && account_id == 5)
 }
 
 fn main() {
