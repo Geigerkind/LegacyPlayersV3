@@ -60,3 +60,13 @@ using the provided salt, as it is only required for you to identify these charac
 do not loose this salt, because it is not recoverable, nor can any character be re-guided.
 * `CHARACTER_FETCH_INTERVAL_IN_SEC` - Per default, every 60 your character database is fetched 
 for characters that went offline since the last fetch. You can specify this interval here.
+
+Once everything is done, you can start the container using `docker-compose up`. If your 
+server is often subject to a restart, you should also create a systemd service that starts 
+the consent manager as well. 
+
+Initially the armory exporter will fully fetch all offline characters and queue them to be 
+send to LegacyPlayers, so there may be a small spike. 
+
+Also every night at 5 AM (CET), the service will update itself and in that process prolong 
+your API token on LP for a few days such that it will not expire.
