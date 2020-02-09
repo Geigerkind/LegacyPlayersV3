@@ -1,0 +1,10 @@
+FROM archlinux:20200205
+
+RUN pacman -Syu --noconfirm
+RUN pacman -S --noconfirm git npm
+RUN npm i -g @angular/cli
+RUN git clone https://github.com/Geigerkind/LegacyPlayersV3
+
+COPY start.sh ./
+
+CMD ["/usr/bin/bash", "./start.sh"]

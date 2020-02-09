@@ -61,6 +61,10 @@ do not loose this salt, because it is not recoverable, nor can any character be 
 * `CHARACTER_FETCH_INTERVAL_IN_SEC` - Per default, every 60 your character database is fetched 
 for characters that went offline since the last fetch. You can specify this interval here.
 
+The service exposes the consent manager at the port `TODO`. Please adjust your webserver's 
+configuration accordingly. A NGINX configuration can look like this:  
+`TODO`
+
 Once everything is done, you can start the container using `docker-compose up`. If your 
 server is often subject to a restart, you should also create a systemd service that starts 
 the consent manager as well. 
