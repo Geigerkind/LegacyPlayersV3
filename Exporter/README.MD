@@ -65,11 +65,26 @@ this variable needs to be configured accordingly. In ArchLinux for example you c
 docker ip by typing `ip address`, in my case it was `172.17.0.1`. Tying all together the DNS should look 
 like this: `mysql://<db_user>:<db_pass>@<docker_bridge>/<character_db_name>`, e.g. `mysql://root:secret@172.17.0.1/characters`. 
 Also make sure to adjust in your mysql config to also bind `172.17.0.1`. Open for this your config and configure 
-`bind-address` for example like this: `bind-address=127.0.0.1,172.17.0.1`.
+`bind-address` for example like this: `bind-address=127.0.0.1,172.17.0.1`. MariaDB does not allow to set 
+multiple addresses at `bind-address` currently. To work around this, we can let MariaDB bind to all addresses 
+using `bind-address=0.0.0.0` and restrict access using the firewall. Make sure `skip-networking` is commented 
+out. Update your iptables rules to drop all connections to `3306` except from `127.0.0.1` and `172.17.0.1`: 
+```shell script
+iptables -N db_access
+iptables -A db_access --src 127.0.0.1 -j ACCEPT
+iptables -A db_access --src 172.17.0.1 -j ACCEPT
+iptables -A db_access -j DROP
+iptables -I INPUT -m tcp -p tcp --dport 3306 -j db_access
+iptables-save -f /etc/iptables/iptables.rules
+```
 
 The service exposes the consent manager at the port `8880`. Please adjust your webserver's 
 configuration accordingly. A NGINX configuration can look like this:  
-`TODO`
+```
+location /path/to/consent/manager/ {
+    proxy_pass http://127.0.0.1:8880;
+}
+```
 
 Once everything is done, you can start the container using `docker-compose up`. If your 
 server is often subject to a restart, you should also create a systemd service that starts 
