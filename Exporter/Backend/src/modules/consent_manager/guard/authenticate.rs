@@ -1,3 +1,5 @@
+use std::env;
+
 use rocket::http::Status;
 use rocket::outcome::Outcome::*;
 use rocket::request::{self, FromRequest, Request};
@@ -24,8 +26,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
     }
     let account_id = account_id_res.unwrap();
 
-    // TODO: Env
-    let uri = format!("http://localhost:8001/token_validator/{}/{}", token, account_id);
+    // TODO: Put token and id into the header
+    let uri = format!("{}/{}/{}", env::var("URL_AUTHORIZATION_ENDPOINT").unwrap(), token, account_id);
     let resp = reqwest::blocking::get(&uri);
     if resp.is_err() {
       return Failure((Status::Unauthorized, ()));
