@@ -1,6 +1,6 @@
 version: '3.6'
 services:
-    lp_cm_mariadb:
+    LPCMmariadb:
         build: ./Environment/lp_cm_mariadb
         volumes:
             - ./../../Database/patches:/docker-entrypoint-initdb.d
@@ -8,17 +8,17 @@ services:
             - MYSQL_USER=mysql
             - MYSQL_PASSWORD=notSecret
             - MYSQL_ROOT_PASSWORD=notSecret
-    lp_cm_nginx:
+    LPCMnginx:
         build: ./Environment/lp_cm_nginx
         ports:
             - '80:80'
             - '443:443'
-    lp_cm_webclient:
+    LPCMwebclient:
         build: ./Environment/lp_cm_webclient
-    lp_cm_backend:
+    LPCMbackend:
         build: ./Environment/lp_cm_backend
         environment:
-            - LP_CONSENT_MYSQL_DNS="mysql://root:notSecret@lp_cm_mariadb/"
+            - LP_CONSENT_MYSQL_DNS="mysql://root:notSecret@LPCMmariadb/"
             - CHARACTER_MYSQL_DNS="mysql://root:secret@127.0.0.1/"
             - LP_API_TOKEN="c7719277bbf252d90427afa088cdaa11898ffcfee09ff073869a61aaff88b686fe3da602642d76ccfbc532c6756cc678df7e5368c0aede8fe83290399699b36e"
             - URL_AUTHORIZATION_ENDPOINT="http://localhost:8001/token_validator"
