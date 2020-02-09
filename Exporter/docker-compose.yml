@@ -11,11 +11,11 @@ services:
     lpcmnginx:
         build: ./Environment/lp_cm_nginx
         ports:
-            - '80:80'
-            - '443:443'
+            - '8880:80'
     lpcmwebclient:
         build: ./Environment/lp_cm_webclient
     lpcmbackend:
+        network_mode: host
         build: ./Environment/lp_cm_backend
         environment:
             - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/
