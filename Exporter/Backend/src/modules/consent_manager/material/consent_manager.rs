@@ -9,6 +9,7 @@ use mysql_connection::tools::Select;
 #[derive(Debug)]
 pub struct ConsentManager {
   pub db_lp_consent: MySQLConnection,
+  pub db_characters: MySQLConnection,
   pub character_consent: RwLock<BTreeSet<u32>>,
   pub guild_consent: RwLock<BTreeSet<u32>>,
   pub sender_character_consent: Mutex<Option<Sender<(bool, u32)>>>,
@@ -19,6 +20,7 @@ impl Default for ConsentManager {
   fn default() -> Self {
     ConsentManager {
       db_lp_consent: MySQLConnection::new_with_dns("lp_consent", env::var("LP_CONSENT_MYSQL_DNS").unwrap().as_str()),
+      db_characters: MySQLConnection::new_with_dns("characters", env::var("CHARACTER_MYSQL_DNS").unwrap().as_str()),
       character_consent: RwLock::new(BTreeSet::new()),
       guild_consent: RwLock::new(BTreeSet::new()),
       sender_character_consent: Mutex::new(None),

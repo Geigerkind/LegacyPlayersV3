@@ -49,6 +49,7 @@ fn main() {
   rocket::ignite()
     .manage(consent_manager.init())
     .mount("/API/consent_manager/", routes![
+      modules::consent_manager::transfer::character::get_characters,
       modules::consent_manager::transfer::character::give_consent,
       modules::consent_manager::transfer::character::withdraw_consent,
       modules::consent_manager::transfer::guild::give_consent,

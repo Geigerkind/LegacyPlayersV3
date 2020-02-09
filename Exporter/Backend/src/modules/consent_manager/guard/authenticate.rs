@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::outcome::Outcome::*;
 use rocket::request::{self, FromRequest, Request};
 
-pub struct Authenticate;
+pub struct Authenticate(pub u32);
 
 impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
   type Error = ();
@@ -24,6 +24,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
     }
     let account_id = account_id_res.unwrap();
 
+    // TODO: Env
     let uri = format!("http://localhost:8001/token_validator/{}/{}", token, account_id);
     let resp = reqwest::blocking::get(&uri);
     if resp.is_err() {
@@ -35,6 +36,6 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
       return Failure((Status::Unauthorized, ()));
     }
 
-    Success(Authenticate)
+    Success(Authenticate(account_id))
   }
 }
