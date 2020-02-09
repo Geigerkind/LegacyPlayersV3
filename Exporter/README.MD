@@ -60,8 +60,14 @@ using the provided salt, as it is only required for you to identify these charac
 do not loose this salt, because it is not recoverable, nor can any character be re-guided.
 * `CHARACTER_FETCH_INTERVAL_IN_SEC` - Per default, every 60 your character database is fetched 
 for characters that went offline since the last fetch. You can specify this interval here.
+* `CHARACTER_MYSQL_DNS` - The docker environment operates in bridge mode. In order to access the host 
+this variable needs to be configured accordingly. In ArchLinux for example you can obtain the host 
+docker ip by typing `ip address`, in my case it was `172.17.0.1`. Tying all together the DNS should look 
+like this: `mysql://<db_user>:<db_pass>@<docker_bridge>/<character_db_name>`, e.g. `mysql://root:secret@172.17.0.1/characters`. 
+Also make sure to adjust in your mysql config to also bind `172.17.0.1`. Open for this your config and configure 
+`bind-address` for example like this: `bind-address=127.0.0.1,172.17.0.1`.
 
-The service exposes the consent manager at the port `TODO`. Please adjust your webserver's 
+The service exposes the consent manager at the port `8880`. Please adjust your webserver's 
 configuration accordingly. A NGINX configuration can look like this:  
 `TODO`
 
