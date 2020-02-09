@@ -41,7 +41,7 @@ and then optionally send to LegacyPlayers, where the player can view its data im
 git clone https://github.com/Geigerkind/LegacyPlayersV3
 cd LegacyPlayersV3/Exporter
 cp docker-compose.yml docker-compose.yml.me
-# Adjust configuration files, specified below
+# Adjust docker-compose.yml.me, like it is specified below
 bash start.sh # if not root user: sudo start.sh, as docker requires root
 ```
 I suggest to create a systemd timer to restart the containers once in a while. A restart while automatically apply the 
