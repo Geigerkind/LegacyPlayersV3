@@ -118,3 +118,28 @@ fn prolong_token() {
 
   account.db_main.execute("DELETE FROM account_member WHERE mail='sdfjikoijhsdfuhiihud@jaylappTest.dev'");
 }
+
+#[test]
+fn prolong_token_by_str() {
+  let account = Account::default();
+  let post_obj = CreateMember {
+    nickname: "sdfjiksdfsdfsdfsdfoijhsdfuhiihud".to_string(),
+    credentials: Credentials {
+      mail: "sdfjiksdfsdfsdfsdfoijhsdfuhiihud@jaylappTest.dev".to_string(),
+      password: "Password123456Password123456Password123456".to_string(),
+    },
+  };
+
+  let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+  let in_seven_days = time_util::get_ts_from_now_in_secs(7);
+  assert!(in_seven_days - api_token.exp_date <= 5);
+
+  let db_token = sha3::hash(&[&api_token.token.as_ref().unwrap().clone(), &"token".to_owned()]);
+  let member_id = *account.api_token_to_member_id.read().unwrap().get(&db_token).unwrap();
+  let new_token = account.prolong_token_by_str(api_token.token.as_ref().unwrap().clone(), member_id, 30);
+  assert!(new_token.is_ok());
+  let in_thirty_days = time_util::get_ts_from_now_in_secs(30);
+  assert!(in_thirty_days - new_token.unwrap().exp_date <= 5);
+
+  account.db_main.execute("DELETE FROM account_member WHERE mail='sdfjiksdfsdfsdfsdfoijhsdfuhiihud@jaylappTest.dev'");
+}

@@ -32,6 +32,6 @@ pub fn delete_token(me: State<Account>, auth: Authenticate, token_id: Json<u32>)
 #[post("/token/prolong", format = "application/json", data = "<params>")]
 pub fn prolong_token(me: State<Account>, auth: Authenticate, params: Json<ProlongToken>) -> Result<Json<APIToken>, Failure>
 {
-  me.prolong_token(params.token_id, auth.0, params.days)
+  me.prolong_token_by_str(params.token.clone(), auth.0, params.days)
     .and_then(|api_token| Ok(Json(api_token)))
 }

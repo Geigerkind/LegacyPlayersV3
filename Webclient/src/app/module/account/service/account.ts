@@ -22,7 +22,7 @@ export class AccountService {
         if (api_token.exp_date - (Date.now() / 1000) > 3 * 24 * 60 * 60)
             return;
         this.apiService.post(AccountService.URL_PROLONG, {
-            token_id: api_token.id,
+            token_id: api_token.token,
             days: 7
         }, (new_token) => this.settingsService.set("API_TOKEN", new_token));
     }

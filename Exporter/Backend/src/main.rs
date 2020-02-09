@@ -10,7 +10,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate dotenv;
 
-use std::thread;
+use std::{thread, env};
 use dotenv::dotenv;
 
 use modules::ConsentManager;
@@ -25,8 +25,29 @@ pub trait Run {
   fn run(&mut self);
 }
 
+#[derive(Debug, Serialize)]
+struct ProlongToken {
+  token: String,
+  days: u8
+}
+
+fn prolong_token() {
+  let token = env::var("LP_API_TOKEN").unwrap();
+  let uri = env::var("URL_PROLONG_TOKEN").unwrap();
+  let client = reqwest::blocking::Client::new();
+  let _ = client
+    .post(&uri)
+    .body(serde_json::to_string(&ProlongToken {
+      token,
+      days: 30
+    }).unwrap())
+    .send();
+}
+
 fn main() {
   dotenv().ok();
+
+  prolong_token();
 
   let mut consent_manager = ConsentManager::default();
   let mut transport_layer = TransportLayer::default().init();

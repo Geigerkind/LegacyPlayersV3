@@ -12,6 +12,7 @@ pub trait Token {
   fn create_token(&self, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure>;
   fn delete_token(&self, token_id: u32, member_id: u32) -> Result<(), Failure>;
   fn prolong_token(&self, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure>;
+  fn prolong_token_by_str(&self, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure>;
 }
 
 impl Token for Account {
@@ -205,5 +206,23 @@ impl Token for Account {
       return Ok(api_token.clone());
     }
     Err(Failure::Unknown)
+  }
+
+  fn prolong_token_by_str(&self, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure> {
+    let token_id;
+    {
+      let api_tokens = self.api_tokens.read().unwrap();
+      let token_vec_res = api_tokens.get(&member_id);
+      if token_vec_res.is_none() {
+        return Err(Failure::Unknown);
+      }
+      let token_vec = token_vec_res.unwrap();
+      let db_token = sha3::hash(&[&real_token, &"token".to_owned()]);
+      token_id = token_vec.iter().find(|api_token| api_token.token.as_ref().unwrap() == &db_token).and_then(|api_token| Some(api_token.id));
+    }
+    if token_id.is_none() {
+      return Err(Failure::Unknown);
+    }
+    self.prolong_token(token_id.unwrap(), member_id, days)
   }
 }
