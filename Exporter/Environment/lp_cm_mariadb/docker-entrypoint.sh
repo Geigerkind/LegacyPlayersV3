@@ -280,15 +280,11 @@ _mysql_want_help() {
 	return 1
 }
 
-extract_sql() {
-  for filename in /docker-entrypoint-initdb.d/*.zip
-  do
-    if [ -f "${filename}" ]; then
-      if [ ! -f "/initFiles/$(basename ${filename%.*}).sql" ]; then
-        unzip ${filename} -d /initFiles
-      fi
-    fi
-  done
+apply_merger() {
+  cd /docker-entrypoint-initdb.d
+  bash ./merger.sh
+  docker_process_sql < "./merge.sql"
+  rm merge.sql
 }
 
 _main() {
@@ -322,8 +318,7 @@ _main() {
 			mysql_note "Temporary server started."
 
 			docker_setup_db
-			extract_sql
-			docker_process_init_files /initFiles/*
+			apply_merger
 
 			mysql_note "Stopping temporary server"
 			docker_temp_server_stop
@@ -332,6 +327,14 @@ _main() {
 			echo
 			mysql_note "MySQL init process done. Ready for start up."
 			echo
+		else
+		  mysql_note "Starting temporary server"
+			docker_temp_server_start "$@"
+			mysql_note "Temporary server started."
+		  apply_merger
+		  mysql_note "Stopping temporary server"
+			docker_temp_server_stop
+			mysql_note "Temporary server stopped"
 		fi
 	fi
 	exec "$@"
