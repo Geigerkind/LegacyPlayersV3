@@ -18,10 +18,10 @@ services:
     lpcmbackend:
         build: ./Environment/lp_cm_backend
         environment:
-            - LP_CONSENT_MYSQL_DNS="mysql://root:notSecret@127.0.0.1/"
-            - CHARACTER_MYSQL_DNS="mysql://root:secret@127.0.0.1/"
-            - LP_API_TOKEN="c7719277bbf252d90427afa088cdaa11898ffcfee09ff073869a61aaff88b686fe3da602642d76ccfbc532c6756cc678df7e5368c0aede8fe83290399699b36e"
-            - URL_AUTHORIZATION_ENDPOINT="http://localhost:8001/token_validator"
-            - CHARACTER_FETCH_INTERVAL_IN_SEC="60"
-            - EXPANSION_ID="2"
-            - UID_SALT="SomeSalt"
+            - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/
+            - CHARACTER_MYSQL_DNS=mysql://root:secret@127.0.0.1/
+            - LP_API_TOKEN=c7719277bbf252d90427afa088cdaa11898ffcfee09ff073869a61aaff88b686fe3da602642d76ccfbc532c6756cc678df7e5368c0aede8fe83290399699b36e
+            - URL_AUTHORIZATION_ENDPOINT=http://localhost:8001/token_validator
+            - CHARACTER_FETCH_INTERVAL_IN_SEC=60
+            - EXPANSION_ID=2
+            - UID_SALT=SomeSalt
