@@ -3,7 +3,7 @@ services:
     lpcmmariadb:
         build: ./Environment/lp_cm_mariadb
         volumes:
-            - ./../../Database/patches:/docker-entrypoint-initdb.d
+            - ./Database/patches:/docker-entrypoint-initdb.d
         environment:
             - MYSQL_USER=mysql
             - MYSQL_PASSWORD=notSecret
