@@ -21,8 +21,8 @@ pub struct ArmoryExporter {
 impl Default for ArmoryExporter {
   fn default() -> Self {
     ArmoryExporter {
-      db_characters: MySQLConnection::new_with_dns("characters", env::var("CHARACTER_MYSQL_DNS").unwrap().as_str()),
-      db_lp_consent: MySQLConnection::new_with_dns("lp_consent", env::var("LP_CONSENT_MYSQL_DNS").unwrap().as_str()),
+      db_characters: MySQLConnection::new_with_dns(env::var("CHARACTER_MYSQL_DNS").unwrap().as_str()),
+      db_lp_consent: MySQLConnection::new_with_dns(env::var("LP_CONSENT_MYSQL_DNS").unwrap().as_str()),
       sender_character: None,
       last_fetch_time: 0,
       gem_enchant_id_to_item_id: HashMap::new(),

@@ -10,7 +10,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate dotenv;
 
-use std::{thread, env};
+use std::thread;
 use dotenv::dotenv;
 
 use modules::ConsentManager;

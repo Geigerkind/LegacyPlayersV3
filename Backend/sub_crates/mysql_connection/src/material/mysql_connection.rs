@@ -18,9 +18,9 @@ impl MySQLConnection {
     }
   }
 
-  pub fn new_with_dns(db_name: &str, dns: &str) -> Self {
+  pub fn new_with_dns(dns: &str) -> Self {
     MySQLConnection {
-      con: mysql::Pool::new([dns, db_name].concat()).unwrap()
+      con: mysql::Pool::new(dns).unwrap()
     }
   }
 }
