@@ -68,11 +68,12 @@ Also make sure to adjust in your mysql config to also bind `172.17.0.1`. Open fo
 `bind-address` for example like this: `bind-address=127.0.0.1,172.17.0.1`. MariaDB does not allow to set 
 multiple addresses at `bind-address` currently. To work around this, we can let MariaDB bind to all addresses 
 using `bind-address=0.0.0.0` and restrict access using the firewall. Make sure `skip-networking` is commented 
-out. Update your iptables rules to drop all connections to `3306` except from `127.0.0.1` and `172.17.0.1`: 
+out. Update your iptables rules to drop all connections to `3306` except from `127.0.0.1` and `192.168.0.0/16` 
+(or to be more restrictive only the backend's docker container's ip address): 
 ```shell script
 iptables -N db_access
 iptables -A db_access --src 127.0.0.1 -j ACCEPT
-iptables -A db_access --src 172.17.0.1 -j ACCEPT
+iptables -A db_access --src 192.168.0.0/16 -j ACCEPT
 iptables -A db_access -j DROP
 iptables -I INPUT -m tcp -p tcp --dport 3306 -j db_access
 iptables-save -f /etc/iptables/iptables.rules
