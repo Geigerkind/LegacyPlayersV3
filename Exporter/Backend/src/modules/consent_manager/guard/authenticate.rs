@@ -6,6 +6,12 @@ use rocket::request::{self, FromRequest, Request};
 
 pub struct Authenticate(pub u32);
 
+#[derive(Debug, Serialize)]
+struct APIToken {
+  pub token: String,
+  pub account_id: u32
+}
+
 impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
   type Error = ();
 
@@ -26,9 +32,15 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
     }
     let account_id = account_id_res.unwrap();
 
-    // TODO: Put token and id into the header
-    let uri = format!("{}/{}/{}", env::var("URL_AUTHORIZATION_ENDPOINT").unwrap(), token, account_id);
-    let resp = reqwest::blocking::get(&uri);
+    let uri = env::var("URL_AUTHORIZATION_ENDPOINT").unwrap();
+    let client = reqwest::blocking::Client::new();
+    let resp = client
+      .post(&uri)
+      .body(serde_json::to_string(&APIToken {
+        token,
+        account_id
+      }).unwrap())
+      .send();
     if resp.is_err() {
       return Failure((Status::Unauthorized, ()));
     }

@@ -1,11 +1,20 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use] extern crate rocket;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
 
 use rocket_contrib::json::Json;
 
-#[get("/<token>/<account_id>")]
-fn validate_token(token: String, account_id: u32) -> Json<bool> {
-  Json(token == "abc" && account_id == 5)
+#[derive(Debug, Deserialize)]
+struct APIToken {
+  token: String,
+  account_id: u32
+}
+
+#[post("/", format = "application/json", data = "<api_token>")]
+fn validate_token(api_token: Json<APIToken>) -> Json<bool> {
+  Json(api_token.token == "abc" && api_token.account_id == 42)
 }
 
 fn main() {
