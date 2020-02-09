@@ -37,6 +37,16 @@ Given these information, data that is exported, through the armory or world serv
 and then optionally send to LegacyPlayers, where the player can view its data immediately. 
 
 # Installation
+```shell script
+git clone https://github.com/Geigerkind/LegacyPlayersV3
+cd LegacyPlayersV3/Exporter
+cp docker-compose.yml docker-compose.yml.me
+# Adjust configuration files, specified below
+bash start.sh # if not root user: sudo start.sh, as docker requires root
+```
+I suggest to create a systemd timer to restart the containers once in a while. A restart while automatically apply the 
+newest updates.
+
 Before referring to the consent manager, set in the local storage for the key `API_TOKEN` the
 serialized JSON object `{ token: string; account_id: number; }`.
 
@@ -93,6 +103,3 @@ the consent manager as well.
 
 Initially the armory exporter will fully fetch all offline characters and queue them to be 
 send to LegacyPlayers, so there may be a small spike. 
-
-Also every night at 5 AM (CET), the service will update itself and in that process prolong 
-your API token on LP for a few days such that it will not expire.
