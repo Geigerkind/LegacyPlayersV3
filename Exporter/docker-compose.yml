@@ -2,6 +2,8 @@ version: '3.6'
 services:
     lpcmmariadb:
         build: ./Environment/lp_cm_mariadb
+        networks:
+          - lp_cm_net
         volumes:
             - ./Database/patches:/docker-entrypoint-initdb.d
         environment:
@@ -10,13 +12,18 @@ services:
             - MYSQL_ROOT_PASSWORD=notSecret
     lpcmnginx:
         build: ./Environment/lp_cm_nginx
+        networks:
+          - lp_cm_net
         ports:
             - '8880:80'
     lpcmwebclient:
         build: ./Environment/lp_cm_webclient
+        networks:
+          - lp_cm_net
     lpcmbackend:
-        network_mode: host
         build: ./Environment/lp_cm_backend
+        networks:
+          - lp_cm_net
         environment:
             - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/
             - CHARACTER_MYSQL_DNS=mysql://root:secret@127.0.0.1/
@@ -25,3 +32,7 @@ services:
             - CHARACTER_FETCH_INTERVAL_IN_SEC=60
             - EXPANSION_ID=2
             - UID_SALT=SomeSalt
+
+networks:
+  lp_cm_net:
+    driver: bridge
