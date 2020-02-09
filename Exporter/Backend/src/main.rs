@@ -10,7 +10,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate dotenv;
 
-use std::thread;
+use std::{thread, env};
 use dotenv::dotenv;
 
 use modules::ConsentManager;
@@ -27,6 +27,8 @@ pub trait Run {
 
 fn main() {
   dotenv().ok();
+
+  println!("{}", env::var("LP_CONSENT_MYSQL_DNS").unwrap());
 
   let mut consent_manager = ConsentManager::default();
   let mut transport_layer = TransportLayer::default().init();
