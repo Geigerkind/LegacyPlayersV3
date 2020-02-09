@@ -44,5 +44,19 @@ Specify the environment variable `URL_AUTHORIZATION_ENDPOINT` and `LP_API_TOKEN`
 
 The `LP_API_TOKEN` refers to the API token generated on LegacyPlayers and the endpoint 
 verifies the key,value pair specified in `API_TOKEN`. The backend server will attempt to
-call `URL_AUTHORIZATION_ENDPOINT/<token>/<account_id>`. The endpoint should return either 
-`true` or `false`.
+post to `URL_AUTHORIZATION_ENDPOINT`. The endpoint should return either 
+`true` or `false`. Please check out the sample endpoint in the export repository for more 
+information.
+
+The container requires `read-only access` to your WoW-server's `character database`. Please 
+create a database user for this purpose and specify the DNS in the environment variable 
+`CHARACTER_MYSQL_DNS` in the docker-compose file.
+
+Further you need to specify the following environment variables in the docker-compose file:
+* `EXPANSION_ID` - Vanilla => 1; TBC => 2; WOTLK => 3. If your server harbors a custom implementation 
+of WoW or your expansion is not among these, please contact me via Discord.
+* `UID_SALT` - Your character und guild guids are not send directly to LP. They are hashed 
+using the provided salt, as it is only required for you to identify these characters. Please 
+do not loose this salt, because it is not recoverable, nor can any character be re-guided.
+* `CHARACTER_FETCH_INTERVAL_IN_SEC` - Per default, every 60 your character database is fetched 
+for characters that went offline since the last fetch. You can specify this interval here.
