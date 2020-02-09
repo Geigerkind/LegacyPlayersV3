@@ -1,7 +1,7 @@
 FROM archlinux:20200205
 
 RUN pacman -Syu --noconfirm
-RUN pacman -S --noconfirm git rustup gcc cmake openssl
+RUN pacman -S --noconfirm git rustup gcc cmake openssl pkgconf
 RUN rustup toolchain install nightly
 RUN rustup default nightly
 RUN git clone https://github.com/Geigerkind/LegacyPlayersV3
