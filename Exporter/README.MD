@@ -36,11 +36,13 @@ exported
 Given these information, data that is exported, through the armory or world server exporter, is filtered
 and then optionally send to LegacyPlayers, where the player can view its data immediately. 
 
-# Which endpoint needs to be implemented?
-TODO
+# Installation
+Before referring to the consent manager, set in the local storage for the key `API_TOKEN` the
+serialized JSON object `{ token: string; account_id: number; }`.
 
-# How can the world server plugin be installed?
-TODO
+Specify the environment variable `URL_AUTHORIZATION_ENDPOINT` and `LP_API_TOKEN` in the docker-compose file.
 
-# How do I install and configure the docker container?
-TODO
+The `LP_API_TOKEN` refers to the API token generated on LegacyPlayers and the endpoint 
+verifies the key,value pair specified in `API_TOKEN`. The backend server will attempt to
+call `URL_AUTHORIZATION_ENDPOINT/<token>/<account_id>`. The endpoint should return either 
+`true` or `false`.
