@@ -1,4 +1,4 @@
-FROM archlinux:20200205
+FROM archlinux:latest
 
 RUN pacman -Syu --noconfirm
 RUN pacman -S --noconfirm git rustup gcc cmake openssl pkgconf

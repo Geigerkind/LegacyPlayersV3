@@ -1,3 +1,3 @@
 cd LegacyPlayersV3/Exporter/Backend
 cargo clean
-cargo run
+RUST_BACKTRACE=full cargo run
