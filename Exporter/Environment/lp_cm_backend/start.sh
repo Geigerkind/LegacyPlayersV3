@@ -1,3 +1,5 @@
-cd LegacyPlayersV3/Exporter/Backend
+cd LegacyPlayersV3
+git pull
+cd Exporter/Backend
 cargo clean
-RUST_BACKTRACE=full cargo run
+RUST_ENV=production cargo run --release
