@@ -1,7 +1,7 @@
 REPOSITORY_NAME='LegacyPlayersV3'
 HOST_USER='root'
 BACKEND_USER='rpll'
-HOST_IP='51.38.125.33'
+HOST_IP='78.46.41.90'
 NUM_CORES=$(nproc)
 DB_PASSWORD=$(cat /root/Keys/db_password)
 

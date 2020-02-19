@@ -1,5 +1,5 @@
 HOST_USER='root'
-HOST_IP='51.38.125.33'
+HOST_IP='78.46.41.90'
 
 unzip ./Keys.zip
 

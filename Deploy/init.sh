@@ -1,9 +1,9 @@
 REPOSITORY_NAME='LegacyPlayersV3'
 REPOSITORY='https://github.com/Geigerkind/LegacyPlayersV3'
-DOMAIN='beta.legacyplayers.com'
+DOMAIN='alpha.legacyplayers.com'
 HOST_USER='root'
 BACKEND_USER='rpll'
-HOST_IP='51.38.125.33'
+HOST_IP='78.46.41.90'
 DB_PASSWORD=$(cat /root/Keys/db_password)
 
 function fixCertificates {
@@ -132,22 +132,15 @@ function initUfw {
 }
 
 function initServer {
-  sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
-
   # Requires user input
   useradd -m -G wheel ${BACKEND_USER}
   passwd ${BACKEND_USER}
   passwd -l root
 
-  # Temporary
-  pacman -S zstd --noconfirm
-  wget https://www.archlinux.de/download/core/os/x86_64/libarchive-3.4.1-1-x86_64.pkg.tar.zst
-  zstd -d libarchive-3.4.1-1-x86_64.pkg.tar.zst
-  pacman -U libarchive-3.4.1-1-x86_64.pkg.tar --noconfirm
-
   pacman -S archlinux-keyring --noconfirm
   pacman -Syu --noconfirm
-  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip vim zip
+  pacman -S --noconfirm git npm guetzli zopfli libwebp htop clang openssl pkg-config python python-werkzeug make fail2ban unzip vim zip sudo
+  sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g" /etc/sudoers
 
   # Fail2Ban configuration
   sed -i "s/maxretry = 5/maxretry = 3/g" /etc/sudoers
