@@ -7,6 +7,7 @@ import {SettingsService} from "../../../../service/settings";
     styleUrls: ["./navigation_bar.scss"]
 })
 export class NavigationBarComponent implements OnInit {
+    /*
     itemsRaids = [
         ["/raids/", "NavigationBar.raids.title"],
         ["/raids/bosses/", "NavigationBar.raids.bosses"],
@@ -15,13 +16,16 @@ export class NavigationBarComponent implements OnInit {
         ["/raids/speed_run/", "NavigationBar.raids.speed_run"],
         ["/raids/loot/", "NavigationBar.raids.loot"],
     ];
+     */
 
     itemsArmory = [
         ["/armory/", "NavigationBar.armory.title"],
+        /*
         ["/armory/items/", "NavigationBar.armory.items"],
         ["/armory/guilds/", "NavigationBar.armory.guilds"],
+         */
     ];
-
+/*
     itemsPvP = [
         ["/pvp/", "NavigationBar.pvp.title"],
         ["/pvp/standings/", "NavigationBar.pvp.standings"],
@@ -43,7 +47,7 @@ export class NavigationBarComponent implements OnInit {
     itemsQueue = [
         ["/queue/", "NavigationBar.queue.title"]
     ];
-
+*/
     accountItems: Array<Array<string>> = [
         ["/account/", "NavigationBar.account.title"],
         ["/logout/", "NavigationBar.account.logout"]
