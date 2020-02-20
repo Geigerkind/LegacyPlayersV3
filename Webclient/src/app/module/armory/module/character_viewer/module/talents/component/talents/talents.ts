@@ -98,7 +98,7 @@ export class TalentsComponent {
                 bc += encArr.charAt(bf[0] * 6 + bf[1]);
             }
 
-            if (buffer.length + (buffer.length % 2) < talents.split('|').map(substr => substr.length).reduce((acc, val) => acc + val))
+            if (buffer.length + (buffer.length % 2) < talentSubStr.length)
                 bc += 'Z';
         }
 
