@@ -3,7 +3,7 @@ use mysql_connection::tools::Select;
 use crate::modules::armory::Armory;
 use crate::modules::armory::domain_value::CharacterInfo;
 use crate::modules::armory::dto::{ArmoryFailure, CharacterInfoDto};
-use crate::modules::armory::tools::GetCharacterGear;
+use crate::modules::armory::tools::{GetCharacterGear, strip_talent_specialization};
 
 pub trait GetCharacterInfo {
   fn get_character_info(&self, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure>;
@@ -36,6 +36,8 @@ impl GetCharacterInfo for Armory {
       return Err(character_gear_res.err().unwrap());
     }
 
+    let talent_specialization = strip_talent_specialization(&character_info.talent_specialization);
+
     let params = params!(
       "gear_id" => character_gear_res.unwrap().id,
       "hero_class_id" => character_info.hero_class_id,
@@ -43,7 +45,7 @@ impl GetCharacterInfo for Armory {
       "gender" => character_info.gender,
       "profession1" => character_info.profession1.clone(),
       "profession2" => character_info.profession2.clone(),
-      "talent_specialization" => character_info.talent_specialization.clone(),
+      "talent_specialization" => talent_specialization,
       "race_id" => character_info.race_id
     );
     self.db_main.select_wparams_value("SELECT * FROM armory_character_info WHERE gear_id=:gear_id \

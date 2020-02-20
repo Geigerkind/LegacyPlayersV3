@@ -7,6 +7,7 @@ pub use self::character_info::*;
 pub use self::character_item::*;
 pub use self::character_search::PerformCharacterSearch;
 pub use self::character_viewer::CharacterViewer;
+pub use self::talent_specialization::*;
 
 mod guild;
 mod character;
@@ -17,3 +18,4 @@ mod character_info;
 mod character_item;
 mod character_search;
 mod character_viewer;
+mod talent_specialization;
