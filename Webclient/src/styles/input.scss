@@ -8,3 +8,7 @@ input, select {
     width: calc(100% - #{$spacing});
     margin-top: $spacing * 0.5;
 }
+
+select option {
+    color: #000 !important;
+}
