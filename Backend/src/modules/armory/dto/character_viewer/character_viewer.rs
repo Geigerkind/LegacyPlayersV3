@@ -1,4 +1,4 @@
-use crate::modules::armory::dto::{CharacterViewerGuildDto, CharacterViewerGearDto, CharacterViewerProfessionDto, CharacterViewerTalentsDto};
+use crate::modules::armory::dto::{CharacterViewerGuildDto, CharacterViewerGearDto, CharacterViewerProfessionDto, CharacterViewerTalentsDto, CharacterStat};
 use crate::dto::SelectOption;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -12,6 +12,7 @@ pub struct CharacterViewerDto {
   pub level: u8,
   pub name: String,
   pub server_name: String,
+  pub stats: Vec<CharacterStat>,
   pub guild: Option<CharacterViewerGuildDto>,
   pub history: Vec<SelectOption<u32>>,
   pub gear: CharacterViewerGearDto,
