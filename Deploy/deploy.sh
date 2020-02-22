@@ -8,7 +8,7 @@ DB_PASSWORD=$(cat /root/Keys/db_password)
 function cleanAssetCache {
   cd /root/cache/assets/
   for filename in $(find . -name "*.png") $(find . -name "*.jpg") $(find . -name "*.jpeg"); do
-    if [ ! -f "${filename}" ]; then
+    if [ ${filename} == *"wow_icon"* ] || [ ! -f "${filename}" ]; then
         continue
     fi
 
@@ -29,7 +29,7 @@ function optimizeJpg {
   cd /root/${REPOSITORY_NAME}/Webclient/src/assets/
   MEDIA_DIR='/root/cache/assets/'
   for filename in $(find . -name "*.jpg") $(find . -name "*.jpeg"); do
-    if [ ! -f "${filename}" ]; then
+    if [ ${filename} == *"wow_icon"* ] || [ ! -f "${filename}" ]; then
         continue
     fi
 
@@ -57,7 +57,7 @@ function optimizePng {
   cd /root/${REPOSITORY_NAME}/Webclient/src/assets/
   MEDIA_DIR='/root/cache/assets/'
   for filename in $(find . -name "*.png"); do
-    if [ ! -f "${filename}" ]; then
+    if [ ${filename} == *"wow_icon"* ] || [ ! -f "${filename}" ]; then
         continue
     fi
 
@@ -83,7 +83,7 @@ function optimizePng {
 }
 function convertToWebp {
   for filename in $(find /root/cache/assets/ -name "*.png") $(find /root/cache/assets/ -name "*.jpg") $(find /root/cache/assets/ -name "*.jpeg"); do
-    if [ ! -f "${filename}" ]; then
+    if [ ${filename} == *"wow_icon"* ] || [ ! -f "${filename}" ]; then
         continue
     fi
 
@@ -231,8 +231,8 @@ function deploy {
 
   updateConfigs
   deployDatabase
-  deployWebclient
-  deployBackend
+  deployWebclient &
+  deployBackend &
   waitForJobs
 
   startServices
