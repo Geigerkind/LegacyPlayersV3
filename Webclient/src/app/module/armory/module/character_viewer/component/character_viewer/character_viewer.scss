@@ -37,13 +37,18 @@
         }
         @media (min-width: 550px) {
             width: 100%;
-            Profession, Talents, Stats {
+            Profession, Talents {
                 width: calc(50% - #{$spacing} * 0.25);
                 float: left;
 
                 &:first-child {
                     margin-right: $spacing / 2;
                 }
+            }
+
+            Stats {
+                width: 100%;
+                float: left;
             }
         }
         @media (min-width: 658px) {
