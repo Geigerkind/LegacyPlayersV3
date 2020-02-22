@@ -2,7 +2,7 @@ use crate::modules::armory::dto::{CharacterViewerDto, ArmoryFailure, CharacterVi
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, GetCharacterHistory, GetGuild};
 use crate::modules::data::{Data, Stat};
-use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession, RetrieveHeroClass, RetrieveStatType, RetrieveItemStat};
+use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession, RetrieveHeroClass, RetrieveStatType, RetrieveItemStat, RetrieveEnchant};
 use crate::dto::SelectOption;
 use crate::modules::armory::domain_value::{CharacterItem, CharacterGear};
 
@@ -167,11 +167,25 @@ fn get_item_stats(data: &Data, expansion_id: u8, item: &Option<CharacterItem>) -
     return stats;
   }
   let item = item.as_ref().unwrap();
+
+  // Item stats from the template
   if let Some(item_stats) = data.get_item_stats(expansion_id, item.item_id) {
     item_stats.iter().for_each(|item_stat| {
       stats.push(item_stat.stat.to_owned());
     });
   }
+
+  // TODO: stats from spells
+
+  // Stats from enchantments
+  if let Some(enchant_id) = item.enchant_id {
+    let enchant = data.get_enchant(expansion_id, enchant_id).unwrap();
+    merge_character_stat_vec(&mut stats, enchant.stats);
+  }
+
+  // Stats from gems
+
+
   stats
 }
 
