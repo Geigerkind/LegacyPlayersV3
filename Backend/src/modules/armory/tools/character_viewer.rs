@@ -154,6 +154,7 @@ fn get_character_stats(data: &Data, language_id: u8, expansion_id: u8, gear: &Ch
   merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.trinket1));
   merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.trinket2));
 
+  acc.sort_by(|left,right| left.stat_type.cmp(&right.stat_type));
   acc.iter().map(|stat| CharacterStat {
     stat_type: data.get_localization(language_id, data.get_stat_type(stat.stat_type).unwrap().localization_id).unwrap().content.to_owned(),
     stat_value: stat.stat_value
