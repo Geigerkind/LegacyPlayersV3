@@ -11,6 +11,7 @@ pub struct CharacterViewerDto {
   pub hero_class_id: u8,
   pub level: u8,
   pub name: String,
+  pub server_name: String,
   pub guild: Option<CharacterViewerGuildDto>,
   pub history: Vec<SelectOption<u32>>,
   pub gear: CharacterViewerGearDto,

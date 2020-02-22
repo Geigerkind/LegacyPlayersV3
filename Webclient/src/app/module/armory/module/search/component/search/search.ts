@@ -46,15 +46,17 @@ export class SearchComponent {
         private characterSearchService: CharacterSearchService,
         private dataService: DataService
     ) {
-        this.dataService.get_all_servers((servers: Array<AvailableServer>) => servers.forEach(server => this.character_header_columns[3].type_range.push({
-            value: server.id,
-            label_key: server.name
-        })));
         this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
             value: hero_class.base.id,
             label_key: hero_class.localization
         })));
-        this.filterCharacterSearch(table_init_filter(this.character_header_columns));
+        this.dataService.get_all_servers((servers: Array<AvailableServer>) => {
+            servers.forEach(server => this.character_header_columns[3].type_range.push({
+                value: server.id,
+                label_key: server.name
+            }));
+            this.filterCharacterSearch(table_init_filter(this.character_header_columns));
+        });
     }
 
     filterCharacterSearch(filter: any): void {
@@ -75,6 +77,8 @@ export class SearchComponent {
                         content: row.character.name,
                         sub_type: 2,
                         sub_type_args: {
+                            // TODO: Needs to be refactored
+                            server_name: this.character_header_columns[3].type_range.find(content => content.value === row.character.server_id)?.label_key,
                             character_id: row.character.character_id
                         }
                     });

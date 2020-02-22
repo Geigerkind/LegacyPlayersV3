@@ -20,22 +20,22 @@ export class CharacterViewerComponent {
         this.activatedRouteService.paramMap.subscribe(params => {
             const history_id = params.get('character_history_id');
             if (history_id) {
-                this.loadCharacterByHistoryId(Number(params.get('character_id')), Number(history_id));
+                this.loadCharacterByHistoryId(params.get('server_name'), params.get('character_name'), Number(history_id));
                 return;
             }
-            this.loadCharacter(Number(params.get('character_id')));
+            this.loadCharacter(params.get('server_name'), params.get('character_name'));
         });
     }
 
     historyChanged(character_history_id: number): void {
-        this.routerService.navigate(['/armory/character/' + this.character.character_id + '/' + character_history_id]);
+        this.routerService.navigate(['/armory/character/' + this.character.server_name + '/' + this.character.name + '/' + character_history_id]);
     }
 
-    private loadCharacter(character_id: number): void {
-        this.characterViewerService.get_character_viewer(character_id, result => this.character = result);
+    private loadCharacter(server_name: string, character_name: string): void {
+        this.characterViewerService.get_character_viewer(server_name, character_name, result => this.character = result);
     }
 
-    private loadCharacterByHistoryId(character_id: number, character_history_id: number): void {
-        this.characterViewerService.get_character_viewer_by_history(character_history_id, character_id, result => this.character = result);
+    private loadCharacterByHistoryId(server_name: string, character_name: string, character_history_id: number): void {
+        this.characterViewerService.get_character_viewer_by_history(character_history_id, server_name, character_name, result => this.character = result);
     }
 }

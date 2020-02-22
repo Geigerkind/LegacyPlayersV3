@@ -76,6 +76,7 @@ impl CharacterViewer for Armory {
         data.get_localization(language_id, title.localization_id)
           .and_then(|localization| Some(localization.content.replace("%s", &character_history.character_name)))))
         .or_else(|| Some(character_history.character_name.clone())).unwrap(),
+      server_name: server.name.clone(),
       guild: character_history.character_guild.and_then(|guild| Some(CharacterViewerGuildDto {
         guild_id: guild.guild_id,
         name: self.get_guild(guild.guild_id).unwrap().name,
