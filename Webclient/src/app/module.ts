@@ -52,7 +52,7 @@ export function createTranslateLoader(http: HttpClient) {
         ReactiveComponentLoaderModule.forRoot(),
         ReactiveComponentLoaderModule.withModule({
             moduleId: "cookie_banner",
-            loadChildren: "./module/cookie_banner/module#CookieBannerModule"
+            loadChildren: () => import('./module/cookie_banner/module').then(m => m.CookieBannerModule)
         }),
         TooltipModule
     ],

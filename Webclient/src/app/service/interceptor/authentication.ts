@@ -3,7 +3,9 @@ import {Observable, throwError} from "rxjs";
 import {AuthenticationService} from "../authentication";
 import {Router} from "@angular/router";
 import {catchError, map} from "rxjs/operators";
+import { Injectable } from "@angular/core";
 
+@Injectable()
 export class AuthenticationInterceptor implements HttpInterceptor {
 
     constructor(

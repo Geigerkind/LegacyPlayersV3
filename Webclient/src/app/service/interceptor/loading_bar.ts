@@ -2,7 +2,9 @@ import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/com
 import {Observable, throwError} from "rxjs";
 import {LoadingBarService} from "../loading_bar";
 import {catchError, map} from "rxjs/operators";
+import { Injectable } from "@angular/core";
 
+@Injectable()
 export class LoadingBarInterceptor implements HttpInterceptor {
 
     constructor(private loadingBarService: LoadingBarService) {}
