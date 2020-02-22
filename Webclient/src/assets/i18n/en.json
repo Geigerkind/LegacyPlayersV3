@@ -63,7 +63,8 @@
             "last_update": "Updated"
         },
         "Viewer": {
-            "guild": "{{rank}} of {{guild}}"
+            "guild": "{{rank}} of {{guild}}",
+            "stats": "Character stats"
         }
     },
     "CookieBanner": {

@@ -28,7 +28,7 @@
 
 
     .rightBar {
-        Profession, Talents {
+        Profession, Talents, Stats {
             margin-bottom: $spacing / 2;
         }
 
@@ -37,7 +37,7 @@
         }
         @media (min-width: 550px) {
             width: 100%;
-            Profession, Talents {
+            Profession, Talents, Stats {
                 width: calc(50% - #{$spacing} * 0.25);
                 float: left;
 
@@ -48,7 +48,7 @@
         }
         @media (min-width: 658px) {
             width: 225px;
-            Profession, Talents {
+            Profession, Talents, Stats {
                 width: 100%;
                 margin-right: 0;
             }

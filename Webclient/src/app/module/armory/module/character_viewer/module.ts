@@ -5,6 +5,7 @@ import {CharacterViewerRouting} from "./routing";
 import {CharacterItemsModule} from "./module/character_items/module";
 import {ProfessionModule} from "./module/profession/module";
 import {TalentsModule} from "./module/talents/module";
+import {StatsModule} from "./module/stats/module";
 
 @NgModule({
     declarations: [CharacterViewerComponent],
@@ -13,7 +14,8 @@ import {TalentsModule} from "./module/talents/module";
         CharacterViewerRouting,
         CharacterItemsModule,
         ProfessionModule,
-        TalentsModule
+        TalentsModule,
+        StatsModule
     ],
     exports: [CharacterViewerComponent]
 })
