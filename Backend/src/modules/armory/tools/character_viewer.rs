@@ -2,7 +2,7 @@ use crate::modules::armory::dto::{CharacterViewerDto, ArmoryFailure, CharacterVi
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, GetCharacterHistory, GetGuild};
 use crate::modules::data::{Data, Stat};
-use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession, RetrieveHeroClass, RetrieveStatType, RetrieveItemStat, RetrieveEnchant};
+use crate::modules::data::tools::{RetrieveRace, RetrieveItem, RetrieveServer, RetrieveIcon, RetrieveTitle, RetrieveLocalization, RetrieveProfession, RetrieveHeroClass, RetrieveStatType, RetrieveItemStat, RetrieveEnchant, RetrieveGem, RetrieveItemSocket};
 use crate::dto::SelectOption;
 use crate::modules::armory::domain_value::{CharacterItem, CharacterGear};
 
@@ -184,7 +184,32 @@ fn get_item_stats(data: &Data, expansion_id: u8, item: &Option<CharacterItem>) -
   }
 
   // Stats from gems
-
+  let mut socket_bonus = true;
+  let item_socket = data.get_item_socket(expansion_id, item.item_id);
+  for i in 0..item.gem_ids.len() {
+    if let Some(gem_id) = item.gem_ids[i] {
+      let gem_item = data.get_gem(expansion_id, gem_id).unwrap();
+      let enchant = data.get_enchant(expansion_id, gem_item.enchant_id).unwrap();
+      merge_character_stat_vec(&mut stats, enchant.stats);
+      if let Some(socket_info) = item_socket.as_ref() {
+        if i < socket_info.slots.len() {
+          socket_bonus = socket_bonus && socket_info.slots[i] == socket_info.slots[i] & gem_item.flag;
+        }
+      }
+    } else {
+      if let Some(socket_info) = item_socket.as_ref() {
+        if i < socket_info.slots.len() {
+          socket_bonus = false;
+        }
+      }
+    }
+  }
+  if let Some(socket_info) = item_socket.as_ref() {
+    if socket_bonus {
+      let enchant = data.get_enchant(expansion_id, socket_info.bonus).unwrap();
+      merge_character_stat_vec(&mut stats, enchant.stats);
+    }
+  }
 
   stats
 }
