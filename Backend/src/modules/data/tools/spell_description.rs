@@ -3,11 +3,12 @@ use language::material::Dictionary;
 use language::tools::Get;
 use regex::Regex;
 
-use crate::modules::data::Data;
+use crate::modules::data::{Data, Stat};
 use crate::modules::data::tools::{RetrieveLocalization, RetrieveSpell, RetrieveSpellEffect};
 
 pub trait SpellDescription {
   fn get_localized_spell_description(&self, expansion_id: u8, language_id: u8, spell_id: u32) -> Option<String>;
+  fn parse_stats(&self, expansion_id: u8, spell_id: u32) -> Vec<Stat>;
 }
 
 impl SpellDescription for Data {
@@ -85,6 +86,182 @@ impl SpellDescription for Data {
     }
 
     Some(template)
+  }
+
+  // Parsing it for now!
+  // TODO: BIG REFACTOR!
+  fn parse_stats(&self, expansion_id: u8, spell_id: u32) -> Vec<Stat> {
+    lazy_static! {
+      static ref RE_DURATIONAL: Regex = Regex::new(r"for \d+ seconds.").unwrap();
+    }
+
+    let mut stats = Vec::new();
+    if let Some(spell_desc) = self.get_localized_spell_description(expansion_id, 1, spell_id) {
+      let spell_desc = spell_desc.to_lowercase();
+      if RE_DURATIONAL.is_match(&spell_desc) {
+        return stats;
+      }
+
+      let spell_effects = self.get_spell_effects(expansion_id, spell_id).unwrap();
+      if spell_desc.contains("increases") || spell_desc.contains("improves") {
+        if spell_desc.contains("spell critical strike rating") {
+          stats.push(Stat { stat_type: 24, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("critical strike rating") {
+          stats.push(Stat { stat_type: 8, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("spell hit rating") {
+          stats.push(Stat { stat_type: 23, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("hit rating") {
+          stats.push(Stat { stat_type: 7, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("resilience rating") {
+          stats.push(Stat { stat_type: 39, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage and healing done by") {
+          stats.push(Stat { stat_type: 13, stat_value: spell_effects[0].points_upper.abs() as u16 });
+          stats.push(Stat { stat_type: 14, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("healing done by up to") && spell_desc.contains("damage done by up to") {
+          stats.push(Stat { stat_type: 14, stat_value: spell_effects[0].points_upper.abs() as u16 });
+          stats.push(Stat { stat_type: 13, stat_value: spell_effects[1].points_upper.abs() as u16 });
+        } else if spell_desc.contains("spell haste rating") {
+          stats.push(Stat { stat_type: 42, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("haste rating") {
+          stats.push(Stat { stat_type: 37, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("ranged attack power") {
+          stats.push(Stat { stat_type: 25, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("attack power") {
+          stats.push(Stat { stat_type: 9, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("defense rating") {
+          stats.push(Stat { stat_type: 22, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("dodge rating") {
+          stats.push(Stat { stat_type: 10, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("parry rating") {
+          stats.push(Stat { stat_type: 11, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("block rating") {
+          stats.push(Stat { stat_type: 12, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("block chance") {
+          stats.push(Stat { stat_type: 26, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage done by shadow spells") {
+          stats.push(Stat { stat_type: 20, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage done by arcane spells") {
+          stats.push(Stat { stat_type: 19, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage done by fire spells") {
+          stats.push(Stat { stat_type: 18, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage done by nature spells") {
+          stats.push(Stat { stat_type: 17, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage done by frost spells") {
+          stats.push(Stat { stat_type: 16, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("damage done by holy spells") {
+          stats.push(Stat { stat_type: 15, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        }
+      } else if spell_desc.contains("restores") {
+        if spell_desc.contains("mana per") {
+          stats.push(Stat { stat_type: 21, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("health per") {
+          stats.push(Stat { stat_type: 43, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        }
+      } else if spell_desc.contains("attacks ignore") && spell_desc.contains("opponent's armor") {
+        stats.push(Stat { stat_type: 41, stat_value: spell_effects[0].points_upper.abs() as u16 });
+      } else {
+        let mut index = 0;
+        for spell_desc_substr in spell_desc.split(" and ") {
+          if spell_desc_substr.contains("+") {
+            if spell_desc_substr.contains("chance to") {
+              continue;
+            }
+
+            if spell_desc_substr.contains("holy resistance") {
+              stats.push(Stat { stat_type: 1, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("fire resistance") {
+              stats.push(Stat { stat_type: 2, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("nature resistance") {
+              stats.push(Stat { stat_type: 3, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("frost resistance") {
+              stats.push(Stat { stat_type: 4, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("arcane resistance") {
+              stats.push(Stat { stat_type: 5, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("shadow resistance") {
+              stats.push(Stat { stat_type: 6, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("spell hit rating") {
+              stats.push(Stat { stat_type: 23, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("spell critical") {
+              stats.push(Stat { stat_type: 24, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("hit rating") {
+              stats.push(Stat { stat_type: 7, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("critical strike") {
+              stats.push(Stat { stat_type: 8, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("ranged attack power") {
+              stats.push(Stat { stat_type: 25, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("attack power") {
+              stats.push(Stat { stat_type: 9, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("dodge rating") {
+              stats.push(Stat { stat_type: 10, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("parry rating") {
+              stats.push(Stat { stat_type: 11, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("block") {
+              stats.push(Stat { stat_type: 12, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("spell damage") {
+              stats.push(Stat { stat_type: 13, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("healing") {
+              stats.push(Stat { stat_type: 14, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("holy spell damage") {
+              stats.push(Stat { stat_type: 15, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("frost spell damage") {
+              stats.push(Stat { stat_type: 16, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("nature spell damage") {
+              stats.push(Stat { stat_type: 17, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("fire spell damage") {
+              stats.push(Stat { stat_type: 18, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("arcane spell damage") {
+              stats.push(Stat { stat_type: 19, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("shadow spell damage") {
+              stats.push(Stat { stat_type: 20, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("mana regen") || spell_desc_substr.contains("mana every") || spell_desc_substr.contains("mana per") {
+              stats.push(Stat { stat_type: 21, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("defense rating") {
+              stats.push(Stat { stat_type: 22, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("block chance") {
+              stats.push(Stat { stat_type: 26, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("strength") {
+              stats.push(Stat { stat_type: 27, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("agility") {
+              stats.push(Stat { stat_type: 28, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("stamina") {
+              stats.push(Stat { stat_type: 29, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("intellect") {
+              stats.push(Stat { stat_type: 30, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("spirit") {
+              stats.push(Stat { stat_type: 31, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("mana") {
+              stats.push(Stat { stat_type: 32, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("health regen") || spell_desc_substr.contains("health every") || spell_desc_substr.contains("health per") {
+              stats.push(Stat { stat_type: 43, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("health") {
+              stats.push(Stat { stat_type: 33, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("armor") {
+              stats.push(Stat { stat_type: 34, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("spell haste") {
+              stats.push(Stat { stat_type: 42, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("haste") {
+              stats.push(Stat { stat_type: 37, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("expertise rating") {
+              stats.push(Stat { stat_type: 38, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("resilience rating") {
+              stats.push(Stat { stat_type: 39, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("spell penetration") {
+              stats.push(Stat { stat_type: 40, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("armor penetration") {
+              stats.push(Stat { stat_type: 41, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            } else if spell_desc_substr.contains("all stats") {
+              stats.push(Stat { stat_type: 27, stat_value: spell_effects[index].points_upper.abs() as u16 });
+              stats.push(Stat { stat_type: 28, stat_value: spell_effects[index].points_upper.abs() as u16 });
+              stats.push(Stat { stat_type: 29, stat_value: spell_effects[index].points_upper.abs() as u16 });
+              stats.push(Stat { stat_type: 30, stat_value: spell_effects[index].points_upper.abs() as u16 });
+              stats.push(Stat { stat_type: 31, stat_value: spell_effects[index].points_upper.abs() as u16 });
+            }
+            index += 1;
+          }
+        }
+      }
+    }
+    stats
   }
 }
 

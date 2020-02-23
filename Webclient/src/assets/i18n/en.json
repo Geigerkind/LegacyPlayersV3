@@ -64,7 +64,7 @@
         },
         "Viewer": {
             "guild": "{{rank}} of {{guild}}",
-            "stats": "Character stats"
+            "stats": "Item stats"
         }
     },
     "CookieBanner": {

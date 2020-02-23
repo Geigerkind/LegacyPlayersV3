@@ -25,20 +25,20 @@ export class ItemTooltipComponent {
     getFilteredSetItems(): any {
         return this.payload.item_set.set_items
             .sort((left, right) => {
-                if (left.active === right.active) {
-                    if (left.inventory_type === right.inventory_type) {
-                        if (left.item_level === right.inventory_type) {
-                            return 0;
-                        } else if (left.item_level < right.item_level) {
-                            return 1;
-                        }
-                        return -1;
-                    } else if (left.inventory_type > right.inventory_type) {
+                if (left.active === right.active) return 0;
+                if (left.active && !right.active) return -1;
+                if (!left.active && right.active) return 1;
+                if (left.inventory_type === right.inventory_type) {
+                    if (left.item_level === right.inventory_type) {
+                        return 0;
+                    } else if (left.item_level < right.item_level) {
                         return 1;
                     }
                     return -1;
+                } else if (left.inventory_type > right.inventory_type) {
+                    return 1;
                 }
-                return 1;
+                return -1;
             })
             .reduce((acc, item) => {
                 if (item.active || !acc.find(inner_item => inner_item.inventory_type === item.inventory_type))
