@@ -20,19 +20,19 @@ export class ShowTooltipDirective {
         });
     }
 
-    @HostListener('click')
-    onClick(): void {
+    @HostListener('click', ["$event"])
+    onClick(event: any): void {
         if (!this.isMobile())
             return;
 
-        if (!this.clicked) this.tooltipControllerService.showTooltip(this.tooltipArgs, true);
+        if (!this.clicked) this.tooltipControllerService.showTooltip(this.tooltipArgs, true, event.clientX, event.clientY);
         else this.tooltipControllerService.hideTooltip();
         this.clicked = !this.clicked;
     }
 
-    @HostListener('mouseenter')
-    onEnter(): void {
-        this.tooltipControllerService.showTooltip(this.tooltipArgs, false);
+    @HostListener('mouseenter', ["$event"])
+    onEnter(event: any): void {
+        this.tooltipControllerService.showTooltip(this.tooltipArgs, false, event.clientX, event.clientY);
     }
 
     @HostListener('mouseleave')
@@ -40,9 +40,9 @@ export class ShowTooltipDirective {
         this.tooltipControllerService.hideTooltip();
     }
 
-    @HostListener('mousemove')
-    onMove(): void {
-        this.tooltipControllerService.positionTooltip(this.isMobile());
+    @HostListener('mousemove', ["$event"])
+    onMove(event: any): void {
+        this.tooltipControllerService.positionTooltip(this.isMobile(), event.clientX, event.clientY);
     }
 
     private isMobile(): boolean {

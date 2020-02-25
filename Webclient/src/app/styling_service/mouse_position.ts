@@ -9,9 +9,8 @@ export class MousePositionService {
     y_pos: number = 0;
 
     constructor() {
-        window.addEventListener("mousemove", event => this.onMouseMove(event));
+        //window.addEventListener("mousemove", event => this.onMouseMove(event));
     }
-
 
     onMouseMove(event: any): void {
         this.x_pos = event.clientX;
