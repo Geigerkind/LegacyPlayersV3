@@ -225,14 +225,15 @@ function deploy {
   cd /root
 
   optimizeAssets
+  deployWebclient &
+  deployBackend &
+  waitForJobs
 
   stopServices
   certbot renew
 
   updateConfigs
   deployDatabase
-  deployWebclient &
-  deployBackend &
   waitForJobs
 
   startServices
