@@ -39,6 +39,7 @@ impl SpellDescription for Data {
       template = template.replace(&format!("$/1000;S{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 1000.0).abs()));
       template = template.replace(&format!("$/10;s{}", i + 1), &format!("{:.1}", (spell_effects[i].points_upper as f64 / 10.0).abs()));
       template = template.replace(&format!("$M{}", i + 1), &spell_effects[i].points_upper.to_string());
+      template = template.replace(&format!("$m{}", i + 1), &spell_effects[i].points_upper.to_string());
       template = template.replace(&format!("$o{}", i + 1), &spell_effects[i].points_upper.to_string());
       template = template.replace(&format!("$x{}", i + 1), &spell_effects[i].chain_targets.to_string());
       template = template.replace(&format!("$a{}", i + 1), &spell_effects[i].radius.to_string());
