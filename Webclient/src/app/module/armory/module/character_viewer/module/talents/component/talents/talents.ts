@@ -87,9 +87,7 @@ export class TalentsComponent {
         const encArr: string = "0zMcmVokRsaqbdrfwihuGINALpTjnyxtgevElBCDFHJKOPQSUWXYZ123456789";
         let bc: string = "";
         for (const talentSubStr of talents.split('|')) {
-            let buffer = talentSubStr.replace(/0+$/g, '');
-            if (buffer !== talentSubStr)
-                buffer += '0';
+            const buffer = talentSubStr.replace(/0+$/g, '') + '0';
             const bf: Array<number> = [0, 0];
             for (let be = 0; be < buffer.length; be += 2) {
                 for (let bd = 0; bd < 2; ++bd)
