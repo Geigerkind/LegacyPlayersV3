@@ -39,5 +39,5 @@ export interface CharacterViewerDto {
     profession1: ProfessionDto | undefined;
     profession2: ProfessionDto | undefined;
     talent_specialization: TalentSpecializationDto | undefined;
-    stats: { stat_type: string; stat_value: number }[];
+    stats: Array<{ stat_type: string; stat_value: number }>;
 }

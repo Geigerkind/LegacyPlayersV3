@@ -14,7 +14,7 @@ export class TooltipControllerService extends ObserverPattern {
 
     positionTooltip(isMobile: boolean, x: number, y: number): void {
         if (isMobile) this.positionMobile(y);
-        else this.positionDesktop(x,y);
+        else this.positionDesktop(x, y);
     }
 
     showTooltip(args: any, isMobile: boolean, x: number, y: number): void {
