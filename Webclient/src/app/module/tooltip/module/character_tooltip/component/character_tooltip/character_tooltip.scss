@@ -4,4 +4,10 @@
     span:first-child, span:nth-child(2) {
         font-size: 18px;
     }
+
+    .tt_item {
+        span {
+            font-size: 14px !important;
+        }
+    }
 }

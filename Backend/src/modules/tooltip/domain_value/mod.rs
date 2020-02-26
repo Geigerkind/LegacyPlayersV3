@@ -7,6 +7,7 @@ pub use self::socket_slot::SocketSlot;
 pub use self::socket_slot_item::SocketSlotItem;
 pub use self::spell_cost::SpellCost;
 pub use self::character_guild::CharacterGuild;
+pub use self::character_tooltip_item::CharacterTooltipItem;
 
 mod stat;
 mod weapon_stat;
@@ -17,3 +18,4 @@ mod socket_slot;
 mod socket_slot_item;
 mod spell_cost;
 mod character_guild;
+mod character_tooltip_item;

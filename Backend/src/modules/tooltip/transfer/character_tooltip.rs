@@ -7,10 +7,11 @@ use crate::modules::tooltip::dto::TooltipFailure;
 use crate::modules::tooltip::material::CharacterTooltip;
 use crate::modules::tooltip::tools::RetrieveCharacterTooltip;
 use crate::modules::tooltip::Tooltip;
+use crate::modules::data::guard::Language;
 
 #[openapi]
 #[get("/character/<id>")]
-pub fn get_character(me: State<Tooltip>, data: State<Data>, armory: State<Armory>, id: u32) -> Result<Json<CharacterTooltip>, TooltipFailure>
+pub fn get_character(me: State<Tooltip>, data: State<Data>, armory: State<Armory>, language: Language, id: u32) -> Result<Json<CharacterTooltip>, TooltipFailure>
 {
-  me.get_character(&data, &armory, id).and_then(|tooltip| Ok(Json(tooltip)))
+  me.get_character(&data, &armory, language.0, id).and_then(|tooltip| Ok(Json(tooltip)))
 }

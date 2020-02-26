@@ -7,4 +7,6 @@ export interface CharacterTooltip {
     expansion_id: number;
     race_id: number;
     gender: boolean;
+    level: number;
+    items: Array<{ name: string; quality: number; }>;
 }
