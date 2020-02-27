@@ -123,8 +123,8 @@ function deployDatabase {
 function deployWebclient {
   echo "Deploying webclient"
   cd /root/${REPOSITORY_NAME}/Webclient
-  rm -rf /root/${REPOSITORY_NAME}/Webclient/node_modules
-  rm /root/${REPOSITORY_NAME}/Webclient/package-lock.json
+  # rm -rf /root/${REPOSITORY_NAME}/Webclient/node_modules
+  # rm /root/${REPOSITORY_NAME}/Webclient/package-lock.json
   npm install
   npm run-script build
   rm -rf /var/www/html/*
