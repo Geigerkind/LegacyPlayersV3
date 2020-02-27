@@ -127,6 +127,7 @@ function deployWebclient {
   # rm /root/${REPOSITORY_NAME}/Webclient/package-lock.json
   npm install
   npm run-script build
+  systemctl stop nginx
   rm -rf /var/www/html/*
   cp -r /root/${REPOSITORY_NAME}/Webclient/dist/Webclient/* /var/www/html/
   cd /root
@@ -143,6 +144,7 @@ function deployBackend {
   cargo update
   cargo build --release --jobs ${NUM_CORES}
   cargo install --path ./ --force
+  systemctl stop backend
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
   cp .env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
