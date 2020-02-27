@@ -28,6 +28,10 @@ use crate::modules::account;
 use crate::modules::armory;
 use crate::modules::data;
 use crate::modules::tooltip;
+use crate::modules::data::tools::RetrieveLocalization;
+use crate::modules::data::Stat;
+
+use regex::Regex;
 
 pub mod dto;
 pub mod modules;
