@@ -2,7 +2,7 @@
 Description=Runs DB Backup daily
 
 [Timer]
-OnCalender=*-*-* 05:00:00
+OnCalendar=*-*-* 05:00:00
 Unit=backup_db.service
 
 [Install]

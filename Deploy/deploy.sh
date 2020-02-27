@@ -139,9 +139,9 @@ function deployWebclient {
 function deployBackend {
   echo "Deploying backend"
   cd /root/${REPOSITORY_NAME}/Backend
-  rustup update
-  cargo clean
-  cargo update
+  # rustup update
+  # cargo clean
+  # cargo update
   cargo build --release --jobs ${NUM_CORES}
   cargo install --path ./ --force
   systemctl stop backend
