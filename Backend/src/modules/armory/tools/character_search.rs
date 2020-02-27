@@ -39,7 +39,7 @@ impl PerformCharacterSearch for Armory {
                 }
                 if let Some(character_guild) = character.last_update.as_ref().unwrap().character_guild.as_ref() {
                     if let Some(guild) = self.get_guild(character_guild.guild_id) {
-                        return guild.name.contains(filter.guild.filter.as_ref().unwrap());
+                        return guild.name.to_lowercase().contains(filter.guild.filter.as_ref().unwrap());
                     }
                 }
                 return false;
