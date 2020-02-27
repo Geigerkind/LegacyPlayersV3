@@ -120,14 +120,19 @@ function deployDatabase {
   cd /root
 }
 
-function deployWebclient {
+function buildWebclient {
   echo "Deploying webclient"
   cd /root/${REPOSITORY_NAME}/Webclient
   # rm -rf /root/${REPOSITORY_NAME}/Webclient/node_modules
   # rm /root/${REPOSITORY_NAME}/Webclient/package-lock.json
   npm install
   npm run-script build
-  systemctl stop nginx
+  cd /root
+}
+
+function deployWebclient {
+  cd /root/${REPOSITORY_NAME}/Webclient
+  echo "Deploying webclient"
   rm -rf /var/www/html/*
   cp -r /root/${REPOSITORY_NAME}/Webclient/dist/Webclient/* /var/www/html/
   cd /root
@@ -136,15 +141,20 @@ function deployWebclient {
   cp -r /root/cache/assets/* /var/www/html/assets/
 }
 
-function deployBackend {
-  echo "Deploying backend"
+function buildBackend {
+  echo "Building backend"
   cd /root/${REPOSITORY_NAME}/Backend
   # rustup update
   # cargo clean
   # cargo update
   cargo build --release --jobs ${NUM_CORES}
+  cd /root
+}
+
+function deployBackend {
+  echo "Deplying Backend"
+  cd /root/${REPOSITORY_NAME}/Backend
   cargo install --path ./ --force
-  systemctl stop backend
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
   cp .env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
@@ -226,9 +236,9 @@ function deploy {
 
   cd /root
 
-  optimizeAssets
-  deployWebclient &
-  deployBackend &
+  optimizeAssets &
+  buildWebclient &
+  buildBackend &
   waitForJobs
 
   stopServices
@@ -236,6 +246,8 @@ function deploy {
 
   updateConfigs
   deployDatabase
+  deployWebclient
+  deployBackend
   waitForJobs
 
   startServices
