@@ -24,7 +24,7 @@
     "angularCompilerOptions": {
         "fullTemplateTypeCheck": true,
         "strictInjectionParameters": true,
-        "enableIvy": true
+        "enableIvy": false
     },
     "exclude": [
         "src/environments/environment_template.ts",
