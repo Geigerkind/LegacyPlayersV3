@@ -100,6 +100,7 @@ function initPrometheus {
   make
   cd ../
   cp ./LegacyPlayersV3/Deploy/conf/prometheus_nginx.service /etc/systemd/system/
+  systemctl daemon-reload
 
   cp /root/${REPOSITORY_NAME}/Deploy/conf/prometheus.yml /etc/prometheus/
   systemctl enable prometheus.service
@@ -124,7 +125,9 @@ function initGrafana {
   sed -i "s/;domain = localhost/domain = ${DOMAIN}/g" /etc/grafana.ini
   sed -i "s/;reporting_enabled = true/reporting_enabled = false/g" /etc/grafana.ini
   sed -i "s/;check_for_updates = true/check_for_updates = false/g" /etc/grafana.ini
-  sed -i "s/;enabled = false/enabled = true/g" /etc/grafana.ini
+  sed -i "s/#enable anonymous access\n;enabled = false/enabled = true/g" /etc/grafana.ini
+  sed -i "s/[auth.basic]\n;enabled = true/[auth.basic]\nenabled = false/g" /etc/grafana.ini
+  sed -i "s/;disable_login_form = false/disable_login_form = true/g" /etc/grafana.ini
   sed -i "s/;root_url = \%\(protocol\)s:\/\/\%\(domain\)s:\%\(http_port\)s\//root_url = https:\/\/${DOMAIN}\/grafana\//g" /etc/grafana.ini
   systemctl enable grafana
   systemctl start grafana
