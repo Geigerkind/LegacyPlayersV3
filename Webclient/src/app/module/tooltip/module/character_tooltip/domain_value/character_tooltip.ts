@@ -1,5 +1,5 @@
 export interface CharacterTooltip {
-    guild: any;
+    guild: { name: string; rank: string; };
     name: string;
     server: string;
     faction: boolean;

@@ -69,6 +69,10 @@ $qualities: (
     .faction_#{$name} {
         color: $value;
     }
+
+    .tt_faction_#{$name} {
+        color: lighten($value, 15%);
+    }
 }
 
 @each $name, $value in $hero_classes {

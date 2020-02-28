@@ -1,7 +1,7 @@
 @import "src/styles/global";
 
 :host {
-    span:first-child, span:nth-child(2) {
+    span:first-child, span:nth-child(2), span:nth-child(3) {
         font-size: 18px;
     }
 
