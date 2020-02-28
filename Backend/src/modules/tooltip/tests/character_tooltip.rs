@@ -75,7 +75,7 @@ fn character_tooltip() {
   assert!(character_res.is_ok());
   let character = character_res.unwrap();
 
-  let tooltip_res = tooltip.get_character(&data, &armory, character.id);
+  let tooltip_res = tooltip.get_character(&data, &armory, 1, character.id);
   assert!(tooltip_res.is_ok());
   let tooltip = tooltip_res.unwrap();
 

@@ -8,7 +8,7 @@ use mysql_connection::tools::Execute;
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto, CharacterFacialDto};
 use crate::modules::armory::tools::{SetCharacter};
-use self::time::PreciseTime;
+use self::time::Instant;
 
 /*
 * Goal of this benchmark is to see how many
@@ -157,10 +157,9 @@ fn set_character(_: &mut Bencher) {
     let num_iterations = 1000;
     let mut average_ns = Vec::new();
     for _i in 0..num_iterations {
-      let start = PreciseTime::now();
+      let start = Instant::now();
       let character = armory.set_character(3, character_dto.clone()).unwrap();
-      let end = PreciseTime::now();
-      average_ns.push(start.to(end).num_nanoseconds().unwrap());
+      average_ns.push(start.elapsed().whole_nanoseconds());
 
       // Cleanup
       let character_history = character.last_update.unwrap();
