@@ -93,11 +93,20 @@ function installRust {
 }
 
 function initPrometheus {
-  pacman -S --noconfirm prometheus prometheus-node-exporter
+  pacman -S --noconfirm prometheus prometheus-node-exporter go
+  cd /root
+  git clone https://github.com/nginxinc/nginx-prometheus-exporter
+  cd nginx-prometheus-exporter
+  make
+  cd ../
+  cp ./LegacyPlayersV3/Deploy/conf/prometheus_nginx.service /etc/systemd/system/
+
   cp /root/${REPOSITORY_NAME}/Deploy/conf/prometheus.yml /etc/prometheus/
   systemctl enable prometheus.service
   systemctl enable prometheus-node-exporter.service
+  systemctl enable prometheus_nginx.service
   systemctl start prometheus-node-exporter.service
+  systemctl start prometheus_nginx.service
   systemctl start prometheus.service
 }
 
