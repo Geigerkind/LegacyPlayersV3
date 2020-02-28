@@ -24,7 +24,7 @@ export class CookieBannerComponent {
         this.cookies_necessary.push(new CookieOption("CookieBanner.api_token.title", "CookieBanner.api_token.description", true, true));
 
         // GDPR requires an active opt-in. Setting them to be enabled by default is not legal!
-        this.cookies_other.push(new CookieOption("CookieBanner.googleAnalytics.title", "CookieBanner.googleAnalytics.description", false, false));
+        // this.cookies_other.push(new CookieOption("CookieBanner.googleAnalytics.title", "CookieBanner.googleAnalytics.description", false, false));
 
         this.load();
     }
@@ -60,7 +60,13 @@ export class CookieBannerComponent {
         if (!this.settingsService.check("cookieDecisions"))
             return;
         const cookieDecisions = this.settingsService.get("cookieDecisions");
-        cookieDecisions.other.forEach((decison, i) => this.cookies_other[i].setEnabled(decison));
-        cookieDecisions.third_party.forEach((decison, i) => this.cookies_third_party[i].setEnabled(decison));
+        cookieDecisions.other.forEach((decison, i) => {
+            if (!!this.cookies_other[i])
+                this.cookies_other[i].setEnabled(decison);
+        });
+        cookieDecisions.third_party.forEach((decison, i) => {
+            if (!!this.cookies_third_party[i])
+                this.cookies_third_party[i].setEnabled(decison);
+        });
     }
 }

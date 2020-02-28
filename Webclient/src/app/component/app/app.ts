@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
         private settingsService: SettingsService,
         private router: Router
     ) {
-        this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
+        // this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
         (window as any).addEventListener("beforeinstallprompt", (e) => setTimeout((evnt) => this.prompt_for_pwa(evnt), AppComponent.PWA_PROMPT_TIME, e));
     }
 
@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit(): void {
         this.set_cookie_banner(!this.settingsService.check("cookieDecisions"));
-        this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
+        // this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
     }
 
     set_cookie_banner(state: boolean): void {
