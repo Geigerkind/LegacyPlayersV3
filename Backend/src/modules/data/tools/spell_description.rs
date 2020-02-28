@@ -151,6 +151,8 @@ impl SpellDescription for Data {
           stats.push(Stat { stat_type: 16, stat_value: spell_effects[0].points_upper.abs() as u16 });
         } else if spell_desc.contains("damage done by holy spells") {
           stats.push(Stat { stat_type: 15, stat_value: spell_effects[0].points_upper.abs() as u16 });
+        } else if spell_desc.contains("the block value of your shield") {
+          stats.push(Stat { stat_type: 44, stat_value: spell_effects[0].points_upper.abs() as u16 });
         }
       } else if spell_desc.contains("restores") {
         if spell_desc.contains("mana per") {
