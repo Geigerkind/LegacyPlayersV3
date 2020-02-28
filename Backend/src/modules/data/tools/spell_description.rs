@@ -80,6 +80,8 @@ impl SpellDescription for Data {
             temp_res = temp_res.replace(&format!("${}{{$m{}/1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}{{$m{}/-1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}{{$m{}/-10}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 10.0).abs()));
+            temp_res = temp_res.replace(&format!("${}{{$m{}*15/100}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 * 0.15).abs()));
+            temp_res = temp_res.replace(&format!("${}{{$m{}*45/100}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 * 0.45).abs()));
             temp_res = temp_res.replace(&format!("${}/1000;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}/1000;S{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 1000.0).abs()));
             temp_res = temp_res.replace(&format!("${}/10;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[i].points_upper as f64 / 10.0).abs()));
@@ -97,6 +99,8 @@ impl SpellDescription for Data {
               temp_res = temp_res.replace(&format!("${}{{$m{}/1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 / 1000.0).abs()));
               temp_res = temp_res.replace(&format!("${}{{$m{}/-1000}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 / 1000.0).abs()));
               temp_res = temp_res.replace(&format!("${}{{$m{}/-10}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 / 10.0).abs()));
+              temp_res = temp_res.replace(&format!("${}{{$m{}/*15/100}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 * 0.15).abs()));
+              temp_res = temp_res.replace(&format!("${}{{$m{}/*45/100}}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 * 0.45).abs()));
               temp_res = temp_res.replace(&format!("${}/1000;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 / 1000.0).abs()));
               temp_res = temp_res.replace(&format!("${}/1000;S{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 / 1000.0).abs()));
               temp_res = temp_res.replace(&format!("${}/10;s{}", capture[1].to_string(), i + 1), &format!("{:.1}", (inner_spell_effects[0].points_upper as f64 / 10.0).abs()));
