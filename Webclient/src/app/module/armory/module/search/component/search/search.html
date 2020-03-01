@@ -10,7 +10,8 @@
 </ng-template>
 
 <ng-template #character_name let-specification="specification" let-content="content">
-    <a [showTooltip]="{ type: 1, character_id: specification.sub_type_args.character_id }" routerLink="/armory/character/{{ specification.sub_type_args.server_name + '/' + specification.content }}">
+    <a [showTooltip]="{ type: 1, character_id: specification.args.character_id }"
+       routerLink="/armory/character/{{ specification.args.server_name + '/' + specification.content }}">
         {{ content | translate }}
     </a>
 </ng-template>

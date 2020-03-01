@@ -69,14 +69,12 @@ export class SearchComponent {
                     body_columns.push({
                         type: 3,
                         content: row.character.hero_class_id.toString(),
-                        sub_type: 1,
-                        sub_type_args: null
+                        args: null
                     });
                     body_columns.push({
                         type: 0,
                         content: row.character.name,
-                        sub_type: 2,
-                        sub_type_args: {
+                        args: {
                             // TODO: Needs to be refactored
                             server_name: this.character_header_columns[3].type_range.find(content => content.value === row.character.server_id)?.label_key,
                             character_id: row.character.character_id
@@ -85,20 +83,17 @@ export class SearchComponent {
                     body_columns.push({
                         type: 0,
                         content: !row.guild ? '' : row.guild.name,
-                        sub_type: null,
-                        sub_type_args: null
+                        args: null
                     });
                     body_columns.push({
                         type: 3,
                         content: row.character.server_id.toString(),
-                        sub_type: null,
-                        sub_type_args: null
+                        args: null
                     });
                     body_columns.push({
                         type: 2,
                         content: row.timestamp.toString(),
-                        sub_type: null,
-                        sub_type_args: null
+                        args: null
                     });
 
                     // TODO: Dont save faction color here
