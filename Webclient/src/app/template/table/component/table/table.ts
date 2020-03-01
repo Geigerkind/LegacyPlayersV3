@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
+import {Component, EventEmitter, Input, OnChanges, Output, TemplateRef} from "@angular/core";
 import {WindowService} from "../../../../styling_service/window";
 import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";
@@ -23,6 +23,7 @@ export class TableComponent implements OnChanges {
     @Input() clientSide: boolean = true;
     @Input() headColumns: Array<HeaderColumn> = [];
     @Input() numItems: number = 0;
+    @Input() et_row_items: Array<TemplateRef<any>>;
 
     @Input()
     set bodyRows(rows: Array<BodyRow>) {

@@ -8,6 +8,7 @@
 
 <ng-container *ngIf="!isResponsiveMode">
     <BodyRow [colTypes]="colTypes" [typeRange]="internalTypeRange" [columns]="row.columns"
-             [style.background-color]="row.color"
-             *ngFor="let row of rows"></BodyRow>
+             [style.background-color]="row.color" [et_row_items]="et_row_items"
+             *ngFor="let row of rows">
+    </BodyRow>
 </ng-container>

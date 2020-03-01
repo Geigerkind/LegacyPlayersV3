@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, TemplateRef} from "@angular/core";
 import {BodyColumn} from "../../domain_value/body_column";
 
 @Component({
@@ -10,4 +10,5 @@ export class BodyRowComponent {
     @Input() columns: Array<BodyColumn>;
     @Input() typeRange: Array<Map<number, string>>;
     @Input() colTypes: Array<number>;
+    @Input() et_row_items: Array<TemplateRef<any>>;
 }

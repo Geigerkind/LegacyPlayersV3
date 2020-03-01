@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges} from "@angular/core";
+import {Component, Input, OnChanges, TemplateRef} from "@angular/core";
 import {HeaderColumn} from "../../../table_header/domain_value/header_column";
 import {BodyRow} from "../../domain_value/body_row";
 
@@ -13,6 +13,7 @@ export class TableBodyComponent implements OnChanges {
     @Input() isResponsiveMode: boolean;
     @Input() rows: Array<BodyRow>;
     @Input() headColumns: Array<HeaderColumn>;
+    @Input() et_row_items: Array<TemplateRef<any>>;
 
     internalTypeRange: Array<Map<number, string>> = [];
     colTypes: Array<number> = [];

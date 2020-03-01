@@ -3,6 +3,7 @@
     <TableHeader (filterChanged)="handleFilterChanged($event)" [responsiveHeadColumns]="responsiveHeadColumns"
                  [isResponsiveMode]="isResponsiveMode" [columns]="headColumns" *ngIf="enableHeader"></TableHeader>
     <TableBody [headColumns]="headColumns" [responsiveHeadColumns]="responsiveHeadColumns"
-               [isResponsiveMode]="isResponsiveMode" [rows]="currentPageRows"></TableBody>
+               [isResponsiveMode]="isResponsiveMode" [rows]="currentPageRows" [et_row_items]="et_row_items">
+    </TableBody>
     <TableFooter [numItems]="numItems" (pageChanged)="currentPage=$event" *ngIf="enableFooter"></TableFooter>
 </div>

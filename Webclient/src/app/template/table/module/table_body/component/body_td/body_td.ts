@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, TemplateRef} from "@angular/core";
 import {BodyColumn} from "../../domain_value/body_column";
 import {DatePipe} from "@angular/common";
 
@@ -11,6 +11,7 @@ import {DatePipe} from "@angular/common";
 export class BodyTdComponent {
     @Input() specification: BodyColumn;
     @Input() typeRange: Map<number, string>;
+    @Input() et_item: TemplateRef<any>;
 
     constructor(
         private datePipe: DatePipe

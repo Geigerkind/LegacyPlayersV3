@@ -1,4 +1,16 @@
 <Table [bodyRows]="character_body_columns" [headColumns]="character_header_columns" [clientSide]="clientSide"
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
        [numItems]="num_characters"
-       (filterOrPageChanged)="filterCharacterSearch($event)"></Table>
+       (filterOrPageChanged)="filterCharacterSearch($event)"
+       [et_row_items]="[hero_class, character_name]">
+</Table>
+
+<ng-template #hero_class let-specification="specification" let-content="content">
+    <HeroClass [hero_class_id]="specification.content" [hero_class_label]="content"></HeroClass>
+</ng-template>
+
+<ng-template #character_name let-specification="specification" let-content="content">
+    <a [showTooltip]="{ type: 1, character_id: specification.sub_type_args.character_id }" routerLink="/armory/character/{{ specification.sub_type_args.server_name + '/' + specification.content }}">
+        {{ content | translate }}
+    </a>
+</ng-template>

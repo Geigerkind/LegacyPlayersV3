@@ -6,13 +6,11 @@ import {TranslateModule} from "@ngx-translate/core";
 import {CaretButtonModule} from "../../../button/caret_button/module";
 import {BodyRowComponent} from "./component/body_row/body_row";
 import {ResponsiveBodyRowComponent} from "./component/responsive_body_row/responsive_body_row";
-import {HeroClassComponent} from "./component/row_components/hero_class/hero_class";
-import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
 import {RouterModule} from "@angular/router";
 
 @NgModule({
-    declarations: [TableBodyComponent, BodyTdComponent, BodyRowComponent, ResponsiveBodyRowComponent, HeroClassComponent],
-    imports: [CommonModule, TranslateModule, CaretButtonModule, ShowTooltipDirectiveModule, RouterModule],
+    declarations: [TableBodyComponent, BodyTdComponent, BodyRowComponent, ResponsiveBodyRowComponent],
+    imports: [CommonModule, TranslateModule, CaretButtonModule, RouterModule],
     exports: [TableBodyComponent]
 })
 export class TableBodyModule {
