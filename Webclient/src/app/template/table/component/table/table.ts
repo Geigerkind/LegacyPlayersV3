@@ -4,6 +4,7 @@ import {BodyColumn} from "../../module/table_body/domain_value/body_column";
 import {HeaderColumn} from "../../module/table_header/domain_value/header_column";
 import {BodyRow} from "../../module/table_body/domain_value/body_row";
 import {table_init_filter} from "../../utility/table_init_filter";
+import {SettingsService} from "src/app/service/settings";
 
 @Component({
     selector: "Table",
@@ -24,6 +25,7 @@ export class TableComponent implements OnChanges {
     @Input() headColumns: Array<HeaderColumn> = [];
     @Input() numItems: number = 0;
     @Input() et_row_items: Array<TemplateRef<any>>;
+    @Input() unique_id: string = '1234';
 
     @Input()
     set bodyRows(rows: Array<BodyRow>) {
@@ -45,14 +47,20 @@ export class TableComponent implements OnChanges {
     isMinimized: boolean = false;
 
     constructor(
-        private windowService: WindowService
+        private windowService: WindowService,
+        private settingsService: SettingsService
     ) {
         this.windowService.screenWidth$.subscribe((width) => this.isResponsiveMode = width <= this.responsiveModeWidthInPx);
     }
 
     ngOnChanges(): void {
-        if (!this.currentFilter)
-            this.currentFilter = table_init_filter(this.headColumns);
+        if (!this.currentFilter) {
+            if (this.settingsService.check("table_filter_" + this.unique_id)) {
+                this.currentFilter = this.settingsService.get("table_filter_" + this.unique_id);
+            } else {
+                this.currentFilter = table_init_filter(this.headColumns);
+            }
+        }
         this.isResponsiveMode = this.windowService.screenWidth$.getValue() <= this.responsiveModeWidthInPx;
     }
 
@@ -76,6 +84,7 @@ export class TableComponent implements OnChanges {
 
     handleFilterChanged(filter: string): void {
         const result = JSON.parse(filter);
+        this.settingsService.set("table_filter_" + this.unique_id, result);
         this.currentFilter = result;
         this.currentPage = 1;
     }

@@ -11,14 +11,19 @@ export class ResponsiveHeaderRowComponent implements OnInit {
 
     @Input() responsiveHeaderColumns: Array<HeaderColumn>;
     @Input() responsiveBodyColumns: Array<HeaderColumn>;
+    @Input() filter: any;
     @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 
     isVisible: boolean = false;
     currentFilter: object = {};
 
     ngOnInit(): void {
-        this.responsiveHeaderColumns.forEach(item => this.currentFilter[item.filter_name] = table_create_empty_filter());
-        this.responsiveBodyColumns.forEach(item => this.currentFilter[item.filter_name] = table_create_empty_filter());
+        if (this.filter) {
+            this.currentFilter = this.filter;
+        } else {
+            this.responsiveHeaderColumns.forEach(item => this.currentFilter[item.filter_name] = table_create_empty_filter());
+            this.responsiveBodyColumns.forEach(item => this.currentFilter[item.filter_name] = table_create_empty_filter());
+        }
     }
 
     toggleVisibility(): void {

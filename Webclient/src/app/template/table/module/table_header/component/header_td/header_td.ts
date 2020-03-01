@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {HeaderColumn} from "../../domain_value/header_column";
-import {SelectOption} from "../../../../../input/select_input/domain_value/select_option";
 
 @Component({
     selector: "HeaderTd",
@@ -9,11 +8,21 @@ import {SelectOption} from "../../../../../input/select_input/domain_value/selec
 })
 export class HeaderTdComponent implements OnInit {
     @Input() specification: HeaderColumn;
+    @Input() initFilterValue: any;
     @Output() filterChanged: EventEmitter<any> = new EventEmitter<any>();
     @Output() sortChanged: EventEmitter<number | null> = new EventEmitter<number | null>();
 
     showFilter: boolean = false;
     filterValueData: any;
+
+    ngOnInit(): void {
+        if (this.initFilterValue && this.initFilterValue.filter) {
+            this.filterValueData = this.initFilterValue.filter;
+            this.showFilter = true;
+        } else {
+            this.filterValueData = this.defaultFilterValue();
+        }
+    }
 
     set filterValue(value: any) {
         this.filterValueData = value;
@@ -26,12 +35,17 @@ export class HeaderTdComponent implements OnInit {
             this.filterChanged.emit(null);
         }
     }
+
     get filterValue(): any {
         return this.filterValueData;
     }
 
-    ngOnInit(): void {
-        this.filterValue = this.defaultFilterValue();
+    getSortingValue(): any {
+        if (!this.initFilterValue || this.initFilterValue.sorting === null)
+            return 0;
+        if (this.initFilterValue.sorting)
+            return 1;
+        return 2;
     }
 
     defaultFilterValue(): any {

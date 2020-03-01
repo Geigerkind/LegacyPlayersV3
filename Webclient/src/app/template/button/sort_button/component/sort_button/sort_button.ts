@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
     selector: "SortButton",
@@ -6,8 +6,8 @@ import {Component, EventEmitter, Output} from "@angular/core";
     styleUrls: ["./sort_button.scss"]
 })
 export class SortButtonComponent {
+    @Input() currentState: number = 0;
     @Output() state: EventEmitter<number> = new EventEmitter<number>();
-    currentState: number = 0;
 
     nextState(): void {
         this.currentState = (this.currentState + 1) % 3;

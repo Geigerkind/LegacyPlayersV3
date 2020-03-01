@@ -1,6 +1,8 @@
 <Minimizer (click)="toggleMinimize()"></Minimizer>
 <div [class.minimized]="isMinimized">
-    <TableHeader (filterChanged)="handleFilterChanged($event)" [responsiveHeadColumns]="responsiveHeadColumns"
+    <TableHeader (filterChanged)="handleFilterChanged($event)"
+                 [filter]="currentFilter"
+                 [responsiveHeadColumns]="responsiveHeadColumns"
                  [isResponsiveMode]="isResponsiveMode" [columns]="headColumns" *ngIf="enableHeader"></TableHeader>
     <TableBody [headColumns]="headColumns" [responsiveHeadColumns]="responsiveHeadColumns"
                [isResponsiveMode]="isResponsiveMode" [rows]="currentPageRows" [et_row_items]="et_row_items">

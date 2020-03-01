@@ -7,7 +7,8 @@ export class SettingsService {
     private settings: Array<string> = [
         "cookieDecisions",
         "PWA_PROMPT",
-        "API_TOKEN"
+        "API_TOKEN",
+        "table_filter_armory_search"
     ];
 
     private observers: any = {};

@@ -1,6 +1,6 @@
 <Table [bodyRows]="character_body_columns" [headColumns]="character_header_columns" [clientSide]="clientSide"
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
-       [numItems]="num_characters"
+       [numItems]="num_characters" unique_id="armory_search"
        (filterOrPageChanged)="filterCharacterSearch($event)"
        [et_row_items]="[hero_class, character_name]">
 </Table>

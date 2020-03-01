@@ -10,12 +10,17 @@ import {table_init_filter} from "../../../../utility/table_init_filter";
 export class HeaderRowComponent implements OnInit {
 
     @Input() columns: Array<HeaderColumn>;
+    @Input() filter: any;
     @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 
     currentFilter: object = {};
 
     ngOnInit(): void {
-        this.currentFilter = table_init_filter(this.columns);
+        if (this.filter) {
+            this.currentFilter = this.filter;
+        } else {
+            this.currentFilter = table_init_filter(this.columns);
+        }
     }
 
     emitFilter(column: any, filter: any): void {

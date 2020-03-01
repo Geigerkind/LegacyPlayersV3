@@ -11,6 +11,7 @@ export class TableHeaderComponent {
     @Input() responsiveHeadColumns: Array<number>;
     @Input() isResponsiveMode: boolean;
     @Input() columns: Array<HeaderColumn>;
+    @Input() filter: any;
 
     @Output() filterChanged: EventEmitter<string> = new EventEmitter<string>();
 

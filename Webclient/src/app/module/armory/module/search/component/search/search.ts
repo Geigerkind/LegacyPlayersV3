@@ -7,6 +7,7 @@ import {DataService} from "../../../../../../service/data";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {Localized} from "../../../../../../domain_value/localized";
 import {HeroClass} from "../../../../../../domain_value/hero_class";
+import {SettingsService} from "src/app/service/settings";
 
 @Component({
     selector: "Search",
@@ -44,7 +45,8 @@ export class SearchComponent {
 
     constructor(
         private characterSearchService: CharacterSearchService,
-        private dataService: DataService
+        private dataService: DataService,
+        private settingsService: SettingsService
     ) {
         this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
             value: hero_class.base.id,
@@ -55,7 +57,11 @@ export class SearchComponent {
                 value: server.id,
                 label_key: server.name
             }));
-            this.filterCharacterSearch(table_init_filter(this.character_header_columns));
+            let filter = table_init_filter(this.character_header_columns);
+            if (this.settingsService.check("table_filter_armory_search")) {
+                filter = this.settingsService.get("table_filter_armory_search");
+            }
+            this.filterCharacterSearch(filter);
         });
     }
 
