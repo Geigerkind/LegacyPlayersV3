@@ -139,6 +139,7 @@ function initUfw {
   ufw allow 2222
   ufw allow 443
   ufw allow 5000
+  ufw allow 80
   systemctl enable ufw
   #yes | ufw enable
 }
