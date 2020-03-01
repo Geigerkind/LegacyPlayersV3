@@ -43,6 +43,12 @@ export class GeneralInputComponent implements AfterViewInit, OnInit {
         }
     }
 
+    onKeypress(event: any): void {
+        if (event.key === 'Escape') {
+            this.inputRef.nativeElement.blur();
+        }
+    }
+
     @Input()
     get value(): string {
         return this.valueData;
