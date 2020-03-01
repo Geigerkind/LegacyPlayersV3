@@ -42,7 +42,7 @@ export class TableComponent implements OnChanges {
     isResponsiveMode: boolean = false;
 
     private currentPageData: number = 0;
-    private currentFilter: any;
+    currentFilter: any;
 
     isMinimized: boolean = false;
 
