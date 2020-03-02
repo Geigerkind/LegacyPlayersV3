@@ -2,28 +2,28 @@ use crate::modules::armory::domain_value::{CharacterGear, CharacterItem};
 use crate::modules::armory::dto::CharacterStat;
 use crate::modules::data::Stat;
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveItem, RetrieveItemsetName, RetrieveItemsetEffect, SpellDescription, RetrieveLocalization, RetrieveStatType, RetrieveItemStat, RetrieveItemEffect, RetrieveEnchant, RetrieveItemSocket, RetrieveGem};
+use crate::modules::data::tools::{RetrieveItem, RetrieveItemsetName, RetrieveItemsetEffect, SpellDescription, RetrieveLocalization, RetrieveStatType, RetrieveItemStat, RetrieveItemEffect, RetrieveEnchant, RetrieveItemSocket, RetrieveGem, RetrieveItemRandomProperty, RetrieveItemRandomPropertyPoints};
 
 pub fn get_character_stats(data: &Data, language_id: u8, expansion_id: u8, gear: &CharacterGear) -> Vec<CharacterStat> {
-    let mut acc = get_item_stats(data, expansion_id, &gear.head);
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.neck));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.shoulder));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.back));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.chest));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.tabard));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.shirt));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.wrist));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.main_hand));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.off_hand));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.ternary_hand));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.glove));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.belt));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.leg));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.boot));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.ring1));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.ring2));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.trinket1));
-    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.trinket2));
+    let mut acc = get_item_stats(data, expansion_id, &gear.head, 0);
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.neck, 2));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.shoulder, 1));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.back, 2));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.chest, 0));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.tabard, 0));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.shirt, 0));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.wrist, 2));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.main_hand, 3));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.off_hand, 3));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.ternary_hand, 4));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.glove, 1));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.belt, 1));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.leg, 0));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.boot, 1));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.ring1, 2));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.ring2, 2));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.trinket1, 1));
+    merge_character_stat_vec(&mut acc, get_item_stats(data, expansion_id, &gear.trinket2, 1));
 
     // Stats from set bonus
     let gear_to_vec_item_ids = gear_to_item_id_vec(&gear);
@@ -50,7 +50,7 @@ pub fn get_character_stats(data: &Data, language_id: u8, expansion_id: u8, gear:
     }).collect()
 }
 
-fn get_item_stats(data: &Data, expansion_id: u8, item: &Option<CharacterItem>) -> Vec<Stat> {
+fn get_item_stats(data: &Data, expansion_id: u8, item: &Option<CharacterItem>, suffix_index: u8) -> Vec<Stat> {
     let mut stats = Vec::new();
     if item.is_none() {
         return stats;
@@ -100,6 +100,108 @@ fn get_item_stats(data: &Data, expansion_id: u8, item: &Option<CharacterItem>) -
         if socket_bonus {
             let enchant = data.get_enchant(expansion_id, socket_info.bonus).unwrap();
             merge_character_stat_vec(&mut stats, enchant.stats);
+        }
+    }
+
+    // Random item property
+    if let Some(random_property_id) = item.random_property_id {
+        if random_property_id > 0 {
+            let random_stats = data.get_item_random_property(expansion_id, random_property_id).unwrap();
+            for enchant_id in random_stats.enchant_ids {
+                let enchant = data.get_enchant(expansion_id, enchant_id).unwrap();
+                merge_character_stat_vec(&mut stats, enchant.stats);
+            }
+        } else {
+            let random_stats = data.get_item_random_property(expansion_id, random_property_id).unwrap();
+            let data_item = data.get_item(expansion_id, item.item_id).unwrap();
+            let property_points = data_item.item_level
+                .and_then(|level| data.get_item_random_property_points(expansion_id, level));
+            let mut enchant_stats = Vec::new();
+
+            for i in 0..random_stats.enchant_ids.len() {
+                let enchant_id = random_stats.enchant_ids[i];
+                let enchant = data.get_enchant(expansion_id, enchant_id).unwrap();
+                let localization = data.get_localization(1, enchant.localization_id).unwrap().content.to_lowercase();
+
+                // Note: Duplicate code here with item_tooltip
+                let coefficient_value = random_stats.scaling_coefficients[i];
+                let scaling_factor;
+                if data_item.quality == 3 {
+                    scaling_factor = property_points.as_ref().unwrap().good[suffix_index as usize];
+                } else if data_item.quality == 4 {
+                    scaling_factor = property_points.as_ref().unwrap().rare[suffix_index as usize];
+                } else if data_item.quality == 5 {
+                    scaling_factor = property_points.as_ref().unwrap().epic[suffix_index as usize];
+                } else {
+                    scaling_factor = 0;
+                }
+                let stat_value = ((coefficient_value * scaling_factor as u32) as f64 / 10000.0).floor() as u16;
+
+                // Manual parsing for now, lets see if we need it somewhere else soon
+                if localization.contains("strength") {
+                    enchant_stats.push(Stat { stat_type: 27, stat_value });
+                } else if localization.contains("agility") {
+                    enchant_stats.push(Stat { stat_type: 28, stat_value });
+                } else if localization.contains("stamina") {
+                    enchant_stats.push(Stat { stat_type: 29, stat_value });
+                } else if localization.contains("intellect") {
+                    enchant_stats.push(Stat { stat_type: 30, stat_value });
+                } else if localization.contains("spirit") {
+                    enchant_stats.push(Stat { stat_type: 31, stat_value });
+                } else if localization.contains("block") {
+                    enchant_stats.push(Stat { stat_type: 12, stat_value });
+                } else if localization.contains("spell critical strike") {
+                    enchant_stats.push(Stat { stat_type: 24, stat_value });
+                } else if localization.contains("critical strike") {
+                    enchant_stats.push(Stat { stat_type: 8, stat_value });
+                } else if localization.contains("attack power") {
+                    enchant_stats.push(Stat { stat_type: 9, stat_value });
+                } else if localization.contains("defense") {
+                    enchant_stats.push(Stat { stat_type: 22, stat_value });
+                } else if localization.contains("spell damage and healing") {
+                    enchant_stats.push(Stat { stat_type: 13, stat_value });
+                    enchant_stats.push(Stat { stat_type: 14, stat_value });
+                } else if localization.contains("mana") {
+                    enchant_stats.push(Stat { stat_type: 21, stat_value });
+                } else if localization.contains("health") {
+                    enchant_stats.push(Stat { stat_type: 43, stat_value });
+                } else if localization.contains("healing") {
+                    enchant_stats.push(Stat { stat_type: 14, stat_value });
+                } else if localization.contains("spell hit") {
+                    enchant_stats.push(Stat { stat_type: 23, stat_value });
+                } else if localization.contains("hit") {
+                    enchant_stats.push(Stat { stat_type: 8, stat_value });
+                } else if localization.contains("resist") {
+                    if localization.contains("holy") {
+                        enchant_stats.push(Stat { stat_type: 1, stat_value });
+                    } else if localization.contains("fire") {
+                        enchant_stats.push(Stat { stat_type: 2, stat_value });
+                    } else if localization.contains("nature") {
+                        enchant_stats.push(Stat { stat_type: 3, stat_value });
+                    } else if localization.contains("frost") {
+                        enchant_stats.push(Stat { stat_type: 4, stat_value });
+                    } else if localization.contains("shadow") {
+                        enchant_stats.push(Stat { stat_type: 5, stat_value });
+                    } else if localization.contains("arcane") {
+                        enchant_stats.push(Stat { stat_type: 6, stat_value });
+                    }
+                } else if localization.contains("wrath") {
+                    if localization.contains("holy") {
+                        enchant_stats.push(Stat { stat_type: 15, stat_value });
+                    } else if localization.contains("fire") {
+                        enchant_stats.push(Stat { stat_type: 16, stat_value });
+                    } else if localization.contains("nature") {
+                        enchant_stats.push(Stat { stat_type: 17, stat_value });
+                    } else if localization.contains("frost") {
+                        enchant_stats.push(Stat { stat_type: 18, stat_value });
+                    } else if localization.contains("shadow") {
+                        enchant_stats.push(Stat { stat_type: 19, stat_value });
+                    } else if localization.contains("arcane") {
+                        enchant_stats.push(Stat { stat_type: 20, stat_value });
+                    }
+                }
+            }
+            merge_character_stat_vec(&mut stats, enchant_stats);
         }
     }
 
