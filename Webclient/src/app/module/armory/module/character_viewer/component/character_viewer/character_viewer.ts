@@ -32,10 +32,14 @@ export class CharacterViewerComponent {
     }
 
     private loadCharacter(server_name: string, character_name: string): void {
-        this.characterViewerService.get_character_viewer(server_name, character_name, result => this.character = result);
+        this.characterViewerService.get_character_viewer(server_name, character_name, result => this.character = result, () => {
+            this.routerService.navigate(['/404']);
+        });
     }
 
     private loadCharacterByHistoryId(server_name: string, character_name: string, character_history_id: number): void {
-        this.characterViewerService.get_character_viewer_by_history(character_history_id, server_name, character_name, result => this.character = result);
+        this.characterViewerService.get_character_viewer_by_history(character_history_id, server_name, character_name, result => this.character = result, () => {
+            this.loadCharacter(server_name, character_name);
+        });
     }
 }

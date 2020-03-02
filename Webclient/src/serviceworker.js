@@ -55,7 +55,7 @@ workbox.routing.registerRoute(
 
 // Caching the index.html
 workbox.routing.registerRoute(
-    /[a-zA-Z]+$/,
+    /[a-zA-Z0-9]+$/,
     new workbox.strategies.StaleWhileRevalidate({
         cacheName: 'static-resources',
         plugins: [

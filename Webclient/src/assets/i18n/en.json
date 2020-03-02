@@ -18,6 +18,7 @@
         "531": "A token may only be valid for up to 365 days!",
         "532": "Date may not be in the past!",
         "533": "The purpose must have a length between 1 and 24 characters!",
+        "534": "Invalid Input!",
         "599": "An unknown error occurred!",
         "mail_confirm": "A confirmation mail has been send to you!",
         "reset_mail_confirm": "A mail has been send to the specified address!"
@@ -51,6 +52,9 @@
             "weaponDamagePhysical": "{{damage_min}} - {{damage_max}} Damage",
             "itemId": "Entry: {{id}}"
         }
+    },
+    "404": {
+        "title": "Four-O-Four - Page not found!"
     },
     "Armory": {
         "Search": {

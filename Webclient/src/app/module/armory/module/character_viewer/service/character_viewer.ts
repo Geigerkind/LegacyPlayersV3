@@ -13,13 +13,13 @@ export class CharacterViewerService {
     ) {
     }
 
-    get_character_viewer(server_name: string, character_name: string, on_success: any): void {
+    get_character_viewer(server_name: string, character_name: string, on_success: any, on_failure: any): void {
         this.apiService.get(CharacterViewerService.URL_ARMORY_CHARACTER_VIEWER + "/" + server_name + "/" + character_name,
-                result => on_success.call(on_success, result));
+                result => on_success.call(on_success, result), on_failure);
     }
 
-    get_character_viewer_by_history(character_history_id: number, server_name: string, character_name: string, on_success: any): void {
+    get_character_viewer_by_history(character_history_id: number, server_name: string, character_name: string, on_success: any, on_failure: any): void {
         this.apiService.get(CharacterViewerService.URL_ARMORY_CHARACTER_VIEWER_BY_HISTORY + "/" + server_name + "/" + character_name + "/" + character_history_id,
-            result => on_success.call(on_success, result));
+            result => on_success.call(on_success, result), on_failure);
     }
 }
