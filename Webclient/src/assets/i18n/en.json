@@ -1,5 +1,6 @@
 {
     "serverResponses": {
+        "0": "Server is not reachable!",
         "200": "Success!",
         "401": "Unauthorized!",
         "429": "Too many requests!",

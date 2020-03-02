@@ -15,7 +15,10 @@ workbox.routing.registerRoute(
                 headers: {
                     'X-Is-Cachable': 'true',
                 },
-            })
+            }),
+            new workbox.cacheableResponse.Plugin({
+                statuses: [0, 200],
+            }),
         ]
     })
 );
@@ -30,22 +33,36 @@ workbox.routing.registerRoute(
                 maxEntries: 1000,
                 maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
             }),
+            new workbox.cacheableResponse.Plugin({
+                statuses: [0, 200],
+            }),
         ],
     })
 );
 
 // Caching js/css primarily
 workbox.routing.registerRoute(
-    /\.(?:css|html|json)$/,
+    /\.(?:css|html|json|js)$/,
     new workbox.strategies.StaleWhileRevalidate({
         cacheName: 'static-resources',
+        plugins: [
+            new workbox.cacheableResponse.Plugin({
+                statuses: [0, 200],
+            }),
+        ],
     })
 );
 
 // Caching the index.html
 workbox.routing.registerRoute(
-    /\/$/,
+    /[a-zA-Z]+$/,
     new workbox.strategies.StaleWhileRevalidate({
         cacheName: 'static-resources',
+        plugins: [
+            new workbox.cacheableResponse.Plugin({
+                statuses: [0, 200],
+            }),
+        ],
     })
 );
+
