@@ -1,6 +1,8 @@
 use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{ArmoryFailure, GuildViewerDto};
+use crate::modules::armory::dto::{ArmoryFailure, GuildViewerDto, GuildViewerMemberDto};
 use crate::modules::data::Data;
+use crate::modules::armory::tools::GetGuild;
+use crate::modules::data::tools::RetrieveRace;
 
 pub trait GuildViewer {
     fn get_guild_view(&self, data: &Data, language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure>;
@@ -8,6 +10,37 @@ pub trait GuildViewer {
 
 impl GuildViewer for Armory {
     fn get_guild_view(&self, data: &Data, language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure> {
-        unimplemented!()
+        let guild = self.get_guild(guild_id);
+        if guild.is_none() {
+            return Err(ArmoryFailure::InvalidInput);
+        }
+        let guild = guild.unwrap();
+
+        let characters = self.characters.read().unwrap();
+        let member = characters.iter()
+            .filter(|(_, character)| character.last_update.is_some())
+            .filter(|(_, character)| character.last_update.as_ref().unwrap().character_guild.is_some())
+            .filter(|(_, character)| character.last_update.as_ref().unwrap().character_guild.as_ref().unwrap().guild_id == guild_id)
+            .map(|(character_id, character)| {
+                let last_update = character.last_update.as_ref().unwrap();
+                let race = data.get_race(last_update.character_info.race_id).unwrap();
+
+                GuildViewerMemberDto {
+                    character_id: character_id.clone(),
+                    character_name: last_update.character_name.clone(),
+                    faction: race.faction,
+                    race_id: race.id,
+                    hero_class_id: last_update.character_info.hero_class_id,
+                    rank: last_update.character_guild.as_ref().unwrap().rank.clone(),
+                    last_seen: last_update.timestamp
+                }
+            }).collect();
+
+
+        Ok(GuildViewerDto {
+            guild_id,
+            guild_name: guild.name,
+            member
+        })
     }
 }
