@@ -17,7 +17,7 @@
 </ng-template>
 
 <ng-template #guild_name let-specification="specification" let-content="content">
-    <a [showTooltip]="{ type: 2, guild_id: specification.args.guild_id }"
+    <a [showTooltip]="{ type: 3, guild_id: specification.args.guild_id }"
        routerLink="/armory/guild/{{ specification.args.server_name + '/' + specification.content }}">
         {{ content | translate }}
     </a>

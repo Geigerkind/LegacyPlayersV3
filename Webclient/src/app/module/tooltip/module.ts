@@ -5,6 +5,7 @@ import {CharacterTooltipModule} from "./module/character_tooltip/module";
 import {TooltipService} from "./service/tooltip";
 import {TranslateModule} from "@ngx-translate/core";
 import {ItemTooltipModule} from "./module/item_tooltip/module";
+import {GuildTooltipModule} from "./module/guild_tooltip/module";
 
 @NgModule({
     declarations: [TooltipComponent],
@@ -12,6 +13,7 @@ import {ItemTooltipModule} from "./module/item_tooltip/module";
         CommonModule,
         CharacterTooltipModule,
         ItemTooltipModule,
+        GuildTooltipModule,
         TranslateModule
     ],
     exports: [TooltipComponent],

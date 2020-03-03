@@ -51,6 +51,9 @@
             "weaponDamageElement": "{{damage_min}} - {{damage_max}} {{damage_type}} Damage",
             "weaponDamagePhysical": "{{damage_min}} - {{damage_max}} Damage",
             "itemId": "Entry: {{id}}"
+        },
+        "GuildTooltip": {
+            "num_member": "{{amount}} member"
         }
     },
     "404": {

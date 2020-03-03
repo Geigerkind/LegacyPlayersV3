@@ -3,6 +3,7 @@
 </div>
 <CharacterTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 1"></CharacterTooltip>
 <ItemTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 2"></ItemTooltip>
+<GuildTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 3"></GuildTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>

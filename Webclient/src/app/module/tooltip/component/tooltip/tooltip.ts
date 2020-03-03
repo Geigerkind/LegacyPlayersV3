@@ -34,6 +34,11 @@ export class TooltipComponent {
                     this.tooltipPayload = result;
                     this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
                 });
+            } else if (args.type === 3) {
+                this.tooltipService.loadGuildTooltip(args.guild_id, result => {
+                    this.tooltipType = args.type;
+                    this.tooltipPayload = result;
+                });
             }
         });
     }

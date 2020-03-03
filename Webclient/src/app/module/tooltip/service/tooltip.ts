@@ -9,6 +9,7 @@ export class TooltipService {
     private static readonly URL_ITEM_TOOLTIP: string = "/item";
     private static readonly URL_SPELL_TOOLTIP: string = "/spell";
     private static readonly URL_CHARACTER_TOOLTIP: string = "/character";
+    private static readonly URL_GUILD_TOOLTIP: string = "/guild";
 
     constructor(
         private apiService: APIService
@@ -21,5 +22,9 @@ export class TooltipService {
 
     loadCharacterItemTooltip(history_id: number, item_id: number, on_success: any): void {
         this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_ITEM_TOOLTIP + "/" + history_id + "/" + item_id, on_success);
+    }
+
+    loadGuildTooltip(guild_id: number, on_success: any): void {
+        this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_GUILD_TOOLTIP + "/" + guild_id, on_success);
     }
 }
