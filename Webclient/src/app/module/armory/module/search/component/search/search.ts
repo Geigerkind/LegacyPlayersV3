@@ -71,6 +71,8 @@ export class SearchComponent {
                 this.num_characters = search_result.num_items;
                 this.character_body_columns = search_result.result.map(row => {
                     const body_columns: Array<BodyColumn> = [];
+                    // TODO: Needs to be refactored
+                    const server_name = this.character_header_columns[3].type_range.find(content => content.value === row.character.server_id)?.label_key;
 
                     body_columns.push({
                         type: 3,
@@ -81,15 +83,17 @@ export class SearchComponent {
                         type: 0,
                         content: row.character.name,
                         args: {
-                            // TODO: Needs to be refactored
-                            server_name: this.character_header_columns[3].type_range.find(content => content.value === row.character.server_id)?.label_key,
+                            server_name,
                             character_id: row.character.character_id
                         }
                     });
                     body_columns.push({
                         type: 0,
                         content: !row.guild ? '' : row.guild.name,
-                        args: null
+                        args: {
+                            server_name,
+                            guild_id: !row.guild ? 0 : row.guild.guild_id
+                        }
                     });
                     body_columns.push({
                         type: 3,
