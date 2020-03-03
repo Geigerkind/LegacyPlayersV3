@@ -9,7 +9,7 @@ pub trait GuildViewer {
 }
 
 impl GuildViewer for Armory {
-    fn get_guild_view(&self, data: &Data, language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure> {
+    fn get_guild_view(&self, data: &Data, _language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure> {
         let guild = self.get_guild(guild_id);
         if guild.is_none() {
             return Err(ArmoryFailure::InvalidInput);
@@ -35,7 +35,6 @@ impl GuildViewer for Armory {
                     last_seen: last_update.timestamp
                 }
             }).collect();
-
 
         Ok(GuildViewerDto {
             guild_id,
