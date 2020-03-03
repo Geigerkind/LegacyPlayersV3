@@ -86,9 +86,10 @@ impl Token for Account {
       return Err(Failure::DateInThePast);
     }
 
+    /*
     if exp_date - now >= 365 * 24 * 60 * 60 {
       return Err(Failure::TooManyDays);
-    }
+    }*/
 
     let purpose_len = purpose.len();
     if purpose_len <= 1 || purpose_len > 24 {
@@ -187,9 +188,11 @@ impl Token for Account {
 
   fn prolong_token(&self, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure> {
     // Tokens may be valid for a maximum time of a year
+    /*
     if days >= 365 {
       return Err(Failure::TooManyDays);
     }
+    */
 
     // Continue to update the token
     let mut api_tokens = self.api_tokens.write().unwrap();
