@@ -4,6 +4,7 @@
         "200": "Success!",
         "401": "Unauthorized!",
         "429": "Too many requests!",
+        "502": "Backend server is down!",
         "520": "Invalid credentials!",
         "521": "Invalid mail!",
         "522": "Invalid nickname!",
