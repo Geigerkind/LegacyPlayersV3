@@ -125,6 +125,7 @@ fn main() {
     armory::transfer::character_history::set_character_history, armory::transfer::character_history::get_character_history, armory::transfer::character_history::delete_character_history,
     armory::transfer::character_search::get_character_search_result,
     armory::transfer::character_viewer::get_character_viewer, armory::transfer::character_viewer::get_character_viewer_by_history,
+    armory::transfer::guild_viewer::get_guild_view,
   ]);
 
   igniter = igniter.mount("/API/tooltip/", routes_with_openapi![

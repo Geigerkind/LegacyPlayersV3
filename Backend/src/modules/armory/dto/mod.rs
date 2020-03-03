@@ -8,6 +8,7 @@ pub use self::character_info::CharacterInfoDto;
 pub use self::character_item::CharacterItemDto;
 pub use self::character_search::*;
 pub use self::character_viewer::*;
+pub use self::guild_viewer::*;
 pub use self::guild::GuildDto;
 
 mod character;
@@ -21,5 +22,6 @@ mod character_facial;
 
 mod character_search;
 mod character_viewer;
+mod guild_viewer;
 
 mod armory_failure;
