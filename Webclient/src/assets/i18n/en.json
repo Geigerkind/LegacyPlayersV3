@@ -144,7 +144,7 @@
             "discord": "Discord",
             "report_issue": "Report bug"
         },
-        "copyright": "©{{year}} {{company}}. All rights reserved."
+        "copyright": "©2017-{{year}} {{company}}. All rights reserved."
     },
     "NavigationBar": {
         "searchPlaceHolder": "Type to search",
