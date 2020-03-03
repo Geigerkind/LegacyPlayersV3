@@ -18,6 +18,7 @@ import {BodyRow} from "../../../../../../template/table/module/table_body/domain
 export class GuildViewerComponent {
 
     guild: GuildViewerDto;
+    server_name: string = '';
 
     responsiveModeWidthInPx: number = 600;
     responsiveHeadColumns: Array<number> = [0, 1];
@@ -43,7 +44,8 @@ export class GuildViewerComponent {
         private guildViewerService: GuildViewerService
     ) {
         this.activatedRouteService.paramMap.subscribe(params => {
-            this.loadGuild(params.get('server_name'), params.get('guild_name'));
+            this.server_name = params.get('server_name');
+            this.loadGuild(this.server_name, params.get('guild_name'));
         });
     }
 
