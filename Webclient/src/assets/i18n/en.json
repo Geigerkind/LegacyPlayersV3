@@ -141,7 +141,8 @@
         },
         "connect": {
             "title": "Connect",
-            "discord": "Discord"
+            "discord": "Discord",
+            "report_issue": "Report bug"
         },
         "copyright": "©{{year}} {{company}}. All rights reserved."
     },
