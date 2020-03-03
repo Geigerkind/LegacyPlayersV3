@@ -1,1 +1,16 @@
-Hello World!
+<h1>{{ guild?.guild_name }}</h1>
+<Table [bodyRows]="member_body_rows" [headColumns]="member_header_columns"
+       [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
+       unique_id="guild_viewer_member"
+       [et_row_items]="[hero_class, character_name]"></Table>
+
+<ng-template #hero_class let-specification="specification" let-content="content">
+    <HeroClass [hero_class_id]="specification.content" [hero_class_label]="content"></HeroClass>
+</ng-template>
+
+<ng-template #character_name let-specification="specification" let-content="content">
+    <a [showTooltip]="{ type: 1, character_id: specification.args.character_id }"
+       routerLink="/armory/character/{{ specification.args.server_name + '/' + specification.content }}">
+        {{ content | translate }}
+    </a>
+</ng-template>

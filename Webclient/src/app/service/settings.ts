@@ -8,7 +8,8 @@ export class SettingsService {
         "cookieDecisions",
         "PWA_PROMPT",
         "API_TOKEN",
-        "table_filter_armory_search"
+        "table_filter_armory_search",
+        "table_filter_guild_viewer_member"
     ];
 
     private observers: any = {};

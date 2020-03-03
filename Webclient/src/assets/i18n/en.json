@@ -67,6 +67,12 @@
             "hero_class": "Class",
             "last_update": "Updated"
         },
+        "GuildViewer": {
+            "name": "Name",
+            "hero_class": "Class",
+            "rank": "Rank",
+            "last_update": "Updated"
+        },
         "Viewer": {
             "guild": "{{rank}} of {{guild}}",
             "stats": "Item stats"
