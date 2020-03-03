@@ -39,11 +39,12 @@ export class NavigationBarComponent implements OnInit {
         ["/tools/rp_calc/", "NavigationBar.tools.rp_calc"],
         ["/tools/char_design/", "NavigationBar.tools.char_design"],
     ];
+*/
 
     itemsContribute = [
         ["/contribute/", "NavigationBar.contribute.title"]
     ];
-
+/*
     itemsQueue = [
         ["/queue/", "NavigationBar.queue.title"]
     ];

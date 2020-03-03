@@ -36,6 +36,7 @@ const routes: Routes = [
     {path: "privacy", loadChildren: () => import("./module/privacy/module").then(m => m.PrivacyModule)},
     {path: "imprint", loadChildren: () => import("./module/imprint/module").then(m => m.ImprintModule)},
     {path: "404", loadChildren: () => import("./module/404/module").then(m => m.FourOFourModule)},
+    {path: "contribute", loadChildren: () => import("./module/contribute/module").then(m => m.ContributeModule)},
 ];
 
 @NgModule({
