@@ -1,0 +1,7 @@
+@import "src/styles/text";
+
+:host {
+    align-self: flex-start;
+    padding-top: $spacing;
+    padding-bottom: $spacing;
+}
