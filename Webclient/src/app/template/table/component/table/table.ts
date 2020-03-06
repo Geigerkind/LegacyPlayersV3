@@ -120,7 +120,7 @@ export class TableComponent implements OnChanges {
 
                     const leftColumn: BodyColumn = leftRow.columns[index];
                     const rightColumn: BodyColumn = rightRow.columns[index];
-                    const sorting: number = filterSorting === false ? 1 : -1;
+                    const sorting: number = filterSorting === true ? 1 : -1;
 
                     if (leftColumn.type === 0) {
                         const result = leftColumn.content.localeCompare(rightColumn.content);
