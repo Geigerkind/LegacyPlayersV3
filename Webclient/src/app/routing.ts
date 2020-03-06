@@ -5,8 +5,7 @@ import {AuthenticateGuard} from "./guard/authenticate";
 import {SignedInGuard} from "./guard/signed_in";
 
 const routes: Routes = [
-    { path: "", pathMatch: 'full', redirectTo: "armory" },
-    // {path: "", loadChildren: () => import("./module/home/module").then(m => m.HomeModule)},
+    {path: "", loadChildren: () => import("./module/home/module").then(m => m.HomeModule)},
     {
         path: "account",
         loadChildren: () => import("./module/account/module").then(m => m.AccountModule),
