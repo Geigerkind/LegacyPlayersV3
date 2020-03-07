@@ -11,6 +11,7 @@ RUN chmod +x ./cleanup.sh
 RUN ./cleanup.sh
 ADD ./Backend ./Backend
 RUN chmod -R 777 ./Backend
-COPY start.sh ./
+COPY ./configuration.sh ./
+COPY ./start.sh ./
 
 CMD ["/usr/bin/bash", "./start.sh"]

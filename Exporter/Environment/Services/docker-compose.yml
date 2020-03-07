@@ -26,12 +26,6 @@ services:
           - lp_cm_net
         environment:
             - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/lp_consent
-            - CHARACTER_MYSQL_DNS=mysql://root:vagrant@172.17.0.1/characters
-            - LP_API_TOKEN=YourAPIToken
-            - URL_AUTHORIZATION_ENDPOINT=http://localhost:8001/token_validator
-            - CHARACTER_FETCH_INTERVAL_IN_SEC=60
-            - EXPANSION_ID=2
-            - UID_SALT=SomeSalt
 
 networks:
   lp_cm_net:
