@@ -4,7 +4,7 @@ RUN pacman -Syu --noconfirm
 RUN pacman -S --noconfirm git openssl pkgconf docker docker-compose
 
 COPY ./Services ./
-RUN ls -l ./ && git clone https://github.com/Geigerkind/LegacyPlayersV3 && ls -l ./
+RUN git clone https://github.com/Geigerkind/LegacyPlayersV3
 RUN chmod -R 777 ./LegacyPlayersV3/Exporter
 RUN cp -r ./LegacyPlayersV3/Exporter/Database ./lp_cm_mariadb/
 RUN cp -r ./LegacyPlayersV3/Exporter/Backend ./lp_cm_backend/
