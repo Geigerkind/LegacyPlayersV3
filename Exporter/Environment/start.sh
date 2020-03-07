@@ -7,11 +7,24 @@ cleanup() {
 }
 trap 'cleanup' SIGTERM SIGINT
 
-docker-compose up
+echo "Starting the service"
+docker-compose up -d --build
 
+TIME_COUNTER=0
 while true; do
   if [ "${running}" = "1" ]; then
-    sleep 1
+    if [ ${TIME_COUNTER} -gt 86400 ]; then
+      TIME_COUNTER=0
+      echo "Updating the service"
+      docker-compose stop
+      cd ./LegacyPlayersV3
+      git pull
+
+      echo "Starting the service"
+      docker-compose up -d --build
+    fi
+    sleep 1s
+    TIME_COUNTER=$((TIME_COUNTER+1))
   else
     break
   fi
