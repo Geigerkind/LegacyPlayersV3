@@ -282,10 +282,11 @@ _mysql_want_help() {
 
 apply_merger() {
   cd /Database
-  ls -l ./
   bash ./merger.sh
-  docker_process_sql < "./merge.sql"
-  rm merge.sql
+  if [ -f ./merge.sql ]; then
+    docker_process_sql < "./merge.sql"
+    rm merge.sql
+  fi
 }
 
 _main() {

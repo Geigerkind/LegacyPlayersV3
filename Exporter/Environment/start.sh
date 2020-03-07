@@ -7,7 +7,7 @@ cleanup() {
 }
 trap 'cleanup' SIGTERM SIGINT
 
-docker-compose up -d
+docker-compose up
 
 while true; do
   if [ "${running}" = "1" ]; then

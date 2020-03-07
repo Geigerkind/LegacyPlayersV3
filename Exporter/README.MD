@@ -83,11 +83,13 @@ out. Update your iptables rules to drop all connections to `3306` except from `1
 ```shell script
 iptables -N db_access
 iptables -A db_access --src 127.0.0.1 -j ACCEPT
-iptables -A db_access --src 192.168.0.0/16 -j ACCEPT
+iptables -A db_access --src 172.19.0.1/24 -j ACCEPT
 iptables -A db_access -j DROP
 iptables -I INPUT -m tcp -p tcp --dport 3306 -j db_access
 iptables-save -f /etc/iptables/iptables.rules
 ```
+Note: That `172.19.0.1/24` must not be the correct IP range of the container.  
+Use `docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' CONTAINER_ID` and `docker ps` to find the IP of `default_lpcmbackend_1`.
 
 The service exposes the consent manager at the port `8880`. Please adjust your webserver's 
 configuration accordingly. A NGINX configuration can look like this:  
