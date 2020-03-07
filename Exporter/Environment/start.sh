@@ -7,8 +7,12 @@ cleanup() {
 }
 trap 'cleanup' SIGTERM SIGINT
 
+cd ./LegacyPlayersV3
+git stash
+git pull
+cd ./
 echo "Starting the service"
-docker-compose up -d --build
+docker-compose up --build
 
 TIME_COUNTER=0
 while true; do
@@ -17,8 +21,11 @@ while true; do
       TIME_COUNTER=0
       echo "Updating the service"
       docker-compose stop
+
       cd ./LegacyPlayersV3
+      git stash
       git pull
+      cd ./
 
       echo "Starting the service"
       docker-compose up -d --build

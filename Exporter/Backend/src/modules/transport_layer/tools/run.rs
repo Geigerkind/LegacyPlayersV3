@@ -12,6 +12,7 @@ impl Run for TransportLayer {
     let api_token = env::var("LP_API_TOKEN").unwrap();
     let url_set_character = env::var("URL_SET_CHARACTER").unwrap();
     let opt_in_mode = env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
+    println!("OPT MODE: {}", opt_in_mode);
 
     let sleep_duration_rate = Duration::new(0, (1000000000.0 as f64 * (1.0 / rate)).ceil() as u32);
     let sleep_duration_wait = Duration::new(1, 0);
