@@ -281,7 +281,8 @@ _mysql_want_help() {
 }
 
 apply_merger() {
-  cd /docker-entrypoint-initdb.d
+  cd /Database
+  ls -l ./
   bash ./merger.sh
   docker_process_sql < "./merge.sql"
   rm merge.sql

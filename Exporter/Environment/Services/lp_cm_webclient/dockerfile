@@ -1,0 +1,15 @@
+FROM archlinux:latest
+
+RUN pacman -Syu --noconfirm
+RUN pacman -S --noconfirm npm
+RUN npm i -g @angular/cli
+
+COPY ./cleanup.sh ./
+RUN chmod +x ./cleanup.sh
+
+RUN ./cleanup.sh
+ADD ./Webclient ./Webclient
+RUN chmod -R 777 ./Webclient
+COPY start.sh ./
+
+CMD ["/usr/bin/bash", "./start.sh"]

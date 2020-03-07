@@ -8,8 +8,8 @@ edition = "2018"
 rocket = "*"
 reqwest = { version = "*", features = ["blocking", "json"] }
 tokio = { version = "*", features = ["full"] }
-mysql_connection = { path = "./../../Backend/sub_crates/mysql_connection" }
-time_util = { path = "./../../Backend/sub_crates/time_util" }
+mysql_connection = { path = "./sub_crates/mysql_connection" }
+time_util = { path = "./sub_crates/time_util" }
 serde = "*"
 serde_derive = "*"
 serde_json = "*"

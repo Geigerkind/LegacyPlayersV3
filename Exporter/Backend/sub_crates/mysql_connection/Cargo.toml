@@ -1,0 +1,8 @@
+[package]
+name = "mysql_connection"
+version = "0.1.0"
+authors = ["Tom Dymel <tom@dymel.dev>"]
+
+[dependencies]
+mysql = "*"
+dotenv = "*"
