@@ -11,6 +11,7 @@ impl Run for TransportLayer {
     let rate = env::var("REQUESTS_TO_LP_PER_SECOND").unwrap().parse::<f64>().unwrap();
     let api_token = env::var("LP_API_TOKEN").unwrap();
     let url_set_character = env::var("URL_SET_CHARACTER").unwrap();
+    let opt_in_mode = env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
 
     let sleep_duration_rate = Duration::new(0, (1000000000.0 as f64 * (1.0 / rate)).ceil() as u32);
     let sleep_duration_wait = Duration::new(1, 0);
@@ -24,7 +25,7 @@ impl Run for TransportLayer {
       let received_res = receiver.try_recv();
       if received_res.is_ok() {
         let received = received_res.unwrap();
-        if !self.character_consent.contains(&received.0) {
+        if (opt_in_mode && !self.character_consent.contains(&received.0)) || (!opt_in_mode && self.character_consent.contains(&received.0)) {
           println!("{} ({}) has not given consent, skipping!", received.1.character_history.unwrap().character_name, received.1.server_uid);
           continue;
         }
