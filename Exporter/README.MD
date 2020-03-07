@@ -40,12 +40,10 @@ and then optionally send to LegacyPlayers, where the player can view its data im
 ```shell script
 git clone https://github.com/Geigerkind/LegacyPlayersV3
 cd LegacyPlayersV3/Exporter
-cp docker-compose.yml docker-compose.yml.me
-# Adjust docker-compose.yml.me, like it is specified below
-bash start.sh # if not root user: sudo bash start.sh, as docker requires root
+# Adjust configuration.sh
+sudo docker-compose up
 ```
-I suggest to create a systemd timer to restart the containers once in a while. A restart while automatically apply the 
-newest updates.
+I suggest to create a systemd service to start the containers on startup.  
 
 Before referring to the consent manager, set in the local storage for the key `API_TOKEN` the
 serialized JSON object `{ token: string; account_id: number; }`.
@@ -62,7 +60,7 @@ The container requires `read-only access` to your WoW-server's `character databa
 create a database user for this purpose and specify the DNS in the environment variable 
 `CHARACTER_MYSQL_DNS` in the docker-compose file.
 
-Further you need to specify the following environment variables in the docker-compose file:
+Further you need to specify the following environment variables in the `configuration.sh` file:
 * `EXPANSION_ID` - Vanilla => 1; TBC => 2; WOTLK => 3. If your server harbors a custom implementation 
 of WoW or your expansion is not among these, please contact me via Discord.
 * `UID_SALT` - Your character und guild guids are not send directly to LP. They are hashed 
@@ -78,7 +76,7 @@ Also make sure to adjust in your mysql config to also bind `172.17.0.1`. Open fo
 `bind-address` for example like this: `bind-address=127.0.0.1,172.17.0.1`. MariaDB does not allow to set 
 multiple addresses at `bind-address` currently. To work around this, we can let MariaDB bind to all addresses 
 using `bind-address=0.0.0.0` and restrict access using the firewall. Make sure `skip-networking` is commented 
-out. Update your iptables rules to drop all connections to `3306` except from `127.0.0.1` and `192.168.0.0/16` 
+out. Update your iptables rules to drop all connections to `3306` except from `127.0.0.1` and `172.19.0.1/24` 
 (or to be more restrictive only the backend's docker container's ip address): 
 ```shell script
 iptables -N db_access
