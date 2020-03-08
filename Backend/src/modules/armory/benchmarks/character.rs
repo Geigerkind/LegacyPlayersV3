@@ -9,6 +9,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto, CharacterFacialDto};
 use crate::modules::armory::tools::{SetCharacter};
 use self::time::Instant;
+use crate::modules::armory::domain_value::GuildRank;
 
 /*
 * Goal of this benchmark is to see how many
@@ -146,7 +147,10 @@ fn set_character(_: &mut Bencher) {
             name: "sgfdfhgdfg".to_string(),
             server_uid: 1232346
           },
-          rank: "BliBlaBlub".to_string()
+          rank: GuildRank {
+              index: 2,
+              name: "BliBlaBlub".to_string()
+          }
         }),
     };
     let character_dto = CharacterDto {

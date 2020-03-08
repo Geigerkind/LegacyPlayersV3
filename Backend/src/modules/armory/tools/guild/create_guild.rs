@@ -42,6 +42,7 @@ impl CreateGuild for Armory {
         server_uid: guild.server_uid,
         name: guild.name.to_owned(),
         server_id,
+        ranks: Vec::new()
       };
       guilds.insert(new_guild.id, new_guild.clone());
 

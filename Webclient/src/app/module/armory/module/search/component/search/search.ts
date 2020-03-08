@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {CharacterSearchService} from "../../service/character_search";
@@ -14,7 +14,7 @@ import {SettingsService} from "src/app/service/settings";
     templateUrl: "./search.html",
     styleUrls: ["./search.scss"]
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit {
 
     character_header_columns: Array<HeaderColumn> = [
         {
@@ -57,12 +57,16 @@ export class SearchComponent {
                 value: server.id,
                 label_key: server.name
             }));
-            let filter = table_init_filter(this.character_header_columns);
-            if (this.settingsService.check("table_filter_armory_search")) {
-                filter = this.settingsService.get("table_filter_armory_search");
-            }
-            this.filterCharacterSearch(filter);
+            this.filterCharacterSearch(this.settingsService.get("table_filter_armory_search"));
         });
+    }
+
+    ngOnInit(): void {
+        const filter = table_init_filter(this.character_header_columns);
+        if (!this.settingsService.check("table_filter_armory_search")) {
+            filter.last_updated.sorting = false;
+            this.settingsService.set("table_filter_armory_search", filter);
+        }
     }
 
     filterCharacterSearch(filter: any): void {

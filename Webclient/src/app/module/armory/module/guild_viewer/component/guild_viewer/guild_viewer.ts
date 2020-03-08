@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {GuildViewerDto} from "../../domain_value/guild_viewer_dto";
 import {ActivatedRoute, Router} from "@angular/router";
 import {GuildViewerService} from "../../service/guild_viewer";
@@ -9,13 +9,15 @@ import {HeroClass} from "../../../../../../domain_value/hero_class";
 import {DataService} from "../../../../../../service/data";
 import {GuildViewerMemberDto} from "../../domain_value/guild_viewer_member_dto";
 import {BodyRow} from "../../../../../../template/table/module/table_body/domain_value/body_row";
+import { SettingsService } from 'src/app/service/settings';
+import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 
 @Component({
     selector: "GuildViewer",
     templateUrl: "./guild_viewer.html",
     styleUrls: ["./guild_viewer.scss"]
 })
-export class GuildViewerComponent {
+export class GuildViewerComponent implements OnInit {
 
     guild: GuildViewerDto;
     server_name: string = '';
@@ -32,7 +34,8 @@ export class GuildViewerComponent {
             col_type: 1
         },
         {index: 1, filter_name: 'name', labelKey: "Armory.GuildViewer.name", type: 0, type_range: null, col_type: 0},
-        {index: 2, filter_name: 'rank', labelKey: "Armory.GuildViewer.rank", type: 0, type_range: null, col_type: 0},
+        {index: 2, filter_name: 'rank', labelKey: "Armory.GuildViewer.rank",
+            type: 3, type_range: [{value: -1, label_key: "Armory.GuildViewer.rank"}], col_type: 0},
         {index: 3, filter_name: 'last_updated', labelKey: "Armory.GuildViewer.last_update", type: 2, type_range: null, col_type: 1},
     ];
     member_body_rows: Array<BodyRow> = [];
@@ -41,12 +44,22 @@ export class GuildViewerComponent {
         private routerService: Router,
         private activatedRouteService: ActivatedRoute,
         private dataService: DataService,
-        private guildViewerService: GuildViewerService
+        private guildViewerService: GuildViewerService,
+        private settingsService: SettingsService
     ) {
         this.activatedRouteService.paramMap.subscribe(params => {
             this.server_name = params.get('server_name');
             this.loadGuild(this.server_name, params.get('guild_name'));
         });
+    }
+
+    ngOnInit(): void {
+        if (!this.settingsService.check("table_filter_guild_viewer_member")) {
+            const filter = table_init_filter(this.member_header_columns);
+            filter.rank.sorting = true;
+            filter.last_updated.sorting = false;
+            this.settingsService.set("table_filter_guild_viewer_member", filter);
+        }
     }
 
     private loadGuild(server_name: string, guild_name: string): void {
@@ -56,6 +69,10 @@ export class GuildViewerComponent {
                 value: hero_class.base.id,
                 label_key: hero_class.localization
             })));
+            result.ranks.forEach(entry => this.member_header_columns[2].type_range.push({
+                value: entry.index,
+                label_key: entry.name
+            }));
             this.guild = result;
         }, () => {
             this.routerService.navigate(['/404']);
@@ -80,8 +97,8 @@ export class GuildViewerComponent {
                 }
             });
             body_columns.push({
-                type: 0,
-                content: entry.rank.toString(),
+                type: 3,
+                content: entry.rank_index.toString(),
                 args: null
             });
             body_columns.push({

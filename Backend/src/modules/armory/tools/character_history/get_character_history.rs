@@ -18,16 +18,19 @@ impl GetCharacterHistory for Armory {
       if character_info.is_err() {
         return Err(character_info.err().unwrap());
       }
-
       Ok(CharacterHistory {
         id: character_history_id,
         character_id: row.take(1).unwrap(),
         character_info: character_info.unwrap(),
         character_name: row.take(3).unwrap(),
-        character_guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
-          guild_id,
-          rank: row.take(5).unwrap(),
-        })),
+        character_guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| {
+          let guild = self.get_guild(guild_id).unwrap();
+          let rank_index: u8 = row.take(5).unwrap();
+          Some(CharacterGuild {
+            guild_id,
+            rank: guild.ranks.iter().find(|rank| rank.index == rank_index).unwrap().to_owned(),
+          })
+        }),
         character_title: row.take_opt(6).unwrap().ok(),
         profession_skill_points1: row.take_opt(7).unwrap().ok(),
         profession_skill_points2: row.take_opt(8).unwrap().ok(),
@@ -69,7 +72,7 @@ impl GetCharacterHistory for Armory {
       "character_name" => character_history_dto.character_name.clone(),
       "title" => character_history_dto.character_title.clone(),
       "guild_id" => guild_id.clone(),
-      "guild_rank" => character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.clone())),
+      "guild_rank" => character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.index)),
       "prof_skill_points1" => character_history_dto.profession_skill_points1.clone(),
       "prof_skill_points2" => character_history_dto.profession_skill_points2.clone(),
       "facial" => facial.as_ref().and_then(|chr_facial| Some(chr_facial.id))

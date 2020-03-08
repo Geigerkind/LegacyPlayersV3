@@ -80,7 +80,7 @@ impl CharacterViewer for Armory {
       guild: character_history.character_guild.and_then(|guild| Some(CharacterViewerGuildDto {
         guild_id: guild.guild_id,
         name: self.get_guild(guild.guild_id).unwrap().name,
-        rank: guild.rank
+        rank: guild.rank.name
       })),
       history: character_res.history_moments.iter().map(|history_moment| SelectOption {
         value: history_moment.id,

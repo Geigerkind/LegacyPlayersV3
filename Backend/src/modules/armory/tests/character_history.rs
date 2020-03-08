@@ -3,6 +3,7 @@ use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHisto
 use crate::modules::armory::tools::{SetCharacterHistory, SetCharacter, GetCharacterHistory, DeleteCharacterHistory};
 use mysql_connection::tools::Execute;
 use std::{time, thread};
+use crate::modules::armory::domain_value::GuildRank;
 
 #[test]
 fn set_character_history() {
@@ -144,7 +145,10 @@ fn set_character_history() {
         name: "SampleGuild123".to_string(),
         server_uid: 12342424,
       },
-      rank: "Raider".to_string()
+      rank: GuildRank {
+        index: 3,
+        name: "Raider".to_string()
+      }
     }),
   };
 

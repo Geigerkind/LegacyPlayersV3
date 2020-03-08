@@ -31,14 +31,15 @@ impl GuildViewer for Armory {
                     faction: race.faction,
                     race_id: race.id,
                     hero_class_id: last_update.character_info.hero_class_id,
-                    rank: last_update.character_guild.as_ref().unwrap().rank.clone(),
-                    last_seen: last_update.timestamp
+                    rank_index: last_update.character_guild.as_ref().unwrap().rank.index,
+                    last_seen: last_update.timestamp,
                 }
             }).collect();
 
         Ok(GuildViewerDto {
             guild_id,
             guild_name: guild.name,
+            ranks: guild.ranks,
             member
         })
     }

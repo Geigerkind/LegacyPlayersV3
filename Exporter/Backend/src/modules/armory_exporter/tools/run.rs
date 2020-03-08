@@ -7,7 +7,7 @@ use std::time::Duration;
 use crate::modules::{ArmoryExporter, CharacterDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
 use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents};
-use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
+use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, GuildRank};
 use crate::Run;
 use std::collections::HashMap;
 
@@ -70,7 +70,10 @@ impl Run for ArmoryExporter {
                 server_uid: get_server_uid(char_guild_table.guild_id),
                 name: char_guild_table.guild_name.to_owned(),
               },
-              rank: char_guild_table.rank_name.to_owned(),
+              rank: GuildRank {
+                index: char_guild_table.rank_index,
+                name: char_guild_table.rank_name.to_owned()
+              },
             })),
             character_title,
             profession_skill_points1: professions.get(0).and_then(|skill| Some(skill.value as u16)),

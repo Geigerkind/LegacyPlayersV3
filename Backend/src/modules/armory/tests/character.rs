@@ -5,6 +5,7 @@ use mysql_connection::tools::Execute;
 use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, CharacterGuildDto, CharacterFacialDto};
 use crate::modules::armory::tools::{SetCharacter, GetCharacter, DeleteCharacter};
+use crate::modules::armory::domain_value::GuildRank;
 
 #[test]
 fn set_character() {
@@ -142,7 +143,10 @@ fn set_character() {
         name: "GuildSample".to_string(),
         server_uid: 12346,
       },
-      rank: "Officer".to_string()
+      rank: GuildRank {
+        index: 2,
+        name: "Officer".to_string()
+      }
     }),
   };
   let character_dto = CharacterDto {

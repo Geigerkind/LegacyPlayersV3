@@ -1,15 +1,16 @@
 use crate::modules::armory::dto::CharacterGuildDto;
+use crate::modules::armory::domain_value::GuildRank;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterGuild {
   pub guild_id: u32,
-  pub rank: String
+  pub rank: GuildRank
 }
 
 impl PartialEq for CharacterGuild {
   fn eq(&self, other: &Self) -> bool {
     self.guild_id == other.guild_id
-      && self.rank == other.rank
+        && self.rank == other.rank
   }
 
   fn ne(&self, other: &Self) -> bool {

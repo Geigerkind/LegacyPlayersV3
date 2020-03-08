@@ -7,6 +7,7 @@ use crate::modules::data::Data;
 use crate::modules::data::tools::RetrieveServer;
 use crate::modules::tooltip::tools::RetrieveCharacterTooltip;
 use crate::modules::tooltip::Tooltip;
+use crate::modules::armory::domain_value::GuildRank;
 
 #[test]
 fn character_tooltip() {
@@ -61,7 +62,10 @@ fn character_tooltip() {
         server_uid: 324234234,
         name: "Testadsdfsfdsf".to_string(),
       },
-      rank: "Test123sdfsd".to_string(),
+      rank: GuildRank {
+        index: 4,
+        name: "Test123sdfsd".to_string()
+      },
     }),
   };
   let character_dto = CharacterDto {
@@ -83,7 +87,7 @@ fn character_tooltip() {
   assert_eq!(tooltip.server, server.name);
   assert!(tooltip.guild.is_some());
   assert_eq!(tooltip.guild.as_ref().unwrap().name, character_history_dto.character_guild.as_ref().unwrap().guild.name);
-  assert_eq!(tooltip.guild.as_ref().unwrap().rank, character_history_dto.character_guild.as_ref().unwrap().rank);
+  assert_eq!(tooltip.guild.as_ref().unwrap().rank, character_history_dto.character_guild.as_ref().unwrap().rank.name);
   assert_eq!(tooltip.gender, character_info_dto.gender);
   assert_eq!(tooltip.race_id, character_info_dto.race_id);
   assert_eq!(tooltip.faction, false);
