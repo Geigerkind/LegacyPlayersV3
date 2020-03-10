@@ -1,3 +1,3 @@
 pub trait CheckPlausability {
-  fn is_plausible(&self) -> bool;
+    fn is_plausible(&self) -> bool;
 }

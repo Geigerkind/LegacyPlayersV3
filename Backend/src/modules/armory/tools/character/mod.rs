@@ -4,6 +4,6 @@ pub use self::get_character::GetCharacter;
 pub use self::set_character::SetCharacter;
 
 mod create_character;
-mod get_character;
 mod delete_character;
+mod get_character;
 mod set_character;

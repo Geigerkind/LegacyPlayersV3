@@ -1,24 +1,24 @@
 use mysql_connection::tools::{Execute, Select};
 
-use crate::modules::armory::Armory;
+use crate::modules::armory::dto::ArmoryFailure;
 use crate::modules::armory::material::Character;
 use crate::modules::armory::tools::GetCharacter;
-use crate::modules::armory::dto::ArmoryFailure;
+use crate::modules::armory::Armory;
 
 pub trait CreateCharacter {
-  fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
+    fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
 }
 
 impl CreateCharacter for Armory {
-  fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
-    // If character exists already, return this one
-    let existing_character = self.get_character_id_by_uid(server_id, server_uid);
-    if existing_character.is_some() {
-      return Ok(existing_character.unwrap());
-    }
+    fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
+        // If character exists already, return this one
+        let existing_character = self.get_character_id_by_uid(server_id, server_uid);
+        if existing_character.is_some() {
+            return Ok(existing_character.unwrap());
+        }
 
-    let mut characters = self.characters.write().unwrap();
-    if self.db_main.execute_wparams("INSERT INTO armory_character (`server_id`, `server_uid`) VALUES (:server_id, :server_uid)", params!(
+        let mut characters = self.characters.write().unwrap();
+        if self.db_main.execute_wparams("INSERT INTO armory_character (`server_id`, `server_uid`) VALUES (:server_id, :server_uid)", params!(
       "server_id" => server_id,
       "server_uid" => server_uid,
     )) {
@@ -43,6 +43,6 @@ impl CreateCharacter for Armory {
       }
     }
 
-    Err(ArmoryFailure::Database("create_character".to_owned()))
-  }
+        Err(ArmoryFailure::Database("create_character".to_owned()))
+    }
 }

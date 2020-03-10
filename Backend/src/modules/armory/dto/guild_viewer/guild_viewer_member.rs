@@ -6,5 +6,5 @@ pub struct GuildViewerMemberDto {
     pub race_id: u8,
     pub hero_class_id: u8,
     pub rank_index: u8,
-    pub last_seen: u64
+    pub last_seen: u64,
 }

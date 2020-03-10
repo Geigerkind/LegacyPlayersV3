@@ -1,7 +1,7 @@
-use crate::modules::armory::dto::ArmoryFailure;
 use crate::modules::armory::domain_value::GuildRank;
-use crate::modules::armory::Armory;
+use crate::modules::armory::dto::ArmoryFailure;
 use crate::modules::armory::tools::GetGuild;
+use crate::modules::armory::Armory;
 use mysql_connection::tools::Execute;
 
 pub trait SetGuildRank {

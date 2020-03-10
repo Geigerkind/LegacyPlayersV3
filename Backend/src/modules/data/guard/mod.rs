@@ -1,5 +1,5 @@
-pub use self::language::Language;
 pub use self::expansion::Expansion;
+pub use self::language::Language;
 
-mod language;
 mod expansion;
+mod language;

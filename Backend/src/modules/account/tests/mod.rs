@@ -1,7 +1,7 @@
 mod create;
 mod delete;
+mod forgot;
 mod get;
 mod login;
-mod update;
 mod token;
-mod forgot;
+mod update;

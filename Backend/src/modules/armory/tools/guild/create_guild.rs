@@ -1,30 +1,30 @@
 use mysql_connection::tools::{Execute, Select};
 
-use crate::modules::armory::Armory;
 use crate::modules::armory::dto::{ArmoryFailure, GuildDto};
 use crate::modules::armory::material::Guild;
 use crate::modules::armory::tools::GetGuild;
+use crate::modules::armory::Armory;
 
 pub trait CreateGuild {
-  fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
+    fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
 }
 
 impl CreateGuild for Armory {
-  fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
-    // Validation
-    if guild.server_uid == 0 {
-      return Err(ArmoryFailure::InvalidInput);
-    }
+    fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
+        // Validation
+        if guild.server_uid == 0 {
+            return Err(ArmoryFailure::InvalidInput);
+        }
 
-    // Check if it already exists, if so return existing one
-    let existing_guild = self.get_guild_by_uid(server_id, guild.server_uid);
-    if existing_guild.is_some() {
-      return Ok(existing_guild.unwrap());
-    }
+        // Check if it already exists, if so return existing one
+        let existing_guild = self.get_guild_by_uid(server_id, guild.server_uid);
+        if existing_guild.is_some() {
+            return Ok(existing_guild.unwrap());
+        }
 
-    // Else create one
-    let mut guilds = self.guilds.write().unwrap();
-    if self.db_main.execute_wparams("INSERT INTO armory_guild (`server_id`, `server_uid`, `guild_name`) VALUES (:server_id, :server_uid, :guild_name)", params!(
+        // Else create one
+        let mut guilds = self.guilds.write().unwrap();
+        if self.db_main.execute_wparams("INSERT INTO armory_guild (`server_id`, `server_uid`, `guild_name`) VALUES (:server_id, :server_uid, :guild_name)", params!(
       "server_id" => server_id,
       "server_uid" => guild.server_uid,
       "guild_name" => guild.name.clone()
@@ -49,6 +49,6 @@ impl CreateGuild for Armory {
       return Ok(new_guild.to_owned());
     }
 
-    Err(ArmoryFailure::Database("create_guild".to_owned()))
-  }
+        Err(ArmoryFailure::Database("create_guild".to_owned()))
+    }
 }

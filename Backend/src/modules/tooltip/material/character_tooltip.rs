@@ -11,5 +11,5 @@ pub struct CharacterTooltip {
     pub race_id: u8,
     pub gender: bool,
     pub level: u8,
-    pub items: Vec<CharacterTooltipItem>
+    pub items: Vec<CharacterTooltipItem>,
 }
