@@ -10,7 +10,7 @@ use crate::modules::data::Data;
 #[get("/hero_class/<id>")]
 pub fn get_hero_class(me: State<Data>, id: u8) -> Option<Json<HeroClass>> {
     me.get_hero_class(id)
-        .and_then(|hero_class| Some(Json(hero_class)))
+        .map(Json)
 }
 
 #[openapi]
@@ -26,14 +26,14 @@ pub fn get_hero_class_localized(
     language: Language,
     id: u8,
 ) -> Option<Json<Localized<HeroClass>>> {
-    me.get_hero_class(id).and_then(|hero_class| {
-        Some(Json(Localized {
+    me.get_hero_class(id).map(|hero_class| {
+        Json(Localized {
             localization: me
                 .get_localization(language.0, hero_class.localization_id)
                 .unwrap()
                 .content,
-            base: hero_class.to_owned(),
-        }))
+            base: hero_class,
+        })
     })
 }
 

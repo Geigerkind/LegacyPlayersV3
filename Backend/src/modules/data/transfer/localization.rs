@@ -13,5 +13,5 @@ pub fn get_localization(
     localization_id: u32,
 ) -> Option<Json<Localization>> {
     me.get_localization(language_id, localization_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

@@ -9,5 +9,5 @@ use crate::modules::data::Data;
 #[get("/npc/<expansion_id>/<npc_id>")]
 pub fn get_npc(me: State<Data>, expansion_id: u8, npc_id: u32) -> Option<Json<NPC>> {
     me.get_npc(expansion_id, npc_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

@@ -13,5 +13,5 @@ pub fn get_item_socket(
     item_id: u32,
 ) -> Option<Json<ItemSocket>> {
     me.get_item_socket(expansion_id, item_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

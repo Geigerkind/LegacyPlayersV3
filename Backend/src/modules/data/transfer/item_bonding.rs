@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/item_bonding/<id>")]
 pub fn get_item_bonding(me: State<Data>, id: u8) -> Option<Json<ItemBonding>> {
     me.get_item_bonding(id)
-        .and_then(|item_bonding| Some(Json(item_bonding)))
+        .map(Json)
 }
 
 #[openapi]

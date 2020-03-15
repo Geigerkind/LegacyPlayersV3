@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/item_quality/<id>")]
 pub fn get_item_quality(me: State<Data>, id: u8) -> Option<Json<ItemQuality>> {
     me.get_item_quality(id)
-        .and_then(|item_quality| Some(Json(item_quality)))
+        .map(Json)
 }
 
 #[openapi]

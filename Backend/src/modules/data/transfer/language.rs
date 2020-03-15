@@ -9,14 +9,14 @@ use crate::modules::data::Data;
 #[get("/language/<id>")]
 pub fn get_language(me: State<Data>, id: u8) -> Option<Json<Language>> {
     me.get_language(id)
-        .and_then(|language| Some(Json(language)))
+        .map(Json)
 }
 
 #[openapi]
 #[get("/language/by_short_code/<short_code>")]
 pub fn get_language_by_short_code(me: State<Data>, short_code: String) -> Option<Json<Language>> {
     me.get_language_by_short_code(short_code)
-        .and_then(|language| Some(Json(language)))
+        .map(Json)
 }
 
 #[openapi]

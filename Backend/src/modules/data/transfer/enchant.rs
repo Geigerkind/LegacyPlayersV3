@@ -9,5 +9,5 @@ use crate::modules::data::Data;
 #[get("/enchant/<expansion_id>/<enchant_id>")]
 pub fn get_enchant(me: State<Data>, expansion_id: u8, enchant_id: u32) -> Option<Json<Enchant>> {
     me.get_enchant(expansion_id, enchant_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

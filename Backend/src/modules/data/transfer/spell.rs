@@ -9,5 +9,5 @@ use crate::modules::data::Data;
 #[get("/spell/<expansion_id>/<spell_id>")]
 pub fn get_spell(me: State<Data>, expansion_id: u8, spell_id: u32) -> Option<Json<Spell>> {
     me.get_spell(expansion_id, spell_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

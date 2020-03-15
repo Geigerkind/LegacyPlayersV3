@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/profession/<id>")]
 pub fn get_profession(me: State<Data>, id: u16) -> Option<Json<Profession>> {
     me.get_profession(id)
-        .and_then(|profession| Some(Json(profession)))
+        .map(Json)
 }
 
 #[openapi]

@@ -11,7 +11,7 @@ use crate::modules::armory::Armory;
 #[get("/guild/<id>")]
 pub fn get_guild(me: State<Armory>, id: u32) -> Result<Json<Guild>, ArmoryFailure> {
     me.get_guild(id)
-        .and_then(|guild| Some(Json(guild)))
+        .map(Json)
         .ok_or(ArmoryFailure::InvalidInput)
 }
 

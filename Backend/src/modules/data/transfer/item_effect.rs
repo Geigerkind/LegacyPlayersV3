@@ -13,5 +13,5 @@ pub fn get_item_effect(
     item_id: u32,
 ) -> Option<Json<Vec<ItemEffect>>> {
     me.get_item_effect(expansion_id, item_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

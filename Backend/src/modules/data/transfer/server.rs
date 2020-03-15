@@ -8,7 +8,7 @@ use crate::modules::data::Data;
 #[openapi]
 #[get("/server/<id>")]
 pub fn get_server(me: State<Data>, id: u32) -> Option<Json<AvailableServer>> {
-    me.get_server(id).and_then(|server| Some(Json(server)))
+    me.get_server(id).map(Json)
 }
 
 #[openapi]

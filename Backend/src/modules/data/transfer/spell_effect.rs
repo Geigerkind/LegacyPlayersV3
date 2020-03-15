@@ -13,5 +13,5 @@ pub fn get_spell_effects(
     spell_id: u32,
 ) -> Option<Json<Vec<SpellEffect>>> {
     me.get_spell_effects(expansion_id, spell_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

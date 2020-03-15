@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/dispel_type/<id>")]
 pub fn get_dispel_type(me: State<Data>, id: u8) -> Option<Json<DispelType>> {
     me.get_dispel_type(id)
-        .and_then(|dispel_type| Some(Json(dispel_type)))
+        .map(Json)
 }
 
 #[openapi]

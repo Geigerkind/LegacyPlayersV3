@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/power_type/<id>")]
 pub fn get_power_type(me: State<Data>, id: u8) -> Option<Json<PowerType>> {
     me.get_power_type(id)
-        .and_then(|power_type| Some(Json(power_type)))
+        .map(Json)
 }
 
 #[openapi]

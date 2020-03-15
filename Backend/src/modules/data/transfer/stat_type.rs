@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/stat_type/<id>")]
 pub fn get_stat_type(me: State<Data>, id: u8) -> Option<Json<StatType>> {
     me.get_stat_type(id)
-        .and_then(|stat_type| Some(Json(stat_type)))
+        .map(Json)
 }
 
 #[openapi]

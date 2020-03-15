@@ -8,5 +8,5 @@ use crate::modules::data::Data;
 #[openapi]
 #[get("/icon/<id>")]
 pub fn get_icon(me: State<Data>, id: u16) -> Option<Json<Icon>> {
-    me.get_icon(id).and_then(|icon| Some(Json(icon)))
+    me.get_icon(id).map(Json)
 }

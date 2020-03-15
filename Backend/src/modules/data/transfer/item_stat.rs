@@ -13,5 +13,5 @@ pub fn get_item_stats(
     item_id: u32,
 ) -> Option<Json<Vec<ItemStat>>> {
     me.get_item_stats(expansion_id, item_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

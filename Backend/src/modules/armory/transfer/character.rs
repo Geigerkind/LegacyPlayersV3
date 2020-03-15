@@ -22,7 +22,7 @@ pub fn set_character(
 #[get("/character/<id>")]
 pub fn get_character(me: State<Armory>, id: u32) -> Result<Json<Character>, ArmoryFailure> {
     me.get_character(id)
-        .and_then(|character| Some(Json(character)))
+        .map(Json)
         .ok_or(ArmoryFailure::InvalidInput)
 }
 
@@ -40,7 +40,7 @@ pub fn get_character_by_uid(
     uid: u64,
 ) -> Result<Json<Character>, ArmoryFailure> {
     me.get_character_by_uid(owner.0, uid)
-        .and_then(|character| Some(Json(character)))
+        .map(Json)
         .ok_or(ArmoryFailure::InvalidInput)
 }
 

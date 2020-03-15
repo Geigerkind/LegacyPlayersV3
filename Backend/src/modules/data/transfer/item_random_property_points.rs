@@ -13,5 +13,5 @@ pub fn get_item_random_property_points(
     item_level: u16,
 ) -> Option<Json<ItemRandomPropertyPoints>> {
     me.get_item_random_property_points(expansion_id, item_level)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

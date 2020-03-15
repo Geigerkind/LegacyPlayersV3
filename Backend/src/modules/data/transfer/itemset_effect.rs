@@ -13,5 +13,5 @@ pub fn get_itemset_effects(
     itemset_id: u16,
 ) -> Option<Json<Vec<ItemsetEffect>>> {
     me.get_itemset_effects(expansion_id, itemset_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

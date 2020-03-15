@@ -8,7 +8,7 @@ use crate::modules::data::Data;
 #[openapi]
 #[get("/title/<id>")]
 pub fn get_title(me: State<Data>, id: u16) -> Option<Json<Title>> {
-    me.get_title(id).and_then(|title| Some(Json(title)))
+    me.get_title(id).map(Json)
 }
 
 #[openapi]

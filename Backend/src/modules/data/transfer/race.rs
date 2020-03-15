@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[openapi]
 #[get("/race/<id>")]
 pub fn get_race(me: State<Data>, id: u8) -> Option<Json<Race>> {
-    me.get_race(id).and_then(|race| Some(Json(race)))
+    me.get_race(id).map(Json)
 }
 
 #[openapi]
@@ -25,14 +25,14 @@ pub fn get_race_localized(
     language: Language,
     id: u8,
 ) -> Option<Json<Localized<Race>>> {
-    me.get_race(id).and_then(|race| {
-        Some(Json(Localized {
+    me.get_race(id).map(|race| {
+        Json(Localized {
             localization: me
                 .get_localization(language.0, race.localization_id)
                 .unwrap()
                 .content,
-            base: race.to_owned(),
-        }))
+            base: race,
+        })
     })
 }
 

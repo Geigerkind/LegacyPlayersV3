@@ -9,7 +9,7 @@ use crate::modules::data::Data;
 #[get("/expansion/<id>")]
 pub fn get_expansion(me: State<Data>, id: u8) -> Option<Json<Expansion>> {
     me.get_expansion(id)
-        .and_then(|expansion| Some(Json(expansion)))
+        .map(Json)
 }
 
 #[openapi]

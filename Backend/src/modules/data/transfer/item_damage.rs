@@ -13,5 +13,5 @@ pub fn get_item_damage(
     item_id: u32,
 ) -> Option<Json<Vec<ItemDamage>>> {
     me.get_item_damage(expansion_id, item_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

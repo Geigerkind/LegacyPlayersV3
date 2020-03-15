@@ -13,7 +13,7 @@ pub fn get_itemset_name(
     itemset_id: u16,
 ) -> Option<Json<ItemsetName>> {
     me.get_itemset_name(expansion_id, itemset_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }
 
 #[openapi]
@@ -24,5 +24,5 @@ pub fn get_itemset_item_ids(
     itemset_id: u16,
 ) -> Option<Json<Vec<u32>>> {
     me.get_itemset_item_ids(expansion_id, itemset_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }

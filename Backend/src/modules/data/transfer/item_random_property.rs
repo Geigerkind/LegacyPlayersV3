@@ -13,5 +13,5 @@ pub fn get_item_random_property(
     random_property_id: i16,
 ) -> Option<Json<ItemRandomProperty>> {
     me.get_item_random_property(expansion_id, random_property_id)
-        .and_then(|result| Some(Json(result)))
+        .map(Json)
 }
