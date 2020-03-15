@@ -17,7 +17,7 @@ impl Get for Dictionary {
             if value.is_empty() {
               panic!("Value is empty for key {} and language {}", key, lang_index)
             } else {
-              return value.to_string();
+              value.to_string()
             }
           }
           None => panic!("Key {} is not registered for language {}", key, lang_index)

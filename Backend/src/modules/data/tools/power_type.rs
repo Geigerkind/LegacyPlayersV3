@@ -10,7 +10,7 @@ impl RetrievePowerType for Data {
     fn get_power_type(&self, id: u8) -> Option<PowerType> {
         self.power_types
             .get(&id)
-            .and_then(|power_type| Some(power_type.clone()))
+            .cloned()
     }
 
     fn get_all_power_types(&self) -> Vec<PowerType> {

@@ -8,7 +8,7 @@ pub trait RetrieveRace {
 
 impl RetrieveRace for Data {
     fn get_race(&self, id: u8) -> Option<Race> {
-        self.races.get(&id).and_then(|race| Some(race.clone()))
+        self.races.get(&id).cloned()
     }
 
     fn get_all_races(&self) -> Vec<Race> {

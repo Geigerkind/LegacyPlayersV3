@@ -14,8 +14,7 @@ impl RetrieveItemSocket for Data {
         self.item_sockets
             .get(expansion_id as usize - 2)
             .and_then(|map| {
-                map.get(&item_id)
-                    .and_then(|item_socket| Some(item_socket.clone()))
+                map.get(&item_id).cloned()
             })
     }
 }

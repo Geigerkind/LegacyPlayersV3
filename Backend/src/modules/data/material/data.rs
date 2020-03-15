@@ -198,7 +198,7 @@ impl Data {
     }
 
     fn should_init(init_flag: u8, trigger_flag: u8) -> bool {
-        return init_flag == 0 || init_flag == trigger_flag;
+        init_flag == 0 || init_flag == trigger_flag
     }
 }
 
@@ -730,16 +730,14 @@ impl Init for Vec<HashMap<i16, ItemRandomProperty>> {
             &|mut row| {
                 let mut enchant_ids = Vec::new();
                 for i in 3..8 {
-                    let enchant_id = row.take_opt(i).unwrap().ok();
-                    if enchant_id.is_some() {
-                        enchant_ids.push(enchant_id.unwrap());
+                    if let Ok(enchant_id) = row.take_opt(i).unwrap() {
+                        enchant_ids.push(enchant_id);
                     }
                 }
                 let mut scaling_coefficients = Vec::new();
                 for i in 8..13 {
-                    let coefficient = row.take_opt(i).unwrap().ok();
-                    if coefficient.is_some() {
-                        scaling_coefficients.push(coefficient.unwrap());
+                    if let Ok(coefficient) = row.take_opt(i).unwrap() {
+                        scaling_coefficients.push(coefficient);
                     }
                 }
                 ItemRandomProperty {
@@ -785,9 +783,8 @@ impl Init for Vec<HashMap<u32, ItemSocket>> {
             &|mut row| {
                 let mut slots = Vec::new();
                 for i in 3..6 {
-                    let slot = row.take_opt(i).unwrap().ok();
-                    if slot.is_some() {
-                        slots.push(slot.unwrap());
+                    if let Ok(slot) = row.take_opt(i).unwrap() {
+                        slots.push(slot);
                     }
                 }
                 ItemSocket {

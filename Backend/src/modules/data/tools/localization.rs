@@ -14,8 +14,7 @@ impl RetrieveLocalization for Data {
         self.localization
             .get(language_id as usize - 1)
             .and_then(|map| {
-                map.get(&localization_id)
-                    .and_then(|localization| Some(localization.clone()))
+                map.get(&localization_id).cloned()
             })
     }
 }

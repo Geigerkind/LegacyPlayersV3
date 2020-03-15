@@ -8,7 +8,7 @@ pub trait RetrieveTitle {
 
 impl RetrieveTitle for Data {
     fn get_title(&self, id: u16) -> Option<Title> {
-        self.titles.get(&id).and_then(|title| Some(title.clone()))
+        self.titles.get(&id).cloned()
     }
 
     fn get_all_titles(&self) -> Vec<Title> {

@@ -15,12 +15,12 @@ impl DeleteGuild for Armory {
         if self.db_main.execute_wparams(
             "DELETE FROM armory_guild WHERE id=:id",
             params!(
-              "id" => id.clone()
+              "id" => id
             ),
         ) {
             return guilds
                 .remove(&id)
-                .ok_or(ArmoryFailure::Database("Invalid guild id o.O".to_owned()))
+                .ok_or_else(|| ArmoryFailure::Database("Invalid guild id o.O".to_owned()))
                 .and_then(|_| Ok(()));
         }
         Err(ArmoryFailure::Database("delete_guild".to_owned()))

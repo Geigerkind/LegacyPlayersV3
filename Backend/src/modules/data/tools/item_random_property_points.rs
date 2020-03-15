@@ -21,6 +21,6 @@ impl RetrieveItemRandomPropertyPoints for Data {
 
         self.item_random_property_points
             .get(&expansion_id)
-            .and_then(|vec| Some(vec.get(item_level as usize - 1).unwrap().clone()))
+            .map(|vec| vec.get(item_level as usize - 1).unwrap().clone())
     }
 }

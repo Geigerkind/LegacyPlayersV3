@@ -30,7 +30,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            head = item_res.ok().and_then(|item| Some(item.id));
+            head = item_res.ok().map(|item| item.id)
         }
 
         let mut neck = None;
@@ -39,7 +39,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            neck = item_res.ok().and_then(|item| Some(item.id));
+            neck = item_res.ok().map(|item| item.id)
         }
 
         let mut shoulder = None;
@@ -48,7 +48,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            shoulder = item_res.ok().and_then(|item| Some(item.id));
+            shoulder = item_res.ok().map(|item| item.id)
         }
 
         let mut back = None;
@@ -57,7 +57,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            back = item_res.ok().and_then(|item| Some(item.id));
+            back = item_res.ok().map(|item| item.id)
         }
 
         let mut chest = None;
@@ -66,7 +66,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            chest = item_res.ok().and_then(|item| Some(item.id));
+            chest = item_res.ok().map(|item| item.id)
         }
 
         let mut shirt = None;
@@ -75,7 +75,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            shirt = item_res.ok().and_then(|item| Some(item.id));
+            shirt = item_res.ok().map(|item| item.id)
         }
 
         let mut tabard = None;
@@ -84,7 +84,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            tabard = item_res.ok().and_then(|item| Some(item.id));
+            tabard = item_res.ok().map(|item| item.id)
         }
 
         let mut wrist = None;
@@ -93,7 +93,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            wrist = item_res.ok().and_then(|item| Some(item.id));
+            wrist = item_res.ok().map(|item| item.id)
         }
 
         let mut main_hand = None;
@@ -102,7 +102,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            main_hand = item_res.ok().and_then(|item| Some(item.id));
+            main_hand = item_res.ok().map(|item| item.id)
         }
 
         let mut off_hand = None;
@@ -111,7 +111,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            off_hand = item_res.ok().and_then(|item| Some(item.id));
+            off_hand = item_res.ok().map(|item| item.id)
         }
 
         let mut ternary_hand = None;
@@ -120,7 +120,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            ternary_hand = item_res.ok().and_then(|item| Some(item.id));
+            ternary_hand = item_res.ok().map(|item| item.id)
         }
 
         let mut glove = None;
@@ -129,7 +129,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            glove = item_res.ok().and_then(|item| Some(item.id));
+            glove = item_res.ok().map(|item| item.id)
         }
 
         let mut belt = None;
@@ -138,7 +138,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            belt = item_res.ok().and_then(|item| Some(item.id));
+            belt = item_res.ok().map(|item| item.id)
         }
 
         let mut leg = None;
@@ -147,7 +147,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            leg = item_res.ok().and_then(|item| Some(item.id));
+            leg = item_res.ok().map(|item| item.id)
         }
 
         let mut boot = None;
@@ -156,7 +156,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            boot = item_res.ok().and_then(|item| Some(item.id));
+            boot = item_res.ok().map(|item| item.id)
         }
 
         let mut ring1 = None;
@@ -165,7 +165,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            ring1 = item_res.ok().and_then(|item| Some(item.id));
+            ring1 = item_res.ok().map(|item| item.id)
         }
 
         let mut ring2 = None;
@@ -174,7 +174,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            ring2 = item_res.ok().and_then(|item| Some(item.id));
+            ring2 = item_res.ok().map(|item| item.id)
         }
 
         let mut trinket1 = None;
@@ -183,7 +183,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            trinket1 = item_res.ok().and_then(|item| Some(item.id));
+            trinket1 = item_res.ok().map(|item| item.id)
         }
 
         let mut trinket2 = None;
@@ -192,7 +192,7 @@ impl CreateCharacterGear for Armory {
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
-            trinket2 = item_res.ok().and_then(|item| Some(item.id));
+            trinket2 = item_res.ok().map(|item| item.id)
         }
 
         // Note: This is extremely inefficient
@@ -220,9 +220,8 @@ impl CreateCharacterGear for Armory {
 
         // It may fail due to the unique constraint if a race condition occurs
         self.db_main.execute_wparams("INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)", params);
-        let char_gear = self.get_character_gear_by_value(character_gear);
-        if char_gear.is_ok() {
-            return Ok(char_gear.unwrap());
+        if let Ok(char_gear) = self.get_character_gear_by_value(character_gear) {
+            return Ok(char_gear);
         }
         Err(ArmoryFailure::Database("create_character_gear".to_owned()))
     }

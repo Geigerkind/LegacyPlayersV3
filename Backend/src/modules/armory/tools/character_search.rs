@@ -25,7 +25,7 @@ impl PerformCharacterSearch for Armory {
         data: &Data,
         filter: CharacterSearchFilter,
     ) -> SearchResult<CharacterSearchResult> {
-        let mut filter = filter.to_owned();
+        let mut filter = filter;
         let characters = self.characters.read().unwrap();
         if filter.name.filter.is_some() {
             *filter.name.filter.as_mut().unwrap() =
@@ -67,10 +67,10 @@ impl PerformCharacterSearch for Armory {
                 if filter.last_updated.filter.is_none() {
                     return true;
                 }
-                let filter_timestamp = filter.last_updated.filter.as_ref().unwrap().clone();
+                let filter_timestamp = *filter.last_updated.filter.as_ref().unwrap();
                 let current_timestamp = character.last_update.as_ref().unwrap().timestamp;
-                return current_timestamp >= filter_timestamp
-                    && current_timestamp <= filter_timestamp + 24 * 60 * 60;
+                current_timestamp >= filter_timestamp
+                    && current_timestamp <= filter_timestamp + 24 * 60 * 60
             })
             // This is very expensive
             .filter(|(_, character)| {
@@ -91,7 +91,7 @@ impl PerformCharacterSearch for Armory {
                             .contains(filter.guild.filter.as_ref().unwrap());
                     }
                 }
-                return false;
+                false
             })
             .map(|(_, character)| {
                 let race_id = character
@@ -109,11 +109,11 @@ impl PerformCharacterSearch for Armory {
                         .character_guild
                         .as_ref()
                         .and_then(|character_guild| {
-                            self.get_guild(character_guild.guild_id).and_then(|guild| {
-                                Some(CharacterSearchGuildDto {
+                            self.get_guild(character_guild.guild_id).map(|guild| {
+                                CharacterSearchGuildDto {
                                     guild_id: guild.id,
-                                    name: guild.name.to_owned(),
-                                })
+                                    name: guild.name,
+                                }
                             })
                         }),
                     character: CharacterSearchCharacterDto {
@@ -185,7 +185,7 @@ impl PerformCharacterSearch for Armory {
                     }
                 }
 
-                return Ordering::Equal;
+                Ordering::Equal
             },
         );
         SearchResult {
@@ -210,5 +210,5 @@ fn negate_ordering(ordering: Ordering, sorting: bool) -> Ordering {
     if sorting {
         return Ordering::Greater;
     }
-    return Ordering::Less;
+    Ordering::Less
 }

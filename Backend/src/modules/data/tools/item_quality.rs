@@ -10,7 +10,7 @@ impl RetrieveItemQuality for Data {
     fn get_item_quality(&self, id: u8) -> Option<ItemQuality> {
         self.item_qualities
             .get(&id)
-            .and_then(|item_quality| Some(item_quality.clone()))
+            .cloned()
     }
 
     fn get_all_item_qualities(&self) -> Vec<ItemQuality> {

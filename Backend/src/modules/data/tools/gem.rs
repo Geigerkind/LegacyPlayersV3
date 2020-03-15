@@ -14,6 +14,6 @@ impl RetrieveGem for Data {
         // Gems are introduced with TBC
         self.gems
             .get(expansion_id as usize - 2)
-            .and_then(|map| map.get(&item_id).and_then(|gem| Some(gem.clone())))
+            .and_then(|map| map.get(&item_id).cloned())
     }
 }

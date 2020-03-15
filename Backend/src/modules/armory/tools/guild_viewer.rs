@@ -54,7 +54,7 @@ impl GuildViewer for Armory {
                 let race = data.get_race(last_update.character_info.race_id).unwrap();
 
                 GuildViewerMemberDto {
-                    character_id: character_id.clone(),
+                    character_id: *character_id,
                     character_name: last_update.character_name.clone(),
                     faction: race.faction,
                     race_id: race.id,

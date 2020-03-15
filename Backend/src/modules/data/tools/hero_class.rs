@@ -10,7 +10,7 @@ impl RetrieveHeroClass for Data {
     fn get_hero_class(&self, id: u8) -> Option<HeroClass> {
         self.hero_classes
             .get(&id)
-            .and_then(|hero_class| Some(hero_class.clone()))
+            .cloned()
     }
 
     fn get_all_hero_classes(&self) -> Vec<HeroClass> {

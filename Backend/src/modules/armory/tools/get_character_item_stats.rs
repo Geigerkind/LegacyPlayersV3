@@ -61,8 +61,7 @@ pub fn get_character_stats(
     for item_id in gear_to_vec_item_ids {
         if considered_set_item_ids
             .iter()
-            .find(|&&id| id == item_id)
-            .is_some()
+            .any(|&id| id == item_id)
         {
             continue;
         }
@@ -93,8 +92,7 @@ pub fn get_character_stats(
                     data.get_stat_type(stat.stat_type).unwrap().localization_id,
                 )
                 .unwrap()
-                .content
-                .to_owned(),
+                .content,
             stat_value: stat.stat_value,
         })
         .collect()
@@ -148,11 +146,9 @@ fn get_item_stats(
                         && socket_info.slots[i] == socket_info.slots[i] & gem_item.flag;
                 }
             }
-        } else {
-            if let Some(socket_info) = item_socket.as_ref() {
-                if i < socket_info.slots.len() {
-                    socket_bonus = false;
-                }
+        } else if let Some(socket_info) = item_socket.as_ref() {
+            if i < socket_info.slots.len() {
+                socket_bonus = false;
             }
         }
     }
@@ -370,8 +366,8 @@ fn merge_character_stat_vec(acc: &mut Vec<Stat>, input: Vec<Stat>) {
         let acc_stat = acc
             .iter_mut()
             .find(|inner_stat| inner_stat.stat_type == stat.stat_type);
-        if acc_stat.is_some() {
-            acc_stat.unwrap().stat_value += stat.stat_value;
+        if let Some(acc_stat_val) = acc_stat {
+            acc_stat_val.stat_value += stat.stat_value;
         } else {
             acc.push(stat);
         }

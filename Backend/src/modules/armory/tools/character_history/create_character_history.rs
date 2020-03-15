@@ -50,39 +50,36 @@ impl CreateCharacterHistory for Armory {
         }
         let character_info = character_info_res.unwrap();
 
-        let mut facial = None;
-        if character_history_dto.facial.is_some() {
+        let facial = if character_history_dto.facial.is_some() {
             let facial_res = self
                 .create_character_facial(character_history_dto.facial.as_ref().unwrap().clone());
             if facial_res.is_err() {
                 return Err(facial_res.err().unwrap());
             }
-            facial = facial_res.ok();
-        }
+            facial_res.ok()
+        } else { None };
 
         let params = params!(
           "character_id" => character_id,
           "character_info_id" => character_info.id,
           "character_name" => character_history_dto.character_name.clone(),
-          "title" => character_history_dto.character_title.clone(),
-          "guild_id" => guild_id.clone(),
-          "guild_rank" => character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.index.clone())),
-          "prof_skill_points1" => character_history_dto.profession_skill_points1.clone(),
-          "prof_skill_points2" => character_history_dto.profession_skill_points2.clone(),
-          "facial" => facial.as_ref().and_then(|chr_facial| Some(chr_facial.id.clone()))
+          "title" => character_history_dto.character_title,
+          "guild_id" => guild_id,
+          "guild_rank" => character_history_dto.character_guild.as_ref().map(|chr_guild_dto| chr_guild_dto.rank.index),
+          "prof_skill_points1" => character_history_dto.profession_skill_points1,
+          "prof_skill_points2" => character_history_dto.profession_skill_points2,
+          "facial" => facial.as_ref().map(|chr_facial| chr_facial.id)
         );
-        self.db_main.execute_wparams("INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, `guild_id`, `guild_rank`, `prof_skill_points1`, `prof_skill_points2`, `facial`, `timestamp`) VALUES (:character_id, :character_info_id, :character_name, :title, :guild_id, :guild_rank, :prof_skill_points1, :prof_skill_points2, :facial, UNIX_TIMESTAMP())", params.clone());
-        let character_history_res =
-            self.get_character_history_by_value(character_id, character_history_dto);
-        if character_history_res.is_ok() {
+        self.db_main.execute_wparams("INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, `guild_id`, `guild_rank`, `prof_skill_points1`, `prof_skill_points2`, `facial`, `timestamp`) VALUES (:character_id, :character_info_id, :character_name, :title, :guild_id, :guild_rank, :prof_skill_points1, :prof_skill_points2, :facial, UNIX_TIMESTAMP())", params);
+        if let Ok(character_history_res) = self.get_character_history_by_value(character_id, character_history_dto) {
             let mut characters = self.characters.write().unwrap();
             let mut character = characters.get_mut(&character_id).unwrap();
-            character.last_update = Some(character_history_res.as_ref().unwrap().clone());
+            character.last_update = Some(character_history_res.clone());
             character.history_moments.push(HistoryMoment {
-                id: character_history_res.as_ref().unwrap().id,
-                timestamp: character_history_res.as_ref().unwrap().timestamp,
+                id: character_history_res.id,
+                timestamp: character_history_res.timestamp,
             });
-            return Ok(character_history_res.unwrap());
+            return Ok(character_history_res);
         }
 
         Err(ArmoryFailure::Database(

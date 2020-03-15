@@ -10,7 +10,7 @@ impl RetrieveStatType for Data {
     fn get_stat_type(&self, id: u8) -> Option<StatType> {
         self.stat_types
             .get(&id)
-            .and_then(|stat_type| Some(stat_type.clone()))
+            .cloned()
     }
 
     fn get_all_stat_types(&self) -> Vec<StatType> {

@@ -41,17 +41,16 @@ impl CreateCharacterInfo for Armory {
           "hero_class_id" => character_info.hero_class_id,
           "level" => character_info.level,
           "gender" => character_info.gender,
-          "profession1" => character_info.profession1.clone(),
-          "profession2" => character_info.profession2.clone(),
+          "profession1" => character_info.profession1,
+          "profession2" => character_info.profession2,
           "talent_specialization" => talent_specialization,
           "race_id" => character_info.race_id
         );
 
         // It may fail due to the unique constraint if a race condition occurs
-        self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params.clone());
-        let char_info = self.get_character_info_by_value(character_info.to_owned());
-        if char_info.is_ok() {
-            return Ok(char_info.unwrap());
+        self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params);
+        if let Ok(char_info) = self.get_character_info_by_value(character_info) {
+            return Ok(char_info);
         }
         Err(ArmoryFailure::Database("create_character_info".to_owned()))
     }

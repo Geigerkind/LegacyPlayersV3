@@ -32,9 +32,8 @@ impl DeleteCharacterHistory for Armory {
                 .clone();
             character.history_moments.remove_item(&hm);
             if character.last_update.contains(&character_history) {
-                let last_id = character.history_moments.last();
-                if last_id.is_some() {
-                    character.last_update = self.get_character_history(last_id.unwrap().id).ok();
+                if let Some(last_id) = character.history_moments.last() {
+                    character.last_update = self.get_character_history(last_id.id).ok();
                 }
             }
             return Ok(());

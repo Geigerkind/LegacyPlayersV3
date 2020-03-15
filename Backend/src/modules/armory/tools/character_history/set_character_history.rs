@@ -41,7 +41,7 @@ impl SetCharacterHistory for Armory {
                 .and_then(|chr_guild_dto| {
                     self.create_guild(server_id, chr_guild_dto.guild.clone())
                         .ok()
-                        .and_then(|gld| Some(gld.id))
+                        .map(|gld| gld.id)
                 });
 
         {
@@ -62,7 +62,7 @@ impl SetCharacterHistory for Armory {
                     if self.db_main.execute_wparams(
                         "UPDATE armory_character_history SET `timestamp` = :timestamp WHERE id=:id",
                         params!(
-                          "timestamp" => now.clone(),
+                          "timestamp" => now,
                           "id" => last_update.id
                         ),
                     ) {

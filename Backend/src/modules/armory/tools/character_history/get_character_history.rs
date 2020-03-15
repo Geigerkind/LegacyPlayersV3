@@ -75,8 +75,7 @@ impl GetCharacterHistory for Armory {
         character_id: u32,
         character_history_dto: CharacterHistoryDto,
     ) -> Result<CharacterHistory, ArmoryFailure> {
-        let mut guild_id = None;
-        if character_history_dto.character_guild.is_some() {
+        let guild_id = if character_history_dto.character_guild.is_some() {
             let character = self.get_character(character_id).unwrap();
             let guild = self.get_guild_by_uid(
                 character.server_id,
@@ -90,8 +89,8 @@ impl GetCharacterHistory for Armory {
             if guild.is_none() {
                 return Err(ArmoryFailure::InvalidInput);
             }
-            guild_id = Some(guild.unwrap().id);
-        }
+            Some(guild.unwrap().id)
+        } else { None };
 
         let character_info_res =
             self.get_character_info_by_value(character_history_dto.character_info.to_owned());
@@ -108,12 +107,12 @@ impl GetCharacterHistory for Armory {
           "character_id" => character_id,
           "character_info_id" => character_info_res.as_ref().unwrap().id,
           "character_name" => character_history_dto.character_name.clone(),
-          "title" => character_history_dto.character_title.clone(),
-          "guild_id" => guild_id.clone(),
-          "guild_rank" => character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.index)),
-          "prof_skill_points1" => character_history_dto.profession_skill_points1.clone(),
-          "prof_skill_points2" => character_history_dto.profession_skill_points2.clone(),
-          "facial" => facial.as_ref().and_then(|chr_facial| Some(chr_facial.id))
+          "title" => character_history_dto.character_title,
+          "guild_id" => guild_id,
+          "guild_rank" => character_history_dto.character_guild.as_ref().map(|chr_guild_dto| chr_guild_dto.rank.index),
+          "prof_skill_points1" => character_history_dto.profession_skill_points1,
+          "prof_skill_points2" => character_history_dto.profession_skill_points2,
+          "facial" => facial.as_ref().map(|chr_facial| chr_facial.id)
         );
 
         self.db_main.select_wparams_value("SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name \
@@ -129,10 +128,10 @@ impl GetCharacterHistory for Armory {
           character_id,
           character_info: character_info_res.as_ref().unwrap().to_owned(),
           character_name: character_history_dto.character_name.to_owned(),
-          character_guild: guild_id.and_then(|id| Some(CharacterGuild {
-            guild_id: id.clone(),
-            rank: character_history_dto.character_guild.as_ref().and_then(|chr_guild_dto| Some(chr_guild_dto.rank.clone())).unwrap(),
-          })),
+          character_guild: guild_id.map(|id| CharacterGuild {
+            guild_id: id,
+            rank: character_history_dto.character_guild.as_ref().map(|chr_guild_dto| chr_guild_dto.rank.clone()).unwrap(),
+          }),
           character_title: character_history_dto.character_title,
           profession_skill_points1: character_history_dto.profession_skill_points1,
           profession_skill_points2: character_history_dto.profession_skill_points2,

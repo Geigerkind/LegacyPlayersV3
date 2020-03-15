@@ -1,6 +1,5 @@
 use mysql_connection::tools::{Execute, Select};
 use str_util::{random, sha3};
-use time_util;
 
 use crate::modules::account::dto::Failure;
 use crate::modules::account::material::{APIToken, Account};
@@ -50,11 +49,7 @@ impl Token for Account {
         {
             let api_token_to_member_id = self.api_token_to_member_id.read().unwrap();
             let api_tokens = self.api_tokens.read().unwrap();
-            let result = api_token_to_member_id.get(&db_token);
-            if result.is_none() {
-                return None;
-            }
-            member_id = *result.unwrap();
+            member_id = *api_token_to_member_id.get(&db_token)?;
             let token_vec = api_tokens.get(&member_id).unwrap();
             for entry in token_vec {
                 if entry.token.contains(&db_token) {
@@ -68,8 +63,8 @@ impl Token for Account {
         }
 
         // Otherwise delete token and return none!
-        if token_id.is_some() {
-            let _ = self.delete_token(token_id.unwrap(), member_id);
+        if let Some(token_id) = token_id {
+            let _ = self.delete_token(token_id, member_id);
         }
         None
     }
@@ -132,50 +127,50 @@ impl Token for Account {
         let mut api_tokens = self.api_tokens.write().unwrap();
 
         if !self.db_main.execute_wparams(
-      "INSERT INTO account_api_token (member_id, token, purpose, exp_date) VALUES (:member_id, :token, :purpose, :exp_date)",
-      params!(
+            "INSERT INTO account_api_token (member_id, token, purpose, exp_date) VALUES (:member_id, :token, :purpose, :exp_date)",
+            params!(
         "member_id" => member_id,
         "token" => db_token.clone(),
         "purpose" => purpose,
         "exp_date" => exp_date
       ),
-    ) {
-      return Err(Failure::Unknown);
-    }
+        ) {
+            return Err(Failure::Unknown);
+        }
 
         match self.db_main.select_wparams_value(
-      "SELECT id, member_id, token, purpose, exp_date FROM account_api_token WHERE member_id=:member_id AND token=:token",
-      &|mut row| {
-        APIToken {
-          id: row.take(0).unwrap(),
-          member_id: row.take(1).unwrap(),
-          token: Some(row.take(2).unwrap()),
-          purpose: row.take(3).unwrap(),
-          exp_date: row.take(4).unwrap(),
-        }
-      },
-      params!(
+            "SELECT id, member_id, token, purpose, exp_date FROM account_api_token WHERE member_id=:member_id AND token=:token",
+            &|mut row| {
+                APIToken {
+                    id: row.take(0).unwrap(),
+                    member_id: row.take(1).unwrap(),
+                    token: Some(row.take(2).unwrap()),
+                    purpose: row.take(3).unwrap(),
+                    exp_date: row.take(4).unwrap(),
+                }
+            },
+            params!(
         "member_id" => member_id,
         "token" => db_token.clone()
       ),
-    ) {
-      Some(token) => {
-        if api_tokens.get(&member_id).is_none() {
-          api_tokens.insert(member_id, vec![token.clone()]);
-        } else {
-          api_tokens.get_mut(&member_id).unwrap().push(token.clone());
+        ) {
+            Some(token) => {
+                if api_tokens.get(&member_id).is_none() {
+                    api_tokens.insert(member_id, vec![token.clone()]);
+                } else {
+                    api_tokens.get_mut(&member_id).unwrap().push(token.clone());
+                }
+                api_token_to_member_id.insert(db_token, member_id);
+                Ok(APIToken {
+                    id: token.id,
+                    member_id: token.member_id,
+                    token: Some(real_token),
+                    purpose: token.purpose,
+                    exp_date: token.exp_date,
+                })
+            }
+            None => Err(Failure::Unknown)
         }
-        api_token_to_member_id.insert(db_token.to_owned(), member_id);
-        Ok(APIToken {
-          id: token.id,
-          member_id: token.member_id,
-          token: Some(real_token.to_owned()),
-          purpose: token.purpose,
-          exp_date: token.exp_date
-        })
-      }
-      None => return Err(Failure::Unknown)
-    }
     }
 
     fn delete_token(&self, token_id: u32, member_id: u32) -> Result<(), Failure> {
@@ -261,7 +256,7 @@ impl Token for Account {
             token_id = token_vec
                 .iter()
                 .find(|api_token| api_token.token.as_ref().unwrap() == &db_token)
-                .and_then(|api_token| Some(api_token.id));
+                .map(|api_token| api_token.id);
         }
         if token_id.is_none() {
             return Err(Failure::Unknown);

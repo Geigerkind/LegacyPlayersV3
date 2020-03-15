@@ -56,8 +56,8 @@ impl GetCharacterInfo for Armory {
           "hero_class_id" => character_info.hero_class_id,
           "level" => character_info.level,
           "gender" => character_info.gender,
-          "profession1" => character_info.profession1.clone(),
-          "profession2" => character_info.profession2.clone(),
+          "profession1" => character_info.profession1,
+          "profession2" => character_info.profession2,
           "talent_specialization" => talent_specialization,
           "race_id" => character_info.race_id
         );

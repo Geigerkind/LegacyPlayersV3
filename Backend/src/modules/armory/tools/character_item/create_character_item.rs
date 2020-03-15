@@ -36,10 +36,9 @@ impl CreateCharacterItem for Armory {
         // It may happen that another thread is inserting the same item
         // Therefore the insert will fail due to the unique constraint
         // So in any case, attempt to retrieve the character item
-        self.db_main.execute_wparams("INSERT INTO armory_item (`item_id`, `random_property_id`, `enchant_id`, `gem_id1`, `gem_id2`, `gem_id3`, `gem_id4`) VALUES (:item_id, :random_property_id, :enchant_id, :gem_id1, :gem_id2, :gem_id3, :gem_id4)", params.clone());
-        let char_item = self.get_character_item_by_value(character_item);
-        if char_item.is_ok() {
-            return Ok(char_item.unwrap());
+        self.db_main.execute_wparams("INSERT INTO armory_item (`item_id`, `random_property_id`, `enchant_id`, `gem_id1`, `gem_id2`, `gem_id3`, `gem_id4`) VALUES (:item_id, :random_property_id, :enchant_id, :gem_id1, :gem_id2, :gem_id3, :gem_id4)", params);
+        if let Ok(char_item) = self.get_character_item_by_value(character_item) {
+            return Ok(char_item);
         }
         Err(ArmoryFailure::Database("create_character_item".to_owned()))
     }

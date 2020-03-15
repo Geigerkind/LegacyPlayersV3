@@ -10,7 +10,7 @@ impl RetrieveDispelType for Data {
     fn get_dispel_type(&self, id: u8) -> Option<DispelType> {
         self.dispel_types
             .get(&id)
-            .and_then(|dispel_type| Some(dispel_type.clone()))
+            .cloned()
     }
 
     fn get_all_dispel_types(&self) -> Vec<DispelType> {

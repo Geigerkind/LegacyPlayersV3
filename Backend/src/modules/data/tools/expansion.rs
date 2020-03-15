@@ -10,7 +10,7 @@ impl RetrieveExpansion for Data {
     fn get_expansion(&self, id: u8) -> Option<Expansion> {
         self.expansions
             .get(&id)
-            .and_then(|expansion| Some(expansion.clone()))
+            .cloned()
     }
 
     fn get_all_expansions(&self) -> Vec<Expansion> {

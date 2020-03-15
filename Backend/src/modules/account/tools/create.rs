@@ -1,6 +1,5 @@
 use language::domain_value::Language;
 use language::tools::Get;
-use mail;
 use mysql_connection::tools::{Execute, Select};
 use str_util::{random, sha3, strformat};
 use validator::domain_value::PasswordFailure;
@@ -52,7 +51,7 @@ impl Create for Account {
             let pass: String = sha3::hash(&[password, &salt]);
 
             if self.db_main.execute_wparams("INSERT IGNORE INTO account_member (`mail`, `password`, `nickname`, `salt`, `joined`) VALUES (:mail, :pass, :nickname, :salt, UNIX_TIMESTAMP())", params!(
-      "nickname" => nickname.clone(),
+      "nickname" => (*nickname).to_string(),
       "mail" => lower_mail.clone(),
       "pass" => pass.clone(),
       "salt" => salt.clone()
@@ -66,7 +65,7 @@ impl Create for Account {
         member.insert(member_id, Member {
           id: member_id,
           nickname: nickname.to_owned(),
-          mail: lower_mail.clone(),
+          mail: lower_mail,
           password: pass,
           salt,
           mail_confirmed: false,
@@ -81,11 +80,11 @@ impl Create for Account {
         }
 
         self.send_confirmation(member_id);
-        return self.create_token(
+        self.create_token(
             &self.dictionary.get("general.login", Language::English),
             member_id,
             time_util::get_ts_from_now_in_secs(7),
-        );
+        )
     }
 
     fn send_confirmation(&self, member_id: u32) -> bool {
@@ -137,6 +136,6 @@ impl Create for Account {
             requires_mail_confirmation.remove(id);
             return true;
         }
-        return false;
+        false
     }
 }

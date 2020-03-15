@@ -103,25 +103,25 @@ impl Init for HashMap<u32, Character> {
         id: row.take(0).unwrap(),
         character_id: row.take(1).unwrap(),
         character_name: row.take(3).unwrap(),
-        character_guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| Some(CharacterGuild {
+        character_guild: row.take_opt(4).unwrap().ok().map(|guild_id| CharacterGuild {
           guild_id,
           rank: GuildRank {
             index: row.take(5).unwrap(),
             name: row.take(11).unwrap()
           },
-        })),
+        }),
         character_title: row.take_opt(6).unwrap().ok(),
         profession_skill_points1: row.take_opt(7).unwrap().ok(),
         profession_skill_points2: row.take_opt(8).unwrap().ok(),
         timestamp: row.take(10).unwrap(),
-        facial: row.take_opt(12).unwrap().ok().and_then(|facial_id: u32| Some(CharacterFacial {
+        facial: row.take_opt(12).unwrap().ok().map(|facial_id: u32| CharacterFacial {
           id: facial_id.to_owned(),
           skin_color: row.take(13).unwrap(),
           face_style: row.take(14).unwrap(),
           hair_style: row.take(15).unwrap(),
           hair_color: row.take(16).unwrap(),
           facial_hair: row.take(17).unwrap(),
-        })),
+        }),
         character_info: CharacterInfo {
           id: row.take(18).unwrap(),
           hero_class_id: row.take(20).unwrap(),

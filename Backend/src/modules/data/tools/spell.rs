@@ -13,6 +13,6 @@ impl RetrieveSpell for Data {
 
         self.spells
             .get(expansion_id as usize - 1)
-            .and_then(|map| map.get(&spell_id).and_then(|spell| Some(spell.clone())))
+            .and_then(|map| map.get(&spell_id).cloned())
     }
 }

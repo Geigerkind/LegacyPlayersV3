@@ -44,11 +44,11 @@ impl RetrieveCharacterTooltip for Tooltip {
             .and_then(|character_guild| {
                 armory
                     .get_guild(character_guild.guild_id)
-                    .and_then(|guild| {
-                        Some(CharacterGuild {
-                            name: guild.name.to_owned(),
-                            rank: character_guild.rank.name.to_owned(),
-                        })
+                    .map(|guild| {
+                        CharacterGuild {
+                            name: guild.name,
+                            rank: character_guild.rank.name,
+                        }
                     })
             });
 

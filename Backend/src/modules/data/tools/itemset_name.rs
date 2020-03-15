@@ -15,8 +15,7 @@ impl RetrieveItemsetName for Data {
         self.itemset_names
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&itemset_id)
-                    .and_then(|itemset_name| Some(itemset_name.clone()))
+                map.get(&itemset_id).cloned()
             })
     }
 
@@ -25,15 +24,13 @@ impl RetrieveItemsetName for Data {
             return None;
         }
 
-        self.items.get(expansion_id as usize - 1).and_then(|map| {
-            Some(
-                map.iter()
-                    .filter(|(_, item)| {
-                        item.itemset.is_some() && *item.itemset.as_ref().unwrap() == itemset_id
-                    })
-                    .map(|(item_id, _)| item_id.clone())
-                    .collect(),
-            )
+        self.items.get(expansion_id as usize - 1).map(|map| {
+            map.iter()
+                .filter(|(_, item)| {
+                    item.itemset.is_some() && *item.itemset.as_ref().unwrap() == itemset_id
+                })
+                .map(|(item_id, _)| *item_id)
+                .collect()
         })
     }
 }

@@ -31,7 +31,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Language {
         let data = data_res.unwrap();
         let language = data
             .get_language_by_short_code(lang_short_code)
-            .and_then(|language| Some(language.id));
+            .map(|language| language.id);
         if language.is_none() {
             return Success(Language(1));
         }

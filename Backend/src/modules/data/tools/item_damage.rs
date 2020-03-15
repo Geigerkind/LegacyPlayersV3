@@ -14,8 +14,7 @@ impl RetrieveItemDamage for Data {
         self.item_damages
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&item_id)
-                    .and_then(|item_damage| Some(item_damage.clone()))
+                map.get(&item_id).cloned()
             })
     }
 }

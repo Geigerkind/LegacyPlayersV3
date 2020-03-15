@@ -14,8 +14,7 @@ impl RetrieveEnchant for Data {
         self.enchants
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&enchant_id)
-                    .and_then(|enchant| Some(enchant.clone()))
+                map.get(&enchant_id).cloned()
             })
     }
 }

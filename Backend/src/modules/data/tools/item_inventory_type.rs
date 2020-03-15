@@ -10,7 +10,7 @@ impl RetrieveItemInventoryType for Data {
     fn get_item_inventory_type(&self, id: u8) -> Option<ItemInventoryType> {
         self.item_inventory_types
             .get(&id)
-            .and_then(|item_inventory_type| Some(item_inventory_type.clone()))
+            .cloned()
     }
 
     fn get_all_item_inventory_types(&self) -> Vec<ItemInventoryType> {

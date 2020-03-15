@@ -29,10 +29,6 @@ impl PartialEq for CharacterGear {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.id != other.id
-    }
 }
 
 impl CharacterGear {
@@ -60,7 +56,7 @@ impl CharacterGear {
     }
 
     pub fn compare_by_value(&self, other: &CharacterGearDto) -> bool {
-        return self.head.is_eq_by_value(&other.head)
+        self.head.is_eq_by_value(&other.head)
             && self.neck.is_eq_by_value(&other.neck)
             && self.shoulder.is_eq_by_value(&other.shoulder)
             && self.back.is_eq_by_value(&other.back)
@@ -78,7 +74,7 @@ impl CharacterGear {
             && self.ring1.is_eq_by_value(&other.ring1)
             && self.ring2.is_eq_by_value(&other.ring2)
             && self.trinket1.is_eq_by_value(&other.trinket1)
-            && self.trinket2.is_eq_by_value(&other.trinket2);
+            && self.trinket2.is_eq_by_value(&other.trinket2)
     }
 }
 
@@ -89,13 +85,13 @@ trait EqByValue {
 
 impl EqByValue for Option<CharacterItem> {
     fn is_eq_by_value(&self, other: &Option<CharacterItemDto>) -> bool {
-        return (self.is_some()
+        (self.is_some()
             && other.is_some()
             && self
                 .as_ref()
                 .unwrap()
                 .compare_by_value(other.as_ref().unwrap()))
-            || (self.is_none() && other.is_none());
+            || (self.is_none() && other.is_none())
     }
 
     fn is_eq(&self, other: &Option<CharacterItem>) -> bool {

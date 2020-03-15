@@ -18,10 +18,6 @@ impl PartialEq for CharacterInfo {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.id != other.id
-    }
 }
 
 impl CharacterInfo {

@@ -30,9 +30,8 @@ impl RetrieveSpellTooltip for Tooltip {
             return Err(TooltipFailure::InvalidInput);
         }
         let spell = spell_res.unwrap();
-        let mut spell_cost = None;
-        if spell.cost > 0 {
-            spell_cost = Some(SpellCost {
+        let spell_cost = if spell.cost > 0 {
+            Some(SpellCost {
                 cost: spell.cost,
                 cost_in_percent: spell.cost_in_percent,
                 power_type: data
@@ -42,8 +41,8 @@ impl RetrieveSpellTooltip for Tooltip {
                     })
                     .unwrap()
                     .content,
-            });
-        }
+            })
+        } else { None };
 
         Ok(SpellTooltip {
             name: data

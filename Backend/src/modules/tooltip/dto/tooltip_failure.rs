@@ -39,7 +39,7 @@ impl OpenApiResponder<'static> for TooltipFailure {
         let mut responses = Responses::default();
         let schema = gen.json_schema::<String>();
         add_schema_response(&mut responses, 534, "text/plain", schema.clone())?;
-        add_schema_response(&mut responses, 536, "text/plain", schema.clone())?;
+        add_schema_response(&mut responses, 536, "text/plain", schema)?;
         Ok(responses)
     }
 }

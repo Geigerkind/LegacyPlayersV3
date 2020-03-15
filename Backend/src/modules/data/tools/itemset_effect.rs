@@ -14,8 +14,7 @@ impl RetrieveItemsetEffect for Data {
         self.itemset_effects
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&itemset_id)
-                    .and_then(|itemset_effects| Some(itemset_effects.clone()))
+                map.get(&itemset_id).cloned()
             })
     }
 }

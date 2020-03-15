@@ -15,7 +15,7 @@ impl GetCharacter for Armory {
         characters
             .iter()
             .find(|(_, character)| character.server_id == server_id && character.server_uid == uid)
-            .and_then(|(id, _)| Some(id.clone()))
+            .map(|(id, _)| *id)
     }
 
     fn get_character_by_uid(&self, server_id: u32, uid: u64) -> Option<Character> {
@@ -27,7 +27,7 @@ impl GetCharacter for Armory {
         let characters = self.characters.read().unwrap();
         characters
             .get(&character_id)
-            .and_then(|character| Some(character.clone()))
+            .cloned()
     }
 
     fn get_characters_by_name(&self, character_name: String) -> Vec<Character> {
@@ -62,6 +62,6 @@ impl GetCharacter for Armory {
                         .to_lowercase()
                         == character_name.to_lowercase()
             })
-            .map(|character| character.to_owned())
+            .cloned()
     }
 }

@@ -13,6 +13,6 @@ impl RetrieveNPC for Data {
 
         self.npcs
             .get(expansion_id as usize - 1)
-            .and_then(|map| map.get(&npc_id).and_then(|npc| Some(npc.clone())))
+            .and_then(|map| map.get(&npc_id).cloned())
     }
 }

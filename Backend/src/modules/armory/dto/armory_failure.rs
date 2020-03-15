@@ -24,7 +24,7 @@ impl Responder<'static> for ArmoryFailure {
                 Status::new(534, "InvalidInput")
             }
             ArmoryFailure::Database(hint) => {
-                body = hint.clone();
+                body = hint;
                 Status::new(535, "Database")
             }
             ArmoryFailure::ImplausibleInput => {
@@ -45,7 +45,7 @@ impl OpenApiResponder<'static> for ArmoryFailure {
         let schema = gen.json_schema::<String>();
         add_schema_response(&mut responses, 534, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 535, "text/plain", schema.clone())?;
-        add_schema_response(&mut responses, 536, "text/plain", schema.clone())?;
+        add_schema_response(&mut responses, 536, "text/plain", schema)?;
         Ok(responses)
     }
 }

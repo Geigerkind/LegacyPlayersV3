@@ -14,10 +14,6 @@ impl PartialEq for CharacterFacial {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
 }
 
 impl CharacterFacial {

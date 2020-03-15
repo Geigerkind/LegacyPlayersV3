@@ -16,7 +16,7 @@ impl GetGuild for Armory {
         guilds
             .iter()
             .find(|(_, guild)| guild.server_id == server_id && guild.name == name)
-            .and_then(|(id, _)| Some(id.clone()))
+            .map(|(id, _)| *id)
     }
 
     fn get_guild_by_name(&self, server_id: u32, name: String) -> Option<Guild> {
@@ -29,7 +29,7 @@ impl GetGuild for Armory {
         guilds
             .iter()
             .find(|(_, guild)| guild.server_id == server_id && guild.server_uid == uid)
-            .and_then(|(id, _)| Some(id.clone()))
+            .map(|(id, _)| *id)
     }
 
     fn get_guild_by_uid(&self, server_id: u32, uid: u64) -> Option<Guild> {
@@ -39,7 +39,7 @@ impl GetGuild for Armory {
 
     fn get_guild(&self, guild_id: u32) -> Option<Guild> {
         let guilds = self.guilds.read().unwrap();
-        guilds.get(&guild_id).and_then(|guild| Some(guild.clone()))
+        guilds.get(&guild_id).cloned()
     }
 
     fn get_guilds_by_name(&self, guild_name: String) -> Vec<Guild> {

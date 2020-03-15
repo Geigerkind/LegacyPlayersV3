@@ -10,7 +10,7 @@ impl RetrieveItemClass for Data {
     fn get_item_class(&self, id: u8) -> Option<ItemClass> {
         self.item_classes
             .get(&id)
-            .and_then(|item_class| Some(item_class.clone()))
+            .cloned()
     }
 
     fn get_all_item_classes(&self) -> Vec<ItemClass> {

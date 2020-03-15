@@ -10,7 +10,7 @@ impl RetrieveItemSheath for Data {
     fn get_item_sheath(&self, id: u8) -> Option<ItemSheath> {
         self.item_sheaths
             .get(&id)
-            .and_then(|item_sheath| Some(item_sheath.clone()))
+            .cloned()
     }
 
     fn get_all_item_sheaths(&self) -> Vec<ItemSheath> {

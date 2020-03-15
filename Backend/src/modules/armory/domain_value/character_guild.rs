@@ -11,10 +11,6 @@ impl PartialEq for CharacterGuild {
     fn eq(&self, other: &Self) -> bool {
         self.guild_id == other.guild_id && self.rank == other.rank
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
 }
 
 impl CharacterGuild {

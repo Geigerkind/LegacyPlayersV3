@@ -7,6 +7,6 @@ pub trait RetrieveIcon {
 
 impl RetrieveIcon for Data {
     fn get_icon(&self, id: u16) -> Option<Icon> {
-        self.icons.get(&id).and_then(|result| Some(result.clone()))
+        self.icons.get(&id).cloned()
     }
 }

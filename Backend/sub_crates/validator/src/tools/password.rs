@@ -19,7 +19,7 @@ pub fn valid_password(input: &str) -> Result<(), PasswordFailure>
       if pwd.count == 0 {
         return Ok(());
       }
-      return Err(PasswordFailure::Pwned(pwd.count));
+      Err(PasswordFailure::Pwned(pwd.count))
     }
     // Ignore this case
     Err(_) => Ok(())

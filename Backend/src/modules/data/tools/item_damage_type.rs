@@ -10,7 +10,7 @@ impl RetrieveItemDamageType for Data {
     fn get_item_damage_type(&self, id: u8) -> Option<ItemDamageType> {
         self.item_damage_types
             .get(&id)
-            .and_then(|item_damage_type| Some(item_damage_type.clone()))
+            .cloned()
     }
 
     fn get_all_item_damage_types(&self) -> Vec<ItemDamageType> {

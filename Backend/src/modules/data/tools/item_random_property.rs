@@ -22,8 +22,7 @@ impl RetrieveItemRandomProperty for Data {
         self.item_random_properties
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&random_property_id)
-                    .and_then(|item_random_property| Some(item_random_property.clone()))
+                map.get(&random_property_id).cloned()
             })
     }
 }

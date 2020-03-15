@@ -14,8 +14,7 @@ impl RetrieveSpellEffect for Data {
         self.spell_effects
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&spell_id)
-                    .and_then(|spell_effects| Some(spell_effects.clone()))
+                map.get(&spell_id).cloned()
             })
     }
 }

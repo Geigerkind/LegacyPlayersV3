@@ -10,10 +10,6 @@ impl PartialEq for GuildRank {
     fn eq(&self, other: &Self) -> bool {
         self.index == other.index && self.name == other.name
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
 }
 
 impl CheckPlausability for GuildRank {

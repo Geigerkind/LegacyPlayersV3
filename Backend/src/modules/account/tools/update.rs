@@ -45,7 +45,7 @@ impl Update for Account {
             if self.db_main.execute_wparams(
                 "UPDATE account_member SET nickname=:nickname WHERE id=:id",
                 params!(
-                  "nickname" => new_nickname.clone(),
+                  "nickname" => (*new_nickname).to_string(),
                   "id" => member_id
                 ),
             ) {
@@ -123,12 +123,12 @@ impl Update for Account {
         // If the mail has not been confirmed yet then it can be changed without
         // confirmation, because the user could have had a typo
         if !entry.mail_confirmed {
-            entry.mail = lower_mail.to_owned();
+            entry.mail = lower_mail;
             return Ok(true);
         }
 
         let confirmation_id = sha3::hash(&[&member_id.to_string(), "new_mail", &entry.salt]);
-        entry.new_mail = lower_mail.to_owned();
+        entry.new_mail = lower_mail;
         requires_mail_confirmation.insert(confirmation_id.clone(), member_id);
         let mail_content = strformat::fmt(
             self.dictionary.get("update.mail.text", Language::English),
@@ -163,7 +163,7 @@ impl Update for Account {
                             ),
                         )
                     {
-                        member_entry.mail = lower_mail.to_owned();
+                        member_entry.mail = lower_mail;
                         member_entry.new_mail = String::new();
                     } else {
                         return Err(Failure::Unknown);

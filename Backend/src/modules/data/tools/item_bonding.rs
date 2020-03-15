@@ -10,7 +10,7 @@ impl RetrieveItemBonding for Data {
     fn get_item_bonding(&self, id: u8) -> Option<ItemBonding> {
         self.item_bondings
             .get(&id)
-            .and_then(|item_bonding| Some(item_bonding.clone()))
+            .cloned()
     }
 
     fn get_all_item_bondings(&self) -> Vec<ItemBonding> {

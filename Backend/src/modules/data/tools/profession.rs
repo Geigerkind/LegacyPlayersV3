@@ -10,7 +10,7 @@ impl RetrieveProfession for Data {
     fn get_profession(&self, id: u16) -> Option<Profession> {
         self.professions
             .get(&id)
-            .and_then(|profession| Some(profession.clone()))
+            .cloned()
     }
 
     fn get_all_professions(&self) -> Vec<Profession> {

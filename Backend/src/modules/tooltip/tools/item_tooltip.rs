@@ -52,9 +52,8 @@ impl RetrieveItemTooltip for Tooltip {
         }
         let item = item_res.unwrap();
 
-        let mut weapon_stat = None;
-        if item.delay.is_some() {
-            weapon_stat = Some(WeaponStat {
+        let weapon_stat = if item.delay.is_some() {
+            Some(WeaponStat {
                 delay: item.delay.unwrap(),
                 damage_sources: data
                     .get_item_damage(expansion_id, item_id)
@@ -70,23 +69,23 @@ impl RetrieveItemTooltip for Tooltip {
                                         language_id,
                                         item_damage_type.localization_id,
                                     )
-                                    .and_then(|localization| Some(localization.content))
+                                    .map(|localization| localization.content)
                                 })
                         }),
                     })
                     .collect(),
-            });
-        }
+            })
+        } else { None };
 
         let socket = data
             .get_item_socket(expansion_id, item_id)
-            .and_then(|item_socket| {
-                Some(Socket {
+            .map(|item_socket| {
+                Socket {
                     socket_bonus: data
                         .get_enchant(expansion_id, item_socket.bonus)
                         .and_then(|enchant| {
                             data.get_localization(language_id, enchant.localization_id)
-                                .and_then(|localization| Some(localization.content))
+                                .map(|localization| localization.content)
                         })
                         .unwrap(),
                     slots: item_socket
@@ -97,46 +96,44 @@ impl RetrieveItemTooltip for Tooltip {
                             item: None,
                         })
                         .collect(),
-                })
+                }
             });
 
         let item_stats = data.get_item_stats(expansion_id, item_id);
-        let stats: Option<Vec<Stat>> = item_stats.as_ref().and_then(|inner_item_stats| {
-            Some(
-                inner_item_stats
-                    .iter()
-                    .filter(|stat| {
-                        stat.stat.stat_type != 34
-                            && !item_stat_effects.contains(&stat.stat.stat_type)
-                    })
-                    .map(|item_stat| Stat {
-                        value: item_stat.stat.stat_value,
-                        name: data
-                            .get_stat_type(item_stat.stat.stat_type)
-                            .and_then(|stat_type| {
-                                data.get_localization(language_id, stat_type.localization_id)
-                                    .and_then(|localization| Some(localization.content))
-                            })
-                            .unwrap(),
-                    })
-                    .collect(),
-            )
+        let stats: Option<Vec<Stat>> = item_stats.as_ref().map(|inner_item_stats| {
+            inner_item_stats
+                .iter()
+                .filter(|stat| {
+                    stat.stat.stat_type != 34
+                        && !item_stat_effects.contains(&stat.stat.stat_type)
+                })
+                .map(|item_stat| Stat {
+                    value: item_stat.stat.stat_value,
+                    name: data
+                        .get_stat_type(item_stat.stat.stat_type)
+                        .and_then(|stat_type| {
+                            data.get_localization(language_id, stat_type.localization_id)
+                                .map(|localization| localization.content)
+                        })
+                        .unwrap(),
+                })
+                .collect()
         });
 
         let armor = item_stats.as_ref().and_then(|inner_item_stats| {
             inner_item_stats
                 .iter()
                 .find(|item_stat| item_stat.stat.stat_type == 34)
-                .and_then(|armor| Some(armor.stat.stat_value))
+                .map(|armor| armor.stat.stat_value)
         });
 
         let mut item_set = item.itemset.and_then(|itemset_id| {
             data.get_itemset_name(expansion_id, itemset_id)
-                .and_then(|itemset_name| {
-                    Some(ItemSet {
+                .map(|itemset_name| {
+                    ItemSet {
                         name: data
                             .get_localization(language_id, itemset_name.localization_id)
-                            .and_then(|localization| Some(localization.content))
+                            .map(|localization| localization.content)
                             .unwrap(),
                         set_items: data
                             .get_itemset_item_ids(expansion_id, itemset_id)
@@ -145,13 +142,13 @@ impl RetrieveItemTooltip for Tooltip {
                             .map(|item_id| {
                                 let item = data.get_item(expansion_id, *item_id).unwrap();
                                 SetItem {
-                                    item_id: item_id.clone(),
+                                    item_id: *item_id,
                                     active: false,
                                     item_level: item.item_level.unwrap(),
                                     inventory_type: item.inventory_type.unwrap(),
                                     name: data
                                         .get_localization(language_id, item.localization_id)
-                                        .and_then(|localization| Some(localization.content))
+                                        .map(|localization| localization.content)
                                         .unwrap(),
                                 }
                             })
@@ -171,7 +168,7 @@ impl RetrieveItemTooltip for Tooltip {
                                     .unwrap(),
                             })
                             .collect::<Vec<SetEffect>>(),
-                    })
+                    }
                 })
         });
 
@@ -185,20 +182,18 @@ impl RetrieveItemTooltip for Tooltip {
 
         let mut item_effects =
             data.get_item_effect(expansion_id, item_id)
-                .and_then(|inner_item_effects| {
-                    Some(
-                        inner_item_effects
-                            .iter()
-                            .map(|item_effect| {
-                                data.get_localized_spell_description(
-                                    expansion_id,
-                                    language_id,
-                                    item_effect.spell_id,
-                                )
-                                .unwrap()
-                            })
-                            .collect(),
-                    )
+                .map(|inner_item_effects| {
+                    inner_item_effects
+                        .iter()
+                        .map(|item_effect| {
+                            data.get_localized_spell_description(
+                                expansion_id,
+                                language_id,
+                                item_effect.spell_id,
+                            )
+                            .unwrap()
+                        })
+                        .collect()
                 });
 
         if item_stats.is_some() {
@@ -238,27 +233,27 @@ impl RetrieveItemTooltip for Tooltip {
                 data.get_item_bonding(bonding_type)
                     .and_then(|item_bonding| {
                         data.get_localization(language_id, item_bonding.localization_id)
-                            .and_then(|localization| Some(localization.content))
+                            .map(|localization| localization.content)
                     })
             }),
             inventory_type: item.inventory_type.and_then(|inventory_type_id| {
                 data.get_item_inventory_type(inventory_type_id)
                     .and_then(|inventory_type| {
                         data.get_localization(language_id, inventory_type.localization_id)
-                            .and_then(|localization| Some(localization.content))
+                            .map(|localization| localization.content)
                     })
             }),
             sheath_type: item.sheath.and_then(|sheath_id| {
                 data.get_item_sheath(sheath_id).and_then(|item_sheath| {
                     data.get_localization(language_id, item_sheath.localization_id)
-                        .and_then(|localization| Some(localization.content))
+                        .map(|localization| localization.content)
                 })
             }),
             sub_class: data
                 .get_item_class(item.class_id)
                 .and_then(|item_class| {
                     data.get_localization(language_id, item_class.localization_id)
-                        .and_then(|localization| Some(localization.content))
+                        .map(|localization| localization.content)
                 })
                 .unwrap(),
             enchant: None,
@@ -876,138 +871,121 @@ fn get_item_stat_effect_localization(data: &Data, language_id: u8, stat_type: u8
         return data
             .get_localization(language_id, 94916)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Critical strike rating
     if stat_type == 8 {
         return data
             .get_localization(language_id, 94896)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Attack power
     if stat_type == 9 {
         return data
             .get_localization(language_id, 72837)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Dodge rating
     if stat_type == 10 {
         return data
             .get_localization(language_id, 94902)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Parry rating
     if stat_type == 11 {
         return data
             .get_localization(language_id, 94929)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Block rating
     if stat_type == 12 {
         return data
-            .get_localization(language_id, 119756)
+            .get_localization(language_id, 119_756)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Mana regeneration
     if stat_type == 21 {
         return data
             .get_localization(language_id, 74829)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Defense rating
     if stat_type == 22 {
         return data
             .get_localization(language_id, 94562)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Spell hit rating
     if stat_type == 23 {
         return data
-            .get_localization(language_id, 119761)
+            .get_localization(language_id, 119_761)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Spell critical strike rating
     if stat_type == 24 {
         return data
-            .get_localization(language_id, 119759)
+            .get_localization(language_id, 119_759)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Haste rating
     if stat_type == 37 {
         return data
-            .get_localization(language_id, 119758)
+            .get_localization(language_id, 119_758)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Expertise rating
     if stat_type == 38 {
         return data
-            .get_localization(language_id, 119757)
+            .get_localization(language_id, 119_757)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Resilience rating
     if stat_type == 39 {
         return data
-            .get_localization(language_id, 119762)
+            .get_localization(language_id, 119_762)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Spell penetration rating
     if stat_type == 40 {
         return data
-            .get_localization(language_id, 119763)
+            .get_localization(language_id, 119_763)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Armor penetration rating
     if stat_type == 41 {
         return data
-            .get_localization(language_id, 118332)
+            .get_localization(language_id, 118_332)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Spell haste rating
     if stat_type == 42 {
         return data
-            .get_localization(language_id, 119760)
+            .get_localization(language_id, 119_760)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
     // Health regeneration
     if stat_type == 43 {
         return data
             .get_localization(language_id, 74816)
             .unwrap()
-            .content
-            .to_owned();
+            .content;
     }
-    return "!?!".to_owned();
+    "!?!".to_owned()
 }
 
 fn check_is_active(items_to_check: &mut Vec<SetItem>, item: &Option<CharacterItem>) {
@@ -1043,7 +1021,7 @@ fn try_apply_enchant(
         .get_enchant(expansion_id, item_res.enchant_id.unwrap())
         .and_then(|enchant| {
             data.get_localization(language_id, enchant.localization_id)
-                .and_then(|localization| Some(localization.content))
+                .map(|localization| localization.content)
         });
 }
 
@@ -1083,7 +1061,7 @@ fn try_fill_socket(
                 .get_enchant(expansion_id, gem.enchant_id)
                 .and_then(|enchant| {
                     data.get_localization(language_id, enchant.localization_id)
-                        .and_then(|localization| Some(localization.content))
+                        .map(|localization| localization.content)
                 })
                 .unwrap(),
             flag: gem.flag,

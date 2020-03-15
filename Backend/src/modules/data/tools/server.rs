@@ -11,7 +11,7 @@ impl RetrieveServer for Data {
     fn get_server(&self, id: u32) -> Option<AvailableServer> {
         self.servers
             .get(&id)
-            .and_then(|server| Some(AvailableServer::from_server(server)))
+            .map(|server| AvailableServer::from_server(server))
     }
 
     fn get_server_by_name(&self, server_name: String) -> Option<AvailableServer> {

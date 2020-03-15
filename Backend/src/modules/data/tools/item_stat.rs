@@ -14,8 +14,7 @@ impl RetrieveItemStat for Data {
         self.item_stats
             .get(expansion_id as usize - 1)
             .and_then(|map| {
-                map.get(&item_id)
-                    .and_then(|item_stats| Some(item_stats.clone()))
+                map.get(&item_id).cloned()
             })
     }
 }

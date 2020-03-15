@@ -76,7 +76,7 @@ impl OpenApiResponder<'static> for Failure {
         add_schema_response(&mut responses, 531, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 532, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 533, "text/plain", schema.clone())?;
-        add_schema_response(&mut responses, 599, "text/plain", schema.clone())?;
+        add_schema_response(&mut responses, 599, "text/plain", schema)?;
         Ok(responses)
     }
 }

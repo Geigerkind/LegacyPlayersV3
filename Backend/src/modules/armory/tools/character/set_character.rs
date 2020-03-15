@@ -43,6 +43,6 @@ impl SetCharacter for Armory {
         }
 
         self.get_character(character_id)
-            .ok_or(ArmoryFailure::Database("get_character".to_owned()))
+            .ok_or_else(|| ArmoryFailure::Database("get_character".to_owned()))
     }
 }

@@ -17,9 +17,8 @@ impl CreateGuild for Armory {
         }
 
         // Check if it already exists, if so return existing one
-        let existing_guild = self.get_guild_by_uid(server_id, guild.server_uid);
-        if existing_guild.is_some() {
-            return Ok(existing_guild.unwrap());
+        if let Some(existing_guild) = self.get_guild_by_uid(server_id, guild.server_uid) {
+            return Ok(existing_guild);
         }
 
         // Else create one
@@ -40,13 +39,13 @@ impl CreateGuild for Armory {
       let new_guild = Guild {
         id: guild_id,
         server_uid: guild.server_uid,
-        name: guild.name.to_owned(),
+        name: guild.name,
         server_id,
         ranks: Vec::new()
       };
       guilds.insert(new_guild.id, new_guild.clone());
 
-      return Ok(new_guild.to_owned());
+      return Ok(new_guild);
     }
 
         Err(ArmoryFailure::Database("create_guild".to_owned()))

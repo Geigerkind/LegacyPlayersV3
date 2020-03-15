@@ -28,7 +28,7 @@ impl UpdateGuild for Armory {
       "guild_name" => guild_name.clone()
     )) {
       let mut guild = guilds.get_mut(&guild_id).unwrap();
-      guild.name = guild_name.to_owned();
+      guild.name = guild_name;
       return Ok(());
     }
         Err(ArmoryFailure::InvalidInput)
