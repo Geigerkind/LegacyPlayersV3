@@ -4,3 +4,4 @@ cd LegacyPlayersV3/Backend
 cp .env_ci .env
 cargo build
 cargo test
+cargo clippy
