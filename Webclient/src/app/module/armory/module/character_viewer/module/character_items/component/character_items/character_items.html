@@ -7,7 +7,9 @@
     <SelectInput [value]="selectedHistoryId" [options]="selectedHistoryEntries" (valueChange)="emitHistory($event)"></SelectInput>
 </div>
 <div class="cr_guild" *ngIf="character.guild">
-    {{ 'Armory.Viewer.guild' | translate: { rank: character.guild.rank, guild: character.guild.name } }}
+    <a [routerLink]="'/armory/guild/'+character.server_name+'/'+character.guild.name">
+        {{ 'Armory.Viewer.guild' | translate: { rank: character.guild.rank, guild: character.guild.name } }}
+    </a>
 </div>
 <div class="cr_row">
     <CharacterItem [history_id]="character.history_id" [item]="character.gear.head" piece="head"></CharacterItem>

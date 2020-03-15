@@ -1,5 +1,6 @@
 @import "src/styles/global";
 
+
 :host {
     display: block;
     position: relative;
@@ -58,9 +59,12 @@
     }
 
     .cr_guild {
+        position: relative;
         min-height: 24px;
         width: 100%;
-        font-size: 18px;
+        a {
+            font-size: 18px;
+        }
         line-height: 24px;
         margin-bottom: $spacing / 2;
     }
