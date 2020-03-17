@@ -1,4 +1,5 @@
 #![allow(clippy::module_inception)]
+#![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
 extern crate language;
 extern crate mail;
