@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::{
+    {rpll_table_sort},
     dto::SearchResult,
     modules::{
         armory::{
@@ -11,6 +12,7 @@ use crate::{
         data::{tools::RetrieveRace, Data},
     },
 };
+use crate::util::ordering::NegateOrdExt;
 
 pub trait PerformCharacterSearch {
     fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult>;
@@ -72,62 +74,17 @@ impl PerformCharacterSearch for Armory {
             .collect();
         let num_characters = result.len();
 
-        result.sort_by(|left: &CharacterSearchResult, right: &CharacterSearchResult| {
-            if let Some(sorting) = filter.hero_class.sorting {
-                let ordering = left.character.hero_class_id.cmp(&right.character.hero_class_id);
-                if ordering != Ordering::Equal {
-                    return negate_ordering(ordering, sorting);
-                }
-            }
-
-            if let Some(sorting) = filter.name.sorting {
-                let ordering = left.character.name.cmp(&right.character.name);
-                if ordering != Ordering::Equal {
-                    return negate_ordering(ordering, sorting);
-                }
-            }
-
-            if let Some(sorting) = filter.guild.sorting {
-                if left.guild.is_some() && right.guild.is_some() {
-                    let ordering = left.guild.as_ref().unwrap().name.cmp(&right.guild.as_ref().unwrap().name);
-                    if ordering != Ordering::Equal {
-                        return negate_ordering(ordering, sorting);
-                    }
-                }
-            }
-
-            if let Some(sorting) = filter.server.sorting {
-                let ordering = left.character.server_id.cmp(&right.character.server_id);
-                if ordering != Ordering::Equal {
-                    return negate_ordering(ordering, sorting);
-                }
-            }
-
-            if let Some(sorting) = filter.last_updated.sorting {
-                let ordering = left.timestamp.cmp(&right.timestamp);
-                if ordering != Ordering::Equal {
-                    return negate_ordering(ordering, sorting);
-                }
-            }
-
-            Ordering::Equal
+        result.sort_by(|left, right| rpll_table_sort! {
+            (filter.hero_class, Some(&left.character.hero_class_id), Some(&right.character.hero_class_id)),
+            (filter.name, Some(&left.character.name), Some(&right.character.name)),
+            (filter.guild, left.guild.as_ref().map(|gld| &gld.name), right.guild.as_ref().map(|gld| &gld.name)),
+            (filter.server, Some(&left.character.server_id), Some(&right.character.server_id)),
+            (filter.last_updated, Some(&left.timestamp), Some(&right.timestamp))
         });
+
         SearchResult {
             result: result.iter().skip((filter.page * 10) as usize).take(10).map(|cs| cs.to_owned()).collect::<Vec<CharacterSearchResult>>(),
             num_items: num_characters,
         }
     }
-}
-
-fn negate_ordering(ordering: Ordering, sorting: bool) -> Ordering {
-    if ordering == Ordering::Less {
-        if sorting {
-            return Ordering::Less;
-        }
-        return Ordering::Greater;
-    }
-    if sorting {
-        return Ordering::Greater;
-    }
-    Ordering::Less
 }

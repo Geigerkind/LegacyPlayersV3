@@ -26,8 +26,9 @@ use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::{account, armory, data, tooltip};
 
-pub mod dto;
-pub mod modules;
+mod dto;
+mod modules;
+mod util;
 
 fn main() {
     dotenv().ok();
