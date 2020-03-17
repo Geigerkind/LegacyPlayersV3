@@ -70,16 +70,17 @@ impl PerformCharacterSearch for Armory {
             result: result.iter().skip((filter.page * 10) as usize).take(10)
                 .map(|(character, guild)| {
                     let race_id = character.last_update.as_ref().unwrap().character_info.race_id;
+                    let last_update = character.last_update.as_ref().unwrap();
                     CharacterSearchResult {
                         faction: data.get_race(race_id).unwrap().faction,
                         guild: guild.as_ref().map(|innr_gld| CharacterSearchGuildDto { guild_id: innr_gld.id, name: innr_gld.name.clone() }),
                         character: CharacterSearchCharacterDto {
                             character_id: character.id,
-                            name: character.last_update.as_ref().unwrap().character_name.clone(),
-                            hero_class_id: character.last_update.as_ref().unwrap().character_info.hero_class_id,
+                            name: last_update.character_name.clone(),
+                            hero_class_id: last_update.character_info.hero_class_id,
                             server_id: character.server_id,
                         },
-                        timestamp: character.last_update.as_ref().unwrap().timestamp,
+                        timestamp: last_update.timestamp,
                     }
                 })
                 .collect::<Vec<CharacterSearchResult>>(),
