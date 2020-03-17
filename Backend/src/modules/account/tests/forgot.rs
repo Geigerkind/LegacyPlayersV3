@@ -1,9 +1,11 @@
 use mysql_connection::tools::Execute;
 use str_util::sha3;
 
-use crate::modules::account::dto::{CreateMember, Credentials};
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::{Create, Forgot};
+use crate::modules::account::{
+    dto::{CreateMember, Credentials},
+    material::Account,
+    tools::{Create, Forgot},
+};
 
 #[test]
 fn send_forget_password_user_does_not_exist() {
@@ -28,16 +30,8 @@ fn send_forgot_password_user_exists_and_receive() {
         },
     };
 
-    let val_pair = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
-    assert!(account
-        .send_forgot_password("fscngsuzfdcsv@jaylappTest.dev")
-        .is_ok());
+    let val_pair = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    assert!(account.send_forgot_password("fscngsuzfdcsv@jaylappTest.dev").is_ok());
 
     let salt;
     {
@@ -48,9 +42,7 @@ fn send_forgot_password_user_exists_and_receive() {
     let receive_forgot = account.recv_forgot_password(&forgot_id);
     assert!(receive_forgot.is_ok());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='fscngsuzfdcsv@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='fscngsuzfdcsv@jaylappTest.dev'");
 }
 
 #[test]

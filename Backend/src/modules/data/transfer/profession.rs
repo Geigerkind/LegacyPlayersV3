@@ -1,15 +1,12 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::Profession;
-use crate::modules::data::tools::RetrieveProfession;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::Profession, tools::RetrieveProfession, Data};
 
 #[openapi]
 #[get("/profession/<id>")]
 pub fn get_profession(me: State<Data>, id: u16) -> Option<Json<Profession>> {
-    me.get_profession(id)
-        .map(Json)
+    me.get_profession(id).map(Json)
 }
 
 #[openapi]

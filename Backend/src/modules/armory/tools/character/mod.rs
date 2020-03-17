@@ -1,7 +1,4 @@
-pub use self::create_character::CreateCharacter;
-pub use self::delete_character::DeleteCharacter;
-pub use self::get_character::GetCharacter;
-pub use self::set_character::SetCharacter;
+pub use self::{create_character::CreateCharacter, delete_character::DeleteCharacter, get_character::GetCharacter, set_character::SetCharacter};
 
 mod create_character;
 mod delete_character;

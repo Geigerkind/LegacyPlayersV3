@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItem;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItem, Data};
 
 #[test]
 fn get_item() {

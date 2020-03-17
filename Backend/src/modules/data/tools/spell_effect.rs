@@ -1,5 +1,4 @@
-use crate::modules::data::domain_value::SpellEffect;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::SpellEffect, Data};
 
 pub trait RetrieveSpellEffect {
     fn get_spell_effects(&self, expansion_id: u8, spell_id: u32) -> Option<Vec<SpellEffect>>;
@@ -11,10 +10,6 @@ impl RetrieveSpellEffect for Data {
             return None;
         }
 
-        self.spell_effects
-            .get(expansion_id as usize - 1)
-            .and_then(|map| {
-                map.get(&spell_id).cloned()
-            })
+        self.spell_effects.get(expansion_id as usize - 1).and_then(|map| map.get(&spell_id).cloned())
     }
 }

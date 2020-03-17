@@ -1,10 +1,6 @@
 use okapi::openapi3::Responses;
-use rocket::http::Status;
-use rocket::response::Responder;
-use rocket::{Request, Response};
-use rocket_okapi::gen::OpenApiGenerator;
-use rocket_okapi::response::OpenApiResponder;
-use rocket_okapi::util::add_schema_response;
+use rocket::{http::Status, response::Responder, Request, Response};
+use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder, util::add_schema_response};
 use schemars::JsonSchema;
 use std::io::Cursor;
 
@@ -22,20 +18,17 @@ impl Responder<'static> for ArmoryFailure {
             ArmoryFailure::InvalidInput => {
                 body = "Invalid input!".to_owned();
                 Status::new(534, "InvalidInput")
-            }
+            },
             ArmoryFailure::Database(hint) => {
                 body = hint;
                 Status::new(535, "Database")
-            }
+            },
             ArmoryFailure::ImplausibleInput => {
                 body = "Implausible input!".to_owned();
                 Status::new(536, "ImplausibleInput")
-            }
+            },
         };
-        Response::build()
-            .status(status)
-            .sized_body(Cursor::new(body))
-            .ok()
+        Response::build().status(status).sized_body(Cursor::new(body)).ok()
     }
 }
 

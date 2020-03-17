@@ -1,12 +1,13 @@
-use language::domain_value::Language;
-use language::tools::Get;
+use language::{domain_value::Language, tools::Get};
 use mysql_connection::tools::Execute;
 use str_util::{random, sha3, strformat};
 use validator::tools::valid_mail;
 
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::{APIToken, Account};
-use crate::modules::account::tools::{Token, Update};
+use crate::modules::account::{
+    dto::Failure,
+    material::{APIToken, Account},
+    tools::{Token, Update},
+};
 
 pub trait Forgot {
     fn send_forgot_password(&self, mail: &str) -> Result<(), Failure>;
@@ -38,10 +39,7 @@ impl Forgot for Account {
         }
 
         let unwrapped_member_id = member_id.unwrap();
-        if self.db_main.execute_wparams(
-            "UPDATE account_member SET forgot_password=1 WHERE id=:id",
-            params!("id" => unwrapped_member_id),
-        ) {
+        if self.db_main.execute_wparams("UPDATE account_member SET forgot_password=1 WHERE id=:id", params!("id" => unwrapped_member_id)) {
             let entry = member.get_mut(&unwrapped_member_id).unwrap();
             let forgot_id = sha3::hash(&[&unwrapped_member_id.to_string(), "forgot", &entry.salt]);
 
@@ -52,13 +50,8 @@ impl Forgot for Account {
             if !mail::send(
                 &entry.mail,
                 &entry.nickname,
-                self.dictionary
-                    .get("forgot.confirmation.subject", Language::English),
-                strformat::fmt(
-                    self.dictionary
-                        .get("forgot.confirmation.text", Language::English),
-                    &[&forgot_id],
-                ),
+                self.dictionary.get("forgot.confirmation.subject", Language::English),
+                strformat::fmt(self.dictionary.get("forgot.confirmation.text", Language::English), &[&forgot_id]),
             ) {
                 return Err(Failure::MailSend);
             }
@@ -87,7 +80,7 @@ impl Forgot for Account {
                     } else {
                         return Err(Failure::Unknown);
                     }
-                }
+                },
                 None => return Err(Failure::ForgotNotIssued),
             }
         }
@@ -101,28 +94,18 @@ impl Forgot for Account {
                 if !mail::send(
                     &entry.mail,
                     &entry.nickname,
-                    self.dictionary
-                        .get("forgot.information.subject", Language::English),
-                    strformat::fmt(
-                        self.dictionary
-                            .get("forgot.information.text", Language::English),
-                        &[&user_pass],
-                    ),
+                    self.dictionary.get("forgot.information.subject", Language::English),
+                    strformat::fmt(self.dictionary.get("forgot.information.text", Language::English), &[&user_pass]),
                 ) {
                     return Err(Failure::MailSend);
                 }
             }
 
             {
-                let mut requires_mail_confirmation =
-                    self.requires_mail_confirmation.write().unwrap();
+                let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
                 requires_mail_confirmation.remove(forgot_id);
             }
-            self.create_token(
-                &self.dictionary.get("general.login", Language::English),
-                user_id,
-                time_util::get_ts_from_now_in_secs(7),
-            )
+            self.create_token(&self.dictionary.get("general.login", Language::English), user_id, time_util::get_ts_from_now_in_secs(7))
         })
     }
 }

@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemRandomPropertyPoints;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemRandomPropertyPoints, Data};
 
 #[test]
 fn get_item_random_property_points() {

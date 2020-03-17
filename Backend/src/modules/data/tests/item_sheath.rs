@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemSheath;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemSheath, Data};
 
 #[test]
 fn get_item_sheath() {

@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveSpellEffect;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveSpellEffect, Data};
 
 #[test]
 fn get_spell_effects() {

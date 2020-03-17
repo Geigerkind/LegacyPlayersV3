@@ -1,6 +1,4 @@
-use language::domain_value::Language;
-use language::material::Dictionary;
-use language::tools::Register;
+use language::{domain_value::Language, material::Dictionary, tools::Register};
 
 pub fn init(dictionary: &Dictionary) {
     dictionary.register("days", Language::English, "{0} days");

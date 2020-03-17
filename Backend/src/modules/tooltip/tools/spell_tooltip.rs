@@ -1,30 +1,17 @@
-use crate::modules::data::tools::{
-    RetrieveIcon, RetrieveLocalization, RetrievePowerType, RetrieveSpell, SpellDescription,
+use crate::modules::{
+    data::{
+        tools::{RetrieveIcon, RetrieveLocalization, RetrievePowerType, RetrieveSpell, SpellDescription},
+        Data,
+    },
+    tooltip::{domain_value::SpellCost, dto::TooltipFailure, material::SpellTooltip, Tooltip},
 };
-use crate::modules::data::Data;
-use crate::modules::tooltip::domain_value::SpellCost;
-use crate::modules::tooltip::dto::TooltipFailure;
-use crate::modules::tooltip::material::SpellTooltip;
-use crate::modules::tooltip::Tooltip;
 
 pub trait RetrieveSpellTooltip {
-    fn get_spell(
-        &self,
-        data: &Data,
-        language_id: u8,
-        expansion_id: u8,
-        spell_id: u32,
-    ) -> Result<SpellTooltip, TooltipFailure>;
+    fn get_spell(&self, data: &Data, language_id: u8, expansion_id: u8, spell_id: u32) -> Result<SpellTooltip, TooltipFailure>;
 }
 
 impl RetrieveSpellTooltip for Tooltip {
-    fn get_spell(
-        &self,
-        data: &Data,
-        language_id: u8,
-        expansion_id: u8,
-        spell_id: u32,
-    ) -> Result<SpellTooltip, TooltipFailure> {
+    fn get_spell(&self, data: &Data, language_id: u8, expansion_id: u8, spell_id: u32) -> Result<SpellTooltip, TooltipFailure> {
         let spell_res = data.get_spell(expansion_id, spell_id);
         if spell_res.is_none() {
             return Err(TooltipFailure::InvalidInput);
@@ -34,31 +21,19 @@ impl RetrieveSpellTooltip for Tooltip {
             Some(SpellCost {
                 cost: spell.cost,
                 cost_in_percent: spell.cost_in_percent,
-                power_type: data
-                    .get_power_type(spell.power_type)
-                    .and_then(|power_type| {
-                        data.get_localization(language_id, power_type.localization_id)
-                    })
-                    .unwrap()
-                    .content,
+                power_type: data.get_power_type(spell.power_type).and_then(|power_type| data.get_localization(language_id, power_type.localization_id)).unwrap().content,
             })
-        } else { None };
+        } else {
+            None
+        };
 
         Ok(SpellTooltip {
-            name: data
-                .get_localization(language_id, spell.localization_id)
-                .unwrap()
-                .content,
+            name: data.get_localization(language_id, spell.localization_id).unwrap().content,
             icon: data.get_icon(spell.icon).unwrap().name,
-            subtext: data
-                .get_localization(language_id, spell.subtext_localization_id)
-                .unwrap()
-                .content,
+            subtext: data.get_localization(language_id, spell.subtext_localization_id).unwrap().content,
             spell_cost,
             range: spell.range_max,
-            description: data
-                .get_localized_spell_description(expansion_id, language_id, spell_id)
-                .unwrap(),
+            description: data.get_localized_spell_description(expansion_id, language_id, spell_id).unwrap(),
         })
     }
 }

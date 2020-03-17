@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemQuality;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemQuality, Data};
 
 #[test]
 fn get_item_quality() {

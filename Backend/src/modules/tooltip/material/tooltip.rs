@@ -7,9 +7,7 @@ pub struct Tooltip {
 
 impl Default for Tooltip {
     fn default() -> Self {
-        Tooltip {
-            db_main: MySQLConnection::new("main"),
-        }
+        Tooltip { db_main: MySQLConnection::new("main") }
     }
 }
 

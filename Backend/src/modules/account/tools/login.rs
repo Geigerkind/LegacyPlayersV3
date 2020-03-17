@@ -1,10 +1,11 @@
-use language::domain_value::Language;
-use language::tools::Get;
+use language::{domain_value::Language, tools::Get};
 use str_util::sha3;
 
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::{APIToken, Account};
-use crate::modules::account::tools::Token;
+use crate::modules::account::{
+    dto::Failure,
+    material::{APIToken, Account},
+    tools::Token,
+};
 
 pub trait Login {
     fn login(&self, mail: &str, password: &str) -> Result<APIToken, Failure>;
@@ -14,13 +15,7 @@ pub trait Login {
 impl Login for Account {
     fn login(&self, mail: &str, password: &str) -> Result<APIToken, Failure> {
         self.validate_credentials(mail, password)
-            .and_then(|member_id| {
-                self.create_token(
-                    &self.dictionary.get("general.login", Language::English),
-                    member_id,
-                    time_util::get_ts_from_now_in_secs(7),
-                )
-            })
+            .and_then(|member_id| self.create_token(&self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7)))
     }
 
     fn validate_credentials(&self, mail: &str, password: &str) -> Result<u32, Failure> {

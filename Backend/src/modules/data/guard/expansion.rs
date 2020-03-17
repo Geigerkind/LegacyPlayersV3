@@ -1,15 +1,14 @@
 use okapi::openapi3::{Parameter, ParameterValue, Responses};
-use rocket::http::Status;
-use rocket::outcome::Outcome::*;
-use rocket::request::{self, FromRequest, Request, State};
-use rocket::response::Responder;
-use rocket::Response;
-use rocket_okapi::gen::OpenApiGenerator;
-use rocket_okapi::request::OpenApiFromRequest;
-use rocket_okapi::response::OpenApiResponder;
+use rocket::{
+    http::Status,
+    outcome::Outcome::*,
+    request::{self, FromRequest, Request, State},
+    response::Responder,
+    Response,
+};
+use rocket_okapi::{gen::OpenApiGenerator, request::OpenApiFromRequest, response::OpenApiResponder};
 
-use crate::modules::data::tools::RetrieveExpansion;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveExpansion, Data};
 
 pub struct Expansion(pub u8);
 

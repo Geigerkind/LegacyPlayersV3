@@ -1,5 +1,4 @@
-use crate::modules::data::dto::AvailableServer;
-use crate::modules::data::Data;
+use crate::modules::data::{dto::AvailableServer, Data};
 
 pub trait RetrieveServer {
     fn get_server(&self, id: u32) -> Option<AvailableServer>;
@@ -9,22 +8,14 @@ pub trait RetrieveServer {
 
 impl RetrieveServer for Data {
     fn get_server(&self, id: u32) -> Option<AvailableServer> {
-        self.servers
-            .get(&id)
-            .map(|server| AvailableServer::from_server(server))
+        self.servers.get(&id).map(|server| AvailableServer::from_server(server))
     }
 
     fn get_server_by_name(&self, server_name: String) -> Option<AvailableServer> {
-        self.servers
-            .iter()
-            .find(|(_, server)| server.name == server_name)
-            .map(|(_, server)| AvailableServer::from_server(server))
+        self.servers.iter().find(|(_, server)| server.name == server_name).map(|(_, server)| AvailableServer::from_server(server))
     }
 
     fn get_all_servers(&self) -> Vec<AvailableServer> {
-        self.servers
-            .iter()
-            .map(|(_, server)| AvailableServer::from_server(server))
-            .collect()
+        self.servers.iter().map(|(_, server)| AvailableServer::from_server(server)).collect()
     }
 }

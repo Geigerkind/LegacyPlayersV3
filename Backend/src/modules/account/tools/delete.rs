@@ -1,10 +1,8 @@
-use language::domain_value::Language;
-use language::tools::Get;
+use language::{domain_value::Language, tools::Get};
 use mysql_connection::tools::Execute;
 use str_util::{sha3, strformat};
 
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::Account;
+use crate::modules::account::{dto::Failure, material::Account};
 
 pub trait Delete {
     fn issue_delete(&self, member_id: u32) -> Result<(), Failure>;
@@ -15,10 +13,7 @@ impl Delete for Account {
     fn issue_delete(&self, member_id: u32) -> Result<(), Failure> {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut member = self.member.write().unwrap();
-        if self.db_main.execute_wparams(
-            "UPDATE account_member SET delete_account=1 WHERE id=:id",
-            params!("id" => member_id),
-        ) {
+        if self.db_main.execute_wparams("UPDATE account_member SET delete_account=1 WHERE id=:id", params!("id" => member_id)) {
             let entry = member.get_mut(&member_id).unwrap();
             entry.delete_account = true;
 
@@ -29,13 +24,8 @@ impl Delete for Account {
             if !mail::send(
                 &entry.mail,
                 &entry.nickname,
-                self.dictionary
-                    .get("delete.confirmation.subject", Language::English),
-                strformat::fmt(
-                    self.dictionary
-                        .get("delete.confirmation.text", Language::English),
-                    &[&delete_id],
-                ),
+                self.dictionary.get("delete.confirmation.subject", Language::English),
+                strformat::fmt(self.dictionary.get("delete.confirmation.text", Language::English), &[&delete_id]),
             ) {
                 return Err(Failure::MailSend);
             }
@@ -70,32 +60,16 @@ impl Delete for Account {
 
                 // Deleting all possible confirmation mail ids
                 if !member_entry.mail_confirmed {
-                    requires_mail_confirmation.remove(&sha3::hash(&[
-                        &member_entry.id.to_string(),
-                        "mail",
-                        &member_entry.salt,
-                    ]));
+                    requires_mail_confirmation.remove(&sha3::hash(&[&member_entry.id.to_string(), "mail", &member_entry.salt]));
                 }
                 if member_entry.forgot_password {
-                    requires_mail_confirmation.remove(&sha3::hash(&[
-                        &member_entry.id.to_string(),
-                        "forgot",
-                        &member_entry.salt,
-                    ]));
+                    requires_mail_confirmation.remove(&sha3::hash(&[&member_entry.id.to_string(), "forgot", &member_entry.salt]));
                 }
                 if member_entry.delete_account {
-                    requires_mail_confirmation.remove(&sha3::hash(&[
-                        &member_entry.id.to_string(),
-                        "delete",
-                        &member_entry.salt,
-                    ]));
+                    requires_mail_confirmation.remove(&sha3::hash(&[&member_entry.id.to_string(), "delete", &member_entry.salt]));
                 }
                 if !member_entry.new_mail.is_empty() {
-                    requires_mail_confirmation.remove(&sha3::hash(&[
-                        &member_entry.id.to_string(),
-                        "new_mail",
-                        &member_entry.salt,
-                    ]));
+                    requires_mail_confirmation.remove(&sha3::hash(&[&member_entry.id.to_string(), "new_mail", &member_entry.salt]));
                 }
                 requires_mail_confirmation.remove(delete_id);
 

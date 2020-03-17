@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveEnchant;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveEnchant, Data};
 
 #[test]
 fn get_enchant() {

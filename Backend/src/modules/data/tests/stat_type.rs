@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveStatType;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveStatType, Data};
 
 #[test]
 fn get_stat_type() {

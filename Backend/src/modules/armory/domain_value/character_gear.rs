@@ -1,5 +1,7 @@
-use crate::modules::armory::domain_value::CharacterItem;
-use crate::modules::armory::dto::{CharacterGearDto, CharacterItemDto};
+use crate::modules::armory::{
+    domain_value::CharacterItem,
+    dto::{CharacterGearDto, CharacterItemDto},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterGear {
@@ -85,19 +87,10 @@ trait EqByValue {
 
 impl EqByValue for Option<CharacterItem> {
     fn is_eq_by_value(&self, other: &Option<CharacterItemDto>) -> bool {
-        (self.is_some()
-            && other.is_some()
-            && self
-                .as_ref()
-                .unwrap()
-                .compare_by_value(other.as_ref().unwrap()))
-            || (self.is_none() && other.is_none())
+        (self.is_some() && other.is_some() && self.as_ref().unwrap().compare_by_value(other.as_ref().unwrap())) || (self.is_none() && other.is_none())
     }
 
     fn is_eq(&self, other: &Option<CharacterItem>) -> bool {
-        (self.is_none() && other.is_none())
-            || (self.is_some()
-                && other.is_some()
-                && self.as_ref().unwrap().deep_eq(other.as_ref().unwrap()))
+        (self.is_none() && other.is_none()) || (self.is_some() && other.is_some() && self.as_ref().unwrap().deep_eq(other.as_ref().unwrap()))
     }
 }

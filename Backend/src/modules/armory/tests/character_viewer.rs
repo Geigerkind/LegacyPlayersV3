@@ -1,9 +1,11 @@
-use crate::modules::armory::dto::{
-    CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto,
+use crate::modules::{
+    armory::{
+        dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto},
+        tools::{CharacterViewer, SetCharacter},
+        Armory,
+    },
+    data::Data,
 };
-use crate::modules::armory::tools::{CharacterViewer, SetCharacter};
-use crate::modules::armory::Armory;
-use crate::modules::data::Data;
 use mysql_connection::tools::Execute;
 
 #[test]
@@ -69,51 +71,24 @@ fn get_character_viewer() {
 
     assert_eq!(character_viewer.character_id, set_character.id);
     assert!(character_viewer.gear.shirt.is_some());
-    assert_eq!(
-        character_viewer.gear.shirt.as_ref().unwrap().item_id,
-        character_info_dto.gear.shirt.as_ref().unwrap().item_id
-    );
+    assert_eq!(character_viewer.gear.shirt.as_ref().unwrap().item_id, character_info_dto.gear.shirt.as_ref().unwrap().item_id);
     assert_eq!(character_viewer.name, character_history_dto.character_name);
     assert!(character_viewer.guild.is_none());
     assert!(character_viewer.talent_specialization.is_none());
     assert!(character_viewer.profession1.is_some());
     assert!(character_viewer.profession2.is_none());
-    assert_eq!(
-        character_viewer.profession1.as_ref().unwrap().points,
-        *character_history_dto
-            .profession_skill_points1
-            .as_ref()
-            .unwrap()
-    );
-    assert_eq!(
-        character_viewer.hero_class_id,
-        character_info_dto.hero_class_id
-    );
+    assert_eq!(character_viewer.profession1.as_ref().unwrap().points, *character_history_dto.profession_skill_points1.as_ref().unwrap());
+    assert_eq!(character_viewer.hero_class_id, character_info_dto.hero_class_id);
     assert_eq!(character_viewer.level, character_info_dto.level);
     assert_eq!(character_viewer.race_id, character_info_dto.race_id);
     assert_eq!(character_viewer.faction, false);
     assert_eq!(character_viewer.gender, character_info_dto.gender);
-    assert_eq!(
-        character_viewer.history_id,
-        set_character.last_update.as_ref().unwrap().id
-    );
+    assert_eq!(character_viewer.history_id, set_character.last_update.as_ref().unwrap().id);
     assert_eq!(character_viewer.history.len(), 1);
 
     let character_history = set_character.last_update.unwrap();
-    armory.db_main.execute_wparams(
-        "DELETE FROM armory_item WHERE id=:id",
-        params!("id" => character_history.character_info.gear.shirt.unwrap().id),
-    );
-    armory.db_main.execute_wparams(
-        "DELETE FROM armory_character_info WHERE id=:id",
-        params!("id" => character_history.character_info.id),
-    );
-    armory.db_main.execute_wparams(
-        "DELETE FROM armory_character_history WHERE id=:id",
-        params!("id" => character_history.id),
-    );
-    armory.db_main.execute_wparams(
-        "DELETE FROM armory_character WHERE id=:id",
-        params!("id" => character_history.character_id),
-    );
+    armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.shirt.unwrap().id));
+    armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
+    armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
+    armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
 }

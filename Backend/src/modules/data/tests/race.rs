@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveRace;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveRace, Data};
 
 #[test]
 fn get_race() {

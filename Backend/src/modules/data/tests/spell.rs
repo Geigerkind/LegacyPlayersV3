@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveSpell;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveSpell, Data};
 
 #[test]
 fn get_spell() {

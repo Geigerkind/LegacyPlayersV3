@@ -1,5 +1,4 @@
-use crate::modules::data::domain_value::Expansion;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::Expansion, Data};
 
 pub trait RetrieveExpansion {
     fn get_expansion(&self, id: u8) -> Option<Expansion>;
@@ -8,15 +7,10 @@ pub trait RetrieveExpansion {
 
 impl RetrieveExpansion for Data {
     fn get_expansion(&self, id: u8) -> Option<Expansion> {
-        self.expansions
-            .get(&id)
-            .cloned()
+        self.expansions.get(&id).cloned()
     }
 
     fn get_all_expansions(&self) -> Vec<Expansion> {
-        self.expansions
-            .iter()
-            .map(|(_, expansion)| expansion.clone())
-            .collect()
+        self.expansions.iter().map(|(_, expansion)| expansion.clone()).collect()
     }
 }

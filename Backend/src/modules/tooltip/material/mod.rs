@@ -1,10 +1,4 @@
-pub use self::character_tooltip::CharacterTooltip;
-pub use self::guild_tooltip::GuildTooltip;
-pub use self::item_tooltip::ItemTooltip;
-pub use self::set_item::SetItem;
-pub use self::socket::Socket;
-pub use self::spell_tooltip::SpellTooltip;
-pub use self::tooltip::Tooltip;
+pub use self::{character_tooltip::CharacterTooltip, guild_tooltip::GuildTooltip, item_tooltip::ItemTooltip, set_item::SetItem, socket::Socket, spell_tooltip::SpellTooltip, tooltip::Tooltip};
 
 mod character_tooltip;
 mod guild_tooltip;

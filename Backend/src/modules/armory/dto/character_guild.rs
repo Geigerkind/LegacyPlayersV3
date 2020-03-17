@@ -1,6 +1,7 @@
-use crate::dto::CheckPlausability;
-use crate::modules::armory::domain_value::GuildRank;
-use crate::modules::armory::dto::GuildDto;
+use crate::{
+    dto::CheckPlausability,
+    modules::armory::{domain_value::GuildRank, dto::GuildDto},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterGuildDto {

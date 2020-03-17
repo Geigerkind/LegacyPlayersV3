@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveIcon;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveIcon, Data};
 
 #[test]
 fn get_icon() {

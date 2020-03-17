@@ -1,7 +1,4 @@
-pub use self::character_tooltip::RetrieveCharacterTooltip;
-pub use self::guild_tooltip::RetrieveGuildTooltip;
-pub use self::item_tooltip::RetrieveItemTooltip;
-pub use self::spell_tooltip::RetrieveSpellTooltip;
+pub use self::{character_tooltip::RetrieveCharacterTooltip, guild_tooltip::RetrieveGuildTooltip, item_tooltip::RetrieveItemTooltip, spell_tooltip::RetrieveSpellTooltip};
 
 mod character_tooltip;
 mod guild_tooltip;

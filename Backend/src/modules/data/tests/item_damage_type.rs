@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemDamageType;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemDamageType, Data};
 
 #[test]
 fn get_item_damage_type() {

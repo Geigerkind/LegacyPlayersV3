@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemClass;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemClass, Data};
 
 #[test]
 fn get_item_class() {

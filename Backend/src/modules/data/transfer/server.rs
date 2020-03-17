@@ -1,9 +1,7 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::dto::AvailableServer;
-use crate::modules::data::tools::RetrieveServer;
-use crate::modules::data::Data;
+use crate::modules::data::{dto::AvailableServer, tools::RetrieveServer, Data};
 
 #[openapi]
 #[get("/server/<id>")]

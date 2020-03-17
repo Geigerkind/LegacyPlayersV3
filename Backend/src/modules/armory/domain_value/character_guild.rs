@@ -1,5 +1,4 @@
-use crate::modules::armory::domain_value::GuildRank;
-use crate::modules::armory::dto::CharacterGuildDto;
+use crate::modules::armory::{domain_value::GuildRank, dto::CharacterGuildDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterGuild {

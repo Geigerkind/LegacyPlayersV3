@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveServer;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveServer, Data};
 
 #[test]
 fn get_server() {

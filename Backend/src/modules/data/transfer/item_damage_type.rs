@@ -1,15 +1,12 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::ItemDamageType;
-use crate::modules::data::tools::RetrieveItemDamageType;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::ItemDamageType, tools::RetrieveItemDamageType, Data};
 
 #[openapi]
 #[get("/item_damage_type/<id>")]
 pub fn get_item_damage_type(me: State<Data>, id: u8) -> Option<Json<ItemDamageType>> {
-    me.get_item_damage_type(id)
-        .map(Json)
+    me.get_item_damage_type(id).map(Json)
 }
 
 #[openapi]

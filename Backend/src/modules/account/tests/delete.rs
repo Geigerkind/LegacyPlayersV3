@@ -1,8 +1,10 @@
 use mysql_connection::tools::Execute;
 
-use crate::modules::account::dto::{CreateMember, Credentials};
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::{Create, Delete};
+use crate::modules::account::{
+    dto::{CreateMember, Credentials},
+    material::Account,
+    tools::{Create, Delete},
+};
 
 #[test]
 fn issue_delete() {
@@ -15,19 +17,11 @@ fn issue_delete() {
         },
     };
 
-    let val_pair = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let val_pair = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let issue_delete = account.issue_delete(val_pair.member_id);
     assert!(issue_delete.is_ok());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='hdfgfdgdfd@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='hdfgfdgdfd@jaylappTest.dev'");
 }
 
 #[test]
@@ -41,17 +35,9 @@ fn confirm_mail() {
         },
     };
 
-    let val_pair = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let val_pair = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let issue_delete = account.issue_delete(val_pair.member_id);
     assert!(issue_delete.is_ok());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='hfghsdssdgdfg@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='hfghsdssdgdfg@jaylappTest.dev'");
 }

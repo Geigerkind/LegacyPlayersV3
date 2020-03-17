@@ -1,5 +1,4 @@
-use crate::modules::data::domain_value::ItemsetEffect;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::ItemsetEffect, Data};
 
 pub trait RetrieveItemsetEffect {
     fn get_itemset_effects(&self, expansion_id: u8, itemset_id: u16) -> Option<Vec<ItemsetEffect>>;
@@ -11,10 +10,6 @@ impl RetrieveItemsetEffect for Data {
             return None;
         }
 
-        self.itemset_effects
-            .get(expansion_id as usize - 1)
-            .and_then(|map| {
-                map.get(&itemset_id).cloned()
-            })
+        self.itemset_effects.get(expansion_id as usize - 1).and_then(|map| map.get(&itemset_id).cloned())
     }
 }

@@ -1,10 +1,7 @@
-pub use self::character_stat::CharacterStat;
-pub use self::character_viewer::CharacterViewerDto;
-pub use self::character_viewer_gear::CharacterViewerGearDto;
-pub use self::character_viewer_guild::CharacterViewerGuildDto;
-pub use self::character_viewer_item::CharacterViewerItemDto;
-pub use self::character_viewer_profession::CharacterViewerProfessionDto;
-pub use self::character_viewer_talents::CharacterViewerTalentsDto;
+pub use self::{
+    character_stat::CharacterStat, character_viewer::CharacterViewerDto, character_viewer_gear::CharacterViewerGearDto, character_viewer_guild::CharacterViewerGuildDto, character_viewer_item::CharacterViewerItemDto,
+    character_viewer_profession::CharacterViewerProfessionDto, character_viewer_talents::CharacterViewerTalentsDto,
+};
 
 mod character_stat;
 mod character_viewer;

@@ -1,15 +1,12 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::ItemSheath;
-use crate::modules::data::tools::RetrieveItemSheath;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::ItemSheath, tools::RetrieveItemSheath, Data};
 
 #[openapi]
 #[get("/item_sheath/<id>")]
 pub fn get_item_sheath(me: State<Data>, id: u8) -> Option<Json<ItemSheath>> {
-    me.get_item_sheath(id)
-        .map(Json)
+    me.get_item_sheath(id).map(Json)
 }
 
 #[openapi]

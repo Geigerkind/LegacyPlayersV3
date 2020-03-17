@@ -1,15 +1,12 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::DispelType;
-use crate::modules::data::tools::RetrieveDispelType;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::DispelType, tools::RetrieveDispelType, Data};
 
 #[openapi]
 #[get("/dispel_type/<id>")]
 pub fn get_dispel_type(me: State<Data>, id: u8) -> Option<Json<DispelType>> {
-    me.get_dispel_type(id)
-        .map(Json)
+    me.get_dispel_type(id).map(Json)
 }
 
 #[openapi]

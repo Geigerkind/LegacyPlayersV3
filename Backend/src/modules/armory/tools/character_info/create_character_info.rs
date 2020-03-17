@@ -1,24 +1,18 @@
 use mysql_connection::tools::Execute;
 
-use crate::modules::armory::domain_value::CharacterInfo;
-use crate::modules::armory::dto::{ArmoryFailure, CharacterInfoDto};
-use crate::modules::armory::tools::{
-    strip_talent_specialization, CreateCharacterGear, GetCharacterInfo,
+use crate::modules::armory::{
+    domain_value::CharacterInfo,
+    dto::{ArmoryFailure, CharacterInfoDto},
+    tools::{strip_talent_specialization, CreateCharacterGear, GetCharacterInfo},
+    Armory,
 };
-use crate::modules::armory::Armory;
 
 pub trait CreateCharacterInfo {
-    fn create_character_info(
-        &self,
-        character_info: CharacterInfoDto,
-    ) -> Result<CharacterInfo, ArmoryFailure>;
+    fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
 }
 
 impl CreateCharacterInfo for Armory {
-    fn create_character_info(
-        &self,
-        character_info: CharacterInfoDto,
-    ) -> Result<CharacterInfo, ArmoryFailure> {
+    fn create_character_info(&self, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
         // Return existing one first
 
         let existing_character_info = self.get_character_info_by_value(character_info.clone());
@@ -33,8 +27,7 @@ impl CreateCharacterInfo for Armory {
         }
         let gear = gear_res.unwrap();
 
-        let talent_specialization =
-            strip_talent_specialization(&character_info.talent_specialization);
+        let talent_specialization = strip_talent_specialization(&character_info.talent_specialization);
 
         let params = params!(
           "gear_id" => gear.id,
@@ -48,7 +41,11 @@ impl CreateCharacterInfo for Armory {
         );
 
         // It may fail due to the unique constraint if a race condition occurs
-        self.db_main.execute_wparams("INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, :talent_specialization, :race_id)", params);
+        self.db_main.execute_wparams(
+            "INSERT INTO armory_character_info (`gear_id`, `hero_class_id`, `level`, `gender`, `profession1`, `profession2`, `talent_specialization`, `race_id`) VALUES (:gear_id, :hero_class_id, :level, :gender, :profession1, :profession2, \
+             :talent_specialization, :race_id)",
+            params,
+        );
         if let Ok(char_info) = self.get_character_info_by_value(character_info) {
             return Ok(char_info);
         }

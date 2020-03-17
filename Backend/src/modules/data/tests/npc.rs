@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveNPC;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveNPC, Data};
 
 #[test]
 fn get_npc() {

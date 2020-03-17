@@ -1,5 +1,4 @@
-use crate::dto::CheckPlausability;
-use crate::modules::armory::dto::CharacterGearDto;
+use crate::{dto::CheckPlausability, modules::armory::dto::CharacterGearDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterInfoDto {
@@ -21,15 +20,7 @@ impl CheckPlausability for CharacterInfoDto {
             && self.level <= 110
             && (self.profession1.is_none() || *self.profession1.as_ref().unwrap() > 0)
             && (self.profession2.is_none() || *self.profession2.as_ref().unwrap() > 0)
-            && (self.talent_specialization.is_none()
-                || (!self.talent_specialization.as_ref().unwrap().is_empty()
-                    && self
-                        .talent_specialization
-                        .as_ref()
-                        .unwrap()
-                        .split('|')
-                        .count()
-                        == 3))
+            && (self.talent_specialization.is_none() || (!self.talent_specialization.as_ref().unwrap().is_empty() && self.talent_specialization.as_ref().unwrap().split('|').count() == 3))
             && self.race_id > 0
     }
 }

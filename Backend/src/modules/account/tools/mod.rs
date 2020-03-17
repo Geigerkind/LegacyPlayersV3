@@ -1,10 +1,4 @@
-pub use self::create::Create;
-pub use self::delete::Delete;
-pub use self::forgot::Forgot;
-pub use self::get::GetAccountInformation;
-pub use self::login::Login;
-pub use self::token::Token;
-pub use self::update::Update;
+pub use self::{create::Create, delete::Delete, forgot::Forgot, get::GetAccountInformation, login::Login, token::Token, update::Update};
 
 mod create;
 mod delete;

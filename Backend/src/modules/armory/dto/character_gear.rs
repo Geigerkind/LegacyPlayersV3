@@ -1,5 +1,4 @@
-use crate::dto::CheckPlausability;
-use crate::modules::armory::dto::CharacterItemDto;
+use crate::{dto::CheckPlausability, modules::armory::dto::CharacterItemDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterGearDto {

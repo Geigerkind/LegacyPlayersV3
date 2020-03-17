@@ -1,5 +1,4 @@
-use crate::modules::armory::domain_value::CharacterGear;
-use crate::modules::armory::dto::CharacterInfoDto;
+use crate::modules::armory::{domain_value::CharacterGear, dto::CharacterInfoDto};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterInfo {

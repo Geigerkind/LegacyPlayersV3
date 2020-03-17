@@ -1,27 +1,21 @@
 use mysql_connection::tools::Execute;
 
-use crate::dto::CheckPlausability;
-use crate::modules::armory::dto::{ArmoryFailure, CharacterHistoryDto};
-use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{CreateCharacterHistory, CreateGuild, GetCharacter};
-use crate::modules::armory::Armory;
+use crate::{
+    dto::CheckPlausability,
+    modules::armory::{
+        dto::{ArmoryFailure, CharacterHistoryDto},
+        material::CharacterHistory,
+        tools::{CreateCharacterHistory, CreateGuild, GetCharacter},
+        Armory,
+    },
+};
 
 pub trait SetCharacterHistory {
-    fn set_character_history(
-        &self,
-        server_id: u32,
-        update_character_history: CharacterHistoryDto,
-        uid: u64,
-    ) -> Result<CharacterHistory, ArmoryFailure>;
+    fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl SetCharacterHistory for Armory {
-    fn set_character_history(
-        &self,
-        server_id: u32,
-        update_character_history: CharacterHistoryDto,
-        character_uid: u64,
-    ) -> Result<CharacterHistory, ArmoryFailure> {
+    fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
         // Validation
         if !update_character_history.is_plausible() {
             return Err(ArmoryFailure::ImplausibleInput);
@@ -34,15 +28,10 @@ impl SetCharacterHistory for Armory {
         }
 
         let character_id = character_id_res.unwrap();
-        let guild_id =
-            update_character_history
-                .character_guild
-                .as_ref()
-                .and_then(|chr_guild_dto| {
-                    self.create_guild(server_id, chr_guild_dto.guild.clone())
-                        .ok()
-                        .map(|gld| gld.id)
-                });
+        let guild_id = update_character_history
+            .character_guild
+            .as_ref()
+            .and_then(|chr_guild_dto| self.create_guild(server_id, chr_guild_dto.guild.clone()).ok().map(|gld| gld.id));
 
         {
             // Check whether this is a new entry or just the same as previously
@@ -52,11 +41,7 @@ impl SetCharacterHistory for Armory {
             if character.last_update.is_some() {
                 let mut last_update = character.last_update.as_mut().unwrap();
                 if last_update.compare_by_value(&update_character_history)
-                    && ((last_update.character_guild.is_none() && guild_id.is_none())
-                        || (last_update.character_guild.is_some()
-                            && guild_id.is_some()
-                            && last_update.character_guild.as_ref().unwrap().guild_id
-                                == *guild_id.as_ref().unwrap()))
+                    && ((last_update.character_guild.is_none() && guild_id.is_none()) || (last_update.character_guild.is_some() && guild_id.is_some() && last_update.character_guild.as_ref().unwrap().guild_id == *guild_id.as_ref().unwrap()))
                 {
                     let now = time_util::now();
                     if self.db_main.execute_wparams(

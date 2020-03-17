@@ -1,5 +1,4 @@
-pub use self::domain_value::Stat;
-pub use self::material::Data;
+pub use self::{domain_value::Stat, material::Data};
 
 #[cfg(test)]
 mod tests;

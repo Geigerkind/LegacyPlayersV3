@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveProfession;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveProfession, Data};
 
 #[test]
 fn get_profession() {

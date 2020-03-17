@@ -1,22 +1,18 @@
 use mysql_connection::tools::Execute;
 
-use crate::modules::armory::domain_value::CharacterGear;
-use crate::modules::armory::dto::{ArmoryFailure, CharacterGearDto};
-use crate::modules::armory::tools::{CreateCharacterItem, GetCharacterGear};
-use crate::modules::armory::Armory;
+use crate::modules::armory::{
+    domain_value::CharacterGear,
+    dto::{ArmoryFailure, CharacterGearDto},
+    tools::{CreateCharacterItem, GetCharacterGear},
+    Armory,
+};
 
 pub trait CreateCharacterGear {
-    fn create_character_gear(
-        &self,
-        character_gear: CharacterGearDto,
-    ) -> Result<CharacterGear, ArmoryFailure>;
+    fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
 }
 
 impl CreateCharacterGear for Armory {
-    fn create_character_gear(
-        &self,
-        character_gear: CharacterGearDto,
-    ) -> Result<CharacterGear, ArmoryFailure> {
+    fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
         // Check if it already exists
         let existing_gear = self.get_character_gear_by_value(character_gear.clone());
         if existing_gear.is_ok() {
@@ -219,7 +215,11 @@ impl CreateCharacterGear for Armory {
         );
 
         // It may fail due to the unique constraint if a race condition occurs
-        self.db_main.execute_wparams("INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)", params);
+        self.db_main.execute_wparams(
+            "INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, \
+             :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)",
+            params,
+        );
         if let Ok(char_gear) = self.get_character_gear_by_value(character_gear) {
             return Ok(char_gear);
         }

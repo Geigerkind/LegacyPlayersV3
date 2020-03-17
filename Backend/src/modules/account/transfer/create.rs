@@ -1,21 +1,17 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::account::dto::CreateMember;
-use crate::modules::account::dto::Failure;
-use crate::modules::account::guard::Authenticate;
-use crate::modules::account::material::{APIToken, Account};
-use crate::modules::account::tools::Create;
+use crate::modules::account::{
+    dto::{CreateMember, Failure},
+    guard::Authenticate,
+    material::{APIToken, Account},
+    tools::Create,
+};
 
 #[openapi]
 #[post("/create", format = "application/json", data = "<params>")]
 pub fn create(me: State<Account>, params: Json<CreateMember>) -> Result<Json<APIToken>, Failure> {
-    me.create(
-        &params.credentials.mail,
-        &params.nickname,
-        &params.credentials.password,
-    )
-    .and_then(|api_token| Ok(Json(api_token)))
+    me.create(&params.credentials.mail, &params.nickname, &params.credentials.password).and_then(|api_token| Ok(Json(api_token)))
 }
 
 #[openapi]

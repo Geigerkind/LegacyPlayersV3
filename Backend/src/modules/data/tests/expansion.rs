@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveExpansion;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveExpansion, Data};
 
 #[test]
 fn get_expansion() {

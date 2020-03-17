@@ -1,10 +1,4 @@
-pub use self::character_facial::CharacterFacial;
-pub use self::character_gear::CharacterGear;
-pub use self::character_guild::CharacterGuild;
-pub use self::character_info::CharacterInfo;
-pub use self::character_item::CharacterItem;
-pub use self::guild_rank::GuildRank;
-pub use self::history_moment::HistoryMoment;
+pub use self::{character_facial::CharacterFacial, character_gear::CharacterGear, character_guild::CharacterGuild, character_info::CharacterInfo, character_item::CharacterItem, guild_rank::GuildRank, history_moment::HistoryMoment};
 
 mod character_facial;
 mod character_gear;

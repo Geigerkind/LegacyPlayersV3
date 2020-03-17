@@ -1,38 +1,26 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::account::guard::ServerOwner;
-use crate::modules::armory::dto::{ArmoryFailure, CharacterHistoryDto};
-use crate::modules::armory::material::CharacterHistory;
-use crate::modules::armory::tools::{
-    DeleteCharacterHistory, GetCharacterHistory, SetCharacterHistory,
+use crate::modules::{
+    account::guard::ServerOwner,
+    armory::{
+        dto::{ArmoryFailure, CharacterHistoryDto},
+        material::CharacterHistory,
+        tools::{DeleteCharacterHistory, GetCharacterHistory, SetCharacterHistory},
+        Armory,
+    },
 };
-use crate::modules::armory::Armory;
 
 #[openapi]
-#[post(
-    "/character_history/<character_uid>",
-    format = "application/json",
-    data = "<character_history>"
-)]
-pub fn set_character_history(
-    me: State<Armory>,
-    owner: ServerOwner,
-    character_history: Json<CharacterHistoryDto>,
-    character_uid: u64,
-) -> Result<(), ArmoryFailure> {
-    me.set_character_history(owner.0, character_history.into_inner(), character_uid)
-        .and_then(|_| Ok(()))
+#[post("/character_history/<character_uid>", format = "application/json", data = "<character_history>")]
+pub fn set_character_history(me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>, character_uid: u64) -> Result<(), ArmoryFailure> {
+    me.set_character_history(owner.0, character_history.into_inner(), character_uid).and_then(|_| Ok(()))
 }
 
 #[openapi]
 #[get("/character_history/<id>")]
-pub fn get_character_history(
-    me: State<Armory>,
-    id: u32,
-) -> Result<Json<CharacterHistory>, ArmoryFailure> {
-    me.get_character_history(id)
-        .and_then(|character_history| Ok(Json(character_history)))
+pub fn get_character_history(me: State<Armory>, id: u32) -> Result<Json<CharacterHistory>, ArmoryFailure> {
+    me.get_character_history(id).and_then(|character_history| Ok(Json(character_history)))
 }
 
 #[openapi]

@@ -1,15 +1,12 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::ItemClass;
-use crate::modules::data::tools::RetrieveItemClass;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::ItemClass, tools::RetrieveItemClass, Data};
 
 #[openapi]
 #[get("/item_class/<id>")]
 pub fn get_item_class(me: State<Data>, id: u8) -> Option<Json<ItemClass>> {
-    me.get_item_class(id)
-        .map(Json)
+    me.get_item_class(id).map(Json)
 }
 
 #[openapi]

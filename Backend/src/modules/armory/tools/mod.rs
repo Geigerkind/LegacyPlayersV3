@@ -1,16 +1,7 @@
-pub use self::character::*;
-pub use self::character_facial::*;
-pub use self::character_gear::*;
-pub use self::character_history::*;
-pub use self::character_info::*;
-pub use self::character_item::*;
-pub use self::character_search::PerformCharacterSearch;
-pub use self::character_viewer::CharacterViewer;
-pub use self::get_character_item_stats::get_character_stats;
-pub use self::guild::*;
-pub use self::guild_rank::*;
-pub use self::guild_viewer::GuildViewer;
-pub use self::talent_specialization::*;
+pub use self::{
+    character::*, character_facial::*, character_gear::*, character_history::*, character_info::*, character_item::*, character_search::PerformCharacterSearch, character_viewer::CharacterViewer, get_character_item_stats::get_character_stats,
+    guild::*, guild_rank::*, guild_viewer::GuildViewer, talent_specialization::*,
+};
 
 mod character;
 mod character_facial;

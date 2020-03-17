@@ -1,21 +1,20 @@
-use language::domain_value::Language;
-use language::tools::Get;
+use language::{domain_value::Language, tools::Get};
 use mysql_connection::tools::Execute;
 use str_util::{sha3, strformat};
-use validator::domain_value::PasswordFailure;
-use validator::tools::{valid_mail, valid_nickname, valid_password};
+use validator::{
+    domain_value::PasswordFailure,
+    tools::{valid_mail, valid_nickname, valid_password},
+};
 
-use crate::modules::account::domain_value::AccountInformation;
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::{APIToken, Account};
-use crate::modules::account::tools::{GetAccountInformation, Token};
+use crate::modules::account::{
+    domain_value::AccountInformation,
+    dto::Failure,
+    material::{APIToken, Account},
+    tools::{GetAccountInformation, Token},
+};
 
 pub trait Update {
-    fn change_name(
-        &self,
-        new_nickname: &str,
-        member_id: u32,
-    ) -> Result<AccountInformation, Failure>;
+    fn change_name(&self, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure>;
     fn change_password(&self, new_password: &str, member_id: u32) -> Result<APIToken, Failure>;
     fn update_password(&self, new_password: &str, member_id: u32) -> Result<(), Failure>;
     fn request_change_mail(&self, new_mail: &str, member_id: u32) -> Result<bool, Failure>;
@@ -23,11 +22,7 @@ pub trait Update {
 }
 
 impl Update for Account {
-    fn change_name(
-        &self,
-        new_nickname: &str,
-        member_id: u32,
-    ) -> Result<AccountInformation, Failure> {
+    fn change_name(&self, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure> {
         if !valid_nickname(new_nickname) {
             return Err(Failure::InvalidNickname);
         }
@@ -62,20 +57,12 @@ impl Update for Account {
     fn change_password(&self, new_password: &str, member_id: u32) -> Result<APIToken, Failure> {
         match valid_password(new_password) {
             Err(PasswordFailure::TooFewCharacters) => return Err(Failure::PasswordTooShort),
-            Err(PasswordFailure::Pwned(num_pwned)) => {
-                return Err(Failure::PwnedPassword(num_pwned))
-            }
+            Err(PasswordFailure::Pwned(num_pwned)) => return Err(Failure::PwnedPassword(num_pwned)),
             Ok(_) => (),
         };
 
         self.update_password(new_password, member_id)
-            .and_then(|()| {
-                self.create_token(
-                    &self.dictionary.get("general.login", Language::English),
-                    member_id,
-                    time_util::get_ts_from_now_in_secs(7),
-                )
-            })
+            .and_then(|()| self.create_token(&self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7)))
     }
 
     fn update_password(&self, new_password: &str, member_id: u32) -> Result<(), Failure> {
@@ -130,17 +117,8 @@ impl Update for Account {
         let confirmation_id = sha3::hash(&[&member_id.to_string(), "new_mail", &entry.salt]);
         entry.new_mail = lower_mail;
         requires_mail_confirmation.insert(confirmation_id.clone(), member_id);
-        let mail_content = strformat::fmt(
-            self.dictionary.get("update.mail.text", Language::English),
-            &[&confirmation_id],
-        );
-        if !mail::send(
-            &entry.mail,
-            &entry.nickname,
-            self.dictionary
-                .get("update.mail.subject", Language::English),
-            mail_content,
-        ) {
+        let mail_content = strformat::fmt(self.dictionary.get("update.mail.text", Language::English), &[&confirmation_id]);
+        if !mail::send(&entry.mail, &entry.nickname, self.dictionary.get("update.mail.subject", Language::English), mail_content) {
             return Err(Failure::MailSend);
         }
         Ok(false)
@@ -169,12 +147,8 @@ impl Update for Account {
                         return Err(Failure::Unknown);
                     }
                 }
-                self.create_token(
-                    &self.dictionary.get("general.login", Language::English),
-                    *member_id,
-                    time_util::get_ts_from_now_in_secs(7),
-                )
-            }
+                self.create_token(&self.dictionary.get("general.login", Language::English), *member_id, time_util::get_ts_from_now_in_secs(7))
+            },
             None => Err(Failure::Unknown),
         }
     }

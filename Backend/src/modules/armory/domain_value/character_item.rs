@@ -17,11 +17,7 @@ impl PartialEq for CharacterItem {
 
 impl CharacterItem {
     pub fn deep_eq(&self, other: &Self) -> bool {
-        self.id == other.id
-            && self.item_id == other.item_id
-            && self.random_property_id == other.random_property_id
-            && self.enchant_id == other.enchant_id
-            && self.gem_ids == other.gem_ids
+        self.id == other.id && self.item_id == other.item_id && self.random_property_id == other.random_property_id && self.enchant_id == other.enchant_id && self.gem_ids == other.gem_ids
     }
 
     pub fn compare_by_value(&self, other: &CharacterItemDto) -> bool {
@@ -29,20 +25,8 @@ impl CharacterItem {
             && self.random_property_id == other.random_property_id
             && self.enchant_id == other.enchant_id
             && self.gem_ids.iter().all(|gem_flag| {
-                (gem_flag.is_some()
-                    && self
-                        .gem_ids
-                        .iter()
-                        .filter(|x| x.is_some() && x.unwrap() == gem_flag.unwrap())
-                        .count()
-                        == other
-                            .gem_ids
-                            .iter()
-                            .filter(|x| x.is_some() && x.unwrap() == gem_flag.unwrap())
-                            .count())
-                    || (gem_flag.is_none()
-                        && self.gem_ids.iter().filter(|x| x.is_some()).count()
-                            == other.gem_ids.iter().filter(|x| x.is_some()).count())
+                (gem_flag.is_some() && self.gem_ids.iter().filter(|x| x.is_some() && x.unwrap() == gem_flag.unwrap()).count() == other.gem_ids.iter().filter(|x| x.is_some() && x.unwrap() == gem_flag.unwrap()).count())
+                    || (gem_flag.is_none() && self.gem_ids.iter().filter(|x| x.is_some()).count() == other.gem_ids.iter().filter(|x| x.is_some()).count())
             })
     }
 }

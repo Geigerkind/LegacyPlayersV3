@@ -18,18 +18,10 @@ impl PartialEq for CharacterFacial {
 
 impl CharacterFacial {
     pub fn compare_by_value(&self, other: &CharacterFacialDto) -> bool {
-        self.skin_color == other.skin_color
-            && self.face_style == other.face_style
-            && self.hair_style == other.hair_style
-            && self.hair_color == other.hair_color
-            && self.facial_hair == other.facial_hair
+        self.skin_color == other.skin_color && self.face_style == other.face_style && self.hair_style == other.hair_style && self.hair_color == other.hair_color && self.facial_hair == other.facial_hair
     }
 
     pub fn deep_eq(&self, other: &Self) -> bool {
-        self.id == other.id
-            && self.face_style == other.face_style
-            && self.hair_style == other.hair_style
-            && self.hair_color == other.hair_color
-            && self.facial_hair == other.facial_hair
+        self.id == other.id && self.face_style == other.face_style && self.hair_style == other.hair_style && self.hair_color == other.hair_color && self.facial_hair == other.facial_hair
     }
 }

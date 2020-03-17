@@ -1,6 +1,8 @@
-use crate::modules::armory::dto::CharacterItemDto;
-use crate::modules::armory::tools::{CreateCharacterItem, GetCharacterItem};
-use crate::modules::armory::Armory;
+use crate::modules::armory::{
+    dto::CharacterItemDto,
+    tools::{CreateCharacterItem, GetCharacterItem},
+    Armory,
+};
 use mysql_connection::tools::Execute;
 
 #[test]
@@ -25,7 +27,5 @@ fn character_item() {
     let character_item2 = character_item2_res.unwrap();
     assert!(character_item2.deep_eq(&character_item));
 
-    armory
-        .db_main
-        .execute("DELETE FROM armory_item WHERE item_id = 19019");
+    armory.db_main.execute("DELETE FROM armory_item WHERE item_id = 19019");
 }

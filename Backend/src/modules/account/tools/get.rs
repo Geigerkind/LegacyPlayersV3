@@ -1,6 +1,4 @@
-use crate::modules::account::domain_value::AccountInformation;
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::Account;
+use crate::modules::account::{domain_value::AccountInformation, dto::Failure, material::Account};
 
 pub trait GetAccountInformation {
     fn get(&self, id: u32) -> Result<AccountInformation, Failure>;

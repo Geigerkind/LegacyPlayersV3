@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveHeroClass;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveHeroClass, Data};
 
 #[test]
 fn get_hero_class() {

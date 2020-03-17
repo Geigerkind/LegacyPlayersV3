@@ -1,9 +1,7 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::Icon;
-use crate::modules::data::tools::RetrieveIcon;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::Icon, tools::RetrieveIcon, Data};
 
 #[openapi]
 #[get("/icon/<id>")]

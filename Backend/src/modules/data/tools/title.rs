@@ -1,5 +1,4 @@
-use crate::modules::data::domain_value::Title;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::Title, Data};
 
 pub trait RetrieveTitle {
     fn get_title(&self, id: u16) -> Option<Title>;

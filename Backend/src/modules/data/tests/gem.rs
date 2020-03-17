@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveGem;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveGem, Data};
 
 #[test]
 fn get_gem() {

@@ -1,15 +1,16 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::{APIToken, Account};
-use crate::modules::account::tools::Forgot;
+use crate::modules::account::{
+    dto::Failure,
+    material::{APIToken, Account},
+    tools::Forgot,
+};
 
 #[openapi]
 #[get("/forgot/<id>")]
 pub fn receive_confirmation(me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
-    me.recv_forgot_password(&id)
-        .and_then(|api_token| Ok(Json(api_token)))
+    me.recv_forgot_password(&id).and_then(|api_token| Ok(Json(api_token)))
 }
 
 #[openapi]

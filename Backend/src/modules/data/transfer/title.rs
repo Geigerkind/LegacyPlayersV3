@@ -1,9 +1,7 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::Title;
-use crate::modules::data::tools::RetrieveTitle;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::Title, tools::RetrieveTitle, Data};
 
 #[openapi]
 #[get("/title/<id>")]

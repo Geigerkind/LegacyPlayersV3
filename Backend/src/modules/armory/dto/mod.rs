@@ -1,15 +1,7 @@
-pub use self::armory_failure::ArmoryFailure;
-pub use self::character::CharacterDto;
-pub use self::character_facial::CharacterFacialDto;
-pub use self::character_gear::CharacterGearDto;
-pub use self::character_guild::CharacterGuildDto;
-pub use self::character_history::CharacterHistoryDto;
-pub use self::character_info::CharacterInfoDto;
-pub use self::character_item::CharacterItemDto;
-pub use self::character_search::*;
-pub use self::character_viewer::*;
-pub use self::guild::GuildDto;
-pub use self::guild_viewer::*;
+pub use self::{
+    armory_failure::ArmoryFailure, character::CharacterDto, character_facial::CharacterFacialDto, character_gear::CharacterGearDto, character_guild::CharacterGuildDto, character_history::CharacterHistoryDto, character_info::CharacterInfoDto,
+    character_item::CharacterItemDto, character_search::*, character_viewer::*, guild::GuildDto, guild_viewer::*,
+};
 
 mod character;
 mod character_facial;

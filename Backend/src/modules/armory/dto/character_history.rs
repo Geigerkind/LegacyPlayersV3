@@ -1,5 +1,7 @@
-use crate::dto::CheckPlausability;
-use crate::modules::armory::dto::{CharacterFacialDto, CharacterGuildDto, CharacterInfoDto};
+use crate::{
+    dto::CheckPlausability,
+    modules::armory::dto::{CharacterFacialDto, CharacterGuildDto, CharacterInfoDto},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistoryDto {
@@ -16,8 +18,7 @@ impl CheckPlausability for CharacterHistoryDto {
     fn is_plausible(&self) -> bool {
         self.character_info.is_plausible()
             && !self.character_name.is_empty()
-            && (self.character_guild.is_none()
-                || self.character_guild.as_ref().unwrap().is_plausible())
+            && (self.character_guild.is_none() || self.character_guild.as_ref().unwrap().is_plausible())
             && !self.character_title.contains(&0)
             && !self.profession_skill_points1.contains(&0)
             && !self.profession_skill_points2.contains(&0)

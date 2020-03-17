@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveTitle;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveTitle, Data};
 
 #[test]
 fn get_title() {

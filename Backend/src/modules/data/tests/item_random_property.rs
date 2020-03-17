@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemRandomProperty;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemRandomProperty, Data};
 
 #[test]
 fn get_item_random_property() {

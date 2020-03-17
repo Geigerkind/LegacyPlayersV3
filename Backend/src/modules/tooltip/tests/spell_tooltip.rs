@@ -1,6 +1,7 @@
-use crate::modules::data::Data;
-use crate::modules::tooltip::tools::RetrieveSpellTooltip;
-use crate::modules::tooltip::Tooltip;
+use crate::modules::{
+    data::Data,
+    tooltip::{tools::RetrieveSpellTooltip, Tooltip},
+};
 
 #[test]
 fn thunderfury_effect() {
@@ -16,5 +17,9 @@ fn thunderfury_effect() {
     assert_eq!(spell_tooltip.subtext, "");
     assert!(spell_tooltip.spell_cost.is_none());
     assert_eq!(spell_tooltip.range, 5);
-    assert_eq!(spell_tooltip.description, "Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies.  Each jump reduces that victim's Nature resistance by 25. Affects 5 targets. Your primary target is also consumed by a cyclone, slowing its attack speed by 20% for 12 seconds.");
+    assert_eq!(
+        spell_tooltip.description,
+        "Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies.  Each jump reduces that victim's Nature resistance by 25. Affects 5 targets. Your primary target is also consumed by a cyclone, \
+         slowing its attack speed by 20% for 12 seconds."
+    );
 }

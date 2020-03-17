@@ -1,12 +1,8 @@
 use std::io::Cursor;
 
 use okapi::openapi3::Responses;
-use rocket::http::Status;
-use rocket::response::Responder;
-use rocket::{Request, Response};
-use rocket_okapi::gen::OpenApiGenerator;
-use rocket_okapi::response::OpenApiResponder;
-use rocket_okapi::util::add_schema_response;
+use rocket::{http::Status, response::Responder, Request, Response};
+use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder, util::add_schema_response};
 use schemars::JsonSchema;
 
 #[derive(Debug, JsonSchema)]
@@ -38,7 +34,7 @@ impl Responder<'static> for Failure {
             Failure::PwnedPassword(timed_pwned) => {
                 body = timed_pwned.to_string();
                 Status::new(523, "PwnedPassword")
-            }
+            },
             Failure::PasswordTooShort => Status::new(524, "PasswordTooShort"),
             Failure::MailIsInUse => Status::new(525, "MailIsInUse"),
             Failure::NicknameIsInUse => Status::new(526, "NicknameIsInUse"),
@@ -51,10 +47,7 @@ impl Responder<'static> for Failure {
             Failure::TokenPurposeLength => Status::new(533, "TokenPurposeLength"),
             Failure::Unknown => Status::new(599, "Unknown"),
         };
-        Response::build()
-            .status(status)
-            .sized_body(Cursor::new(body))
-            .ok()
+        Response::build().status(status).sized_body(Cursor::new(body)).ok()
     }
 }
 

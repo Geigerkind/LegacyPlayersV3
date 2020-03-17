@@ -1,8 +1,6 @@
 use mysql_connection::tools::Execute;
 
-use crate::modules::armory::dto::ArmoryFailure;
-use crate::modules::armory::tools::GetCharacterHistory;
-use crate::modules::armory::Armory;
+use crate::modules::armory::{dto::ArmoryFailure, tools::GetCharacterHistory, Armory};
 
 pub trait DeleteCharacterHistory {
     fn delete_character_history(&self, character_history_id: u32) -> Result<(), ArmoryFailure>;
@@ -24,12 +22,7 @@ impl DeleteCharacterHistory for Armory {
             ),
         ) {
             let mut character = characters.get_mut(&character_history.character_id).unwrap();
-            let hm = character
-                .history_moments
-                .iter()
-                .find(|history_moment| history_moment.id == character_history_id)
-                .unwrap()
-                .clone();
+            let hm = character.history_moments.iter().find(|history_moment| history_moment.id == character_history_id).unwrap().clone();
             character.history_moments.remove_item(&hm);
             if character.last_update.contains(&character_history) {
                 if let Some(last_id) = character.history_moments.last() {
@@ -38,8 +31,6 @@ impl DeleteCharacterHistory for Armory {
             }
             return Ok(());
         }
-        Err(ArmoryFailure::Database(
-            "delete_character_history".to_owned(),
-        ))
+        Err(ArmoryFailure::Database("delete_character_history".to_owned()))
     }
 }

@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemsetName;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemsetName, Data};
 
 #[test]
 fn get_itemset_name() {

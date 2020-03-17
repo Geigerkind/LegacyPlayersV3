@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemSocket;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemSocket, Data};
 
 #[test]
 fn get_item_socket() {

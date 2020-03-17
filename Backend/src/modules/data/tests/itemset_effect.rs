@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemsetEffect;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemsetEffect, Data};
 
 #[test]
 fn get_itemset_effects() {

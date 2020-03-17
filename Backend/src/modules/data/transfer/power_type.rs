@@ -1,15 +1,12 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::domain_value::PowerType;
-use crate::modules::data::tools::RetrievePowerType;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::PowerType, tools::RetrievePowerType, Data};
 
 #[openapi]
 #[get("/power_type/<id>")]
 pub fn get_power_type(me: State<Data>, id: u8) -> Option<Json<PowerType>> {
-    me.get_power_type(id)
-        .map(Json)
+    me.get_power_type(id).map(Json)
 }
 
 #[openapi]

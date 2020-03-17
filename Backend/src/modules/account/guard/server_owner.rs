@@ -1,16 +1,14 @@
 use okapi::openapi3::{Parameter, ParameterValue, Responses};
-use rocket::http::Status;
-use rocket::outcome::Outcome::*;
-use rocket::request::{self, FromRequest, Request, State};
-use rocket::response::Responder;
-use rocket::Response;
-use rocket_okapi::gen::OpenApiGenerator;
-use rocket_okapi::request::OpenApiFromRequest;
-use rocket_okapi::response::OpenApiResponder;
-use rocket_okapi::util::add_schema_response;
+use rocket::{
+    http::Status,
+    outcome::Outcome::*,
+    request::{self, FromRequest, Request, State},
+    response::Responder,
+    Response,
+};
+use rocket_okapi::{gen::OpenApiGenerator, request::OpenApiFromRequest, response::OpenApiResponder, util::add_schema_response};
 
-use crate::modules::account::guard::Authenticate;
-use crate::modules::data::Data;
+use crate::modules::{account::guard::Authenticate, data::Data};
 
 pub struct ServerOwner(pub u32);
 
@@ -25,10 +23,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for ServerOwner {
             }
 
             let data = data_req.unwrap();
-            let server_res = data
-                .servers
-                .iter()
-                .find(|(_, server)| server.owner.contains(&authenticate.0));
+            let server_res = data.servers.iter().find(|(_, server)| server.owner.contains(&authenticate.0));
             if server_res.is_none() {
                 return Failure((Status::Unauthorized, ()));
             }

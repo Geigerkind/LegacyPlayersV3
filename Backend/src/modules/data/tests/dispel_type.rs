@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveDispelType;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveDispelType, Data};
 
 #[test]
 fn get_dispel_type() {

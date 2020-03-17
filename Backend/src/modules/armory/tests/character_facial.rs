@@ -1,6 +1,8 @@
-use crate::modules::armory::dto::CharacterFacialDto;
-use crate::modules::armory::tools::{CreateCharacterFacial, GetCharacterFacial};
-use crate::modules::armory::Armory;
+use crate::modules::armory::{
+    dto::CharacterFacialDto,
+    tools::{CreateCharacterFacial, GetCharacterFacial},
+    Armory,
+};
 use mysql_connection::tools::Execute;
 
 #[test]
@@ -26,8 +28,5 @@ fn character_facial() {
     let character_facial2 = character_facial2_res.unwrap();
     assert!(character_facial2.deep_eq(&character_facial));
 
-    armory.db_main.execute_wparams(
-        "DELETE FROM armory_character_facial WHERE id=:id",
-        params!("id" => character_facial.id),
-    );
+    armory.db_main.execute_wparams("DELETE FROM armory_character_facial WHERE id=:id", params!("id" => character_facial.id));
 }

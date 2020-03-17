@@ -1,9 +1,11 @@
 use mysql_connection::tools::Execute;
 use str_util::sha3;
 
-use crate::modules::account::dto::{CreateMember, Credentials};
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::{Create, Update};
+use crate::modules::account::{
+    dto::{CreateMember, Credentials},
+    material::Account,
+    tools::{Create, Update},
+};
 
 #[test]
 fn change_name() {
@@ -16,20 +18,12 @@ fn change_name() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_name = account.change_name("SomeUsername", api_token.member_id);
     assert!(changed_name.is_ok());
     assert_eq!(changed_name.unwrap().nickname, "SomeUsername".to_string());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='ijofsdiojsdfgiuhig@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='ijofsdiojsdfgiuhig@jaylappTest.dev'");
 }
 
 #[test]
@@ -43,19 +37,11 @@ fn change_name_empty_content() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_name = account.change_name("", api_token.member_id);
     assert!(changed_name.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='siodjfijsiojiospq@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='siodjfijsiojiospq@jaylappTest.dev'");
 }
 
 #[test]
@@ -69,19 +55,11 @@ fn change_name_invalid_content() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_name = account.change_name("ihsdfoiosdf ihsdfoiosdf", api_token.member_id);
     assert!(changed_name.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='ihsdfoiosdf@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='ihsdfoiosdf@jaylappTest.dev'");
 }
 
 #[test]
@@ -103,29 +81,13 @@ fn change_name_name_taken() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
-    let _ = account
-        .create(
-            &post_obj_two.credentials.mail,
-            &post_obj_two.nickname,
-            &post_obj_two.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    let _ = account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).unwrap();
     let changed_name = account.change_name(&post_obj_two.nickname, api_token.member_id);
     assert!(changed_name.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='oasijidhaais@jaylappTest.dev'");
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='guhzasooas@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='oasijidhaais@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='guhzasooas@jaylappTest.dev'");
 }
 
 #[test]
@@ -139,19 +101,11 @@ fn change_password_empty_content() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_password = account.change_password("", api_token.member_id);
     assert!(changed_password.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='mvfhhbvidsd@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='mvfhhbvidsd@jaylappTest.dev'");
 }
 
 #[test]
@@ -165,13 +119,7 @@ fn change_password() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_password = account.change_password("SomeWeirdPassword", api_token.member_id);
     assert!(changed_password.is_ok());
     let new_api_token = changed_password.unwrap();
@@ -179,9 +127,7 @@ fn change_password() {
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='xdsdfgsdgs@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='xdsdfgsdgs@jaylappTest.dev'");
 }
 
 #[test]
@@ -195,19 +141,11 @@ fn change_mail_empty_content() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_mail = account.request_change_mail("", api_token.member_id);
     assert!(changed_mail.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='nsigsvbsdsd@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='nsigsvbsdsd@jaylappTest.dev'");
 }
 
 #[test]
@@ -221,19 +159,11 @@ fn change_mail_invalid_content() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_mail = account.request_change_mail("asiudfuhisduifs", api_token.member_id);
     assert!(changed_mail.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='asiudfuhisduifs@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='asiudfuhisduifs@jaylappTest.dev'");
 }
 
 #[test]
@@ -255,30 +185,13 @@ fn change_mail_mail_taken() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
-    let _ = account
-        .create(
-            &post_obj_two.credentials.mail,
-            &post_obj_two.nickname,
-            &post_obj_two.credentials.password,
-        )
-        .unwrap();
-    let changed_mail =
-        account.request_change_mail(&post_obj_two.credentials.mail, api_token.member_id);
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    let _ = account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).unwrap();
+    let changed_mail = account.request_change_mail(&post_obj_two.credentials.mail, api_token.member_id);
     assert!(changed_mail.is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='csdazgtsdczas@jaylappTest.dev'");
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='bdvshudvbsdv@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='csdazgtsdczas@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bdvshudvbsdv@jaylappTest.dev'");
 }
 
 #[test]
@@ -292,13 +205,7 @@ fn change_mail() {
         },
     };
 
-    let api_token = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
 
     let salt;
     {
@@ -308,8 +215,7 @@ fn change_mail() {
         salt = member_entry.salt.clone();
     }
 
-    let request_change_mail =
-        account.request_change_mail("xdssdfsdfg2@bla.de", api_token.member_id);
+    let request_change_mail = account.request_change_mail("xdssdfsdfg2@bla.de", api_token.member_id);
     assert!(request_change_mail.is_ok());
     let confirm_id = sha3::hash(&[&api_token.member_id.to_string(), "new_mail", &salt]);
     let changed_mail = account.confirm_change_mail(&confirm_id);
@@ -320,7 +226,5 @@ fn change_mail() {
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='xdssdfsdfg2@bla.de'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='xdssdfsdfg2@bla.de'");
 }

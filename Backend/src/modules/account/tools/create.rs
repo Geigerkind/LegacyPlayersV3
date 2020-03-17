@@ -1,13 +1,16 @@
-use language::domain_value::Language;
-use language::tools::Get;
+use language::{domain_value::Language, tools::Get};
 use mysql_connection::tools::{Execute, Select};
 use str_util::{random, sha3, strformat};
-use validator::domain_value::PasswordFailure;
-use validator::tools::{valid_mail, valid_nickname, valid_password};
+use validator::{
+    domain_value::PasswordFailure,
+    tools::{valid_mail, valid_nickname, valid_password},
+};
 
-use crate::modules::account::dto::Failure;
-use crate::modules::account::material::{APIToken, Account, Member};
-use crate::modules::account::tools::Token;
+use crate::modules::account::{
+    dto::Failure,
+    material::{APIToken, Account, Member},
+    tools::Token,
+};
 
 pub trait Create {
     fn create(&self, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure>;
@@ -27,9 +30,7 @@ impl Create for Account {
 
         match valid_password(password) {
             Err(PasswordFailure::TooFewCharacters) => return Err(Failure::PasswordTooShort),
-            Err(PasswordFailure::Pwned(num_pwned)) => {
-                return Err(Failure::PwnedPassword(num_pwned))
-            }
+            Err(PasswordFailure::Pwned(num_pwned)) => return Err(Failure::PwnedPassword(num_pwned)),
             Ok(_) => (),
         };
 
@@ -50,41 +51,47 @@ impl Create for Account {
             let salt: String = random::alphanumeric(16);
             let pass: String = sha3::hash(&[password, &salt]);
 
-            if self.db_main.execute_wparams("INSERT IGNORE INTO account_member (`mail`, `password`, `nickname`, `salt`, `joined`) VALUES (:mail, :pass, :nickname, :salt, UNIX_TIMESTAMP())", params!(
-      "nickname" => (*nickname).to_string(),
-      "mail" => lower_mail.clone(),
-      "pass" => pass.clone(),
-      "salt" => salt.clone()
-      ),
-      ) {
-        member_id = self.db_main.select_wparams_value("SELECT id FROM account_member WHERE mail = :mail", &|mut row| {
-          row.take(0).unwrap()
-        }, params!(
-        "mail" => lower_mail.clone()
-      )).unwrap();
-        member.insert(member_id, Member {
-          id: member_id,
-          nickname: nickname.to_owned(),
-          mail: lower_mail,
-          password: pass,
-          salt,
-          mail_confirmed: false,
-          forgot_password: false,
-          delete_account: false,
-          new_mail: String::new(),
-          access_rights: 0,
-        });
-      } else {
-        return Err(Failure::Unknown);
-      }
+            if self.db_main.execute_wparams(
+                "INSERT IGNORE INTO account_member (`mail`, `password`, `nickname`, `salt`, `joined`) VALUES (:mail, :pass, :nickname, :salt, UNIX_TIMESTAMP())",
+                params!(
+                "nickname" => (*nickname).to_string(),
+                "mail" => lower_mail.clone(),
+                "pass" => pass.clone(),
+                "salt" => salt.clone()
+                ),
+            ) {
+                member_id = self
+                    .db_main
+                    .select_wparams_value(
+                        "SELECT id FROM account_member WHERE mail = :mail",
+                        &|mut row| row.take(0).unwrap(),
+                        params!(
+                          "mail" => lower_mail.clone()
+                        ),
+                    )
+                    .unwrap();
+                member.insert(
+                    member_id,
+                    Member {
+                        id: member_id,
+                        nickname: nickname.to_owned(),
+                        mail: lower_mail,
+                        password: pass,
+                        salt,
+                        mail_confirmed: false,
+                        forgot_password: false,
+                        delete_account: false,
+                        new_mail: String::new(),
+                        access_rights: 0,
+                    },
+                );
+            } else {
+                return Err(Failure::Unknown);
+            }
         }
 
         self.send_confirmation(member_id);
-        self.create_token(
-            &self.dictionary.get("general.login", Language::English),
-            member_id,
-            time_util::get_ts_from_now_in_secs(7),
-        )
+        self.create_token(&self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7))
     }
 
     fn send_confirmation(&self, member_id: u32) -> bool {
@@ -94,23 +101,13 @@ impl Create for Account {
         let member = self.member.read().unwrap();
         let entry = member.get(&member_id).unwrap();
         let mail_id = sha3::hash(&[&member_id.to_string(), "mail", &entry.salt]);
-        let mail_content = strformat::fmt(
-            self.dictionary
-                .get("create.confirmation.text", Language::English),
-            &[&mail_id],
-        );
+        let mail_content = strformat::fmt(self.dictionary.get("create.confirmation.text", Language::English), &[&mail_id]);
 
         if !entry.mail_confirmed {
             if !requires_mail_confirmation.contains_key(&mail_id) {
                 requires_mail_confirmation.insert(mail_id, member_id);
             }
-            return mail::send(
-                &entry.mail,
-                &entry.nickname,
-                self.dictionary
-                    .get("create.confirmation.subject", Language::English),
-                mail_content,
-            );
+            return mail::send(&entry.mail, &entry.nickname, self.dictionary.get("create.confirmation.subject", Language::English), mail_content);
         }
         false
     }

@@ -1,15 +1,14 @@
 use okapi::openapi3::{Parameter, ParameterValue, Responses};
-use rocket::http::Status;
-use rocket::outcome::Outcome::*;
-use rocket::request::{self, FromRequest, Request, State};
-use rocket::response::Responder;
-use rocket::Response;
-use rocket_okapi::gen::OpenApiGenerator;
-use rocket_okapi::request::OpenApiFromRequest;
-use rocket_okapi::response::OpenApiResponder;
+use rocket::{
+    http::Status,
+    outcome::Outcome::*,
+    request::{self, FromRequest, Request, State},
+    response::Responder,
+    Response,
+};
+use rocket_okapi::{gen::OpenApiGenerator, request::OpenApiFromRequest, response::OpenApiResponder};
 
-use crate::modules::data::tools::RetrieveLanguage;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveLanguage, Data};
 
 pub struct Language(pub u8);
 
@@ -29,9 +28,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Language {
         }
 
         let data = data_res.unwrap();
-        let language = data
-            .get_language_by_short_code(lang_short_code)
-            .map(|language| language.id);
+        let language = data.get_language_by_short_code(lang_short_code).map(|language| language.id);
         if language.is_none() {
             return Success(Language(1));
         }

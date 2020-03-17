@@ -1,7 +1,6 @@
-use crate::dto::SelectOption;
-use crate::modules::armory::dto::{
-    CharacterStat, CharacterViewerGearDto, CharacterViewerGuildDto, CharacterViewerProfessionDto,
-    CharacterViewerTalentsDto,
+use crate::{
+    dto::SelectOption,
+    modules::armory::dto::{CharacterStat, CharacterViewerGearDto, CharacterViewerGuildDto, CharacterViewerProfessionDto, CharacterViewerTalentsDto},
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

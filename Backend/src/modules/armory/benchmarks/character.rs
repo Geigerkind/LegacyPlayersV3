@@ -6,19 +6,18 @@ use test::Bencher;
 use mysql_connection::tools::Execute;
 
 use self::time::Instant;
-use crate::modules::armory::domain_value::GuildRank;
-use crate::modules::armory::dto::{
-    CharacterDto, CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto,
-    CharacterInfoDto, CharacterItemDto, GuildDto,
+use crate::modules::armory::{
+    domain_value::GuildRank,
+    dto::{CharacterDto, CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto},
+    tools::SetCharacter,
+    Armory,
 };
-use crate::modules::armory::tools::SetCharacter;
-use crate::modules::armory::Armory;
 
 /*
-* Goal of this benchmark is to see how many
-* set operations the server can potentially handle
-* incoming from extern servers
-*/
+ * Goal of this benchmark is to see how many
+ * set operations the server can potentially handle
+ * incoming from extern servers
+ */
 #[bench]
 fn set_character(_: &mut Bencher) {
     let armory = Armory::default();
@@ -150,10 +149,7 @@ fn set_character(_: &mut Bencher) {
                 name: "sgfdfhgdfg".to_string(),
                 server_uid: 1232346,
             },
-            rank: GuildRank {
-                index: 2,
-                name: "BliBlaBlub".to_string(),
-            },
+            rank: GuildRank { index: 2, name: "BliBlaBlub".to_string() },
         }),
     };
     let character_dto = CharacterDto {
@@ -170,93 +166,29 @@ fn set_character(_: &mut Bencher) {
 
         // Cleanup
         let character_history = character.last_update.unwrap();
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.head.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.neck.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.shoulder.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.back.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.chest.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.wrist.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.main_hand.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.ternary_hand.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.glove.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.belt.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.leg.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.boot.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.ring1.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.ring2.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.trinket1.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_item WHERE id=:id",
-            params!("id" => character_history.character_info.gear.trinket2.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_gear WHERE id=:id",
-            params!("id" => character_history.character_info.gear.id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_character_facial WHERE id=:id",
-            params!("id" => character_history.facial.unwrap().id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_character_info WHERE id=:id",
-            params!("id" => character_history.character_info.id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_character_history WHERE id=:id",
-            params!("id" => character_history.id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_character WHERE id=:id",
-            params!("id" => character_history.character_id),
-        );
-        armory.db_main.execute_wparams(
-            "DELETE FROM armory_guild WHERE id=:id",
-            params!("id" => character_history.character_guild.unwrap().guild_id),
-        );
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.head.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.neck.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.shoulder.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.back.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.chest.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.wrist.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.main_hand.unwrap().id));
+        armory
+            .db_main
+            .execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.ternary_hand.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.glove.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.belt.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.leg.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.boot.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.ring1.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.ring2.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.trinket1.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.trinket2.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
+        armory.db_main.execute_wparams("DELETE FROM armory_character_facial WHERE id=:id", params!("id" => character_history.facial.unwrap().id));
+        armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
+        armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
+        armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
+        armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
     }
 }

@@ -1,5 +1,4 @@
-use crate::modules::data::domain_value::Race;
-use crate::modules::data::Data;
+use crate::modules::data::{domain_value::Race, Data};
 
 pub trait RetrieveRace {
     fn get_race(&self, id: u8) -> Option<Race>;

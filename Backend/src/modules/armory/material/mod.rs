@@ -1,7 +1,4 @@
-pub use self::armory::Armory;
-pub use self::character::Character;
-pub use self::character_history::CharacterHistory;
-pub use self::guild::Guild;
+pub use self::{armory::Armory, character::Character, character_history::CharacterHistory, guild::Guild};
 
 mod armory;
 mod character;

@@ -1,5 +1,4 @@
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::Login;
+use crate::modules::account::{material::Account, tools::Login};
 
 // User exists login is tested when creating an account
 #[test]

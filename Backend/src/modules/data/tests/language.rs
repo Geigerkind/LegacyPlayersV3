@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveLanguage;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveLanguage, Data};
 
 #[test]
 fn get_language() {

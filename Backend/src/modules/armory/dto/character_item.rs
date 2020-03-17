@@ -11,13 +11,8 @@ pub struct CharacterItemDto {
 impl CheckPlausability for CharacterItemDto {
     fn is_plausible(&self) -> bool {
         self.item_id > 0
-            && (self.random_property_id.is_none()
-                || *self.random_property_id.as_ref().unwrap() != 0)
+            && (self.random_property_id.is_none() || *self.random_property_id.as_ref().unwrap() != 0)
             && (self.enchant_id.is_none() || *self.enchant_id.as_ref().unwrap() > 0)
-            && (self.gem_ids.is_empty()
-                || self
-                    .gem_ids
-                    .iter()
-                    .all(|gem| gem.is_none() || *gem.as_ref().unwrap() > 0))
+            && (self.gem_ids.is_empty() || self.gem_ids.iter().all(|gem| gem.is_none() || *gem.as_ref().unwrap() > 0))
     }
 }

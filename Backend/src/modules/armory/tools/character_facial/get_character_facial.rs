@@ -1,14 +1,13 @@
-use crate::modules::armory::domain_value::CharacterFacial;
-use crate::modules::armory::dto::{ArmoryFailure, CharacterFacialDto};
-use crate::modules::armory::Armory;
+use crate::modules::armory::{
+    domain_value::CharacterFacial,
+    dto::{ArmoryFailure, CharacterFacialDto},
+    Armory,
+};
 use mysql_connection::tools::Select;
 
 pub trait GetCharacterFacial {
     fn get_character_facial(&self, facial_id: u32) -> Result<CharacterFacial, ArmoryFailure>;
-    fn get_character_facial_by_value(
-        &self,
-        character_facial_dto: CharacterFacialDto,
-    ) -> Result<CharacterFacial, ArmoryFailure>;
+    fn get_character_facial_by_value(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure>;
 }
 
 impl GetCharacterFacial for Armory {
@@ -34,10 +33,7 @@ impl GetCharacterFacial for Armory {
             .unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_facial".to_owned())))
     }
 
-    fn get_character_facial_by_value(
-        &self,
-        character_facial_dto: CharacterFacialDto,
-    ) -> Result<CharacterFacial, ArmoryFailure> {
+    fn get_character_facial_by_value(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure> {
         let params = params!(
           "skin_color" => character_facial_dto.skin_color,
           "face_style" => character_facial_dto.face_style,
@@ -47,12 +43,7 @@ impl GetCharacterFacial for Armory {
         );
         self.db_main
             .select_wparams_value(
-                "SELECT * FROM armory_character_facial WHERE \
-      skin_color=:skin_color \
-      AND face_style=:face_style \
-      AND hair_style=:hair_style \
-      AND hair_color=:hair_color \
-      AND facial_hair=:facial_hair",
+                "SELECT * FROM armory_character_facial WHERE skin_color=:skin_color AND face_style=:face_style AND hair_style=:hair_style AND hair_color=:hair_color AND facial_hair=:facial_hair",
                 &|mut row| {
                     Ok(CharacterFacial {
                         id: row.take(0).unwrap(),
@@ -65,10 +56,6 @@ impl GetCharacterFacial for Armory {
                 },
                 params,
             )
-            .unwrap_or_else(|| {
-                Err(ArmoryFailure::Database(
-                    "get_character_facial_by_value".to_owned(),
-                ))
-            })
+            .unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_facial_by_value".to_owned())))
     }
 }

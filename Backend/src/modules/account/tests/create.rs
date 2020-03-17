@@ -1,9 +1,11 @@
 use mysql_connection::tools::Execute;
 use str_util::sha3;
 
-use crate::modules::account::dto::{CreateMember, Credentials};
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::{Create, GetAccountInformation};
+use crate::modules::account::{
+    dto::{CreateMember, Credentials},
+    material::Account,
+    tools::{Create, GetAccountInformation},
+};
 
 #[test]
 fn create_account() {
@@ -17,16 +19,10 @@ fn create_account() {
         },
     };
 
-    let login = account.create(
-        &post_obj.credentials.mail,
-        &post_obj.nickname,
-        &post_obj.credentials.password,
-    );
+    let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
     assert!(login.is_ok());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='mail@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='mail@jaylappTest.dev'");
 }
 
 #[test]
@@ -40,24 +36,10 @@ fn mail_twice() {
         },
     };
 
-    let _ = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
-    assert!(account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password
-        )
-        .is_err());
+    let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='bla@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bla@jaylappTest.dev'");
 }
 
 #[test]
@@ -79,27 +61,11 @@ fn nickname_twice() {
         },
     };
 
-    let _ = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
-    assert!(account
-        .create(
-            &post_obj_two.credentials.mail,
-            &post_obj_two.nickname,
-            &post_obj_two.credentials.password
-        )
-        .is_err());
+    let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    assert!(account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).is_err());
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='bla2@jaylappTest.dev'");
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='bla3@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bla2@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='bla3@jaylappTest.dev'");
 }
 
 #[test]
@@ -113,13 +79,7 @@ fn mail_empty() {
         },
     };
 
-    assert!(account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password
-        )
-        .is_err());
+    assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
@@ -133,13 +93,7 @@ fn password_empty() {
         },
     };
 
-    assert!(account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password
-        )
-        .is_err());
+    assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
@@ -153,13 +107,7 @@ fn nickname_empty() {
         },
     };
 
-    assert!(account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password
-        )
-        .is_err());
+    assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
@@ -173,13 +121,7 @@ fn invalid_mail() {
         },
     };
 
-    assert!(account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password
-        )
-        .is_err());
+    assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
@@ -193,13 +135,7 @@ fn invalid_nickname() {
         },
     };
 
-    assert!(account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password
-        )
-        .is_err());
+    assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
@@ -213,13 +149,7 @@ fn confirm_mail() {
         },
     };
 
-    let login = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let mail_id;
     {
         let member_guard = account.member.read().unwrap();
@@ -230,7 +160,5 @@ fn confirm_mail() {
     let confirmed_information = account.get(login.member_id).unwrap();
     assert!(confirmed_information.mail_confirmed);
 
-    account
-        .db_main
-        .execute("DELETE FROM account_member WHERE mail='someNameWuuuuh@jaylappTest.dev'");
+    account.db_main.execute("DELETE FROM account_member WHERE mail='someNameWuuuuh@jaylappTest.dev'");
 }

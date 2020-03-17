@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrieveItemStat;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrieveItemStat, Data};
 
 #[test]
 fn get_item_stats() {

@@ -1,5 +1,7 @@
-use crate::modules::armory::domain_value::{CharacterFacial, CharacterGuild, CharacterInfo};
-use crate::modules::armory::dto::CharacterHistoryDto;
+use crate::modules::armory::{
+    domain_value::{CharacterFacial, CharacterGuild, CharacterInfo},
+    dto::CharacterHistoryDto,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistory {
@@ -27,25 +29,11 @@ impl CharacterHistory {
             && self.character_id == other.character_id
             && self.character_info.deep_eq(&other.character_info)
             && self.character_name == other.character_name
-            && ((self.character_guild.is_none() && other.character_guild.is_none())
-                || (self.character_guild.is_some()
-                    && other.character_guild.is_some()
-                    && self
-                        .character_guild
-                        .as_ref()
-                        .unwrap()
-                        .deep_eq(other.character_guild.as_ref().unwrap())))
+            && ((self.character_guild.is_none() && other.character_guild.is_none()) || (self.character_guild.is_some() && other.character_guild.is_some() && self.character_guild.as_ref().unwrap().deep_eq(other.character_guild.as_ref().unwrap())))
             && self.character_title == other.character_title
             && self.profession_skill_points1 == other.profession_skill_points1
             && self.profession_skill_points2 == other.profession_skill_points2
-            && ((self.facial.is_none() && other.facial.is_none())
-                || (self.facial.is_some()
-                    && other.facial.is_some()
-                    && self
-                        .facial
-                        .as_ref()
-                        .unwrap()
-                        .deep_eq(other.facial.as_ref().unwrap())))
+            && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().deep_eq(other.facial.as_ref().unwrap())))
             && self.timestamp == other.timestamp
     }
 
@@ -53,23 +41,11 @@ impl CharacterHistory {
         self.character_info.compare_by_value(&other.character_info)
             && self.character_name == other.character_name
             && ((self.character_guild.is_none() && other.character_guild.is_none())
-                || (self.character_guild.is_some() && other.character_guild.is_some())
-                    && self
-                        .character_guild
-                        .as_ref()
-                        .unwrap()
-                        .compare_by_value(other.character_guild.as_ref().unwrap()))
+                || (self.character_guild.is_some() && other.character_guild.is_some()) && self.character_guild.as_ref().unwrap().compare_by_value(other.character_guild.as_ref().unwrap()))
             && self.character_title == other.character_title
             && self.profession_skill_points1 == other.profession_skill_points1
             && self.profession_skill_points2 == other.profession_skill_points2
-            && ((self.facial.is_none() && other.facial.is_none())
-                || (self.facial.is_some()
-                    && other.facial.is_some()
-                    && self
-                        .facial
-                        .as_ref()
-                        .unwrap()
-                        .compare_by_value(other.facial.as_ref().unwrap())))
+            && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().compare_by_value(other.facial.as_ref().unwrap())))
         // Technically we should also compare character_id => character_uid and guild_id => guild_dto
         // But this would require to make a get call
     }

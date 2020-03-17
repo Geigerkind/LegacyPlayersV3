@@ -1,6 +1,8 @@
-use crate::modules::armory::dto::GuildDto;
-use crate::modules::armory::tools::{CreateGuild, GetGuild, UpdateGuild};
-use crate::modules::armory::Armory;
+use crate::modules::armory::{
+    dto::GuildDto,
+    tools::{CreateGuild, GetGuild, UpdateGuild},
+    Armory,
+};
 use mysql_connection::tools::Execute;
 
 #[test]
@@ -36,8 +38,5 @@ fn guild() {
     assert_ne!(guild3.name, guild_dto.name);
     assert_eq!(guild3.name, new_guild_name);
 
-    armory.db_main.execute_wparams(
-        "DELETE FROM armory_guild WHERE id=:id",
-        params!("id" => guild.id),
-    );
+    armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => guild.id));
 }

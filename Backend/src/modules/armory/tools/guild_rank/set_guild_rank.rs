@@ -1,7 +1,4 @@
-use crate::modules::armory::domain_value::GuildRank;
-use crate::modules::armory::dto::ArmoryFailure;
-use crate::modules::armory::tools::GetGuild;
-use crate::modules::armory::Armory;
+use crate::modules::armory::{domain_value::GuildRank, dto::ArmoryFailure, tools::GetGuild, Armory};
 use mysql_connection::tools::Execute;
 
 pub trait SetGuildRank {
@@ -20,11 +17,14 @@ impl SetGuildRank for Armory {
         }
 
         let mut guilds = self.guilds.write().unwrap();
-        if self.db_main.execute_wparams("REPLACE INTO armory_guild_rank (`guild_id`, `rank_index`, `name`) VALUES (:guild_id, :rank_index, :name)", params!(
-          "guild_id" => guild_id,
-          "rank_index" => guild_rank.index,
-          "name" => guild_rank.name.clone()
-        )) {
+        if self.db_main.execute_wparams(
+            "REPLACE INTO armory_guild_rank (`guild_id`, `rank_index`, `name`) VALUES (:guild_id, :rank_index, :name)",
+            params!(
+              "guild_id" => guild_id,
+              "rank_index" => guild_rank.index,
+              "name" => guild_rank.name.clone()
+            ),
+        ) {
             let guild = guilds.get_mut(&guild_id).unwrap();
             if let Some(rank) = guild.ranks.iter_mut().find(|rank| rank.index == guild_rank.index) {
                 rank.name = guild_rank.name.to_owned();

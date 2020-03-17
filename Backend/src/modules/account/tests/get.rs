@@ -1,8 +1,10 @@
 use mysql_connection::tools::Execute;
 
-use crate::modules::account::dto::{CreateMember, Credentials};
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::{Create, GetAccountInformation};
+use crate::modules::account::{
+    dto::{CreateMember, Credentials},
+    material::Account,
+    tools::{Create, GetAccountInformation},
+};
 
 #[test]
 fn get_does_not_exist() {
@@ -22,17 +24,9 @@ fn get_exists() {
         },
     };
 
-    let login = account
-        .create(
-            &post_obj.credentials.mail,
-            &post_obj.nickname,
-            &post_obj.credentials.password,
-        )
-        .unwrap();
+    let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let acc_info = account.get(login.member_id);
     assert!(acc_info.is_ok());
 
-    account.db_main.execute(
-        "DELETE FROM account_member WHERE mail='ijfeuhifsduhisdfuhiuhisdf@jaylappTest.dev'",
-    );
+    account.db_main.execute("DELETE FROM account_member WHERE mail='ijfeuhifsduhisdfuhiuhisdf@jaylappTest.dev'");
 }

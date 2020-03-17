@@ -1,11 +1,5 @@
 #![allow(clippy::module_inception)]
-#![feature(
-    proc_macro_hygiene,
-    decl_macro,
-    option_result_contains,
-    vec_remove_item,
-    test
-)]
+#![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
 extern crate language;
 extern crate mail;
 #[macro_use]
@@ -27,15 +21,10 @@ extern crate dotenv;
 extern crate regex;
 
 use dotenv::dotenv;
-use rocket_okapi::swagger_ui::make_swagger_ui;
-use rocket_okapi::swagger_ui::SwaggerUIConfig;
-use rocket_okapi::swagger_ui::UrlObject;
+use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::account;
-use crate::modules::armory;
-use crate::modules::data;
-use crate::modules::tooltip;
+use crate::modules::{account, armory, data, tooltip};
 
 pub mod dto;
 pub mod modules;

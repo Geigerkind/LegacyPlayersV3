@@ -1,5 +1,4 @@
-use crate::modules::data::tools::RetrievePowerType;
-use crate::modules::data::Data;
+use crate::modules::data::{tools::RetrievePowerType, Data};
 
 #[test]
 fn get_power_type() {
