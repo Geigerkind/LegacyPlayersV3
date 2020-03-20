@@ -1,32 +1,39 @@
 version: '3.6'
 services:
-    lpcmmariadb:
-        build: lp_cm_mariadb
-        networks:
-          - lp_cm_net
-        volumes:
-            - ./../LegacyPlayersV3/Exporter/Database:/docker-entrypoint-initdb.d
-        environment:
-            - MYSQL_USER=mysql
-            - MYSQL_PASSWORD=notSecret
-            - MYSQL_ROOT_PASSWORD=notSecret
-    lpcmnginx:
-        build: lp_cm_nginx
-        networks:
-          - lp_cm_net
-        ports:
-            - '8880:80'
-    lpcmwebclient:
-        build: lp_cm_webclient
-        networks:
-            - lp_cm_net
-    lpcmbackend:
-        build: lp_cm_backend
-        networks:
-          - lp_cm_net
-        environment:
-            - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/lp_consent
+  lpcmmariadb:
+    build: lp_cm_mariadb
+    networks:
+      lp_cm_net:
+        ipv4_address: 172.20.128.2
+    volumes:
+      - ./../LegacyPlayersV3/Exporter/Database:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=notSecret
+      - MYSQL_ROOT_PASSWORD=notSecret
+  lpcmnginx:
+    build: lp_cm_nginx
+    networks:
+      lp_cm_net:
+        ipv4_address: 172.20.128.3
+    ports:
+      - '8880:80'
+  lpcmwebclient:
+    build: lp_cm_webclient
+    networks:
+      lp_cm_net:
+        ipv4_address: 172.20.128.4
+  lpcmbackend:
+    build: lp_cm_backend
+    networks:
+      lp_cm_net:
+        ipv4_address: 172.20.128.5
+    environment:
+      - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/lp_consent
 
 networks:
   lp_cm_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -12,7 +12,7 @@ git stash
 git pull
 cd ./
 echo "Starting the service"
-docker-compose up -d --build
+docker-compose up --build
 
 TIME_COUNTER=0
 while true; do
