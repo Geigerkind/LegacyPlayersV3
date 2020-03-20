@@ -15,9 +15,10 @@ impl Run for TransportLayer {
 
     // Relay for Server messages
     let server_plugin_msgs = thread::spawn(|| {
+      println!("Established ZMQ Socket!");
       let context = zmq::Context::new();
       let responder = context.socket(zmq::PULL).unwrap();
-      assert!(responder.bind("tcp://127.0.0.1:5690").is_ok());
+      assert!(responder.bind("tcp://0.0.0.0:5690").is_ok());
 
       loop {
         let msg = responder.recv_bytes(0).unwrap();
