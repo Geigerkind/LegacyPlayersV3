@@ -6,6 +6,9 @@ use crate::modules::TransportLayer;
 use crate::Run;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 
+use std::io::Cursor;
+use byteorder::{BigEndian, ReadBytesExt};
+
 impl Run for TransportLayer {
   fn run(&mut self) {
     let rate = env::var("REQUESTS_TO_LP_PER_SECOND").unwrap().parse::<f64>().unwrap();
@@ -14,15 +17,23 @@ impl Run for TransportLayer {
     let opt_in_mode = env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
 
     // Relay for Server messages
-    let server_plugin_msgs = thread::spawn(|| {
-      println!("Established ZMQ Socket!");
+    thread::spawn(|| {
       let context = zmq::Context::new();
       let responder = context.socket(zmq::PULL).unwrap();
       assert!(responder.bind("tcp://0.0.0.0:5690").is_ok());
+      println!("Established ZMQ socket!");
 
       loop {
         let msg = responder.recv_bytes(0).unwrap();
         println!("Received {:?}", msg);
+
+        // Reading the bytes as Big Endian
+        let mut rdr = Cursor::new(&msg[3..11]);
+        let attacker_guid = rdr.read_u64::<BigEndian>().unwrap();
+        let mut rdr = Cursor::new(&msg[11..19]);
+        let victim_guid = rdr.read_u64::<BigEndian>().unwrap();
+        println!("Attacker GUID: {}", attacker_guid);
+        println!("Victim GUID: {}", victim_guid);
       }
     });
 
@@ -56,6 +67,5 @@ impl Run for TransportLayer {
         thread::sleep(sleep_duration_wait);
       }
     }
-    server_plugin_msgs.join();
   }
 }
