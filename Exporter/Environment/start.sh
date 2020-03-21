@@ -1,18 +1,20 @@
 running=1
 
 updateFiles() {
-  cd ./LegacyPlayersV3
+  ls -l /lp_cm_backend/Backend
+
+  cd /LegacyPlayersV3
   git stash
   git pull
-  cd ./
+  cd /
 
   # Manual Backend update
-  rm -r ./lp_cm_backend/Backend/src
-  rm -r ./lp_cm_backend/Backend/sub_crates
-  rm ./lp_cm_backend/Backend/Cargo.toml
-  cp -r ./LegacyPlayersV3/Exporter/Backend/src ./lp_cm_backend/Backend/
-  cp -r ./LegacyPlayersV3/Exporter/Backend/sub_crates ./lp_cm_backend/Backend/
-  cp ./LegacyPlayersV3/Exporter/Backend/Cargo.toml ./lp_cm_backend/Backend/
+  rm -r /lp_cm_backend/Backend/src
+  rm -r /lp_cm_backend/Backend/sub_crates
+  rm /lp_cm_backend/Backend/Cargo.toml
+  cp -r /LegacyPlayersV3/Exporter/Backend/src /lp_cm_backend/Backend/
+  cp -r /LegacyPlayersV3/Exporter/Backend/sub_crates /lp_cm_backend/Backend/
+  cp /LegacyPlayersV3/Exporter/Backend/Cargo.toml /lp_cm_backend/Backend/
 }
 
 cleanup() {
@@ -37,7 +39,7 @@ while true; do
       echo "Updating the service"
       docker-compose stop
 
-      updateFiles()
+      updateFiles
 
       echo "Starting the service"
       docker-compose up -d --build

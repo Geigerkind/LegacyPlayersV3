@@ -29,9 +29,9 @@ impl Run for TransportLayer {
 
         // Reading the bytes as Big Endian
         let mut rdr = Cursor::new(&msg[2..10]);
-        let attacker_guid = rdr.read_u64::<BigEndian>().unwrap();
+        let attacker_guid = rdr.read_u64::<LittleEndian>().unwrap();
         let mut rdr = Cursor::new(&msg[10..18]);
-        let victim_guid = rdr.read_u64::<BigEndian>().unwrap();
+        let victim_guid = rdr.read_u64::<LittleEndian>().unwrap();
         println!("Attacker GUID: {} => {}", attacker_guid, attacker_guid.is_player());
         println!("Victim GUID: {} => {} / {:?}", victim_guid, victim_guid.is_any_creature(), victim_guid.get_entry());
       }
