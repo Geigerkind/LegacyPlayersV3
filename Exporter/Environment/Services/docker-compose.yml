@@ -5,8 +5,6 @@ services:
     networks:
       lp_cm_net:
         ipv4_address: 172.20.128.2
-    volumes:
-      - ./../LegacyPlayersV3/Exporter/Database:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_USER=mysql
       - MYSQL_PASSWORD=notSecret

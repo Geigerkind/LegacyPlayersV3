@@ -1,5 +1,20 @@
 running=1
 
+updateFiles() {
+  cd ./LegacyPlayersV3
+  git stash
+  git pull
+  cd ./
+
+  # Manual Backend update
+  rm -r ./lp_cm_backend/Backend/src
+  rm -r ./lp_cm_backend/Backend/sub_crates
+  rm ./lp_cm_backend/Backend/Cargo.toml
+  cp -r ./LegacyPlayersV3/Exporter/Backend/src ./lp_cm_backend/Backend/
+  cp -r ./LegacyPlayersV3/Exporter/Backend/sub_crates ./lp_cm_backend/Backend/
+  cp ./LegacyPlayersV3/Exporter/Backend/Cargo.toml ./lp_cm_backend/Backend/
+}
+
 cleanup() {
     echo "Container stopped, performing cleanup..."
     docker-compose stop
@@ -7,10 +22,8 @@ cleanup() {
 }
 trap 'cleanup' SIGTERM SIGINT
 
-cd ./LegacyPlayersV3
-git stash
-git pull
-cd ./
+updateFiles
+
 echo "Starting the service"
 #yes | docker-compose rm --all
 #docker-compose build --no-cache
@@ -24,10 +37,7 @@ while true; do
       echo "Updating the service"
       docker-compose stop
 
-      cd ./LegacyPlayersV3
-      git stash
-      git pull
-      cd ./
+      updateFiles()
 
       echo "Starting the service"
       docker-compose up -d --build
