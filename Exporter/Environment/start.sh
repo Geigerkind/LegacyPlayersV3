@@ -1,6 +1,7 @@
 running=1
 
 updateFiles() {
+  # TODO only execute this if git pull has changes
   cd /LegacyPlayersV3
   git stash
   git pull
@@ -13,6 +14,9 @@ updateFiles() {
   cp -r /LegacyPlayersV3/Exporter/Backend/src /lp_cm_backend/Backend/
   cp -r /LegacyPlayersV3/Exporter/Backend/sub_crates /lp_cm_backend/Backend/
   cp /LegacyPlayersV3/Exporter/Backend/Cargo.toml /lp_cm_backend/Backend/
+
+  #yes | docker-compose rm --all
+  #docker-compose build --no-cache lpcmbackend
 }
 
 cleanup() {
@@ -25,8 +29,6 @@ trap 'cleanup' SIGTERM SIGINT
 updateFiles
 
 echo "Starting the service"
-#yes | docker-compose rm --all
-docker-compose build --no-cache
 docker-compose up
 
 TIME_COUNTER=0
