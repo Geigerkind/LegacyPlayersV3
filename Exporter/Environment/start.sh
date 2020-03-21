@@ -12,6 +12,8 @@ git stash
 git pull
 cd ./
 echo "Starting the service"
+#yes | docker-compose rm --all
+#docker-compose build --no-cache
 docker-compose up --build
 
 TIME_COUNTER=0

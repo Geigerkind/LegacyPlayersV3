@@ -1,7 +1,7 @@
 use std::{thread, env};
 use std::time::Duration;
 
-use crate::modules::transport_layer::tools::ReceiveConsent;
+use crate::modules::transport_layer::tools::{ReceiveConsent, GUID};
 use crate::modules::TransportLayer;
 use crate::Run;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
@@ -32,8 +32,8 @@ impl Run for TransportLayer {
         let attacker_guid = rdr.read_u64::<BigEndian>().unwrap();
         let mut rdr = Cursor::new(&msg[11..19]);
         let victim_guid = rdr.read_u64::<BigEndian>().unwrap();
-        println!("Attacker GUID: {}", attacker_guid);
-        println!("Victim GUID: {}", victim_guid);
+        println!("Attacker GUID: {} => {}", attacker_guid, attacker_guid.is_player());
+        println!("Victim GUID: {} => {} / {:?}", victim_guid, victim_guid.is_any_creature(), victim_guid.get_entry());
       }
     });
 
