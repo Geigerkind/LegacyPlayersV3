@@ -1,8 +1,6 @@
 running=1
 
 updateFiles() {
-  ls -l /lp_cm_backend/Backend
-
   cd /LegacyPlayersV3
   git stash
   git pull
@@ -28,8 +26,8 @@ updateFiles
 
 echo "Starting the service"
 #yes | docker-compose rm --all
-#docker-compose build --no-cache
-docker-compose up --build
+docker-compose build --no-cache
+docker-compose up
 
 TIME_COUNTER=0
 while true; do

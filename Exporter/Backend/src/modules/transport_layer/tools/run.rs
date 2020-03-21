@@ -7,7 +7,7 @@ use crate::Run;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
 
 use std::io::Cursor;
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
 impl Run for TransportLayer {
   fn run(&mut self) {
