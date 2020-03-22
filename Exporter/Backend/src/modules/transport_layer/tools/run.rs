@@ -35,6 +35,7 @@ impl Run for TransportLayer {
         let mut rdr = Cursor::new(&msg[2..10]);
         let timestamp = rdr.read_u64::<LittleEndian>().unwrap();
         println!("Timestamp: {}", timestamp);
+        /*
         if *message_type == 0 {
           let mut rdr = Cursor::new(&msg[10..14]);
           let map_id = rdr.read_u32::<LittleEndian>().unwrap();
@@ -77,7 +78,7 @@ impl Run for TransportLayer {
             let i: usize = i as usize;
 
             let mut rdr = Cursor::new(&msg[i..(i+4)]);
-            let school_mask = rdr.read_u32::<LittleEndian>().unwrap();
+            let school_mask = rdr.read_u32::<LittleEndian>().unwrap();ß
             println!("SchoolMask: {}", school_mask);
 
             let mut rdr = Cursor::new(&msg[(i+4)..(i+8)]);
@@ -93,6 +94,7 @@ impl Run for TransportLayer {
             println!("Resist: {}", resist);
           }
         }
+        */
       }
     });
 
