@@ -26,6 +26,7 @@
 #include "ReputationMgr.h"
 #include "WorldStatePackets.h"
 #include "Formulas.h"
+#include "rpll_hooks.h"
 
 namespace Trinity
 {
@@ -494,7 +495,12 @@ void Battleground::UpdateWorldState(uint32 variable, uint32 value)
 	SendPacketToAll(worldstate.Write());
 }
 
-void Battleground::EndBattleground(uint32 winner)
+void Battleground::EndBattleground(uint32 winner) {
+    _EndBattleground(winner);
+    RPLLHooks::EndBattleground(this, m_score);
+}
+
+void Battleground::_EndBattleground(uint32 winner)
 {
     RemoveFromBGFreeSlotQueue();
     uint32 almost_winning_team = HORDE;
@@ -548,7 +554,6 @@ void Battleground::EndBattleground(uint32 winner)
     {
         SetWinner(3);
     }
-
     if (isBattleground())
         LogsDatabaseAccessor::BattlegroundStats(GetMapId(), GetStartTimestamp(), time(nullptr), Team(winner), finalScoreAlliance, finalScoreHorde);
 
@@ -1216,7 +1221,12 @@ void Battleground::Reset()
     PlayerScores.clear();
 }
 
-void Battleground::StartBattleground()
+void Battleground::StartBattleground() {
+    _StartBattleground();
+    RPLLHooks::StartBattleground(this);
+}
+
+void Battleground::_StartBattleground()
 {
     SetStartTime(0);
     SetLastResurrectTime(0);

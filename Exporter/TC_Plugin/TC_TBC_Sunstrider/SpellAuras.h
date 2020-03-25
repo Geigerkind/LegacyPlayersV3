@@ -122,6 +122,7 @@ public:
     static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo);
     static Aura* TryCreate(AuraCreateInfo& createInfo);
     static Aura* Create(AuraCreateInfo& createInfo);
+    static Aura* _Create(AuraCreateInfo& createInfo);
     explicit Aura(AuraCreateInfo const& createInfo);
     void _InitEffects(uint8 effMask, Unit* caster, int32 const* baseAmount);
     void SaveCasterInfo(Unit* caster);
@@ -205,6 +206,7 @@ public:
 
     int32 GetStackAmount() const {return m_stackAmount;}
     void SetStackAmount(int32 amount);
+    void _SetStackAmount(int32 amount);
     bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
     bool  CanApplyResilience() const { return _casterInfo.ApplyResilience; }
@@ -352,7 +354,7 @@ private:
 
 class TC_GAME_API UnitAura : public Aura
 {
-    friend Aura* Aura::Create(AuraCreateInfo& createInfo);
+    friend Aura* Aura::_Create(AuraCreateInfo& createInfo);
 protected:
     explicit UnitAura(AuraCreateInfo const& createInfo);
 public:
@@ -376,7 +378,7 @@ private:
 
 class TC_GAME_API DynObjAura : public Aura
 {
-    friend Aura* Aura::Create(AuraCreateInfo& createInfo);
+    friend Aura* Aura::_Create(AuraCreateInfo& createInfo);
 protected:
     explicit DynObjAura(AuraCreateInfo const& createInfo);
 public:

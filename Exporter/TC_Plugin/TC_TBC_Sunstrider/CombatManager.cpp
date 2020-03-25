@@ -4,6 +4,7 @@
 #include "Unit.h"
 #include "CreatureAI.h"
 #include "Player.h"
+#include "rpll_hooks.h"
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
@@ -306,7 +307,13 @@ void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
         _pveRefs.erase(guid);
 }
 
-bool CombatManager::UpdateOwnerCombatState() const
+bool CombatManager::UpdateOwnerCombatState() const {
+    bool result = _UpdateOwnerCombatState();
+    RPLLHooks::UpdateOwnerCombatState(_owner, result);
+    return result;
+}
+
+bool CombatManager::_UpdateOwnerCombatState() const
 {
     bool const combatState = HasCombat();
     if (combatState == _owner->IsInCombat())

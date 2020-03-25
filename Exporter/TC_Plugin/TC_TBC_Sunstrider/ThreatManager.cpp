@@ -15,6 +15,7 @@
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include <algorithm>
+#include "rpll_hooks.h"
 
 const CompareThreatLessThan ThreatManager::CompareThreat;
 
@@ -288,7 +289,13 @@ static void SaveCreatureHomePositionIfNeed(Creature* c)
         c->SetHomePosition(c->GetPosition());
 }
 
-void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects)
+void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects) {
+    float amountBefore = GetThreat(target);
+    _AddThreat(target, amount, spell, ignoreModifiers, ignoreRedirects);
+    RPLLHooks::AddThreat(_owner, target, spell, amountBefore, GetThreat(target));
+}
+
+void ThreatManager::_AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects)
 {
     // step 1: we can shortcut if the spell has one of the NO_THREAT attrs set - nothing will happen
     if (spell)
@@ -394,7 +401,12 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         ProcessAIUpdates();
 }
 
-void ThreatManager::ScaleThreat(Unit* target, float factor)
+void ThreatManager::ScaleThreat(Unit* target, float factor) {
+    _ScaleThreat(target, factor);
+    RPLLHooks::ScaleThreat(_owner, target, factor);
+}
+
+void ThreatManager::_ScaleThreat(Unit* target, float factor)
 {
     auto it = _myThreatListEntries.find(target->GetGUID());
     if (it != _myThreatListEntries.end())

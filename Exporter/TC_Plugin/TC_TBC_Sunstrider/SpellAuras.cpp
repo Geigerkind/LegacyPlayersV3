@@ -33,6 +33,7 @@
 #include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "SpellHistory.h"
+#include "rpll_hooks.h"
 
 AuraCreateInfo::AuraCreateInfo(SpellInfo const* spellInfo, uint8 auraEffMask, WorldObject* owner) :
     _spellInfo(spellInfo), _auraEffectMask(auraEffMask), _owner(owner)
@@ -615,7 +616,13 @@ Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
     return Create(createInfo);
 }
 
-Aura* Aura::Create(AuraCreateInfo& createInfo)
+Aura* Aura::Create(AuraCreateInfo& createInfo) {
+    auto result = _Create(createInfo);
+    RPLLHooks::AuraCreate(result);
+    return result;
+}
+
+Aura* Aura::_Create(AuraCreateInfo& createInfo)
 {
     // try to get caster of aura
     if (createInfo.CasterGUID)
@@ -1661,7 +1668,13 @@ void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
     owner->m_Events.AddEvent(m_dropEvent, owner->m_Events.CalculateTime(delay));
 }
 
-void Aura::SetStackAmount(int32 amount)
+void Aura::SetStackAmount(int32 amount) {
+    auto oldAmount = this->GetStackAmount();
+    _SetStackAmount(amount);
+    RPLLHooks::AuraSetStackAmount(this, uint32_t(oldAmount));
+}
+
+void Aura::_SetStackAmount(int32 amount)
 {
     m_stackAmount = amount;
     Unit* caster = GetCaster();

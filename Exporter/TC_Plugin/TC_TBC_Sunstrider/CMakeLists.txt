@@ -44,6 +44,7 @@ target_link_libraries(game-interface
   INTERFACE
     shared
     Detour
+    rpll
 )
 
 add_library(game

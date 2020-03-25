@@ -37,6 +37,7 @@
 #include "SpellHistory.h"
 #include "SpellPackets.h"
 #include "TradeData.h"
+#include "rpll_hooks.h"
 
 extern SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
@@ -2581,7 +2582,12 @@ void Spell::TargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
     Healing = spell->m_healing;
 }
 
-void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
+void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell) {
+    _DoDamageAndTriggers(spell);
+    RPLLHooks::DoDamageAndTriggers(spell, spell->m_hitMask);
+}
+
+void Spell::TargetInfo::_DoDamageAndTriggers(Spell* spell)
 {
     Unit* unit = spell->m_caster->GetGUID() == TargetGUID ? spell->m_caster->ToUnit() : ObjectAccessor::GetUnit(*spell->m_caster, TargetGUID);
     if (!unit)
@@ -2682,7 +2688,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         else
             hitMask |= PROC_HIT_NORMAL;
 
-        healInfo = std::make_unique<HealInfo>(caster, spell->unitTarget, addhealth, spell->m_spellInfo, spell->m_spellInfo->GetSchoolMask());
+        healInfo = std::make_unique<HealInfo>(caster, spell->unitTarget, addhealth, spell->m_spellInfo, spell->m_spellInfo->GetSchoolMask(), hitMask);
         caster->HealBySpell(*healInfo, IsCrit);
 
         //sun SPELL_ATTR0_CU_THREAT_GOES_TO_CURRENT_CASTER handling
@@ -4526,7 +4532,12 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
     caster->SendDirectMessage(&data);
 }
 
-void Spell::SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const
+void Spell::SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const {
+    _SendCastResult(result, param1, param2);
+    RPLLHooks::SendCastResult(this, result);
+}
+
+void Spell::_SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;

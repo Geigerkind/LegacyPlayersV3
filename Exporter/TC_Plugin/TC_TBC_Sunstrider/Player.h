@@ -1343,6 +1343,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             return !IsInFeralForm() && (!mainhand || !HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED) );
         }
         void SendNewItem( Item *item, uint32 count, bool received, bool created, bool broadcast = false, bool sendChatMessage = true);
+        void _SendNewItem( Item *item, uint32 count, bool received, bool created, bool broadcast = false, bool sendChatMessage = true);
         //vendorslot unused on BC
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
 
@@ -2150,6 +2151,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsImmuneToEnvironmentalDamage() const;
         uint32 EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
+        uint32 _EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
 
         /*********************************************************/
         /***               FLOOD FILTER SYSTEM                 ***/
@@ -2337,6 +2339,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
 		// Set map to player and add reference
 		void SetMap(Map* map) override;
+		void _SetMap(Map* map);
 		void ResetMap() override;
 
         bool IsAllowedToLoot(Creature const* creature) const;

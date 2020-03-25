@@ -364,6 +364,7 @@ class TC_GAME_API Battleground
         void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
 
         void StartBattleground();
+        void _StartBattleground();
 
         GameObject* GetBGObject(uint32 type, bool logError = true);
         Creature* GetBGCreature(uint32 type, bool logError = true);
@@ -401,6 +402,7 @@ class TC_GAME_API Battleground
         void RewardQuest(Player *plr);
 		void UpdateWorldState(uint32 variable, uint32 value);
         void EndBattleground(uint32 winner);
+        void _EndBattleground(uint32 winner);
         void BlockMovement(Player *plr);
 
         void SendWarningToAll(int32 entry, ...);

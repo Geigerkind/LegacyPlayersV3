@@ -129,7 +129,9 @@ class TC_GAME_API ThreatManager
         void EvaluateSuppressed(bool canExpire = false);
         ///== AFFECT MY THREAT LIST ==
         void AddThreat(Unit* target, float amount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false, bool ignoreRedirects = false);
+        void _AddThreat(Unit* target, float amount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false, bool ignoreRedirects = false);
         void ScaleThreat(Unit* target, float factor);
+        void _ScaleThreat(Unit* target, float factor);
         // Modify target's threat by +percent%
         void ModifyThreatByPercent(Unit* target, int32 percent) { if (percent) ScaleThreat(target, 0.01f*float(100 + percent)); }
         // Resets the specified unit's threat to zero

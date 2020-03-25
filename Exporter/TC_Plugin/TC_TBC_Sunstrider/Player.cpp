@@ -83,6 +83,8 @@
 #include <cmath>
 #include <setjmp.h>
 
+#include "rpll_hooks.h"
+
 #define ZONE_UPDATE_INTERVAL 1000
 
 /*
@@ -926,7 +928,13 @@ bool Player::IsImmuneToEnvironmentalDamage() const
     return !IsTargetableForAttack(false);
 }
 
-uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
+uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage) {
+    auto result = _EnvironmentalDamage(type, damage);
+    RPLLHooks::EnvironmentalDamage(this, type, damage, result);
+    return result;
+}
+
+uint32 Player::_EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 {
     if (IsImmuneToEnvironmentalDamage())
         return 0;
@@ -1753,7 +1761,12 @@ void Player::ResetMap()
     GetMapRef().unlink();
 }
 
-void Player::SetMap(Map* map)
+void Player::SetMap(Map* map) {
+    _SetMap(map);
+    RPLLHooks::SetMap(this);
+}
+
+void Player::_SetMap(Map* map)
 {
     Unit::SetMap(map);
     m_mapRef.link(map, this);
@@ -12935,7 +12948,12 @@ void Player::SendItemDurations()
     }
 }
 
-void Player::SendNewItem(Item *item, uint32 count, bool received, bool created, bool broadcast, bool sendChatMessage)
+void Player::SendNewItem(Item *item, uint32 count, bool received, bool created, bool broadcast, bool sendChatMessage) {
+    _SendNewItem(item, count, received, created, broadcast, sendChatMessage);
+    RPLLHooks::SendNewItem(this, item, count, received, created, broadcast, sendChatMessage);
+}
+
+void Player::_SendNewItem(Item *item, uint32 count, bool received, bool created, bool broadcast, bool sendChatMessage)
 {
     if(!item)                                               // prevent crash
         return;

@@ -56,6 +56,8 @@
 #include <math.h>
 #include <array>
 
+#include "rpll_hooks.h"
+
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                                                   // MOVE_WALK
@@ -4077,7 +4079,12 @@ void Unit::RemoveAllGameObjects()
     }
 }
 
-void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
+void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log) {
+    _SendSpellNonMeleeDamageLog(log);
+    RPLLHooks::SendSpellNonMeleeDamageLog(log);
+}
+
+void Unit::_SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
 {
     WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+1+4+4+1+1+4+4+1)); // we guess size (LK ok)
     data << log->target->GetPackGUID();
@@ -4149,7 +4156,12 @@ void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 spellID,uint32 damage
         actor->TriggerAurasProcOnEvent(actionTarget, typeMaskActor, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
 }
 
-void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
+void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo) {
+    _SendAttackStateUpdate(damageInfo);
+    RPLLHooks::SendAttackStateUpdate(damageInfo);
+}
+
+void Unit::_SendAttackStateUpdate(CalcDamageInfo *damageInfo)
 {
     uint32 count = 1;
     for (uint8 i = 1; i < MAX_ITEM_PROTO_DAMAGES; i++)
@@ -5207,7 +5219,13 @@ void Unit::RemoveAllControlled()
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // m_controlled is now empty, so we know none of our minions are in combat
 }
 
-void Unit::DealHeal(HealInfo& healInfo)
+void Unit::DealHeal(HealInfo& healInfo) {
+    // ORDER IS IMPORTANT
+    _DealHeal(healInfo);
+    RPLLHooks::DealHeal(healInfo);
+}
+
+void Unit::_DealHeal(HealInfo& healInfo)
 {
     int32 gain = 0;
     Unit* healer = healInfo.GetHealer();
@@ -7831,7 +7849,12 @@ void Unit::SetDeathState(DeathState s)
     m_deathState = s;
 }
 
-void Unit::SetOwnerGUID(ObjectGuid owner)
+void Unit::SetOwnerGUID(ObjectGuid owner) {
+    _SetOwnerGUID(owner);
+    RPLLHooks::SetOwnerGUID(this, owner);
+}
+
+void Unit::_SetOwnerGUID(ObjectGuid owner)
 { 
     if (GetOwnerGUID() == owner)
         return;
@@ -8399,7 +8422,14 @@ void Unit::SetLevel(uint32 lvl)
         sCharacterCache->UpdateCharacterLevel(ToPlayer()->GetGUID().GetCounter(), lvl);
 }
 
-void Unit::SetHealth(uint32 val)
+void Unit::SetHealth(uint32 val) {
+    // ORDER IS IMPORTANT
+    uint32 oldVal = this->GetHealth();
+    _SetHealth(val);
+    RPLLHooks::SetHealth(this, oldVal);
+}
+
+void Unit::_SetHealth(uint32 val)
 {
     //sun: little addition to handle > max uint32 values
     if (val > std::numeric_limits<uint32>::max())
@@ -8462,7 +8492,14 @@ uint32 Unit::CountPctFromCurHealth(int32 pct) const
     return CalculatePct<uint32, int32>(GetHealth(), pct);
 }
 
-void Unit::SetMaxHealth(uint32 val)
+void Unit::SetMaxHealth(uint32 val) {
+    // ORDER IS IMPORTANT
+    uint32 oldVal = this->GetMaxHealth();
+    _SetMaxHealth(val);
+    RPLLHooks::SetMaxHealth(this, oldVal);
+}
+
+void Unit::_SetMaxHealth(uint32 val)
 {
     //sun: little addition to handle > max uint32 values
     if (val > std::numeric_limits<uint32>::max())
@@ -8500,7 +8537,14 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-void Unit::SetPower(Powers power, uint32 val)
+void Unit::SetPower(Powers power, uint32 val) {
+    // ORDER IS IMPORTANT
+    uint32_t oldVal = this->GetPower(power);
+    _SetPower(power, val);
+    RPLLHooks::SetPower(this, power, oldVal);
+}
+
+void Unit::_SetPower(Powers power, uint32 val)
 {
     if(GetPower(power) == val)
         return;
@@ -8544,7 +8588,14 @@ void Unit::SetPower(Powers power, uint32 val)
     }
 }
 
-void Unit::SetMaxPower(Powers power, uint32 val)
+void Unit::SetMaxPower(Powers power, uint32 val) {
+    // ORDER IS IMPORTANT
+    uint32_t oldVal = this->GetMaxPower(power);
+    _SetMaxPower(power, val);
+    RPLLHooks::SetMaxPower(this, power, oldVal);
+}
+
+void Unit::_SetMaxPower(Powers power, uint32 val)
 {
     uint32 cur_power = GetPower(power);
     SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + power, val);
@@ -9767,7 +9818,12 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 
 /*-----------------------TRINITY-----------------------------*/
 
-/*static*/ void Unit::Kill(Unit* attacker, Unit *pVictim, bool durabilityLoss)
+void Unit::Kill(Unit* attacker, Unit *pVictim, bool durabilityLoss){
+    _Kill(attacker, pVictim, durabilityLoss);
+    RPLLHooks::Kill(attacker, pVictim);
+}
+
+/*static*/ void Unit::_Kill(Unit* attacker, Unit *pVictim, bool durabilityLoss)
 {
     pVictim->SetHealth(0);
 
@@ -11537,7 +11593,14 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
         MovementPacketSender::SendTeleportPacket(this, movementInfo);
 }
 
-bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
+bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport) {
+    bool result = _UpdatePosition(x,y,z,orientation, teleport);
+    if (result)
+        RPLLHooks::UpdatePosition(this, x, y, z, orientation);
+    return result;
+}
+
+bool Unit::_UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
     if (!Trinity::IsValidMapCoord(x, y, z, orientation))
@@ -11986,7 +12049,12 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId, bool debug)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
+void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo) {
+    _SendPeriodicAuraLog(pInfo);
+    RPLLHooks::SendPeriodicAuraLog(pInfo);
+}
+
+void Unit::_SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 {
     AuraEffect const* aura = pInfo->auraEff;
 
@@ -12565,8 +12633,8 @@ void UnitActionBarEntry::SetAction(uint32 action)
     packedData = (packedData & 0xFF000000) | UNIT_ACTION_BUTTON_ACTION(action);
 }
 
-HealInfo::HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
-    : _healer(healer), _target(target), _heal(heal), _effectiveHeal(0), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
+HealInfo::HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, uint32 hitMask)
+    : _healer(healer), _target(target), _heal(heal), _effectiveHeal(0), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(hitMask)
 {
 }
 
@@ -12987,7 +13055,13 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
 }
 
 // All aura base removes should go through this function!
-void Unit::RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveMode removeMode)
+void Unit::RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveMode removeMode) {
+    // ORDER IS IMPORTANT
+    RPLLHooks::RemoveOwnedAura(i->second);
+    _RemoveOwnedAura(i, removeMode);
+}
+
+void Unit::_RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveMode removeMode)
 {
     Aura* aura = i->second;
     ASSERT(!aura->IsRemoved());
@@ -13241,7 +13315,12 @@ void Unit::RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID, AuraRemove
     }
 }
 
-void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, ObjectGuid casterGUID, WorldObject* dispeller, uint8 chargesRemoved/*= 1*/)
+void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, ObjectGuid casterGUID, WorldObject* dispeller, uint8 chargesRemoved/*= 1*/) {
+    _RemoveAurasDueToSpellByDispel(spellId, dispellerSpellId, casterGUID, dispeller, chargesRemoved);
+    RPLLHooks::RemoveAurasDueToSpellByDispel(this, spellId, dispellerSpellId, casterGUID, dispeller, chargesRemoved);
+}
+
+void Unit::_RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, ObjectGuid casterGUID, WorldObject* dispeller, uint8 chargesRemoved/*= 1*/)
 {
     AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
     for (AuraMap::iterator iter = range.first; iter != range.second;)
@@ -13271,7 +13350,12 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
     }
 }
 
-void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer)
+void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer) {
+    _RemoveAurasDueToSpellBySteal(spellId, casterGUID, stealer);
+    RPLLHooks::RemoveAurasDueToSpellBySteal(this, spellId, 0, casterGUID, stealer);
+}
+
+void Unit::_RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer)
 {
     AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
     for (AuraMap::iterator iter = range.first; iter != range.second;)
