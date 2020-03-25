@@ -925,6 +925,8 @@ void RPLLHooks::AddThreat(Unit* owner, Unit* target, SpellInfo const* spell, flo
 
 void RPLLHooks::ScaleThreat(Unit* owner, Unit* target, float factor) {
     //PrintDebugMessage("ScaleThreat");
+    if (owner == nullptr || target == nullptr)
+        return;
     if (factor <= 0.01f && owner->GetGUID().IsCreature()
         && (owner->ToCreature()->IsWorldBoss() || owner->ToCreature()->IsDungeonBoss())
     ) {
