@@ -16,7 +16,7 @@ updateFiles() {
   cp /LegacyPlayersV3/Exporter/Backend/Cargo.toml /lp_cm_backend/Backend/
 
   #yes | docker-compose rm --all
-  #docker-compose build --no-cache lpcmbackend
+  docker-compose build --no-cache lpcmbackend
 }
 
 cleanup() {
