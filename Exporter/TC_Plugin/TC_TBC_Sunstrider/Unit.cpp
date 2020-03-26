@@ -56,7 +56,7 @@
 #include <math.h>
 #include <array>
 
-#include "rpll_hooks.h"
+#include "rpll_unit_hooks.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -4081,7 +4081,7 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log) {
     _SendSpellNonMeleeDamageLog(log);
-    RPLLHooks::SendSpellNonMeleeDamageLog(log);
+    RPLLUnitHooks::SendSpellNonMeleeDamageLog(log);
 }
 
 void Unit::_SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
@@ -4158,7 +4158,7 @@ void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 spellID,uint32 damage
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo) {
     _SendAttackStateUpdate(damageInfo);
-    RPLLHooks::SendAttackStateUpdate(damageInfo);
+    RPLLUnitHooks::SendAttackStateUpdate(damageInfo);
 }
 
 void Unit::_SendAttackStateUpdate(CalcDamageInfo *damageInfo)
@@ -5222,7 +5222,7 @@ void Unit::RemoveAllControlled()
 void Unit::DealHeal(HealInfo& healInfo) {
     // ORDER IS IMPORTANT
     _DealHeal(healInfo);
-    RPLLHooks::DealHeal(healInfo);
+    RPLLUnitHooks::DealHeal(healInfo);
 }
 
 void Unit::_DealHeal(HealInfo& healInfo)
@@ -7851,7 +7851,7 @@ void Unit::SetDeathState(DeathState s)
 
 void Unit::SetOwnerGUID(ObjectGuid owner) {
     _SetOwnerGUID(owner);
-    RPLLHooks::SetOwnerGUID(this, owner);
+    RPLLUnitHooks::SetOwnerGUID(this, owner);
 }
 
 void Unit::_SetOwnerGUID(ObjectGuid owner)
@@ -8426,7 +8426,7 @@ void Unit::SetHealth(uint32 val) {
     // ORDER IS IMPORTANT
     uint32 oldVal = this->GetHealth();
     _SetHealth(val);
-    RPLLHooks::SetHealth(this, oldVal);
+    RPLLUnitHooks::SetHealth(this, oldVal);
 }
 
 void Unit::_SetHealth(uint32 val)
@@ -8496,7 +8496,7 @@ void Unit::SetMaxHealth(uint32 val) {
     // ORDER IS IMPORTANT
     uint32 oldVal = this->GetMaxHealth();
     _SetMaxHealth(val);
-    RPLLHooks::SetMaxHealth(this, oldVal);
+    RPLLUnitHooks::SetMaxHealth(this, oldVal);
 }
 
 void Unit::_SetMaxHealth(uint32 val)
@@ -8541,7 +8541,7 @@ void Unit::SetPower(Powers power, uint32 val) {
     // ORDER IS IMPORTANT
     uint32_t oldVal = this->GetPower(power);
     _SetPower(power, val);
-    RPLLHooks::SetPower(this, power, oldVal);
+    RPLLUnitHooks::SetPower(this, power, oldVal);
 }
 
 void Unit::_SetPower(Powers power, uint32 val)
@@ -8592,7 +8592,7 @@ void Unit::SetMaxPower(Powers power, uint32 val) {
     // ORDER IS IMPORTANT
     uint32_t oldVal = this->GetMaxPower(power);
     _SetMaxPower(power, val);
-    RPLLHooks::SetMaxPower(this, power, oldVal);
+    RPLLUnitHooks::SetMaxPower(this, power, oldVal);
 }
 
 void Unit::_SetMaxPower(Powers power, uint32 val)
@@ -9820,7 +9820,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 
 void Unit::Kill(Unit* attacker, Unit *pVictim, bool durabilityLoss){
     _Kill(attacker, pVictim, durabilityLoss);
-    RPLLHooks::Kill(attacker, pVictim);
+    RPLLUnitHooks::Kill(attacker, pVictim);
 }
 
 /*static*/ void Unit::_Kill(Unit* attacker, Unit *pVictim, bool durabilityLoss)
@@ -11596,7 +11596,7 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport) {
     bool result = _UpdatePosition(x,y,z,orientation, teleport);
     if (result)
-        RPLLHooks::UpdatePosition(this, x, y, z, orientation);
+        RPLLUnitHooks::UpdatePosition(this, x, y, z, orientation);
     return result;
 }
 
@@ -12051,7 +12051,7 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId, bool debug)
 
 void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo) {
     _SendPeriodicAuraLog(pInfo);
-    RPLLHooks::SendPeriodicAuraLog(pInfo);
+    RPLLUnitHooks::SendPeriodicAuraLog(pInfo);
 }
 
 void Unit::_SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
@@ -13057,7 +13057,7 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
 // All aura base removes should go through this function!
 void Unit::RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveMode removeMode) {
     // ORDER IS IMPORTANT
-    RPLLHooks::RemoveOwnedAura(i->second);
+    RPLLUnitHooks::RemoveOwnedAura(i->second);
     _RemoveOwnedAura(i, removeMode);
 }
 
@@ -13317,7 +13317,7 @@ void Unit::RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID, AuraRemove
 
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, ObjectGuid casterGUID, WorldObject* dispeller, uint8 chargesRemoved/*= 1*/) {
     _RemoveAurasDueToSpellByDispel(spellId, dispellerSpellId, casterGUID, dispeller, chargesRemoved);
-    RPLLHooks::RemoveAurasDueToSpellByDispel(this, spellId, dispellerSpellId, casterGUID, dispeller, chargesRemoved);
+    RPLLUnitHooks::RemoveAurasDueToSpellByDispel(this, spellId, dispellerSpellId, casterGUID, dispeller, chargesRemoved);
 }
 
 void Unit::_RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, ObjectGuid casterGUID, WorldObject* dispeller, uint8 chargesRemoved/*= 1*/)
@@ -13352,7 +13352,7 @@ void Unit::_RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellI
 
 void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer) {
     _RemoveAurasDueToSpellBySteal(spellId, casterGUID, stealer);
-    RPLLHooks::RemoveAurasDueToSpellBySteal(this, spellId, 0, casterGUID, stealer);
+    RPLLUnitHooks::RemoveAurasDueToSpellBySteal(this, spellId, 0, casterGUID, stealer);
 }
 
 void Unit::_RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer)

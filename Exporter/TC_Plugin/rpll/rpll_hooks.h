@@ -3,17 +3,8 @@
 
 #include <zmq.h>
 #include <cinttypes>
-// Causes cyclic dependency but this thing provides
-// all needed data structures and uses nothing else
-// so, so be it
 #include "Unit.h"
 #include "ByteBuffer.h"
-#include "SpellAuraEffects.h"
-#include "SpellAuras.h"
-#include "Spell.h"
-#include "Battlegrounds/Battleground.h"
-#include "Item.h"
-#include "Player.h"
 
 enum RPLL_MessageType : uint8_t {
     RPLL_MSG_MELEE_DAMAGE = 0, // Works
@@ -136,6 +127,7 @@ class RPLLHooks
     static void* zmqSocket;
     static void* GetZmqSocket();
     static void SendZmqMessage(ByteBuffer &&msg);
+    static void PrintMessage(ByteBuffer &&msg);
     
     // Time tracking
     static uint8_t GetCurrentTimeSize();
@@ -159,8 +151,16 @@ class RPLLHooks
     static uint8_t GetMessageMetaDataSize();
 
     // Helper
-    static RPLL_Damage BuildRPLLDamage(RPLL_DamageSchool damageSchool, uint32_t damage, uint32_t resisted_or_glanced, uint32_t absorbed);
     static void AppendRPLLDamage(ByteBuffer &msg, RPLL_Damage &damage);
+
+    // Optimization
+    static inline bool IsPowerWithinTimeout(Unit* unit, RPLL_PowerType power);
+    static inline bool IsPositionWithinTimeout(Unit* unit);
+    static inline bool HasSignificantPositionChange(Unit* unit, float x, float y, float z, float orientation);
+
+public:
+    // Helper
+    static RPLL_Damage BuildRPLLDamage(RPLL_DamageSchool damageSchool, uint32_t damage, uint32_t resisted_or_glanced, uint32_t absorbed);
 
     // Mapper
     static RPLL_DamageHitType mapHitMaskToRPLLHitType(uint32_t hitMask);
@@ -169,15 +169,6 @@ class RPLLHooks
     static RPLL_DamageSchool mapSpellSchoolMaskToRPLLDamageSchool(uint32_t schoolMask);
     static RPLL_PvP_Winner mapPvPWinnerToRPLLPvPWinner(uint8_t winner);
 
-    // Optimization
-    static inline bool IsPowerWithinTimeout(Unit* unit, RPLL_PowerType power);
-    static inline bool IsPositionWithinTimeout(Unit* unit);
-    static inline bool HasSignificantPositionChange(Unit* unit, float x, float y, float z, float orientation);
-
-    // Debugging
-    static void PrintMessage(ByteBuffer &&msg);
-
-public:
     /* Actual Methods to pack the messages */
     // These are used from the hooks
     // But if you want to include additional information,
@@ -208,64 +199,6 @@ public:
     // See RPLL_Event
     static void Event(Unit* unit, RPLL_Event event);
     static void Summon(Unit* unit, uint64_t ownerGUID);
-
-    /* Hook methods from Unit */
-    static void SendAttackStateUpdate(CalcDamageInfo *damageInfo);
-    static void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *damageInfo);
-    static void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
-    // IMPORTANT: Add hook AFTER original function
-    static void DealHeal(HealInfo& healInfo);
-    static void Kill(Unit* attacker, Unit* victim);
-    // Note: Target is the Unit on whom it is called, i.e. "this"
-    static void RemoveAurasDueToSpellByDispel(Unit* target, uint32_t spellId, uint32_t dispellerSpellId, ObjectGuid casterGUID, WorldObject* dispeller, uint8 chargesRemoved = 1);
-    // Note: The implementation may not give you the used spell to steal
-    // Set the stealSpellId to 0 in this case
-    // The target is again the Unit, i.e. "this"
-    static void RemoveAurasDueToSpellBySteal(Unit* target, uint32_t spellId, uint32_t stealSpellId, ObjectGuid casterGUID, WorldObject* stealer);
-    // Note: Only call if the position update was successful
-    static void UpdatePosition(Unit* unit, float x, float y, float z, float orientation);
-    // IMPORTANT: These have to be called AFTER the original function.
-    // BUT save the old value before!
-    static void SetHealth(Unit* unit, uint32_t oldVal);
-    static void SetMaxHealth(Unit* unit, uint32_t oldVal);
-    static void SetPower(Unit* unit, Powers powerType, uint32_t oldVal);
-    static void SetMaxPower(Unit* unit, Powers powerType, uint32_t oldVal);
-    // IMPORTANT: Make sure to call it BEFORE the original call
-    static void RemoveOwnedAura(Aura* aura);
-    // Note: Unit is "this"
-    static void SetOwnerGUID(Unit* unit, ObjectGuid owner);
-
-    /* Hook methods for CombatManager */
-    static void UpdateOwnerCombatState(Unit* unit, bool result);
-
-    /* Hook Methods for Battleground */
-    static void StartBattleground(Battleground* battleground);
-    static void EndBattleground(Battleground* battleground, uint32_t *scores);
-
-    /* Hook Methods for Player */
-    static void SendNewItem(Unit* unit, Item *item, uint32_t count, bool received, bool created, bool broadcast, bool sendChatMessage);
-    // Note: Use the player for the unit
-    static void EnvironmentalDamage(Unit* unit, EnviromentalDamage type, uint32_t damage, uint32_t result);
-    // Used to get state on login/logout instance enter etc.
-    static void SetMap(Unit* unit);
-
-    /* Hook Methods for Spell */
-    static void SendCastResult(const Spell* spell, SpellCastResult result);
-    // IMPORTANT: Call after the original function
-    static void DoDamageAndTriggers(const Spell* spell, uint32 hitMask);
-
-    /* Hook Methods for SpellAura */
-    static void AuraCreate(Aura* result);
-    // IMPORTANT: Save the amount here BEFORE calling the original function
-    static void AuraSetStackAmount(Aura* aura, uint32_t oldAmount);
-
-    /* Hook Methods for the ThreatManager */
-    // Notes:
-    // Owner => _owner or GetOwner()
-    // AmountBefore => GetThreat of the target called BEFORE calling the original AddThreat function
-    // AmountAfter => GetThreat of the target called AFTER calling the original AddThreat function
-    static void AddThreat(Unit* owner, Unit* target, SpellInfo const* spell, float amountBefore, float amountAfter);
-    static void ScaleThreat(Unit* owner, Unit* target, float factor);
 };
 
 #endif

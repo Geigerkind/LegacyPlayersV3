@@ -33,7 +33,8 @@
 #include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "SpellHistory.h"
-#include "rpll_hooks.h"
+
+#include "rpll_spell_auras_hooks.h"
 
 AuraCreateInfo::AuraCreateInfo(SpellInfo const* spellInfo, uint8 auraEffMask, WorldObject* owner) :
     _spellInfo(spellInfo), _auraEffectMask(auraEffMask), _owner(owner)
@@ -618,7 +619,7 @@ Aura* Aura::TryCreate(AuraCreateInfo& createInfo)
 
 Aura* Aura::Create(AuraCreateInfo& createInfo) {
     auto result = _Create(createInfo);
-    RPLLHooks::AuraCreate(result);
+    RPLLSpellAurasHooks::AuraCreate(result);
     return result;
 }
 
@@ -1671,7 +1672,7 @@ void Aura::DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode)
 void Aura::SetStackAmount(int32 amount) {
     auto oldAmount = this->GetStackAmount();
     _SetStackAmount(amount);
-    RPLLHooks::AuraSetStackAmount(this, uint32_t(oldAmount));
+    RPLLSpellAurasHooks::AuraSetStackAmount(this, uint32_t(oldAmount));
 }
 
 void Aura::_SetStackAmount(int32 amount)

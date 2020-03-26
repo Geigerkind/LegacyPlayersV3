@@ -26,7 +26,8 @@
 #include "ReputationMgr.h"
 #include "WorldStatePackets.h"
 #include "Formulas.h"
-#include "rpll_hooks.h"
+
+#include "rpll_battleground_hooks.h"
 
 namespace Trinity
 {
@@ -497,7 +498,7 @@ void Battleground::UpdateWorldState(uint32 variable, uint32 value)
 
 void Battleground::EndBattleground(uint32 winner) {
     _EndBattleground(winner);
-    RPLLHooks::EndBattleground(this, m_score);
+    RPLLBattlegroundHooks::EndBattleground(this, m_score);
 }
 
 void Battleground::_EndBattleground(uint32 winner)
@@ -1223,7 +1224,7 @@ void Battleground::Reset()
 
 void Battleground::StartBattleground() {
     _StartBattleground();
-    RPLLHooks::StartBattleground(this);
+    RPLLBattlegroundHooks::StartBattleground(this);
 }
 
 void Battleground::_StartBattleground()

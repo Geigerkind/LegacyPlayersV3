@@ -4,7 +4,8 @@
 #include "Unit.h"
 #include "CreatureAI.h"
 #include "Player.h"
-#include "rpll_hooks.h"
+
+#include "rpll_combat_manager_hooks.h"
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
@@ -309,7 +310,7 @@ void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
 
 bool CombatManager::UpdateOwnerCombatState() const {
     bool result = _UpdateOwnerCombatState();
-    RPLLHooks::UpdateOwnerCombatState(_owner, result);
+    RPLLCombatManagerHooks::UpdateOwnerCombatState(_owner, result);
     return result;
 }
 

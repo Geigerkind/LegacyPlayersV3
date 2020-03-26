@@ -37,7 +37,8 @@
 #include "SpellHistory.h"
 #include "SpellPackets.h"
 #include "TradeData.h"
-#include "rpll_hooks.h"
+
+#include "rpll_spell_hooks.h"
 
 extern SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
@@ -2584,7 +2585,7 @@ void Spell::TargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
 
 void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell) {
     _DoDamageAndTriggers(spell);
-    RPLLHooks::DoDamageAndTriggers(spell, spell->m_hitMask);
+    RPLLSpellHooks::DoDamageAndTriggers(spell, spell->m_hitMask);
 }
 
 void Spell::TargetInfo::_DoDamageAndTriggers(Spell* spell)
@@ -4534,7 +4535,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
 
 void Spell::SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const {
     _SendCastResult(result, param1, param2);
-    RPLLHooks::SendCastResult(this, result);
+    RPLLSpellHooks::SendCastResult(this, result);
 }
 
 void Spell::_SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const

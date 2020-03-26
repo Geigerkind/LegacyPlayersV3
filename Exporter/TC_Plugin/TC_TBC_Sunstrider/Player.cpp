@@ -83,7 +83,7 @@
 #include <cmath>
 #include <setjmp.h>
 
-#include "rpll_hooks.h"
+#include "rpll_player_hooks.h"
 
 #define ZONE_UPDATE_INTERVAL 1000
 
@@ -930,7 +930,7 @@ bool Player::IsImmuneToEnvironmentalDamage() const
 
 uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage) {
     auto result = _EnvironmentalDamage(type, damage);
-    RPLLHooks::EnvironmentalDamage(this, type, damage, result);
+    RPLLPlayerHooks::EnvironmentalDamage(this, type, damage, result);
     return result;
 }
 
@@ -1763,7 +1763,7 @@ void Player::ResetMap()
 
 void Player::SetMap(Map* map) {
     _SetMap(map);
-    RPLLHooks::SetMap(this);
+    RPLLPlayerHooks::SetMap(this);
 }
 
 void Player::_SetMap(Map* map)
@@ -12950,7 +12950,7 @@ void Player::SendItemDurations()
 
 void Player::SendNewItem(Item *item, uint32 count, bool received, bool created, bool broadcast, bool sendChatMessage) {
     _SendNewItem(item, count, received, created, broadcast, sendChatMessage);
-    RPLLHooks::SendNewItem(this, item, count, received, created, broadcast, sendChatMessage);
+    RPLLPlayerHooks::SendNewItem(this, item, count, received, created, broadcast, sendChatMessage);
 }
 
 void Player::_SendNewItem(Item *item, uint32 count, bool received, bool created, bool broadcast, bool sendChatMessage)
