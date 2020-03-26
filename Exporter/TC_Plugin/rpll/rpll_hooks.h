@@ -87,17 +87,27 @@ struct RPLL_Damage {
 
 /*
  * HOW TO INSTALL
- * Below you will find some public methods
- * 1. The actualy methods to send packages
- * 2. One example of hooks that sufficiently collects all needed information
+ * Below you will find some public methods.
+ * These methods are the actual send methods used to transmit the data to the exporting docker container.
  * 
- * Above the hooks some notes are described if the implementation depends on the order.
+ * You have 2 choices. If your core is very similar to the Stock version
+ * of the reference core I used (https://github.com/TrinityTBC/core)
+ * then you implement all the hooks from the following files:
+ * - rpll_battleground_hooks
+ * - rpll_unit_hooks
+ * - rpll_player_hooks
+ * - rpll_spell_hooks
+ * - rpll_spell_auras_hooks
+ * - rpll_threat_manager_hooks
+ * - rpll_combat_manager_hooks
+ * 
+ * In the header files you can find some notes that describe if the implementation depends on the order.
  * Please follow it patiently, because some hooks in the wrong order may very well cause crashes.
  * 
- * However, you can also choose not to use these hooks methods and place at all necessary places in your code
- * call to the method sending functions.
+ * However, you can also choose not to use these hooks and place at all necessary places in your code
+ * calls to the functions specified in here.
  * 
- * I recommend to use the hooks though.
+ * I recommend to use the hooks though, if you can.
  * If you have any questions, dont bother to contact me directly!
  * 
  * Note: It uses ZMQ, so make sure to install libzmq on your system
