@@ -1,5 +1,3 @@
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 use std::ops::Shr;
 use std::{thread, env};
 use std::time::Duration;
@@ -10,6 +8,7 @@ use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCha
 use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, GuildRank};
 use crate::Run;
 use std::collections::HashMap;
+use crate::modules::util::{salt_u32_u64};
 
 impl Run for ArmoryExporter {
   fn run(&mut self) {
@@ -32,7 +31,7 @@ impl Run for ArmoryExporter {
         let character_title;
         if character_table.chosen_title == 0 { character_title = None; } else { character_title = Some(character_table.chosen_title as u16); }
         let _ = self.sender_character.as_ref().unwrap().send((character_table.character_id, CharacterDto {
-          server_uid: get_server_uid(character_table.character_id),
+          server_uid: salt_u32_u64(character_table.character_id),
           character_history: Some(CharacterHistoryDto {
             character_info: CharacterInfoDto {
               gear: CharacterGearDto {
@@ -67,7 +66,7 @@ impl Run for ArmoryExporter {
             character_name: character_table.name.to_owned(),
             character_guild: guild.and_then(|char_guild_table| Some(CharacterGuildDto {
               guild: GuildDto {
-                server_uid: get_server_uid(char_guild_table.guild_id),
+                server_uid: salt_u32_u64(char_guild_table.guild_id),
                 name: char_guild_table.guild_name.to_owned(),
               },
               rank: GuildRank {
@@ -92,13 +91,6 @@ impl Run for ArmoryExporter {
       self.update_meta_data();
     }
   }
-}
-
-fn get_server_uid(id: u32) -> u64 {
-  let salt = env::var("UID_SALT").unwrap();
-  let mut hasher = DefaultHasher::new();
-  (id.to_string() + &salt).hash(&mut hasher);
-  hasher.finish()
 }
 
 fn get_item_slot(slot_id: u32, gear: &Vec<CharacterItemTable>, enchant_id_to_item_id: &HashMap<u32, u32>) -> Option<CharacterItemDto> {

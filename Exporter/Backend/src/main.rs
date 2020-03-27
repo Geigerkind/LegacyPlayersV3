@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use]
 extern crate mysql_connection;
@@ -9,6 +10,8 @@ extern crate reqwest;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate dotenv;
+#[macro_use]
+extern crate lazy_static;
 
 use std::{thread, env};
 use dotenv::dotenv;

@@ -6,3 +6,4 @@ pub use self::transport_layer::CharacterDto;
 pub mod consent_manager;
 mod armory_exporter;
 mod transport_layer;
+pub mod util;

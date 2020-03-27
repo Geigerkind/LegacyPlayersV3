@@ -16,6 +16,8 @@ serde_json = "*"
 dotenv = "*"
 zmq = "*"
 byteorder="*"
+rustc-hash = "1.1.0"
+lazy_static = "1.4.0"
 
 [dependencies.rocket_contrib]
 version = "*"
