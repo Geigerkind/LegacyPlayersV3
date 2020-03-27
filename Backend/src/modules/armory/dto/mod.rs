@@ -3,6 +3,7 @@ pub use self::{
     character_item::CharacterItemDto, character_search::*, character_viewer::*, guild::GuildDto, guild_viewer::*,
 };
 pub use self::instance_reset::InstanceResetDto;
+pub use self::arena_team::ArenaTeamDto;
 
 mod character;
 mod character_facial;
@@ -12,6 +13,7 @@ mod character_history;
 mod character_info;
 mod character_item;
 mod guild;
+mod arena_team;
 
 mod character_search;
 mod character_viewer;

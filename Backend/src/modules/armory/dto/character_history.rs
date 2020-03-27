@@ -2,6 +2,7 @@ use crate::{
     dto::CheckPlausability,
     modules::armory::dto::{CharacterFacialDto, CharacterGuildDto, CharacterInfoDto},
 };
+use crate::modules::armory::dto::ArenaTeamDto;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistoryDto {
@@ -12,6 +13,7 @@ pub struct CharacterHistoryDto {
     pub profession_skill_points1: Option<u16>,
     pub profession_skill_points2: Option<u16>,
     pub facial: Option<CharacterFacialDto>,
+    pub arena_teams: Vec<ArenaTeamDto>
 }
 
 impl CheckPlausability for CharacterHistoryDto {
@@ -23,5 +25,6 @@ impl CheckPlausability for CharacterHistoryDto {
             && !self.profession_skill_points1.contains(&0)
             && !self.profession_skill_points2.contains(&0)
             && (self.facial.is_none() || self.facial.as_ref().unwrap().is_plausible())
+            && self.arena_teams.iter().all(|team| team.is_plausible())
     }
 }
