@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use crate::modules::{ArmoryExporter, CharacterDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
-use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents, RetrieveCharacterArenaTeams};
+use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents, RetrieveCharacterArenaTeams, RetrieveMetaInstanceReset};
 use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, GuildRank};
 use crate::Run;
 use std::collections::HashMap;
@@ -90,6 +90,14 @@ impl Run for ArmoryExporter {
           }),
         }));
       });
+
+      if self.last_instance_reset_fetch_time <= time_util::now() {
+        let instance_resets = self.get_instance_reset();
+        if !instance_resets.is_empty() {
+          self.last_instance_reset_fetch_time = instance_resets.get(0).unwrap().reset_time;
+          let _ = self.sender_meta_data_instance_reset.as_ref().unwrap().send(instance_resets);
+        }
+      }
 
       self.update_meta_data();
     }

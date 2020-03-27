@@ -5,7 +5,7 @@ use mysql_connection::material::MySQLConnection;
 use mysql_connection::tools::Select;
 
 use crate::modules::armory_exporter::domain_value::MetaTalent;
-use crate::modules::CharacterDto;
+use crate::modules::{CharacterDto, InstanceReset};
 use std::env;
 
 #[derive(Debug)]
@@ -13,6 +13,8 @@ pub struct ArmoryExporter {
   pub db_characters: MySQLConnection,
   pub db_lp_consent: MySQLConnection,
   pub sender_character: Option<Sender<(u32, CharacterDto)>>,
+  pub sender_meta_data_instance_reset: Option<Sender<Vec<InstanceReset>>>,
+  pub last_instance_reset_fetch_time: u64,
   pub last_fetch_time: u64,
   pub gem_enchant_id_to_item_id: HashMap<u32, u32>,
   pub spell_id_to_meta_talent: HashMap<u32, MetaTalent>,
@@ -24,6 +26,8 @@ impl Default for ArmoryExporter {
       db_characters: MySQLConnection::new_with_dns(env::var("CHARACTER_MYSQL_DNS").unwrap().as_str()),
       db_lp_consent: MySQLConnection::new_with_dns(env::var("LP_CONSENT_MYSQL_DNS").unwrap().as_str()),
       sender_character: None,
+      sender_meta_data_instance_reset: None,
+      last_instance_reset_fetch_time: 0,
       last_fetch_time: 0,
       gem_enchant_id_to_item_id: HashMap::new(),
       spell_id_to_meta_talent: HashMap::new(),
@@ -39,6 +43,11 @@ impl ArmoryExporter {
     self.last_fetch_time = self.db_lp_consent.select_value("SELECT last_fetch FROM meta_data", &|mut row| {
       let last_fetch: u64 = row.take(0).unwrap();
       last_fetch
+    }).unwrap();
+
+    self.last_instance_reset_fetch_time = self.db_lp_consent.select_value("SELECT last_instance_reset_fetch FROM meta_data", &|mut row| {
+      let last_instance_reset_fetch: u64 = row.take(0).unwrap();
+      last_instance_reset_fetch
     }).unwrap();
 
     self.db_lp_consent.select_wparams("SELECT enchant_id, item_id FROM data_gem \

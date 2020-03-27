@@ -1,4 +1,4 @@
-use crate::modules::{TransportLayer, CharacterDto};
+use crate::modules::{TransportLayer, CharacterDto, InstanceReset};
 use std::env;
 use crate::modules::transport_layer::tools::ReceiveConsent;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
@@ -9,6 +9,7 @@ pub trait Relay {
   fn gave_consent(&self, character_id: u32) -> bool;
   fn send_character_dto(&self, character_dto: CharacterDto);
   fn send_package(&self, package: Vec<String>);
+  fn send_instance_resets(&self, instance_resets: Vec<InstanceReset>);
 }
 
 impl Relay for TransportLayer {
@@ -32,6 +33,12 @@ impl Relay for TransportLayer {
           continue;
         }
         self.send_character_dto(character_dto);
+      }
+
+      // Relay meta data
+      let receiver = self.receiver_meta_data_instance_reset.as_ref().unwrap();
+      if let Ok(instance_resets) = receiver.try_recv() {
+        self.send_instance_resets(instance_resets);
       }
 
       // Relay server plugin messages
@@ -95,6 +102,20 @@ impl Relay for TransportLayer {
       .header("X-Authorization", HeaderValue::from_str(API_TOKEN.as_str()).unwrap())
       .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
       .body(serde_json::to_string(&package).unwrap())
+      .send();
+  }
+
+  fn send_instance_resets(&self, instance_resets: Vec<InstanceReset>) {
+    lazy_static! {
+      static ref API_TOKEN: String = env::var("LP_API_TOKEN").unwrap();
+      static ref URL_META_DATA_INSTANCE_RESET: String = env::var("URL_META_DATA_INSTANCE_RESET").unwrap();
+    }
+
+    let _ = self.client
+      .post(URL_META_DATA_INSTANCE_RESET.as_str())
+      .header("X-Authorization", HeaderValue::from_str(API_TOKEN.as_str()).unwrap())
+      .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+      .body(serde_json::to_string(&instance_resets).unwrap())
       .send();
   }
 }

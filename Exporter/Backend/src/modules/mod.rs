@@ -2,6 +2,7 @@ pub use self::consent_manager::ConsentManager;
 pub use self::transport_layer::TransportLayer;
 pub use self::armory_exporter::ArmoryExporter;
 pub use self::transport_layer::CharacterDto;
+pub use self::transport_layer::InstanceReset;
 pub use self::server_exporter::ServerExporter;
 
 pub mod consent_manager;
