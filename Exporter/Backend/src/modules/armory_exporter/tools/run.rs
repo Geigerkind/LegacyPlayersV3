@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use crate::modules::{ArmoryExporter, CharacterDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
-use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents};
+use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents, RetrieveCharacterArenaTeams};
 use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, GuildRank};
 use crate::Run;
 use std::collections::HashMap;
@@ -27,6 +27,7 @@ impl Run for ArmoryExporter {
         let gear = self.get_character_items(character_table.character_id);
         let guild = self.get_character_guild(character_table.character_id);
         let talent = self.get_character_talent(character_table.character_id);
+        let arena_teams = self.get_arena_teams(character_table.character_id);
 
         let character_title;
         if character_table.chosen_title == 0 { character_title = None; } else { character_title = Some(character_table.chosen_title as u16); }
@@ -84,6 +85,7 @@ impl Run for ArmoryExporter {
               hair_color: (character_table.playerbytes1.shr(24) % 256 as u32) as u8,
               facial_hair: (character_table.playerbytes2 % 256 as u32) as u8,
             }),
+            arena_teams
           }),
         }));
       });

@@ -1,4 +1,4 @@
-use crate::modules::transport_layer::{CharacterInfoDto, CharacterGuildDto, CharacterFacialDto};
+use crate::modules::transport_layer::{CharacterInfoDto, CharacterGuildDto, CharacterFacialDto, ArenaTeam};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CharacterHistoryDto {
@@ -9,4 +9,5 @@ pub struct CharacterHistoryDto {
   pub profession_skill_points1: Option<u16>,
   pub profession_skill_points2: Option<u16>,
   pub facial: Option<CharacterFacialDto>,
+  pub arena_teams: Vec<ArenaTeam>
 }
