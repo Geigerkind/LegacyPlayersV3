@@ -13,6 +13,7 @@ pub struct TransportLayer {
   pub receiver_character: Option<Receiver<(u32, CharacterDto)>>,
   pub receiver_character_consent: Option<Receiver<(bool, u32)>>,
   pub receiver_guild_consent: Option<Receiver<(bool, u32)>>,
+  pub receiver_server_message: Option<Receiver<(Vec<u32>, String)>>
 }
 
 impl Default for TransportLayer {
@@ -25,6 +26,7 @@ impl Default for TransportLayer {
       receiver_character: None,
       receiver_character_consent: None,
       receiver_guild_consent: None,
+      receiver_server_message: None
     }
   }
 }

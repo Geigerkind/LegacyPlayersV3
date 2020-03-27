@@ -2,18 +2,17 @@ use crate::modules::{TransportLayer, CharacterDto};
 use std::env;
 use crate::modules::transport_layer::tools::ReceiveConsent;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
-use std::sync::mpsc::Receiver;
 use std::time::Instant;
 
 pub trait Relay {
-  fn relay(&mut self, server_package_receiver: Receiver<(Vec<u32>, String)>);
+  fn relay(&mut self);
   fn gave_consent(&self, character_id: u32) -> bool;
   fn send_character_dto(&self, character_dto: CharacterDto);
   fn send_package(&self, package: Vec<String>);
 }
 
 impl Relay for TransportLayer {
-  fn relay(&mut self, server_package_receiver: Receiver<(Vec<u32>, String)>) {
+  fn relay(&mut self) {
     let package_size: usize = 10000;
     let package_timeout = 30;
     let mut now = Instant::now();
@@ -36,7 +35,8 @@ impl Relay for TransportLayer {
       }
 
       // Relay server plugin messages
-      if let Ok((character_ids, msg)) = server_package_receiver.try_recv() {
+      let receiver = self.receiver_server_message.as_ref().unwrap();
+      if let Ok((character_ids, msg)) = receiver.try_recv() {
         if character_ids.iter().any(|id| !self.gave_consent(*id)) {
           println!("At least one character did not give consent");
           continue;

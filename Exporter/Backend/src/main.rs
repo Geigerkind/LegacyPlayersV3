@@ -18,7 +18,7 @@ use dotenv::dotenv;
 
 use modules::ConsentManager;
 
-use crate::modules::{ArmoryExporter, TransportLayer, CharacterDto};
+use crate::modules::{ArmoryExporter, TransportLayer, CharacterDto, ServerExporter};
 use std::sync::mpsc;
 
 mod dto;
@@ -55,20 +55,25 @@ fn main() {
   let mut consent_manager = ConsentManager::default();
   let mut transport_layer = TransportLayer::default().init();
   let mut armory_exporter = ArmoryExporter::default().init();
+  let mut server_exporter = ServerExporter::default().init();
 
   let (s_char, r_char) = mpsc::channel::<(u32, CharacterDto)>();
   let (s_char_consent, r_char_consent) = mpsc::channel::<(bool, u32)>();
   let (s_guild_consent, r_guild_consent) = mpsc::channel::<(bool, u32)>();
+  let (s_server_msg, r_server_msg) = mpsc::channel::<(Vec<u32>, String)>();
 
   *consent_manager.sender_character_consent.get_mut().unwrap() = Some(s_char_consent.to_owned());
   *consent_manager.sender_guild_consent.get_mut().unwrap() = Some(s_guild_consent.to_owned());
   armory_exporter.sender_character = Some(s_char.to_owned());
+  server_exporter.sender_message = Some(s_server_msg);
   transport_layer.receiver_character_consent = Some(r_char_consent);
   transport_layer.receiver_guild_consent = Some(r_guild_consent);
   transport_layer.receiver_character = Some(r_char);
+  transport_layer.receiver_server_message = Some(r_server_msg);
 
   thread::spawn(move || transport_layer.run());
   thread::spawn(move || armory_exporter.run());
+  thread::spawn(move || server_exporter.run());
 
   rocket::ignite()
     .manage(consent_manager.init())

@@ -7,7 +7,6 @@ pub use self::character_info::CharacterInfoDto;
 pub use self::character_item::CharacterItemDto;
 pub use self::guild::GuildDto;
 pub use self::guild_rank::GuildRank;
-pub use self::message_type::MessageType;
 
 mod character_item;
 mod character;
@@ -18,4 +17,3 @@ mod character_guild;
 mod character_history;
 mod guild;
 mod guild_rank;
-mod message_type;
