@@ -4,6 +4,7 @@ pub use self::{
 };
 
 pub use self::instance_reset::*;
+pub use self::character_arena_team::*;
 
 mod character;
 mod character_facial;
@@ -13,6 +14,8 @@ mod character_info;
 mod character_item;
 mod character_search;
 mod character_viewer;
+mod character_arena_team;
+
 mod get_character_item_stats;
 mod guild;
 mod guild_rank;
