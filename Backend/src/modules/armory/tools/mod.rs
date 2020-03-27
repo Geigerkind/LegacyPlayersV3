@@ -3,6 +3,8 @@ pub use self::{
     guild::*, guild_rank::*, guild_viewer::GuildViewer, talent_specialization::*,
 };
 
+pub use self::instance_reset::*;
+
 mod character;
 mod character_facial;
 mod character_gear;
@@ -16,3 +18,4 @@ mod guild;
 mod guild_rank;
 mod guild_viewer;
 mod talent_specialization;
+mod instance_reset;
