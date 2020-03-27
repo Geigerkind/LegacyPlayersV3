@@ -177,6 +177,7 @@ fn main() {
             armory::transfer::character_viewer::get_character_viewer,
             armory::transfer::character_viewer::get_character_viewer_by_history,
             armory::transfer::guild_viewer::get_guild_view,
+            armory::transfer::instance_reset::set_instance_resets
         ],
     );
 

@@ -4,3 +4,4 @@ pub mod character_search;
 pub mod character_viewer;
 pub mod guild;
 pub mod guild_viewer;
+pub mod instance_reset;
