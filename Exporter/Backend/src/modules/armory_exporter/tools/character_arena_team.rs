@@ -18,13 +18,15 @@ impl RetrieveCharacterArenaTeams for ArmoryExporter {
 
     self.db_characters.select_wparams(
       "SELECT atm.arenaTeamId, art.name,  art.type, art.rating, atm.personalRating FROM arena_team_member atm\
-       JOIN arena_team art ON atm.arenaTeamId = art.arenaTeamId WHERE atm.guid = :character_id", &|mut row|
-      ArenaTeam {
-        team_id: row.take(0).unwrap(),
-        name: row.take(1).unwrap(),
-        team_type: row.take(2).unwrap(),
-        team_rating: row.take(3).unwrap(),
-        personal_rating: row.take(4).unwrap()
+       JOIN arena_team art ON atm.arenaTeamId = art.arenaTeamId WHERE atm.guid = :character_id", &|mut row| {
+        let team_id: u32 = row.take(0).unwrap();
+        ArenaTeam {
+          team_id: team_id as u64,
+          name: row.take(1).unwrap(),
+          team_type: row.take(2).unwrap(),
+          team_rating: row.take(3).unwrap(),
+          personal_rating: row.take(4).unwrap()
+        }
       }, params!(
       "character_id" => character_id
     ))
