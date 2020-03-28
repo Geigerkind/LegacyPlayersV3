@@ -53,6 +53,7 @@ fn get_character_viewer() {
         profession_skill_points1: Some(223),
         profession_skill_points2: None,
         facial: None,
+        arena_teams: Vec::new(),
         character_guild: None,
     };
     let character_dto = CharacterDto {

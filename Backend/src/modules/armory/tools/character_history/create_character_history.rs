@@ -7,6 +7,8 @@ use crate::modules::armory::{
     tools::{CreateCharacterFacial, CreateCharacterInfo, CreateGuild, GetCharacter, GetCharacterHistory, SetGuildRank},
     Armory,
 };
+use crate::modules::armory::tools::SetArenaTeam;
+use crate::modules::armory::domain_value::ArenaTeamSizeType;
 
 pub trait CreateCharacterHistory {
     fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
@@ -44,6 +46,14 @@ impl CreateCharacterHistory for Armory {
             None
         };
 
+        let mut arena_teams = Vec::new();
+        for team in &character_history_dto.arena_teams {
+            arena_teams.push(self.set_arena_team(server_id, team.clone())?);
+        }
+        let arena2 = arena_teams.iter_mut().find(|team| team.size_type == ArenaTeamSizeType::Size2v2).map(|team| team.id);
+        let arena3 = arena_teams.iter().find(|team| team.size_type == ArenaTeamSizeType::Size3v3).map(|team| team.id);
+        let arena5 = arena_teams.iter().find(|team| team.size_type == ArenaTeamSizeType::Size5v5).map(|team| team.id);
+
         let params = params!(
           "character_id" => character_id,
           "character_info_id" => character_info.id,
@@ -53,11 +63,15 @@ impl CreateCharacterHistory for Armory {
           "guild_rank" => character_history_dto.character_guild.as_ref().map(|chr_guild_dto| chr_guild_dto.rank.index),
           "prof_skill_points1" => character_history_dto.profession_skill_points1,
           "prof_skill_points2" => character_history_dto.profession_skill_points2,
-          "facial" => facial.as_ref().map(|chr_facial| chr_facial.id)
+          "facial" => facial.as_ref().map(|chr_facial| chr_facial.id),
+          "arena2" => arena2,
+          "arena3" => arena3,
+          "arena5" => arena5
         );
         self.db_main.execute_wparams(
-            "INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, `guild_id`, `guild_rank`, `prof_skill_points1`, `prof_skill_points2`, `facial`, `timestamp`) VALUES (:character_id, \
-             :character_info_id, :character_name, :title, :guild_id, :guild_rank, :prof_skill_points1, :prof_skill_points2, :facial, UNIX_TIMESTAMP())",
+            "INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, \
+            `guild_id`, `guild_rank`, `prof_skill_points1`, `prof_skill_points2`, `facial`, `arena2`, `arena3`, `arena5`, `timestamp`) VALUES (:character_id, \
+             :character_info_id, :character_name, :title, :guild_id, :guild_rank, :prof_skill_points1, :prof_skill_points2, :facial, :arena2, :arena3, :arena5, UNIX_TIMESTAMP())",
             params,
         );
         if let Ok(character_history_res) = self.get_character_history_by_value(character_id, character_history_dto) {

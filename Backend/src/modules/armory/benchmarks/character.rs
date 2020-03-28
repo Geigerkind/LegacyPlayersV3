@@ -12,6 +12,7 @@ use crate::modules::armory::{
     tools::SetCharacter,
     Armory,
 };
+use crate::modules::armory::dto::ArenaTeamDto;
 
 /*
  * Goal of this benchmark is to see how many
@@ -144,6 +145,22 @@ fn set_character(_: &mut Bencher) {
             hair_color: 3,
             facial_hair: 2,
         }),
+        arena_teams: vec![
+            ArenaTeamDto {
+                team_id: 22434511,
+                name: "Other Fancy Team Name".to_string(),
+                team_type: 3,
+                team_rating: 1599,
+                personal_rating: 1533
+            },
+            ArenaTeamDto {
+                team_id: 224234511,
+                name: "Other Fancy Team Name".to_string(),
+                team_type: 5,
+                team_rating: 1599,
+                personal_rating: 1533
+            },
+        ],
         character_guild: Some(CharacterGuildDto {
             guild: GuildDto {
                 name: "sgfdfhgdfg".to_string(),
@@ -189,6 +206,8 @@ fn set_character(_: &mut Bencher) {
         armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
         armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
         armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
+        armory.db_main.execute_wparams("DELETE FROM armory_arena_team WHERE id=:id", params!("id" => character_history.arena_teams[0].id));
+        armory.db_main.execute_wparams("DELETE FROM armory_arena_team WHERE id=:id", params!("id" => character_history.arena_teams[1].id));
         armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
     }
 }

@@ -59,6 +59,7 @@ fn character_tooltip() {
         profession_skill_points1: Some(320),
         profession_skill_points2: None,
         facial: None,
+        arena_teams: Vec::new(),
         character_guild: Some(CharacterGuildDto {
             guild: GuildDto {
                 server_uid: 324234234,

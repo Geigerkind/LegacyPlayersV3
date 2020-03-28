@@ -2,6 +2,7 @@ use crate::modules::armory::{
     domain_value::{CharacterFacial, CharacterGuild, CharacterInfo},
     dto::CharacterHistoryDto,
 };
+use crate::modules::armory::domain_value::ArenaTeam;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistory {
@@ -14,6 +15,7 @@ pub struct CharacterHistory {
     pub profession_skill_points1: Option<u16>,
     pub profession_skill_points2: Option<u16>,
     pub facial: Option<CharacterFacial>,
+    pub arena_teams: Vec<ArenaTeam>,
     pub timestamp: u64,
 }
 
@@ -35,6 +37,7 @@ impl CharacterHistory {
             && self.profession_skill_points2 == other.profession_skill_points2
             && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().deep_eq(other.facial.as_ref().unwrap())))
             && self.timestamp == other.timestamp
+            && self.arena_teams.iter().all(|team| other.arena_teams.contains(team))
     }
 
     pub fn compare_by_value(&self, other: &CharacterHistoryDto) -> bool {
@@ -46,6 +49,7 @@ impl CharacterHistory {
             && self.profession_skill_points1 == other.profession_skill_points1
             && self.profession_skill_points2 == other.profession_skill_points2
             && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().compare_by_value(other.facial.as_ref().unwrap())))
+            && self.arena_teams.iter().all(|team| other.arena_teams.iter().any(|other_team| team.compare_by_value(other_team)))
         // Technically we should also compare character_id => character_uid and guild_id => guild_dto
         // But this would require to make a get call
     }

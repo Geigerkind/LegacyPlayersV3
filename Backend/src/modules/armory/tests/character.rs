@@ -8,6 +8,7 @@ use crate::modules::armory::{
     tools::{DeleteCharacter, GetCharacter, SetCharacter},
     Armory,
 };
+use crate::modules::armory::dto::ArenaTeamDto;
 
 #[test]
 fn set_character() {
@@ -140,6 +141,15 @@ fn set_character() {
             hair_color: 4,
             facial_hair: 3,
         }),
+        arena_teams: vec![
+            ArenaTeamDto {
+                team_id: 24345,
+                name: "Some Fancy Team Name".to_string(),
+                team_type: 2,
+                team_rating: 1599,
+                personal_rating: 1533
+            }
+        ],
         character_guild: Some(CharacterGuildDto {
             guild: GuildDto {
                 name: "GuildSample".to_string(),
@@ -213,5 +223,6 @@ fn set_character() {
     armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
+    armory.db_main.execute_wparams("DELETE FROM armory_arena_team WHERE id=:id", params!("id" => character_history.arena_teams[0].id));
     armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
 }

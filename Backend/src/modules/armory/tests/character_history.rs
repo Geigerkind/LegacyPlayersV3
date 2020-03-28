@@ -6,6 +6,7 @@ use crate::modules::armory::{
 };
 use mysql_connection::tools::Execute;
 use std::{thread, time};
+use crate::modules::armory::dto::ArenaTeamDto;
 
 #[test]
 fn set_character_history() {
@@ -139,6 +140,22 @@ fn set_character_history() {
             hair_color: 2,
             facial_hair: 1,
         }),
+        arena_teams: vec![
+            ArenaTeamDto {
+                team_id: 224345,
+                name: "Other Fancy Team Name".to_string(),
+                team_type: 3,
+                team_rating: 1599,
+                personal_rating: 1533
+            },
+            ArenaTeamDto {
+                team_id: 2242345,
+                name: "Other Fancy Team Name".to_string(),
+                team_type: 5,
+                team_rating: 1599,
+                personal_rating: 1533
+            },
+        ],
         character_guild: Some(CharacterGuildDto {
             guild: GuildDto {
                 name: "SampleGuild123".to_string(),
@@ -164,6 +181,8 @@ fn set_character_history() {
     assert!(character_history_res.is_ok());
 
     let character_history = character_history_res.unwrap();
+    println!("{:?}", set_character_history.arena_teams);
+    println!("{:?}", character_history.arena_teams);
     assert!(character_history.deep_eq(&set_character_history));
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
@@ -210,5 +229,7 @@ fn set_character_history() {
     armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
     armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
+    armory.db_main.execute_wparams("DELETE FROM armory_arena_team WHERE id=:id", params!("id" => character_history.arena_teams[0].id));
+    armory.db_main.execute_wparams("DELETE FROM armory_arena_team WHERE id=:id", params!("id" => character_history.arena_teams[1].id));
     armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
 }

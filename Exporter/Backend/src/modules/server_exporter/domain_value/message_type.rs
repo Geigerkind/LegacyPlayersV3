@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MessageType {
   MeleeDamage = 0,
   SpellDamage = 1,
@@ -20,12 +21,6 @@ pub enum MessageType {
   InstancePvpEndRatedArena = 18,
   InstancePvpEndBattleground = 19,
   Undefined = 255
-}
-
-impl PartialEq for MessageType {
-  fn eq(&self, other: &Self) -> bool {
-    self == other
-  }
 }
 
 impl MessageType {
