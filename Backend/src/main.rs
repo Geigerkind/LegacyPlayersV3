@@ -200,7 +200,9 @@ fn main() {
 
     igniter = igniter.mount(
         "/API/live_data_processor",
-        routes_with_openapi![]
+        routes_with_openapi![
+            live_data_processor::transfer::package::get_package
+        ]
     );
 
     igniter.launch();
