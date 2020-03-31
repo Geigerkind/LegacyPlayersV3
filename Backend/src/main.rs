@@ -25,7 +25,7 @@ use dotenv::dotenv;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::{account, armory, data, tooltip};
+use crate::modules::{account, armory, data, tooltip, live_data_processor};
 
 mod dto;
 mod modules;
@@ -38,6 +38,7 @@ fn main() {
     let data = data::Data::default().init(None);
     let armory = armory::Armory::default().init();
     let tooltip = tooltip::Tooltip::default().init();
+    let live_data_processor = live_data_processor::LiveDataProcessor::default().init();
 
     let prometheus = PrometheusMetrics::new();
     let mut igniter = rocket::ignite();
@@ -45,6 +46,7 @@ fn main() {
     igniter = igniter.manage(data);
     igniter = igniter.manage(armory);
     igniter = igniter.manage(tooltip);
+    igniter = igniter.manage(live_data_processor);
 
     igniter = igniter.attach(prometheus.clone());
     igniter = igniter.mount("/metrics", prometheus);
@@ -68,6 +70,10 @@ fn main() {
                 UrlObject {
                     name: "Tooltip".to_string(),
                     url: "/API/tooltip/openapi.json".to_string(),
+                },
+                UrlObject {
+                    name: "Live Data Processor".to_string(),
+                    url: "/API/live_data_processor/openapi.json".to_string(),
                 },
             ]),
         }),
@@ -190,6 +196,11 @@ fn main() {
             tooltip::transfer::character_tooltip::get_character,
             tooltip::transfer::guild_tooltip::get_guild,
         ],
+    );
+
+    igniter = igniter.mount(
+        "/API/live_data_processor",
+        routes_with_openapi![]
     );
 
     igniter.launch();

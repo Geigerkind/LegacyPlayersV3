@@ -128,7 +128,6 @@ impl GetCharacterHistory for Armory {
                     })
                 },
                 params,
-            )
-            .unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_history_by_value".to_owned())))
+            ).unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_history_by_value".to_owned())))
     }
 }
