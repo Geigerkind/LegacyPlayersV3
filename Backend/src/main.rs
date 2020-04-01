@@ -20,6 +20,7 @@ extern crate validator;
 extern crate lazy_static;
 extern crate dotenv;
 extern crate regex;
+extern crate byteorder;
 
 use dotenv::dotenv;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};

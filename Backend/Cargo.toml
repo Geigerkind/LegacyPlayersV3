@@ -23,6 +23,7 @@ time = "*"
 lazy_static = "*"
 regex = "*"
 dotenv = "*"
+byteorder="*"
 
 [dependencies.rocket_contrib]
 version = "*"
