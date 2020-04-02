@@ -1,6 +1,7 @@
-use crate::modules::live_data_processor::dto::{Message, ParseMessageType, LiveDataProcessorFailure};
+use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure};
 use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::modules::live_data_processor::tools::byte_reader;
+use crate::modules::live_data_processor::tools::payload_mapper::MapMessageType;
 
 pub trait MessageParser {
   fn parse_message(&self) -> Result<Message, LiveDataProcessorFailure>;
@@ -14,13 +15,16 @@ impl MessageParser for String {
     }
 
     let api_version = bytes[0];
-    let message_type = bytes[1].to_message_type()?;
     let message_length = bytes[2];
     let timestamp = byte_reader::read_u64(&bytes[3..7]);
     let payload = bytes[7..bytes.len()].to_vec();
+    let message_type = bytes[1].to_message_type(&payload)?;
 
     Ok(Message {
-      api_version, message_type, message_length, timestamp, payload
+      api_version,
+      message_type,
+      message_length,
+      timestamp
     })
   }
 }
