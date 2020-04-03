@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct UnAura {
   pub un_aura_caster: u64,
   pub target: u64,

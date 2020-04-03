@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct DamageDone {
   pub attacker: u64,
   pub victim: u64,

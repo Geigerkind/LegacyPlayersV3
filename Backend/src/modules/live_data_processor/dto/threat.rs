@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Threat {
   pub threater: u64,
   pub threatened: u64,

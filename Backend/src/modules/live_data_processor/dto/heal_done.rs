@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct HealDone {
   pub caster: u64,
   pub target: u64,

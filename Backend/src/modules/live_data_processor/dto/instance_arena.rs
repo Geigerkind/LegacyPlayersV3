@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct InstanceArena {
   pub map_id: u32,
   pub instance_id: u32,

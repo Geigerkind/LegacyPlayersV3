@@ -1,5 +1,6 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, DamageDone, HealDone, Death, AuraApplication, UnAura, Interrupt, Position, CombatState, Power, Loot, SpellCast, Threat, Event, Summon, Instance, InstanceArena, InstanceBattleground};
 
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum MessageType {
   MeleeDamage(DamageDone),
   SpellDamage(DamageDone),

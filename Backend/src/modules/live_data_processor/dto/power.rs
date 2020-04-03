@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Power {
   pub unit: u64,
   pub power_type: u8,

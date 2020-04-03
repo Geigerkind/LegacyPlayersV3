@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct SpellCast {
   pub caster: u64,
   pub target: Option<u64>,
