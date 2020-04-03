@@ -1,32 +1,33 @@
 use std::io::Cursor;
 use byteorder::{LittleEndian, ReadBytesExt};
+use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
 
-pub fn read_u16(number: &[u8]) -> u16 {
+pub fn read_u16(number: &[u8]) -> Result<u16, LiveDataProcessorFailure> {
   let mut rdr = Cursor::new(number);
-  rdr.read_u16::<LittleEndian>().unwrap()
+  rdr.read_u16::<LittleEndian>().or(Err(LiveDataProcessorFailure::InvalidInput))
 }
 
-pub fn read_u32(number: &[u8]) -> u32 {
+pub fn read_u32(number: &[u8]) -> Result<u32, LiveDataProcessorFailure> {
   let mut rdr = Cursor::new(number);
-  rdr.read_u32::<LittleEndian>().unwrap()
+  rdr.read_u32::<LittleEndian>().or(Err(LiveDataProcessorFailure::InvalidInput))
 }
 
-pub fn read_u64(number: &[u8]) -> u64 {
+pub fn read_u64(number: &[u8]) -> Result<u64, LiveDataProcessorFailure> {
   let mut rdr = Cursor::new(number);
-  rdr.read_u64::<LittleEndian>().unwrap()
+  rdr.read_u64::<LittleEndian>().or(Err(LiveDataProcessorFailure::InvalidInput))
 }
 
-pub fn read_i16(number: &[u8]) -> i16 {
+pub fn read_i16(number: &[u8]) -> Result<i16, LiveDataProcessorFailure> {
   let mut rdr = Cursor::new(number);
-  rdr.read_i16::<LittleEndian>().unwrap()
+  rdr.read_i16::<LittleEndian>().or(Err(LiveDataProcessorFailure::InvalidInput))
 }
 
-pub fn read_i32(number: &[u8]) -> i32 {
+pub fn read_i32(number: &[u8]) -> Result<i32, LiveDataProcessorFailure> {
   let mut rdr = Cursor::new(number);
-  rdr.read_i32::<LittleEndian>().unwrap()
+  rdr.read_i32::<LittleEndian>().or(Err(LiveDataProcessorFailure::InvalidInput))
 }
 
-pub fn read_i64(number: &[u8]) -> i64 {
+pub fn read_i64(number: &[u8]) -> Result<i64, LiveDataProcessorFailure> {
   let mut rdr = Cursor::new(number);
-  rdr.read_i64::<LittleEndian>().unwrap()
+  rdr.read_i64::<LittleEndian>().or(Err(LiveDataProcessorFailure::InvalidInput))
 }

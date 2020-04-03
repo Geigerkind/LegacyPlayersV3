@@ -24,8 +24,8 @@ pub trait MapMessageType {
 impl MapMessageType for u8 {
   fn to_message_type(&self, payload: &[u8]) -> Result<MessageType, LiveDataProcessorFailure> {
     Ok(match self {
-      0 => MessageType::MeleeDamage(payload.to_damage_done()?),
-      1 => MessageType::SpellDamage(payload.to_damage_done()?),
+      0 => MessageType::MeleeDamage(payload.from_melee_damage()?),
+      1 => MessageType::SpellDamage(payload.from_spell_damage()?),
       2 => MessageType::Heal(payload.to_heal_done()?),
       3 => MessageType::Death(payload.to_death()?),
       4 => MessageType::AuraApplication(payload.to_aura_application()?),

@@ -16,7 +16,7 @@ impl MessageParser for String {
 
     let api_version = bytes[0];
     let message_length = bytes[2];
-    let timestamp = byte_reader::read_u64(&bytes[3..7]);
+    let timestamp = byte_reader::read_u64(&bytes[3..7]).unwrap();
     let payload = bytes[7..bytes.len()].to_vec();
     let message_type = bytes[1].to_message_type(&payload)?;
 
