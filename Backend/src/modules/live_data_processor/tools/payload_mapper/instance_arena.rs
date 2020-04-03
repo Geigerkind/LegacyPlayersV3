@@ -7,6 +7,7 @@ pub trait MapInstanceArena {
 
 impl MapInstanceArena for [u8] {
   fn to_instance_arena(&self) -> Result<InstanceArena, LiveDataProcessorFailure> {
+    if self.len() != 24 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(InstanceArena {
       map_id: byte_reader::read_u32(&self[0..4])?,
       instance_id: byte_reader::read_u32(&self[4..8])?,

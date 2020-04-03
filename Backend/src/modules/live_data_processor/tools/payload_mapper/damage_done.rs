@@ -8,6 +8,7 @@ pub trait MapDamageDone {
 
 impl MapDamageDone for [u8] {
   fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
+    if self.len() != 33 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(DamageDone {
       attacker: byte_reader::read_u64(&self[0..8])?,
       victim: byte_reader::read_u64(&self[8..16])?,
@@ -21,6 +22,7 @@ impl MapDamageDone for [u8] {
   }
 
   fn from_spell_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
+    if self.len() != 37 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(DamageDone {
       attacker: byte_reader::read_u64(&self[0..8])?,
       victim: byte_reader::read_u64(&self[8..16])?,

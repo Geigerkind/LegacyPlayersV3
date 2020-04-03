@@ -7,6 +7,7 @@ pub trait MapInstanceBattleground {
 
 impl MapInstanceBattleground for [u8] {
   fn to_instance_battleground(&self) -> Result<InstanceBattleground, LiveDataProcessorFailure> {
+    if self.len() != 17 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(InstanceBattleground {
       map_id: byte_reader::read_u32(&self[0..4])?,
       instance_id: byte_reader::read_u32(&self[4..8])?,

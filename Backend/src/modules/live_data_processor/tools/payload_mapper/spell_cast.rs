@@ -7,6 +7,7 @@ pub trait MapSpellCast {
 
 impl MapSpellCast for [u8] {
   fn to_spell_cast(&self) -> Result<SpellCast, LiveDataProcessorFailure> {
+    if self.len() != 20 { return Err(LiveDataProcessorFailure::InvalidInput) }
     let target_id = byte_reader::read_u64(&self[8..16])?;
     Ok(SpellCast {
       caster: byte_reader::read_u64(&self[0..8])?,

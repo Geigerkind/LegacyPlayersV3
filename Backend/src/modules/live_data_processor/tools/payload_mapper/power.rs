@@ -7,6 +7,7 @@ pub trait MapPower {
 
 impl MapPower for [u8] {
   fn to_power(&self) -> Result<Power, LiveDataProcessorFailure> {
+    if self.len() != 17 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(Power {
       unit: byte_reader::read_u64(&self[0..8])?,
       power_type: self[8],

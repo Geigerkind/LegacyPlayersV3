@@ -7,6 +7,7 @@ pub trait MapDeath {
 
 impl MapDeath for [u8] {
   fn to_death(&self) -> Result<Death, LiveDataProcessorFailure> {
+    if self.len() != 16 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(Death {
       cause: byte_reader::read_u64(&self[0..8])?,
       victim: byte_reader::read_u64(&self[8..16])?

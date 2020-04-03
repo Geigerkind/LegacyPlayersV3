@@ -7,6 +7,7 @@ pub trait MapUnAura {
 
 impl MapUnAura for [u8] {
   fn to_un_aura(&self) -> Result<UnAura, LiveDataProcessorFailure> {
+    if self.len() != 32 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(UnAura {
       un_aura_caster: byte_reader::read_u64(&self[0..8])?,
       target: byte_reader::read_u64(&self[8..16])?,

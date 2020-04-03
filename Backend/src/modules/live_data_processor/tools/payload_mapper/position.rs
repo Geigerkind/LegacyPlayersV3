@@ -7,6 +7,7 @@ pub trait MapPosition {
 
 impl MapPosition for [u8] {
   fn to_position(&self) -> Result<Position, LiveDataProcessorFailure> {
+    if self.len() != 33 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(Position {
       map_id: byte_reader::read_u32(&self[0..4])?,
       instance_id: byte_reader::read_u32(&self[4..8])?,

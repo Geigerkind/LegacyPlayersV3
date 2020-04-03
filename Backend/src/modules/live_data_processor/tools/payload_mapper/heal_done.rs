@@ -7,6 +7,7 @@ pub trait MapHealDone {
 
 impl MapHealDone for [u8] {
   fn to_heal_done(&self) -> Result<HealDone, LiveDataProcessorFailure> {
+    if self.len() != 32 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(HealDone {
       caster: byte_reader::read_u64(&self[0..8])?,
       target: byte_reader::read_u64(&self[8..16])?,
