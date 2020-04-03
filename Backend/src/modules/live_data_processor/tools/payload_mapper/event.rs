@@ -7,7 +7,7 @@ pub trait MapEvent {
 
 impl MapEvent for [u8] {
   fn to_event(&self) -> Result<Event, LiveDataProcessorFailure> {
-    if self.len() != 8 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 9 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(Event {
       unit: byte_reader::read_u64(&self[0..8])?,
       event_type: self[8]

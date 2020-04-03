@@ -7,7 +7,7 @@ pub trait MapInstance {
 
 impl MapInstance for [u8] {
   fn to_instance(&self) -> Result<Instance, LiveDataProcessorFailure> {
-    if self.len() != 7 && self.len() != 8 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 8 && self.len() != 9 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(Instance {
       map_id: byte_reader::read_u32(&self[0..4])?,
       instance_id: byte_reader::read_u32(&self[4..8])?,

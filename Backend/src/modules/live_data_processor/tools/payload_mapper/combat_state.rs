@@ -7,7 +7,7 @@ pub trait MapCombatState {
 
 impl MapCombatState for [u8] {
   fn to_combat_state(&self) -> Result<CombatState, LiveDataProcessorFailure> {
-    if self.len() != 8 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 9 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(CombatState {
       unit: byte_reader::read_u64(&self[0..8])?,
       in_combat: if self[8] == 1 { true } else { false }
