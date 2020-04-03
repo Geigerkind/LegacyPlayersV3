@@ -11,3 +11,4 @@ mod interrupt;
 mod loot;
 mod position;
 mod power;
+mod spell_cast;
