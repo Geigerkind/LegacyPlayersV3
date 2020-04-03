@@ -10,3 +10,4 @@ mod instance_battleground;
 mod interrupt;
 mod loot;
 mod position;
+mod power;
