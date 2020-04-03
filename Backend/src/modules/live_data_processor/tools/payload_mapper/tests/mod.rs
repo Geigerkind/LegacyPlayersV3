@@ -6,3 +6,4 @@ mod event;
 mod heal_done;
 mod instance;
 mod instance_arena;
+mod instance_battleground;
