@@ -1,4 +1,5 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Instance};
+use crate::modules::live_data_processor::tools::byte_reader;
 
 pub trait MapInstance {
   fn to_instance(&self) -> Result<Instance, LiveDataProcessorFailure>;
@@ -6,6 +7,10 @@ pub trait MapInstance {
 
 impl MapInstance for [u8] {
   fn to_instance(&self) -> Result<Instance, LiveDataProcessorFailure> {
-    unimplemented!()
+    Ok(Instance {
+      map_id: byte_reader::read_u32(&self[0..4])?,
+      instance_id: byte_reader::read_u32(&self[4..8])?,
+      winner: self.get(8).cloned()
+    })
   }
 }
