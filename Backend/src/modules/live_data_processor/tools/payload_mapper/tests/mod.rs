@@ -8,3 +8,4 @@ mod instance;
 mod instance_arena;
 mod instance_battleground;
 mod interrupt;
+mod loot;
