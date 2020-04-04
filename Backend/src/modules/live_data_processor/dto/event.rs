@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
 pub struct Event {
   pub unit: u64,
   pub event_type: u8

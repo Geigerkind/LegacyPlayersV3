@@ -7,6 +7,7 @@ pub trait MapDamageDone {
 }
 
 impl MapDamageDone for [u8] {
+  // TODO: This has been changed! Melee Damage includes a hit type!
   fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
     if self.len() != 33 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(DamageDone {

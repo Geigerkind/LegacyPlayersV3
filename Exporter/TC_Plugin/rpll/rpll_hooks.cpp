@@ -374,6 +374,7 @@ void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType
     msg << uint64_t(attacker->GetGUID().GetRawValue());
     msg << uint64_t(victim->GetGUID().GetRawValue());
     msg << blocked;
+    msg << uint8_t(damageHitType);
     for (auto dmg : damages)
         AppendRPLLDamage(msg, dmg);
     SendZmqMessage(std::move(msg));
@@ -387,6 +388,7 @@ void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType
     msg << uint64_t(attacker->GetGUID().GetRawValue());
     msg << uint64_t(victim->GetGUID().GetRawValue());
     msg << blocked;
+    msg << uint8_t(damageHitType);
     AppendRPLLDamage(msg, damage);
     SendZmqMessage(std::move(msg));
 }

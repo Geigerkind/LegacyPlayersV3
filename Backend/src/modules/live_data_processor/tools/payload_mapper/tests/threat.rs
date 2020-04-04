@@ -18,7 +18,7 @@ fn map_threat_positive() {
   let threat = result.unwrap();
   assert_eq!(threat.threater, 2);
   assert_eq!(threat.threatened, 3);
-  assert_eq!(threat.spell_id, 213);
+  assert_eq!(threat.spell_id, Some(213));
   assert_eq!(threat.amount, -16);
 }
 
