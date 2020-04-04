@@ -1,7 +1,7 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message};
 use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::modules::live_data_processor::domain_value::Event;
-use crate::modules::live_data_processor::tools::{MessageParser, EventParser};
+use crate::modules::live_data_processor::tools::MessageParser;
 use crate::modules::live_data_processor::tools::server::ParseEvents;
 
 pub trait ProcessMessages {
