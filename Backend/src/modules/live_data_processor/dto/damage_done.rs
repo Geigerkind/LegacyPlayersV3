@@ -3,6 +3,7 @@ pub struct DamageDone {
   pub attacker: u64,
   pub victim: u64,
   pub spell_id: Option<u32>,
+  pub hit_type: Option<u8>,
   pub blocked: u32,
   pub school: u8,
   pub damage: u32,

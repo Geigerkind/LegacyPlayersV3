@@ -31,10 +31,11 @@ impl ParseEvents for Server {
   ///   * Other reasons are just running etc. (TODO: Use this information for the replay system)
   /// * Summon events can also come in theory after the npc already did something
   ///   * Not necessarily attacks, but buffs and stuffs (TODO: Test)
+  /// NOTE: We assume here a stream of messages, so for a server that stops sending messages
+  ///       Part of them may not be fully processed.
   fn parse_events(&mut self, mut messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
     self.non_committed_messages.append(&mut messages);
 
-    // TODO: Think about a timeout, like NoOp events
     while let Some(mut event) = extract_committable_event(&mut self.non_committed_messages) {
       event.id = (self.committed_events.len() + 1) as u32;
       self.committed_events.push(event);

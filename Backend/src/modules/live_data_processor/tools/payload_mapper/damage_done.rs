@@ -7,18 +7,18 @@ pub trait MapDamageDone {
 }
 
 impl MapDamageDone for [u8] {
-  // TODO: This has been changed! Melee Damage includes a hit type!
   fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
-    if self.len() != 33 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 34 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(DamageDone {
       attacker: byte_reader::read_u64(&self[0..8])?,
       victim: byte_reader::read_u64(&self[8..16])?,
       spell_id: None,
       blocked: byte_reader::read_u32(&self[16..20])?,
-      school: self[20],
-      damage: byte_reader::read_u32(&self[21..25])?,
-      resisted_or_glanced: byte_reader::read_u32(&self[25..29])?,
-      absorbed: byte_reader::read_u32(&self[29..33])?
+      hit_type: Some(self[20]),
+      school: self[21],
+      damage: byte_reader::read_u32(&self[22..26])?,
+      resisted_or_glanced: byte_reader::read_u32(&self[26..30])?,
+      absorbed: byte_reader::read_u32(&self[30..34])?
     })
   }
 
@@ -28,6 +28,7 @@ impl MapDamageDone for [u8] {
       attacker: byte_reader::read_u64(&self[0..8])?,
       victim: byte_reader::read_u64(&self[8..16])?,
       spell_id: Some(byte_reader::read_u32(&self[16..20])?),
+      hit_type: None,
       blocked: byte_reader::read_u32(&self[20..24])?,
       school: self[24],
       damage: byte_reader::read_u32(&self[25..29])?,

@@ -16,6 +16,7 @@ fn parse_spell_damage() {
       attacker: 42,
       victim: 43,
       spell_id: Some(26),
+      hit_type: None,
       blocked: 1,
       school: 2,
       damage: 10,

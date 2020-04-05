@@ -46,7 +46,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
 
         return Some(SpellCast {
           victim: melee_damage.victim.to_unit().ok(),
-          hit_type: HitType::Evade, // TODO
+          hit_type: HitType::from_u8(melee_damage.hit_type.expect("Must exist for melee attacks!")),
           spell_id: None,
           damage: Some(Damage {
             school: School::from_u8(melee_damage.school),

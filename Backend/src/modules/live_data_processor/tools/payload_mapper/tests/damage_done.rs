@@ -7,6 +7,7 @@ fn map_damage_done_from_melee_damage_positive() {
     234, 0, 0, 0, 0, 0, 0, 0, // Attacker
     255, 0, 0, 0, 0, 0, 0, 0, // Victim
     32, 0, 0, 0, // Blocked
+    4, // Hit Type for melee attacks
     4, // School
     42, 0, 0, 0, // Damage
     10, 0, 0, 0, // Resisted or glanced
@@ -23,6 +24,7 @@ fn map_damage_done_from_melee_damage_positive() {
   assert_eq!(damage_done.victim, 255);
   assert_eq!(damage_done.spell_id, None);
   assert_eq!(damage_done.blocked, 32);
+  assert_eq!(damage_done.hit_type, Some(4));
   assert_eq!(damage_done.school, 4);
   assert_eq!(damage_done.damage, 42);
   assert_eq!(damage_done.resisted_or_glanced, 10);
@@ -53,6 +55,7 @@ fn map_damage_done_from_spell_damage_positive() {
   assert_eq!(damage_done.victim, 255);
   assert_eq!(damage_done.spell_id, Some(111));
   assert_eq!(damage_done.blocked, 32);
+  assert_eq!(damage_done.hit_type, None);
   assert_eq!(damage_done.school, 4);
   assert_eq!(damage_done.damage, 42);
   assert_eq!(damage_done.resisted_or_glanced, 10);
