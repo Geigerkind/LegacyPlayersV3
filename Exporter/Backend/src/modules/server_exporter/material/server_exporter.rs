@@ -1,7 +1,7 @@
 use std::sync::mpsc::Sender;
 
 pub struct ServerExporter {
-  pub sender_message: Option<Sender<(Vec<u32>, String)>>
+  pub sender_message: Option<Sender<(Vec<u32>, Vec<u8>)>>
 }
 
 impl Default for ServerExporter {

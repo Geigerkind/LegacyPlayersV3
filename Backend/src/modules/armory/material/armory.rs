@@ -71,7 +71,7 @@ impl Init for HashMap<u32, Character> {
              armory_item ai4 ON ag.back = ai4.id LEFT JOIN armory_item ai5 ON ag.chest = ai5.id LEFT JOIN armory_item ai6 ON ag.shirt = ai6.id LEFT JOIN armory_item ai7 ON ag.tabard = ai7.id LEFT JOIN armory_item ai8 ON ag.wrist = ai8.id LEFT JOIN \
              armory_item ai9 ON ag.main_hand = ai9.id LEFT JOIN armory_item ai10 ON ag.off_hand = ai10.id LEFT JOIN armory_item ai11 ON ag.ternary_hand = ai11.id LEFT JOIN armory_item ai12 ON ag.glove = ai12.id LEFT JOIN armory_item ai13 ON \
              ag.belt = ai13.id LEFT JOIN armory_item ai14 ON ag.leg = ai14.id LEFT JOIN armory_item ai15 ON ag.boot = ai15.id LEFT JOIN armory_item ai16 ON ag.ring1 = ai16.id LEFT JOIN armory_item ai17 ON ag.ring2 = ai17.id LEFT JOIN armory_item \
-             ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id LEFT JOIN armory_guild_rank agr ON agr.guild_id = ach.guild_id AND agr.rank_index = ach.guild_rank\
+             ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id LEFT JOIN armory_guild_rank agr ON agr.guild_id = ach.guild_id AND agr.rank_index = ach.guild_rank \
              LEFT JOIN armory_arena_team aat1 ON aat1.id = ach.arena2 LEFT JOIN armory_arena_team aat2 ON aat2.id = ach.arena3 LEFT JOIN armory_arena_team aat3 ON aat3.id = ach.arena5",
             &|mut row| {
                 let mut gear_slots: Vec<Option<CharacterItem>> = Vec::new();

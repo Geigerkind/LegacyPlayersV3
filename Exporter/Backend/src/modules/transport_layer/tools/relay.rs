@@ -2,13 +2,14 @@ use crate::modules::{TransportLayer, CharacterDto, InstanceReset};
 use std::env;
 use crate::modules::transport_layer::tools::ReceiveConsent;
 use reqwest::header::{HeaderValue, CONTENT_TYPE};
+use reqwest::blocking::multipart;
 use std::time::Instant;
 
 pub trait Relay {
   fn relay(&mut self);
   fn gave_consent(&self, character_id: u32) -> bool;
   fn send_character_dto(&self, character_dto: CharacterDto);
-  fn send_package(&self, package: Vec<String>);
+  fn send_package(&self, package: Vec<Vec<u8>>);
   fn send_instance_resets(&self, instance_resets: Vec<InstanceReset>);
 }
 
@@ -91,17 +92,22 @@ impl Relay for TransportLayer {
     println!("Response okay => {:?} for {} ({})", response.is_ok(), character_dto.character_history.unwrap().character_name, character_dto.server_uid);
   }
 
-  fn send_package(&self, package: Vec<String>) {
+  fn send_package(&self, package: Vec<Vec<u8>>) {
     lazy_static! {
       static ref API_TOKEN: String = env::var("LP_API_TOKEN").unwrap();
       static ref URL_SERVER_PACKAGE: String = env::var("URL_SERVER_PACKAGE").unwrap();
     }
 
+    let mut form = multipart::Form::new();
+    for (index, msg) in package.iter().enumerate() {
+      form = form.part(index.to_string(), multipart::Part::bytes(msg.clone()));
+    }
+
     let _ = self.client
       .post(URL_SERVER_PACKAGE.as_str())
       .header("X-Authorization", HeaderValue::from_str(API_TOKEN.as_str()).unwrap())
-      .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
-      .body(serde_json::to_string(&package).unwrap())
+      .header(CONTENT_TYPE, HeaderValue::from_static("multipart/form-data"))
+      .multipart(form)
       .send();
   }
 

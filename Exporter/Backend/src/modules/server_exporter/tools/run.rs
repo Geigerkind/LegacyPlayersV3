@@ -91,12 +91,12 @@ impl Run for ServerExporter {
   }
 }
 
-fn send_message(sender: &Sender<(Vec<u32>, String)>, guids: Vec<u64>, msg: Vec<u8>) {
+fn send_message(sender: &Sender<(Vec<u32>, Vec<u8>)>, guids: Vec<u64>, msg: Vec<u8>) {
   let ids = guids.iter().map(|guid| {
     if guid.is_player() {
       return *guid as u32;
     }
     0
   } ).collect();
-  sender.send((ids, unsafe { String::from_utf8_unchecked(msg) })).expect("Receiver should be available!");
+  sender.send((ids, msg)).expect("Receiver should be available!");
 }

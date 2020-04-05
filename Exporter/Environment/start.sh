@@ -15,8 +15,14 @@ updateFiles() {
   cp -r /LegacyPlayersV3/Exporter/Backend/sub_crates /lp_cm_backend/Backend/
   cp /LegacyPlayersV3/Exporter/Backend/Cargo.toml /lp_cm_backend/Backend/
 
+  # Manual DB update
+  rm /lp_cm_mariadb/Database/patches/*
+  cp /LegacyPlayersV3/Exporter/Database/patches/* /lp_cm_mariadb/Database/patches/
+
+  ls -l /lp_cm_mariadb/Database/patches/
+
   #yes | docker-compose rm --all
-  docker-compose build --no-cache lpcmbackend
+  docker-compose build --no-cache lpcmbackend lpcmmariadb
 }
 
 cleanup() {

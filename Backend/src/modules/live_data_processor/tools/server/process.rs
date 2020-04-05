@@ -26,6 +26,7 @@ impl ParseEvents for Server {
   ///   * Events after this reset have to be assigned to a completely new raid Id
   ///     * Even if it is the exact same guild.
   ///     * TODO: How about raid Id expansion? => There is also a table that could help
+  ///     * TODO: How about raids that have been started but reset before the first boss?
   /// * Interrupts are events that the spell cast was interrupted due to SOME reason
   ///   * One of the reasons may be an interrupt spell
   ///   * Other reasons are just running etc. (TODO: Use this information for the replay system)

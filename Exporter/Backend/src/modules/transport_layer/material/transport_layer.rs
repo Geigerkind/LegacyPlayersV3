@@ -13,7 +13,7 @@ pub struct TransportLayer {
   pub receiver_character: Option<Receiver<(u32, CharacterDto)>>,
   pub receiver_character_consent: Option<Receiver<(bool, u32)>>,
   pub receiver_guild_consent: Option<Receiver<(bool, u32)>>,
-  pub receiver_server_message: Option<Receiver<(Vec<u32>, String)>>,
+  pub receiver_server_message: Option<Receiver<(Vec<u32>, Vec<u8>)>>,
   pub receiver_meta_data_instance_reset: Option<Receiver<Vec<InstanceReset>>>
 }
 

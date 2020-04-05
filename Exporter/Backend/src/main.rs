@@ -60,7 +60,7 @@ fn main() {
   let (s_char, r_char) = mpsc::channel::<(u32, CharacterDto)>();
   let (s_char_consent, r_char_consent) = mpsc::channel::<(bool, u32)>();
   let (s_guild_consent, r_guild_consent) = mpsc::channel::<(bool, u32)>();
-  let (s_server_msg, r_server_msg) = mpsc::channel::<(Vec<u32>, String)>();
+  let (s_server_msg, r_server_msg) = mpsc::channel::<(Vec<u32>, Vec<u8>)>();
   let (s_meta_data_instance_reset, r_meta_data_instance_reset) = mpsc::channel::<Vec<InstanceReset>>();
 
   *consent_manager.sender_character_consent.get_mut().unwrap() = Some(s_char_consent.to_owned());
