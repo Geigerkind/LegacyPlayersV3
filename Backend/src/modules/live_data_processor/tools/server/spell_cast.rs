@@ -9,7 +9,6 @@ use crate::modules::live_data_processor::tools::MapUnit;
 ///   then we will discard potential other and commit the spell cast
 /// * NOTE: Melee damage does not have casts, but we will treat it as
 ///   a spell internally anyway
-/// * TODO: Threat needs to have someone that is THREATENED
 pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_message: &Message) -> Option<SpellCast> {
   let mut spell_cast_message = None;
   let mut spell_damage_done_message = None;
@@ -74,8 +73,8 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
       if reached_timeout || (threat_message.is_some() && (spell_damage_done_message.is_some() || heal_message.is_some())) {
         non_committed_messages.remove_item(&spell_cast_message).expect("Should be deleted!");
         return Some(SpellCast {
-          victim: spell_cast.target.map(|target| target.to_unit().expect("Must be an Unit")), // TODO: Handle this in the future
-          hit_type: HitType::from_u8(spell_cast.hit_type), // TODO: CHeck if this matches!
+          victim: spell_cast.target.map(|target| target.to_unit().expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!
+          hit_type: HitType::from_u8(spell_cast.hit_type),
           spell_id: Some(spell_cast.spell_id),
           damage: spell_damage_done_message.and_then(|message| {
             // Always true
@@ -151,6 +150,7 @@ fn extract_spell_target(message_type: &MessageType) -> Option<u64> {
     _ => None
   }
 }
+
 fn extract_spell_id(message_type: &MessageType) -> Option<u32> {
   match message_type {
     MessageType::MeleeDamage(item) => item.spell_id,
@@ -161,8 +161,16 @@ fn extract_spell_id(message_type: &MessageType) -> Option<u32> {
     _ => None
   }
 }
+
 fn spell_matches(msg1: &Message, msg2: &Message) -> bool {
-  extract_spell_attacker(&msg2.message_type) == extract_spell_attacker(&msg1.message_type)
-    && extract_spell_target(&msg2.message_type) == extract_spell_target(&msg1.message_type)
-    && extract_spell_id(&msg2.message_type) == extract_spell_id(&msg1.message_type)
+  let condition = extract_spell_attacker(&msg2.message_type) == extract_spell_attacker(&msg1.message_type)
+    && extract_spell_id(&msg2.message_type) == extract_spell_id(&msg1.message_type);
+
+  // For threat the threatened may be a third unit
+  if let MessageType::Threat(_) = msg1.message_type {
+    return condition;
+  } else if let MessageType::Threat(_) = msg2.message_type {
+    return condition;
+  }
+  condition && extract_spell_target(&msg2.message_type) == extract_spell_target(&msg1.message_type)
 }
