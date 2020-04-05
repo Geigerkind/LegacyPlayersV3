@@ -368,7 +368,7 @@ void RPLLHooks::DealSpellDamage(Unit* attacker, Unit* victim, uint32_t spellId, 
 
 void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage>&& damages) {
     if (!IsInInstance(victim)) return;
-    uint8_t msgLength = 20 + GetMessageMetaDataSize() + damages.size() * sizeof(RPLL_Damage);
+    uint8_t msgLength = 21 + GetMessageMetaDataSize() + damages.size() * sizeof(RPLL_Damage);
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_MELEE_DAMAGE, msgLength);
     msg << uint64_t(attacker->GetGUID().GetRawValue());
@@ -382,7 +382,7 @@ void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType
 
 void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage&& damage) {
     if (!IsInInstance(victim)) return;
-    uint8_t msgLength = 20 + GetMessageMetaDataSize() + sizeof(RPLL_Damage);
+    uint8_t msgLength = 21 + GetMessageMetaDataSize() + sizeof(RPLL_Damage);
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_MELEE_DAMAGE, msgLength);
     msg << uint64_t(attacker->GetGUID().GetRawValue());

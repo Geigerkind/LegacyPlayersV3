@@ -92,16 +92,17 @@ impl Relay for TransportLayer {
     println!("Response okay => {:?} for {} ({})", response.is_ok(), character_dto.character_history.unwrap().character_name, character_dto.server_uid);
   }
 
-  fn send_package(&self, package: Vec<Vec<u8>>) {
+  fn send_package(&self, mut package: Vec<Vec<u8>>) {
     lazy_static! {
       static ref API_TOKEN: String = env::var("LP_API_TOKEN").unwrap();
       static ref URL_SERVER_PACKAGE: String = env::var("URL_SERVER_PACKAGE").unwrap();
     }
 
-    let mut form = multipart::Form::new();
-    for (index, msg) in package.iter().enumerate() {
-      form = form.part(index.to_string(), multipart::Part::bytes(msg.clone()));
-    }
+    let mut form = multipart::Form::new()
+      .part("payload", multipart::Part::bytes(package.iter_mut().fold(Vec::new(), |mut acc, item| {
+        acc.append(item);
+        acc
+      })));
 
     let _ = self.client
       .post(URL_SERVER_PACKAGE.as_str())
