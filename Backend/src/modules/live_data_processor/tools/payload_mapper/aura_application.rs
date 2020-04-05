@@ -7,13 +7,13 @@ pub trait MapAuraApplication {
 
 impl MapAuraApplication for [u8] {
   fn to_aura_application(&self) -> Result<AuraApplication, LiveDataProcessorFailure> {
-    if self.len() != 22 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 25 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(AuraApplication {
       caster: byte_reader::read_u64(&self[0..8])?,
       target: byte_reader::read_u64(&self[8..16])?,
       spell_id: byte_reader::read_u32(&self[16..20])?,
-      stack_amount: self[20],
-      applied: if self[21] == 1 { true } else { false }
+      stack_amount: byte_reader::read_u32(&self[20..24])?,
+      applied: if self[24] == 1 { true } else { false }
     })
   }
 }

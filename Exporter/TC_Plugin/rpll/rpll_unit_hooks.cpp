@@ -20,8 +20,8 @@ void RPLLUnitHooks::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *damageInfo) 
         return;
 
     RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(damageInfo->schoolMask);
-    RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target,
-        uint32_t(damageInfo->blocked), uint32_t(damageInfo->SpellID),
+    RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target, uint32_t(damageInfo->SpellID),
+        uint32_t(damageInfo->blocked),
         std::move(RPLLHooks::BuildRPLLDamage(damageSchool, uint32_t(damageInfo->damage), uint32_t(damageInfo->absorb), uint32_t(damageInfo->resist))));
 }
 
@@ -42,7 +42,7 @@ void RPLLUnitHooks::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo) {
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
             for (Unit* target : targets) {
                 RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(uint32_t(aura->GetSpellInfo()->SchoolMask)); 
-                RPLLHooks::DealSpellDamage(caster, target, 0, aura->GetId(),
+                RPLLHooks::DealSpellDamage(caster, target, aura->GetId(), 0,
                     std::move(RPLLHooks::BuildRPLLDamage(damageSchool, uint32_t(pInfo->damage), uint32_t(pInfo->absorb), uint32_t(pInfo->resist))));
             }
             return;

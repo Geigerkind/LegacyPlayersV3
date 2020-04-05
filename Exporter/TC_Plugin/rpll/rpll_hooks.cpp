@@ -355,7 +355,7 @@ RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(uint8_t winner) {
  */
 void RPLLHooks::DealSpellDamage(Unit* attacker, Unit* victim, uint32_t spellId, uint32_t blocked, RPLL_Damage&& damage) {
     if (!IsInInstance(victim)) return;
-    uint8_t msgLength = 24 + GetMessageMetaDataSize() + sizeof(RPLL_Damage);
+    uint8_t msgLength = 24 + GetMessageMetaDataSize() + 13;
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SPELL_DAMAGE, msgLength);
     msg << uint64_t(attacker->GetGUID().GetRawValue());
@@ -368,7 +368,7 @@ void RPLLHooks::DealSpellDamage(Unit* attacker, Unit* victim, uint32_t spellId, 
 
 void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage>&& damages) {
     if (!IsInInstance(victim)) return;
-    uint8_t msgLength = 21 + GetMessageMetaDataSize() + damages.size() * sizeof(RPLL_Damage);
+    uint8_t msgLength = 21 + GetMessageMetaDataSize() + damages.size() * 13;
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_MELEE_DAMAGE, msgLength);
     msg << uint64_t(attacker->GetGUID().GetRawValue());
@@ -395,7 +395,7 @@ void RPLLHooks::DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType
 
 void RPLLHooks::Heal(Unit* caster, Unit* target, uint32_t spellId, uint32_t totalHeal, uint32_t effectiveHeal, uint32_t absorb) {
     if (!IsInInstance(target)) return;
-    uint8_t msgLength = 33 + GetMessageMetaDataSize();
+    uint8_t msgLength = 32 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_HEAL, msgLength);
     msg << uint64_t(caster->GetGUID().GetRawValue());
@@ -564,7 +564,7 @@ void RPLLHooks::Loot(Unit* unit, uint32_t itemId) {
 
 void RPLLHooks::SpellCast(Unit* caster, uint64_t targetGUID, uint32_t spellId, RPLL_DamageHitType hitType) {
     if (!IsInInstance(caster)) return;
-    uint8_t msgLength = 20 + GetMessageMetaDataSize();
+    uint8_t msgLength = 21 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SPELL_CAST, msgLength);
     msg << uint64_t(caster->GetGUID().GetRawValue());

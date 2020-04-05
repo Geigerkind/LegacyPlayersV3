@@ -39,6 +39,7 @@ impl ParseEvents for Server {
 
     while let Some(mut event) = extract_committable_event(&mut self.non_committed_messages) {
       event.id = (self.committed_events.len() + 1) as u32;
+      println!("Parsed event: {:?}", event);
       self.committed_events.push(event);
     }
     Ok(())

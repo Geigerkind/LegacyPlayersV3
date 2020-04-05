@@ -7,7 +7,7 @@ fn map_aura_application_positive() {
     1, 0, 0, 0, 0, 0, 0, 0, // Caster
     42, 0, 0, 0, 0, 0, 0, 0, // Target
     23, 0, 0, 0, // SpellId
-    3, // StackAmount
+    3, 0, 0, 0, // StackAmount
     1 // Applied
   ];
 

@@ -17,7 +17,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
   let mut heal_message = None;
   let mut reached_timeout = false;
   for msg in non_committed_messages.iter() {
-    if msg.timestamp - first_message.timestamp > 50 {
+    if msg.timestamp - first_message.timestamp > 10 {
       reached_timeout = true;
       break;
     } else if !spell_matches(&first_message, &msg) {
@@ -70,7 +70,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
     }
   } else if let Some(spell_cast_message) = spell_cast_message {
     if let MessageType::SpellCast(spell_cast) = &spell_cast_message.message_type {
-      if reached_timeout || (threat_message.is_some() && (spell_damage_done_message.is_some() || heal_message.is_some())) {
+      if reached_timeout || (threat_message.is_some() && spell_damage_done_message.is_some() || heal_message.is_some()) {
         non_committed_messages.remove_item(&spell_cast_message).expect("Should be deleted!");
         return Some(SpellCast {
           victim: spell_cast.target.map(|target| target.to_unit().expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!

@@ -1,5 +1,5 @@
 use std::io::Cursor;
-use byteorder::{LittleEndian, ReadBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt, BigEndian};
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
 
 pub fn read_u16(number: &[u8]) -> Result<u16, LiveDataProcessorFailure> {
