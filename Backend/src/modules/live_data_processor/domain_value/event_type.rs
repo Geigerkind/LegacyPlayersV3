@@ -12,5 +12,8 @@ pub enum EventType {
   Dispel { cause: SpellCast, target_event_ids: Vec<u32> },
   SpellSteal { cause: SpellCast, target_event_id: u32 },
   AuraApplication { stack_amount: u8, reference_spell_cast: u32 },
-  ThreatWipe { creature: Unit }
+  ThreatWipe { creature: Unit },
+
+  // Used for convinience
+  PlaceHolder
 }
