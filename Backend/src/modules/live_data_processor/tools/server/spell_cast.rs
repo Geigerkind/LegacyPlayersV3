@@ -1,5 +1,5 @@
 use crate::modules::live_data_processor::dto::{MessageType, Message};
-use crate::modules::live_data_processor::domain_value::{HitType, Mitigation, Damage, School, SpellCast, Heal};
+use crate::modules::live_data_processor::domain_value::{HitType, Mitigation, Damage, School, SpellCast, Heal, Threat, Unit};
 use crate::modules::live_data_processor::tools::MapUnit;
 
 /// ## What has to be done here?
@@ -57,7 +57,12 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
           threat: threat_message.and_then(|message| {
             if let MessageType::Threat(threat) = &message.message_type {
               non_committed_messages.remove_item(&message).expect("Should be deleted!");
-              Some(threat.amount)
+              if let Ok(threatened @ Unit::Creature(_)) = threat.threatened.to_unit() {
+                Some(Threat {
+                  threatened,
+                  amount: threat.amount
+                })
+              } else { None }
             } else { None }
           })
         });
@@ -103,7 +108,12 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
           threat: threat_message.and_then(|message| {
             if let MessageType::Threat(threat) = &message.message_type {
               non_committed_messages.remove_item(&message).expect("Should be deleted!");
-              Some(threat.amount)
+              if let Ok(threatened @ Unit::Creature(_)) = threat.threatened.to_unit() {
+                Some(Threat {
+                  threatened,
+                  amount: threat.amount
+                })
+              } else { None }
             } else { None }
           })
         });

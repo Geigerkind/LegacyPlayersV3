@@ -12,6 +12,7 @@ pub use self::player::Player;
 pub use self::position::Position;
 pub use self::power::Power;
 pub use self::power_type::PowerType;
+pub use self::threat::Threat;
 
 mod spell_cast;
 mod unit;
@@ -27,3 +28,4 @@ mod player;
 mod position;
 mod power;
 mod power_type;
+mod threat;
