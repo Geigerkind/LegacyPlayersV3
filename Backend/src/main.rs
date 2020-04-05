@@ -11,6 +11,7 @@ extern crate okapi;
 extern crate rocket;
 #[macro_use]
 extern crate rocket_okapi;
+extern crate rocket_multipart_form_data;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;

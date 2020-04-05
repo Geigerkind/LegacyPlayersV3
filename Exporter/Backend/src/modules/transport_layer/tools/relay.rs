@@ -107,7 +107,7 @@ impl Relay for TransportLayer {
     let _ = self.client
       .post(URL_SERVER_PACKAGE.as_str())
       .header("X-Authorization", HeaderValue::from_str(API_TOKEN.as_str()).unwrap())
-      .header(CONTENT_TYPE, HeaderValue::from_static("multipart/form-data"))
+      //.header(CONTENT_TYPE, HeaderValue::from_static("multipart/form-data"))
       .multipart(form)
       .send();
   }

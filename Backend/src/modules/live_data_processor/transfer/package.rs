@@ -1,34 +1,24 @@
-use rocket::{State, Request, Data};
+use rocket::{State, Data};
+use rocket::http::ContentType;
 use rocket_contrib::json::Json;
 use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::modules::account::guard::ServerOwner;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
 use crate::modules::live_data_processor::tools::ProcessMessages;
-use rocket::request::Form;
-use rocket::data::{FromData, FromDataSimple, Transformed, Outcome, Transform};
 
-#[derive(Debug)]
-pub struct Payload<'a> {
-  pub payload: &'a [u8]
-}
-
-impl<'a> FromData<'a> for Payload<'a> {
-  type Error = ();
-  type Owned = ();
-  type Borrowed = ();
-
-  fn transform(request: &Request<'r>, data: Data) -> Transform<Outcome<Self::Owned, Self::Error>> {
-    unimplemented!()
-  }
-
-  fn from_data(request: &Request<'r>, outcome: Transformed<'a, Self>) -> Outcome<Self, Self::Error> {
-    unimplemented!()
-  }
-}
+use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, Repetition, FileField, TextField, RawField};
 
 #[openapi(skip)]
-#[post("/package", format = "multipart/form-data", data = "<params>")]
-pub fn get_package(me: State<LiveDataProcessor>, owner: ServerOwner, params: Payload) -> Result<(), LiveDataProcessorFailure> {
-  println!("{:?}", params);
+#[post("/package", format = "multipart/form-data", data = "<data>")]
+pub fn get_package(me: State<LiveDataProcessor>, owner: ServerOwner, content_type: &ContentType, data: Data) -> Result<(), LiveDataProcessorFailure> {
+  let mut options = MultipartFormDataOptions::new();
+  options.allowed_fields.push(MultipartFormDataField::raw("payload").size_limit(40960));
+
+  println!("{:?}", content_type);
+  let multipart_form_data = MultipartFormData::parse(content_type, data, options).unwrap();
+
+  let payload = multipart_form_data.raw.get("payload");
+
+  println!("{:?}", payload);
   me.process_messages(owner.0, Vec::new())
 }

@@ -22,7 +22,7 @@ updateFiles() {
   ls -l /lp_cm_mariadb/Database/patches/
 
   #yes | docker-compose rm --all
-  docker-compose build --no-cache lpcmbackend lpcmmariadb
+  docker-compose build --no-cache lpcmbackend
 }
 
 cleanup() {
