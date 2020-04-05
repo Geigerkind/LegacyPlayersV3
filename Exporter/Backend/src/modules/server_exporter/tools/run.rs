@@ -34,8 +34,8 @@ impl Run for ServerExporter {
         MessageType::Loot |
         MessageType::Event |
         MessageType::Interrupt => {
-          let guid = byte_reader::read_u64(&msg[10..18]);
-          byte_writer::write_u64(&mut msg[10..18], salt_u64_u64(guid));
+          let guid = byte_reader::read_u64(&msg[11..19]);
+          byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid));
           send_message(&sender, vec![guid], msg);
         },
         // First 2
@@ -47,21 +47,21 @@ impl Run for ServerExporter {
         MessageType::Threat |
         MessageType::Summon |
         MessageType::AuraApplication => {
-          let guid1 = byte_reader::read_u64(&msg[10..18]);
-          let guid2 = byte_reader::read_u64(&msg[18..26]);
-          byte_writer::write_u64(&mut msg[10..18], salt_u64_u64(guid1));
-          byte_writer::write_u64(&mut msg[18..26], salt_u64_u64(guid2));
+          let guid1 = byte_reader::read_u64(&msg[11..19]);
+          let guid2 = byte_reader::read_u64(&msg[19..27]);
+          byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid1));
+          byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid2));
           send_message(&sender, vec![guid1, guid2], msg);
         },
         // First 3
         MessageType::Dispel |
         MessageType::SpellSteal => {
-          let guid1 = byte_reader::read_u64(&msg[10..18]);
-          let guid2 = byte_reader::read_u64(&msg[18..26]);
-          let guid3 = byte_reader::read_u64(&msg[26..34]);
-          byte_writer::write_u64(&mut msg[10..18], salt_u64_u64(guid1));
-          byte_writer::write_u64(&mut msg[18..26], salt_u64_u64(guid2));
-          byte_writer::write_u64(&mut msg[26..34], salt_u64_u64(guid3));
+          let guid1 = byte_reader::read_u64(&msg[11..19]);
+          let guid2 = byte_reader::read_u64(&msg[19..27]);
+          let guid3 = byte_reader::read_u64(&msg[27..35]);
+          byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid1));
+          byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid2));
+          byte_writer::write_u64(&mut msg[27..35], salt_u64_u64(guid3));
           send_message(&sender, vec![guid1, guid2, guid3], msg);
         },
         // Special Snowflakes
