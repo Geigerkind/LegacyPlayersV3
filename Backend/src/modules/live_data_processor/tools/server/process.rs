@@ -1,6 +1,6 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon, Death, CombatState, Loot};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType};
+use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use crate::modules::armory::Armory;
@@ -70,7 +70,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     id: 0,
     timestamp: first_message.timestamp,
     subject,
-    event: EventType::PlaceHolder
+    event: EventType::PlaceHolder,
   };
 
   match first_message.message_type {
@@ -84,43 +84,46 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::Summon(Summon { owner, unit }) => {
       server.summons.insert(owner.unit_id, unit.unit_id);
       return None; // TODO: This can be an event
-    },
+    }
     MessageType::Death(Death { cause, victim: _ }) => {
       event.event = EventType::Death {
         murder: cause.and_then(|cause| cause.to_unit(&armory, server_id, &server.summons).ok())
       }
-    },
+    }
     MessageType::CombatState(CombatState { unit: _, in_combat }) => {
       event.event = EventType::CombatState {
         in_combat
       };
-    },
+    }
     MessageType::Loot(Loot { unit: _, item_id }) => {
       event.event = EventType::Loot {
         item_id
       };
-    },
+    }
     MessageType::Position(position) => {
-      // TODO: Update player instance location
-      event.event = EventType::Position(Position {
+      event.event = EventType::Position((UnitInstance {
+        map_id: position.map_id,
+        map_difficulty: position.map_difficulty,
+        instance_id: position.instance_id,
+      }, Position {
         x: position.x,
         y: position.y,
         z: position.z,
-        orientation: position.orientation
-      });
-    },
+        orientation: position.orientation,
+      }));
+    }
     MessageType::Power(power) => {
       if let Some(power_type) = PowerType::from_u8(power.power_type) {
         event.event = EventType::Power(Power {
           power_type,
           max_power: power.max_power,
-          current_power: power.current_power
+          current_power: power.current_power,
         });
       } else {
         server.non_committed_messages.pop().unwrap();
         return None;
       }
-    },
+    }
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -136,7 +139,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::SpellSteal(_) |
     MessageType::Dispel(_) |
     MessageType::AuraApplication(_) => {
-      server.non_committed_messages.pop().expect("Just remove it for now!"); // TODO
+      server.non_committed_messages.pop().expect("These events are unhandled!");
       return None;
     }
   };
