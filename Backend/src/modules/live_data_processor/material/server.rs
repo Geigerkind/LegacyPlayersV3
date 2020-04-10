@@ -3,16 +3,16 @@ use crate::modules::live_data_processor::domain_value::Event;
 use std::collections::HashMap;
 
 pub struct Server {
-  pub summons: HashMap<u64, u64>,
-  pub non_committed_messages: Vec<Message>,
-  pub committed_events: Vec<Event>
+  pub summons: HashMap<u64, u64>, // TODO: This grows uncontrollable
+  pub non_committed_messages: Vec<Message>, // TODO: Smarter Data structure that splits per unit
+  pub committed_events: Vec<Event> // TODO: Write into files instead
 }
 
 impl Default for Server {
   fn default() -> Self {
     Server {
       summons: HashMap::new(),
-      non_committed_messages: Vec::new(), // TODO: Smarter Data structure that splits per unit
+      non_committed_messages: Vec::new(),
       committed_events: Vec::new()
     }
   }
