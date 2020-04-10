@@ -1,6 +1,6 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon, Death, CombatState, Loot};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::domain_value::{Event, EventType, Position};
+use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use crate::modules::armory::Armory;
@@ -109,6 +109,18 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         orientation: position.orientation
       });
     },
+    MessageType::Power(power) => {
+      if let Some(power_type) = PowerType::from_u8(power.power_type) {
+        event.event = EventType::Power(Power {
+          power_type,
+          max_power: power.max_power,
+          current_power: power.current_power
+        });
+      } else {
+        server.non_committed_messages.pop().unwrap();
+        return None;
+      }
+    },
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -117,7 +129,6 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::InstancePvPEndRatedArena(_) |
 
     // Can be safely committed, once we know the context
-    MessageType::Power(_) |
     MessageType::Event(_) |
 
     // Requires an existing spell
