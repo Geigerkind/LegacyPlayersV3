@@ -4,27 +4,25 @@ use crate::modules::live_data_processor::dto::MessageType;
 #[test]
 fn parse_message_positive() {
   // Arrange
-  let message_str = unsafe {
-    String::from_utf8_unchecked(vec![
+  let message_vec = vec![
       0, // API_Version
       1, // Message Type
       48, // Message length
       5, 0, 0, 0, 0, 0, 0, 0, // Timestamp
 
       // Payload: Damage done
-      234, 0, 0, 0, 0, 0, 0, 0, // Attacker
-      255, 0, 0, 0, 0, 0, 0, 0, // Victim
+      1, 234, 0, 0, 0, 0, 0, 0, 0, // Attacker
+      1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
       111, 0, 0, 0, // SpellId
       32, 0, 0, 0, // Blocked
       4, // School
       42, 0, 0, 0, // Damage
       10, 0, 0, 0, // Resisted or glanced
       12, 0, 0, 0 // Absorbed
-    ])
-  };
+    ];
 
   // Act
-  let message = message_str.parse_message();
+  let message = message_vec.parse_message();
 
   // Assert
   assert!(message.is_ok());
@@ -41,12 +39,10 @@ fn parse_message_positive() {
 #[test]
 fn parse_message_negative_invalid_length() {
   // Arrange
-  let message_str = unsafe {
-    String::from_utf8_unchecked(vec![1,2,3,4,5])
-  };
+  let message_vec = vec![1, 2, 3, 4, 5];
 
   // Act
-  let message = message_str.parse_message();
+  let message = message_vec.parse_message();
 
   // Assert
   assert!(message.is_err());
@@ -55,12 +51,10 @@ fn parse_message_negative_invalid_length() {
 #[test]
 fn parse_message_negative_invalid_message_type() {
   // Arrange
-  let message_str = unsafe {
-    String::from_utf8_unchecked(vec![1,255,3,4,5,6,7,8,9,10,11])
-  };
+  let message_vec = vec![1, 255, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
   // Act
-  let message = message_str.parse_message();
+  let message = message_vec.parse_message();
 
   // Assert
   assert!(message.is_err());

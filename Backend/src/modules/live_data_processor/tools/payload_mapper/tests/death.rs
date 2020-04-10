@@ -17,7 +17,7 @@ fn map_death_positive() {
   assert_eq!(death.cause.is_player, true);
   assert_eq!(death.cause.unit_id, 122);
   assert_eq!(death.victim.is_player, true);
-  assert_eq!(death.victim, 133);
+  assert_eq!(death.victim.unit_id, 133);
 }
 
 #[test]

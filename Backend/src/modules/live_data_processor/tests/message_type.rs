@@ -5,8 +5,8 @@ use crate::modules::live_data_processor::dto::MessageType;
 fn test_map_message_type_positive() {
   // Arrange
   let payload = vec![
-    234, 0, 0, 0, 0, 0, 0, 0, // Attacker
-    255, 0, 0, 0, 0, 0, 0, 0, // Victim
+    1, 234, 0, 0, 0, 0, 0, 0, 0, // Attacker
+    1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
     111, 0, 0, 0, // SpellId
     32, 0, 0, 0, // Blocked
     4, // School

@@ -1,7 +1,7 @@
 use crate::modules::live_data_processor::tools::server::ParseEvents;
 use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::dto::{Message, MessageType, DamageDone, SpellCast};
+use crate::modules::live_data_processor::dto::{Message, MessageType, DamageDone, SpellCast, Unit};
 
 #[test]
 fn parse_spell_damage() {
@@ -13,8 +13,14 @@ fn parse_spell_damage() {
     message_length: 0,
     timestamp: 0,
     message_type: MessageType::SpellDamage(DamageDone {
-      attacker: 42,
-      victim: 43,
+      attacker: Unit {
+        is_player: true,
+        unit_id: 42
+      },
+      victim: Unit {
+        is_player: true,
+        unit_id: 43
+      },
       spell_id: Some(26),
       hit_type: None,
       blocked: 1,
@@ -34,10 +40,16 @@ fn parse_spell_damage() {
   messages.push(Message {
     api_version: 0,
     message_length: 0,
-    timestamp: 45,
+    timestamp: 5,
     message_type: MessageType::SpellCast(SpellCast {
-      caster: 42,
-      target: Some(43),
+      caster: Unit {
+        is_player: true,
+        unit_id: 42
+      },
+      target: Some(Unit {
+        is_player: true,
+        unit_id: 43
+      }),
       spell_id: 26,
       hit_type: 7
     })
@@ -53,8 +65,14 @@ fn parse_spell_damage() {
     message_length: 0,
     timestamp: 75,
     message_type: MessageType::SpellCast(SpellCast {
-      caster: 43,
-      target: Some(22),
+      caster: Unit {
+        is_player: true,
+        unit_id: 43
+      },
+      target: Some(Unit {
+        is_player: true,
+        unit_id: 22
+      }),
       spell_id: 22,
       hit_type: 1
     })
