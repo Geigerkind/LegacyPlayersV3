@@ -9,13 +9,11 @@ use crate::modules::live_data_processor::tools::ProcessMessages;
 use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, Repetition, FileField, TextField, RawField, SingleRawField};
 use rocket_multipart_form_data::RawField::Single;
 
-// TODO: Only send messages if not empty
-// TODO: Only discard messages with success response
 #[openapi(skip)]
 #[post("/package", format = "multipart/form-data", data = "<data>")]
 pub fn get_package(me: State<LiveDataProcessor>, owner: ServerOwner, content_type: &ContentType, data: Data) -> Result<(), LiveDataProcessorFailure> {
   let mut options = MultipartFormDataOptions::new();
-  options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(409600));
+  options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(2 * 1024 * 1024));
 
   let mut multipart_form_data = MultipartFormData::parse(content_type, data, options).unwrap();
 
