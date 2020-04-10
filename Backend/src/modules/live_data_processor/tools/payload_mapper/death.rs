@@ -8,8 +8,9 @@ pub trait MapDeath {
 impl MapDeath for [u8] {
   fn to_death(&self) -> Result<Death, LiveDataProcessorFailure> {
     if self.len() != 18 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    let cause = self[0..9].to_unit()?;
     Ok(Death {
-      cause: self[0..9].to_unit()?,
+      cause: if cause.unit_id == 0 { None } else { Some(cause) },
       victim: self[9..18].to_unit()?
     })
   }

@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon};
+use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon, Death};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::domain_value::{Event, EventType};
 use crate::modules::live_data_processor::tools::MapUnit;
@@ -85,7 +85,11 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       server.summons.insert(owner.unit_id, unit.unit_id);
       return None; // TODO: This can be an event
     },
-
+    MessageType::Death(Death { cause, victim: _ }) => {
+      event.event = EventType::Death {
+        murder: cause.and_then(|cause| cause.to_unit(&armory, server_id, &server.summons).ok())
+      }
+    },
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -94,7 +98,6 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::InstancePvPEndRatedArena(_) |
 
     // Can be safely committed, once we know the context
-    MessageType::Death(_) |
     MessageType::CombatState(_) |
     MessageType::Loot(_) |
     MessageType::Power(_) |

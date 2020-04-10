@@ -1,4 +1,5 @@
 use crate::modules::live_data_processor::tools::payload_mapper::death::MapDeath;
+use crate::modules::live_data_processor::dto::Unit;
 
 #[test]
 fn map_death_positive() {
@@ -14,8 +15,10 @@ fn map_death_positive() {
   // Assert
   assert!(result.is_ok());
   let death = result.unwrap();
-  assert_eq!(death.cause.is_player, true);
-  assert_eq!(death.cause.unit_id, 122);
+  assert_eq!(death.cause, Some(Unit {
+    is_player: true,
+    unit_id: 122
+  }));
   assert_eq!(death.victim.is_player, true);
   assert_eq!(death.victim.unit_id, 133);
 }
