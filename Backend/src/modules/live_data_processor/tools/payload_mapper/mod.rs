@@ -18,6 +18,7 @@ mod death;
 mod heal_done;
 mod damage_done;
 mod message_type;
+mod unit;
 
 #[cfg(test)]
 mod tests;

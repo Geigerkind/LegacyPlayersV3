@@ -7,7 +7,7 @@ fn map_position_positive() {
     10, 0, 0, 0, // MapId
     12, 0, 0, 0, // InstanceId
     7, // Difficulty
-    78, 0, 0, 0, 0, 0, 0, 0, // unit,
+    1, 78, 0, 0, 0, 0, 0, 0, 0, // unit,
     246, 255, 255, 255, // X
     10, 0, 0, 0, // Y
     90, 0, 0, 0, // Z
@@ -23,7 +23,8 @@ fn map_position_positive() {
   assert_eq!(position.map_id, 10);
   assert_eq!(position.instance_id, 12);
   assert_eq!(position.map_difficulty, 7);
-  assert_eq!(position.unit, 78);
+  assert_eq!(position.unit.is_player, true);
+  assert_eq!(position.unit.unit_id, 78);
   assert_eq!(position.x, -10);
   assert_eq!(position.y, 10);
   assert_eq!(position.z, 90);

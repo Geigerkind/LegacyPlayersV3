@@ -1,5 +1,7 @@
+use crate::modules::live_data_processor::dto::Unit;
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
 pub struct Death {
-  pub cause: u64,
-  pub victim: u64
+  pub cause: Unit,
+  pub victim: Unit
 }

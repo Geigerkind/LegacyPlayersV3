@@ -1,5 +1,6 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, AuraApplication};
 use crate::modules::live_data_processor::tools::byte_reader;
+use crate::modules::live_data_processor::tools::payload_mapper::unit::MapUnit;
 
 pub trait MapAuraApplication {
   fn to_aura_application(&self) -> Result<AuraApplication, LiveDataProcessorFailure>;
@@ -7,13 +8,13 @@ pub trait MapAuraApplication {
 
 impl MapAuraApplication for [u8] {
   fn to_aura_application(&self) -> Result<AuraApplication, LiveDataProcessorFailure> {
-    if self.len() != 25 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 27 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(AuraApplication {
-      caster: byte_reader::read_u64(&self[0..8])?,
-      target: byte_reader::read_u64(&self[8..16])?,
-      spell_id: byte_reader::read_u32(&self[16..20])?,
-      stack_amount: byte_reader::read_u32(&self[20..24])?,
-      applied: if self[24] == 1 { true } else { false }
+      caster: self[0..9].to_unit()?,
+      target: self[9..18].to_unit()?,
+      spell_id: byte_reader::read_u32(&self[18..22])?,
+      stack_amount: byte_reader::read_u32(&self[22..26])?,
+      applied: self[26] == 1
     })
   }
 }

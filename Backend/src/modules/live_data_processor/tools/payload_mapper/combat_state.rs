@@ -1,5 +1,6 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, CombatState};
 use crate::modules::live_data_processor::tools::byte_reader;
+use crate::modules::live_data_processor::tools::payload_mapper::unit::MapUnit;
 
 pub trait MapCombatState {
   fn to_combat_state(&self) -> Result<CombatState, LiveDataProcessorFailure>;
@@ -7,10 +8,10 @@ pub trait MapCombatState {
 
 impl MapCombatState for [u8] {
   fn to_combat_state(&self) -> Result<CombatState, LiveDataProcessorFailure> {
-    if self.len() != 9 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 10 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(CombatState {
-      unit: byte_reader::read_u64(&self[0..8])?,
-      in_combat: if self[8] == 1 { true } else { false }
+      unit: self[0..9].to_unit()?,
+      in_combat: self[9] == 1
     })
   }
 }

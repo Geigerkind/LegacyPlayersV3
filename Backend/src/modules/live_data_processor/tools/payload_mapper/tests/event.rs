@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::event::MapEvent;
 fn map_event_positive() {
   // Arrange
   let payload = vec![
-    78, 0, 0, 0, 0, 0, 0, 0, // unit
+    1, 78, 0, 0, 0, 0, 0, 0, 0, // unit
     0 // Event
   ];
 
@@ -14,7 +14,8 @@ fn map_event_positive() {
   // Assert
   assert!(result.is_ok());
   let event = result.unwrap();
-  assert_eq!(event.unit, 78);
+  assert_eq!(event.unit.is_player, true);
+  assert_eq!(event.unit.unit_id, 78);
   assert_eq!(event.event_type, 0);
 }
 

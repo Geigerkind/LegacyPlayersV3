@@ -36,6 +36,7 @@ impl Run for ServerExporter {
         MessageType::Interrupt => {
           let guid = byte_reader::read_u64(&msg[11..19]);
           byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid));
+          msg.insert(11, guid.is_player() as u8);
           send_message(&sender, vec![guid], msg);
         },
         // First 2
@@ -50,7 +51,9 @@ impl Run for ServerExporter {
           let guid1 = byte_reader::read_u64(&msg[11..19]);
           let guid2 = byte_reader::read_u64(&msg[19..27]);
           byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid1));
-          byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid2));
+          msg.insert(11, guid1.is_player() as u8);
+          byte_writer::write_u64(&mut msg[20..28], salt_u64_u64(guid2));
+          msg.insert(20, guid2.is_player() as u8);
           send_message(&sender, vec![guid1, guid2], msg);
         },
         // First 3
@@ -60,8 +63,11 @@ impl Run for ServerExporter {
           let guid2 = byte_reader::read_u64(&msg[19..27]);
           let guid3 = byte_reader::read_u64(&msg[27..35]);
           byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid1));
-          byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid2));
-          byte_writer::write_u64(&mut msg[27..35], salt_u64_u64(guid3));
+          msg.insert(11, guid1.is_player() as u8);
+          byte_writer::write_u64(&mut msg[20..28], salt_u64_u64(guid2));
+          msg.insert(20, guid2.is_player() as u8);
+          byte_writer::write_u64(&mut msg[29..37], salt_u64_u64(guid3));
+          msg.insert(29, guid3.is_player() as u8);
           send_message(&sender, vec![guid1, guid2, guid3], msg);
         },
         // Special Snowflakes

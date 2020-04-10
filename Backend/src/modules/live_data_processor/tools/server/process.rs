@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType};
+use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::domain_value::{SpellCast, Event, EventType, HitType, Damage, School, Mitigation, Heal};
 use crate::modules::live_data_processor::tools::MapUnit;
@@ -107,23 +107,23 @@ fn extract_committable_event(non_committed_messages: &mut Vec<Message>) -> Optio
   return Some(event);
 }
 
-fn extract_subject(message_type: &MessageType) -> Option<u64> {
+fn extract_subject(message_type: &MessageType) -> Option<Unit> {
   match message_type {
-    MessageType::MeleeDamage(item) => Some(item.attacker),
-    MessageType::SpellDamage(item) => Some(item.attacker),
-    MessageType::Heal(item) => Some(item.caster),
-    MessageType::Death(item) => Some(item.victim), // ?
-    MessageType::AuraApplication(item) => Some(item.target), // ?
-    MessageType::Dispel(item) => Some(item.un_aura_caster),
-    MessageType::SpellSteal(item) => Some(item.un_aura_caster),
-    MessageType::Position(item) => Some(item.unit),
-    MessageType::CombatState(item) => Some(item.unit),
-    MessageType::Power(item) => Some(item.unit),
-    MessageType::Loot(item) => Some(item.unit),
-    MessageType::SpellCast(item) => Some(item.caster),
-    MessageType::Threat(item) => Some(item.threater),
-    MessageType::Event(item) => Some(item.unit),
-    MessageType::Summon(item) => Some(item.unit), // ?
+    MessageType::MeleeDamage(item) => Some(item.attacker.clone()),
+    MessageType::SpellDamage(item) => Some(item.attacker.clone()),
+    MessageType::Heal(item) => Some(item.caster.clone()),
+    MessageType::Death(item) => Some(item.victim.clone()), // ?
+    MessageType::AuraApplication(item) => Some(item.target.clone()), // ?
+    MessageType::Dispel(item) => Some(item.un_aura_caster.clone()),
+    MessageType::SpellSteal(item) => Some(item.un_aura_caster.clone()),
+    MessageType::Position(item) => Some(item.unit.clone()),
+    MessageType::CombatState(item) => Some(item.unit.clone()),
+    MessageType::Power(item) => Some(item.unit.clone()),
+    MessageType::Loot(item) => Some(item.unit.clone()),
+    MessageType::SpellCast(item) => Some(item.caster.clone()),
+    MessageType::Threat(item) => Some(item.threater.clone()),
+    MessageType::Event(item) => Some(item.unit.clone()),
+    MessageType::Summon(item) => Some(item.unit.clone()), // ?
 
     // TODO!
     MessageType::Interrupt(_) |

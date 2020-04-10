@@ -18,6 +18,7 @@ pub use self::summon::Summon;
 pub use self::instance::Instance;
 pub use self::instance_arena::InstanceArena;
 pub use self::instance_battleground::InstanceBattleground;
+pub use self::unit::Unit;
 
 mod live_data_processor_failure;
 mod message;
@@ -39,3 +40,4 @@ mod summon;
 mod instance;
 mod instance_arena;
 mod instance_battleground;
+mod unit;

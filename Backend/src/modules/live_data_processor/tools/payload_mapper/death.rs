@@ -1,5 +1,6 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Death};
 use crate::modules::live_data_processor::tools::byte_reader;
+use crate::modules::live_data_processor::tools::payload_mapper::unit::MapUnit;
 
 pub trait MapDeath {
   fn to_death(&self) -> Result<Death, LiveDataProcessorFailure>;
@@ -7,10 +8,10 @@ pub trait MapDeath {
 
 impl MapDeath for [u8] {
   fn to_death(&self) -> Result<Death, LiveDataProcessorFailure> {
-    if self.len() != 16 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 18 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(Death {
-      cause: byte_reader::read_u64(&self[0..8])?,
-      victim: byte_reader::read_u64(&self[8..16])?
+      cause: self[0..9].to_unit()?,
+      victim: self[9..18].to_unit()?
     })
   }
 }

@@ -1,5 +1,6 @@
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, DamageDone};
 use crate::modules::live_data_processor::tools::byte_reader;
+use crate::modules::live_data_processor::tools::payload_mapper::unit::MapUnit;
 
 pub trait MapDamageDone {
   fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure>;
@@ -8,32 +9,32 @@ pub trait MapDamageDone {
 
 impl MapDamageDone for [u8] {
   fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
-    if self.len() != 34 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 36 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(DamageDone {
-      attacker: byte_reader::read_u64(&self[0..8])?,
-      victim: byte_reader::read_u64(&self[8..16])?,
+      attacker: self[0..9].to_unit()?,
+      victim: self[9..18].to_unit()?,
       spell_id: None,
-      blocked: byte_reader::read_u32(&self[16..20])?,
-      hit_type: Some(self[20]),
-      school: self[21],
-      damage: byte_reader::read_u32(&self[22..26])?,
-      resisted_or_glanced: byte_reader::read_u32(&self[26..30])?,
-      absorbed: byte_reader::read_u32(&self[30..34])?
+      blocked: byte_reader::read_u32(&self[18..22])?,
+      hit_type: Some(self[22]),
+      school: self[23],
+      damage: byte_reader::read_u32(&self[24..28])?,
+      resisted_or_glanced: byte_reader::read_u32(&self[28..32])?,
+      absorbed: byte_reader::read_u32(&self[32..36])?
     })
   }
 
   fn from_spell_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
-    if self.len() != 37 { return Err(LiveDataProcessorFailure::InvalidInput) }
+    if self.len() != 39 { return Err(LiveDataProcessorFailure::InvalidInput) }
     Ok(DamageDone {
-      attacker: byte_reader::read_u64(&self[0..8])?,
-      victim: byte_reader::read_u64(&self[8..16])?,
-      spell_id: Some(byte_reader::read_u32(&self[16..20])?),
+      attacker: self[0..9].to_unit()?,
+      victim: self[9..18].to_unit()?,
+      spell_id: Some(byte_reader::read_u32(&self[18..22])?),
       hit_type: None,
-      blocked: byte_reader::read_u32(&self[20..24])?,
-      school: self[24],
-      damage: byte_reader::read_u32(&self[25..29])?,
-      resisted_or_glanced: byte_reader::read_u32(&self[29..33])?,
-      absorbed: byte_reader::read_u32(&self[33..37])?
+      blocked: byte_reader::read_u32(&self[22..26])?,
+      school: self[26],
+      damage: byte_reader::read_u32(&self[27..31])?,
+      resisted_or_glanced: byte_reader::read_u32(&self[31..35])?,
+      absorbed: byte_reader::read_u32(&self[35..39])?
     })
   }
 }

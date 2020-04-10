@@ -1,6 +1,7 @@
-use crate::modules::live_data_processor::dto::{MessageType, Message};
-use crate::modules::live_data_processor::domain_value::{HitType, Mitigation, Damage, School, SpellCast, Heal, Threat, Unit};
+use crate::modules::live_data_processor::dto::{MessageType, Message, Unit};
+use crate::modules::live_data_processor::domain_value::{HitType, Mitigation, Damage, School, SpellCast, Heal, Threat};
 use crate::modules::live_data_processor::tools::MapUnit;
+use crate::modules::live_data_processor::domain_value;
 
 /// ## What has to be done here?
 /// * We have to collect a spell cast
@@ -56,7 +57,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
           threat: threat_message.and_then(|message| {
             if let MessageType::Threat(threat) = &message.message_type {
               non_committed_messages.remove_item(&message).expect("Should be deleted!");
-              if let Ok(threatened @ Unit::Creature(_)) = threat.threatened.to_unit() {
+              if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit() {
                 Some(Threat {
                   threatened,
                   amount: threat.amount
@@ -73,7 +74,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
       if reached_timeout || (threat_message.is_some() && spell_damage_done_message.is_some() || heal_message.is_some()) {
         non_committed_messages.remove_item(&spell_cast_message).expect("Should be deleted!");
         return Some(SpellCast {
-          victim: spell_cast.target.map(|target| target.to_unit().expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!
+          victim: spell_cast.target.as_ref().map(|target| target.to_unit().expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!
           hit_type: HitType::from_u8(spell_cast.hit_type),
           spell_id: Some(spell_cast.spell_id),
           damage: spell_damage_done_message.and_then(|message| {
@@ -107,7 +108,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
           threat: threat_message.and_then(|message| {
             if let MessageType::Threat(threat) = &message.message_type {
               non_committed_messages.remove_item(&message).expect("Should be deleted!");
-              if let Ok(threatened @ Unit::Creature(_)) = threat.threatened.to_unit() {
+              if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit() {
                 Some(Threat {
                   threatened,
                   amount: threat.amount
@@ -130,23 +131,23 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
   None
 }
 
-fn extract_spell_attacker(message_type: &MessageType) -> Option<u64> {
+fn extract_spell_attacker(message_type: &MessageType) -> Option<Unit> {
   match message_type {
-    MessageType::MeleeDamage(item) => Some(item.attacker),
-    MessageType::SpellDamage(item) => Some(item.attacker),
-    MessageType::Heal(item) => Some(item.caster),
-    MessageType::SpellCast(item) => Some(item.caster),
-    MessageType::Threat(item) => Some(item.threater),
+    MessageType::MeleeDamage(item) => Some(item.attacker.clone()),
+    MessageType::SpellDamage(item) => Some(item.attacker.clone()),
+    MessageType::Heal(item) => Some(item.caster.clone()),
+    MessageType::SpellCast(item) => Some(item.caster.clone()),
+    MessageType::Threat(item) => Some(item.threater.clone()),
     _ => None
   }
 }
-fn extract_spell_target(message_type: &MessageType) -> Option<u64> {
+fn extract_spell_target(message_type: &MessageType) -> Option<Unit> {
   match message_type {
-    MessageType::MeleeDamage(item) => Some(item.victim),
-    MessageType::SpellDamage(item) => Some(item.victim),
-    MessageType::Heal(item) => Some(item.target),
-    MessageType::SpellCast(item) => item.target,
-    MessageType::Threat(item) => Some(item.threatened),
+    MessageType::MeleeDamage(item) => Some(item.victim.clone()),
+    MessageType::SpellDamage(item) => Some(item.victim.clone()),
+    MessageType::Heal(item) => Some(item.target.clone()),
+    MessageType::SpellCast(item) => item.target.clone(),
+    MessageType::Threat(item) => Some(item.threatened.clone()),
     _ => None
   }
 }

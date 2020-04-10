@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::interrupt::MapIn
 fn map_interrupt_positive() {
   // Arrange
   let payload = vec![
-    78, 0, 0, 0, 0, 0, 0, 0, // Target
+    1, 78, 0, 0, 0, 0, 0, 0, 0, // Target
     66, 0, 0, 0 // SpellId
   ];
 
@@ -14,7 +14,8 @@ fn map_interrupt_positive() {
   // Assert
   assert!(result.is_ok());
   let interrupt = result.unwrap();
-  assert_eq!(interrupt.target, 78);
+  assert_eq!(interrupt.target.is_player, true);
+  assert_eq!(interrupt.target.unit_id, 78);
   assert_eq!(interrupt.interrupted_spell_id, 66);
 }
 
