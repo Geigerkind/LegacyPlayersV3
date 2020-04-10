@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Position {
-  pub x: u32,
-  pub y: u32,
-  pub z: u32,
-  pub orientation: u32
+  pub x: i32,
+  pub y: i32,
+  pub z: i32,
+  pub orientation: i32
 }

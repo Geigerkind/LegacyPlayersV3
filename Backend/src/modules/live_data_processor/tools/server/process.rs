@@ -1,6 +1,6 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon, Death, CombatState, Loot};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::domain_value::{Event, EventType};
+use crate::modules::live_data_processor::domain_value::{Event, EventType, Position};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use crate::modules::armory::Armory;
@@ -100,6 +100,15 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         item_id
       };
     },
+    MessageType::Position(position) => {
+      // TODO: Update player instance location
+      event.event = EventType::Position(Position {
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        orientation: position.orientation
+      });
+    },
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -109,7 +118,6 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
 
     // Can be safely committed, once we know the context
     MessageType::Power(_) |
-    MessageType::Position(_) |
     MessageType::Event(_) |
 
     // Requires an existing spell
