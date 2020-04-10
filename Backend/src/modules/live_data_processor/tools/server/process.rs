@@ -1,11 +1,13 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::domain_value::{SpellCast, Event, EventType, HitType, Damage, School, Mitigation, Heal};
+use crate::modules::live_data_processor::domain_value::{Event, EventType};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
+use crate::modules::armory::Armory;
+use std::collections::HashMap;
 
 pub trait ParseEvents {
-  fn parse_events(&mut self, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure>;
+  fn parse_events(&mut self, armory: &Armory, server_id: u32, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure>;
 }
 
 impl ParseEvents for Server {
@@ -34,10 +36,10 @@ impl ParseEvents for Server {
   ///   * Not necessarily attacks, but buffs and stuffs (TODO: Test)
   /// NOTE: We assume here a stream of messages, so for a server that stops sending messages
   ///       Part of them may not be fully processed.
-  fn parse_events(&mut self, mut messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
+  fn parse_events(&mut self, armory: &Armory, server_id: u32, mut messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
     self.non_committed_messages.append(&mut messages);
 
-    while let Some(mut event) = extract_committable_event(&mut self.non_committed_messages) {
+    while let Some(mut event) = extract_committable_event(&mut self.non_committed_messages, &self.summons, armory, server_id) {
       event.id = (self.committed_events.len() + 1) as u32;
       println!("Parsed event: {:?}", event);
       self.committed_events.push(event);
@@ -46,7 +48,7 @@ impl ParseEvents for Server {
   }
 }
 
-fn extract_committable_event(non_committed_messages: &mut Vec<Message>) -> Option<Event> {
+fn extract_committable_event(non_committed_messages: &mut Vec<Message>, summons: &HashMap<u64, u64>, armory: &Armory, server_id: u32) -> Option<Event> {
   if non_committed_messages.is_empty() {
     return None;
   }
@@ -54,7 +56,7 @@ fn extract_committable_event(non_committed_messages: &mut Vec<Message>) -> Optio
   let first_message = non_committed_messages.first().expect("Should exist!").clone();
   let subject;
   if let Some(unit_id) = extract_subject(&first_message.message_type) {
-    if let Ok(attacker) = unit_id.to_unit() {
+    if let Ok(attacker) = unit_id.to_unit(armory, server_id, summons) {
       subject = attacker;
     } else {
       non_committed_messages.remove_item(&first_message);
@@ -78,7 +80,7 @@ fn extract_committable_event(non_committed_messages: &mut Vec<Message>) -> Optio
     MessageType::Threat(_) |
     MessageType::Heal(_) |
     MessageType::MeleeDamage(_) |
-    MessageType::SpellDamage(_) => event.event = EventType::SpellCast(try_parse_spell_cast(non_committed_messages, &first_message)?),
+    MessageType::SpellDamage(_) => event.event = EventType::SpellCast(try_parse_spell_cast(non_committed_messages, summons, &first_message, armory, server_id)?),
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |

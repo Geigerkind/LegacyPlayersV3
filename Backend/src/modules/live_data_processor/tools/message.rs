@@ -1,5 +1,4 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure};
-use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::modules::live_data_processor::tools::byte_reader;
 use crate::modules::live_data_processor::tools::payload_mapper::MapMessageType;
 

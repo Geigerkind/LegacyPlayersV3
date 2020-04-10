@@ -1,6 +1,6 @@
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Creature {
-  pub creature_id: u32,
+  pub creature_id: u64,
   pub entry: u32,
-  pub owner: Option<u32>
+  pub owner: Option<u64>
 }

@@ -2,6 +2,8 @@ use crate::modules::live_data_processor::dto::{MessageType, Message, Unit};
 use crate::modules::live_data_processor::domain_value::{HitType, Mitigation, Damage, School, SpellCast, Heal, Threat};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::domain_value;
+use crate::modules::armory::Armory;
+use std::collections::HashMap;
 
 /// ## What has to be done here?
 /// * We have to collect a spell cast
@@ -10,7 +12,7 @@ use crate::modules::live_data_processor::domain_value;
 ///   then we will discard potential other and commit the spell cast
 /// * NOTE: Melee damage does not have casts, but we will treat it as
 ///   a spell internally anyway
-pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_message: &Message) -> Option<SpellCast> {
+pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, summons: &HashMap<u64, u64>, first_message: &Message, armory: &Armory, server_id: u32) -> Option<SpellCast> {
   let mut spell_cast_message = None;
   let mut spell_damage_done_message = None;
   let mut melee_damage_done_message = None;
@@ -45,7 +47,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
         if melee_damage.resisted_or_glanced > 0 { mitigation.push(Mitigation::Glance(melee_damage.resisted_or_glanced)); }
 
         return Some(SpellCast {
-          victim: melee_damage.victim.to_unit().ok(),
+          victim: melee_damage.victim.to_unit(armory, server_id, summons).ok(),
           hit_type: HitType::from_u8(melee_damage.hit_type.expect("Must exist for melee attacks!")),
           spell_id: None,
           damage: Some(Damage {
@@ -57,7 +59,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
           threat: threat_message.and_then(|message| {
             if let MessageType::Threat(threat) = &message.message_type {
               non_committed_messages.remove_item(&message).expect("Should be deleted!");
-              if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit() {
+              if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit(armory, server_id, summons) {
                 Some(Threat {
                   threatened,
                   amount: threat.amount
@@ -74,7 +76,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
       if reached_timeout || (threat_message.is_some() && spell_damage_done_message.is_some() || heal_message.is_some()) {
         non_committed_messages.remove_item(&spell_cast_message).expect("Should be deleted!");
         return Some(SpellCast {
-          victim: spell_cast.target.as_ref().map(|target| target.to_unit().expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!
+          victim: spell_cast.target.as_ref().map(|target| target.to_unit(armory, server_id, summons).expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!
           hit_type: HitType::from_u8(spell_cast.hit_type),
           spell_id: Some(spell_cast.spell_id),
           damage: spell_damage_done_message.and_then(|message| {
@@ -108,7 +110,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, first_mes
           threat: threat_message.and_then(|message| {
             if let MessageType::Threat(threat) = &message.message_type {
               non_committed_messages.remove_item(&message).expect("Should be deleted!");
-              if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit() {
+              if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit(armory, server_id, summons) {
                 Some(Threat {
                   threatened,
                   amount: threat.amount
