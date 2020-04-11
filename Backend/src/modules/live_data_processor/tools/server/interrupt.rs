@@ -5,7 +5,7 @@ use crate::modules::live_data_processor::dto::{Message, MessageType};
 use crate::modules::live_data_processor::tools::MapUnit;
 
 /// There are stun interrupts. These are parsed via AuraApplication
-///     => Question? Is the Aura applied before the interrupt is send?
+///     => Question: Is the Aura applied before the interrupt is send?
 /// There are direct interrupts. These are parsed via SpellCast
 ///     => The SpellCast must come before the interrupt?
 pub fn try_parse_interrupt(committed_events: &Vec<Event>, summons: &HashMap<u64, u64>, armory: &Armory, server_id: u32, message: &Message, subject: &Unit) -> Option<(u32, InterruptedSpell)> {
@@ -23,7 +23,7 @@ pub fn try_parse_interrupt(committed_events: &Vec<Event>, summons: &HashMap<u64,
                 // With high probability this should be the interrupt
                 return Some((event.id, InterruptedSpell {
                   target: interrupt.target.to_unit(armory, server_id, summons).ok(),
-                  spell_id: 0
+                  spell_id: interrupt.interrupted_spell_id
                 }));
               }
             }
@@ -34,7 +34,7 @@ pub fn try_parse_interrupt(committed_events: &Vec<Event>, summons: &HashMap<u64,
             // With high probability this should be the interrupt
             return Some((event.id, InterruptedSpell {
               target: interrupt.target.to_unit(armory, server_id, summons).ok(),
-              spell_id: 0
+              spell_id: interrupt.interrupted_spell_id
             }));
           }
         },
