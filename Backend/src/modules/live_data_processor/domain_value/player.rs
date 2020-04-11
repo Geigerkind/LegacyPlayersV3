@@ -5,3 +5,9 @@ use crate::modules::armory::material::Character;
 pub struct Player {
   pub character: Character
 }
+
+impl PartialEq for Player {
+  fn eq(&self, other: &Self) -> bool {
+    self.character.id == other.character.id
+  }
+}

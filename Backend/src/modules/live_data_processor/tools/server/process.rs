@@ -135,14 +135,14 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       });
     },
     MessageType::Interrupt(_) => {
-      if let Some((cause_event_id, interrupted_spell)) = try_parse_interrupt() {
+      server.non_committed_messages.pop().unwrap();
+      if let Some((cause_event_id, interrupted_spell)) = try_parse_interrupt(&server.committed_events, &server.summons, armory, server_id, &first_message, &event.subject) {
         event.event = EventType::Interrupt {
           cause_event_id,
           interrupted_spell
         };
       } else {
         // TODO: This event can be used instead for the replay feature
-        server.non_committed_messages.pop().unwrap();
         return None;
       }
     },

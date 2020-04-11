@@ -4,3 +4,9 @@ pub struct Creature {
   pub entry: u32,
   pub owner: Option<u64>
 }
+
+impl PartialEq for Creature {
+  fn eq(&self, other: &Self) -> bool {
+    self.creature_id == other.creature_id
+  }
+}
