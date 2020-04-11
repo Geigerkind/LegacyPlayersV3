@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::domain_value::{SpellCast, Unit, Position, Power, UnitInstance, AuraApplication};
+use crate::modules::live_data_processor::domain_value::{SpellCast, Unit, Position, Power, UnitInstance, AuraApplication, InterruptedSpell};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum EventType {
@@ -9,11 +9,11 @@ pub enum EventType {
   Position((UnitInstance, Position)),
   Power(Power),
   AuraApplication(AuraApplication),
-  Interrupt { cause: SpellCast, target_event_id: u32 },
+  Interrupt { cause_event_id: u32, interrupted_spell: InterruptedSpell },
   Dispel { cause: SpellCast, target_event_ids: Vec<u32> },
   SpellSteal { cause: SpellCast, target_event_id: u32 },
   ThreatWipe { creature: Unit },
 
-  // Used for convinience
+  // Used for convenience
   PlaceHolder
 }

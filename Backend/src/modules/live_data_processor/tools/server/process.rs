@@ -2,7 +2,7 @@ use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance, AuraApplication};
 use crate::modules::live_data_processor::tools::MapUnit;
-use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
+use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast, try_parse_interrupt};
 use crate::modules::armory::Armory;
 
 pub trait ParseEvents {
@@ -82,25 +82,30 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::SpellDamage(_) => event.event = EventType::SpellCast(try_parse_spell_cast(&mut server.non_committed_messages, &server.summons, &first_message, armory, server_id)?),
 
     MessageType::Summon(Summon { owner, unit }) => {
+      server.non_committed_messages.pop().unwrap();
       server.summons.insert(owner.unit_id, unit.unit_id);
       return None; // TODO: This can be an event
     },
     MessageType::Death(Death { cause, victim: _ }) => {
+      server.non_committed_messages.pop().unwrap();
       event.event = EventType::Death {
         murder: cause.and_then(|cause| cause.to_unit(&armory, server_id, &server.summons).ok())
       }
     },
     MessageType::CombatState(CombatState { unit: _, in_combat }) => {
+      server.non_committed_messages.pop().unwrap();
       event.event = EventType::CombatState {
         in_combat
       };
     },
     MessageType::Loot(Loot { unit: _, item_id }) => {
+      server.non_committed_messages.pop().unwrap();
       event.event = EventType::Loot {
         item_id
       };
     },
     MessageType::Position(position) => {
+      server.non_committed_messages.pop().unwrap();
       event.event = EventType::Position((UnitInstance {
         map_id: position.map_id,
         map_difficulty: position.map_difficulty,
@@ -113,26 +118,30 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       }));
     },
     MessageType::Power(power) => {
-      if let Some(power_type) = PowerType::from_u8(power.power_type) {
-        event.event = EventType::Power(Power {
-          power_type,
-          max_power: power.max_power,
-          current_power: power.current_power,
-        });
-      } else {
-        server.non_committed_messages.pop().unwrap();
-        return None;
-      }
+      server.non_committed_messages.pop().unwrap();
+      event.event = EventType::Power(Power {
+        power_type: PowerType::from_u8(power.power_type)?,
+        max_power: power.max_power,
+        current_power: power.current_power,
+      });
     },
     MessageType::AuraApplication(aura_application) => {
-      if let Ok(caster) = aura_application.caster.to_unit(armory, server_id, &server.summons) {
-        event.event = EventType::AuraApplication(AuraApplication {
-          caster,
-          stack_amount: aura_application.stack_amount,
-          spell_id: aura_application.spell_id
-        });
+      // TODO: This can also be an object, do we support this?
+      server.non_committed_messages.pop().unwrap();
+      event.event = EventType::AuraApplication(AuraApplication {
+        caster: aura_application.caster.to_unit(armory, server_id, &server.summons).ok()?,
+        stack_amount: aura_application.stack_amount,
+        spell_id: aura_application.spell_id
+      });
+    },
+    MessageType::Interrupt(_) => {
+      if let Some((cause_event_id, interrupted_spell)) = try_parse_interrupt() {
+        event.event = EventType::Interrupt {
+          cause_event_id,
+          interrupted_spell
+        };
       } else {
-        // TODO: This can also be an object, do we support this?
+        // TODO: This event can be used instead for the replay feature
         server.non_committed_messages.pop().unwrap();
         return None;
       }
@@ -148,7 +157,6 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::Event(_) |
 
     // Requires an existing spell
-    MessageType::Interrupt(_) |
     MessageType::SpellSteal(_) |
     MessageType::Dispel(_) =>  {
       server.non_committed_messages.pop().expect("These events are unhandled!");

@@ -15,6 +15,7 @@ pub use self::power_type::PowerType;
 pub use self::threat::Threat;
 pub use self::unit_instance::UnitInstance;
 pub use self::aura_application::AuraApplication;
+pub use self::interrupted_spell::InterruptedSpell;
 
 mod spell_cast;
 mod unit;
@@ -33,3 +34,4 @@ mod power_type;
 mod threat;
 mod unit_instance;
 mod aura_application;
+mod interrupted_spell;
