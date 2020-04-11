@@ -5,6 +5,7 @@ use crate::modules::live_data_processor::dto::{Message, MessageType, Interrupt};
 /// There are indirect interrupts, e.g. stuns. These are parsed via AuraApplication
 /// There are direct interrupts. These are parsed via SpellCast
 /// Generally these are also out of order
+// TODO: If events dont go far enough in the future, we will postpone!
 pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &Vec<Event>, timestamp: u64, interrupt: &Interrupt, subject: &Unit) -> Option<(u32, u32)> {
   // Case 1: There was a matching event in the past
   for i in (0..committed_events.len()).rev() {
@@ -42,12 +43,14 @@ pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_
         if let Some(target) = &spell_cast.target {
           if target == &interrupt.target && spell_is_direct_interrupt(spell_cast.spell_id) {
             interrupting_event_index = Some(msg_index);
+            break;
           }
         }
       },
       MessageType::AuraApplication(aura_application) => {
         if aura_application.target == interrupt.target && spell_is_indirect_interrupt(aura_application.spell_id) {
           interrupting_event_index = Some(msg_index);
+          break;
         }
       },
       _ => continue

@@ -10,8 +10,8 @@ pub enum EventType {
   Power(Power),
   AuraApplication(AuraApplication),
   Interrupt { cause_event_id: u32, interrupted_spell_id: u32 },
-  Dispel { cause: SpellCast, target_event_ids: Vec<u32> },
-  SpellSteal { cause: SpellCast, target_event_id: u32 },
+  SpellSteal { cause_event_id: u32, target_event_id: u32 },
+  Dispel { cause_event_id: u32, target_event_ids: Vec<u32> },
   ThreatWipe { creature: Unit },
 
   // Used for convenience

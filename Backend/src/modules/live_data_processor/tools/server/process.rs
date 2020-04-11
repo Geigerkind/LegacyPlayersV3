@@ -2,7 +2,7 @@ use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance, AuraApplication};
 use crate::modules::live_data_processor::tools::MapUnit;
-use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast, try_parse_interrupt};
+use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast, try_parse_interrupt, try_parse_spell_steal};
 use crate::modules::armory::Armory;
 
 pub trait ParseEvents {
@@ -38,6 +38,7 @@ impl ParseEvents for Server {
   fn parse_events(&mut self, armory: &Armory, server_id: u32, mut messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
     self.non_committed_messages.append(&mut messages);
 
+    // TODO: We need more information to decide whether to stop or to continue
     while let Some(mut event) = extract_committable_event(self, armory, server_id) {
       event.id = (self.committed_events.len() + 1) as u32;
       println!("Parsed event: {:?}", event);
@@ -146,8 +147,15 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         return None;
       }
     },
-    MessageType::SpellSteal(_) => {
-      return None;
+    MessageType::SpellSteal(spell_steal) => {
+      if let Some((cause_event_id, target_event_id)) = try_parse_spell_steal(&mut server.non_committed_messages, &server.committed_events, first_message.timestamp, &spell_steal, &subject, armory, server_id, &server.summons) {
+        event.event = EventType::SpellSteal {
+          cause_event_id,
+          target_event_id
+        };
+      } else {
+        return None;
+      }
     }
 
     // Instance stuff
