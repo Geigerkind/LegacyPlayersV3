@@ -30,10 +30,7 @@ pub fn get_package(me: State<LiveDataProcessor>, armory: State<Armory>, owner: S
       if raw[2] == 0 {
         return Err(LiveDataProcessorFailure::InvalidInput);
       }
-      let drained: Vec<u8> = raw.drain(..(raw[2] as usize)).collect();
-      if drained[1] == 12 || drained[1] == 0 || drained[1] == 1 || drained[1] == 13 {
-        messages.push(drained);
-      }
+      messages.push(raw.drain(..(raw[2] as usize)).collect());
     }
     println!("Messages: {:?}", messages);
     return me.process_messages(owner.0, &armory, messages);

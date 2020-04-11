@@ -2,7 +2,7 @@ use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance, AuraApplication};
 use crate::modules::live_data_processor::tools::MapUnit;
-use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast, try_parse_interrupt, try_parse_spell_steal};
+use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast, try_parse_interrupt, try_parse_spell_steal, try_parse_dispel};
 use crate::modules::armory::Armory;
 
 pub trait ParseEvents {
@@ -156,7 +156,17 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       } else {
         return None;
       }
-    }
+    },
+    MessageType::Dispel(dispel) => {
+      if let Some((cause_event_id, target_event_ids)) = try_parse_dispel(&mut server.non_committed_messages, &server.committed_events, first_message.timestamp, &dispel, &subject, armory, server_id, &server.summons) {
+        event.event = EventType::Dispel {
+          cause_event_id,
+          target_event_ids
+        };
+      } else {
+        return None;
+      }
+    },
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -165,10 +175,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::InstancePvPEndRatedArena(_) |
 
     // Can be safely committed, once we know the context
-    MessageType::Event(_) |
-
-    // Requires an existing spell
-    MessageType::Dispel(_) =>  {
+    MessageType::Event(_) => {
       server.non_committed_messages.pop().expect("These events are unhandled!");
       return None;
     }
