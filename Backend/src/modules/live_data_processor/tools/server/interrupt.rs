@@ -29,6 +29,15 @@ pub fn try_parse_interrupt(committed_events: &Vec<Event>, summons: &HashMap<u64,
             }
           }
         },
+        EventType::AuraApplication(aura_application) => {
+          if &event.subject == subject && spell_is_indirect_interrupt(aura_application.spell_id) {
+            // With high probability this should be the interrupt
+            return Some((event.id, InterruptedSpell {
+              target: interrupt.target.to_unit(armory, server_id, summons).ok(),
+              spell_id: 0
+            }));
+          }
+        },
         _ => continue
       };
     }
