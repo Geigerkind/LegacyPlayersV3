@@ -9,7 +9,7 @@ pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_
   // Case 1: There was a matching event in the past
   for i in (0..committed_events.len()).rev() {
     let event: &Event = committed_events.get(i).unwrap();
-    if timestamp - event.timestamp > 10 { // TODO: After reordering is it possible to produce an overflow here
+    if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
       break;
     }
     match &event.event {
@@ -34,7 +34,7 @@ pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_
   // Case 2: The matching event is in the future and we need to reorder
   let mut interrupting_event_index = None;
   for (msg_index, msg) in non_committed_messages.iter().enumerate() {
-    if msg.timestamp - timestamp > 10 {
+    if (msg.timestamp as i64 - timestamp as i64).abs() > 10 {
       break;
     }
     match &msg.message_type {
