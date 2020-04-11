@@ -1,15 +1,13 @@
-use crate::modules::live_data_processor::domain_value::{InterruptedSpell, Event, EventType, Unit};
-use std::collections::{HashMap, BTreeSet};
-use crate::modules::armory::Armory;
+use crate::modules::live_data_processor::domain_value::{Event, EventType, Unit};
+use std::collections::BTreeSet;
 use crate::modules::live_data_processor::dto::{Message, MessageType};
-use crate::modules::live_data_processor::tools::MapUnit;
 
-/// There are stun interrupts. These are parsed via AuraApplication
-///     => Question: Is the Aura applied before the interrupt is send?
+/// There are indirect interrupts, e.g. stuns. These are parsed via AuraApplication
 /// There are direct interrupts. These are parsed via SpellCast
-///     => The SpellCast must come before the interrupt?
-pub fn try_parse_interrupt(committed_events: &Vec<Event>, summons: &HashMap<u64, u64>, armory: &Armory, server_id: u32, message: &Message, subject: &Unit) -> Option<(u32, InterruptedSpell)> {
+/// Generally these are also out of order
+pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &Vec<Event>, message: &Message, subject: &Unit) -> Option<(u32, u32)> {
   if let MessageType::Interrupt(interrupt) = &message.message_type {
+    // Case 1: There was a matching event in the past
     for i in (0..committed_events.len()).rev() {
       let event: &Event = committed_events.get(i).unwrap();
       if message.timestamp - event.timestamp > 10 {
@@ -20,26 +18,49 @@ pub fn try_parse_interrupt(committed_events: &Vec<Event>, summons: &HashMap<u64,
           if let Some(spell_id) = &spell_cast.spell_id {
             if let Some(victim) = &spell_cast.victim {
               if victim == subject && spell_is_direct_interrupt(*spell_id) {
-                // With high probability this should be the interrupt
-                return Some((event.id, InterruptedSpell {
-                  target: interrupt.target.to_unit(armory, server_id, summons).ok(),
-                  spell_id: interrupt.interrupted_spell_id
-                }));
+                return Some((event.id, interrupt.interrupted_spell_id));
               }
             }
           }
         },
         EventType::AuraApplication(aura_application) => {
           if &event.subject == subject && spell_is_indirect_interrupt(aura_application.spell_id) {
-            // With high probability this should be the interrupt
-            return Some((event.id, InterruptedSpell {
-              target: interrupt.target.to_unit(armory, server_id, summons).ok(),
-              spell_id: interrupt.interrupted_spell_id
-            }));
+            return Some((event.id, interrupt.interrupted_spell_id));
           }
         },
         _ => continue
       };
+    }
+
+    // Case 2: The matching event is in the future and we need to reorder
+    let mut interrupting_event_index = None;
+    for (msg_index, msg) in non_committed_messages.iter().enumerate() {
+      if msg.timestamp - message.timestamp > 10 {
+        break;
+      }
+      match &msg.message_type {
+        MessageType::SpellCast(spell_cast) => {
+          if let Some(target) = &spell_cast.target {
+            if target == &interrupt.target && spell_is_direct_interrupt(spell_cast.spell_id) {
+              interrupting_event_index = Some(msg_index);
+            }
+          }
+        },
+        MessageType::AuraApplication(aura_application) => {
+          if aura_application.target == interrupt.target && spell_is_indirect_interrupt(aura_application.spell_id) {
+            interrupting_event_index = Some(msg_index);
+          }
+        },
+        _ => continue
+      };
+    }
+
+    if let Some(index) = interrupting_event_index {
+      let removed_msg = non_committed_messages.remove(index);
+      non_committed_messages.insert(0, removed_msg);
+    } else {
+      // Then no interrupt happened
+      non_committed_messages.pop().unwrap();
     }
   }
   None

@@ -69,7 +69,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
   let mut event = Event {
     id: 0,
     timestamp: first_message.timestamp,
-    subject,
+    subject: subject.clone(),
     event: EventType::PlaceHolder,
   };
 
@@ -135,11 +135,10 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       });
     },
     MessageType::Interrupt(_) => {
-      server.non_committed_messages.pop().unwrap();
-      if let Some((cause_event_id, interrupted_spell)) = try_parse_interrupt(&server.committed_events, &server.summons, armory, server_id, &first_message, &event.subject) {
+      if let Some((cause_event_id, interrupted_spell_id)) = try_parse_interrupt(&mut server.non_committed_messages, &server.committed_events, &first_message, &subject) {
         event.event = EventType::Interrupt {
           cause_event_id,
-          interrupted_spell
+          interrupted_spell_id
         };
       } else {
         // TODO: This event can be used instead for the replay feature
@@ -182,10 +181,10 @@ fn extract_subject(message_type: &MessageType) -> Option<Unit> {
     MessageType::SpellCast(item) => Some(item.caster.clone()),
     MessageType::Threat(item) => Some(item.threater.clone()),
     MessageType::Event(item) => Some(item.unit.clone()),
-    MessageType::Summon(item) => Some(item.unit.clone()), // ?
+    MessageType::Summon(item) => Some(item.unit.clone()),
+    MessageType::Interrupt(item) => Some(item.target.clone()),
 
     // TODO!
-    MessageType::Interrupt(_) |
     MessageType::InstancePvPStart(_) |
     MessageType::InstancePvPEndUnratedArena(_) |
     MessageType::InstancePvPEndRatedArena(_) |
