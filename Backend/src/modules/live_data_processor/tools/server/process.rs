@@ -1,6 +1,6 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon, Death, CombatState, Loot};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance, AuraApplication};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use crate::modules::armory::Armory;
@@ -124,6 +124,19 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         return None;
       }
     },
+    MessageType::AuraApplication(aura_application) => {
+      if let Ok(caster) = aura_application.caster.to_unit(armory, server_id, &server.summons) {
+        event.event = EventType::AuraApplication(AuraApplication {
+          caster,
+          stack_amount: aura_application.stack_amount,
+          spell_id: aura_application.spell_id
+        });
+      } else {
+        // TODO: This can also be an object, do we support this?
+        server.non_committed_messages.pop().unwrap();
+        return None;
+      }
+    },
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -137,8 +150,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     // Requires an existing spell
     MessageType::Interrupt(_) |
     MessageType::SpellSteal(_) |
-    MessageType::Dispel(_) |
-    MessageType::AuraApplication(_) => {
+    MessageType::Dispel(_) =>  {
       server.non_committed_messages.pop().expect("These events are unhandled!");
       return None;
     }
@@ -151,8 +163,8 @@ fn extract_subject(message_type: &MessageType) -> Option<Unit> {
     MessageType::MeleeDamage(item) => Some(item.attacker.clone()),
     MessageType::SpellDamage(item) => Some(item.attacker.clone()),
     MessageType::Heal(item) => Some(item.caster.clone()),
-    MessageType::Death(item) => Some(item.victim.clone()), // ?
-    MessageType::AuraApplication(item) => Some(item.target.clone()), // ?
+    MessageType::Death(item) => Some(item.victim.clone()),
+    MessageType::AuraApplication(item) => Some(item.target.clone()),
     MessageType::Dispel(item) => Some(item.un_aura_caster.clone()),
     MessageType::SpellSteal(item) => Some(item.un_aura_caster.clone()),
     MessageType::Position(item) => Some(item.unit.clone()),

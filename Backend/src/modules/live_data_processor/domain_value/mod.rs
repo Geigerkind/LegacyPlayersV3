@@ -14,6 +14,7 @@ pub use self::power::Power;
 pub use self::power_type::PowerType;
 pub use self::threat::Threat;
 pub use self::unit_instance::UnitInstance;
+pub use self::aura_application::AuraApplication;
 
 mod spell_cast;
 mod unit;
@@ -31,3 +32,4 @@ mod power;
 mod power_type;
 mod threat;
 mod unit_instance;
+mod aura_application;
