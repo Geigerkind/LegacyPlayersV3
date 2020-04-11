@@ -1,67 +1,65 @@
 use crate::modules::live_data_processor::domain_value::{Event, EventType, Unit};
 use std::collections::BTreeSet;
-use crate::modules::live_data_processor::dto::{Message, MessageType};
+use crate::modules::live_data_processor::dto::{Message, MessageType, Interrupt};
 
 /// There are indirect interrupts, e.g. stuns. These are parsed via AuraApplication
 /// There are direct interrupts. These are parsed via SpellCast
 /// Generally these are also out of order
-pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &Vec<Event>, message: &Message, subject: &Unit) -> Option<(u32, u32)> {
-  if let MessageType::Interrupt(interrupt) = &message.message_type {
-    // Case 1: There was a matching event in the past
-    for i in (0..committed_events.len()).rev() {
-      let event: &Event = committed_events.get(i).unwrap();
-      if message.timestamp - event.timestamp > 10 {
-        break;
-      }
-      match &event.event {
-        EventType::SpellCast(spell_cast) => {
-          if let Some(spell_id) = &spell_cast.spell_id {
-            if let Some(victim) = &spell_cast.victim {
-              if victim == subject && spell_is_direct_interrupt(*spell_id) {
-                return Some((event.id, interrupt.interrupted_spell_id));
-              }
-            }
-          }
-        },
-        EventType::AuraApplication(aura_application) => {
-          if &event.subject == subject && spell_is_indirect_interrupt(aura_application.spell_id) {
-            return Some((event.id, interrupt.interrupted_spell_id));
-          }
-        },
-        _ => continue
-      };
+pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &Vec<Event>, timestamp: u64, interrupt: &Interrupt, subject: &Unit) -> Option<(u32, u32)> {
+  // Case 1: There was a matching event in the past
+  for i in (0..committed_events.len()).rev() {
+    let event: &Event = committed_events.get(i).unwrap();
+    if timestamp - event.timestamp > 10 { // TODO: After reordering is it possible to produce an overflow here
+      break;
     }
-
-    // Case 2: The matching event is in the future and we need to reorder
-    let mut interrupting_event_index = None;
-    for (msg_index, msg) in non_committed_messages.iter().enumerate() {
-      if msg.timestamp - message.timestamp > 10 {
-        break;
-      }
-      match &msg.message_type {
-        MessageType::SpellCast(spell_cast) => {
-          if let Some(target) = &spell_cast.target {
-            if target == &interrupt.target && spell_is_direct_interrupt(spell_cast.spell_id) {
-              interrupting_event_index = Some(msg_index);
+    match &event.event {
+      EventType::SpellCast(spell_cast) => {
+        if let Some(spell_id) = &spell_cast.spell_id {
+          if let Some(victim) = &spell_cast.victim {
+            if victim == subject && spell_is_direct_interrupt(*spell_id) {
+              return Some((event.id, interrupt.interrupted_spell_id));
             }
           }
-        },
-        MessageType::AuraApplication(aura_application) => {
-          if aura_application.target == interrupt.target && spell_is_indirect_interrupt(aura_application.spell_id) {
+        }
+      },
+      EventType::AuraApplication(aura_application) => {
+        if &event.subject == subject && spell_is_indirect_interrupt(aura_application.spell_id) {
+          return Some((event.id, interrupt.interrupted_spell_id));
+        }
+      },
+      _ => continue
+    };
+  }
+
+  // Case 2: The matching event is in the future and we need to reorder
+  let mut interrupting_event_index = None;
+  for (msg_index, msg) in non_committed_messages.iter().enumerate() {
+    if msg.timestamp - timestamp > 10 {
+      break;
+    }
+    match &msg.message_type {
+      MessageType::SpellCast(spell_cast) => {
+        if let Some(target) = &spell_cast.target {
+          if target == &interrupt.target && spell_is_direct_interrupt(spell_cast.spell_id) {
             interrupting_event_index = Some(msg_index);
           }
-        },
-        _ => continue
-      };
-    }
+        }
+      },
+      MessageType::AuraApplication(aura_application) => {
+        if aura_application.target == interrupt.target && spell_is_indirect_interrupt(aura_application.spell_id) {
+          interrupting_event_index = Some(msg_index);
+        }
+      },
+      _ => continue
+    };
+  }
 
-    if let Some(index) = interrupting_event_index {
-      let removed_msg = non_committed_messages.remove(index);
-      non_committed_messages.insert(0, removed_msg);
-    } else {
-      // Then no interrupt happened
-      non_committed_messages.pop().unwrap();
-    }
+  if let Some(index) = interrupting_event_index {
+    let removed_msg = non_committed_messages.remove(index);
+    non_committed_messages.insert(0, removed_msg);
+  } else {
+    // Then no interrupt happened
+    non_committed_messages.pop().unwrap();
   }
   None
 }

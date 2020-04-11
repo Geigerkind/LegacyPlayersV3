@@ -134,17 +134,21 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         spell_id: aura_application.spell_id
       });
     },
-    MessageType::Interrupt(_) => {
-      if let Some((cause_event_id, interrupted_spell_id)) = try_parse_interrupt(&mut server.non_committed_messages, &server.committed_events, &first_message, &subject) {
+    MessageType::Interrupt(interrupt) => {
+      if let Some((cause_event_id, interrupted_spell_id)) = try_parse_interrupt(&mut server.non_committed_messages, &server.committed_events, first_message.timestamp, &interrupt, &subject) {
         event.event = EventType::Interrupt {
           cause_event_id,
           interrupted_spell_id
         };
       } else {
         // TODO: This event can be used instead for the replay feature
+        // Note: But do this in the try function
         return None;
       }
     },
+    MessageType::SpellSteal(_) => {
+      return None;
+    }
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
@@ -156,7 +160,6 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
     MessageType::Event(_) |
 
     // Requires an existing spell
-    MessageType::SpellSteal(_) |
     MessageType::Dispel(_) =>  {
       server.non_committed_messages.pop().expect("These events are unhandled!");
       return None;
