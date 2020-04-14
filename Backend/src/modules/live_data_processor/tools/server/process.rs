@@ -147,6 +147,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         return None;
       }
     },
+    // TODO: Spell Steal map
     MessageType::SpellSteal(spell_steal) => {
       if let Some((cause_event_id, target_event_id)) = try_parse_spell_steal(&mut server.non_committed_messages, &server.committed_events, first_message.timestamp, &spell_steal, &subject, armory, server_id, &server.summons) {
         event.event = EventType::SpellSteal {
