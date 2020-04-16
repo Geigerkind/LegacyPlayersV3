@@ -1,6 +1,7 @@
 use crate::modules::live_data_processor::dto::{Message, LiveDataProcessorFailure, MessageType, Unit, Summon, Death, CombatState, Loot};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::domain_value::{Event, EventType, Position, Power, PowerType, UnitInstance, AuraApplication};
+use crate::modules::live_data_processor::domain_value;
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast, try_parse_interrupt, try_parse_spell_steal, try_parse_dispel};
 use crate::modules::armory::Armory;
@@ -168,15 +169,22 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         return None;
       }
     },
+    MessageType::Event(event_dto) => {
+      server.non_committed_messages.pop().expect("These events are unhandled!");
+      if event_dto.event_type == 0 {
+        if let Ok(creature @ domain_value::Unit::Creature(_)) = event_dto.unit.to_unit(armory, server_id, &server.summons) {
+          event.event = EventType::ThreatWipe {
+            creature
+          };
+        }
+      }
+    },
 
     // Instance stuff
     MessageType::InstancePvPStart(_) |
     MessageType::InstancePvPEndUnratedArena(_) |
     MessageType::InstancePvPEndBattleground(_) |
-    MessageType::InstancePvPEndRatedArena(_) |
-
-    // Can be safely committed, once we know the context
-    MessageType::Event(_) => {
+    MessageType::InstancePvPEndRatedArena(_) => {
       server.non_committed_messages.pop().expect("These events are unhandled!");
       return None;
     }

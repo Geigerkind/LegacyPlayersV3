@@ -33,7 +33,7 @@ impl Register for Dictionary {
           }
           // This means that the vector has not been extended to this language yet
           None => {
-            for _ in { vec_length..lang_index } {
+            for _ in vec_length..lang_index {
               vec.push(String::new());
             }
             vec.push(value_str);
@@ -42,7 +42,7 @@ impl Register for Dictionary {
       }
       None => {
         let mut container: Vec<String> = Vec::new();
-        for _ in { 0..lang_index } {
+        for _ in 0..lang_index {
           container.push(String::new());
         }
         container.push(value_str);
