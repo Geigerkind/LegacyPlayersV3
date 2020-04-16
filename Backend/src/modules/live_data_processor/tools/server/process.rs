@@ -128,9 +128,9 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       });
     },
     MessageType::AuraApplication(aura_application) => {
-      // TODO: This can also be an object, do we support this?
       server.non_committed_messages.pop().unwrap();
       event.event = EventType::AuraApplication(AuraApplication {
+        // TODO: This can also be an object, do we support this?
         caster: aura_application.caster.to_unit(armory, server_id, &server.summons).ok()?,
         stack_amount: aura_application.stack_amount,
         spell_id: aura_application.spell_id
@@ -148,7 +148,6 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
         return None;
       }
     },
-    // TODO: Spell Steal map
     MessageType::SpellSteal(spell_steal) => {
       if let Some((cause_event_id, target_event_id)) = try_parse_spell_steal(&mut server.non_committed_messages, &server.committed_events, first_message.timestamp, &spell_steal, &subject, armory, server_id, &server.summons) {
         event.event = EventType::SpellSteal {
@@ -170,7 +169,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       }
     },
     MessageType::Event(event_dto) => {
-      server.non_committed_messages.pop().expect("These events are unhandled!");
+      server.non_committed_messages.pop().unwrap();
       if event_dto.event_type == 0 {
         if let Ok(creature @ domain_value::Unit::Creature(_)) = event_dto.unit.to_unit(armory, server_id, &server.summons) {
           event.event = EventType::ThreatWipe {

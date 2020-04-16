@@ -129,7 +129,7 @@ pub fn try_parse_spell_steal(non_committed_messages: &mut Vec<Message>, committe
 
 fn is_spell_steal(spell_id: u32) -> bool {
   lazy_static! {
-    static ref SPELL_STEAL_SPELLS: BTreeSet<u32> = [].iter().cloned().collect();
+    static ref SPELL_STEAL_SPELLS: BTreeSet<u32> = [30449].iter().cloned().collect();
   }
   SPELL_STEAL_SPELLS.contains(&spell_id)
 }
