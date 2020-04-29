@@ -22,7 +22,7 @@ pub fn send(recipient: &str, username: &str, subject: String, text: String) -> b
     .build()
     .unwrap().into();
 
-  let mut mailer = SmtpClient::new(format!("127.0.0.1:{}", env::var("SMTP_PORT").unwrap()), ClientSecurity::None).unwrap().transport();
+  let mut mailer = SmtpClient::new(env::var("SMTP_DNS").unwrap(), ClientSecurity::None).unwrap().transport();
   let result = mailer.send(email);
 
   result.is_ok()
