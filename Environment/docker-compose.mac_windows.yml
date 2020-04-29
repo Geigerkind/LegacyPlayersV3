@@ -1,16 +1,16 @@
 version: '3.6'
 services:
   mariadb:
-    network_mode: host
     build: ./mariadb
     volumes:
     - ./../Database/patches:/docker-entrypoint-initdb.d
+    ports:
+    - '3306:3306'
     environment:
     - MYSQL_USER=mysql
     - MYSQL_PASSWORD=vagrant
     - MYSQL_ROOT_PASSWORD=vagrant
   postfix:
-    network_mode: host
     build: ./postfix
     ports:
     - '25:25'
