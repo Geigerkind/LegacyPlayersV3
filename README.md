@@ -1,3 +1,6 @@
+[![codecov](https://codecov.io/gh/Geigerkind/LegacyPlayersV3/branch/master/graph/badge.svg)](https://codecov.io/gh/Geigerkind/LegacyPlayersV3)
+[![codecov](https://codecov.io/gh/Geigerkind/LegacyPlayersV3/branch/dev/graph/badge.svg)](https://codecov.io/gh/Geigerkind/LegacyPlayersV3)
+
 ## LegacyPlayers v3
 LegacyPlayers is a community driven project to establish a platform where people
 playing on all kind of expansions of World of Warcraft can share raid logs, PvP logs
