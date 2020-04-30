@@ -11,7 +11,7 @@ pub trait GUID {
 
 impl GUID for u64 {
   fn get_high(&self) -> u16 {
-    (self.rotate_right(48) as u16) & 0x0000FFFF
+    self.rotate_right(48) as u16
   }
 
   fn is_player(&self) -> bool {

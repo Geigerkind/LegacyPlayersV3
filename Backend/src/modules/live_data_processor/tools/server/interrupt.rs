@@ -6,7 +6,7 @@ use crate::modules::live_data_processor::dto::{Message, MessageType, Interrupt};
 /// There are direct interrupts. These are parsed via SpellCast
 /// Generally these are also out of order
 // TODO: If events dont go far enough in the future, we will postpone!
-pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &Vec<Event>, timestamp: u64, interrupt: &Interrupt, subject: &Unit) -> Option<(u32, u32)> {
+pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &[Event], timestamp: u64, interrupt: &Interrupt, subject: &Unit) -> Option<(u32, u32)> {
   // Case 1: There was a matching event in the past
   for i in (0..committed_events.len()).rev() {
     let event: &Event = committed_events.get(i).unwrap();

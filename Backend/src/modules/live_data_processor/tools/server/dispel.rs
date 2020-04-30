@@ -4,7 +4,7 @@ use crate::modules::armory::Armory;
 use std::collections::HashMap;
 use crate::modules::live_data_processor::tools::MapUnit;
 
-pub fn try_parse_dispel(non_committed_messages: &mut Vec<Message>, committed_events: &Vec<Event>, timestamp: u64, dispel: &UnAura, subject: &Unit, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<(u32, Vec<u32>)> {
+pub fn try_parse_dispel(non_committed_messages: &mut Vec<Message>, committed_events: &[Event], timestamp: u64, dispel: &UnAura, subject: &Unit, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<(u32, Vec<u32>)> {
   let target = dispel.target.to_unit(armory, server_id, summons);
   if target.is_err() {
     println!("Could not parse this dispel: {:?}", dispel);
@@ -58,8 +58,10 @@ pub fn try_parse_dispel(non_committed_messages: &mut Vec<Message>, committed_eve
       _ => continue
     };
 
-    if spell_cast_event_id.is_some() && aura_application_event_ids.len() == dispel.un_aura_amount as usize {
-      return Some((spell_cast_event_id.unwrap(), aura_application_event_ids));
+    if let Some(spell_cast_event_id) = spell_cast_event_id {
+      if aura_application_event_ids.len() == dispel.un_aura_amount as usize {
+        return Some((spell_cast_event_id, aura_application_event_ids));
+      }
     }
   }
 
@@ -100,11 +102,9 @@ pub fn try_parse_dispel(non_committed_messages: &mut Vec<Message>, committed_eve
   }
 
   // Prepend uncommitted events
-  let mut counter = 0;
-  for msg_index in msg_indexes.iter().rev() {
+  for (counter, msg_index) in msg_indexes.iter().rev().enumerate() {
     let msg = non_committed_messages.remove(*msg_index + counter);
     non_committed_messages.insert(0, msg);
-    counter += 1;
   }
 
   None

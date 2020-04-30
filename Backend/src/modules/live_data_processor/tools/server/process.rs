@@ -188,7 +188,7 @@ fn extract_committable_event(server: &mut Server, armory: &Armory, server_id: u3
       return None;
     }
   };
-  return Some(event);
+  Some(event)
 }
 
 fn extract_subject(message_type: &MessageType) -> Option<Unit> {
