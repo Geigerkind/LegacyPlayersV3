@@ -27,9 +27,15 @@ LegacyPlayersV3 is licensed under the AGPLv3 license for all open source applica
 1. Install **docker**, **docker-compose**, **rustup**
 2. Using rustup, install the **nightly** toolchain and set it to default
 3. Make sure that no service is running on the following ports: 3306, 443, 80, 25, 4200 and 8000
-4. (Windows/Mac) Go into the Environment directory and start it using **docker-compose -f docker-compose.mac_windows.yml up**. (If you want to run it as daemon, append -d)
-4. (GNU/Linux) Go into the Environment directory and start it using **docker-compose up**. (If you want to run it as daemon, append -d)
-5. Go into the Backend directory and start the server using **cargo run**
-(Not supported for Windows/Mac yet)
-6. Go into the Webclient directory and install packages **npm i**
-7. Start the webclient using **npm run start**
+
+### GNU/Linux
+4. Go into the Environment directory and start it using `docker-compose up`. (If you want to run it as daemon, append -d)
+5. Go into the Backend directory and start the server using `cargo run`
+6. Go into the Webclient directory and install packages `npm i`
+7. Start the webclient using `npm run start`
+
+### Windows/Mac
+4. Go into the Environment directory and start it using `docker-compose -f docker-compose.mac_windows.yml up`. (If you want to run it as daemon, append -d)
+5. Go into the Backend directory and start the server using `ROCKET_ENV=stage cargo run`
+6. Go into the Webclient directory and install packages `npm i`
+7. Start the webclient using `npm run start:mac`/`npm run start:windows`
