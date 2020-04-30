@@ -16,11 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Extract branch name
-        shell: bash
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
-      - name: Test
-        run: echo "${BRANCH_NAME}"
       - run: cd Database/patches && unzip "*.zip" && cd ../../.github/actions/backend && docker-compose up -d
       - run: docker build -t docker_backend .github/actions/backend
-      - run: docker run -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" -e BRANCH_NAME="${{ BRANCH_NAME }}" --network host docker_backend
+      - run: docker run -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" -e BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" --network host docker_backend
