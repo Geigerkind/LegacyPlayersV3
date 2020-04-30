@@ -34,3 +34,8 @@ rocket-multipart-form-data="*"
 version = "*"
 default-features = false
 features = ["json"]
+
+[dev-dependencies]
+proptest = "0.9.6"
+csv = "1.1"
+mutagen = { git="https://github.com/llogiq/mutagen" }
