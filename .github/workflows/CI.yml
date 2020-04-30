@@ -6,16 +6,16 @@ jobs:
     name: Frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - run: cd Webclient && npm install @angular/cli --next && npm install html-minifier && npm install
       - run: cd Webclient && npm run-script lint
       - run: cd Webclient && npm run-script build
-      - run: cd Webclient && npm run-script test
+      - run: cd Webclient && npm run-script test --features "integration"
   backend:
     name: Backend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - run: cd Database/patches && unzip "*.zip" && cd ../../.github/actions/backend && docker-compose up -d
       - run: docker build -t docker_backend .github/actions/backend
       - run: docker run -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" --network host docker_backend
