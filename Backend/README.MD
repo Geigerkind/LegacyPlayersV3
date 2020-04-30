@@ -1,2 +1,4 @@
-## Nett To Know
-- Go into the **Backend** directory and type **cargo run** in order to run it.
+# Testing
+* Unit tests: `cargo test`
+* Integration tests: `cargo test --features "integration"`
+* Benchmarks: `cargo bench --features "benchmark"`

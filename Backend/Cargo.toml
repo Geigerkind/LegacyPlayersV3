@@ -4,6 +4,10 @@ version = "0.2.0"
 authors = ["Tom Dymel <tom@dymel.dev>"]
 edition = "2018"
 
+[features]
+integration = []
+benchmark = []
+
 [dependencies]
 rocket = "*"
 rocket_prometheus = "*"

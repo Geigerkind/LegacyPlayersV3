@@ -1,9 +1,11 @@
 pub use self::material::Armory;
 
 #[cfg(test)]
+#[cfg(feature = "integration")]
 mod tests;
 
 #[cfg(test)]
+#[cfg(feature = "benchmark")]
 mod benchmarks;
 
 pub mod domain_value;
