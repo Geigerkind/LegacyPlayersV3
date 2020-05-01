@@ -7,3 +7,6 @@ authors = ["Tom Dymel <tom@dymel.dev>"]
 pwned = "*"
 regex = "*"
 lazy_static = "*"
+
+[dev-dependencies]
+dotenv = "*"
