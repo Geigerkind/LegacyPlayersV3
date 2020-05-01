@@ -8,3 +8,6 @@ sha3 = "*"
 bcrypt = "*"
 rand = "*"
 rand_distr = "*"
+
+[dev-dependencies]
+proptest = "0.9.6"
