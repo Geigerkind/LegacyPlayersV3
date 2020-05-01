@@ -5,7 +5,7 @@ use crate::strformat;
 proptest! {
   /// This test is supplied with three random inputs:
   ///
-  /// 1. Size of the generated arguments, in interval `[0,32)`
+  /// 1. Size of the generated arguments, in interval `[0,32]`
   /// 2. Permutations of strings for generated arguments, `size = 32`
   /// 3. Strings to pick from, `size = 32`
   ///
