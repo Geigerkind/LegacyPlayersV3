@@ -10,6 +10,10 @@ pub fn valid_password(input: &str) -> Result<(), PasswordFailure>
       .build().unwrap();
   }
 
+  if !input.is_ascii() {
+    return Err(PasswordFailure::InvalidCharacters);
+  }
+
   if input.len() < 12 {
     return Err(PasswordFailure::TooFewCharacters);
   }

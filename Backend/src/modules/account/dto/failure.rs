@@ -12,6 +12,7 @@ pub enum Failure {
     InvalidNickname,
     PwnedPassword(u64),
     PasswordTooShort,
+    InvalidPasswordCharacters,
     MailIsInUse,
     NicknameIsInUse,
     InvalidUrl,
@@ -36,6 +37,7 @@ impl Responder<'static> for Failure {
                 Status::new(523, "PwnedPassword")
             },
             Failure::PasswordTooShort => Status::new(524, "PasswordTooShort"),
+            Failure::InvalidPasswordCharacters => Status::new(400, "InvalidPasswordCharacters"),
             Failure::MailIsInUse => Status::new(525, "MailIsInUse"),
             Failure::NicknameIsInUse => Status::new(526, "NicknameIsInUse"),
             Failure::InvalidUrl => Status::new(527, "InvalidUrl"),

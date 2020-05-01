@@ -36,10 +36,7 @@ mod tests {
     #[test]
     fn reject_arbitrary_too_short_passwords(pass in "\\PC{0,11}") {
       let validated = valid_password(&pass);
-      assert!(match validated {
-        Err(PasswordFailure::TooFewCharacters) => true,
-        _ => false
-      });
+      assert!(valid_password(pass).is_err());
     }
   }
 }

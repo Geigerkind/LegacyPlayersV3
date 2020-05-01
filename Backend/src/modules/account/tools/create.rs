@@ -29,6 +29,7 @@ impl Create for Account {
         }
 
         match valid_password(password) {
+            Err(PasswordFailure::InvalidCharacters) => return Err(Failure::InvalidPasswordCharacters),
             Err(PasswordFailure::TooFewCharacters) => return Err(Failure::PasswordTooShort),
             Err(PasswordFailure::Pwned(num_pwned)) => return Err(Failure::PwnedPassword(num_pwned)),
             Ok(_) => (),
