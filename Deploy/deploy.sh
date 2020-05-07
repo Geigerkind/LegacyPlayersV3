@@ -224,8 +224,6 @@ function waitForJobs {
 }
 
 function deploy {
-  pacman -Syu --noconfirm
-
   cd /root/${REPOSITORY_NAME}
 
   git stash
@@ -235,6 +233,8 @@ function deploy {
   fi;
 
   cd /root
+
+  pacman -Syu --noconfirm
 
   optimizeAssets &
   buildWebclient &
