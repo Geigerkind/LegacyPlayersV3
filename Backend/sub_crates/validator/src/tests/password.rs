@@ -4,7 +4,6 @@ mod tests {
   extern crate dotenv;
   use self::dotenv::dotenv;
   use self::proptest::prelude::*;
-  use crate::domain_value::PasswordFailure;
   use crate::tools::valid_password;
   #[test]
   fn password_too_short() {
@@ -36,7 +35,7 @@ mod tests {
     #[test]
     fn reject_arbitrary_too_short_passwords(pass in "\\PC{0,11}") {
       let validated = valid_password(&pass);
-      assert!(valid_password(pass).is_err());
+      assert!(valid_password(&pass).is_err());
     }
   }
 }
