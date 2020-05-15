@@ -17,7 +17,7 @@ fn create_account_nick_valid_() {
         },
     };
     let dbClient = Account::default().db_main;
-    assert!(!dbClient.exists(email));
+    assert!(!dbClient.exists("someEmail@someDomain.test"));
 
     // When
     let req = client.post("/create").header(ContentType::JSON).body(post_obj);
