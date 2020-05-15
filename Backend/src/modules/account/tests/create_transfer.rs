@@ -4,6 +4,8 @@ use crate::modules::account::dto::{CreateMember, Credentials};
 use crate::modules::account::Account;
 use crate::modules::account::transfer::create::create;
 use mysql_connection::tools::{Exists, Execute};
+use serde::Serialize;
+use serde_json::value::Serializer;
 
 #[test]
 fn create_account_nick_valid_email_valid_password_valid() {
@@ -17,11 +19,12 @@ fn create_account_nick_valid_email_valid_password_valid() {
             password: "someExtremelySecurePassword".to_string(),
         },
     };
+    let json_body = post_obj.serialize(Serializer).unwrap();
     let account = Account::default();
     assert!(!account.db_main.exists("SELECT * FROM account_member WHERE mail='someEmail@someDomain.test'"));
 
     // When
-    let req = http_client.post("/create").header(ContentType::JSON).body(post_obj);
+    let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str().unwrap());
     let response = req.dispatch();
 
     // Then
