@@ -65,18 +65,18 @@ fn create_account_nick_used_email_valid_password_valid() {
     let account = Account::default();
     assert!(!account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
     assert!(!account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj_used.credentials.mail)));
-
-    // When
+    // Create an account for this nickname
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
+    assert_eq!(response.status(), Status::Ok);
+    assert!(account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+
+    // When
     let req_used = http_client.post("/create").header(ContentType::JSON).body(json_body_used.as_str());
     let response_used = req_used.dispatch();
 
-
     // Then
-    assert_eq!(response.status(), Status::Ok);
     assert_eq!(response_used.status(), Status::new(526, "NicknameIsInUse"));
-    assert!(account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
     assert!(!account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj_used.credentials.mail)));
 
     // Clean up
@@ -137,18 +137,18 @@ fn create_account_nick_valid_email_used_password_valid() {
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
     assert!(!account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
-
-    // When
+    // Create an account for this email
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
+    assert_eq!(response.status(), Status::Ok);
+    assert!(account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+
+    // When
     let req_used = http_client.post("/create").header(ContentType::JSON).body(json_body_used.as_str());
     let response_used = req_used.dispatch();
 
-
     // Then
-    assert_eq!(response.status(), Status::Ok);
     assert_eq!(response_used.status(), Status::new(525, "MailIsInUse"));
-    assert!(account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
 
     // Clean up
     account.db_main.execute(&format!("DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
@@ -469,18 +469,18 @@ fn create_account_nick_used_email_used_password_valid() {
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
     assert!(!account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
-
-    // When
+    // Create an account for this user
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
+    assert_eq!(response.status(), Status::Ok);
+    assert!(account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+
+    // When
     let req_used = http_client.post("/create").header(ContentType::JSON).body(json_body_used.as_str());
     let response_used = req_used.dispatch();
 
-
     // Then
-    assert_eq!(response.status(), Status::Ok);
     assert_eq!(response_used.status(), Status::new(525, "MailIsInUse"));
-    assert!(account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
 
     // Clean up
     account.db_main.execute(&format!("DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
@@ -510,7 +510,7 @@ fn create_account_nick_malformed_email_used_password_valid() {
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
     assert!(!account.db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
-
+    // Create an account for this email
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
     assert_eq!(response.status(), Status::Ok);
