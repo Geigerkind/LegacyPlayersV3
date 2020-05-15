@@ -17,14 +17,14 @@ fn create_account_nick_valid_email_valid_password_valid() {
         },
     };
     let account = Account::default();
-    assert!(!account.db_main.exists(&post_obj.credentials.mail));
+    assert!(!account.db_main.exists("SELECT * FROM account_member WHERE mail='someEmail@someDomain.test'"));
 
     // When
     let req = http_client.post("/create").header(ContentType::JSON).body(post_obj);
     let response = req.dispatch();
 
     // Then
-    assert!(account.db_main.exists(&post_obj.credentials.mail));
+    assert!(account.db_main.exists("SELECT * FROM account_member WHERE mail='someEmail@someDomain.test'"));
     assert_eq!(response.status(), Status::Ok);
 
     // Clean up
