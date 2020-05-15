@@ -5,10 +5,10 @@ use crate::modules::account::Account;
 use mysql_connection::tools::Exists;
 
 #[test]
-fn create_account_nick_valid_() {
+fn create_account_nick_valid_email_valid_password_valid() {
     // Given
     let rocket = rocket::ignite();
-    let client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
         nickname: "someNickName".to_string(),
         credentials: Credentials {
@@ -16,15 +16,15 @@ fn create_account_nick_valid_() {
             password: "someExtremelySecurePassword".to_string(),
         },
     };
-    let dbClient = Account::default().db_main;
-    assert!(!dbClient.exists("someEmail@someDomain.test"));
+    let db_client = Account::default().db_main;
+    assert!(!dbClient.exists(&post_obj.credentials.mail));
 
     // When
-    let req = client.post("/create").header(ContentType::JSON).body(post_obj);
+    let req = http_client.post("/create").header(ContentType::JSON).body(post_obj);
     let response = req.dispatch();
 
     // Then
-    assert!(dbClient.exists(email));
+    assert!(dbClient.exists(&post_obj.credentials.mail));
     assert_eq!(response.status(), Status::Ok);
 
     // Clean up
