@@ -10,11 +10,11 @@ pub fn valid_password(input: &str) -> Result<(), PasswordFailure>
       .build().unwrap();
   }
 
-  if !input.is_ascii() {
+  if !input.chars().all(char::is_alphanumeric) {
     return Err(PasswordFailure::InvalidCharacters);
   }
 
-  if input.len() < 12 {
+  if input.chars().count() < 12 {
     return Err(PasswordFailure::TooFewCharacters);
   }
 
