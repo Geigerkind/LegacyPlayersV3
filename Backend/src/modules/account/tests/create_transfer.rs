@@ -7,7 +7,7 @@ use mysql_connection::tools::Exists;
 #[test]
 fn create_account_nick_valid_email_valid_password_valid() {
     // Given
-    let rocket = rocket::ignite();
+    let rocket = rocket::ignite().mount("/", routes![create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
         nickname: "someNickName".to_string(),
@@ -16,15 +16,15 @@ fn create_account_nick_valid_email_valid_password_valid() {
             password: "someExtremelySecurePassword".to_string(),
         },
     };
-    let db_client = Account::default().db_main;
-    assert!(!dbClient.exists(&post_obj.credentials.mail));
+    let account = Account::default();
+    assert!(!account.db_main.exists(&post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create").header(ContentType::JSON).body(post_obj);
     let response = req.dispatch();
 
     // Then
-    assert!(dbClient.exists(&post_obj.credentials.mail));
+    assert!(account.db_main.exists(&post_obj.credentials.mail));
     assert_eq!(response.status(), Status::Ok);
 
     // Clean up
