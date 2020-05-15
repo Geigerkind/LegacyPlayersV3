@@ -2,7 +2,6 @@ use rocket::local::Client;
 use rocket::http::{ContentType, Status};
 use crate::modules::account::dto::{CreateMember, Credentials};
 use crate::modules::account::Account;
-use crate::modules::account::transfer::create::create;
 use mysql_connection::tools::{Exists, Execute};
 use serde::Serialize;
 use serde_json::value::Serializer;
@@ -10,7 +9,7 @@ use serde_json::value::Serializer;
 #[test]
 fn create_account_nick_valid_email_valid_password_valid() {
     // Given
-    let rocket = rocket::ignite().mount("/", routes![create]);
+    let rocket = rocket::ignite().mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
         nickname: "someNickName".to_string(),
