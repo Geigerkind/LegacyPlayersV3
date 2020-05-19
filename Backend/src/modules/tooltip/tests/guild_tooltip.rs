@@ -440,8 +440,7 @@ fn improved_acts() {
                         test_requirement[15]
                     );
                 },
-                _ => {
-                    // test_requirement[15] = 2
+                2 => {
                     assert!(
                         tooltip.num_member > 1,
                         "resulting count should be more than one while applying test vector: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]",
@@ -463,6 +462,9 @@ fn improved_acts() {
                         test_requirement[15]
                     );
                 },
+                _ => {
+                    panic!("unimplemented: test_requirement[15] being not 0, 1 or 2");
+                }
             }
         } else {
             assert!(
