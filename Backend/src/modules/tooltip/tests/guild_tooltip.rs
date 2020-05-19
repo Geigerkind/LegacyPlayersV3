@@ -10,7 +10,7 @@ use crate::modules::{
 
 fn build_character_guild(guild_id: u32) -> CharacterGuild {
     CharacterGuild {
-        guild_id: guild_id,
+        guild_id,
         rank: GuildRank { index: 0, name: "".to_string() },
     }
 }
