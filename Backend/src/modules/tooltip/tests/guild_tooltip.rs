@@ -326,7 +326,7 @@ fn improved_acts() {
         //     println!("Guild: {} {}", id, guild.name);
         // }
         // actually execute the function under test
-        let tooltip = Tooltip::default().init();
+        let tooltip = Tooltip::default();
         let tooltip_res = tooltip.get_guild(&armory, guild_id);
         if test_requirement[14] == 0 {
             assert!(
@@ -495,7 +495,7 @@ fn improved_acts() {
 fn a1_b1_c1_d1_e1_f1_g2_h1_i2_j1_k2_l1_m1_n2_o2_p1() {
     let armory = Armory::default();
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 2);
     assert!(!tooltip_res.is_ok());
 }
@@ -508,7 +508,7 @@ fn a2_b1_c1_d1_e1_f1_g3_h2_i3_j2_k3_l2_m2_n3_o1_p1() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
     armory.guilds.write().unwrap().insert(2, build_guild(2, "h".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 2);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -525,7 +525,7 @@ fn a2_b2_c2_d2_e1_f1_g1_h1_i1_j1_k1_l1_m1_n1_o2_p2() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
     armory.guilds.write().unwrap().insert(2, build_guild(2, "".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 3);
     assert!(!tooltip_res.is_ok());
 }
@@ -536,7 +536,7 @@ fn a3_b1_c1_d1_e1_f1_g1_h1_i1_j1_k1_l1_m1_n3_o2_p1() {
     armory.characters.write().unwrap().insert(0, build_character(false, false, 0));
     armory.characters.write().unwrap().insert(1, build_character(false, false, 0));
     armory.characters.write().unwrap().insert(2, build_character(false, false, 0));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(!tooltip_res.is_ok());
 }
@@ -547,7 +547,7 @@ fn a3_b2_c2_d1_e2_f1_g2_h1_i2_j1_k2_l1_m1_n1_o2_p1() {
     armory.characters.write().unwrap().insert(0, build_character(false, false, 0));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 1));
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(!tooltip_res.is_ok());
 }
@@ -564,7 +564,7 @@ fn a3_b3_c3_d3_e3_f2_g3_h2_i3_j2_k1_l3_m3_n2_o2_p3() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "h".to_string()));
     armory.guilds.write().unwrap().insert(2, build_guild(2, "hs".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 3);
     assert!(!tooltip_res.is_ok());
 }
@@ -580,7 +580,7 @@ fn a3_b2_c1_d1_e1_f1_g3_h1_i1_j2_k3_l3_m3_n1_o2_p1() {
     armory.guilds.write().unwrap().insert(3, build_guild(3, "h".to_string()));
     armory.guilds.write().unwrap().insert(4, build_guild(4, "hs".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 5);
     assert!(!tooltip_res.is_ok());
 }
@@ -590,7 +590,7 @@ fn a3_b3_c1_d1_e1_f1_g1_h1_i1_j1_k1_l1_m1_n2_o2_p1() {
     let armory = Armory::default();
     armory.characters.write().unwrap().insert(0, build_character(true, false, 0));
     armory.characters.write().unwrap().insert(1, build_character(true, false, 0));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 1);
     assert!(!tooltip_res.is_ok());
 }
@@ -601,7 +601,7 @@ fn a3_b3_c2_d2_e1_f1_g2_h1_i2_j1_k2_l1_m1_n3_o2_p1() {
     armory.characters.write().unwrap().insert(0, build_character(true, false, 0));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 0));
     armory.guilds.write().unwrap().insert(0, build_guild(1, "".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(!tooltip_res.is_ok());
 }
@@ -612,7 +612,7 @@ fn a3_b3_c3_d1_e2_f3_g1_h1_i1_j1_k1_l1_m1_n1_o2_p1() {
     armory.characters.write().unwrap().insert(0, build_character(true, true, 1));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 2));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 4294967295));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(!tooltip_res.is_ok());
 }
@@ -623,7 +623,7 @@ fn a3_b3_c3_d2_e3_f3_g2_h1_i2_j1_k2_l1_m1_n3_o2_p3() {
     armory.characters.write().unwrap().insert(0, build_character(true, true, 1));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 2));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 4294967295));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(!tooltip_res.is_ok());
 }
@@ -641,7 +641,7 @@ fn a3_b3_c3_d3_e1_f3_g3_h1_i2_j1_k3_l2_m2_n2_o1_p1() {
     armory.guilds.write().unwrap().insert(2, build_guild(2, "".to_string()));
     armory.guilds.write().unwrap().insert(3, build_guild(3, "h".to_string()));
     armory.guilds.write().unwrap().insert(4, build_guild(4, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 1);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -660,7 +660,7 @@ fn a3_b3_c3_d2_e2_f2_g3_h2_i3_j2_k3_l1_m2_n1_o1_p2() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
     armory.guilds.write().unwrap().insert(2, build_guild(2, "".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -675,7 +675,7 @@ fn a3_b3_c3_d3_e2_f1_g1_h1_i1_j1_k1_l1_m1_n3_o2_p1() {
     armory.characters.write().unwrap().insert(0, build_character(true, true, 0));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 0));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 1));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(!tooltip_res.is_ok());
 }
@@ -686,7 +686,7 @@ fn a3_b3_c3_d1_e3_f2_g1_h1_i1_j1_k1_l1_m1_n1_o2_p1() {
     armory.characters.write().unwrap().insert(0, build_character(true, true, 1));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 1));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 4294967295));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(!tooltip_res.is_ok());
 }
@@ -696,7 +696,7 @@ fn a2_b2_c2_d1_e2_f1_g2_h1_i2_j1_k1_l2_m1_n2_o1_p2() {
     let armory = Armory::default();
     armory.characters.write().unwrap().insert(1, build_character(true, true, 1));
     armory.guilds.write().unwrap().insert(1, build_guild(1, "h".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 1);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -713,7 +713,7 @@ fn a3_b3_c3_d3_e3_f1_g2_h2_i1_j1_k2_l1_m1_n1_o1_p3() {
     armory.characters.write().unwrap().insert(2, build_character(true, true, 1));
     armory.characters.write().unwrap().insert(3, build_character(true, true, 1));
     armory.guilds.write().unwrap().insert(0, build_guild(0, "".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -731,7 +731,7 @@ fn a2_b2_c2_d1_e1_f2_g3_h2_i3_j1_k2_l3_m3_n3_o2_p2() {
     armory.guilds.write().unwrap().insert(2, build_guild(2, "h".to_string()));
     armory.guilds.write().unwrap().insert(3, build_guild(3, "hs".to_string()));
     armory.guilds.write().unwrap().insert(4, build_guild(4, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(!tooltip_res.is_ok());
 }
@@ -744,7 +744,7 @@ fn a3_b3_c3_d2_e3_f2_g2_h1_i2_j1_k1_l2_m1_n2_o2_p3() {
     armory.characters.write().unwrap().insert(2, build_character(true, true, 2));
     armory.characters.write().unwrap().insert(3, build_character(true, true, 4294967295));
     armory.guilds.write().unwrap().insert(1, build_guild(1, "h".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 2);
     assert!(!tooltip_res.is_ok());
 }
@@ -752,7 +752,7 @@ fn a3_b3_c3_d2_e3_f2_g2_h1_i2_j1_k1_l2_m1_n2_o2_p3() {
 #[test]
 fn a1_b1_c1_d1_e1_f1_g1_h1_i1_j1_k1_l1_m1_n3_o2_p1() {
     let armory = Armory::default();
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(!tooltip_res.is_ok());
 }
@@ -764,7 +764,7 @@ fn a1_b1_c1_d1_e1_f1_g3_h2_i3_j2_k3_l3_m1_n1_o1_p1() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
     armory.guilds.write().unwrap().insert(1, build_guild(1, "h".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "h".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -786,7 +786,7 @@ fn a3_b3_c3_d2_e3_f3_g3_h2_i3_j2_k3_l2_m3_n1_o1_p2() {
     armory.guilds.write().unwrap().insert(2, build_guild(2, "h".to_string()));
     armory.guilds.write().unwrap().insert(3, build_guild(3, "hs".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 0);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -803,7 +803,7 @@ fn a2_b2_c2_d2_e1_f1_g3_h1_i1_j2_k3_l2_m2_n2_o2_p1() {
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "h".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 1);
     assert!(!tooltip_res.is_ok());
 }
@@ -814,7 +814,7 @@ fn a1_b1_c1_d1_e1_f1_g3_h1_i3_j2_k2_l2_m2_n3_o2_p1() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
     armory.guilds.write().unwrap().insert(2, build_guild(2, "h".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294767295);
     assert!(!tooltip_res.is_ok());
 }
@@ -832,7 +832,7 @@ fn a3_b3_c3_d2_e2_f3_g3_h2_i2_j2_k3_l3_m3_n3_o2_p3() {
     armory.guilds.write().unwrap().insert(3, build_guild(3, "h".to_string()));
     armory.guilds.write().unwrap().insert(4, build_guild(4, "hs".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294767295);
     assert!(!tooltip_res.is_ok());
 }
@@ -847,7 +847,7 @@ fn a3_b3_c3_d1_e3_f3_g3_h2_i2_j2_k1_l3_m2_n2_o1_p3() {
     armory.guilds.write().unwrap().insert(0, build_guild(0, "h".to_string()));
     armory.guilds.write().unwrap().insert(1, build_guild(1, "h".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(2, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 1);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -863,7 +863,7 @@ fn a1_b1_c1_d1_e1_f1_g3_h2_i2_j2_k3_l1_m3_n3_o1_p1() {
     armory.guilds.write().unwrap().insert(1, build_guild(1, "".to_string()));
     armory.guilds.write().unwrap().insert(2, build_guild(2, "hs".to_string()));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(2, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -879,7 +879,7 @@ fn a3_b3_c3_d2_e1_f3_g2_h1_i1_j2_k1_l1_m2_n3_o1_p3() {
     armory.characters.write().unwrap().insert(1, build_character(true, true, 4294967295));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 4294967295));
     armory.guilds.write().unwrap().insert(4294967295, build_guild(4294967295, "hs".to_string()));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294967295);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
@@ -894,7 +894,7 @@ fn a3_b3_c3_d1_e2_f3_g1_h1_i1_j1_k1_l1_m1_n3_o2_p3() {
     armory.characters.write().unwrap().insert(0, build_character(true, true, 1));
     armory.characters.write().unwrap().insert(1, build_character(true, true, 4294967295));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 4294967295));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 4294767295);
     assert!(!tooltip_res.is_ok());
 }
@@ -906,7 +906,7 @@ fn a3_b3_c3_d3_e3_f1_g1_h1_i1_j1_k1_l1_m1_n2_o2_p2() {
     armory.characters.write().unwrap().insert(1, build_character(true, true, 0));
     armory.characters.write().unwrap().insert(2, build_character(true, true, 4294967295));
     armory.characters.write().unwrap().insert(3, build_character(true, true, 4294967295));
-    let tooltip = Tooltip::default().init();
+    let tooltip = Tooltip::default();
     let tooltip_res = tooltip.get_guild(&armory, 1);
     assert!(!tooltip_res.is_ok());
 }
