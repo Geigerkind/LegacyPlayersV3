@@ -1,4 +1,4 @@
-git clone --single-branch --branch ${BRANCH_NAME} https://github.com/Geigerkind/LegacyPlayersV3
+git clone --single-branch --branch ${BRANCH_NAME} https://github.com/${GITHUB_REPOSITORY}
 cd LegacyPlayersV3/Backend
 cp .env_ci .env
 
