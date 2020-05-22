@@ -5,8 +5,7 @@ use crate::modules::account::guard::ServerOwner;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
 use crate::modules::live_data_processor::tools::ProcessMessages;
 
-use rocket_multipart_form_data::{MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, SingleRawField};
-use rocket_multipart_form_data::RawField::Single;
+use rocket_multipart_form_data::{MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, RawField};
 use crate::modules::armory::Armory;
 
 #[openapi(skip)]
@@ -19,21 +18,25 @@ pub fn get_package(me: State<LiveDataProcessor>, armory: State<Armory>, owner: S
 
   let payload = multipart_form_data.raw.get_mut("payload");
 
-  if let Some(Single(SingleRawField { content_type: _, file_name: _, raw })) = payload {
-    if raw.is_empty() {
-      println!("Is empty!");
-      return Err(LiveDataProcessorFailure::InvalidInput);
-    }
-
-    let mut messages = Vec::new();
-    while !raw.is_empty() {
-      if raw[2] == 0 {
+  if let Some(raw_fields) = payload {
+    // TODO: Test this new behavior
+    for raw_field in raw_fields {
+      let RawField { content_type: _, file_name: _, raw } = raw_field;
+      if raw.is_empty() {
+        println!("Is empty!");
         return Err(LiveDataProcessorFailure::InvalidInput);
       }
-      messages.push(raw.drain(..(raw[2] as usize)).collect());
+
+      let mut messages = Vec::new();
+      while !raw.is_empty() {
+        if raw[2] == 0 {
+          return Err(LiveDataProcessorFailure::InvalidInput);
+        }
+        messages.push(raw.drain(..(raw[2] as usize)).collect());
+      }
+      println!("Messages: {:?}", messages);
+      return me.process_messages(owner.0, &armory, messages);
     }
-    println!("Messages: {:?}", messages);
-    return me.process_messages(owner.0, &armory, messages);
   }
   Err(LiveDataProcessorFailure::InvalidInput)
 }

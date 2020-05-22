@@ -28,7 +28,7 @@ lazy_static = "*"
 regex = "*"
 dotenv = "*"
 byteorder="*"
-rocket-multipart-form-data="0.8.1"
+rocket-multipart-form-data="*"
 
 [dependencies.rocket_contrib]
 version = "*"
