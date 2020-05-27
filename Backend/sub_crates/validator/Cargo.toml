@@ -9,4 +9,5 @@ regex = "*"
 lazy_static = "*"
 
 [dev-dependencies]
+proptest = "0.9.6"
 dotenv = "*"

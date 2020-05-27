@@ -56,6 +56,7 @@ impl Update for Account {
 
     fn change_password(&self, new_password: &str, member_id: u32) -> Result<APIToken, Failure> {
         match valid_password(new_password) {
+            Err(PasswordFailure::InvalidCharacters) => return Err(Failure::InvalidPasswordCharacters),
             Err(PasswordFailure::TooFewCharacters) => return Err(Failure::PasswordTooShort),
             Err(PasswordFailure::Pwned(num_pwned)) => return Err(Failure::PwnedPassword(num_pwned)),
             Ok(_) => (),
