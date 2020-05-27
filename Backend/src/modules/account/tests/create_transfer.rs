@@ -7,7 +7,7 @@ use mysql_connection::tools::{Exists, Execute};
 #[test]
 fn create_account_nick_valid_email_valid_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     // An http client is created, which will
@@ -15,9 +15,9 @@ fn create_account_nick_valid_email_valid_password_valid() {
     let http_client = Client::new(rocket).expect("valid rocket instance");
     // An object that contains the input parameters is defined
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname1".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail1@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -49,22 +49,22 @@ fn create_account_nick_valid_email_valid_password_valid() {
 #[test]
 fn create_account_nick_used_email_valid_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname2".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail2@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let post_obj_used= CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname2".to_string(),
         credentials: Credentials {
-            mail: "someOtherEmail@someDomain.test".to_string(),
+            mail: "someOtherEmail2@someDomain.test".to_string(),
             password: "someOtherExtremelySecurePassword".to_string(),
         },
     };
@@ -102,14 +102,14 @@ fn create_account_nick_used_email_valid_password_valid() {
 #[test]
 fn create_account_nick_malformed_email_valid_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname3".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail3@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -136,22 +136,22 @@ fn create_account_nick_malformed_email_valid_password_valid() {
 #[test]
 fn create_account_nick_valid_email_used_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname4".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail4@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let post_obj_used = CreateMember {
-        nickname: "someOtherNickname".to_string(),
+        nickname: "someOtherNickname44".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail4@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -183,14 +183,14 @@ fn create_account_nick_valid_email_used_password_valid() {
 #[test]
 fn create_account_nick_valid_email_malformed_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname5".to_string(),
         credentials: Credentials {
-            mail: "someMalformedEmail".to_string(),
+            mail: "someMalformedEmail5".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -217,14 +217,14 @@ fn create_account_nick_valid_email_malformed_password_valid() {
 #[test]
 fn create_account_nick_valid_email_valid_password_too_short() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname6".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail6@someDomain.test".to_string(),
             password: "tooShort".to_string(),
         },
     };
@@ -251,14 +251,14 @@ fn create_account_nick_valid_email_valid_password_too_short() {
 #[test]
 fn create_account_nick_valid_email_valid_password_pwned() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname7".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail7@someDomain.test".to_string(),
             password: "correcthorsebatterystaple".to_string(),
         },
     };
@@ -285,14 +285,14 @@ fn create_account_nick_valid_email_valid_password_pwned() {
 #[test]
 fn create_account_nick_malformed_email_malformed_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname8".to_string(),
         credentials: Credentials {
-            mail: "someMalformedEmail".to_string(),
+            mail: "someMalformedEmail8".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -319,14 +319,14 @@ fn create_account_nick_malformed_email_malformed_password_valid() {
 #[test]
 fn create_account_nick_malformed_email_valid_password_too_short() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname9".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail9@someDomain.test".to_string(),
             password: "tooShort".to_string(),
         },
     };
@@ -353,14 +353,14 @@ fn create_account_nick_malformed_email_valid_password_too_short() {
 #[test]
 fn create_account_nick_malformed_email_valid_password_pwned() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname10".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail10@someDomain.test".to_string(),
             password: "correcthorsebatterystaple".to_string(),
         },
     };
@@ -387,14 +387,14 @@ fn create_account_nick_malformed_email_valid_password_pwned() {
 #[test]
 fn create_account_nick_valid_email_malformed_password_too_short() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname11".to_string(),
         credentials: Credentials {
-            mail: "someMalformedEmail".to_string(),
+            mail: "someMalformedEmail11".to_string(),
             password: "tooShort".to_string(),
         },
     };
@@ -421,14 +421,14 @@ fn create_account_nick_valid_email_malformed_password_too_short() {
 #[test]
 fn create_account_nick_valid_email_malformed_password_pwned() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname12".to_string(),
         credentials: Credentials {
-            mail: "someMalformedEmail".to_string(),
+            mail: "someMalformedEmail12".to_string(),
             password: "correcthorsebatterystaple".to_string(),
         },
     };
@@ -455,14 +455,14 @@ fn create_account_nick_valid_email_malformed_password_pwned() {
 #[test]
 fn create_account_nick_malformed_email_malformed_password_too_short() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname13".to_string(),
         credentials: Credentials {
-            mail: "someMalformedEmail".to_string(),
+            mail: "someMalformedEmail13".to_string(),
             password: "tooShort".to_string(),
         },
     };
@@ -489,14 +489,14 @@ fn create_account_nick_malformed_email_malformed_password_too_short() {
 #[test]
 fn create_account_nick_malformed_email_malformed_password_pwned() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname14".to_string(),
         credentials: Credentials {
-            mail: "someMalformedEmail".to_string(),
+            mail: "someMalformedEmail14".to_string(),
             password: "correcthorsebatterystaple".to_string(),
         },
     };
@@ -524,14 +524,14 @@ fn create_account_nick_malformed_email_malformed_password_pwned() {
 #[test]
 fn create_account_nick_used_email_used_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname15".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail15@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -539,7 +539,7 @@ fn create_account_nick_used_email_used_password_valid() {
     let post_obj_used = CreateMember {
         nickname: "someNickname".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail15@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
@@ -571,22 +571,22 @@ fn create_account_nick_used_email_used_password_valid() {
 #[test]
 fn create_account_nick_malformed_email_used_password_valid() {
     // Given
-    let account = Account::default();
+    let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     let http_client = Client::new(rocket).expect("valid rocket instance");
     let post_obj = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname16".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail16@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let post_obj_used = CreateMember {
-        nickname: "some malformed nickname".to_string(),
+        nickname: "some malformed nickname16".to_string(),
         credentials: Credentials {
-            mail: "someEmail@someDomain.test".to_string(),
+            mail: "someEmail16@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
