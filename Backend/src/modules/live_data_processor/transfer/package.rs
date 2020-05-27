@@ -20,7 +20,7 @@ pub fn get_package(me: State<LiveDataProcessor>, armory: State<Armory>, owner: S
 
   if let Some(raw_fields) = payload {
     // TODO: Test this new behavior
-    for raw_field in raw_fields {
+    if let Some(raw_field) = raw_fields.get_mut(0) {
       let RawField { content_type: _, file_name: _, raw } = raw_field;
       if raw.is_empty() {
         println!("Is empty!");
