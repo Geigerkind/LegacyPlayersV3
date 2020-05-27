@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc 890a746ed5cdf24dee6b486359f8b81db34e70d2289187f8339398c1d07fe231 # shrinks to nickname = "A", password = "🂠꜀𖭽 ", mail_prefix = ""
+cc f360da711667485574792904825bcb41e7dd05ccdd20c86a5047713138628957 # shrinks to nickname = "a", password = "𐺰\u{abc}A Ὗ", mail_prefix = ""
