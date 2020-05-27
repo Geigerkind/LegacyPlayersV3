@@ -37,7 +37,6 @@ impl Responder<'static> for Failure {
                 Status::new(523, "PwnedPassword")
             },
             Failure::PasswordTooShort => Status::new(524, "PasswordTooShort"),
-            Failure::InvalidPasswordCharacters => Status::new(422, "InvalidPasswordCharacters"),
             Failure::MailIsInUse => Status::new(525, "MailIsInUse"),
             Failure::NicknameIsInUse => Status::new(526, "NicknameIsInUse"),
             Failure::InvalidUrl => Status::new(527, "InvalidUrl"),
@@ -47,6 +46,7 @@ impl Responder<'static> for Failure {
             Failure::TooManyDays => Status::new(531, "TooManyDays"),
             Failure::DateInThePast => Status::new(532, "DateInThePast"),
             Failure::TokenPurposeLength => Status::new(533, "TokenPurposeLength"),
+            Failure::InvalidPasswordCharacters => Status::new(535, "InvalidPasswordCharacters"),
             Failure::Unknown => Status::new(599, "Unknown"),
         };
         Response::build().status(status).sized_body(Cursor::new(body)).ok()
@@ -71,6 +71,7 @@ impl OpenApiResponder<'static> for Failure {
         add_schema_response(&mut responses, 531, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 532, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 533, "text/plain", schema.clone())?;
+        add_schema_response(&mut responses, 535, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 599, "text/plain", schema)?;
         Ok(responses)
     }
