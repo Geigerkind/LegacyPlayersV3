@@ -10,8 +10,13 @@ use lettre::smtp::SmtpClient;
 use lettre::Transport;
 use lettre_email::EmailBuilder;
 
-pub fn send(recipient: &str, username: &str, subject: String, text: String) -> bool
+
+pub fn send(recipient: &str, username: &str, subject: String, text: String, test: bool) -> bool
 {
+  if test {
+    return true;
+  }
+
   dotenv().ok();
 
   let email = EmailBuilder::new()

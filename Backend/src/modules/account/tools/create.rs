@@ -108,7 +108,7 @@ impl Create for Account {
             if !requires_mail_confirmation.contains_key(&mail_id) {
                 requires_mail_confirmation.insert(mail_id, member_id);
             }
-            return mail::send(&entry.mail, &entry.nickname, self.dictionary.get("create.confirmation.subject", Language::English), mail_content);
+            return mail::send(&entry.mail, &entry.nickname, self.dictionary.get("create.confirmation.subject", Language::English), mail_content, cfg!(test));
         }
         false
     }
