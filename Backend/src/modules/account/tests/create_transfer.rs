@@ -4,15 +4,27 @@ use crate::modules::account::dto::{CreateMember, Credentials};
 use crate::modules::account::Account;
 use mysql_connection::tools::{Exists, Execute};
 
-#[test]
-fn create_account_nick_valid_email_valid_password_valid() {
-    // Given
+fn has_existing_entry(account: &Account, email: &str) -> bool {
+    account.db_main.exists(&format!(
+        "SELECT * FROM account_member WHERE mail='{}'", email))
+}
+
+fn delete_entry(account: &Account, email: &str) {
+    account.db_main.execute(&format!(
+        "DELETE FROM account_member WHERE mail='{}'", email));
+}
+
+fn create_http_client() -> Client {
     let account = Account::default().init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
-    // An http client is created, which will
-    // be used to send http requests to the account creation endpoint
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    Client::new(rocket).expect("valid rocket instance")
+}
+
+#[test]
+fn create_account_nick_valid_email_valid_password_valid() {
+    // Given
+    let http_client = create_http_client();
     // An object that contains the input parameters is defined
     let post_obj = CreateMember {
         nickname: "someNickname1".to_string(),
@@ -25,8 +37,7 @@ fn create_account_nick_valid_email_valid_password_valid() {
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
     // Verify that no account with this email is known
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -38,21 +49,16 @@ fn create_account_nick_valid_email_valid_password_valid() {
     // Verify the status code of the response
     assert_eq!(response.status(), Status::Ok);
     // Verify that the user has been created in the database
-    assert!(account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_used_email_valid_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname2".to_string(),
         credentials: Credentials {
@@ -70,17 +76,14 @@ fn create_account_nick_used_email_valid_password_valid() {
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj_used.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
+    assert!(!has_existing_entry(&account, &post_obj_used.credentials.mail));
     // Create an account for this nickname
     let req = http_client.post("/create")
         .header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
     assert_eq!(response.status(), Status::Ok);
-    assert!(account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req_used = http_client.post("/create")
@@ -89,23 +92,17 @@ fn create_account_nick_used_email_valid_password_valid() {
 
     // Then
     assert_eq!(response_used.status(), Status::new(526, "NicknameIsInUse"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj_used.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj_used.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj_used.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
+    delete_entry(&account, &post_obj_used.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_valid_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "some malformed nickname3".to_string(),
         credentials: Credentials {
@@ -115,8 +112,7 @@ fn create_account_nick_malformed_email_valid_password_valid() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -125,21 +121,16 @@ fn create_account_nick_malformed_email_valid_password_valid() {
 
     // Then
     assert_eq!(response.status(), Status::new(522, "InvalidNickname"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_used_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname4".to_string(),
         credentials: Credentials {
@@ -149,7 +140,7 @@ fn create_account_nick_valid_email_used_password_valid() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let post_obj_used = CreateMember {
-        nickname: "someOtherNickname44".to_string(),
+        nickname: "someOtherNickname4".to_string(),
         credentials: Credentials {
             mail: "someEmail4@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
@@ -157,15 +148,13 @@ fn create_account_nick_valid_email_used_password_valid() {
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this email
     let req = http_client.post("/create")
         .header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
     assert_eq!(response.status(), Status::Ok);
-    assert!(account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req_used = http_client.post("/create")
@@ -176,17 +165,13 @@ fn create_account_nick_valid_email_used_password_valid() {
     assert_eq!(response_used.status(), Status::new(525, "MailIsInUse"));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_malformed_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname5".to_string(),
         credentials: Credentials {
@@ -196,8 +181,7 @@ fn create_account_nick_valid_email_malformed_password_valid() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -206,21 +190,16 @@ fn create_account_nick_valid_email_malformed_password_valid() {
 
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up (just in case)
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_valid_password_too_short() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname6".to_string(),
         credentials: Credentials {
@@ -230,8 +209,7 @@ fn create_account_nick_valid_email_valid_password_too_short() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -240,21 +218,16 @@ fn create_account_nick_valid_email_valid_password_too_short() {
 
     // Then
     assert_eq!(response.status(), Status::new(524, "PasswordTooShort"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up (just in case)
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_valid_password_pwned() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname7".to_string(),
         credentials: Credentials {
@@ -264,8 +237,7 @@ fn create_account_nick_valid_email_valid_password_pwned() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -274,21 +246,16 @@ fn create_account_nick_valid_email_valid_password_pwned() {
 
     // Then
     assert_eq!(response.status(), Status::new(523, "PwnedPassword"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up (just in case)
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_malformed_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "some malformed nickname8".to_string(),
         credentials: Credentials {
@@ -298,8 +265,7 @@ fn create_account_nick_malformed_email_malformed_password_valid() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -308,21 +274,16 @@ fn create_account_nick_malformed_email_malformed_password_valid() {
 
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_valid_password_too_short() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "some malformed nickname9".to_string(),
         credentials: Credentials {
@@ -332,8 +293,7 @@ fn create_account_nick_malformed_email_valid_password_too_short() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -342,21 +302,16 @@ fn create_account_nick_malformed_email_valid_password_too_short() {
 
     // Then
     assert_eq!(response.status(), Status::new(522, "InvalidNickname"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_valid_password_pwned() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "some malformed nickname10".to_string(),
         credentials: Credentials {
@@ -366,8 +321,7 @@ fn create_account_nick_malformed_email_valid_password_pwned() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -376,21 +330,16 @@ fn create_account_nick_malformed_email_valid_password_pwned() {
 
     // Then
     assert_eq!(response.status(), Status::new(522, "InvalidNickname"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_malformed_password_too_short() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname11".to_string(),
         credentials: Credentials {
@@ -400,8 +349,7 @@ fn create_account_nick_valid_email_malformed_password_too_short() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -410,21 +358,16 @@ fn create_account_nick_valid_email_malformed_password_too_short() {
 
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_malformed_password_pwned() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname12".to_string(),
         credentials: Credentials {
@@ -434,8 +377,7 @@ fn create_account_nick_valid_email_malformed_password_pwned() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -444,21 +386,16 @@ fn create_account_nick_valid_email_malformed_password_pwned() {
 
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_malformed_password_too_short() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "some malformed nickname13".to_string(),
         credentials: Credentials {
@@ -468,8 +405,7 @@ fn create_account_nick_malformed_email_malformed_password_too_short() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -478,21 +414,16 @@ fn create_account_nick_malformed_email_malformed_password_too_short() {
 
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_malformed_password_pwned() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "some malformed nickname14".to_string(),
         credentials: Credentials {
@@ -502,8 +433,7 @@ fn create_account_nick_malformed_email_malformed_password_pwned() {
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create")
@@ -512,32 +442,27 @@ fn create_account_nick_malformed_email_malformed_password_pwned() {
 
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 
 #[test]
 fn create_account_nick_used_email_used_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname15".to_string(),
         credentials: Credentials {
-            mail: "someEmail15@someDomain.test".to_string(),
+            mail: "someEmail@someDomain15.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
     let post_obj_used = CreateMember {
-        nickname: "someNickname".to_string(),
+        nickname: "someNickname15".to_string(),
         credentials: Credentials {
             mail: "someEmail15@someDomain.test".to_string(),
             password: "someExtremelySecurePassword".to_string(),
@@ -545,15 +470,13 @@ fn create_account_nick_used_email_used_password_valid() {
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this user
     let req = http_client.post("/create")
         .header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
     assert_eq!(response.status(), Status::Ok);
-    assert!(account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req_used = http_client.post("/create")
@@ -564,17 +487,13 @@ fn create_account_nick_used_email_used_password_valid() {
     assert_eq!(response_used.status(), Status::new(525, "MailIsInUse"));
 
     // Clean up
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_used_password_valid() {
     // Given
-    let account = Account::default().init();
-    let rocket = rocket::ignite().manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create]);
-    let http_client = Client::new(rocket).expect("valid rocket instance");
+    let http_client = create_http_client();
     let post_obj = CreateMember {
         nickname: "someNickname16".to_string(),
         credentials: Credentials {
@@ -592,15 +511,13 @@ fn create_account_nick_malformed_email_used_password_valid() {
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
     let account = Account::default();
-    assert!(!account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this email
     let req = http_client.post("/create")
         .header(ContentType::JSON).body(json_body.as_str());
     let response = req.dispatch();
     assert_eq!(response.status(), Status::Ok);
-    assert!(account.db_main.exists(&format!(
-        "SELECT * FROM account_member WHERE mail='{}'", post_obj.credentials.mail)));
+    assert!(has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
     let req_used = http_client.post("/create")
@@ -611,7 +528,5 @@ fn create_account_nick_malformed_email_used_password_valid() {
     assert_eq!(response_used.status(), Status::new(522, "InvalidNickname"));
 
     // Clean up
-    account.db_main.execute(&format!(
-    "DELETE FROM account_member WHERE mail='{}'", post_obj.credentials.mail));
+    delete_entry(&account, &post_obj.credentials.mail);
 }
-
