@@ -30,6 +30,9 @@ use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::{account, armory, data, tooltip, live_data_processor};
 
+#[cfg(test)]
+mod tests;
+
 mod dto;
 mod modules;
 mod util;
