@@ -20,9 +20,10 @@ fn get_create_member(nickname: &str, mail: &str, password: &str) -> CreateMember
 
 #[test]
 fn create_account() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
   let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
@@ -31,9 +32,10 @@ fn create_account() {
 
 #[test]
 fn mail_twice() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
   account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -42,9 +44,10 @@ fn mail_twice() {
 
 #[test]
 fn nickname_twice() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
   let post_obj_two = get_create_member("Sth", "mail2@mail.de", "Password123456Password123456Password123456");
 
@@ -54,9 +57,10 @@ fn nickname_twice() {
 
 #[test]
 fn mail_empty() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "", "Password123456Password123456Password123456");
 
   assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -64,9 +68,10 @@ fn mail_empty() {
 
 #[test]
 fn password_empty() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "");
 
   assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -74,9 +79,10 @@ fn password_empty() {
 
 #[test]
 fn nickname_empty() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("", "mail@mail.de", "Password123456Password123456Password123456");
 
   assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -84,9 +90,10 @@ fn nickname_empty() {
 
 #[test]
 fn invalid_mail() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mailmailde", "Password123456Password123456Password123456");
 
   assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -94,9 +101,10 @@ fn invalid_mail() {
 
 #[test]
 fn invalid_nickname() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth adasd", "mail@mail.de", "Password123456Password123456Password123456");
 
   assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -104,9 +112,10 @@ fn invalid_nickname() {
 
 #[test]
 fn confirm_mail() {
-  start_test_db!(false);
+  let dns: String;
+  start_test_db!(false, dns);
 
-  let account = Account::default();
+  let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
   let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();

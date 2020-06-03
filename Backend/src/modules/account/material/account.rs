@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::RwLock};
+use std::{collections::HashMap, sync::RwLock, env};
 
 use language::material::Dictionary;
 use mysql_connection::{
@@ -26,10 +26,17 @@ pub struct Account {
 // Also: Write locks may not be acquired within a query
 impl Default for Account {
     fn default() -> Self {
+        let dns = env::var("MYSQL_DNS").unwrap();
+        Self::with_dns((dns + "main").as_str())
+    }
+}
+
+impl Account {
+    pub fn with_dns(dns: &str) -> Self {
         let dictionary = Dictionary::default();
         Dictionary::init(&dictionary);
         Account {
-            db_main: MySQLConnection::new("main"),
+            db_main: MySQLConnection::new_with_dns(dns),
             dictionary,
             member: RwLock::new(HashMap::new()),
             api_tokens: RwLock::new(HashMap::new()),
@@ -37,9 +44,7 @@ impl Default for Account {
             requires_mail_confirmation: RwLock::new(HashMap::new()),
         }
     }
-}
 
-impl Account {
     pub fn init(self) -> Self {
         {
             let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();

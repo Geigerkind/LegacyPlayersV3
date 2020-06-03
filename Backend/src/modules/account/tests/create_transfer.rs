@@ -2,20 +2,17 @@ use rocket::local::Client;
 use rocket::http::{ContentType, Status};
 use crate::modules::account::dto::{CreateMember, Credentials};
 use crate::modules::account::Account;
-use mysql_connection::tools::{Exists, Execute};
+use mysql_connection::tools::Exists;
+
+use crate::start_test_db;
 
 fn has_existing_entry(account: &Account, email: &str) -> bool {
     account.db_main.exists(&format!(
         "SELECT * FROM account_member WHERE mail='{}'", email))
 }
 
-fn delete_entry(account: &Account, email: &str) {
-    account.db_main.execute(&format!(
-        "DELETE FROM account_member WHERE mail='{}'", email));
-}
-
-fn create_http_client() -> Client {
-    let account = Account::default().init();
+fn create_http_client(dns: String) -> Client {
+    let account = Account::with_dns((dns + "main").as_str()).init();
     let rocket = rocket::ignite().manage(account)
         .mount("/", routes![crate::modules::account::transfer::create::create]);
     Client::new(rocket).expect("valid rocket instance")
@@ -23,8 +20,11 @@ fn create_http_client() -> Client {
 
 #[test]
 fn create_account_nick_valid_email_valid_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     // An object that contains the input parameters is defined
     let post_obj = CreateMember {
         nickname: "someNickname1".to_string(),
@@ -35,7 +35,7 @@ fn create_account_nick_valid_email_valid_password_valid() {
     };
     // Serialize the object to the json format
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     // Verify that no account with this email is known
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
@@ -50,15 +50,15 @@ fn create_account_nick_valid_email_valid_password_valid() {
     assert_eq!(response.status(), Status::Ok);
     // Verify that the user has been created in the database
     assert!(has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_used_email_valid_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname2".to_string(),
         credentials: Credentials {
@@ -75,7 +75,7 @@ fn create_account_nick_used_email_valid_password_valid() {
         },
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     assert!(!has_existing_entry(&account, &post_obj_used.credentials.mail));
     // Create an account for this nickname
@@ -93,16 +93,15 @@ fn create_account_nick_used_email_valid_password_valid() {
     // Then
     assert_eq!(response_used.status(), Status::new(526, "NicknameIsInUse"));
     assert!(!has_existing_entry(&account, &post_obj_used.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
-    delete_entry(&account, &post_obj_used.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_valid_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "some malformed nickname3".to_string(),
         credentials: Credentials {
@@ -111,7 +110,7 @@ fn create_account_nick_malformed_email_valid_password_valid() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -122,15 +121,15 @@ fn create_account_nick_malformed_email_valid_password_valid() {
     // Then
     assert_eq!(response.status(), Status::new(522, "InvalidNickname"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_used_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname4".to_string(),
         credentials: Credentials {
@@ -147,7 +146,7 @@ fn create_account_nick_valid_email_used_password_valid() {
         },
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this email
     let req = http_client.post("/create")
@@ -163,15 +162,15 @@ fn create_account_nick_valid_email_used_password_valid() {
 
     // Then
     assert_eq!(response_used.status(), Status::new(525, "MailIsInUse"));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_malformed_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname5".to_string(),
         credentials: Credentials {
@@ -180,7 +179,7 @@ fn create_account_nick_valid_email_malformed_password_valid() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -191,15 +190,15 @@ fn create_account_nick_valid_email_malformed_password_valid() {
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up (just in case)
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_valid_password_too_short() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname6".to_string(),
         credentials: Credentials {
@@ -208,7 +207,7 @@ fn create_account_nick_valid_email_valid_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -219,15 +218,15 @@ fn create_account_nick_valid_email_valid_password_too_short() {
     // Then
     assert_eq!(response.status(), Status::new(524, "PasswordTooShort"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up (just in case)
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_valid_password_pwned() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname7".to_string(),
         credentials: Credentials {
@@ -236,7 +235,7 @@ fn create_account_nick_valid_email_valid_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -247,15 +246,15 @@ fn create_account_nick_valid_email_valid_password_pwned() {
     // Then
     assert_eq!(response.status(), Status::new(523, "PwnedPassword"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up (just in case)
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_malformed_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "some malformed nickname8".to_string(),
         credentials: Credentials {
@@ -264,7 +263,7 @@ fn create_account_nick_malformed_email_malformed_password_valid() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -275,15 +274,15 @@ fn create_account_nick_malformed_email_malformed_password_valid() {
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_valid_password_too_short() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "some malformed nickname9".to_string(),
         credentials: Credentials {
@@ -292,7 +291,7 @@ fn create_account_nick_malformed_email_valid_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -303,15 +302,15 @@ fn create_account_nick_malformed_email_valid_password_too_short() {
     // Then
     assert_eq!(response.status(), Status::new(522, "InvalidNickname"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_valid_password_pwned() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "some malformed nickname10".to_string(),
         credentials: Credentials {
@@ -320,7 +319,7 @@ fn create_account_nick_malformed_email_valid_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -331,15 +330,15 @@ fn create_account_nick_malformed_email_valid_password_pwned() {
     // Then
     assert_eq!(response.status(), Status::new(522, "InvalidNickname"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_malformed_password_too_short() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname11".to_string(),
         credentials: Credentials {
@@ -348,7 +347,7 @@ fn create_account_nick_valid_email_malformed_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -359,15 +358,15 @@ fn create_account_nick_valid_email_malformed_password_too_short() {
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_valid_email_malformed_password_pwned() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname12".to_string(),
         credentials: Credentials {
@@ -376,7 +375,7 @@ fn create_account_nick_valid_email_malformed_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -387,15 +386,15 @@ fn create_account_nick_valid_email_malformed_password_pwned() {
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_malformed_password_too_short() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "some malformed nickname13".to_string(),
         credentials: Credentials {
@@ -404,7 +403,7 @@ fn create_account_nick_malformed_email_malformed_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -415,15 +414,15 @@ fn create_account_nick_malformed_email_malformed_password_too_short() {
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_malformed_password_pwned() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "some malformed nickname14".to_string(),
         credentials: Credentials {
@@ -432,7 +431,7 @@ fn create_account_nick_malformed_email_malformed_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -443,57 +442,15 @@ fn create_account_nick_malformed_email_malformed_password_pwned() {
     // Then
     assert_eq!(response.status(), Status::new(521, "InvalidMail"));
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
-}
-
-
-#[test]
-fn create_account_nick_used_email_used_password_valid() {
-    // Given
-    let http_client = create_http_client();
-    let post_obj = CreateMember {
-        nickname: "someNickname15".to_string(),
-        credentials: Credentials {
-            mail: "someEmail@someDomain15.test".to_string(),
-            password: "someExtremelySecurePassword".to_string(),
-        },
-    };
-    let json_body = serde_json::to_string(&post_obj).unwrap();
-    let post_obj_used = CreateMember {
-        nickname: "someNickname15".to_string(),
-        credentials: Credentials {
-            mail: "someEmail15@someDomain.test".to_string(),
-            password: "someExtremelySecurePassword".to_string(),
-        },
-    };
-    let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::default();
-    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
-    // Create an account for this user
-    let req = http_client.post("/create")
-        .header(ContentType::JSON).body(json_body.as_str());
-    let response = req.dispatch();
-    assert_eq!(response.status(), Status::Ok);
-    assert!(has_existing_entry(&account, &post_obj.credentials.mail));
-
-    // When
-    let req_used = http_client.post("/create")
-        .header(ContentType::JSON).body(json_body_used.as_str());
-    let response_used = req_used.dispatch();
-
-    // Then
-    assert_eq!(response_used.status(), Status::new(525, "MailIsInUse"));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }
 
 #[test]
 fn create_account_nick_malformed_email_used_password_valid() {
+    let dns: String;
+    start_test_db!(false, dns);
+
     // Given
-    let http_client = create_http_client();
+    let http_client = create_http_client(dns.clone());
     let post_obj = CreateMember {
         nickname: "someNickname16".to_string(),
         credentials: Credentials {
@@ -510,7 +467,7 @@ fn create_account_nick_malformed_email_used_password_valid() {
         },
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::default();
+    let account = Account::with_dns((dns + "main").as_str());
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this email
     let req = http_client.post("/create")
@@ -526,7 +483,4 @@ fn create_account_nick_malformed_email_used_password_valid() {
 
     // Then
     assert_eq!(response_used.status(), Status::new(522, "InvalidNickname"));
-
-    // Clean up
-    delete_entry(&account, &post_obj.credentials.mail);
 }

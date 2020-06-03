@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! start_test_db {
-  ( $x:expr ) => {
+  ( $x:expr, $dns:expr ) => {
     use testcontainers::{clients, Docker};
     use std::env;
     use testcontainers::images::generic::{GenericImage, WaitFor};
@@ -23,7 +23,6 @@ macro_rules! start_test_db {
 
     let node = docker.run(container);
     let port = node.get_host_port(3306).unwrap();
-    let dns = format!("mysql://root:vagrant@localhost:{}/", port);
-    env::set_var("MYSQL_DNS", dns.clone());
+    $dns = format!("mysql://root:vagrant@localhost:{}/", port);
   };
 }
