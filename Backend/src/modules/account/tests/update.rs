@@ -1,123 +1,87 @@
-use mysql_connection::tools::Execute;
 use str_util::sha3;
 
 use crate::modules::account::{
-    dto::{CreateMember, Credentials},
     material::Account,
     tools::{Create, Update},
 };
+use crate::start_test_db;
+use crate::modules::account::tests::helper::get_create_member;
 
 #[test]
 fn change_name() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "ijofsdiojsdfgiuhig".to_string(),
-        credentials: Credentials {
-            mail: "ijofsdiojsdfgiuhig@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_name = account.change_name("SomeUsername", api_token.member_id);
     assert!(changed_name.is_ok());
     assert_eq!(changed_name.unwrap().nickname, "SomeUsername".to_string());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='ijofsdiojsdfgiuhig@jaylappTest.dev'");
 }
 
 #[test]
 fn change_name_empty_content() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "siodjfijsiojiospq".to_string(),
-        credentials: Credentials {
-            mail: "siodjfijsiojiospq@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_name = account.change_name("", api_token.member_id);
     assert!(changed_name.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='siodjfijsiojiospq@jaylappTest.dev'");
 }
 
 #[test]
 fn change_name_invalid_content() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "ihsdfoiosdf".to_string(),
-        credentials: Credentials {
-            mail: "ihsdfoiosdf@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_name = account.change_name("ihsdfoiosdf ihsdfoiosdf", api_token.member_id);
     assert!(changed_name.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='ihsdfoiosdf@jaylappTest.dev'");
 }
 
 #[test]
 fn change_name_name_taken() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "oasijidhaais".to_string(),
-        credentials: Credentials {
-            mail: "oasijidhaais@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
 
-    let post_obj_two = CreateMember {
-        nickname: "guhzasooas".to_string(),
-        credentials: Credentials {
-            mail: "guhzasooas@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
+    let post_obj_two = get_create_member("abcd", "abc2@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let _ = account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).unwrap();
     let changed_name = account.change_name(&post_obj_two.nickname, api_token.member_id);
     assert!(changed_name.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='oasijidhaais@jaylappTest.dev'");
-    account.db_main.execute("DELETE FROM account_member WHERE mail='guhzasooas@jaylappTest.dev'");
 }
 
 #[test]
 fn change_password_empty_content() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "mvfhhbvidsd".to_string(),
-        credentials: Credentials {
-            mail: "mvfhhbvidsd@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_password = account.change_password("", api_token.member_id);
     assert!(changed_password.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='mvfhhbvidsd@jaylappTest.dev'");
 }
 
 #[test]
 fn change_password() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "xdsdfgsdgs".to_string(),
-        credentials: Credentials {
-            mail: "xdsdfgsdgs@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_password = account.change_password("SomeWeirdPassword", api_token.member_id);
@@ -126,84 +90,56 @@ fn change_password() {
     assert_ne!(new_api_token.token, api_token.token);
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='xdsdfgsdgs@jaylappTest.dev'");
 }
 
 #[test]
 fn change_mail_empty_content() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "nsigsvbsdsd".to_string(),
-        credentials: Credentials {
-            mail: "nsigsvbsdsd@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_mail = account.request_change_mail("", api_token.member_id);
     assert!(changed_mail.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='nsigsvbsdsd@jaylappTest.dev'");
 }
 
 #[test]
 fn change_mail_invalid_content() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "asiudfuhisduifs".to_string(),
-        credentials: Credentials {
-            mail: "asiudfuhisduifs@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let changed_mail = account.request_change_mail("asiudfuhisduifs", api_token.member_id);
     assert!(changed_mail.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='asiudfuhisduifs@jaylappTest.dev'");
 }
 
 #[test]
 fn change_mail_mail_taken() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "csdazgtsdczas".to_string(),
-        credentials: Credentials {
-            mail: "csdazgtsdczas@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
 
-    let post_obj_two = CreateMember {
-        nickname: "bdvshudvbsdv".to_string(),
-        credentials: Credentials {
-            mail: "bdvshudvbsdv@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
+    let post_obj_two = get_create_member("abc2", "abc2@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
     let _ = account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).unwrap();
     let changed_mail = account.request_change_mail(&post_obj_two.credentials.mail, api_token.member_id);
     assert!(changed_mail.is_err());
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='csdazgtsdczas@jaylappTest.dev'");
-    account.db_main.execute("DELETE FROM account_member WHERE mail='bdvshudvbsdv@jaylappTest.dev'");
 }
 
 #[test]
 fn change_mail() {
-    let account = Account::default();
-    let post_obj = CreateMember {
-        nickname: "xdssdfsdfg".to_string(),
-        credentials: Credentials {
-            mail: "xdssdfsdfg@jaylappTest.dev".to_string(),
-            password: "Password123456Password123456Password123456".to_string(),
-        },
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let account = Account::with_dns((dns + "main").as_str());
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
 
@@ -225,6 +161,4 @@ fn change_mail() {
     assert_ne!(new_api_token.token, api_token.token);
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
-
-    account.db_main.execute("DELETE FROM account_member WHERE mail='xdssdfsdfg2@bla.de'");
 }

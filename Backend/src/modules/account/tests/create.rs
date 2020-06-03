@@ -1,22 +1,12 @@
 use str_util::sha3;
 
 use crate::modules::account::{
-  dto::{CreateMember, Credentials},
   material::Account,
   tools::{Create, GetAccountInformation},
 };
 
 use crate::start_test_db;
-
-fn get_create_member(nickname: &str, mail: &str, password: &str) -> CreateMember {
-  CreateMember {
-    nickname: nickname.to_string(),
-    credentials: Credentials {
-      mail: mail.to_string(),
-      password: password.to_string(),
-    },
-  }
-}
+use crate::modules::account::tests::helper::get_create_member;
 
 #[test]
 fn create_account() {
