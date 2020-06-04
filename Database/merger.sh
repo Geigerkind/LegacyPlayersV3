@@ -7,7 +7,7 @@ COUNT=$(expr ${COUNT} + 0)
 if [ -f "./merge.sql" ]; then
   rm ./merge.sql
 fi
-for filename in ./patches/*.zip; do
+for filename in ./patches/*.gz; do
   if [ ! -f "${filename}" ]; then
     continue
   fi
@@ -16,10 +16,8 @@ for filename in ./patches/*.zip; do
   VERSION=$(expr ${FILE:0:5} + 0)
 
   if (( ${VERSION} > ${COUNT} )); then
-    unzip ${filename}
-    cat ${filename:10:-4}.sql >> merge.sql
+    gzip -dc ${filename} >> merge.sql
     echo "" >> merge.sql
     echo ${VERSION} > ./db_patch_count
-    rm ${filename:10:-4}.sql
   fi
 done
