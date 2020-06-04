@@ -10,6 +10,7 @@ use crate::modules::data::{
     },
     language::init::Init as DictionaryInit,
 };
+use std::env;
 
 #[derive(Debug)]
 pub struct Data {
@@ -51,10 +52,17 @@ pub struct Data {
 
 impl Default for Data {
     fn default() -> Self {
+        let dns = env::var("MYSQL_DNS").unwrap();
+        Self::with_dns((dns + "main").as_str())
+    }
+}
+
+impl Data {
+    pub fn with_dns(dns: &str) -> Self {
         let dictionary = Dictionary::default();
         Dictionary::init(&dictionary);
         Data {
-            db_main: MySQLConnection::new("main"),
+            db_main: MySQLConnection::new_with_dns(dns),
             dictionary,
             expansions: HashMap::new(),
             languages: HashMap::new(),
@@ -90,9 +98,7 @@ impl Default for Data {
             item_random_property_points: HashMap::new(),
         }
     }
-}
 
-impl Data {
     pub fn init(mut self, debug_collection: Option<u8>) -> Self {
         let init_flag = debug_collection.unwrap_or(0);
 

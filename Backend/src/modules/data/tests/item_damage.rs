@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveItemDamage, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_item_damage() {
-    let data = Data::default().init(Some(20));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(20));
     let item_damage = data.get_item_damage(1, 25);
     assert!(item_damage.is_some());
     let unpacked_item_damage_vec = item_damage.unwrap();

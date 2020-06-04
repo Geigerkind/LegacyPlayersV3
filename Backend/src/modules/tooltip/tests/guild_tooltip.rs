@@ -7,6 +7,7 @@ use crate::modules::{
     },
     tooltip::{tools::RetrieveGuildTooltip, Tooltip},
 };
+use crate::start_test_db;
 
 fn build_character_guild(guild_id: u32) -> CharacterGuild {
     CharacterGuild {
@@ -84,6 +85,9 @@ fn build_guild(guild_id: u32, guild_name: String) -> Guild {
 
 #[test]
 fn improved_acts() {
+    let dns: String;
+    start_test_db!(true, dns);
+
     // Test requirements generated with ACTS tool
     //
     //  [0] = *`characters` size*:                                    `0` = zero, `1` = one,    `2` = more than one
@@ -189,7 +193,7 @@ fn improved_acts() {
         [2, 2, 2, 0, 2, 2, 1, 0, 0, 1, 0, 1, 0, 2, 0, 2],
     ];
     for test_requirement in test_requirements.iter() {
-        let armory = Armory::default();
+        let armory = Armory::with_dns((dns.clone() + "main").as_str());
         {
             let mut characters = armory.characters.write().unwrap();
             // add characters with guild_id = 0 required by test requirement
@@ -327,7 +331,7 @@ fn improved_acts() {
         //     println!("Guild: {} {}", id, guild.name);
         // }
         // actually execute the function under test
-        let tooltip = Tooltip::default();
+        let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str());
         let tooltip_res = tooltip.get_guild(&armory, guild_id);
         if test_requirement[14] == 0 {
             assert!(

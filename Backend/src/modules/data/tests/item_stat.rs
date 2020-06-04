@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveItemStat, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_item_stats() {
-    let data = Data::default().init(Some(28));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(28));
     let item_stats = data.get_item_stats(1, 940);
     assert!(item_stats.is_some());
     let item_stats_vec = item_stats.unwrap();

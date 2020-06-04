@@ -2,12 +2,16 @@ use crate::modules::live_data_processor::tools::server::ParseEvents;
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::dto::{Message, MessageType, DamageDone, SpellCast, Unit};
 use crate::modules::armory::Armory;
+use crate::start_test_db;
 
 #[test]
 fn parse_spell_damage() {
+  let dns: String;
+  start_test_db!(true, dns);
+
   // Arrange
   let mut server = Server::default();
-  let armory = Armory::default();
+  let armory = Armory::with_dns((dns + "main").as_str());
   let server_id = 2;
   let mut messages = Vec::new();
   messages.push(Message {

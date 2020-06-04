@@ -1,4 +1,5 @@
 use mysql_connection::material::MySQLConnection;
+use std::env;
 
 #[derive(Debug)]
 pub struct Tooltip {
@@ -7,11 +8,16 @@ pub struct Tooltip {
 
 impl Default for Tooltip {
     fn default() -> Self {
-        Tooltip { db_main: MySQLConnection::new("main") }
+        let dns = env::var("MYSQL_DNS").unwrap();
+        Self::with_dns((dns + "main").as_str())
     }
 }
 
 impl Tooltip {
+    pub fn with_dns(dns: &str) -> Self {
+        Tooltip { db_main: MySQLConnection::new_with_dns(dns) }
+    }
+
     pub fn init(self) -> Self {
         self
     }

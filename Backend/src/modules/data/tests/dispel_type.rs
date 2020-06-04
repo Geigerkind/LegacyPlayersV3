@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveDispelType, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_dispel_type() {
-    let data = Data::default().init(Some(9));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(9));
     let dispel_type = data.get_dispel_type(1);
     assert!(dispel_type.is_some());
     assert_eq!(dispel_type.unwrap().id, 1);
@@ -12,7 +16,10 @@ fn get_dispel_type() {
 
 #[test]
 fn get_all_dispel_types() {
-    let data = Data::default().init(Some(9));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(9));
     let dispel_types = data.get_all_dispel_types();
     assert!(dispel_types.len() > 0);
 }

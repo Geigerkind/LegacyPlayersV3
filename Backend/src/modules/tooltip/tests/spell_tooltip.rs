@@ -2,11 +2,15 @@ use crate::modules::{
     data::Data,
     tooltip::{tools::RetrieveSpellTooltip, Tooltip},
 };
+use crate::start_test_db;
 
 #[test]
 fn thunderfury_effect() {
-    let tooltip = Tooltip::default().init();
-    let data = Data::default().init(None);
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
+    let data = Data::with_dns((dns + "main").as_str()).init(None);
 
     let result = tooltip.get_spell(&data, 1, 1, 21992);
     assert!(result.is_ok());

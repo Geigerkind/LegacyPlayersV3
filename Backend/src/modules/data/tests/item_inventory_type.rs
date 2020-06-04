@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveItemInventoryType, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_item_inventory_type() {
-    let data = Data::default().init(Some(23));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(23));
     let item_inventory_type = data.get_item_inventory_type(1);
     assert!(item_inventory_type.is_some());
     assert_eq!(item_inventory_type.unwrap().id, 1);
@@ -12,7 +16,10 @@ fn get_item_inventory_type() {
 
 #[test]
 fn get_all_item_inventory_types() {
-    let data = Data::default().init(Some(23));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(23));
     let item_inventory_types = data.get_all_item_inventory_types();
     assert!(item_inventory_types.len() > 0);
 }

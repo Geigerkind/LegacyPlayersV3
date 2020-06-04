@@ -1,5 +1,3 @@
-use mysql_connection::tools::Execute;
-
 use crate::modules::{
     armory::{
         dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto},
@@ -9,11 +7,15 @@ use crate::modules::{
     data::Data,
     tooltip::{domain_value::Stat, material::SetItem, tools::RetrieveItemTooltip, Tooltip},
 };
+use crate::start_test_db;
 
 #[test]
 fn avenger_breastplate() {
-    let tooltip = Tooltip::default().init();
-    let data = Data::default().init(None);
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
+    let data = Data::with_dns((dns + "main").as_str()).init(None);
 
     let result = tooltip.get_item(&data, 1, 1, 21389);
     assert!(result.is_ok());
@@ -92,8 +94,11 @@ fn avenger_breastplate() {
 
 #[test]
 fn shadowmourne_socket() {
-    let tooltip = Tooltip::default().init();
-    let data = Data::default().init(None);
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
+    let data = Data::with_dns((dns + "main").as_str()).init(None);
 
     let result = tooltip.get_item(&data, 1, 3, 49623);
     assert!(result.is_ok());
@@ -107,8 +112,11 @@ fn shadowmourne_socket() {
 
 #[test]
 fn thunderfury_weapon_stat() {
-    let tooltip = Tooltip::default().init();
-    let data = Data::default().init(None);
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
+    let data = Data::with_dns((dns + "main").as_str()).init(None);
 
     let result = tooltip.get_item(&data, 1, 1, 19019);
     assert!(result.is_ok());
@@ -127,9 +135,12 @@ fn thunderfury_weapon_stat() {
 
 #[test]
 fn shadowmourne_socketed_and_enchanted() {
-    let tooltip = Tooltip::default().init();
-    let data = Data::default().init(None);
-    let armory = Armory::default();
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
+    let data = Data::with_dns((dns.clone() + "main").as_str()).init(None);
+    let armory = Armory::with_dns((dns + "main").as_str());
 
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
@@ -198,11 +209,4 @@ fn shadowmourne_socketed_and_enchanted() {
     assert_eq!(item_tooltip.socket.as_ref().unwrap().slots[1].item.as_ref().unwrap().effect, "+7 Spell Power");
     assert!(item_tooltip.socket.as_ref().unwrap().slots[2].item.is_some());
     assert_eq!(item_tooltip.socket.as_ref().unwrap().slots[2].item.as_ref().unwrap().effect, "+7 Spell Power");
-
-    let character_history = character.last_update.unwrap();
-    armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.main_hand.unwrap().id));
-    armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
 }

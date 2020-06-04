@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveItemRandomPropertyPoints, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_item_random_property_points() {
-    let data = Data::default().init(Some(32));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(32));
     let item_random_property = data.get_item_random_property_points(2, 5);
     assert!(item_random_property.is_some());
     let unpacked_item_random_property = item_random_property.unwrap();

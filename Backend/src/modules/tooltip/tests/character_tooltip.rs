@@ -1,5 +1,3 @@
-use mysql_connection::tools::Execute;
-
 use crate::modules::{
     armory::{
         domain_value::GuildRank,
@@ -10,12 +8,16 @@ use crate::modules::{
     data::{tools::RetrieveServer, Data},
     tooltip::{tools::RetrieveCharacterTooltip, Tooltip},
 };
+use crate::start_test_db;
 
 #[test]
 fn character_tooltip() {
-    let tooltip = Tooltip::default().init();
-    let data = Data::default().init(None);
-    let armory = Armory::default();
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
+    let data = Data::with_dns((dns.clone() + "main").as_str()).init(None);
+    let armory = Armory::with_dns((dns + "main").as_str());
 
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
@@ -93,12 +95,4 @@ fn character_tooltip() {
     assert_eq!(tooltip.faction, false);
     assert_eq!(tooltip.hero_class_id, character_info_dto.hero_class_id);
     assert_eq!(tooltip.expansion_id, server.expansion_id);
-
-    let character_history = character.last_update.unwrap();
-    armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.main_hand.unwrap().id));
-    armory.db_main.execute_wparams("DELETE FROM armory_gear WHERE id=:id", params!("id" => character_history.character_info.gear.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
 }

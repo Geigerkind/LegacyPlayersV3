@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveItemEffect, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_item_effect() {
-    let data = Data::default().init(Some(22));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(22));
     let item_effect = data.get_item_effect(1, 117);
     assert!(item_effect.is_some());
     let unpacked_item_effect_vec = item_effect.unwrap();

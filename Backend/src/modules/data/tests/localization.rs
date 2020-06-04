@@ -1,8 +1,12 @@
 use crate::modules::data::{tools::RetrieveLocalization, Data};
+use crate::start_test_db;
 
 #[test]
 fn get_localization() {
-    let data = Data::default().init(Some(3));
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let data = Data::with_dns((dns + "main").as_str()).init(Some(3));
     let localization = data.get_localization(1, 1);
     assert!(localization.is_some());
     let unwrapped_localization = localization.unwrap();
