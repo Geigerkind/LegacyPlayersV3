@@ -3,11 +3,14 @@ use crate::modules::armory::{
     tools::{CreateGuild, GetGuild, UpdateGuild},
     Armory,
 };
-use mysql_connection::tools::Execute;
+use crate::start_test_db;
 
 #[test]
 fn guild() {
-    let armory = Armory::default();
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let armory = Armory::with_dns((dns + "main").as_str());
     let guild_dto = GuildDto {
         server_uid: 23423214,
         name: "WeirdGuildName".to_owned(),
@@ -37,6 +40,4 @@ fn guild() {
     assert_eq!(guild3.server_uid, guild_dto.server_uid);
     assert_ne!(guild3.name, guild_dto.name);
     assert_eq!(guild3.name, new_guild_name);
-
-    armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => guild.id));
 }

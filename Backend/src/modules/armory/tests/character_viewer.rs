@@ -6,11 +6,14 @@ use crate::modules::{
     },
     data::Data,
 };
-use mysql_connection::tools::Execute;
+use crate::start_test_db;
 
 #[test]
 fn get_character_viewer() {
-    let armory = Armory::default();
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let armory = Armory::with_dns((dns + "main").as_str());
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
             head: None,
@@ -86,10 +89,4 @@ fn get_character_viewer() {
     assert_eq!(character_viewer.gender, character_info_dto.gender);
     assert_eq!(character_viewer.history_id, set_character.last_update.as_ref().unwrap().id);
     assert_eq!(character_viewer.history.len(), 1);
-
-    let character_history = set_character.last_update.unwrap();
-    armory.db_main.execute_wparams("DELETE FROM armory_item WHERE id=:id", params!("id" => character_history.character_info.gear.shirt.unwrap().id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character_info WHERE id=:id", params!("id" => character_history.character_info.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character_history WHERE id=:id", params!("id" => character_history.id));
-    armory.db_main.execute_wparams("DELETE FROM armory_character WHERE id=:id", params!("id" => character_history.character_id));
 }

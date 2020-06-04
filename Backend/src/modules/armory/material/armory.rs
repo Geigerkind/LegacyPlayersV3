@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::RwLock};
+use std::{collections::HashMap, sync::RwLock, env};
 
 use mysql_connection::{material::MySQLConnection, tools::Select};
 
@@ -17,15 +17,20 @@ pub struct Armory {
 
 impl Default for Armory {
     fn default() -> Self {
-        Armory {
-            db_main: MySQLConnection::new("main"),
-            characters: RwLock::new(HashMap::new()),
-            guilds: RwLock::new(HashMap::new()),
-        }
+        let dns = env::var("MYSQL_DNS").unwrap();
+        Self::with_dns((dns + "main").as_str())
     }
 }
 
 impl Armory {
+    pub fn with_dns(dns: &str) -> Self {
+        Armory {
+            db_main: MySQLConnection::new_with_dns(dns),
+            characters: RwLock::new(HashMap::new()),
+            guilds: RwLock::new(HashMap::new()),
+        }
+    }
+
     pub fn init(self) -> Self {
         self.characters.write().unwrap().init(&self.db_main);
         self.guilds.write().unwrap().init(&self.db_main);

@@ -1,13 +1,16 @@
 use crate::modules::armory::{
-    dto::CharacterItemDto,
     tools::{CreateCharacterItem, GetCharacterItem},
     Armory,
 };
-use mysql_connection::tools::Execute;
+use crate::start_test_db;
+use crate::modules::armory::dto::CharacterItemDto;
 
 #[test]
 fn character_item() {
-    let armory = Armory::default();
+    let dns: String;
+    start_test_db!(true, dns);
+
+    let armory = Armory::with_dns((dns + "main").as_str());
     let character_item_dto = CharacterItemDto {
         item_id: 19019,
         random_property_id: Some(1023),
@@ -26,6 +29,4 @@ fn character_item() {
 
     let character_item2 = character_item2_res.unwrap();
     assert!(character_item2.deep_eq(&character_item));
-
-    armory.db_main.execute("DELETE FROM armory_item WHERE item_id = 19019");
 }

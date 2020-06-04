@@ -5,10 +5,14 @@ use crate::{
         data::Data,
     },
 };
+use crate::start_test_db;
 
 #[test]
 fn character_search() {
-    let armory = Armory::default();
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let armory = Armory::with_dns((dns + "main").as_str());
     let data = Data::default().init(None);
     let filter1 = CharacterSearchFilter {
         page: 0,

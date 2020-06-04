@@ -1,20 +1,17 @@
 use crate::modules::armory::{
-    dto::CharacterFacialDto,
     tools::{CreateCharacterFacial, GetCharacterFacial},
     Armory,
 };
-use mysql_connection::tools::Execute;
+use super::helper::get_character_facial;
+use crate::start_test_db;
 
 #[test]
 fn character_facial() {
-    let armory = Armory::default();
-    let character_facial_dto = CharacterFacialDto {
-        skin_color: 1,
-        face_style: 2,
-        hair_style: 1,
-        hair_color: 2,
-        facial_hair: 1,
-    };
+    let dns: String;
+    start_test_db!(false, dns);
+
+    let armory = Armory::with_dns((dns + "main").as_str());
+    let character_facial_dto = get_character_facial();
 
     let character_facial_res = armory.create_character_facial(character_facial_dto.clone());
     assert!(character_facial_res.is_ok());
@@ -27,6 +24,4 @@ fn character_facial() {
 
     let character_facial2 = character_facial2_res.unwrap();
     assert!(character_facial2.deep_eq(&character_facial));
-
-    armory.db_main.execute_wparams("DELETE FROM armory_character_facial WHERE id=:id", params!("id" => character_facial.id));
 }
