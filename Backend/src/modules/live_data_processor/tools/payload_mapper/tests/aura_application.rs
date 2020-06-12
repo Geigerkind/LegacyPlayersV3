@@ -37,3 +37,23 @@ fn map_aura_application_negative() {
   // Assert
   assert!(aura_application.is_err());
 }
+
+#[test]
+fn test_map_aura_application_applied_false() {
+  // Arrange
+  let payload = vec![
+    1, 1, 0, 0, 0, 0, 0, 0, 0, // Caster
+    1, 42, 0, 0, 0, 0, 0, 0, 0, // Target
+    23, 0, 0, 0, // SpellId
+    3, 0, 0, 0, // StackAmount
+    0 // Applied
+  ];
+
+  // Act
+  let aura_application = payload.to_aura_application();
+
+  // Assert
+  assert!(aura_application.is_ok());
+  let aura_application = aura_application.unwrap();
+  assert_eq!(aura_application.applied, false);
+}

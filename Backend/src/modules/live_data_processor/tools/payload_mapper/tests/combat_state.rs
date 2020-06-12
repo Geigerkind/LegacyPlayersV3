@@ -30,3 +30,20 @@ fn map_combat_state_negative() {
   // Assert
   assert!(result.is_err());
 }
+
+#[test]
+fn test_map_combat_state_in_combat_false() {
+  // Arrange
+  let payload = vec![
+    1, 234, 0, 0, 0, 0, 0, 0, 0, // unit
+    0 // InCombat
+  ];
+
+  // Act
+  let result = payload.to_combat_state();
+
+  // Assert
+  assert!(result.is_ok());
+  let combat_state = result.unwrap();
+  assert_eq!(combat_state.in_combat, false);
+}

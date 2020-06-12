@@ -107,3 +107,9 @@ fn test_is_unit_low_value_middle_other() {
   let guid: u64 = 17384176036626825258;
   assert!(!guid.is_unit());
 }
+
+#[test]
+fn test_get_entry_none() {
+  let guid: u64 = 0;
+  assert_eq!(guid.get_entry(), None);
+}
