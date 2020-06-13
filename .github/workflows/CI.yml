@@ -22,24 +22,20 @@ jobs:
           components: clippy
           override: true
       - uses: actions-rs/cargo@v1
-        working-directory: ./Backend
         with:
           command: test
-          args: --no-fail-fast --manifest-path
+          args: --no-fail-fast --manifest-path ./Backend/Cargo.toml
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
       - uses: actions-rs/grcov@v0.1
-        working-directory: ./Backend
         with:
           config: .github/actions/grcov.yml
       - uses: actions-rs/clippy-check@v1
-        working-directory: ./Backend
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: codecov/codecov-action@v1
-        working-directory: ./Backend
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lcov.info
