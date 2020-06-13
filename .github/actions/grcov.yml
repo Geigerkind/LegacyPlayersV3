@@ -4,9 +4,9 @@ llvm: true
 filter: covered
 output-type: lcov
 output-path: ./lcov.info
-prefix-dir: ./Backend/target/debug/
-source-dir: ./Backend/
+prefix-dir: ./target/debug/
 ignore:
+  - "/*"
   - "*/tests/*"
   - "*/dto/*"
   - "*/domain_value/*"
