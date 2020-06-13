@@ -16,5 +16,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: docker build -t docker_backend .github/actions/backend
-      - run: docker run -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" -e BRANCH_NAME="$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" -e CODECOV_TOKEN="${{ secrets.CODECOV_TOKEN }}" -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" --network host docker_backend
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: clippy
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features --no-fail-fast
+          branch: true
+          ignore-not-existing: true
+          llvm: true
+          output-type: lcov
+          output-path: ./lcov.info
+          ignore:
+            - "*/tests/*"
+            - "*/dto/*"
+            - "*/domain_value/*"
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+      - uses: actions-rs/grcov@v0.1
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./lcov.info
