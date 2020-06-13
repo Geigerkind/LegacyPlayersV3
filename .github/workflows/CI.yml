@@ -30,10 +30,6 @@ jobs:
           llvm: true
           output-type: lcov
           output-path: ./lcov.info
-          ignore:
-            - "*/tests/*"
-            - "*/dto/*"
-            - "*/domain_value/*"
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
