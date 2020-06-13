@@ -3,7 +3,9 @@ ignore-not-existing: true
 llvm: true
 output-type: lcov
 output-path: ./lcov.info
+prefix-dir: /Backend/target/debug/
 ignore:
+  - "/*"
   - "*/tests/*"
   - "*/dto/*"
   - "*/domain_value/*"
