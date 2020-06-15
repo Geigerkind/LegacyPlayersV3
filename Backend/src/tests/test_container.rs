@@ -12,13 +12,19 @@ macro_rules! start_test_db {
       .with_env_var("MYSQL_ROOT_PASSWORD", "vagrant")
       .with_wait_for(WaitFor::message_on_stderr("port: 3306"));
 
-    let repo_path = env::var("PWD").unwrap();
+    let repo_path: String = env::var("PWD").unwrap();
     if $x {
-      container = container
-      .with_volume(format!("{}/../Database/patches", repo_path), "/docker-entrypoint-initdb.d");
+      container = if repo_path.contains("Backend") {
+        container.with_volume(format!("{}/../Database/patches", repo_path), "/docker-entrypoint-initdb.d")
+      } else {
+        container.with_volume(format!("{}/Database/patches", repo_path), "/docker-entrypoint-initdb.d")
+      };
     } else {
-      container = container
-      .with_volume(format!("{}/../Database/test", repo_path), "/docker-entrypoint-initdb.d");
+      container = if repo_path.contains("Backend") {
+        container.with_volume(format!("{}/../Database/test", repo_path), "/docker-entrypoint-initdb.d")
+      } else {
+        container.with_volume(format!("{}/Database/test", repo_path), "/docker-entrypoint-initdb.d")
+      }
     }
 
     let node = docker.run(container);
