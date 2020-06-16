@@ -13,6 +13,8 @@ use crate::modules::armory::{
     Armory,
 };
 use crate::modules::armory::dto::ArenaTeamDto;
+use crate::tests::TestContainer;
+use std::ops::Div;
 
 /*
  * Goal of this benchmark is to see how many
@@ -20,8 +22,11 @@ use crate::modules::armory::dto::ArenaTeamDto;
  * incoming from extern servers
  */
 #[bench]
-fn set_character(_: &mut Bencher) {
-    let armory = Armory::default();
+fn set_character(b: &mut Bencher) {
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
+
+    let armory = Armory::with_dns((dns + "main").as_str());
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
             head: Some(CharacterItemDto {
@@ -210,4 +215,7 @@ fn set_character(_: &mut Bencher) {
         armory.db_main.execute_wparams("DELETE FROM armory_arena_team WHERE id=:id", params!("id" => character_history.arena_teams[1].id));
         armory.db_main.execute_wparams("DELETE FROM armory_guild WHERE id=:id", params!("id" => character_history.character_guild.unwrap().guild_id));
     }
+
+    let wait_ns = average_ns.iter().sum::<i128>().div(num_iterations) as u64;
+    b.iter(|| std::thread::sleep(std::time::Duration::from_nanos(wait_ns)));
 }

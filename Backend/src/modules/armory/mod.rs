@@ -5,8 +5,7 @@ pub use self::material::Armory;
 mod tests;
 
 #[cfg(test)]
-#[cfg(feature = "benchmark")]
-mod benchmarks;
+mod benches;
 
 pub mod domain_value;
 pub mod dto;
