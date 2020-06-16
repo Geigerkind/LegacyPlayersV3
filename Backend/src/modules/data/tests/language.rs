@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveLanguage, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_language() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(2));
     let language = data.get_language(1);
@@ -16,8 +16,8 @@ fn get_language() {
 
 #[test]
 fn get_all_languages() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(2));
     let languages = data.get_all_languages();

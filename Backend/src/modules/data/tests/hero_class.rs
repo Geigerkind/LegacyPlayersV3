@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveHeroClass, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_hero_class() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(7));
     let hero_class = data.get_hero_class(1);
@@ -16,8 +16,8 @@ fn get_hero_class() {
 
 #[test]
 fn get_all_hero_classs() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(7));
     let hero_classes = data.get_all_hero_classes();

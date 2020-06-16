@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveRace, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_race() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(4));
     let race = data.get_race(1);
@@ -16,8 +16,8 @@ fn get_race() {
 
 #[test]
 fn get_all_races() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(4));
     let races = data.get_all_races();

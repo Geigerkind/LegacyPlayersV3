@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemSocket, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_item_socket() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(27));
     let item_socket = data.get_item_socket(2, 21846);

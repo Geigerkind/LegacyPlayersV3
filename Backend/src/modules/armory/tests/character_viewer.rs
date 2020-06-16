@@ -6,12 +6,12 @@ use crate::modules::{
     },
     data::Data,
 };
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_character_viewer() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let armory = Armory::with_dns((dns.clone() + "main").as_str());
     let character_info_dto = CharacterInfoDto {

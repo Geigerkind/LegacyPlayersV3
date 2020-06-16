@@ -8,12 +8,12 @@ use crate::modules::{
     data::{tools::RetrieveServer, Data},
     tooltip::{tools::RetrieveCharacterTooltip, Tooltip},
 };
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn character_tooltip() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
     let data = Data::with_dns((dns.clone() + "main").as_str()).init(None);

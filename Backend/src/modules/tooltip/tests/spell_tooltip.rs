@@ -2,12 +2,12 @@ use crate::modules::{
     data::Data,
     tooltip::{tools::RetrieveSpellTooltip, Tooltip},
 };
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn thunderfury_effect() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
     let data = Data::with_dns((dns + "main").as_str()).init(None);

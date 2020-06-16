@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveExpansion, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_expansion() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(1));
     let expansion = data.get_expansion(1);
@@ -16,8 +16,8 @@ fn get_expansion() {
 
 #[test]
 fn get_all_expansions() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(1));
     let expansions = data.get_all_expansions();

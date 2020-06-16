@@ -4,13 +4,13 @@ use crate::modules::armory::{
 };
 use std::{thread, time};
 use super::helper::get_character_history;
-use crate::start_test_db;
 use crate::modules::armory::dto::CharacterDto;
+use crate::tests::TestContainer;
 
 #[test]
 fn set_character_history() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let armory = Armory::with_dns((dns + "main").as_str());
     let character_dto = CharacterDto { server_uid: 123124, character_history: None };

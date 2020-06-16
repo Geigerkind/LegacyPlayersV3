@@ -5,12 +5,12 @@ use crate::{
         data::Data,
     },
 };
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn character_search() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let armory = Armory::with_dns((dns.clone() + "main").as_str());
     let data = Data::with_dns((dns + "main").as_str()).init(None);

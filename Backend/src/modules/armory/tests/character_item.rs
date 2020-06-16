@@ -2,13 +2,13 @@ use crate::modules::armory::{
     tools::{CreateCharacterItem, GetCharacterItem},
     Armory,
 };
-use crate::start_test_db;
 use crate::modules::armory::dto::CharacterItemDto;
+use crate::tests::TestContainer;
 
 #[test]
 fn character_item() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let armory = Armory::with_dns((dns + "main").as_str());
     let character_item_dto = CharacterItemDto {

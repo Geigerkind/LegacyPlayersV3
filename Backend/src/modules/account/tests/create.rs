@@ -5,13 +5,13 @@ use crate::modules::account::{
   tools::{Create, GetAccountInformation},
 };
 
-use crate::start_test_db;
 use crate::modules::account::tests::helper::get_create_member;
+use crate::tests::TestContainer;
 
 #[test]
 fn create_account() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
@@ -22,8 +22,8 @@ fn create_account() {
 
 #[test]
 fn mail_twice() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
@@ -34,8 +34,8 @@ fn mail_twice() {
 
 #[test]
 fn nickname_twice() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
@@ -47,8 +47,8 @@ fn nickname_twice() {
 
 #[test]
 fn mail_empty() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "", "Password123456Password123456Password123456");
@@ -58,8 +58,8 @@ fn mail_empty() {
 
 #[test]
 fn password_empty() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "");
@@ -69,8 +69,8 @@ fn password_empty() {
 
 #[test]
 fn nickname_empty() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("", "mail@mail.de", "Password123456Password123456Password123456");
@@ -80,8 +80,8 @@ fn nickname_empty() {
 
 #[test]
 fn invalid_mail() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mailmailde", "Password123456Password123456Password123456");
@@ -91,8 +91,8 @@ fn invalid_mail() {
 
 #[test]
 fn invalid_nickname() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth adasd", "mail@mail.de", "Password123456Password123456Password123456");
@@ -102,8 +102,8 @@ fn invalid_nickname() {
 
 #[test]
 fn confirm_mail() {
-  let dns: String;
-  start_test_db!(false, dns);
+  let container = TestContainer::new(false);
+  let (dns, _node) = container.run();
 
   let account = Account::with_dns((dns + "main").as_str());
   let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");

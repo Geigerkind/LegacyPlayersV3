@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemBonding, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_item_bonding() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(18));
     let item_bonding = data.get_item_bonding(1);
@@ -16,8 +16,8 @@ fn get_item_bonding() {
 
 #[test]
 fn get_all_item_bondings() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(18));
     let item_bondings = data.get_all_item_bondings();

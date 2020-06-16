@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveProfession, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_profession() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(5));
     let profession = data.get_profession(182);
@@ -16,8 +16,8 @@ fn get_profession() {
 
 #[test]
 fn get_all_professions() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(5));
     let professions = data.get_all_professions();

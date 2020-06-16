@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveStatType, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_stat_type() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(11));
     let stat_type = data.get_stat_type(1);
@@ -16,8 +16,8 @@ fn get_stat_type() {
 
 #[test]
 fn get_all_stat_types() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(11));
     let stat_types = data.get_all_stat_types();

@@ -7,12 +7,12 @@ use crate::modules::{
     data::Data,
     tooltip::{domain_value::Stat, material::SetItem, tools::RetrieveItemTooltip, Tooltip},
 };
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn avenger_breastplate() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
     let data = Data::with_dns((dns + "main").as_str()).init(None);
@@ -94,8 +94,8 @@ fn avenger_breastplate() {
 
 #[test]
 fn shadowmourne_socket() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
     let data = Data::with_dns((dns + "main").as_str()).init(None);
@@ -112,8 +112,8 @@ fn shadowmourne_socket() {
 
 #[test]
 fn thunderfury_weapon_stat() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
     let data = Data::with_dns((dns + "main").as_str()).init(None);
@@ -135,8 +135,8 @@ fn thunderfury_weapon_stat() {
 
 #[test]
 fn shadowmourne_socketed_and_enchanted() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
     let data = Data::with_dns((dns.clone() + "main").as_str()).init(None);

@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemEffect, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_item_effect() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(22));
     let item_effect = data.get_item_effect(1, 117);

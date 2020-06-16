@@ -3,13 +3,13 @@ use crate::modules::account::{
     tools::{Create, Login, Token, Update},
 };
 use str_util::sha3;
-use crate::start_test_db;
 use crate::modules::account::tests::helper::get_create_member;
+use crate::tests::TestContainer;
 
 #[test]
 fn validate_valid() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -20,8 +20,8 @@ fn validate_valid() {
 
 #[test]
 fn validate_invalid() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     assert!(account.validate_token("someHash").is_none());
@@ -29,8 +29,8 @@ fn validate_invalid() {
 
 #[test]
 fn validation_invalid_after_update() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -48,8 +48,8 @@ fn validation_invalid_after_update() {
 
 #[test]
 fn get_all_tokens() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -62,8 +62,8 @@ fn get_all_tokens() {
 
 #[test]
 fn delete_token() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -82,8 +82,8 @@ fn delete_token() {
 
 #[test]
 fn prolong_token() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -102,8 +102,8 @@ fn prolong_token() {
 
 #[test]
 fn prolong_token_by_str() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");

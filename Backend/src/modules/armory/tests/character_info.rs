@@ -3,12 +3,12 @@ use crate::modules::armory::{
     Armory,
 };
 use super::helper::get_character_info;
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn character_info() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let armory = Armory::with_dns((dns + "main").as_str());
     let character_info_dto = get_character_info();

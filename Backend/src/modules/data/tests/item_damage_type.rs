@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemDamageType, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_item_damage_type() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(21));
     let item_damage_type = data.get_item_damage_type(1);
@@ -16,8 +16,8 @@ fn get_item_damage_type() {
 
 #[test]
 fn get_all_item_damage_types() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(21));
     let item_damage_types = data.get_all_item_damage_types();

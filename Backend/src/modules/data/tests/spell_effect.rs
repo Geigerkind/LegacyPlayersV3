@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveSpellEffect, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_spell_effects() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(12));
     let spell_effects = data.get_spell_effects(1, 1);

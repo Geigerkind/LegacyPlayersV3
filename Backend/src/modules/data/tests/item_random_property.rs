@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemRandomProperty, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_item_random_property() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(25));
     let item_random_property = data.get_item_random_property(1, 5);

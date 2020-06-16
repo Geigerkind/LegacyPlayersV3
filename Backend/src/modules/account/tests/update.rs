@@ -4,13 +4,13 @@ use crate::modules::account::{
     material::Account,
     tools::{Create, Update},
 };
-use crate::start_test_db;
 use crate::modules::account::tests::helper::get_create_member;
+use crate::tests::TestContainer;
 
 #[test]
 fn change_name() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -23,8 +23,8 @@ fn change_name() {
 
 #[test]
 fn change_name_empty_content() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -36,8 +36,8 @@ fn change_name_empty_content() {
 
 #[test]
 fn change_name_invalid_content() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -49,8 +49,8 @@ fn change_name_invalid_content() {
 
 #[test]
 fn change_name_name_taken() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -64,8 +64,8 @@ fn change_name_name_taken() {
 
 #[test]
 fn change_password_empty_content() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -77,8 +77,8 @@ fn change_password_empty_content() {
 
 #[test]
 fn change_password() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -94,8 +94,8 @@ fn change_password() {
 
 #[test]
 fn change_mail_empty_content() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -107,8 +107,8 @@ fn change_mail_empty_content() {
 
 #[test]
 fn change_mail_invalid_content() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -120,8 +120,8 @@ fn change_mail_invalid_content() {
 
 #[test]
 fn change_mail_mail_taken() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -135,8 +135,8 @@ fn change_mail_mail_taken() {
 
 #[test]
 fn change_mail() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");

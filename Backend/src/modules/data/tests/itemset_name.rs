@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemsetName, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_itemset_name() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(29));
     let itemset_name = data.get_itemset_name(1, 1);

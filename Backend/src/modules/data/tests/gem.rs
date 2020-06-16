@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveGem, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_gem() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(16));
     let gem = data.get_gem(2, 22459);

@@ -4,13 +4,13 @@ use crate::modules::account::{
     material::Account,
     tools::{Create, Forgot},
 };
-use crate::start_test_db;
 use crate::modules::account::tests::helper::get_create_member;
+use crate::tests::TestContainer;
 
 #[test]
 fn send_forget_password_user_does_not_exist() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     assert!(account.send_forgot_password("test@mail.de").is_ok());
@@ -18,8 +18,8 @@ fn send_forget_password_user_does_not_exist() {
 
 #[test]
 fn send_forget_password_invalid_mail() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     assert!(account.send_forgot_password("test").is_err());
@@ -27,8 +27,8 @@ fn send_forget_password_invalid_mail() {
 
 #[test]
 fn send_forgot_password_user_exists_and_receive() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
@@ -48,8 +48,8 @@ fn send_forgot_password_user_exists_and_receive() {
 
 #[test]
 fn recv_forgot_password_invalid_id() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let account = Account::with_dns((dns + "main").as_str());
     assert!(account.recv_forgot_password("bla").is_err());

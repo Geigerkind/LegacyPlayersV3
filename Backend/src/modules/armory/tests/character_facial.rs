@@ -3,12 +3,12 @@ use crate::modules::armory::{
     Armory,
 };
 use super::helper::get_character_facial;
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn character_facial() {
-    let dns: String;
-    start_test_db!(false, dns);
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
 
     let armory = Armory::with_dns((dns + "main").as_str());
     let character_facial_dto = get_character_facial();

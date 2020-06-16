@@ -2,12 +2,12 @@ use crate::modules::live_data_processor::tools::server::ParseEvents;
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::dto::{Message, MessageType, DamageDone, SpellCast, Unit};
 use crate::modules::armory::Armory;
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn parse_spell_damage() {
-  let dns: String;
-  start_test_db!(true, dns);
+  let container = TestContainer::new(true);
+  let (dns, _node) = container.run();
 
   // Arrange
   let mut server = Server::default();

@@ -7,7 +7,7 @@ use crate::modules::{
     },
     tooltip::{tools::RetrieveGuildTooltip, Tooltip},
 };
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 fn build_character_guild(guild_id: u32) -> CharacterGuild {
     CharacterGuild {
@@ -85,8 +85,8 @@ fn build_guild(guild_id: u32, guild_name: String) -> Guild {
 
 #[test]
 fn improved_acts() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     // Test requirements generated with ACTS tool
     //

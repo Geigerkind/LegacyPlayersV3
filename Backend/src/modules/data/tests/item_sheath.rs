@@ -1,10 +1,10 @@
 use crate::modules::data::{tools::RetrieveItemSheath, Data};
-use crate::start_test_db;
+use crate::tests::TestContainer;
 
 #[test]
 fn get_item_sheath() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(26));
     let item_sheath = data.get_item_sheath(1);
@@ -16,8 +16,8 @@ fn get_item_sheath() {
 
 #[test]
 fn get_all_item_sheaths() {
-    let dns: String;
-    start_test_db!(true, dns);
+    let container = TestContainer::new(true);
+    let (dns, _node) = container.run();
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(26));
     let item_sheaths = data.get_all_item_sheaths();

@@ -1,11 +1,11 @@
-use crate::start_test_db;
+use crate::tests::TestContainer;
 use crate::modules::data::{Data, Stat};
 use crate::modules::data::tools::SpellDescription;
 
 #[test]
 fn test_parse_stats_none() {
-  let dns: String;
-  start_test_db!(true, dns);
+  let container = TestContainer::new(true);
+  let (dns, _node) = container.run();
 
   // Arrange
   let data = Data::with_dns((dns + "main").as_str()).init(None);
@@ -19,8 +19,8 @@ fn test_parse_stats_none() {
 
 #[test]
 fn test_parse_stats_magical_spell() {
-  let dns: String;
-  start_test_db!(true, dns);
+  let container = TestContainer::new(true);
+  let (dns, _node) = container.run();
 
   // Arrange
   let data = Data::with_dns((dns + "main").as_str()).init(None);
