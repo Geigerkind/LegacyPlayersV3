@@ -26,6 +26,7 @@ jobs:
           command: test
           args: --workspace --all-features --no-fail-fast
         env:
+          PWD: '/home/runner/work/LegacyPlayersV3'
           RUST_BACKTRACE: '1'
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
