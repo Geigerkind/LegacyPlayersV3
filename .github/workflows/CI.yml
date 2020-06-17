@@ -1,27 +1,93 @@
 name: CI
-on: [push]
+on:
+  push:
+    branches:
+      - 'master'
+      - 'dev'
 
 jobs:
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: cd Webclient && npm install @angular/cli --next && npm install html-minifier && npm install
-      - run: cd Webclient && npm run-script lint
-      - run: cd Webclient && npm run-script build
-      - run: cd Webclient && npm run-script test
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+          with:
+            path: Webclient/node_modules
+            key: ubuntu-latest-node-modules-directory-${{ hashFiles('Webclient/package.json') }}
+
+      - name: Install Angular
+        run: |
+          cd Webclient
+          npm install @angular/cli
+          npm install html-minifier
+          npm install
+
+      - name: Linting
+        run: |
+          cd Webclient
+          npm run-script lint
+
+      - name: Building
+        run: |
+          cd Webclient
+          npm run-script lint
+
+      - name: Testing
+        run: |
+          cd Webclient
+          npm run-script test
+
   backend:
     name: Backend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        id: toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-          components: clippy
+          components: clippy, rustfmt
           override: true
-      - uses: actions-rs/cargo@v1
+
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/registry
+          key: cargo-registry-${{ hashFiles('Cargo.lock') }}
+
+      - name: Cache cargo binaries
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/bin
+          key: ubuntu-latest-cargo-binaries-${{ steps.toolchain.outputs.rustc_hash }}
+
+      - name: Cache target directory
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}-clippy
+
+      - name: Linting
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets -- -D warnings
+
+      - name: Formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --files-with-diff
+
+      - name: Execute tests
+        uses: actions-rs/cargo@v1
         with:
           command: test
           args: --workspace --all-features --no-fail-fast
@@ -31,13 +97,14 @@ jobs:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
-      - uses: actions-rs/grcov@v0.1
+
+      - name: Measuring code coverage
+        uses: actions-rs/grcov@v0.1
         with:
           config: .github/actions/grcov.yml
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: codecov/codecov-action@v1
+
+      - name: Uploading coverage data
+        uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lcov.info
