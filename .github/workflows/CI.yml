@@ -93,6 +93,7 @@ jobs:
           rm target/debug/deps/str_util*
           rm target/debug/deps/time_util*
           rm target/debug/deps/validator*
+          rm target/debug/incremental/*
 
       - name: Execute tests
         uses: actions-rs/cargo@v1
