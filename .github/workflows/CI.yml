@@ -88,6 +88,10 @@ jobs:
 
       - name: Removing coverage specific dependencies
         run: |
+          ls -l
+          ls -l target
+          ls -l target/debug
+          ls -l target/debug/deps
           rm target/debug/deps/backend*
           rm target/debug/deps/validator*
           rm target/debug/deps/mail*
