@@ -15,9 +15,9 @@ jobs:
 
       - name: Cache node_modules
         uses: actions/cache@v2
-          with:
-            path: Webclient/node_modules
-            key: ubuntu-latest-node-modules-directory-${{ hashFiles('Webclient/package.json') }}
+        with:
+          path: Webclient/node_modules
+          key: ubuntu-latest-node-modules-directory-${{ hashFiles('Webclient/package.json') }}
 
       - name: Install Angular
         run: |
