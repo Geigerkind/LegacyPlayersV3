@@ -86,6 +86,16 @@ jobs:
           command: fmt
           args: -- --files-with-diff
 
+      - name: Removing coverage specific dependencies
+        run: |
+          rm target/debug/deps/backend*
+          rm target/debug/deps/validator*
+          rm target/debug/deps/mail*
+          rm target/debug/deps/mysql_connection*
+          rm target/debug/deps/str_util*
+          rm target/debug/deps/time_util*
+          rm target/debug/deps/validator*
+
       - name: Execute tests
         uses: actions-rs/cargo@v1
         with:
