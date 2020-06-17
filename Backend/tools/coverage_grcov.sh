@@ -5,7 +5,7 @@ export RUSTDOCFLAGS="-Cpanic=abort"
 cargo clean;
 cargo update;
 cargo build;
-cargo test --features "integration";
+cargo test --features "integration" -- --force-run-in-process -Z unstable-options;
 ~/.cargo/bin/grcov ./target/debug/ -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" -o lcov.info;
 genhtml -o ./target/debug/coverage/ --branch-coverage --show-details --highlight --ignore-errors source --legend ./lcov.info
 rm ./lcov.info
