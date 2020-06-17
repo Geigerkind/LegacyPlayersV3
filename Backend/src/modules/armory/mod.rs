@@ -1,7 +1,6 @@
 pub use self::material::Armory;
 
 #[cfg(test)]
-#[cfg(feature = "integration")]
 mod tests;
 
 #[cfg(test)]

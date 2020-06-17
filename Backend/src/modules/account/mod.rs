@@ -1,7 +1,6 @@
 pub use self::material::Account;
 
 #[cfg(test)]
-#[cfg(feature = "integration")]
 mod tests;
 
 mod domain_value;
