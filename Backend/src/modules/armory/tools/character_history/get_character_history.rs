@@ -31,13 +31,13 @@ impl GetCharacterHistory for Armory {
                     character_id: row.take(1).unwrap(),
                     character_info,
                     character_name: row.take(3).unwrap(),
-                    character_guild: row.take_opt(4).unwrap().ok().and_then(|guild_id| {
+                    character_guild: row.take_opt(4).unwrap().ok().map(|guild_id| {
                         let guild = self.get_guild(guild_id).unwrap();
                         let rank_index: u8 = row.take(5).unwrap();
-                        Some(CharacterGuild {
+                        CharacterGuild {
                             guild_id,
                             rank: guild.ranks.iter().find(|rank| rank.index == rank_index).unwrap().to_owned(),
-                        })
+                        }
                     }),
                     character_title: row.take_opt(6).unwrap().ok(),
                     profession_skill_points1: row.take_opt(7).unwrap().ok(),

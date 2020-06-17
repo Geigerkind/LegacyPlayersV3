@@ -82,10 +82,9 @@ impl Update for Account {
               "id" => member_id
             ),
     ) {
-      return self.clear_tokens(member_id).and_then(|()| {
+      return self.clear_tokens(member_id).map(|_| {
         let entry = member.get_mut(&member_id).unwrap();
         entry.password = hash;
-        Ok(())
       });
     }
     Err(Failure::Unknown)
