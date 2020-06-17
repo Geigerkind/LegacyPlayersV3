@@ -70,30 +70,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: target
-          key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}-clippy
-
-      - name: Linting
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets -- -D warnings
-
-      - name: Formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --files-with-diff
-
-      - name: Removing coverage specific dependencies
-        run: |
-          rm target/debug/deps/backend*
-          rm target/debug/deps/language*
-          rm target/debug/deps/mail*
-          rm target/debug/deps/mysql_connection*
-          rm target/debug/deps/str_util*
-          rm target/debug/deps/time_util*
-          rm target/debug/deps/validator*
-          rm target/debug/incremental/*
+          key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Execute tests
         uses: actions-rs/cargo@v1
@@ -102,10 +79,26 @@ jobs:
           args: --workspace --all-features --no-fail-fast
         env:
           PWD: '/home/runner/work/LegacyPlayersV3/LegacyPlayersV3'
-          RUST_BACKTRACE: '1'
+          RUST_BACKTRACE: 'FULL'
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
+
+      - name: Linting
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets -- -D warnings
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
+          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
+
+      - name: Formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: -- --files-with-diff
 
       - name: Measuring code coverage
         uses: actions-rs/grcov@v0.1
