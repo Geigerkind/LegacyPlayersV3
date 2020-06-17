@@ -1,3 +1,4 @@
+use crate::tests::TestContainer;
 use crate::{
     dto::TableFilter,
     modules::{
@@ -5,7 +6,6 @@ use crate::{
         data::Data,
     },
 };
-use crate::tests::TestContainer;
 
 #[test]
 fn character_search() {

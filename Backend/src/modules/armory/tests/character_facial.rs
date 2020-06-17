@@ -1,8 +1,8 @@
+use super::helper::get_character_facial;
 use crate::modules::armory::{
     tools::{CreateCharacterFacial, GetCharacterFacial},
     Armory,
 };
-use super::helper::get_character_facial;
 use crate::tests::TestContainer;
 
 #[test]

@@ -27,7 +27,7 @@ mod profession;
 mod race;
 mod server;
 mod spell;
+mod spell_description;
 mod spell_effect;
 mod stat_type;
 mod title;
-mod spell_description;

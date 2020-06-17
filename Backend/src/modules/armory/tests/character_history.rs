@@ -1,11 +1,11 @@
+use super::helper::get_character_history;
+use crate::modules::armory::dto::CharacterDto;
 use crate::modules::armory::{
     tools::{DeleteCharacterHistory, GetCharacterHistory, SetCharacter, SetCharacterHistory},
     Armory,
 };
-use std::{thread, time};
-use super::helper::get_character_history;
-use crate::modules::armory::dto::CharacterDto;
 use crate::tests::TestContainer;
+use std::{thread, time};
 
 #[test]
 fn set_character_history() {

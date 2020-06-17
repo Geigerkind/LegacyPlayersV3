@@ -20,15 +20,15 @@ extern crate time_util;
 extern crate validator;
 #[macro_use]
 extern crate lazy_static;
+extern crate byteorder;
 extern crate dotenv;
 extern crate regex;
-extern crate byteorder;
 
 use dotenv::dotenv;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::{account, armory, data, tooltip, live_data_processor};
+use crate::modules::{account, armory, data, live_data_processor, tooltip};
 
 #[cfg(test)]
 mod tests;
@@ -204,12 +204,7 @@ fn main() {
         ],
     );
 
-    igniter = igniter.mount(
-        "/API/live_data_processor",
-        routes_with_openapi![
-            live_data_processor::transfer::package::get_package
-        ]
-    );
+    igniter = igniter.mount("/API/live_data_processor", routes_with_openapi![live_data_processor::transfer::package::get_package]);
 
     igniter.launch();
 }

@@ -3,10 +3,11 @@ pub use self::{
     guild::*, guild_rank::*, guild_viewer::GuildViewer, talent_specialization::*,
 };
 
-pub use self::instance_reset::*;
 pub use self::character_arena_team::*;
+pub use self::instance_reset::*;
 
 mod character;
+mod character_arena_team;
 mod character_facial;
 mod character_gear;
 mod character_history;
@@ -14,11 +15,10 @@ mod character_info;
 mod character_item;
 mod character_search;
 mod character_viewer;
-mod character_arena_team;
 
 mod get_character_item_stats;
 mod guild;
 mod guild_rank;
 mod guild_viewer;
-mod talent_specialization;
 mod instance_reset;
+mod talent_specialization;

@@ -3,5 +3,5 @@ pub use self::nickname::valid_nickname;
 pub use self::password::valid_password;
 
 mod mail;
-mod password;
 mod nickname;
+mod password;

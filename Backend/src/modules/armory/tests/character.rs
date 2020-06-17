@@ -1,10 +1,10 @@
-use std::{thread, time};
+use super::helper::get_character;
 use crate::modules::armory::{
     tools::{DeleteCharacter, GetCharacter, SetCharacter},
     Armory,
 };
-use super::helper::get_character;
 use crate::tests::TestContainer;
+use std::{thread, time};
 
 #[test]
 fn set_character() {

@@ -1,8 +1,8 @@
+use super::helper::get_character_gear;
 use crate::modules::armory::{
     tools::{CreateCharacterGear, GetCharacterGear},
     Armory,
 };
-use super::helper::get_character_gear;
 use crate::tests::TestContainer;
 
 #[test]

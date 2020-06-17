@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::RwLock, env};
+use std::{collections::HashMap, env, sync::RwLock};
 
 use language::material::Dictionary;
 use mysql_connection::{

@@ -9,4 +9,3 @@ pub use self::tools::strformat;
 #[cfg(test)]
 mod tests;
 mod tools;
-

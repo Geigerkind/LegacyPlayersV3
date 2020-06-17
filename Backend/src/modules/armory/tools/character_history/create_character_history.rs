@@ -1,5 +1,7 @@
 use mysql_connection::tools::Execute;
 
+use crate::modules::armory::domain_value::ArenaTeamSizeType;
+use crate::modules::armory::tools::SetArenaTeam;
 use crate::modules::armory::{
     domain_value::HistoryMoment,
     dto::{ArmoryFailure, CharacterHistoryDto},
@@ -7,8 +9,6 @@ use crate::modules::armory::{
     tools::{CreateCharacterFacial, CreateCharacterInfo, CreateGuild, GetCharacter, GetCharacterHistory, SetGuildRank},
     Armory,
 };
-use crate::modules::armory::tools::SetArenaTeam;
-use crate::modules::armory::domain_value::ArenaTeamSizeType;
 
 pub trait CreateCharacterHistory {
     fn create_character_history(&self, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
@@ -69,9 +69,8 @@ impl CreateCharacterHistory for Armory {
           "arena5" => arena5
         );
         self.db_main.execute_wparams(
-            "INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, \
-            `guild_id`, `guild_rank`, `prof_skill_points1`, `prof_skill_points2`, `facial`, `arena2`, `arena3`, `arena5`, `timestamp`) VALUES (:character_id, \
-             :character_info_id, :character_name, :title, :guild_id, :guild_rank, :prof_skill_points1, :prof_skill_points2, :facial, :arena2, :arena3, :arena5, UNIX_TIMESTAMP())",
+            "INSERT INTO armory_character_history (`character_id`, `character_info_id`, `character_name`, `title`, `guild_id`, `guild_rank`, `prof_skill_points1`, `prof_skill_points2`, `facial`, `arena2`, `arena3`, `arena5`, `timestamp`) VALUES \
+             (:character_id, :character_info_id, :character_name, :title, :guild_id, :guild_rank, :prof_skill_points1, :prof_skill_points2, :facial, :arena2, :arena3, :arena5, UNIX_TIMESTAMP())",
             params,
         );
         if let Ok(character_history_res) = self.get_character_history_by_value(character_id, character_history_dto) {

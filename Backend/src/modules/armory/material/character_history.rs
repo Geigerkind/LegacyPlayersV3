@@ -1,8 +1,8 @@
+use crate::modules::armory::domain_value::ArenaTeam;
 use crate::modules::armory::{
     domain_value::{CharacterFacial, CharacterGuild, CharacterInfo},
     dto::CharacterHistoryDto,
 };
-use crate::modules::armory::domain_value::ArenaTeam;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistory {

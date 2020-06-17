@@ -30,15 +30,15 @@ proptest! {
 
 #[test]
 fn fmt() {
-  let fmt = "{2} {1} {3} {0}".to_string();
-  let input = ["Test", "is", "This", "a"];
-  let result = "This is a Test";
-  assert_eq!(strformat::fmt(fmt, &input), result);
+    let fmt = "{2} {1} {3} {0}".to_string();
+    let input = ["Test", "is", "This", "a"];
+    let result = "This is a Test";
+    assert_eq!(strformat::fmt(fmt, &input), result);
 }
 
 #[test]
 fn fmt_empty_arguments() {
-  let fmt = "{2} {1} {3} {0}".to_string();
-  let input = [];
-  assert_eq!(strformat::fmt(fmt.clone(), &input), fmt);
+    let fmt = "{2} {1} {3} {0}".to_string();
+    let input = [];
+    assert_eq!(strformat::fmt(fmt.clone(), &input), fmt);
 }

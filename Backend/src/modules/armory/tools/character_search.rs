@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
 
+use crate::modules::armory::material::{Character, Guild};
+use crate::util::ordering::NegateOrdExt;
 use crate::{
-    {rpll_table_sort},
     dto::SearchResult,
     modules::{
         armory::{
@@ -11,9 +12,8 @@ use crate::{
         },
         data::{tools::RetrieveRace, Data},
     },
+    rpll_table_sort,
 };
-use crate::util::ordering::NegateOrdExt;
-use crate::modules::armory::material::{Character, Guild};
 
 pub trait PerformCharacterSearch {
     fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult>;
@@ -31,7 +31,8 @@ impl PerformCharacterSearch for Armory {
             *filter.guild.filter.as_mut().unwrap() = filter.guild.filter.as_ref().unwrap().to_lowercase();
         }
         let result = characters.iter().filter(|(_, character)| character.last_update.is_some());
-        let mut result:Vec<(&Character, Option<Guild>)> = result.filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))
+        let mut result: Vec<(&Character, Option<Guild>)> = result
+            .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))
             .filter(|(_, character)| filter.name.filter.is_none() || character.last_update.as_ref().unwrap().character_name.to_lowercase().contains(filter.name.filter.as_ref().unwrap()))
             .filter(|(_, character)| filter.hero_class.filter.is_none() || filter.hero_class.filter.contains(&character.last_update.as_ref().unwrap().character_info.hero_class_id))
             .filter(|(_, character)| {
@@ -58,22 +59,30 @@ impl PerformCharacterSearch for Armory {
             .collect();
         let num_characters = result.len();
 
-        result.sort_by(|(l_char, l_guild), (r_char, r_guild)| rpll_table_sort! {
-            (filter.hero_class, Some(&l_char.last_update.as_ref().unwrap().character_info.hero_class_id), Some(&r_char.last_update.as_ref().unwrap().character_info.hero_class_id)),
-            (filter.name, Some(&l_char.last_update.as_ref().unwrap().character_name), Some(&r_char.last_update.as_ref().unwrap().character_name)),
-            (filter.guild, l_guild.as_ref().map(|gld| &gld.name), r_guild.as_ref().map(|gld| &gld.name)),
-            (filter.server, Some(&l_char.server_id), Some(&r_char.server_id)),
-            (filter.last_updated, Some(&l_char.last_update.as_ref().unwrap().timestamp), Some(&r_char.last_update.as_ref().unwrap().timestamp))
+        result.sort_by(|(l_char, l_guild), (r_char, r_guild)| {
+            rpll_table_sort! {
+                (filter.hero_class, Some(&l_char.last_update.as_ref().unwrap().character_info.hero_class_id), Some(&r_char.last_update.as_ref().unwrap().character_info.hero_class_id)),
+                (filter.name, Some(&l_char.last_update.as_ref().unwrap().character_name), Some(&r_char.last_update.as_ref().unwrap().character_name)),
+                (filter.guild, l_guild.as_ref().map(|gld| &gld.name), r_guild.as_ref().map(|gld| &gld.name)),
+                (filter.server, Some(&l_char.server_id), Some(&r_char.server_id)),
+                (filter.last_updated, Some(&l_char.last_update.as_ref().unwrap().timestamp), Some(&r_char.last_update.as_ref().unwrap().timestamp))
+            }
         });
 
         SearchResult {
-            result: result.iter().skip((filter.page * 10) as usize).take(10)
+            result: result
+                .iter()
+                .skip((filter.page * 10) as usize)
+                .take(10)
                 .map(|(character, guild)| {
                     let race_id = character.last_update.as_ref().unwrap().character_info.race_id;
                     let last_update = character.last_update.as_ref().unwrap();
                     CharacterSearchResult {
                         faction: data.get_race(race_id).unwrap().faction,
-                        guild: guild.as_ref().map(|innr_gld| CharacterSearchGuildDto { guild_id: innr_gld.id, name: innr_gld.name.clone() }),
+                        guild: guild.as_ref().map(|innr_gld| CharacterSearchGuildDto {
+                            guild_id: innr_gld.id,
+                            name: innr_gld.name.clone(),
+                        }),
                         character: CharacterSearchCharacterDto {
                             character_id: character.id,
                             name: last_update.character_name.clone(),

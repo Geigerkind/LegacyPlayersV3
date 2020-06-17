@@ -1,12 +1,12 @@
-use std::{collections::HashMap, sync::RwLock, env};
+use std::{collections::HashMap, env, sync::RwLock};
 
 use mysql_connection::{material::MySQLConnection, tools::Select};
 
+use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 use crate::modules::armory::{
     domain_value::{CharacterFacial, CharacterGear, CharacterGuild, CharacterInfo, CharacterItem, GuildRank, HistoryMoment},
     material::{Character, CharacterHistory, Guild},
 };
-use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 
 #[derive(Debug)]
 pub struct Armory {
@@ -69,15 +69,14 @@ impl Init for HashMap<u32, Character> {
 
         // Load the actual newest character history data
         db.select(
-            "SELECT ach.*, agr.name AS guild_rank_name, acf.*, aci.*, ag.id, ai1.*, ai2.*, ai3.*, ai4.*, \
-             ai5.*, ai6.*, ai7.*, ai8.*, ai9.*, ai10.*, ai11.*, ai12.*, ai13.*, ai14.*, ai15.*, ai16.*, ai17.*, ai18.*, ai19.*, aat1.*, aat2.*, aat3.* FROM \
+            "SELECT ach.*, agr.name AS guild_rank_name, acf.*, aci.*, ag.id, ai1.*, ai2.*, ai3.*, ai4.*, ai5.*, ai6.*, ai7.*, ai8.*, ai9.*, ai10.*, ai11.*, ai12.*, ai13.*, ai14.*, ai15.*, ai16.*, ai17.*, ai18.*, ai19.*, aat1.*, aat2.*, aat3.* FROM \
              armory_character_history ach JOIN (SELECT MAX(id) id FROM armory_character_history GROUP BY character_id) ach_max ON ach.id = ach_max.id LEFT JOIN armory_character_facial acf ON acf.id = ach.facial JOIN armory_character_info aci ON \
              ach.character_info_id = aci.id JOIN armory_gear ag ON aci.gear_id = ag.id LEFT JOIN armory_item ai1 ON ag.head = ai1.id LEFT JOIN armory_item ai2 ON ag.neck = ai2.id LEFT JOIN armory_item ai3 ON ag.shoulder = ai3.id LEFT JOIN \
              armory_item ai4 ON ag.back = ai4.id LEFT JOIN armory_item ai5 ON ag.chest = ai5.id LEFT JOIN armory_item ai6 ON ag.shirt = ai6.id LEFT JOIN armory_item ai7 ON ag.tabard = ai7.id LEFT JOIN armory_item ai8 ON ag.wrist = ai8.id LEFT JOIN \
              armory_item ai9 ON ag.main_hand = ai9.id LEFT JOIN armory_item ai10 ON ag.off_hand = ai10.id LEFT JOIN armory_item ai11 ON ag.ternary_hand = ai11.id LEFT JOIN armory_item ai12 ON ag.glove = ai12.id LEFT JOIN armory_item ai13 ON \
              ag.belt = ai13.id LEFT JOIN armory_item ai14 ON ag.leg = ai14.id LEFT JOIN armory_item ai15 ON ag.boot = ai15.id LEFT JOIN armory_item ai16 ON ag.ring1 = ai16.id LEFT JOIN armory_item ai17 ON ag.ring2 = ai17.id LEFT JOIN armory_item \
-             ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id LEFT JOIN armory_guild_rank agr ON agr.guild_id = ach.guild_id AND agr.rank_index = ach.guild_rank \
-             LEFT JOIN armory_arena_team aat1 ON aat1.id = ach.arena2 LEFT JOIN armory_arena_team aat2 ON aat2.id = ach.arena3 LEFT JOIN armory_arena_team aat3 ON aat3.id = ach.arena5",
+             ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id LEFT JOIN armory_guild_rank agr ON agr.guild_id = ach.guild_id AND agr.rank_index = ach.guild_rank LEFT JOIN armory_arena_team aat1 ON aat1.id = \
+             ach.arena2 LEFT JOIN armory_arena_team aat2 ON aat2.id = ach.arena3 LEFT JOIN armory_arena_team aat3 ON aat3.id = ach.arena5",
             &|mut row| {
                 let mut gear_slots: Vec<Option<CharacterItem>> = Vec::new();
                 for i in (31..183).step_by(8) {
@@ -102,24 +101,27 @@ impl Init for HashMap<u32, Character> {
                         server_uid: row.take(184).unwrap(),
                         server_id: row.take(185).unwrap(),
                         team_name: row.take(186).unwrap(),
-                        size_type: ArenaTeamSizeType::from_u8(row.take(187).unwrap())
+                        size_type: ArenaTeamSizeType::from_u8(row.take(187).unwrap()),
                     }),
                     row.take_opt(11).unwrap().ok().map(|team_id| ArenaTeam {
                         id: team_id,
                         server_uid: row.take(188).unwrap(),
                         server_id: row.take(189).unwrap(),
                         team_name: row.take(190).unwrap(),
-                        size_type: ArenaTeamSizeType::from_u8(row.take(191).unwrap())
+                        size_type: ArenaTeamSizeType::from_u8(row.take(191).unwrap()),
                     }),
                     row.take_opt(12).unwrap().ok().map(|team_id| ArenaTeam {
                         id: team_id,
                         server_uid: row.take(193).unwrap(),
                         server_id: row.take(194).unwrap(),
                         team_name: row.take(195).unwrap(),
-                        size_type: ArenaTeamSizeType::from_u8(row.take(195).unwrap())
-                    })
-                ].iter().filter(|team| team.is_some())
-                        .map(|team| team.as_ref().unwrap().clone()).collect();
+                        size_type: ArenaTeamSizeType::from_u8(row.take(195).unwrap()),
+                    }),
+                ]
+                .iter()
+                .filter(|team| team.is_some())
+                .map(|team| team.as_ref().unwrap().clone())
+                .collect();
 
                 CharacterHistory {
                     id: row.take(0).unwrap(),

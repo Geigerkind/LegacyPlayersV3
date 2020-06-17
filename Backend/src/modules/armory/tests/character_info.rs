@@ -1,8 +1,8 @@
+use super::helper::get_character_info;
 use crate::modules::armory::{
     tools::{CreateCharacterInfo, GetCharacterInfo},
     Armory,
 };
-use super::helper::get_character_info;
 use crate::tests::TestContainer;
 
 #[test]

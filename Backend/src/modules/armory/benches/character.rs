@@ -6,13 +6,13 @@ use test::Bencher;
 use mysql_connection::tools::Execute;
 
 use self::time::Instant;
+use crate::modules::armory::dto::ArenaTeamDto;
 use crate::modules::armory::{
     domain_value::GuildRank,
     dto::{CharacterDto, CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto},
     tools::SetCharacter,
     Armory,
 };
-use crate::modules::armory::dto::ArenaTeamDto;
 use crate::tests::TestContainer;
 use std::ops::Div;
 
@@ -156,14 +156,14 @@ fn set_character(b: &mut Bencher) {
                 name: "Other Fancy Team Name".to_string(),
                 team_type: 3,
                 team_rating: 1599,
-                personal_rating: 1533
+                personal_rating: 1533,
             },
             ArenaTeamDto {
                 team_id: 224234511,
                 name: "Other Fancy Team Name".to_string(),
                 team_type: 5,
                 team_rating: 1599,
-                personal_rating: 1533
+                personal_rating: 1533,
             },
         ],
         character_guild: Some(CharacterGuildDto {

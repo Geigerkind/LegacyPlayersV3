@@ -128,7 +128,7 @@ fn improved_acts() {
     // q13 (enum) : N0, N1, N2
     // q14 (enum) : O0, O1
     // q15 (enum) : P0, P1, P2
-    // 
+    //
     // [Constraint]
     // (q0 = "A0") => (q1 = "B0")
     // (q0 = "A1") => (q1 = "B0" || q1 = "B1")
@@ -469,7 +469,7 @@ fn improved_acts() {
                 },
                 _ => {
                     panic!("unimplemented: test_requirement[15] being not 0, 1 or 2");
-                }
+                },
             }
         } else {
             assert!(

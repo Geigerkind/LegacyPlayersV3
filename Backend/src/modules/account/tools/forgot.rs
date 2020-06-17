@@ -52,7 +52,7 @@ impl Forgot for Account {
                 &entry.nickname,
                 self.dictionary.get("forgot.confirmation.subject", Language::English),
                 strformat::fmt(self.dictionary.get("forgot.confirmation.text", Language::English), &[&forgot_id]),
-                cfg!(test)
+                cfg!(test),
             ) {
                 return Err(Failure::MailSend);
             }
@@ -97,7 +97,7 @@ impl Forgot for Account {
                     &entry.nickname,
                     self.dictionary.get("forgot.information.subject", Language::English),
                     strformat::fmt(self.dictionary.get("forgot.information.text", Language::English), &[&user_pass]),
-                    cfg!(test)
+                    cfg!(test),
                 ) {
                     return Err(Failure::MailSend);
                 }

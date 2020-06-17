@@ -1,8 +1,8 @@
+use crate::modules::armory::dto::CharacterItemDto;
 use crate::modules::armory::{
     tools::{CreateCharacterItem, GetCharacterItem},
     Armory,
 };
-use crate::modules::armory::dto::CharacterItemDto;
 use crate::tests::TestContainer;
 
 #[test]

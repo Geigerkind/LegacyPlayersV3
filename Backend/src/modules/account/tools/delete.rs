@@ -26,7 +26,7 @@ impl Delete for Account {
                 &entry.nickname,
                 self.dictionary.get("delete.confirmation.subject", Language::English),
                 strformat::fmt(self.dictionary.get("delete.confirmation.text", Language::English), &[&delete_id]),
-                cfg!(test)
+                cfg!(test),
             ) {
                 return Err(Failure::MailSend);
             }

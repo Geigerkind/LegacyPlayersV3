@@ -1,8 +1,8 @@
+use crate::modules::armory::dto::ArenaTeamDto;
 use crate::{
     dto::CheckPlausability,
     modules::armory::dto::{CharacterFacialDto, CharacterGuildDto, CharacterInfoDto},
 };
-use crate::modules::armory::dto::ArenaTeamDto;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterHistoryDto {
@@ -13,7 +13,7 @@ pub struct CharacterHistoryDto {
     pub profession_skill_points1: Option<u16>,
     pub profession_skill_points2: Option<u16>,
     pub facial: Option<CharacterFacialDto>,
-    pub arena_teams: Vec<ArenaTeamDto>
+    pub arena_teams: Vec<ArenaTeamDto>,
 }
 
 impl CheckPlausability for CharacterHistoryDto {

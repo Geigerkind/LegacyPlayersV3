@@ -1,10 +1,10 @@
 use str_util::sha3;
 
+use crate::modules::account::tests::helper::get_create_member;
 use crate::modules::account::{
     material::Account,
     tools::{Create, Forgot},
 };
-use crate::modules::account::tests::helper::get_create_member;
 use crate::tests::TestContainer;
 
 #[test]
