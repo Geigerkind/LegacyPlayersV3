@@ -22,8 +22,6 @@ jobs:
       - name: Install Angular
         run: |
           cd Webclient
-          npm install @angular/cli
-          npm install html-minifier
           npm install
 
       - name: Linting
@@ -34,7 +32,7 @@ jobs:
       - name: Building
         run: |
           cd Webclient
-          npm run-script lint
+          npm run-script build
 
       - name: Testing
         run: |
