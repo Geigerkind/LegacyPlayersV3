@@ -8,6 +8,7 @@ use crate::modules::{
     tooltip::{tools::RetrieveGuildTooltip, Tooltip},
 };
 use crate::tests::TestContainer;
+use std::cmp::Ordering;
 
 fn build_character_guild(guild_id: u32) -> CharacterGuild {
     CharacterGuild {
@@ -237,22 +238,26 @@ fn improved_acts() {
             let mut amounts_in_id_classes = [test_requirement[7], test_requirement[8], test_requirement[9]];
             let mut amounts_in_name_classes = [test_requirement[10], test_requirement[11], test_requirement[12]];
             let amount_difference = amounts_in_id_classes.iter().sum::<u8>() as i8 - amounts_in_name_classes.iter().sum::<u8>() as i8;
-            if amount_difference < 0 {
-                // increase first `more than one` by the difference
-                for amount in &mut amounts_in_id_classes {
-                    if *amount == 2 {
-                        *amount += (-amount_difference) as u8;
-                        break;
+            match amount_difference.cmp(&0) {
+                Ordering::Less => {
+                    // increase first `more than one` by the difference
+                    for amount in &mut amounts_in_id_classes {
+                        if *amount == 2 {
+                            *amount += (-amount_difference) as u8;
+                            break;
+                        }
                     }
-                }
-            } else if amount_difference > 0 {
-                // increase first `more than one` by the difference
-                for amount in &mut amounts_in_name_classes {
-                    if *amount == 2 {
-                        *amount += (amount_difference) as u8;
-                        break;
+                },
+                Ordering::Greater => {
+                    // increase first `more than one` by the difference
+                    for amount in &mut amounts_in_name_classes {
+                        if *amount == 2 {
+                            *amount += (amount_difference) as u8;
+                            break;
+                        }
                     }
-                }
+                },
+                Ordering::Equal => {},
             }
             // build iterators to iterate over values: from above we have classes with amounts, convert them into vectors of required size (by repeating values based on amount), do that both for guild_id and guild_name
             let id_classes = amounts_in_id_classes.iter().enumerate().fold(vec![], |accumulator, (i, amount)| [accumulator, vec![i; *amount as usize]].concat());

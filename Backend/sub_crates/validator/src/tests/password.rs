@@ -29,7 +29,7 @@ mod tests {
     proptest! {
       #[test]
       fn never_crashes(pass in "\\PC*") {
-        valid_password(&pass);
+        let _ = valid_password(&pass);
       }
 
       #[test]
