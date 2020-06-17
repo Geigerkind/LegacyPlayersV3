@@ -16,7 +16,7 @@ impl DeleteGuild for Armory {
               "id" => id
             ),
         ) {
-            return guilds.remove(&id).ok_or_else(|| ArmoryFailure::Database("Invalid guild id o.O".to_owned())).and_then(|_| Ok(()));
+            return guilds.remove(&id).ok_or_else(|| ArmoryFailure::Database("Invalid guild id o.O".to_owned())).map(|_| ());
         }
         Err(ArmoryFailure::Database("delete_guild".to_owned()))
     }

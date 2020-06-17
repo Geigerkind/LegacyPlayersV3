@@ -23,7 +23,7 @@ fn character_search() {
         last_updated: TableFilter { filter: None, sorting: None },
     };
 
-    let csr1 = armory.get_character_search_result(&data, filter1.clone());
+    let csr1 = armory.get_character_search_result(&data, filter1);
     assert_eq!(csr1.num_items, 0);
     assert_eq!(csr1.result.len(), 0);
 }

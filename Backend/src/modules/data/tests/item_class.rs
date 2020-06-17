@@ -21,5 +21,5 @@ fn get_all_item_classes() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(19));
     let item_classs = data.get_all_item_classes();
-    assert!(item_classs.len() > 0);
+    assert!(!item_classs.is_empty());
 }

@@ -14,13 +14,13 @@ use crate::modules::{
 #[openapi]
 #[post("/character_history/<character_uid>", format = "application/json", data = "<character_history>")]
 pub fn set_character_history(me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>, character_uid: u64) -> Result<(), ArmoryFailure> {
-    me.set_character_history(owner.0, character_history.into_inner(), character_uid).and_then(|_| Ok(()))
+    me.set_character_history(owner.0, character_history.into_inner(), character_uid).map(|_| ())
 }
 
 #[openapi]
 #[get("/character_history/<id>")]
 pub fn get_character_history(me: State<Armory>, id: u32) -> Result<Json<CharacterHistory>, ArmoryFailure> {
-    me.get_character_history(id).and_then(|character_history| Ok(Json(character_history)))
+    me.get_character_history(id).map(Json)
 }
 
 #[openapi]

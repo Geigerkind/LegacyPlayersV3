@@ -11,7 +11,7 @@ use crate::modules::account::{
 #[openapi]
 #[post("/token", format = "application/json", data = "<params>")]
 pub fn create_token(me: State<Account>, auth: Authenticate, params: Json<CreateToken>) -> Result<Json<APIToken>, Failure> {
-    me.create_token(&params.purpose, auth.0, params.exp_date).and_then(|api_token| Ok(Json(api_token)))
+    me.create_token(&params.purpose, auth.0, params.exp_date).map(Json)
 }
 
 #[openapi]
@@ -29,5 +29,5 @@ pub fn delete_token(me: State<Account>, auth: Authenticate, token_id: Json<u32>)
 #[openapi]
 #[post("/token/prolong", format = "application/json", data = "<params>")]
 pub fn prolong_token(me: State<Account>, auth: Authenticate, params: Json<ProlongToken>) -> Result<Json<APIToken>, Failure> {
-    me.prolong_token_by_str(params.token.clone(), auth.0, params.days).and_then(|api_token| Ok(Json(api_token)))
+    me.prolong_token_by_str(params.token.clone(), auth.0, params.days).map(Json)
 }

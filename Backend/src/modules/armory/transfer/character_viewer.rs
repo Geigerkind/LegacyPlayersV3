@@ -16,7 +16,7 @@ pub fn get_character_viewer(me: State<Armory>, data: State<Data>, language: Lang
     data.get_server_by_name(server_name).ok_or(ArmoryFailure::InvalidInput).and_then(|server| {
         me.get_character_by_name(server.id, character_name)
             .ok_or(ArmoryFailure::InvalidInput)
-            .and_then(|character| me.get_character_viewer(&data, language.0, character.id).and_then(|result| Ok(Json(result))))
+            .and_then(|character| me.get_character_viewer(&data, language.0, character.id).map(Json))
     })
 }
 
@@ -26,6 +26,6 @@ pub fn get_character_viewer_by_history(me: State<Armory>, data: State<Data>, lan
     data.get_server_by_name(server_name).ok_or(ArmoryFailure::InvalidInput).and_then(|server| {
         me.get_character_by_name(server.id, character_name)
             .ok_or(ArmoryFailure::InvalidInput)
-            .and_then(|character| me.get_character_viewer_by_history_id(&data, language.0, character_history_id, character.id).and_then(|result| Ok(Json(result))))
+            .and_then(|character| me.get_character_viewer_by_history_id(&data, language.0, character_history_id, character.id).map(Json))
     })
 }

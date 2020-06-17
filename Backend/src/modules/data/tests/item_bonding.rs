@@ -21,5 +21,5 @@ fn get_all_item_bondings() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(18));
     let item_bondings = data.get_all_item_bondings();
-    assert!(item_bondings.len() > 0);
+    assert!(!item_bondings.is_empty());
 }

@@ -21,5 +21,5 @@ fn get_all_dispel_types() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(9));
     let dispel_types = data.get_all_dispel_types();
-    assert!(dispel_types.len() > 0);
+    assert!(!dispel_types.is_empty());
 }

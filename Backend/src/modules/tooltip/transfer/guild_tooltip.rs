@@ -9,5 +9,5 @@ use crate::modules::{
 #[openapi]
 #[get("/guild/<id>")]
 pub fn get_guild(me: State<Tooltip>, armory: State<Armory>, id: u32) -> Result<Json<GuildTooltip>, TooltipFailure> {
-    me.get_guild(&armory, id).and_then(|tooltip| Ok(Json(tooltip)))
+    me.get_guild(&armory, id).map(Json)
 }

@@ -64,7 +64,7 @@ fn get_character_viewer() {
         character_history: Some(character_history_dto.to_owned()),
     };
 
-    let set_character_res = armory.set_character(3, character_dto.clone());
+    let set_character_res = armory.set_character(3, character_dto);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 

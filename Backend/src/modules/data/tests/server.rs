@@ -21,5 +21,5 @@ fn get_all_servers() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(6));
     let servers = data.get_all_servers();
-    assert!(servers.len() > 0);
+    assert!(!servers.is_empty());
 }

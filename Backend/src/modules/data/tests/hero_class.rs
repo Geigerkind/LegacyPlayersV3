@@ -21,5 +21,5 @@ fn get_all_hero_classs() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(7));
     let hero_classes = data.get_all_hero_classes();
-    assert!(hero_classes.len() > 0);
+    assert!(!hero_classes.is_empty());
 }

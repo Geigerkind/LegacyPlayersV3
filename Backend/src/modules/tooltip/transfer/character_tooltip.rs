@@ -10,5 +10,5 @@ use crate::modules::{
 #[openapi]
 #[get("/character/<id>")]
 pub fn get_character(me: State<Tooltip>, data: State<Data>, armory: State<Armory>, language: Language, id: u32) -> Result<Json<CharacterTooltip>, TooltipFailure> {
-    me.get_character(&data, &armory, language.0, id).and_then(|tooltip| Ok(Json(tooltip)))
+    me.get_character(&data, &armory, language.0, id).map(Json)
 }

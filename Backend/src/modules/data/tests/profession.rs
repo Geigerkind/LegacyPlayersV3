@@ -21,5 +21,5 @@ fn get_all_professions() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(5));
     let professions = data.get_all_professions();
-    assert!(professions.len() > 0);
+    assert!(!professions.is_empty());
 }

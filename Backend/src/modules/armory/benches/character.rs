@@ -138,7 +138,7 @@ fn set_character(b: &mut Bencher) {
         race_id: 6,
     };
     let character_history_dto = CharacterHistoryDto {
-        character_info: character_info_dto.to_owned(),
+        character_info: character_info_dto,
         character_name: "sdfsdgsdg".to_string(),
         character_title: None,
         profession_skill_points1: Some(35),
@@ -176,7 +176,7 @@ fn set_character(b: &mut Bencher) {
     };
     let character_dto = CharacterDto {
         server_uid: 12312452,
-        character_history: Some(character_history_dto.to_owned()),
+        character_history: Some(character_history_dto),
     };
 
     let num_iterations = 1000;

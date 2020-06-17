@@ -21,5 +21,5 @@ fn get_all_item_sheaths() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(26));
     let item_sheaths = data.get_all_item_sheaths();
-    assert!(item_sheaths.len() > 0);
+    assert!(!item_sheaths.is_empty());
 }

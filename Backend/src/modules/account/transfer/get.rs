@@ -6,5 +6,5 @@ use crate::modules::account::{domain_value::AccountInformation, dto::Failure, gu
 #[openapi]
 #[get("/get")]
 pub fn get_account_information(me: State<Account>, auth: Authenticate) -> Result<Json<AccountInformation>, Failure> {
-    me.get(auth.0).and_then(|acc_info| Ok(Json(acc_info)))
+    me.get(auth.0).map(Json)
 }

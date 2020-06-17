@@ -38,7 +38,7 @@ fn set_character_history() {
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
     thread::sleep(time::Duration::from_millis(2000));
-    let set_character_history_res2 = armory.set_character_history(3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res2 = armory.set_character_history(3, character_history_dto, set_character.server_uid);
     assert!(set_character_history_res2.is_ok());
 
     let set_character_history2 = set_character_history_res2.unwrap();

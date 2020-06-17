@@ -10,5 +10,5 @@ use crate::modules::account::{
 #[openapi]
 #[post("/login", format = "application/json", data = "<params>")]
 pub fn login(me: State<Account>, params: Json<Credentials>) -> Result<Json<APIToken>, Failure> {
-    me.login(&params.mail, &params.password).and_then(|api_token| Ok(Json(api_token)))
+    me.login(&params.mail, &params.password).map(Json)
 }

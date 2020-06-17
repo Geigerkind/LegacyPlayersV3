@@ -178,7 +178,7 @@ fn shadowmourne_socketed_and_enchanted() {
         race_id: 4,
     };
     let character_history_dto = CharacterHistoryDto {
-        character_info: character_info_dto.to_owned(),
+        character_info: character_info_dto,
         character_name: "sdgsdfsd".to_string(),
         character_title: Some(14),
         profession_skill_points1: Some(75),
@@ -189,7 +189,7 @@ fn shadowmourne_socketed_and_enchanted() {
     };
     let character_dto = CharacterDto {
         server_uid: 43356,
-        character_history: Some(character_history_dto.to_owned()),
+        character_history: Some(character_history_dto),
     };
 
     let character_res = armory.set_character(3, character_dto);

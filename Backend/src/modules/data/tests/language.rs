@@ -21,5 +21,5 @@ fn get_all_languages() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(2));
     let languages = data.get_all_languages();
-    assert!(languages.len() > 0);
+    assert!(!languages.is_empty());
 }

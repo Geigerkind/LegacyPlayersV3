@@ -21,5 +21,5 @@ fn get_all_expansions() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(1));
     let expansions = data.get_all_expansions();
-    assert!(expansions.len() > 0);
+    assert!(!expansions.is_empty());
 }

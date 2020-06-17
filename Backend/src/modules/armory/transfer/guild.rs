@@ -26,13 +26,13 @@ pub fn get_guilds_by_name(me: State<Armory>, guild_name: String) -> Json<Vec<Gui
 #[openapi]
 #[post("/guild", format = "application/json", data = "<guild>")]
 pub fn create_guild(me: State<Armory>, owner: ServerOwner, guild: Json<GuildDto>) -> Result<(), ArmoryFailure> {
-    me.create_guild(owner.0, guild.into_inner()).and_then(|_| Ok(()))
+    me.create_guild(owner.0, guild.into_inner()).map(|_| ())
 }
 
 #[openapi]
 #[post("/guild/<uid>", format = "application/json", data = "<guild_name>")]
 pub fn update_guild_name(me: State<Armory>, owner: ServerOwner, uid: u64, guild_name: Json<String>) -> Result<(), ArmoryFailure> {
-    me.update_guild_name(owner.0, uid, guild_name.into_inner()).and_then(|_| Ok(()))
+    me.update_guild_name(owner.0, uid, guild_name.into_inner()).map(|_| ())
 }
 
 #[openapi]

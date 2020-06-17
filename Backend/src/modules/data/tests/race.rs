@@ -21,5 +21,5 @@ fn get_all_races() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(4));
     let races = data.get_all_races();
-    assert!(races.len() > 0);
+    assert!(!races.is_empty());
 }

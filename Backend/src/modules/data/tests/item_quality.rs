@@ -21,5 +21,5 @@ fn get_all_item_qualities() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(24));
     let item_qualities = data.get_all_item_qualities();
-    assert!(item_qualities.len() > 0);
+    assert!(!item_qualities.is_empty());
 }

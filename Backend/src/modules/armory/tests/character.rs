@@ -28,7 +28,7 @@ fn set_character() {
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
     thread::sleep(time::Duration::from_secs(2));
-    let set_character_res2 = armory.set_character(3, character_dto.clone());
+    let set_character_res2 = armory.set_character(3, character_dto);
     assert!(set_character_res2.is_ok());
 
     let set_character2 = set_character_res2.unwrap();

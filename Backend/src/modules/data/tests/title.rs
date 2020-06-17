@@ -21,5 +21,5 @@ fn get_all_titles() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(31));
     let titles = data.get_all_titles();
-    assert!(titles.len() > 0);
+    assert!(!titles.is_empty());
 }

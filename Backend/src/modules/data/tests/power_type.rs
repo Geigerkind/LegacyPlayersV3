@@ -21,5 +21,5 @@ fn get_all_power_types() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(10));
     let power_types = data.get_all_power_types();
-    assert!(power_types.len() > 0);
+    assert!(!power_types.is_empty());
 }

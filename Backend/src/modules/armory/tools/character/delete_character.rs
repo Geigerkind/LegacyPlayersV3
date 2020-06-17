@@ -16,7 +16,7 @@ impl DeleteCharacter for Armory {
               "id" => id
             ),
         ) {
-            return characters.remove(&id).ok_or(ArmoryFailure::InvalidInput).and_then(|_| Ok(()));
+            return characters.remove(&id).ok_or(ArmoryFailure::InvalidInput).map(|_| ());
         }
         Err(ArmoryFailure::Database("delete_character".to_owned()))
     }

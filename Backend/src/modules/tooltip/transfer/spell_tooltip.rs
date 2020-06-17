@@ -12,5 +12,5 @@ use crate::modules::{
 #[openapi]
 #[get("/spell/<id>")]
 pub fn get_spell(me: State<Tooltip>, data: State<Data>, language: Language, expansion: Expansion, id: u32) -> Result<Json<SpellTooltip>, TooltipFailure> {
-    me.get_spell(&data, language.0, expansion.0, id).and_then(|tooltip| Ok(Json(tooltip)))
+    me.get_spell(&data, language.0, expansion.0, id).map(Json)
 }

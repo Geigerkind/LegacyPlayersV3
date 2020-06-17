@@ -21,5 +21,5 @@ fn get_all_stat_types() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(11));
     let stat_types = data.get_all_stat_types();
-    assert!(stat_types.len() > 0);
+    assert!(!stat_types.is_empty());
 }

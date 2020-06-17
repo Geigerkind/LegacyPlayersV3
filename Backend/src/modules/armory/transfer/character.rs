@@ -14,7 +14,7 @@ use crate::modules::{
 #[openapi]
 #[post("/character", format = "application/json", data = "<character>")]
 pub fn set_character(me: State<Armory>, owner: ServerOwner, character: Json<CharacterDto>) -> Result<(), ArmoryFailure> {
-    me.set_character(owner.0, character.into_inner()).and_then(|_| Ok(()))
+    me.set_character(owner.0, character.into_inner()).map(|_| ())
 }
 
 #[openapi]

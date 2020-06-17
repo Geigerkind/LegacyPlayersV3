@@ -34,7 +34,6 @@ mod tests {
 
     #[test]
     fn reject_arbitrary_too_short_passwords(pass in "\\PC{0,11}") {
-      let validated = valid_password(&pass);
       assert!(valid_password(&pass).is_err());
     }
   }

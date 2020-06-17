@@ -21,5 +21,5 @@ fn get_all_item_damage_types() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(21));
     let item_damage_types = data.get_all_item_damage_types();
-    assert!(item_damage_types.len() > 0);
+    assert!(!item_damage_types.is_empty());
 }

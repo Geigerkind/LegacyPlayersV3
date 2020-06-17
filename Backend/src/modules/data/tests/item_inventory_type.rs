@@ -21,5 +21,5 @@ fn get_all_item_inventory_types() {
 
     let data = Data::with_dns((dns + "main").as_str()).init(Some(23));
     let item_inventory_types = data.get_all_item_inventory_types();
-    assert!(item_inventory_types.len() > 0);
+    assert!(!item_inventory_types.is_empty());
 }

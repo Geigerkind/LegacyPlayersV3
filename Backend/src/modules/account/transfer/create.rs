@@ -11,7 +11,7 @@ use crate::modules::account::{
 #[openapi]
 #[post("/create", format = "application/json", data = "<params>")]
 pub fn create(me: State<Account>, params: Json<CreateMember>) -> Result<Json<APIToken>, Failure> {
-    me.create(&params.credentials.mail, &params.nickname, &params.credentials.password).and_then(|api_token| Ok(Json(api_token)))
+    me.create(&params.credentials.mail, &params.nickname, &params.credentials.password).map(Json)
 }
 
 #[openapi]

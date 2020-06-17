@@ -10,7 +10,7 @@ use crate::modules::account::{
 #[openapi]
 #[get("/forgot/<id>")]
 pub fn receive_confirmation(me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
-    me.recv_forgot_password(&id).and_then(|api_token| Ok(Json(api_token)))
+    me.recv_forgot_password(&id).map(Json)
 }
 
 #[openapi]
