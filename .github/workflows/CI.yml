@@ -83,7 +83,6 @@ jobs:
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
 
       - name: Execute tests
-        uses: actions-rs/cargo@v1
         run: make test
         env:
           RUST_BACKTRACE: 'FULL'
