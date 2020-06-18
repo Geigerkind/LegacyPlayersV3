@@ -45,18 +45,22 @@ test:
 fmt: install_rustfmt
 	$(CARGO) fmt -- --files-with-diff
 
-coverage: install_rust_nightly
-	$(CARGO) install grcov
+coverage_test: install_rust_nightly
 	$(DOCKER) build --tag rpll_backend_test_db ./Database/
 	RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
 	CARGO_INCREMENTAL=0 \
 	RUSTDOCFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
 	$(CARGO) test --workspace --all-targets --no-fail-fast
+
+coverage_build: coverage_test
+	$(CARGO) install grcov
 	~/.cargo/bin/grcov ./target/debug/ -s . -t lcov --llvm --branch --ignore-not-existing --filter "covered" \
 	  --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" --ignore "*/main.rs" \
 	  --excl-br-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]|pub\\s\\w+:[\\w<,\\s>]+," \
 	  --excl-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]" -o lcov.info
 	genhtml -o ./target/debug/coverage/ --branch-coverage --show-details --highlight --ignore-errors source --legend ./lcov.info && rm ./lcov.info
+
+coverage: coverage_test coverage_build
 
 tarpaulin:
 	$(CARGO) install cargo-tarpaulin

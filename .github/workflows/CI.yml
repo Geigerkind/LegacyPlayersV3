@@ -83,15 +83,10 @@ jobs:
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
 
       - name: Execute tests
-        run: make test
-        env:
-          RUST_BACKTRACE: 'FULL'
-          CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
+        run: make coverage_test
 
       - name: Measuring code coverage
-        run: make coverage
+        run: make coverage_build
 
       - name: Uploading coverage data
         uses: codecov/codecov-action@v1
