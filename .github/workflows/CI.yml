@@ -66,21 +66,11 @@ jobs:
           path: ~/.cargo/bin
           key: ubuntu-latest-cargo-binaries-${{ steps.toolchain.outputs.rustc_hash }}
 
-      - name: Cache target directory
-        uses: actions/cache@v2
-        with:
-          path: target
-          key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
-
       - name: Formatting
         run: make fmt
 
       - name: Linting
         run: make clippy
-        env:
-          CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
 
       - name: Execute tests
         run: make coverage_test
