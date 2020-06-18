@@ -6,7 +6,7 @@ fn get_item_damage() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(20));
+    let data = Data::with_dns(&dns).init(Some(20));
     let item_damage = data.get_item_damage(1, 25);
     assert!(item_damage.is_some());
     let unpacked_item_damage_vec = item_damage.unwrap();

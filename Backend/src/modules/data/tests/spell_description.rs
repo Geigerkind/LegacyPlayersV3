@@ -8,7 +8,7 @@ fn test_parse_stats_none() {
     let (dns, _node) = container.run();
 
     // Arrange
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let data = Data::with_dns(&dns).init(None);
 
     // Act
     let result = data.parse_stats(1, 0);
@@ -23,7 +23,7 @@ fn test_parse_stats_magical_spell() {
     let (dns, _node) = container.run();
 
     // Arrange
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let data = Data::with_dns(&dns).init(None);
 
     // Act
     let result = data.parse_stats(1, 9346);

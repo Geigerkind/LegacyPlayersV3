@@ -1,4 +1,3 @@
-use std::env;
 use testcontainers::clients::Cli;
 use testcontainers::images::generic::{GenericImage, WaitFor};
 use testcontainers::{clients, Container, Docker};
@@ -15,32 +14,16 @@ impl TestContainer {
 
     pub fn run(&self) -> (String, Container<'_, Cli, GenericImage>) {
         let node = self.docker.run(self.get_test_image());
-        let dns = format!("mysql://root:vagrant@localhost:{}/", node.get_host_port(3306).unwrap());
+        let dns = format!("mysql://root:vagrant@localhost:{}/", node.get_host_port(3306).unwrap())
+          + if self.full_db { "main" } else { "main_test" };
         (dns, node)
     }
 
     fn get_test_image(&self) -> GenericImage {
-        let mut container = GenericImage::new("mariadb:10.5.3")
+        GenericImage::new("rpll_backend_test_db:latest")
             .with_env_var("MYSQL_USER", "mysql")
             .with_env_var("MYSQL_PASSWORD", "vagrant")
             .with_env_var("MYSQL_ROOT_PASSWORD", "vagrant")
-            .with_wait_for(WaitFor::message_on_stderr("port: 3306"));
-
-        let repo_path: String = env::var("PWD").unwrap();
-        if self.full_db {
-            container = if repo_path.contains("Backend") {
-                container.with_volume(format!("{}/../Database/patches", repo_path), "/docker-entrypoint-initdb.d")
-            } else {
-                container.with_volume(format!("{}/Database/patches", repo_path), "/docker-entrypoint-initdb.d")
-            };
-        } else {
-            container = if repo_path.contains("Backend") {
-                container.with_volume(format!("{}/../Database/test", repo_path), "/docker-entrypoint-initdb.d")
-            } else {
-                container.with_volume(format!("{}/Database/test", repo_path), "/docker-entrypoint-initdb.d")
-            }
-        }
-
-        container
+            .with_wait_for(WaitFor::message_on_stderr("port: 3306"))
     }
 }

@@ -6,7 +6,7 @@ fn get_item_bonding() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(18));
+    let data = Data::with_dns(&dns).init(Some(18));
     let item_bonding = data.get_item_bonding(1);
     assert!(item_bonding.is_some());
     assert_eq!(item_bonding.unwrap().id, 1);
@@ -19,7 +19,7 @@ fn get_all_item_bondings() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(18));
+    let data = Data::with_dns(&dns).init(Some(18));
     let item_bondings = data.get_all_item_bondings();
     assert!(!item_bondings.is_empty());
 }

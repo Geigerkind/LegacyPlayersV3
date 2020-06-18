@@ -194,7 +194,7 @@ fn improved_acts() {
         [2, 2, 2, 0, 2, 2, 1, 0, 0, 1, 0, 1, 0, 2, 0, 2],
     ];
     for test_requirement in test_requirements.iter() {
-        let armory = Armory::with_dns((dns.clone() + "main").as_str());
+        let armory = Armory::with_dns(&dns);
         {
             let mut characters = armory.characters.write().unwrap();
             // add characters with guild_id = 0 required by test requirement
@@ -336,7 +336,7 @@ fn improved_acts() {
         //     println!("Guild: {} {}", id, guild.name);
         // }
         // actually execute the function under test
-        let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str());
+        let tooltip = Tooltip::with_dns(&dns);
         let tooltip_res = tooltip.get_guild(&armory, guild_id);
         if test_requirement[14] == 0 {
             assert!(

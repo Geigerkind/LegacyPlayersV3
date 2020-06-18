@@ -10,7 +10,7 @@ fn character_info() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let character_info_dto = get_character_info();
 
     let character_info_res = armory.create_character_info(character_info_dto.clone());

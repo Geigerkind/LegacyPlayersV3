@@ -26,7 +26,7 @@ fn set_character(b: &mut Bencher) {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
             head: Some(CharacterItemDto {

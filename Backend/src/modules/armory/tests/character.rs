@@ -11,7 +11,7 @@ fn set_character() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let character_dto = get_character();
 
     let set_character_res = armory.set_character(3, character_dto.clone());

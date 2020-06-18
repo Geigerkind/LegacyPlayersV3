@@ -12,7 +12,7 @@ fn send_forget_password_user_does_not_exist() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(account.send_forgot_password("test@mail.de").is_ok());
 }
 
@@ -21,7 +21,7 @@ fn send_forget_password_invalid_mail() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(account.send_forgot_password("test").is_err());
 }
 
@@ -30,7 +30,7 @@ fn send_forgot_password_user_exists_and_receive() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let val_pair = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -51,6 +51,6 @@ fn recv_forgot_password_invalid_id() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(account.recv_forgot_password("bla").is_err());
 }

@@ -6,7 +6,7 @@ fn get_npc() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(13));
+    let data = Data::with_dns(&dns).init(Some(13));
     let npc = data.get_npc(1, 1);
     assert!(npc.is_some());
     let unpacked_npc = npc.unwrap();

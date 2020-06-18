@@ -73,16 +73,10 @@ jobs:
           key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --files-with-diff
+        run: make fmt
 
       - name: Linting
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-targets -- -D warnings
+        run: make clippy
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
@@ -90,11 +84,8 @@ jobs:
 
       - name: Execute tests
         uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --workspace --all-features --no-fail-fast
+        run: make test
         env:
-          PWD: '/home/runner/work/LegacyPlayersV3/LegacyPlayersV3'
           RUST_BACKTRACE: 'FULL'
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'

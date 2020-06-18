@@ -12,7 +12,7 @@ fn change_name() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -26,7 +26,7 @@ fn change_name_empty_content() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -39,7 +39,7 @@ fn change_name_invalid_content() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -52,7 +52,7 @@ fn change_name_name_taken() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
     let post_obj_two = get_create_member("abcd", "abc2@abc.de", "Password123456Password123456Password123456");
 
@@ -67,7 +67,7 @@ fn change_password_empty_content() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -80,7 +80,7 @@ fn change_password() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -97,7 +97,7 @@ fn change_mail_empty_content() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -110,7 +110,7 @@ fn change_mail_invalid_content() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -123,7 +123,7 @@ fn change_mail_mail_taken() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
     let post_obj_two = get_create_member("abc2", "abc2@abc.de", "Password123456Password123456Password123456");
 
@@ -138,7 +138,7 @@ fn change_mail() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();

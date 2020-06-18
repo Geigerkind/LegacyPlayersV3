@@ -6,7 +6,7 @@ fn get_itemset_effects() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(30));
+    let data = Data::with_dns(&dns).init(Some(30));
     let itemset_effects = data.get_itemset_effects(1, 1);
     assert!(itemset_effects.is_some());
     let itemset_effects_vec = itemset_effects.unwrap();

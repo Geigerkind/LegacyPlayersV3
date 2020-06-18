@@ -6,7 +6,7 @@ fn get_server() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(6));
+    let data = Data::with_dns(&dns).init(Some(6));
     let server = data.get_server(1);
     assert!(server.is_some());
     assert_eq!(server.unwrap().id, 1);
@@ -19,7 +19,7 @@ fn get_all_servers() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(6));
+    let data = Data::with_dns(&dns).init(Some(6));
     let servers = data.get_all_servers();
     assert!(!servers.is_empty());
 }

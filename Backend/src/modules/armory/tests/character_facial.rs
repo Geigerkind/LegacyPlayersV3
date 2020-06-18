@@ -10,7 +10,7 @@ fn character_facial() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let character_facial_dto = get_character_facial();
 
     let character_facial_res = armory.create_character_facial(character_facial_dto.clone());

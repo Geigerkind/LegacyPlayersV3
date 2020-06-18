@@ -6,7 +6,7 @@ fn get_expansion() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(1));
+    let data = Data::with_dns(&dns).init(Some(1));
     let expansion = data.get_expansion(1);
     assert!(expansion.is_some());
     assert_eq!(expansion.unwrap().id, 1);
@@ -19,7 +19,7 @@ fn get_all_expansions() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(1));
+    let data = Data::with_dns(&dns).init(Some(1));
     let expansions = data.get_all_expansions();
     assert!(!expansions.is_empty());
 }

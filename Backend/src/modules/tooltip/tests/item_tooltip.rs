@@ -14,8 +14,8 @@ fn avenger_breastplate() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let tooltip = Tooltip::with_dns(&dns).init();
+    let data = Data::with_dns(&dns).init(None);
 
     let result = tooltip.get_item(&data, 1, 1, 21389);
     assert!(result.is_ok());
@@ -97,8 +97,8 @@ fn shadowmourne_socket() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let tooltip = Tooltip::with_dns(&dns).init();
+    let data = Data::with_dns(&dns).init(None);
 
     let result = tooltip.get_item(&data, 1, 3, 49623);
     assert!(result.is_ok());
@@ -115,8 +115,8 @@ fn thunderfury_weapon_stat() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let tooltip = Tooltip::with_dns(&dns).init();
+    let data = Data::with_dns(&dns).init(None);
 
     let result = tooltip.get_item(&data, 1, 1, 19019);
     assert!(result.is_ok());
@@ -138,9 +138,9 @@ fn shadowmourne_socketed_and_enchanted() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns((dns.clone() + "main").as_str()).init();
-    let data = Data::with_dns((dns.clone() + "main").as_str()).init(None);
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let tooltip = Tooltip::with_dns(&dns).init();
+    let data = Data::with_dns(&dns).init(None);
+    let armory = Armory::with_dns(&dns);
 
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {

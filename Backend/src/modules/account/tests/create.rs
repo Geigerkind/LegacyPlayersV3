@@ -13,7 +13,7 @@ fn create_account() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
     let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
@@ -25,7 +25,7 @@ fn mail_twice() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
     account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -37,7 +37,7 @@ fn nickname_twice() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
     let post_obj_two = get_create_member("Sth", "mail2@mail.de", "Password123456Password123456Password123456");
 
@@ -50,7 +50,7 @@ fn mail_empty() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "", "Password123456Password123456Password123456");
 
     assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -61,7 +61,7 @@ fn password_empty() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "mail@mail.de", "");
 
     assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -72,7 +72,7 @@ fn nickname_empty() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("", "mail@mail.de", "Password123456Password123456Password123456");
 
     assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -83,7 +83,7 @@ fn invalid_mail() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "mailmailde", "Password123456Password123456Password123456");
 
     assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -94,7 +94,7 @@ fn invalid_nickname() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth adasd", "mail@mail.de", "Password123456Password123456Password123456");
 
     assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
@@ -105,7 +105,7 @@ fn confirm_mail() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
     let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();

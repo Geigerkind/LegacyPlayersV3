@@ -6,7 +6,7 @@ fn get_profession() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(5));
+    let data = Data::with_dns(&dns).init(Some(5));
     let profession = data.get_profession(182);
     assert!(profession.is_some());
     assert_eq!(profession.unwrap().id, 182);
@@ -19,7 +19,7 @@ fn get_all_professions() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(5));
+    let data = Data::with_dns(&dns).init(Some(5));
     let professions = data.get_all_professions();
     assert!(!professions.is_empty());
 }

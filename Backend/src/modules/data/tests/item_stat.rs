@@ -6,7 +6,7 @@ fn get_item_stats() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(28));
+    let data = Data::with_dns(&dns).init(Some(28));
     let item_stats = data.get_item_stats(1, 940);
     assert!(item_stats.is_some());
     let item_stats_vec = item_stats.unwrap();

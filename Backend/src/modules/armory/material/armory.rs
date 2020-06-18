@@ -18,7 +18,7 @@ pub struct Armory {
 impl Default for Armory {
     fn default() -> Self {
         let dns = env::var("MYSQL_DNS").unwrap();
-        Self::with_dns((dns + "main").as_str())
+        Self::with_dns(&dns)
     }
 }
 

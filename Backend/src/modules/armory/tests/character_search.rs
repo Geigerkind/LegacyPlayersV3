@@ -12,8 +12,8 @@ fn character_search() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns.clone() + "main").as_str());
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let armory = Armory::with_dns(&dns);
+    let data = Data::with_dns(&dns).init(None);
     let filter1 = CharacterSearchFilter {
         page: 0,
         hero_class: TableFilter { filter: None, sorting: None },

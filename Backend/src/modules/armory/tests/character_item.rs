@@ -10,7 +10,7 @@ fn character_item() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let character_item_dto = CharacterItemDto {
         item_id: 19019,
         random_property_id: Some(1023),

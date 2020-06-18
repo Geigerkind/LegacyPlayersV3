@@ -6,7 +6,7 @@ fn get_itemset_name() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(29));
+    let data = Data::with_dns(&dns).init(Some(29));
     let itemset_name = data.get_itemset_name(1, 1);
     assert!(itemset_name.is_some());
     let unpacked_itemset_name = itemset_name.unwrap();

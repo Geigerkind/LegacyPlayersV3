@@ -10,7 +10,7 @@ fn has_existing_entry(account: &Account, email: &str) -> bool {
 }
 
 fn create_http_client(dns: String) -> Client {
-    let account = Account::with_dns((dns + "main").as_str()).init();
+    let account = Account::with_dns(&dns).init();
     let rocket = rocket::ignite().manage(account).mount("/", routes![crate::modules::account::transfer::create::create]);
     Client::new(rocket).expect("valid rocket instance")
 }
@@ -32,7 +32,7 @@ fn create_account_nick_valid_email_valid_password_valid() {
     };
     // Serialize the object to the json format
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     // Verify that no account with this email is known
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
@@ -71,7 +71,7 @@ fn create_account_nick_used_email_valid_password_valid() {
         },
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     assert!(!has_existing_entry(&account, &post_obj_used.credentials.mail));
     // Create an account for this nickname
@@ -104,7 +104,7 @@ fn create_account_nick_malformed_email_valid_password_valid() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -139,7 +139,7 @@ fn create_account_nick_valid_email_used_password_valid() {
         },
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this email
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());
@@ -170,7 +170,7 @@ fn create_account_nick_valid_email_malformed_password_valid() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -197,7 +197,7 @@ fn create_account_nick_valid_email_valid_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -224,7 +224,7 @@ fn create_account_nick_valid_email_valid_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -251,7 +251,7 @@ fn create_account_nick_malformed_email_malformed_password_valid() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -278,7 +278,7 @@ fn create_account_nick_malformed_email_valid_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -305,7 +305,7 @@ fn create_account_nick_malformed_email_valid_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -332,7 +332,7 @@ fn create_account_nick_valid_email_malformed_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -359,7 +359,7 @@ fn create_account_nick_valid_email_malformed_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -386,7 +386,7 @@ fn create_account_nick_malformed_email_malformed_password_too_short() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -413,7 +413,7 @@ fn create_account_nick_malformed_email_malformed_password_pwned() {
         },
     };
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
 
     // When
@@ -448,7 +448,7 @@ fn create_account_nick_malformed_email_used_password_valid() {
         },
     };
     let json_body_used = serde_json::to_string(&post_obj_used).unwrap();
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
     // Create an account for this email
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());

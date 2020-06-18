@@ -6,7 +6,7 @@ fn get_item() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(15));
+    let data = Data::with_dns(&dns).init(Some(15));
     let item = data.get_item(1, 25);
     assert!(item.is_some());
     let unpacked_item = item.unwrap();

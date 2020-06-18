@@ -11,7 +11,7 @@ fn parse_spell_damage() {
 
     // Arrange
     let mut server = Server::default();
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let server_id = 2;
     let mut messages = Vec::new();
     messages.push(Message {

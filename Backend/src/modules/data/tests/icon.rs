@@ -6,7 +6,7 @@ fn get_icon() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(14));
+    let data = Data::with_dns(&dns).init(Some(14));
     let icon = data.get_icon(1);
     assert!(icon.is_some());
     assert_eq!(icon.unwrap().id, 1);

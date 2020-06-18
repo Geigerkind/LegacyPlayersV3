@@ -11,7 +11,7 @@ fn validate_valid() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -23,7 +23,7 @@ fn validate_invalid() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     assert!(account.validate_token("someHash").is_none());
 }
 
@@ -32,7 +32,7 @@ fn validation_invalid_after_update() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     // First login
@@ -51,7 +51,7 @@ fn get_all_tokens() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -65,7 +65,7 @@ fn delete_token() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -85,7 +85,7 @@ fn prolong_token() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
@@ -105,7 +105,7 @@ fn prolong_token_by_str() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let account = Account::with_dns((dns + "main").as_str());
+    let account = Account::with_dns(&dns);
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
     let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();

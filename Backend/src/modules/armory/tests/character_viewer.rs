@@ -13,7 +13,7 @@ fn get_character_viewer() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns.clone() + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
             head: None,
@@ -68,7 +68,7 @@ fn get_character_viewer() {
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(None);
+    let data = Data::with_dns(&dns).init(None);
     let character_viewer_res = armory.get_character_viewer(&data, 1, set_character.id);
     assert!(character_viewer_res.is_ok());
     let character_viewer = character_viewer_res.unwrap();

@@ -6,7 +6,7 @@ fn get_localization() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(3));
+    let data = Data::with_dns(&dns).init(Some(3));
     let localization = data.get_localization(1, 1);
     assert!(localization.is_some());
     let unwrapped_localization = localization.unwrap();

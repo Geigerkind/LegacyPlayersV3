@@ -6,7 +6,7 @@ fn get_gem() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(16));
+    let data = Data::with_dns(&dns).init(Some(16));
     let gem = data.get_gem(2, 22459);
     assert!(gem.is_some());
     let unpacked_gem = gem.unwrap();

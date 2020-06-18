@@ -9,7 +9,7 @@ pub struct Tooltip {
 impl Default for Tooltip {
     fn default() -> Self {
         let dns = env::var("MYSQL_DNS").unwrap();
-        Self::with_dns((dns + "main").as_str())
+        Self::with_dns(&dns)
     }
 }
 

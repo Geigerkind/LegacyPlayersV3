@@ -35,3 +35,6 @@ features = ["json"]
 proptest = "0.9.6"
 mutagen = { git="https://github.com/llogiq/mutagen" }
 testcontainers = "0.9.1"
+
+[build-dependencies]
+cc = "*"

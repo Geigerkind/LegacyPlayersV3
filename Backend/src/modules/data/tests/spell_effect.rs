@@ -6,7 +6,7 @@ fn get_spell_effects() {
     let container = TestContainer::new(true);
     let (dns, _node) = container.run();
 
-    let data = Data::with_dns((dns + "main").as_str()).init(Some(12));
+    let data = Data::with_dns(&dns).init(Some(12));
     let spell_effects = data.get_spell_effects(1, 1);
     assert!(spell_effects.is_some());
     let spell_effects_vec = spell_effects.unwrap();

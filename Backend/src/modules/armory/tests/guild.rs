@@ -10,7 +10,7 @@ fn guild() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
     let guild_dto = GuildDto {
         server_uid: 23423214,
         name: "WeirdGuildName".to_owned(),
