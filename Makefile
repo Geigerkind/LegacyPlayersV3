@@ -50,7 +50,7 @@ coverage_test: install_rust_nightly
 	RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
 	CARGO_INCREMENTAL=0 \
 	RUSTDOCFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
-	$(CARGO) test --workspace --all-targets --no-fail-fast
+	$(CARGO) test --workspace --all-targets --no-fail-fast $(ARGS)
 
 coverage_build:
 	$(CARGO) install grcov || true
@@ -58,9 +58,11 @@ coverage_build:
 	  --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" --ignore "*/main.rs" \
 	  --excl-br-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]|pub\\s\\w+:[\\w<,\\s>]+," \
 	  --excl-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]" -o lcov.info
+
+coverage_genhtml:
 	genhtml -o ./target/debug/coverage/ --branch-coverage --show-details --highlight --ignore-errors source --legend ./lcov.info && rm ./lcov.info
 
-coverage: coverage_test coverage_build
+coverage: coverage_test coverage_build coverage_genhtml
 
 tarpaulin:
 	$(CARGO) install cargo-tarpaulin || true
