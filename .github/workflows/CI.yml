@@ -39,8 +39,8 @@ jobs:
           cd Webclient
           npm run-script test
 
-  backend:
-    name: Backend
+  backend_linting_formatting:
+    name: Backend Linting and Formatting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -58,6 +58,38 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cargo/registry
+          key: cargo-registry-${{ hashFiles('Cargo.lock') }}-lint-fmt
+
+      - name: Cache target directory
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}-lint-fmt
+
+      - name: Formatting
+        run: make fmt
+
+      - name: Linting
+        run: make clippy
+
+  backend_test:
+    name: Backend Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        id: toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/registry
           key: cargo-registry-${{ hashFiles('Cargo.lock') }}
 
       - name: Cache cargo binaries
@@ -65,12 +97,6 @@ jobs:
         with:
           path: ~/.cargo/bin
           key: ubuntu-latest-cargo-binaries-${{ steps.toolchain.outputs.rustc_hash }}
-
-      - name: Formatting
-        run: make fmt
-
-      - name: Linting
-        run: make clippy
 
       - name: Execute tests
         run: make coverage_test
