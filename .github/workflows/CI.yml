@@ -92,10 +92,8 @@ jobs:
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
 
       - name: Measuring code coverage
-        uses: actions-rs/cargo@v1
-        with:
-          command: install grcov
         run: |
+          cargo install grcov
           ~/.cargo/bin/grcov ./target/debug/ -s . -t lcov --llvm --branch --ignore-not-existing --filter "covered" \
           --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" --ignore "*/main.rs" \
           --excl-br-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]|pub\\s\\w+:[\\w<,\\s>]+," \
