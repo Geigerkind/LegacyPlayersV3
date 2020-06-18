@@ -9,11 +9,13 @@ fn test_correct_shortcut_condition() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
+    // setup dependencies
     let armory = Armory::with_dns((dns + "main").as_str());
 
     let mut summons: HashMap<u64, u64> = HashMap::new();
     summons.insert(1, 1);
 
+    // setup helper objects
     let sender_unit = Unit {
         is_player: false,
         unit_id: 0,
@@ -74,11 +76,13 @@ fn test_correct_shortcut_condition() {
         }),
     };
 
+    // define test case helper struct
     struct TestCase {
         non_committed_messages: Vec<Message>,
         is_some: bool,
     };
 
+    // define test cases
     let mut test_cases = vec![
         TestCase {
             non_committed_messages: vec![spell_cast_message.clone()],
@@ -122,10 +126,13 @@ fn test_correct_shortcut_condition() {
         },
     ];
 
+    // execute test cases
     for test_case in test_cases.iter_mut() {
         let first_message = test_case.non_committed_messages.first().expect("there must be at least one non-committed message").clone();
         let non_committed_messages = test_case.non_committed_messages.clone();
+
         let spell_cast = try_parse_spell_cast(&mut test_case.non_committed_messages, &summons, &first_message, &armory, 42);
+
         assert_eq!(
             spell_cast.is_some(),
             test_case.is_some,
