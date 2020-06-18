@@ -99,10 +99,10 @@ jobs:
           key: ubuntu-latest-cargo-binaries-${{ steps.toolchain.outputs.rustc_hash }}
 
       - name: Cache target directory
-          uses: actions/cache@v2
-          with:
-            path: target
-            key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Execute tests
         run: make coverage_test
