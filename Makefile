@@ -52,8 +52,8 @@ coverage_test: install_rust_nightly
 	RUSTDOCFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
 	$(CARGO) test --workspace --all-targets --no-fail-fast
 
-coverage_build: coverage_test
-	$(CARGO) install grcov
+coverage_build:
+	$(CARGO) install grcov || true
 	~/.cargo/bin/grcov ./target/debug/ -s . -t lcov --llvm --branch --ignore-not-existing --filter "covered" \
 	  --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" --ignore "*/main.rs" \
 	  --excl-br-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]|pub\\s\\w+:[\\w<,\\s>]+," \
@@ -63,6 +63,6 @@ coverage_build: coverage_test
 coverage: coverage_test coverage_build
 
 tarpaulin:
-	$(CARGO) install cargo-tarpaulin
+	$(CARGO) install cargo-tarpaulin || true
 	$(DOCKER) build --tag rpll_backend_test_db ./Database/
 	cargo tarpaulin -v --timeout 600
