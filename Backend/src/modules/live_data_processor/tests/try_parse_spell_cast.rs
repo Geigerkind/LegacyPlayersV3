@@ -10,7 +10,7 @@ fn test_correct_shortcut_condition() {
     let (dns, _node) = container.run();
 
     // setup dependencies
-    let armory = Armory::with_dns((dns + "main").as_str());
+    let armory = Armory::with_dns(&dns);
 
     let mut summons: HashMap<u64, u64> = HashMap::new();
     summons.insert(1, 1);
