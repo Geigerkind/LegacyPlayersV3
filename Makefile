@@ -47,9 +47,9 @@ fmt: install_rustfmt
 
 coverage_test: install_rust_nightly
 	$(DOCKER) build --tag rpll_backend_test_db ./Database/
-	RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
+	RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0" \
 	CARGO_INCREMENTAL=0 \
-	RUSTDOCFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests" \
+	RUSTDOCFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0" \
 	$(CARGO) test --workspace --all-targets --no-fail-fast $(ARGS)
 
 coverage_build:
