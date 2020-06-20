@@ -16,7 +16,7 @@ fn create_http_client(dns: String) -> Client {
 }
 
 #[test]
-fn create_account_nick_valid_email_valid_password_valid() {
+fn valid_account_creation() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
@@ -49,7 +49,7 @@ fn create_account_nick_valid_email_valid_password_valid() {
 }
 
 #[test]
-fn create_account_nick_used_email_valid_password_valid() {
+fn nickname_in_use() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
@@ -90,7 +90,7 @@ fn create_account_nick_used_email_valid_password_valid() {
 }
 
 #[test]
-fn create_account_nick_malformed_email_valid_password_valid() {
+fn nickname_malformed() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
@@ -117,7 +117,7 @@ fn create_account_nick_malformed_email_valid_password_valid() {
 }
 
 #[test]
-fn create_account_nick_valid_email_used_password_valid() {
+fn email_in_use() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
@@ -156,7 +156,7 @@ fn create_account_nick_valid_email_used_password_valid() {
 }
 
 #[test]
-fn create_account_nick_valid_email_malformed_password_valid() {
+fn email_malformed() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
@@ -183,7 +183,7 @@ fn create_account_nick_valid_email_malformed_password_valid() {
 }
 
 #[test]
-fn create_account_nick_valid_email_valid_password_too_short() {
+fn password_too_short() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
@@ -210,7 +210,7 @@ fn create_account_nick_valid_email_valid_password_too_short() {
 }
 
 #[test]
-fn create_account_nick_valid_email_valid_password_pwned() {
+fn password_pwned() {
     let container = TestContainer::new(false);
     let (dns, _node) = container.run();
 
