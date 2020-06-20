@@ -1,25 +1,27 @@
 use crate::modules::data::{tools::RetrieveProfession, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::Profession;
 
 #[test]
 fn get_profession() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let profession_id = 182;
+    let profession = Profession {
+        id: profession_id,
+        localization_id: 24423,
+        icon: 12
+    };
+    data.professions.insert(profession_id, profession.clone());
 
-    let data = Data::with_dns(&dns).init(Some(5));
-    let profession = data.get_profession(182);
-    assert!(profession.is_some());
-    assert_eq!(profession.unwrap().id, 182);
+    let profession_res = data.get_profession(profession_id);
+    assert!(profession_res.is_some());
+    assert_eq!(profession_res.unwrap(), profession);
     let no_profession = data.get_profession(0);
     assert!(no_profession.is_none());
 }
 
 #[test]
 fn get_all_professions() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    let data = Data::with_dns(&dns).init(Some(5));
+    let data = Data::default();
     let professions = data.get_all_professions();
-    assert!(!professions.is_empty());
+    assert!(professions.is_empty());
 }

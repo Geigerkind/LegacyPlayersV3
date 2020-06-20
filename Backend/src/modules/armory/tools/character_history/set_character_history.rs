@@ -1,4 +1,5 @@
-use mysql_connection::tools::Execute;
+use crate::util::database::*;
+use crate::params;
 
 use crate::{
     dto::CheckPlausability,
@@ -11,11 +12,11 @@ use crate::{
 };
 
 pub trait SetCharacterHistory {
-    fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
+    fn set_character_history(&self, db_main: &mut crate::mysql::Conn, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl SetCharacterHistory for Armory {
-    fn set_character_history(&self, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
+    fn set_character_history(&self, db_main: &mut crate::mysql::Conn, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
         // Validation
         if !update_character_history.is_plausible() {
             return Err(ArmoryFailure::ImplausibleInput);
@@ -31,7 +32,7 @@ impl SetCharacterHistory for Armory {
         let guild_id = update_character_history
             .character_guild
             .as_ref()
-            .and_then(|chr_guild_dto| self.create_guild(server_id, chr_guild_dto.guild.clone()).ok().map(|gld| gld.id));
+            .and_then(|chr_guild_dto| self.create_guild(db_main, server_id, chr_guild_dto.guild.clone()).ok().map(|gld| gld.id));
 
         {
             // Check whether this is a new entry or just the same as previously
@@ -44,7 +45,7 @@ impl SetCharacterHistory for Armory {
                     && ((last_update.character_guild.is_none() && guild_id.is_none()) || (last_update.character_guild.is_some() && guild_id.is_some() && last_update.character_guild.as_ref().unwrap().guild_id == *guild_id.as_ref().unwrap()))
                 {
                     let now = time_util::now();
-                    if self.db_main.execute_wparams(
+                    if db_main.execute_wparams(
                         "UPDATE armory_character_history SET `timestamp` = :timestamp WHERE id=:id",
                         params!(
                           "timestamp" => now,
@@ -58,6 +59,6 @@ impl SetCharacterHistory for Armory {
                 }
             }
         } // Else create a new history point and assign it to this character
-        self.create_character_history(server_id, update_character_history, character_uid)
+        self.create_character_history(db_main, server_id, update_character_history, character_uid)
     }
 }

@@ -7,17 +7,18 @@ use crate::modules::account::{
     material::{APIToken, Account},
     tools::Create,
 };
+use crate::MainDb;
 
-#[openapi]
+#[openapi(skip)]
 #[post("/create", format = "application/json", data = "<params>")]
-pub fn create(me: State<Account>, params: Json<CreateMember>) -> Result<Json<APIToken>, Failure> {
-    me.create(&params.credentials.mail, &params.nickname, &params.credentials.password).map(Json)
+pub fn create(mut db_main: MainDb, me: State<Account>, params: Json<CreateMember>) -> Result<Json<APIToken>, Failure> {
+    me.create(&mut *db_main, &params.credentials.mail, &params.nickname, &params.credentials.password).map(Json)
 }
 
-#[openapi]
+#[openapi(skip)]
 #[get("/create/<id>")]
-pub fn confirm(me: State<Account>, id: String) -> Result<(), Failure> {
-    if me.confirm(&id) {
+pub fn confirm(mut db_main: MainDb, me: State<Account>, id: String) -> Result<(), Failure> {
+    if me.confirm(&mut *db_main, &id) {
         return Ok(());
     }
     Err(Failure::Unknown)

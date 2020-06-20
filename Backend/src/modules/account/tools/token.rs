@@ -1,5 +1,6 @@
-use mysql_connection::tools::{Execute, Select};
+use crate::util::database::*;
 use str_util::{random, sha3};
+use crate::params;
 
 use crate::modules::account::{
     dto::Failure,
@@ -8,12 +9,12 @@ use crate::modules::account::{
 
 pub trait Token {
     fn get_all_token(&self, member_id: u32) -> Vec<APIToken>;
-    fn validate_token(&self, api_token: &str) -> Option<u32>;
-    fn clear_tokens(&self, member_id: u32) -> Result<(), Failure>;
-    fn create_token(&self, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure>;
-    fn delete_token(&self, token_id: u32, member_id: u32) -> Result<(), Failure>;
-    fn prolong_token(&self, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure>;
-    fn prolong_token_by_str(&self, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure>;
+    fn validate_token(&self, db_main: &mut crate::mysql::Conn, api_token: &str) -> Option<u32>;
+    fn clear_tokens(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure>;
+    fn create_token(&self, db_main: &mut crate::mysql::Conn, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure>;
+    fn delete_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32) -> Result<(), Failure>;
+    fn prolong_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure>;
+    fn prolong_token_by_str(&self, db_main: &mut crate::mysql::Conn, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure>;
 }
 
 impl Token for Account {
@@ -32,7 +33,7 @@ impl Token for Account {
         }
     }
 
-    fn validate_token(&self, api_token: &str) -> Option<u32> {
+    fn validate_token(&self, db_main: &mut crate::mysql::Conn, api_token: &str) -> Option<u32> {
         let db_token = sha3::hash(&[api_token, &"token".to_owned()]);
 
         // Check if token exists and if its still valid!
@@ -56,16 +57,16 @@ impl Token for Account {
 
         // Otherwise delete token and return none!
         if let Some(token_id) = token_id {
-            let _ = self.delete_token(token_id, member_id);
+            let _ = self.delete_token(db_main, token_id, member_id);
         }
         None
     }
 
-    fn clear_tokens(&self, member_id: u32) -> Result<(), Failure> {
+    fn clear_tokens(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure> {
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_token = self.api_tokens.write().unwrap();
 
-        if !self.db_main.execute_wparams(
+        if !db_main.execute_wparams(
             "DELETE FROM account_api_token WHERE member_id=:member_id",
             params!(
               "member_id" => member_id
@@ -82,7 +83,7 @@ impl Token for Account {
         Ok(())
     }
 
-    fn create_token(&self, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure> {
+    fn create_token(&self, db_main: &mut crate::mysql::Conn, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure> {
         // Tokens may be valid for a maximum time of a year
         let now = time_util::now();
         if exp_date < now {
@@ -113,7 +114,7 @@ impl Token for Account {
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_tokens = self.api_tokens.write().unwrap();
 
-        if !self.db_main.execute_wparams(
+        if !db_main.execute_wparams(
             "INSERT INTO account_api_token (member_id, token, purpose, exp_date) VALUES (:member_id, :token, :purpose, :exp_date)",
             params!(
               "member_id" => member_id,
@@ -125,7 +126,7 @@ impl Token for Account {
             return Err(Failure::Unknown);
         }
 
-        match self.db_main.select_wparams_value(
+        match db_main.select_wparams_value(
             "SELECT id, member_id, token, purpose, exp_date FROM account_api_token WHERE member_id=:member_id AND token=:token",
             &|mut row| APIToken {
                 id: row.take(0).unwrap(),
@@ -158,12 +159,12 @@ impl Token for Account {
         }
     }
 
-    fn delete_token(&self, token_id: u32, member_id: u32) -> Result<(), Failure> {
+    fn delete_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32) -> Result<(), Failure> {
         // We lock before in order to be transactional
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_tokens = self.api_tokens.write().unwrap();
 
-        if !self.db_main.execute_wparams(
+        if !db_main.execute_wparams(
             "DELETE FROM account_api_token WHERE id=:id AND member_id=:member_id",
             params!(
               "id" => token_id,
@@ -187,7 +188,7 @@ impl Token for Account {
         }
     }
 
-    fn prolong_token(&self, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure> {
+    fn prolong_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure> {
         // Tokens may be valid for a maximum time of a year
         /*
         if days >= 365 {
@@ -198,7 +199,7 @@ impl Token for Account {
         // Continue to update the token
         let mut api_tokens = self.api_tokens.write().unwrap();
         let exp_date = time_util::get_ts_from_now_in_secs(days as u64);
-        if self.db_main.execute_wparams(
+        if db_main.execute_wparams(
             "UPDATE account_api_token SET exp_date=:exp_date WHERE id=:id AND member_id=:member_id",
             params!(
               "exp_date" => exp_date,
@@ -215,7 +216,7 @@ impl Token for Account {
         Err(Failure::Unknown)
     }
 
-    fn prolong_token_by_str(&self, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure> {
+    fn prolong_token_by_str(&self, db_main: &mut crate::mysql::Conn, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure> {
         let token_id;
         {
             let api_tokens = self.api_tokens.read().unwrap();
@@ -230,6 +231,6 @@ impl Token for Account {
         if token_id.is_none() {
             return Err(Failure::Unknown);
         }
-        self.prolong_token(token_id.unwrap(), member_id, days)
+        self.prolong_token(db_main, token_id.unwrap(), member_id, days)
     }
 }

@@ -8,17 +8,18 @@ use crate::modules::account::{
     material::{APIToken, Account},
     tools::Update,
 };
+use crate::MainDb;
 
-#[openapi]
+#[openapi(skip)]
 #[post("/update/password", format = "application/json", data = "<content>")]
-pub fn password(me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<APIToken>, Failure> {
-    me.change_password(&content, auth.0).map(Json)
+pub fn password(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<APIToken>, Failure> {
+    me.change_password(&mut *db_main, &content, auth.0).map(Json)
 }
 
-#[openapi]
+#[openapi(skip)]
 #[post("/update/nickname", format = "application/json", data = "<content>")]
-pub fn nickname(me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<AccountInformation>, Failure> {
-    me.change_name(&content, auth.0).map(Json)
+pub fn nickname(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<AccountInformation>, Failure> {
+    me.change_name(&mut *db_main, &content, auth.0).map(Json)
 }
 
 #[openapi]
@@ -27,8 +28,8 @@ pub fn request_mail(me: State<Account>, auth: Authenticate, content: Json<String
     me.request_change_mail(&content, auth.0).map(Json)
 }
 
-#[openapi]
+#[openapi(skip)]
 #[get("/update/mail/<id>")]
-pub fn confirm_mail(me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
-    me.confirm_change_mail(&id).map(Json)
+pub fn confirm_mail(mut db_main: MainDb, me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
+    me.confirm_change_mail(&mut *db_main, &id).map(Json)
 }

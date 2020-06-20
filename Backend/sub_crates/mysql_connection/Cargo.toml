@@ -5,4 +5,6 @@ authors = ["Tom Dymel <tom@dymel.dev>"]
 
 [dependencies]
 mysql = "*"
-dotenv = "*"
+
+[dev-dependencies]
+mockall = { version = "0.7.1", features = ["nightly"] }

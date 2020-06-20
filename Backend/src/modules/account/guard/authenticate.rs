@@ -1,4 +1,4 @@
-use okapi::openapi3::{Parameter, ParameterValue, Responses};
+use okapi::openapi3::Responses;
 use rocket::{
     http::Status,
     outcome::Outcome::*,
@@ -6,9 +6,10 @@ use rocket::{
     response::Responder,
     Response,
 };
-use rocket_okapi::{gen::OpenApiGenerator, request::OpenApiFromRequest, response::OpenApiResponder, util::add_schema_response};
+use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder, util::add_schema_response};
 
 use crate::modules::account::{tools::Token, Account};
+use crate::MainDb;
 
 pub struct Authenticate(pub u32);
 
@@ -27,8 +28,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
             return Failure((Status::Unauthorized, ()));
         }
 
+        let db_main = req.guard::<MainDb>();
+        if db_main.is_failure() {
+            return Failure((Status::Unauthorized, ()));
+        }
+
         let acc_res = account.unwrap();
-        let validation = acc_res.validate_token(api_token);
+        let mut db_main = db_main.unwrap();
+        let validation = acc_res.validate_token(&mut *db_main, api_token);
         if validation.is_none() {
             return Failure((Status::Unauthorized, ()));
         }
@@ -37,6 +44,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
     }
 }
 
+/*
 impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Authenticate {
     fn request_parameter(_: &mut OpenApiGenerator, _: String) -> rocket_okapi::Result<Parameter> {
         Ok(Parameter {
@@ -58,7 +66,7 @@ impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Authenticate {
         })
     }
 }
-
+ */
 // This implementation is required from OpenAPI, it does nothing here
 // and is not supposed to be used!
 impl Responder<'static> for Authenticate {

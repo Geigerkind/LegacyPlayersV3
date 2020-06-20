@@ -1,27 +1,27 @@
-use mysql_connection::tools::{Execute, Select};
-
+use crate::util::database::*;
 use crate::modules::armory::{dto::ArmoryFailure, material::Character, tools::GetCharacter, Armory};
+use crate::params;
 
 pub trait CreateCharacter {
-    fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
+    fn create_character(&self, db_main: &mut crate::mysql::Conn, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
 }
 
 impl CreateCharacter for Armory {
-    fn create_character(&self, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
+    fn create_character(&self, db_main: &mut crate::mysql::Conn, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
         // If character exists already, return this one
         if let Some(existing_character) = self.get_character_id_by_uid(server_id, server_uid) {
             return Ok(existing_character);
         }
 
         let mut characters = self.characters.write().unwrap();
-        if self.db_main.execute_wparams(
+        if db_main.execute_wparams(
             "INSERT INTO armory_character (`server_id`, `server_uid`) VALUES (:server_id, :server_uid)",
             params!(
               "server_id" => server_id,
-              "server_uid" => server_uid,
+              "server_uid" => server_uid
             ),
         ) {
-            if let Some(character) = self.db_main.select_wparams_value(
+            if let Some(character) = db_main.select_wparams_value(
                 "SELECT id FROM armory_character WHERE server_id=:server_id AND server_uid=:server_uid",
                 &|mut row| Character {
                     id: row.take(0).unwrap(),
@@ -32,7 +32,7 @@ impl CreateCharacter for Armory {
                 },
                 params!(
                   "server_id" => server_id,
-                  "server_uid" => server_uid,
+                  "server_uid" => server_uid
                 ),
             ) {
                 let character_id = character.id;

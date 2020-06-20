@@ -1,4 +1,4 @@
-use okapi::openapi3::{Parameter, ParameterValue, Responses};
+use okapi::openapi3::Responses;
 use rocket::{
     http::Status,
     outcome::Outcome::*,
@@ -6,7 +6,7 @@ use rocket::{
     response::Responder,
     Response,
 };
-use rocket_okapi::{gen::OpenApiGenerator, request::OpenApiFromRequest, response::OpenApiResponder, util::add_schema_response};
+use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder, util::add_schema_response};
 
 use crate::modules::{account::guard::Authenticate, data::Data};
 
@@ -33,7 +33,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for ServerOwner {
         })
     }
 }
-
+/*
 impl<'a, 'r> OpenApiFromRequest<'a, 'r> for ServerOwner {
     fn request_parameter(_: &mut OpenApiGenerator, _: String) -> rocket_okapi::Result<Parameter> {
         Ok(Parameter {
@@ -55,7 +55,7 @@ impl<'a, 'r> OpenApiFromRequest<'a, 'r> for ServerOwner {
         })
     }
 }
-
+ */
 // This implementation is required from OpenAPI, it does nothing here
 // and is not supposed to be used!
 impl Responder<'static> for ServerOwner {

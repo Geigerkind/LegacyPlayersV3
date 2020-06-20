@@ -1,4 +1,4 @@
-use mysql_connection::tools::Execute;
+use crate::util::database::*;
 
 use crate::modules::armory::{
     domain_value::CharacterGear,
@@ -6,15 +6,16 @@ use crate::modules::armory::{
     tools::{CreateCharacterItem, GetCharacterGear},
     Armory,
 };
+use crate::params;
 
 pub trait CreateCharacterGear {
-    fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
+    fn create_character_gear(&self, db_main: &mut crate::mysql::Conn, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
 }
 
 impl CreateCharacterGear for Armory {
-    fn create_character_gear(&self, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
+    fn create_character_gear(&self, db_main: &mut crate::mysql::Conn, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
         // Check if it already exists
-        let existing_gear = self.get_character_gear_by_value(character_gear.clone());
+        let existing_gear = self.get_character_gear_by_value(db_main, character_gear.clone());
         if existing_gear.is_ok() {
             return existing_gear;
         }
@@ -22,7 +23,7 @@ impl CreateCharacterGear for Armory {
         // Note: We do this, because the process must fail if one of its components fails
         let mut head = None;
         if character_gear.head.is_some() {
-            let item_res = self.create_character_item(character_gear.head.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.head.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -31,7 +32,7 @@ impl CreateCharacterGear for Armory {
 
         let mut neck = None;
         if character_gear.neck.is_some() {
-            let item_res = self.create_character_item(character_gear.neck.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.neck.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -40,7 +41,7 @@ impl CreateCharacterGear for Armory {
 
         let mut shoulder = None;
         if character_gear.shoulder.is_some() {
-            let item_res = self.create_character_item(character_gear.shoulder.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.shoulder.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -49,7 +50,7 @@ impl CreateCharacterGear for Armory {
 
         let mut back = None;
         if character_gear.back.is_some() {
-            let item_res = self.create_character_item(character_gear.back.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.back.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -58,7 +59,7 @@ impl CreateCharacterGear for Armory {
 
         let mut chest = None;
         if character_gear.chest.is_some() {
-            let item_res = self.create_character_item(character_gear.chest.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.chest.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -67,7 +68,7 @@ impl CreateCharacterGear for Armory {
 
         let mut shirt = None;
         if character_gear.shirt.is_some() {
-            let item_res = self.create_character_item(character_gear.shirt.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.shirt.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -76,7 +77,7 @@ impl CreateCharacterGear for Armory {
 
         let mut tabard = None;
         if character_gear.tabard.is_some() {
-            let item_res = self.create_character_item(character_gear.tabard.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.tabard.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -85,7 +86,7 @@ impl CreateCharacterGear for Armory {
 
         let mut wrist = None;
         if character_gear.wrist.is_some() {
-            let item_res = self.create_character_item(character_gear.wrist.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.wrist.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -94,7 +95,7 @@ impl CreateCharacterGear for Armory {
 
         let mut main_hand = None;
         if character_gear.main_hand.is_some() {
-            let item_res = self.create_character_item(character_gear.main_hand.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.main_hand.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -103,7 +104,7 @@ impl CreateCharacterGear for Armory {
 
         let mut off_hand = None;
         if character_gear.off_hand.is_some() {
-            let item_res = self.create_character_item(character_gear.off_hand.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.off_hand.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -112,7 +113,7 @@ impl CreateCharacterGear for Armory {
 
         let mut ternary_hand = None;
         if character_gear.ternary_hand.is_some() {
-            let item_res = self.create_character_item(character_gear.ternary_hand.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.ternary_hand.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -121,7 +122,7 @@ impl CreateCharacterGear for Armory {
 
         let mut glove = None;
         if character_gear.glove.is_some() {
-            let item_res = self.create_character_item(character_gear.glove.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.glove.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -130,7 +131,7 @@ impl CreateCharacterGear for Armory {
 
         let mut belt = None;
         if character_gear.belt.is_some() {
-            let item_res = self.create_character_item(character_gear.belt.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.belt.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -139,7 +140,7 @@ impl CreateCharacterGear for Armory {
 
         let mut leg = None;
         if character_gear.leg.is_some() {
-            let item_res = self.create_character_item(character_gear.leg.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.leg.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -148,7 +149,7 @@ impl CreateCharacterGear for Armory {
 
         let mut boot = None;
         if character_gear.boot.is_some() {
-            let item_res = self.create_character_item(character_gear.boot.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.boot.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -157,7 +158,7 @@ impl CreateCharacterGear for Armory {
 
         let mut ring1 = None;
         if character_gear.ring1.is_some() {
-            let item_res = self.create_character_item(character_gear.ring1.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.ring1.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -166,7 +167,7 @@ impl CreateCharacterGear for Armory {
 
         let mut ring2 = None;
         if character_gear.ring2.is_some() {
-            let item_res = self.create_character_item(character_gear.ring2.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.ring2.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -175,7 +176,7 @@ impl CreateCharacterGear for Armory {
 
         let mut trinket1 = None;
         if character_gear.trinket1.is_some() {
-            let item_res = self.create_character_item(character_gear.trinket1.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.trinket1.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -184,7 +185,7 @@ impl CreateCharacterGear for Armory {
 
         let mut trinket2 = None;
         if character_gear.trinket2.is_some() {
-            let item_res = self.create_character_item(character_gear.trinket2.clone().unwrap());
+            let item_res = self.create_character_item(db_main, character_gear.trinket2.clone().unwrap());
             if item_res.is_err() {
                 return Err(item_res.err().unwrap());
             }
@@ -211,16 +212,16 @@ impl CreateCharacterGear for Armory {
           "ring1" => ring1,
           "ring2" => ring2,
           "trinket1" => trinket1,
-          "trinket2" => trinket2,
+          "trinket2" => trinket2
         );
 
         // It may fail due to the unique constraint if a race condition occurs
-        self.db_main.execute_wparams(
+        db_main.execute_wparams(
             "INSERT INTO armory_gear (`head`, `neck`, `shoulder`, `back`, `chest`, `shirt`, `tabard`, `wrist`, `main_hand`, `off_hand`, `ternary_hand`, `glove`, `belt`, `leg`, `boot`, `ring1`, `ring2`, `trinket1`, `trinket2`) VALUES (:head, :neck, \
              :shoulder, :back, :chest, :shirt, :tabard, :wrist, :main_hand, :off_hand, :ternary_hand, :glove, :belt, :leg, :boot, :ring1, :ring2, :trinket1, :trinket2)",
             params,
         );
-        if let Ok(char_gear) = self.get_character_gear_by_value(character_gear) {
+        if let Ok(char_gear) = self.get_character_gear_by_value(db_main, character_gear) {
             return Ok(char_gear);
         }
         Err(ArmoryFailure::Database("create_character_gear".to_owned()))

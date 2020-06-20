@@ -11,9 +11,9 @@ use crate::tests::TestContainer;
 #[test]
 fn get_character_viewer() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let armory = Armory::with_dns(&dns);
+    let armory = Armory::default();
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
             head: None,
@@ -64,12 +64,12 @@ fn get_character_viewer() {
         character_history: Some(character_history_dto.to_owned()),
     };
 
-    let set_character_res = armory.set_character(3, character_dto);
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
-    let data = Data::with_dns(&dns).init(None);
-    let character_viewer_res = armory.get_character_viewer(&data, 1, set_character.id);
+    let data = Data::default().init(&mut conn);
+    let character_viewer_res = armory.get_character_viewer(&mut conn, &data, 1, set_character.id);
     assert!(character_viewer_res.is_ok());
     let character_viewer = character_viewer_res.unwrap();
 

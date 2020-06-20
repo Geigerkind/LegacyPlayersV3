@@ -4,11 +4,7 @@ use crate::tests::TestContainer;
 
 #[test]
 fn test_parse_stats_none() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    // Arrange
-    let data = Data::with_dns(&dns).init(None);
+    let data = Data::default();
 
     // Act
     let result = data.parse_stats(1, 0);
@@ -20,10 +16,10 @@ fn test_parse_stats_none() {
 #[test]
 fn test_parse_stats_magical_spell() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
     // Arrange
-    let data = Data::with_dns(&dns).init(None);
+    let data = Data::default().init(&mut conn);
 
     // Act
     let result = data.parse_stats(1, 9346);

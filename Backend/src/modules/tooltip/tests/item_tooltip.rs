@@ -12,10 +12,10 @@ use crate::tests::TestContainer;
 #[test]
 fn avenger_breastplate() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns(&dns).init();
-    let data = Data::with_dns(&dns).init(None);
+    let tooltip = Tooltip::default();
+    let data = Data::default().init(&mut conn);
 
     let result = tooltip.get_item(&data, 1, 1, 21389);
     assert!(result.is_ok());
@@ -95,10 +95,10 @@ fn avenger_breastplate() {
 #[test]
 fn shadowmourne_socket() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns(&dns).init();
-    let data = Data::with_dns(&dns).init(None);
+    let tooltip = Tooltip::default();
+    let data = Data::default().init(&mut conn);
 
     let result = tooltip.get_item(&data, 1, 3, 49623);
     assert!(result.is_ok());
@@ -113,10 +113,10 @@ fn shadowmourne_socket() {
 #[test]
 fn thunderfury_weapon_stat() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns(&dns).init();
-    let data = Data::with_dns(&dns).init(None);
+    let tooltip = Tooltip::default();
+    let data = Data::default().init(&mut conn);
 
     let result = tooltip.get_item(&data, 1, 1, 19019);
     assert!(result.is_ok());
@@ -136,11 +136,11 @@ fn thunderfury_weapon_stat() {
 #[test]
 fn shadowmourne_socketed_and_enchanted() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns(&dns).init();
-    let data = Data::with_dns(&dns).init(None);
-    let armory = Armory::with_dns(&dns);
+    let tooltip = Tooltip::default();
+    let data = Data::default().init(&mut conn);
+    let armory = Armory::default();
 
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
@@ -192,11 +192,11 @@ fn shadowmourne_socketed_and_enchanted() {
         character_history: Some(character_history_dto),
     };
 
-    let character_res = armory.set_character(3, character_dto);
+    let character_res = armory.set_character(&mut conn, 3, character_dto);
     assert!(character_res.is_ok());
     let character = character_res.unwrap();
 
-    let result = tooltip.get_character_item(&data, &armory, 1, 49623, character.last_update.as_ref().unwrap().id);
+    let result = tooltip.get_character_item(&mut conn, &data, &armory, 1, 49623, character.last_update.as_ref().unwrap().id);
     assert!(result.is_ok());
 
     let item_tooltip = result.unwrap();

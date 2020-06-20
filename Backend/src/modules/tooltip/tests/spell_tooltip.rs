@@ -7,10 +7,10 @@ use crate::tests::TestContainer;
 #[test]
 fn thunderfury_effect() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns(&dns).init();
-    let data = Data::with_dns(&dns).init(None);
+    let tooltip = Tooltip::default();
+    let data = Data::default().init(&mut conn);
 
     let result = tooltip.get_spell(&data, 1, 1, 21992);
     assert!(result.is_ok());

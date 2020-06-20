@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, JsonSchema, PartialEq)]
 pub struct ItemRandomPropertyPoints {
     pub item_level: u16,
     pub expansion_id: u8,

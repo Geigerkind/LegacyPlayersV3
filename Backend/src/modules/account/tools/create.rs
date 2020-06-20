@@ -1,10 +1,11 @@
 use language::{domain_value::Language, tools::Get};
-use mysql_connection::tools::{Execute, Select};
+use crate::util::database::*;
 use str_util::{random, sha3, strformat};
 use validator::{
     domain_value::PasswordFailure,
     tools::{valid_mail, valid_nickname, valid_password},
 };
+use crate::params;
 
 use crate::modules::account::{
     dto::Failure,
@@ -13,13 +14,13 @@ use crate::modules::account::{
 };
 
 pub trait Create {
-    fn create(&self, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure>;
+    fn create(&self, db_main: &mut crate::mysql::Conn, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure>;
     fn send_confirmation(&self, member_id: u32) -> bool;
-    fn confirm(&self, id: &str) -> bool;
+    fn confirm(&self, db_main: &mut crate::mysql::Conn, id: &str) -> bool;
 }
 
 impl Create for Account {
-    fn create(&self, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure> {
+    fn create(&self, db_main: &mut crate::mysql::Conn, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure> {
         if !valid_mail(mail) {
             return Err(Failure::InvalidMail);
         }
@@ -52,7 +53,7 @@ impl Create for Account {
             let salt: String = random::alphanumeric(16);
             let pass: String = sha3::hash(&[password, &salt]);
 
-            if self.db_main.execute_wparams(
+            if db_main.execute_wparams(
                 "INSERT IGNORE INTO account_member (`mail`, `password`, `nickname`, `salt`, `joined`) VALUES (:mail, :pass, :nickname, :salt, UNIX_TIMESTAMP())",
                 params!(
                 "nickname" => (*nickname).to_string(),
@@ -61,9 +62,7 @@ impl Create for Account {
                 "salt" => salt.clone()
                 ),
             ) {
-                member_id = self
-                    .db_main
-                    .select_wparams_value(
+                member_id = db_main.select_wparams_value(
                         "SELECT id FROM account_member WHERE mail = :mail",
                         &|mut row| row.take(0).unwrap(),
                         params!(
@@ -92,7 +91,7 @@ impl Create for Account {
         }
 
         self.send_confirmation(member_id);
-        self.create_token(&self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7))
+        self.create_token(db_main, &self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7))
     }
 
     fn send_confirmation(&self, member_id: u32) -> bool {
@@ -113,7 +112,7 @@ impl Create for Account {
         false
     }
 
-    fn confirm(&self, id: &str) -> bool {
+    fn confirm(&self, db_main: &mut crate::mysql::Conn, id: &str) -> bool {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut member = self.member.write().unwrap();
         let confirm_id_res = requires_mail_confirmation.get(id);
@@ -123,7 +122,7 @@ impl Create for Account {
         }
 
         let member_id = *confirm_id_res.unwrap();
-        if self.db_main.execute_wparams(
+        if db_main.execute_wparams(
             "UPDATE account_member SET mail_confirmed=1 WHERE id=:id",
             params!(
               "id" => member_id

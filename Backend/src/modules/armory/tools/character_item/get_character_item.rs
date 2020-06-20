@@ -1,4 +1,5 @@
-use mysql_connection::tools::Select;
+use crate::util::database::*;
+use crate::params;
 
 use crate::modules::armory::{
     domain_value::CharacterItem,
@@ -7,17 +8,16 @@ use crate::modules::armory::{
 };
 
 pub trait GetCharacterItem {
-    fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, ArmoryFailure>;
-    fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
+    fn get_character_item(&self, db_main: &mut crate::mysql::Conn, character_item_id: u32) -> Result<CharacterItem, ArmoryFailure>;
+    fn get_character_item_by_value(&self, db_main: &mut crate::mysql::Conn, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
 }
 
 impl GetCharacterItem for Armory {
-    fn get_character_item(&self, character_item_id: u32) -> Result<CharacterItem, ArmoryFailure> {
+    fn get_character_item(&self, db_main: &mut crate::mysql::Conn, character_item_id: u32) -> Result<CharacterItem, ArmoryFailure> {
         let params = params!(
           "id" => character_item_id
         );
-        self.db_main
-            .select_wparams_value(
+        db_main.select_wparams_value(
                 "SELECT * FROM armory_item WHERE id=:id",
                 &|mut row| {
                     Ok(CharacterItem {
@@ -33,7 +33,7 @@ impl GetCharacterItem for Armory {
             .unwrap_or_else(|| Err(ArmoryFailure::Database("get_character_item".to_owned())))
     }
 
-    fn get_character_item_by_value(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
+    fn get_character_item_by_value(&self, db_main: &mut crate::mysql::Conn, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
         let params = params!(
           "item_id" => character_item.item_id,
           "random_property_id" => character_item.random_property_id,
@@ -41,10 +41,9 @@ impl GetCharacterItem for Armory {
           "gem_id1" => character_item.gem_ids.get(0).cloned(),
           "gem_id2" => character_item.gem_ids.get(1).cloned(),
           "gem_id3" => character_item.gem_ids.get(2).cloned(),
-          "gem_id4" => character_item.gem_ids.get(3).cloned(),
+          "gem_id4" => character_item.gem_ids.get(3).cloned()
         );
-        self.db_main
-            .select_wparams_value(
+        db_main.select_wparams_value(
                 "SELECT * FROM armory_item WHERE item_id=:item_id AND ((ISNULL(:random_property_id) AND ISNULL(random_property_id)) OR random_property_id = :random_property_id) AND ((ISNULL(:enchant_id) AND ISNULL(enchant_id)) OR enchant_id = \
                  :enchant_id) AND ((ISNULL(:gem_id1) AND ISNULL(gem_id1)) OR gem_id1 = :gem_id1) AND ((ISNULL(:gem_id2) AND ISNULL(gem_id2)) OR gem_id2 = :gem_id2) AND ((ISNULL(:gem_id3) AND ISNULL(gem_id3)) OR gem_id3 = :gem_id3) AND \
                  ((ISNULL(:gem_id4) AND ISNULL(gem_id4)) OR gem_id4 = :gem_id4)",

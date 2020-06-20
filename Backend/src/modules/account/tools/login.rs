@@ -8,14 +8,14 @@ use crate::modules::account::{
 };
 
 pub trait Login {
-    fn login(&self, mail: &str, password: &str) -> Result<APIToken, Failure>;
+    fn login(&self, db_main: &mut crate::mysql::Conn, mail: &str, password: &str) -> Result<APIToken, Failure>;
     fn validate_credentials(&self, mail: &str, password: &str) -> Result<u32, Failure>;
 }
 
 impl Login for Account {
-    fn login(&self, mail: &str, password: &str) -> Result<APIToken, Failure> {
+    fn login(&self, db_main: &mut crate::mysql::Conn, mail: &str, password: &str) -> Result<APIToken, Failure> {
         self.validate_credentials(mail, password)
-            .and_then(|member_id| self.create_token(&self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7)))
+            .and_then(|member_id| self.create_token(db_main, &self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7)))
     }
 
     fn validate_credentials(&self, mail: &str, password: &str) -> Result<u32, Failure> {

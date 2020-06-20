@@ -1,15 +1,19 @@
 use crate::modules::data::{tools::RetrieveIcon, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::Icon;
 
 #[test]
 fn get_icon() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let icon_id = 32;
+    let icon = Icon {
+        id: icon_id,
+        name: "sdfgsghdsf".to_string()
+    };
+    data.icons.insert(icon_id, icon.clone());
 
-    let data = Data::with_dns(&dns).init(Some(14));
-    let icon = data.get_icon(1);
-    assert!(icon.is_some());
-    assert_eq!(icon.unwrap().id, 1);
+    let icon_res = data.get_icon(icon_id);
+    assert!(icon_res.is_some());
+    assert_eq!(icon_res.unwrap(), icon);
     let no_icon = data.get_icon(0);
     assert!(no_icon.is_none());
 }

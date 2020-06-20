@@ -15,12 +15,12 @@ use crate::{
 };
 
 pub trait CharacterViewer {
-    fn get_character_viewer_by_history_id(&self, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
-    fn get_character_viewer(&self, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
+    fn get_character_viewer_by_history_id(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
+    fn get_character_viewer(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
 }
 
 impl CharacterViewer for Armory {
-    fn get_character_viewer_by_history_id(&self, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
+    fn get_character_viewer_by_history_id(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
         let character = self.get_character(character_id);
         if character.is_none() || character.as_ref().unwrap().last_update.is_none() || character.as_ref().unwrap().history_moments.iter().find(|hm| hm.id == character_history_id).is_none() {
             return Err(ArmoryFailure::InvalidInput);
@@ -30,7 +30,7 @@ impl CharacterViewer for Armory {
         let character_history = if character_res.last_update.as_ref().unwrap().id == character_history_id {
             character_res.last_update.unwrap()
         } else {
-            self.get_character_history(character_history_id).unwrap()
+            self.get_character_history(db_main, character_history_id).unwrap()
         };
 
         let race = data.get_race(character_history.character_info.race_id).unwrap();
@@ -132,12 +132,12 @@ impl CharacterViewer for Armory {
         })
     }
 
-    fn get_character_viewer(&self, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
+    fn get_character_viewer(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
         let character = self.get_character(character_id);
         if character.is_none() || character.as_ref().unwrap().last_update.is_none() {
             return Err(ArmoryFailure::InvalidInput);
         }
-        self.get_character_viewer_by_history_id(data, language_id, character.unwrap().last_update.unwrap().id, character_id)
+        self.get_character_viewer_by_history_id(db_main, data, language_id, character.unwrap().last_update.unwrap().id, character_id)
     }
 }
 

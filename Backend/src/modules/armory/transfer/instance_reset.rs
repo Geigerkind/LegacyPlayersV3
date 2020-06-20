@@ -4,9 +4,10 @@ use crate::modules::armory::tools::HandleInstanceReset;
 use crate::modules::armory::Armory;
 use rocket::State;
 use rocket_contrib::json::Json;
+use crate::MainDb;
 
-#[openapi]
+#[openapi(skip)]
 #[post("/instance_reset", format = "application/json", data = "<instance_resets>")]
-pub fn set_instance_resets(me: State<Armory>, owner: ServerOwner, instance_resets: Json<Vec<InstanceResetDto>>) -> Result<(), ArmoryFailure> {
-    me.set_instance_resets(owner.0, instance_resets.into_inner())
+pub fn set_instance_resets(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, instance_resets: Json<Vec<InstanceResetDto>>) -> Result<(), ArmoryFailure> {
+    me.set_instance_resets(&mut *db_main, owner.0, instance_resets.into_inner())
 }

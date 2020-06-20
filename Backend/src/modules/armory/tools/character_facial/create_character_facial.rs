@@ -4,16 +4,17 @@ use crate::modules::armory::{
     tools::GetCharacterFacial,
     Armory,
 };
-use mysql_connection::tools::Execute;
+use crate::params;
+use crate::util::database::*;
 
 pub trait CreateCharacterFacial {
-    fn create_character_facial(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure>;
+    fn create_character_facial(&self, db_main: &mut crate::mysql::Conn, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure>;
 }
 
 impl CreateCharacterFacial for Armory {
-    fn create_character_facial(&self, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure> {
+    fn create_character_facial(&self, db_main: &mut crate::mysql::Conn, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure> {
         // If it already exists, return this one
-        let existing_facial = self.get_character_facial_by_value(character_facial_dto.clone());
+        let existing_facial = self.get_character_facial_by_value(db_main, character_facial_dto.clone());
         if existing_facial.is_ok() {
             return existing_facial;
         }
@@ -23,15 +24,15 @@ impl CreateCharacterFacial for Armory {
           "face_style" => character_facial_dto.face_style,
           "hair_style" => character_facial_dto.hair_style,
           "hair_color" => character_facial_dto.hair_color,
-          "facial_hair" => character_facial_dto.facial_hair,
+          "facial_hair" => character_facial_dto.facial_hair
         );
 
         // It may fail due to the unique constraint if a race condition occurs
-        self.db_main.execute_wparams(
+        db_main.execute_wparams(
             "INSERT INTO armory_character_facial (`skin_color`, `face_style`, `hair_style`, `hair_color`, `facial_hair`) VALUES (:skin_color, :face_style, :hair_style, :hair_color, :facial_hair)",
             params,
         );
-        if let Ok(char_facial) = self.get_character_facial_by_value(character_facial_dto) {
+        if let Ok(char_facial) = self.get_character_facial_by_value(db_main, character_facial_dto) {
             return Ok(char_facial);
         }
 

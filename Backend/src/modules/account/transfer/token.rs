@@ -7,11 +7,12 @@ use crate::modules::account::{
     material::{APIToken, Account},
     tools::Token,
 };
+use crate::MainDb;
 
-#[openapi]
+#[openapi(skip)]
 #[post("/token", format = "application/json", data = "<params>")]
-pub fn create_token(me: State<Account>, auth: Authenticate, params: Json<CreateToken>) -> Result<Json<APIToken>, Failure> {
-    me.create_token(&params.purpose, auth.0, params.exp_date).map(Json)
+pub fn create_token(mut db_main: MainDb, me: State<Account>, auth: Authenticate, params: Json<CreateToken>) -> Result<Json<APIToken>, Failure> {
+    me.create_token(&mut *db_main, &params.purpose, auth.0, params.exp_date).map(Json)
 }
 
 #[openapi]
@@ -20,14 +21,14 @@ pub fn get_tokens(me: State<Account>, auth: Authenticate) -> Result<Json<Vec<API
     Ok(Json(me.get_all_token(auth.0)))
 }
 
-#[openapi]
+#[openapi(skip)]
 #[delete("/token", format = "application/json", data = "<token_id>")]
-pub fn delete_token(me: State<Account>, auth: Authenticate, token_id: Json<u32>) -> Result<(), Failure> {
-    me.delete_token(token_id.0, auth.0)
+pub fn delete_token(mut db_main: MainDb, me: State<Account>, auth: Authenticate, token_id: Json<u32>) -> Result<(), Failure> {
+    me.delete_token(&mut *db_main, token_id.0, auth.0)
 }
 
-#[openapi]
+#[openapi(skip)]
 #[post("/token/prolong", format = "application/json", data = "<params>")]
-pub fn prolong_token(me: State<Account>, auth: Authenticate, params: Json<ProlongToken>) -> Result<Json<APIToken>, Failure> {
-    me.prolong_token_by_str(params.token.clone(), auth.0, params.days).map(Json)
+pub fn prolong_token(mut db_main: MainDb, me: State<Account>, auth: Authenticate, params: Json<ProlongToken>) -> Result<Json<APIToken>, Failure> {
+    me.prolong_token_by_str(&mut *db_main, params.token.clone(), auth.0, params.days).map(Json)
 }

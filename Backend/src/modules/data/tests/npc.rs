@@ -1,17 +1,27 @@
 use crate::modules::data::{tools::RetrieveNPC, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::NPC;
+use std::collections::HashMap;
 
 #[test]
 fn get_npc() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let expansion_id = 1;
+    let npc_id = 1;
+    let npc = NPC {
+        expansion_id,
+        id: npc_id,
+        localization_id: 2323,
+        is_boss: false,
+        friend: 1,
+        family: 2
+    };
+    let mut hashmap = HashMap::new();
+    hashmap.insert(npc_id, npc.clone());
+    data.npcs.push(hashmap);
 
-    let data = Data::with_dns(&dns).init(Some(13));
-    let npc = data.get_npc(1, 1);
-    assert!(npc.is_some());
-    let unpacked_npc = npc.unwrap();
-    assert_eq!(unpacked_npc.id, 1);
-    assert_eq!(unpacked_npc.expansion_id, 1);
+    let npc_res = data.get_npc(expansion_id, npc_id);
+    assert!(npc_res.is_some());
+    assert_eq!(npc_res.unwrap(), npc);
     let no_npc = data.get_npc(0, 0);
     assert!(no_npc.is_none());
 }

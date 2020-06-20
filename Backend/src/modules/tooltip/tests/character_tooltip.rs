@@ -13,11 +13,11 @@ use crate::tests::TestContainer;
 #[test]
 fn character_tooltip() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let tooltip = Tooltip::with_dns(&dns).init();
-    let data = Data::with_dns(&dns).init(None);
-    let armory = Armory::with_dns(&dns);
+    let tooltip = Tooltip::default();
+    let data = Data::default().init(&mut conn);
+    let armory = Armory::default();
 
     let character_info_dto = CharacterInfoDto {
         gear: CharacterGearDto {
@@ -77,7 +77,7 @@ fn character_tooltip() {
 
     let server = data.get_server(3).unwrap();
 
-    let character_res = armory.set_character(3, character_dto);
+    let character_res = armory.set_character(&mut conn, 3, character_dto);
     assert!(character_res.is_ok());
     let character = character_res.unwrap();
 

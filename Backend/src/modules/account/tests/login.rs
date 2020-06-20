@@ -5,9 +5,9 @@ use crate::tests::TestContainer;
 #[test]
 fn login_user_does_not_exist() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let account = Account::with_dns(&dns);
-    let login = account.login("NothingLol", "NotSecret");
+    let account = Account::default();
+    let login = account.login(&mut conn, "NothingLol", "NotSecret");
     assert!(login.is_err());
 }

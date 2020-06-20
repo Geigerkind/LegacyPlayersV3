@@ -1,23 +1,14 @@
-extern crate dotenv;
-
-use std::env;
-
-use dotenv::dotenv;
+use material::DbConnection;
 
 #[derive(Debug)]
 pub struct MySQLConnection {
     pub con: mysql::Pool,
 }
 
-impl MySQLConnection {
-    pub fn new(db_name: &str) -> Self {
-        dotenv().ok();
+impl DbConnection for MySQLConnection {
+    fn new(dns: &str) -> Self {
         MySQLConnection {
-            con: mysql::Pool::new([&env::var("MYSQL_DNS").unwrap(), db_name].concat()).unwrap(),
+            con: mysql::Pool::new(dns).unwrap(),
         }
-    }
-
-    pub fn new_with_dns(dns: &str) -> Self {
-        MySQLConnection { con: mysql::Pool::new(dns).unwrap() }
     }
 }

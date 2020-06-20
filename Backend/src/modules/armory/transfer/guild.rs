@@ -10,6 +10,7 @@ use crate::modules::{
         Armory,
     },
 };
+use crate::MainDb;
 
 #[openapi]
 #[get("/guild/<id>")]
@@ -23,26 +24,26 @@ pub fn get_guilds_by_name(me: State<Armory>, guild_name: String) -> Json<Vec<Gui
     Json(me.get_guilds_by_name(guild_name))
 }
 
-#[openapi]
+#[openapi(skip)]
 #[post("/guild", format = "application/json", data = "<guild>")]
-pub fn create_guild(me: State<Armory>, owner: ServerOwner, guild: Json<GuildDto>) -> Result<(), ArmoryFailure> {
-    me.create_guild(owner.0, guild.into_inner()).map(|_| ())
+pub fn create_guild(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, guild: Json<GuildDto>) -> Result<(), ArmoryFailure> {
+    me.create_guild(&mut *db_main, owner.0, guild.into_inner()).map(|_| ())
 }
 
-#[openapi]
+#[openapi(skip)]
 #[post("/guild/<uid>", format = "application/json", data = "<guild_name>")]
-pub fn update_guild_name(me: State<Armory>, owner: ServerOwner, uid: u64, guild_name: Json<String>) -> Result<(), ArmoryFailure> {
-    me.update_guild_name(owner.0, uid, guild_name.into_inner()).map(|_| ())
+pub fn update_guild_name(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, uid: u64, guild_name: Json<String>) -> Result<(), ArmoryFailure> {
+    me.update_guild_name(&mut *db_main, owner.0, uid, guild_name.into_inner()).map(|_| ())
 }
 
-#[openapi]
+#[openapi(skip)]
 #[delete("/guild/<id>")]
-pub fn delete_guild(me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(), ArmoryFailure> {
-    me.delete_guild(id)
+pub fn delete_guild(mut db_main: MainDb, me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(), ArmoryFailure> {
+    me.delete_guild(&mut *db_main, id)
 }
 
-#[openapi]
+#[openapi(skip)]
 #[delete("/guild/by_uid/<uid>")]
-pub fn delete_guild_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<(), ArmoryFailure> {
-    me.delete_guild_by_uid(owner.0, uid)
+pub fn delete_guild_by_uid(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<(), ArmoryFailure> {
+    me.delete_guild_by_uid(&mut *db_main, owner.0, uid)
 }

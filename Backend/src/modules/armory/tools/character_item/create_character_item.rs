@@ -1,4 +1,5 @@
-use mysql_connection::tools::Execute;
+use crate::util::database::*;
+use crate::params;
 
 use crate::modules::armory::{
     domain_value::CharacterItem,
@@ -8,13 +9,13 @@ use crate::modules::armory::{
 };
 
 pub trait CreateCharacterItem {
-    fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
+    fn create_character_item(&self, db_main: &mut crate::mysql::Conn, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
 }
 
 impl CreateCharacterItem for Armory {
-    fn create_character_item(&self, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
+    fn create_character_item(&self, db_main: &mut crate::mysql::Conn, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
         // If it already exists, return this one
-        let existing_item = self.get_character_item_by_value(character_item.clone());
+        let existing_item = self.get_character_item_by_value(db_main, character_item.clone());
         if existing_item.is_ok() {
             return existing_item;
         }
@@ -32,11 +33,11 @@ impl CreateCharacterItem for Armory {
         // It may happen that another thread is inserting the same item
         // Therefore the insert will fail due to the unique constraint
         // So in any case, attempt to retrieve the character item
-        self.db_main.execute_wparams(
+        db_main.execute_wparams(
             "INSERT INTO armory_item (`item_id`, `random_property_id`, `enchant_id`, `gem_id1`, `gem_id2`, `gem_id3`, `gem_id4`) VALUES (:item_id, :random_property_id, :enchant_id, :gem_id1, :gem_id2, :gem_id3, :gem_id4)",
             params,
         );
-        if let Ok(char_item) = self.get_character_item_by_value(character_item) {
+        if let Ok(char_item) = self.get_character_item_by_value(db_main, character_item) {
             return Ok(char_item);
         }
         Err(ArmoryFailure::Database("create_character_item".to_owned()))

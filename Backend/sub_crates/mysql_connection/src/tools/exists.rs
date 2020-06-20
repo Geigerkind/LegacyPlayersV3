@@ -1,12 +1,7 @@
 use mysql;
 
 use crate::material::MySQLConnection;
-use crate::tools::Select;
-
-pub trait Exists {
-    fn exists(&self, query_str: &str) -> bool;
-    fn exists_wparams(&self, query_str: &str, params: std::vec::Vec<(std::string::String, mysql::Value)>) -> bool;
-}
+use tools::{Exists, Select};
 
 impl Exists for MySQLConnection {
     fn exists(&self, query_str: &str) -> bool {

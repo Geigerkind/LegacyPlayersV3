@@ -1,4 +1,5 @@
-extern crate dotenv;
+#[cfg(test)]
+extern crate mockall;
 extern crate mysql;
 
 pub use mysql::params;

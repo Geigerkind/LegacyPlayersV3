@@ -10,21 +10,22 @@ use crate::modules::{
         Armory,
     },
 };
+use crate::MainDb;
 
-#[openapi]
+#[openapi(skip)]
 #[post("/character_history/<character_uid>", format = "application/json", data = "<character_history>")]
-pub fn set_character_history(me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>, character_uid: u64) -> Result<(), ArmoryFailure> {
-    me.set_character_history(owner.0, character_history.into_inner(), character_uid).map(|_| ())
+pub fn set_character_history(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>, character_uid: u64) -> Result<(), ArmoryFailure> {
+    me.set_character_history(&mut *db_main, owner.0, character_history.into_inner(), character_uid).map(|_| ())
 }
 
-#[openapi]
+#[openapi(skip)]
 #[get("/character_history/<id>")]
-pub fn get_character_history(me: State<Armory>, id: u32) -> Result<Json<CharacterHistory>, ArmoryFailure> {
-    me.get_character_history(id).map(Json)
+pub fn get_character_history(mut db_main: MainDb, me: State<Armory>, id: u32) -> Result<Json<CharacterHistory>, ArmoryFailure> {
+    me.get_character_history(&mut *db_main, id).map(Json)
 }
 
-#[openapi]
+#[openapi(skip)]
 #[delete("/character_history/<id>")]
-pub fn delete_character_history(me: State<Armory>, id: u32) -> Result<(), ArmoryFailure> {
-    me.delete_character_history(id)
+pub fn delete_character_history(mut db_main: MainDb, me: State<Armory>, id: u32) -> Result<(), ArmoryFailure> {
+    me.delete_character_history(&mut *db_main, id)
 }

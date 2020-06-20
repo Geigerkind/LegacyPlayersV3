@@ -1,25 +1,26 @@
 use crate::modules::data::{tools::RetrieveStatType, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::StatType;
 
 #[test]
 fn get_stat_type() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let stat_type_id = 1;
+    let stat_type = StatType {
+        id: stat_type_id,
+        localization_id: 23423
+    };
+    data.stat_types.insert(stat_type_id, stat_type.clone());
 
-    let data = Data::with_dns(&dns).init(Some(11));
-    let stat_type = data.get_stat_type(1);
-    assert!(stat_type.is_some());
-    assert_eq!(stat_type.unwrap().id, 1);
+    let stat_type_res = data.get_stat_type(stat_type_id);
+    assert!(stat_type_res.is_some());
+    assert_eq!(stat_type_res.unwrap(), stat_type);
     let no_stat_type = data.get_stat_type(0);
     assert!(no_stat_type.is_none());
 }
 
 #[test]
 fn get_all_stat_types() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    let data = Data::with_dns(&dns).init(Some(11));
+    let data = Data::default();
     let stat_types = data.get_all_stat_types();
-    assert!(!stat_types.is_empty());
+    assert!(stat_types.is_empty());
 }

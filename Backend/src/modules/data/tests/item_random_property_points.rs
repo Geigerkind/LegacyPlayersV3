@@ -1,17 +1,23 @@
 use crate::modules::data::{tools::RetrieveItemRandomPropertyPoints, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::ItemRandomPropertyPoints;
 
 #[test]
 fn get_item_random_property_points() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let expansion_id = 1;
+    let item_level = 1;
+    let points = ItemRandomPropertyPoints {
+        item_level,
+        expansion_id,
+        epic: [0,0,0,0,0],
+        rare: [1,1,1,1,1],
+        good: [2,2,2,2,2]
+    };
+    data.item_random_property_points.insert(expansion_id, vec![points.clone()]);
 
-    let data = Data::with_dns(&dns).init(Some(32));
-    let item_random_property = data.get_item_random_property_points(2, 5);
+    let item_random_property = data.get_item_random_property_points(expansion_id, item_level);
     assert!(item_random_property.is_some());
-    let unpacked_item_random_property = item_random_property.unwrap();
-    assert_eq!(unpacked_item_random_property.item_level, 5);
-    assert_eq!(unpacked_item_random_property.expansion_id, 2);
+    assert_eq!(item_random_property.unwrap(), points);
     let no_item_random_property = data.get_item_random_property_points(0, 0);
     assert!(no_item_random_property.is_none());
 }

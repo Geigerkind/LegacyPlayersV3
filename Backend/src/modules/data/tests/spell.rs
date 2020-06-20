@@ -1,17 +1,37 @@
 use crate::modules::data::{tools::RetrieveSpell, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::Spell;
+use std::collections::HashMap;
 
 #[test]
 fn get_spell() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let expansion_id = 1;
+    let spell_id = 1;
+    let spell = Spell {
+        id: spell_id,
+        expansion_id,
+        localization_id: 0,
+        subtext_localization_id: 0,
+        cost: 0,
+        cost_in_percent: false,
+        power_type: 0,
+        cast_time: 0,
+        school_mask: 0,
+        dispel_type: 0,
+        range_max: 0,
+        cooldown: 0,
+        duration: 0,
+        icon: 0,
+        description_localization_id: 0,
+        aura_localization_id: 0
+    };
+    let mut hashmap = HashMap::new();
+    hashmap.insert(spell_id, spell.clone());
+    data.spells.push(hashmap);
 
-    let data = Data::with_dns(&dns).init(Some(8));
-    let spell = data.get_spell(1, 1);
-    assert!(spell.is_some());
-    let unpacked_spell = spell.unwrap();
-    assert_eq!(unpacked_spell.id, 1);
-    assert_eq!(unpacked_spell.expansion_id, 1);
+    let spell_res = data.get_spell(expansion_id, spell_id);
+    assert!(spell_res.is_some());
+    assert_eq!(spell_res.unwrap(), spell);
     let no_spell = data.get_spell(0, 0);
     assert!(no_spell.is_none());
 }

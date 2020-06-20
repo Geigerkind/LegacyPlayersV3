@@ -4,11 +4,11 @@
 #![feature(in_band_lifetimes)]
 extern crate language;
 extern crate mail;
-#[macro_use]
-extern crate mysql_connection;
 extern crate okapi;
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
 #[macro_use]
 extern crate rocket_okapi;
 extern crate rocket_multipart_form_data;
@@ -27,8 +27,10 @@ extern crate regex;
 use dotenv::dotenv;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
+pub use rocket_contrib::databases::mysql;
 
 use crate::modules::{account, armory, data, live_data_processor, tooltip};
+use rocket_contrib::databases::mysql::Opts;
 
 #[cfg(test)]
 mod tests;
@@ -37,56 +39,63 @@ mod dto;
 mod modules;
 mod util;
 
+#[database("main")]
+pub struct MainDb(mysql::Conn);
+
 fn main() {
     dotenv().ok();
+    let dns = std::env::var("MYSQL_URL").unwrap();
+    let opts = Opts::from_url(&dns).unwrap();
+    let mut conn = mysql::Conn::new(opts).unwrap();
 
-    let account = account::Account::default().init();
-    let data = data::Data::default().init(None);
-    let armory = armory::Armory::default().init();
-    let tooltip = tooltip::Tooltip::default().init();
+    let account = account::Account::default().init(&mut conn);
+    let data = data::Data::default().init(&mut conn);
+    let armory = armory::Armory::default().init(&mut conn);
+    let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init();
 
     let prometheus = PrometheusMetrics::new();
-    let mut igniter = rocket::ignite();
-    igniter = igniter.manage(account);
-    igniter = igniter.manage(data);
-    igniter = igniter.manage(armory);
-    igniter = igniter.manage(tooltip);
-    igniter = igniter.manage(live_data_processor);
 
-    igniter = igniter.attach(prometheus.clone());
-    igniter = igniter.mount("/metrics", prometheus);
-    igniter = igniter.mount(
-        "/API/",
-        make_swagger_ui(&SwaggerUIConfig {
-            url: None,
-            urls: Some(vec![
-                UrlObject {
-                    name: "Account".to_string(),
-                    url: "/API/account/openapi.json".to_string(),
-                },
-                UrlObject {
-                    name: "Data".to_string(),
-                    url: "/API/data/openapi.json".to_string(),
-                },
-                UrlObject {
-                    name: "Armory".to_string(),
-                    url: "/API/armory/openapi.json".to_string(),
-                },
-                UrlObject {
-                    name: "Tooltip".to_string(),
-                    url: "/API/tooltip/openapi.json".to_string(),
-                },
-                UrlObject {
-                    name: "Live Data Processor".to_string(),
-                    url: "/API/live_data_processor/openapi.json".to_string(),
-                },
-            ]),
-        }),
-    );
-    igniter = igniter.mount(
-        "/API/account/",
-        routes_with_openapi![
+    let mut swagger_ui_config = SwaggerUIConfig::default();
+    swagger_ui_config.urls = vec![
+        UrlObject {
+            name: "Account".to_string(),
+            url: "/API/account/openapi.json".to_string(),
+        },
+        UrlObject {
+            name: "Data".to_string(),
+            url: "/API/data/openapi.json".to_string(),
+        },
+        UrlObject {
+            name: "Armory".to_string(),
+            url: "/API/armory/openapi.json".to_string(),
+        },
+        UrlObject {
+            name: "Tooltip".to_string(),
+            url: "/API/tooltip/openapi.json".to_string(),
+        },
+        UrlObject {
+            name: "Live Data Processor".to_string(),
+            url: "/API/live_data_processor/openapi.json".to_string(),
+        },
+    ];
+
+    rocket::ignite()
+        .manage(account)
+        .manage(data)
+        .manage(armory)
+        .manage(tooltip)
+        .manage(live_data_processor)
+        .attach(MainDb::fairing())
+        .attach(prometheus.clone())
+        .mount("/metrics", prometheus)
+        .mount(
+            "/API/",
+            make_swagger_ui(&swagger_ui_config),
+        )
+        .mount(
+            "/API/account/",
+            routes_with_openapi![
             account::transfer::login::login,
             account::transfer::token::create_token,
             account::transfer::token::get_tokens,
@@ -105,11 +114,10 @@ fn main() {
             account::transfer::update::password,
             account::transfer::update::nickname
         ],
-    );
-
-    igniter = igniter.mount(
-        "/API/data/",
-        routes_with_openapi![
+        )
+        .mount(
+            "/API/data/",
+            routes_with_openapi![
             data::transfer::expansion::get_expansion,
             data::transfer::expansion::get_all_expansions,
             data::transfer::language::get_language,
@@ -165,11 +173,10 @@ fn main() {
             data::transfer::title::get_all_titles,
             data::transfer::item_random_property_points::get_item_random_property_points,
         ],
-    );
-
-    igniter = igniter.mount(
-        "/API/armory/",
-        routes_with_openapi![
+        )
+        .mount(
+            "/API/armory/",
+            routes_with_openapi![
             armory::transfer::character::set_character,
             armory::transfer::character::get_character,
             armory::transfer::character::get_character_by_uid,
@@ -191,20 +198,17 @@ fn main() {
             armory::transfer::guild_viewer::get_guild_view,
             armory::transfer::instance_reset::set_instance_resets
         ],
-    );
-
-    igniter = igniter.mount(
-        "/API/tooltip/",
-        routes_with_openapi![
+        )
+        .mount(
+            "/API/tooltip/",
+            routes_with_openapi![
             tooltip::transfer::item_tooltip::get_item,
             tooltip::transfer::item_tooltip::get_character_item,
             tooltip::transfer::spell_tooltip::get_spell,
             tooltip::transfer::character_tooltip::get_character,
             tooltip::transfer::guild_tooltip::get_guild,
         ],
-    );
-
-    igniter = igniter.mount("/API/live_data_processor", routes_with_openapi![live_data_processor::transfer::package::get_package]);
-
-    igniter.launch();
+        )
+        .mount("/API/live_data_processor", routes_with_openapi![live_data_processor::transfer::package::get_package])
+        .launch();
 }

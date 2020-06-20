@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, JsonSchema, PartialEq)]
 pub struct NPC {
     pub expansion_id: u8,
     pub id: u32,

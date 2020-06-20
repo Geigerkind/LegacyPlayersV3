@@ -9,12 +9,12 @@ use std::{thread, time};
 #[test]
 fn set_character() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let armory = Armory::with_dns(&dns);
+    let armory = Armory::default();
     let character_dto = get_character();
 
-    let set_character_res = armory.set_character(3, character_dto.clone());
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
     assert!(set_character_res.is_ok());
 
     let set_character = set_character_res.unwrap();
@@ -28,7 +28,7 @@ fn set_character() {
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
     thread::sleep(time::Duration::from_secs(2));
-    let set_character_res2 = armory.set_character(3, character_dto);
+    let set_character_res2 = armory.set_character(&mut conn, 3, character_dto);
     assert!(set_character_res2.is_ok());
 
     let set_character2 = set_character_res2.unwrap();
@@ -41,7 +41,7 @@ fn set_character() {
     assert!(character2.deep_eq(&set_character2));
 
     // Deleting the character
-    let delete_result = armory.delete_character(character.id);
+    let delete_result = armory.delete_character(&mut conn, character.id);
     assert!(delete_result.is_ok());
 
     // Check if it was actually deleted

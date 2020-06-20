@@ -2,12 +2,7 @@ use mysql;
 
 use crate::material::MySQLConnection;
 use mysql::prelude::Queryable;
-
-pub trait Execute {
-    fn execute(&self, query_str: &str) -> bool;
-    fn execute_wparams(&self, query_str: &str, params: std::vec::Vec<(std::string::String, mysql::Value)>) -> bool;
-    fn execute_batch_wparams<T>(&self, query_str: &str, items: Vec<T>, process_row: &dyn Fn(&T) -> std::vec::Vec<(std::string::String, mysql::Value)>) -> bool;
-}
+use tools::Execute;
 
 impl Execute for MySQLConnection {
     fn execute(&self, query_str: &str) -> bool {

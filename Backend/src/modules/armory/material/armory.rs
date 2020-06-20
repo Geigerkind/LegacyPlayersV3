@@ -1,6 +1,6 @@
-use std::{collections::HashMap, env, sync::RwLock};
+use std::{collections::HashMap, sync::RwLock};
 
-use mysql_connection::{material::MySQLConnection, tools::Select};
+use crate::util::database::*;
 
 use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 use crate::modules::armory::{
@@ -10,40 +10,33 @@ use crate::modules::armory::{
 
 #[derive(Debug)]
 pub struct Armory {
-    pub db_main: MySQLConnection,
     pub characters: RwLock<HashMap<u32, Character>>,
     pub guilds: RwLock<HashMap<u32, Guild>>,
 }
 
 impl Default for Armory {
     fn default() -> Self {
-        let dns = env::var("MYSQL_DNS").unwrap();
-        Self::with_dns(&dns)
-    }
-}
-
-impl Armory {
-    pub fn with_dns(dns: &str) -> Self {
         Armory {
-            db_main: MySQLConnection::new_with_dns(dns),
             characters: RwLock::new(HashMap::new()),
             guilds: RwLock::new(HashMap::new()),
         }
     }
+}
 
-    pub fn init(self) -> Self {
-        self.characters.write().unwrap().init(&self.db_main);
-        self.guilds.write().unwrap().init(&self.db_main);
+impl Armory {
+    pub fn init(self, db_main: &mut crate::mysql::Conn) -> Self {
+        self.characters.write().unwrap().init(db_main);
+        self.guilds.write().unwrap().init(db_main);
         self
     }
 }
 
 trait Init {
-    fn init(&mut self, db: &MySQLConnection);
+    fn init(&mut self, db: &mut crate::mysql::Conn);
 }
 
 impl Init for HashMap<u32, Character> {
-    fn init(&mut self, db: &MySQLConnection) {
+    fn init(&mut self, db: &mut crate::mysql::Conn) {
         // Loading the character itself
         db.select("SELECT * FROM armory_character", &|mut row| Character {
             id: row.take(0).unwrap(),
@@ -188,7 +181,7 @@ impl Init for HashMap<u32, Character> {
 }
 
 impl Init for HashMap<u32, Guild> {
-    fn init(&mut self, db: &MySQLConnection) {
+    fn init(&mut self, db: &mut crate::mysql::Conn) {
         db.select("SELECT * FROM armory_guild", &|mut row| Guild {
             id: row.take(0).unwrap(),
             server_uid: row.take(1).unwrap(),

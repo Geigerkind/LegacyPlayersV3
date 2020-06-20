@@ -1,25 +1,27 @@
 use crate::modules::data::{tools::RetrieveRace, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::Race;
 
 #[test]
 fn get_race() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let race_id = 1;
+    let race = Race {
+        id: race_id,
+        localization_id: 3242,
+        faction: false
+    };
+    data.races.insert(race_id, race.clone());
 
-    let data = Data::with_dns(&dns).init(Some(4));
-    let race = data.get_race(1);
-    assert!(race.is_some());
-    assert_eq!(race.unwrap().id, 1);
+    let race_res = data.get_race(race_id);
+    assert!(race_res.is_some());
+    assert_eq!(race_res.unwrap(), race);
     let no_race = data.get_race(0);
     assert!(no_race.is_none());
 }
 
 #[test]
 fn get_all_races() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    let data = Data::with_dns(&dns).init(Some(4));
+    let data = Data::default();
     let races = data.get_all_races();
-    assert!(!races.is_empty());
+    assert!(races.is_empty());
 }

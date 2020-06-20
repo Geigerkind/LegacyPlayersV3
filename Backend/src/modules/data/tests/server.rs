@@ -1,25 +1,31 @@
 use crate::modules::data::{tools::RetrieveServer, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::Server;
 
 #[test]
 fn get_server() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let server_id = 1;
+    let server = Server {
+        id: server_id,
+        expansion_id: 1,
+        name: "sdfs".to_string(),
+        owner: None
+    };
+    data.servers.insert(server_id, server.clone());
 
-    let data = Data::with_dns(&dns).init(Some(6));
-    let server = data.get_server(1);
-    assert!(server.is_some());
-    assert_eq!(server.unwrap().id, 1);
+    let server_res = data.get_server(server_id);
+    assert!(server_res.is_some());
+    let server_res = server_res.unwrap();
+    assert_eq!(server_res.id, server.id);
+    assert_eq!(server_res.expansion_id, server.expansion_id);
+    assert_eq!(server_res.name, server.name);
     let no_server = data.get_server(0);
     assert!(no_server.is_none());
 }
 
 #[test]
 fn get_all_servers() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    let data = Data::with_dns(&dns).init(Some(6));
+    let data = Data::default();
     let servers = data.get_all_servers();
-    assert!(!servers.is_empty());
+    assert!(servers.is_empty());
 }

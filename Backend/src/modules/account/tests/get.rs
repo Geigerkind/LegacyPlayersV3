@@ -1,29 +1,36 @@
-use crate::modules::account::tests::helper::get_create_member;
 use crate::modules::account::{
     material::Account,
-    tools::{Create, GetAccountInformation},
+    tools::GetAccountInformation,
 };
-use crate::tests::TestContainer;
+use crate::modules::account::material::Member;
 
 #[test]
 fn get_does_not_exist() {
-    let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
-
-    let account = Account::with_dns(&dns);
+    let account = Account::default();
     let acc_info = account.get(42);
     assert!(acc_info.is_err());
 }
 
 #[test]
 fn get_exists() {
-    let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let mut account = Account::default();
+    let member_id = 1;
+    {
+        let member = account.member.get_mut().unwrap();
+        member.insert(member_id, Member {
+            id: member_id,
+            nickname: "abc".to_string(),
+            mail: "abc@ab.de".to_string(),
+            password: "afsd".to_string(),
+            salt: "asdas".to_string(),
+            mail_confirmed: false,
+            forgot_password: false,
+            delete_account: false,
+            new_mail: "".to_string(),
+            access_rights: 0
+        });
+    }
 
-    let account = Account::with_dns(&dns);
-    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
-
-    let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
-    let acc_info = account.get(login.member_id);
+    let acc_info = account.get(member_id);
     assert!(acc_info.is_ok());
 }

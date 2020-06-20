@@ -8,15 +8,15 @@ use crate::tests::TestContainer;
 #[test]
 fn guild() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let armory = Armory::with_dns(&dns);
+    let armory = Armory::default();
     let guild_dto = GuildDto {
         server_uid: 23423214,
         name: "WeirdGuildName".to_owned(),
     };
 
-    let guild_res = armory.create_guild(1, guild_dto.clone());
+    let guild_res = armory.create_guild(&mut conn, 1, guild_dto.clone());
     assert!(guild_res.is_ok());
 
     let guild = guild_res.unwrap();
@@ -30,7 +30,7 @@ fn guild() {
 
     // update the guild
     let new_guild_name = "Test123".to_string();
-    let update_res = armory.update_guild_name(1, guild_dto.server_uid, new_guild_name.clone());
+    let update_res = armory.update_guild_name(&mut conn, 1, guild_dto.server_uid, new_guild_name.clone());
     assert!(update_res.is_ok());
 
     let guild_res3 = armory.get_guild(guild.id);

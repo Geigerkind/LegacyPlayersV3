@@ -6,9 +6,10 @@ use crate::modules::account::{
     material::{APIToken, Account},
     tools::Login,
 };
+use crate::MainDb;
 
-#[openapi]
+#[openapi(skip)]
 #[post("/login", format = "application/json", data = "<params>")]
-pub fn login(me: State<Account>, params: Json<Credentials>) -> Result<Json<APIToken>, Failure> {
-    me.login(&params.mail, &params.password).map(Json)
+pub fn login(mut db_main: MainDb, me: State<Account>, params: Json<Credentials>) -> Result<Json<APIToken>, Failure> {
+    me.login(&mut *db_main, &params.mail, &params.password).map(Json)
 }

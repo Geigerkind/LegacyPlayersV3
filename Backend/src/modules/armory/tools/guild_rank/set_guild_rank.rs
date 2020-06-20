@@ -1,12 +1,13 @@
 use crate::modules::armory::{domain_value::GuildRank, dto::ArmoryFailure, tools::GetGuild, Armory};
-use mysql_connection::tools::Execute;
+use crate::util::database::*;
+use crate::params;
 
 pub trait SetGuildRank {
-    fn set_guild_rank(&self, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure>;
+    fn set_guild_rank(&self, db_main: &mut crate::mysql::Conn, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure>;
 }
 
 impl SetGuildRank for Armory {
-    fn set_guild_rank(&self, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure> {
+    fn set_guild_rank(&self, db_main: &mut crate::mysql::Conn, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure> {
         let existing_guild = self.get_guild(guild_id);
         if existing_guild.is_none() {
             return Err(ArmoryFailure::InvalidInput);
@@ -17,7 +18,7 @@ impl SetGuildRank for Armory {
         }
 
         let mut guilds = self.guilds.write().unwrap();
-        if self.db_main.execute_wparams(
+        if db_main.execute_wparams(
             "REPLACE INTO armory_guild_rank (`guild_id`, `rank_index`, `name`) VALUES (:guild_id, :rank_index, :name)",
             params!(
               "guild_id" => guild_id,

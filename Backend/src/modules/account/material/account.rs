@@ -1,11 +1,8 @@
-use std::{collections::HashMap, env, sync::RwLock};
+use std::{collections::HashMap, sync::RwLock};
 
 use language::material::Dictionary;
-use mysql_connection::{
-    material::MySQLConnection,
-    tools::{Execute, Select},
-};
 use str_util::sha3;
+use crate::util::database::*;
 
 use crate::modules::account::{
     language::init::Init,
@@ -14,7 +11,6 @@ use crate::modules::account::{
 
 #[derive(Debug)]
 pub struct Account {
-    pub db_main: MySQLConnection,
     pub dictionary: Dictionary,
     pub member: RwLock<HashMap<u32, Member>>,
     pub api_token_to_member_id: RwLock<HashMap<String, u32>>,
@@ -26,17 +22,9 @@ pub struct Account {
 // Also: Write locks may not be acquired within a query
 impl Default for Account {
     fn default() -> Self {
-        let dns = env::var("MYSQL_DNS").unwrap();
-        Self::with_dns(&dns)
-    }
-}
-
-impl Account {
-    pub fn with_dns(dns: &str) -> Self {
         let dictionary = Dictionary::default();
         Dictionary::init(&dictionary);
         Account {
-            db_main: MySQLConnection::new_with_dns(dns),
             dictionary,
             member: RwLock::new(HashMap::new()),
             api_tokens: RwLock::new(HashMap::new()),
@@ -44,8 +32,10 @@ impl Account {
             requires_mail_confirmation: RwLock::new(HashMap::new()),
         }
     }
+}
 
-    pub fn init(self) -> Self {
+impl Account {
+    pub fn init(self, db_main: &mut crate::mysql::Conn) -> Self {
         {
             let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
             let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
@@ -53,10 +43,10 @@ impl Account {
             let mut member = self.member.write().unwrap();
 
             // Cleaning first
-            self.clean_tokens();
+            db_main.execute_one("DELETE FROM account_api_token WHERE exp_date < UNIX_TIMESTAMP()");
 
             // We are a little wasteful here because we do not insert it directly but rather create a vector first and then copy it over
-            for entry in self.db_main.select(
+            for entry in db_main.select(
                 "SELECT id, nickname, mail, password, salt, mail_confirmed, forgot_password, delete_account, new_mail, access_rights FROM account_member",
                 &|mut row| Member {
                     id: row.take(0).unwrap(),
@@ -94,7 +84,7 @@ impl Account {
                 member.insert(entry.id, entry);
             }
 
-            for entry in self.db_main.select("SELECT id, member_id, token, purpose, exp_date FROM account_api_token", &|mut row| APIToken {
+            for entry in db_main.select("SELECT id, member_id, token, purpose, exp_date FROM account_api_token", &|mut row| APIToken {
                 id: row.take(0).unwrap(),
                 member_id: row.take(1).unwrap(),
                 token: Some(row.take(2).unwrap()),
@@ -107,9 +97,5 @@ impl Account {
         }
 
         self
-    }
-
-    fn clean_tokens(&self) {
-        self.db_main.execute("DELETE FROM account_api_token WHERE exp_date < UNIX_TIMESTAMP()");
     }
 }

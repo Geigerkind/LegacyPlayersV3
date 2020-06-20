@@ -1,4 +1,5 @@
-use mysql_connection::tools::{Execute, Select};
+use crate::util::database::*;
+use crate::params;
 
 use crate::modules::armory::{
     dto::{ArmoryFailure, GuildDto},
@@ -8,11 +9,11 @@ use crate::modules::armory::{
 };
 
 pub trait CreateGuild {
-    fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
+    fn create_guild(&self, db_main: &mut crate::mysql::Conn, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
 }
 
 impl CreateGuild for Armory {
-    fn create_guild(&self, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
+    fn create_guild(&self, db_main: &mut crate::mysql::Conn, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
         // Validation
         if guild.server_uid == 0 {
             return Err(ArmoryFailure::InvalidInput);
@@ -25,7 +26,7 @@ impl CreateGuild for Armory {
 
         // Else create one
         let mut guilds = self.guilds.write().unwrap();
-        if self.db_main.execute_wparams(
+        if db_main.execute_wparams(
             "INSERT INTO armory_guild (`server_id`, `server_uid`, `guild_name`) VALUES (:server_id, :server_uid, :guild_name)",
             params!(
               "server_id" => server_id,
@@ -33,9 +34,7 @@ impl CreateGuild for Armory {
               "guild_name" => guild.name.clone()
             ),
         ) {
-            let guild_id = self
-                .db_main
-                .select_wparams_value(
+            let guild_id = db_main.select_wparams_value(
                     "SELECT id FROM armory_guild WHERE server_id=:server_id AND server_uid=:server_uid",
                     &|mut row| {
                         let id: u32 = row.take(0).unwrap();

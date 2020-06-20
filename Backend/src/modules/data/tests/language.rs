@@ -1,25 +1,27 @@
 use crate::modules::data::{tools::RetrieveLanguage, Data};
-use crate::tests::TestContainer;
+use crate::modules::data::domain_value::Language;
 
 #[test]
 fn get_language() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
+    let mut data = Data::default();
+    let language_id = 1;
+    let language = Language {
+        id: language_id,
+        name: "sdfsd".to_string(),
+        short_code: "sdfsd".to_string()
+    };
+    data.languages.insert(language_id, language.clone());
 
-    let data = Data::with_dns(&dns).init(Some(2));
-    let language = data.get_language(1);
-    assert!(language.is_some());
-    assert_eq!(language.unwrap().id, 1);
+    let language_res = data.get_language(language_id);
+    assert!(language_res.is_some());
+    assert_eq!(language_res.unwrap(), language);
     let no_language = data.get_language(0);
     assert!(no_language.is_none());
 }
 
 #[test]
 fn get_all_languages() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    let data = Data::with_dns(&dns).init(Some(2));
+    let data = Data::default();
     let languages = data.get_all_languages();
-    assert!(!languages.is_empty());
+    assert!(languages.is_empty());
 }

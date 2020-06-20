@@ -1,19 +1,20 @@
 use language::{domain_value::Language, tools::Get};
-use mysql_connection::tools::Execute;
+use crate::util::database::*;
 use str_util::{sha3, strformat};
+use crate::params;
 
 use crate::modules::account::{dto::Failure, material::Account};
 
 pub trait Delete {
-    fn issue_delete(&self, member_id: u32) -> Result<(), Failure>;
-    fn confirm_delete(&self, delete_id: &str) -> Result<(), Failure>;
+    fn issue_delete(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure>;
+    fn confirm_delete(&self, db_main: &mut crate::mysql::Conn, delete_id: &str) -> Result<(), Failure>;
 }
 
 impl Delete for Account {
-    fn issue_delete(&self, member_id: u32) -> Result<(), Failure> {
+    fn issue_delete(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure> {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut member = self.member.write().unwrap();
-        if self.db_main.execute_wparams("UPDATE account_member SET delete_account=1 WHERE id=:id", params!("id" => member_id)) {
+        if db_main.execute_wparams("UPDATE account_member SET delete_account=1 WHERE id=:id", params!("id" => member_id)) {
             let entry = member.get_mut(&member_id).unwrap();
             entry.delete_account = true;
 
@@ -36,7 +37,7 @@ impl Delete for Account {
         Ok(())
     }
 
-    fn confirm_delete(&self, delete_id: &str) -> Result<(), Failure> {
+    fn confirm_delete(&self, db_main: &mut crate::mysql::Conn, delete_id: &str) -> Result<(), Failure> {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_token = self.api_tokens.write().unwrap();
@@ -49,7 +50,7 @@ impl Delete for Account {
 
         // Due to foreign key constraints, other tables depending on the member_id will also be deleted
         let member_id = *delete_confirmation_res.unwrap();
-        if self.db_main.execute_wparams(
+        if db_main.execute_wparams(
             "DELETE FROM account_member WHERE id = :id",
             params!(
               "id" => member_id

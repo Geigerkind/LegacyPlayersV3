@@ -25,8 +25,8 @@ pub enum Failure {
     Unknown,
 }
 
-impl Responder<'static> for Failure {
-    fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
+impl<'r> Responder<'r> for Failure {
+    fn respond_to(self, _: &Request) -> Result<Response<'r>, Status> {
         let mut body: String = String::new();
         let status = match self {
             Failure::InvalidCredentials => Status::new(520, "InvalidCredentials"),
@@ -53,7 +53,7 @@ impl Responder<'static> for Failure {
     }
 }
 
-impl OpenApiResponder<'static> for Failure {
+impl<'r> OpenApiResponder<'r> for Failure {
     fn responses(gen: &mut OpenApiGenerator) -> rocket_okapi::Result<Responses> {
         let mut responses = Responses::default();
         let schema = gen.json_schema::<String>();

@@ -1,4 +1,4 @@
-use okapi::openapi3::{Parameter, ParameterValue, Responses};
+use okapi::openapi3::Responses;
 use rocket::{
     http::Status,
     outcome::Outcome::*,
@@ -6,7 +6,7 @@ use rocket::{
     response::Responder,
     Response,
 };
-use rocket_okapi::{gen::OpenApiGenerator, request::OpenApiFromRequest, response::OpenApiResponder};
+use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder};
 
 use crate::modules::data::{tools::RetrieveExpansion, Data};
 
@@ -39,7 +39,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Expansion {
         }
     }
 }
-
+/*
 impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Expansion {
     fn request_parameter(_: &mut OpenApiGenerator, _: String) -> rocket_okapi::Result<Parameter> {
         Ok(Parameter {
@@ -61,7 +61,7 @@ impl<'a, 'r> OpenApiFromRequest<'a, 'r> for Expansion {
         })
     }
 }
-
+*/
 // This implementation is required from OpenAPI, it does nothing here
 // and is not supposed to be used!
 impl Responder<'static> for Expansion {

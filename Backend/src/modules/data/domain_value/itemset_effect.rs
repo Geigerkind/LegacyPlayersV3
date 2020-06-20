@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, JsonSchema, PartialEq)]
 pub struct ItemsetEffect {
     pub id: u32,
     pub expansion_id: u8,

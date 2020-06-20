@@ -1,4 +1,3 @@
-use crate::tests::TestContainer;
 use crate::{
     dto::TableFilter,
     modules::{
@@ -9,11 +8,8 @@ use crate::{
 
 #[test]
 fn character_search() {
-    let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-
-    let armory = Armory::with_dns(&dns);
-    let data = Data::with_dns(&dns).init(None);
+    let armory = Armory::default();
+    let data = Data::default();
     let filter1 = CharacterSearchFilter {
         page: 0,
         hero_class: TableFilter { filter: None, sorting: None },

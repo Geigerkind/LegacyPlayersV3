@@ -8,18 +8,18 @@ use crate::tests::TestContainer;
 #[test]
 fn character_facial() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let armory = Armory::with_dns(&dns);
+    let armory = Armory::default();
     let character_facial_dto = get_character_facial();
 
-    let character_facial_res = armory.create_character_facial(character_facial_dto.clone());
+    let character_facial_res = armory.create_character_facial(&mut conn, character_facial_dto.clone());
     assert!(character_facial_res.is_ok());
 
     let character_facial = character_facial_res.unwrap();
     assert!(character_facial.compare_by_value(&character_facial_dto));
 
-    let character_facial2_res = armory.get_character_facial(character_facial.id);
+    let character_facial2_res = armory.get_character_facial(&mut conn, character_facial.id);
     assert!(character_facial2_res.is_ok());
 
     let character_facial2 = character_facial2_res.unwrap();
