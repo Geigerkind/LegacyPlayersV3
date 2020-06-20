@@ -1,5 +1,7 @@
 extern crate dotenv;
 
+use strum::EnumCount;
+
 use crate::domain_value::Language;
 use crate::material::Dictionary;
 
@@ -21,12 +23,9 @@ impl Register for Dictionary {
         }
         let lang_index = language as usize;
         if !lang_table.contains_key(&key_str) {
-            lang_table.insert(String::from(&key_str), Vec::<Option<String>>::new());
+            lang_table.insert(String::from(&key_str), vec![None; Language::count()]);
         }
         let vec = lang_table.get_mut(&key_str).unwrap();
-        for _ in vec.len()..lang_index + 1 {
-            vec.push(None);
-        }
         match &vec[lang_index] {
             Some(_) => {
                 panic!("{} is overwritten for the language {} with the content {}!", key, lang_index, value);
