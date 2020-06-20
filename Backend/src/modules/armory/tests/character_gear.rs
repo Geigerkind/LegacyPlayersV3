@@ -4,6 +4,7 @@ use crate::modules::armory::{
     Armory,
 };
 use crate::tests::TestContainer;
+use crate::util::database::MockSelect2;
 
 #[test]
 fn character_gear() {
@@ -24,4 +25,15 @@ fn character_gear() {
 
     let character_gear2 = character_gear_res2.unwrap();
     assert!(character_gear2.deep_eq(&character_gear));
+}
+
+#[test]
+fn test_get_character_gear_character_err() {
+    let mut mock = MockSelect2::new();
+    mock.expect_select_wparams_value2::<crate::mysql::Row>()
+        .return_const(None);
+
+    let armory = Armory::default();
+    let character_gear = armory.get_character_gear(&mut mock, 42);
+    assert!(character_gear.is_err());
 }

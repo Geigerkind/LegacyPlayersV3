@@ -22,6 +22,13 @@ pub trait Exists {
     fn exists_wparams(&mut self, query_str: &str, params: std::vec::Vec<(std::string::String, Value)>) -> bool;
 }
 
+use mockall::{automock};
+#[automock]
+pub trait Select2 {
+    fn select_wparams2<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F, params: std::vec::Vec<(std::string::String, Value)>) -> Vec<T>;
+    fn select_wparams_value2<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F, params: std::vec::Vec<(std::string::String, Value)>) -> Option<T>;
+}
+
 pub trait Select {
     fn select<T>(&mut self, query_str: &str, process_row: &dyn Fn(Row) -> T) -> Vec<T>;
     fn select_wparams<T>(&mut self, query_str: &str, process_row: &dyn Fn(Row) -> T, params: std::vec::Vec<(std::string::String, Value)>) -> Vec<T>;
@@ -79,5 +86,20 @@ impl Select for crate::mysql::Conn {
 
     fn select_wparams_value<T>(&mut self, query_str: &str, process_row: &dyn Fn(Row) -> T, params: Vec<(String, Value)>) -> Option<T> {
         self.select_wparams(query_str, process_row, params).pop()
+    }
+}
+
+impl Select2 for crate::mysql::Conn {
+    fn select_wparams2<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F, params: Vec<(String, Value)>) -> Vec<T> {
+        self.prep_exec(query_str, params)
+            .map(|result| {
+                result.map(|x| x.unwrap())
+                    .map(|row| process_row(crate::mysql::from_row(row)))
+                    .collect()
+            }).unwrap()
+    }
+
+    fn select_wparams_value2<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F, params: Vec<(String, Value)>) -> Option<T> {
+        self.select_wparams2(query_str, process_row, params).pop()
     }
 }
