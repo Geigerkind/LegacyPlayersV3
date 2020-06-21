@@ -78,7 +78,7 @@ pub fn try_parse_spell_cast(non_committed_messages: &mut Vec<Message>, summons: 
         }
     } else if let Some(spell_cast_message) = spell_cast_message {
         if let MessageType::SpellCast(spell_cast) = &spell_cast_message.message_type {
-            if reached_timeout || (threat_message.is_some() && spell_damage_done_message.is_some() || heal_message.is_some()) {
+            if reached_timeout || (threat_message.is_some() && spell_damage_done_message.is_some() && heal_message.is_some()) {
                 non_committed_messages.remove_item(&spell_cast_message).expect("Should be deleted!");
                 return Some(SpellCast {
                     victim: spell_cast.target.as_ref().map(|target| target.to_unit(armory, server_id, summons).expect("Must be an Unit")), // TODO: Handle this in the future, we may have objects there!

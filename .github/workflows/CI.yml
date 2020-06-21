@@ -1,9 +1,5 @@
 name: CI
-on:
-  push:
-    branches:
-      - 'master'
-      - 'dev'
+on: push
 
 jobs:
   frontend:
@@ -112,6 +108,7 @@ jobs:
 
       - name: Uploading coverage data
         uses: codecov/codecov-action@v1
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./lcov.info
