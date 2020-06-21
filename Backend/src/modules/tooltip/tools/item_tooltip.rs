@@ -15,10 +15,11 @@ use crate::modules::{
         Tooltip,
     },
 };
+use crate::util::database::Select;
 
 pub trait RetrieveItemTooltip {
     fn get_item(&self, data: &Data, language_id: u8, expansion_id: u8, item_id: u32) -> Result<ItemTooltip, TooltipFailure>;
-    fn get_character_item(&self, db_main: &mut crate::mysql::Conn, data: &Data, armory: &Armory, language_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, TooltipFailure>;
+    fn get_character_item(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, language_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, TooltipFailure>;
 }
 
 impl RetrieveItemTooltip for Tooltip {
@@ -164,7 +165,7 @@ impl RetrieveItemTooltip for Tooltip {
         })
     }
 
-    fn get_character_item(&self, db_main: &mut crate::mysql::Conn, data: &Data, armory: &Armory, language_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, TooltipFailure> {
+    fn get_character_item(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, language_id: u8, item_id: u32, character_history_id: u32) -> Result<ItemTooltip, TooltipFailure> {
         let character_history_res = armory.get_character_history(db_main, character_history_id);
         if character_history_res.is_err() {
             return Err(TooltipFailure::InvalidInput);
