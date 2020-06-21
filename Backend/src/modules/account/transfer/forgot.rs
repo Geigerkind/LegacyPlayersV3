@@ -8,13 +8,13 @@ use crate::modules::account::{
 };
 use crate::MainDb;
 
-#[openapi(skip)]
+#[openapi]
 #[get("/forgot/<id>")]
 pub fn receive_confirmation(mut db_main: MainDb, me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
     me.recv_forgot_password(&mut *db_main, &id).map(Json)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[post("/forgot", data = "<mail>", format = "application/json")]
 pub fn send_confirmation(mut db_main: MainDb, me: State<Account>, mail: Json<String>) -> Result<(), Failure> {
     me.send_forgot_password(&mut *db_main, &mail)

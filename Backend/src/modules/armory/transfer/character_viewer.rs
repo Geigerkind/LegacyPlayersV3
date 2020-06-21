@@ -11,7 +11,7 @@ use crate::modules::{
 };
 use crate::MainDb;
 
-#[openapi(skip)]
+#[openapi]
 #[get("/character_viewer/<server_name>/<character_name>")]
 pub fn get_character_viewer(mut db_main: MainDb, me: State<Armory>, data: State<Data>, language: Language, server_name: String, character_name: String) -> Result<Json<CharacterViewerDto>, ArmoryFailure> {
     data.get_server_by_name(server_name).ok_or(ArmoryFailure::InvalidInput).and_then(|server| {
@@ -21,7 +21,7 @@ pub fn get_character_viewer(mut db_main: MainDb, me: State<Armory>, data: State<
     })
 }
 
-#[openapi(skip)]
+#[openapi]
 #[get("/character_viewer/<server_name>/<character_name>/<character_history_id>")]
 pub fn get_character_viewer_by_history(mut db_main: MainDb, me: State<Armory>, data: State<Data>, language: Language, server_name: String, character_name: String, character_history_id: u32) -> Result<Json<CharacterViewerDto>, ArmoryFailure> {
     data.get_server_by_name(server_name).ok_or(ArmoryFailure::InvalidInput).and_then(|server| {

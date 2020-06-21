@@ -9,13 +9,13 @@ use crate::modules::account::{
 };
 use crate::MainDb;
 
-#[openapi(skip)]
+#[openapi]
 #[post("/create", format = "application/json", data = "<params>")]
 pub fn create(mut db_main: MainDb, me: State<Account>, params: Json<CreateMember>) -> Result<Json<APIToken>, Failure> {
     me.create(&mut *db_main, &params.credentials.mail, &params.nickname, &params.credentials.password).map(Json)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[get("/create/<id>")]
 pub fn confirm(mut db_main: MainDb, me: State<Account>, id: String) -> Result<(), Failure> {
     if me.confirm(&mut *db_main, &id) {

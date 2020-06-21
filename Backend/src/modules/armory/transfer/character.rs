@@ -12,7 +12,7 @@ use crate::modules::{
 };
 use crate::MainDb;
 
-#[openapi(skip)]
+#[openapi]
 #[post("/character", format = "application/json", data = "<character>")]
 pub fn set_character(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, character: Json<CharacterDto>) -> Result<(), ArmoryFailure> {
     me.set_character(&mut *db_main, owner.0, character.into_inner()).map(|_| ())
@@ -36,13 +36,13 @@ pub fn get_character_by_uid(me: State<Armory>, owner: ServerOwner, uid: u64) -> 
     me.get_character_by_uid(owner.0, uid).map(Json).ok_or(ArmoryFailure::InvalidInput)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[delete("/character/<id>")]
 pub fn delete_character(mut db_main: MainDb, me: State<Armory>, _owner: ServerOwner, id: u32) -> Result<(), ArmoryFailure> {
     me.delete_character(&mut *db_main, id)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[delete("/character/by_uid/<uid>")]
 pub fn delete_character_by_uid(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, uid: u64) -> Result<(), ArmoryFailure> {
     me.delete_character_by_uid(&mut *db_main, owner.0, uid)

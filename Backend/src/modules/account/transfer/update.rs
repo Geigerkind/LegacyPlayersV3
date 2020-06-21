@@ -10,13 +10,13 @@ use crate::modules::account::{
 };
 use crate::MainDb;
 
-#[openapi(skip)]
+#[openapi]
 #[post("/update/password", format = "application/json", data = "<content>")]
 pub fn password(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<APIToken>, Failure> {
     me.change_password(&mut *db_main, &content, auth.0).map(Json)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[post("/update/nickname", format = "application/json", data = "<content>")]
 pub fn nickname(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<AccountInformation>, Failure> {
     me.change_name(&mut *db_main, &content, auth.0).map(Json)
@@ -28,7 +28,7 @@ pub fn request_mail(me: State<Account>, auth: Authenticate, content: Json<String
     me.request_change_mail(&content, auth.0).map(Json)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[get("/update/mail/<id>")]
 pub fn confirm_mail(mut db_main: MainDb, me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
     me.confirm_change_mail(&mut *db_main, &id).map(Json)

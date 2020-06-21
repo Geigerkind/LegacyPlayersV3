@@ -12,19 +12,19 @@ use crate::modules::{
 };
 use crate::MainDb;
 
-#[openapi(skip)]
+#[openapi]
 #[post("/character_history/<character_uid>", format = "application/json", data = "<character_history>")]
 pub fn set_character_history(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, character_history: Json<CharacterHistoryDto>, character_uid: u64) -> Result<(), ArmoryFailure> {
     me.set_character_history(&mut *db_main, owner.0, character_history.into_inner(), character_uid).map(|_| ())
 }
 
-#[openapi(skip)]
+#[openapi]
 #[get("/character_history/<id>")]
 pub fn get_character_history(mut db_main: MainDb, me: State<Armory>, id: u32) -> Result<Json<CharacterHistory>, ArmoryFailure> {
     me.get_character_history(&mut *db_main, id).map(Json)
 }
 
-#[openapi(skip)]
+#[openapi]
 #[delete("/character_history/<id>")]
 pub fn delete_character_history(mut db_main: MainDb, me: State<Armory>, id: u32) -> Result<(), ArmoryFailure> {
     me.delete_character_history(&mut *db_main, id)
