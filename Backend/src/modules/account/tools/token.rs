@@ -9,12 +9,12 @@ use crate::modules::account::{
 
 pub trait Token {
     fn get_all_token(&self, member_id: u32) -> Vec<APIToken>;
-    fn validate_token(&self, db_main: &mut crate::mysql::Conn, api_token: &str) -> Option<u32>;
-    fn clear_tokens(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure>;
+    fn validate_token(&self, db_main: &mut impl Execute, api_token: &str) -> Option<u32>;
+    fn clear_tokens(&self, db_main: &mut impl Execute, member_id: u32) -> Result<(), Failure>;
     fn create_token(&self, db_main: &mut (impl Execute + Select), purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure>;
-    fn delete_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32) -> Result<(), Failure>;
-    fn prolong_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure>;
-    fn prolong_token_by_str(&self, db_main: &mut crate::mysql::Conn, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure>;
+    fn delete_token(&self, db_main: &mut impl Execute, token_id: u32, member_id: u32) -> Result<(), Failure>;
+    fn prolong_token(&self, db_main: &mut impl Execute, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure>;
+    fn prolong_token_by_str(&self, db_main: &mut impl Execute, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure>;
 }
 
 impl Token for Account {
@@ -33,7 +33,7 @@ impl Token for Account {
         }
     }
 
-    fn validate_token(&self, db_main: &mut crate::mysql::Conn, api_token: &str) -> Option<u32> {
+    fn validate_token(&self, db_main: &mut impl Execute, api_token: &str) -> Option<u32> {
         let db_token = sha3::hash(&[api_token, &"token".to_owned()]);
 
         // Check if token exists and if its still valid!
@@ -62,7 +62,7 @@ impl Token for Account {
         None
     }
 
-    fn clear_tokens(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure> {
+    fn clear_tokens(&self, db_main: &mut impl Execute, member_id: u32) -> Result<(), Failure> {
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_token = self.api_tokens.write().unwrap();
 
@@ -159,7 +159,7 @@ impl Token for Account {
         }
     }
 
-    fn delete_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32) -> Result<(), Failure> {
+    fn delete_token(&self, db_main: &mut impl Execute, token_id: u32, member_id: u32) -> Result<(), Failure> {
         // We lock before in order to be transactional
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_tokens = self.api_tokens.write().unwrap();
@@ -188,7 +188,7 @@ impl Token for Account {
         }
     }
 
-    fn prolong_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure> {
+    fn prolong_token(&self, db_main: &mut impl Execute, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure> {
         // Tokens may be valid for a maximum time of a year
         /*
         if days >= 365 {
@@ -216,7 +216,7 @@ impl Token for Account {
         Err(Failure::Unknown)
     }
 
-    fn prolong_token_by_str(&self, db_main: &mut crate::mysql::Conn, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure> {
+    fn prolong_token_by_str(&self, db_main: &mut impl Execute, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure> {
         let token_id;
         {
             let api_tokens = self.api_tokens.read().unwrap();

@@ -11,12 +11,12 @@ use crate::modules::account::{
 };
 
 pub trait Forgot {
-    fn send_forgot_password(&self, db_main: &mut crate::mysql::Conn, mail: &str) -> Result<(), Failure>;
-    fn recv_forgot_password(&self, db_main: &mut crate::mysql::Conn, forgot_id: &str) -> Result<APIToken, Failure>;
+    fn send_forgot_password(&self, db_main: &mut impl Execute, mail: &str) -> Result<(), Failure>;
+    fn recv_forgot_password(&self, db_main: &mut (impl Execute + Select), forgot_id: &str) -> Result<APIToken, Failure>;
 }
 
 impl Forgot for Account {
-    fn send_forgot_password(&self, db_main: &mut crate::mysql::Conn, mail: &str) -> Result<(), Failure> {
+    fn send_forgot_password(&self, db_main: &mut impl Execute, mail: &str) -> Result<(), Failure> {
         if !valid_mail(mail) {
             return Err(Failure::InvalidMail);
         }
@@ -63,7 +63,7 @@ impl Forgot for Account {
         Err(Failure::Unknown)
     }
 
-    fn recv_forgot_password(&self, db_main: &mut crate::mysql::Conn, forgot_id: &str) -> Result<APIToken, Failure> {
+    fn recv_forgot_password(&self, db_main: &mut (impl Execute + Select), forgot_id: &str) -> Result<APIToken, Failure> {
         let user_id;
         {
             let requires_mail_confirmation = self.requires_mail_confirmation.read().unwrap();

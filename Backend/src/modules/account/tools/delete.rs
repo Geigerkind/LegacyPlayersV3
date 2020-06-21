@@ -6,12 +6,12 @@ use crate::params;
 use crate::modules::account::{dto::Failure, material::Account};
 
 pub trait Delete {
-    fn issue_delete(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure>;
-    fn confirm_delete(&self, db_main: &mut crate::mysql::Conn, delete_id: &str) -> Result<(), Failure>;
+    fn issue_delete(&self, db_main: &mut impl Execute, member_id: u32) -> Result<(), Failure>;
+    fn confirm_delete(&self, db_main: &mut impl Execute, delete_id: &str) -> Result<(), Failure>;
 }
 
 impl Delete for Account {
-    fn issue_delete(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure> {
+    fn issue_delete(&self, db_main: &mut impl Execute, member_id: u32) -> Result<(), Failure> {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut member = self.member.write().unwrap();
         if db_main.execute_wparams("UPDATE account_member SET delete_account=1 WHERE id=:id", params!("id" => member_id)) {
@@ -37,7 +37,7 @@ impl Delete for Account {
         Ok(())
     }
 
-    fn confirm_delete(&self, db_main: &mut crate::mysql::Conn, delete_id: &str) -> Result<(), Failure> {
+    fn confirm_delete(&self, db_main: &mut impl Execute, delete_id: &str) -> Result<(), Failure> {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut api_token_to_member_id = self.api_token_to_member_id.write().unwrap();
         let mut api_token = self.api_tokens.write().unwrap();

@@ -15,15 +15,15 @@ use crate::modules::account::{
 };
 
 pub trait Update {
-    fn change_name(&self, db_main: &mut crate::mysql::Conn, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure>;
-    fn change_password(&self, db_main: &mut crate::mysql::Conn, new_password: &str, member_id: u32) -> Result<APIToken, Failure>;
-    fn update_password(&self, db_main: &mut crate::mysql::Conn, new_password: &str, member_id: u32) -> Result<(), Failure>;
+    fn change_name(&self, db_main: &mut impl Execute, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure>;
+    fn change_password(&self, db_main: &mut (impl Execute + Select), new_password: &str, member_id: u32) -> Result<APIToken, Failure>;
+    fn update_password(&self, db_main: &mut (impl Execute + Select), new_password: &str, member_id: u32) -> Result<(), Failure>;
     fn request_change_mail(&self, new_mail: &str, member_id: u32) -> Result<bool, Failure>;
-    fn confirm_change_mail(&self, db_main: &mut crate::mysql::Conn, confirmation_id: &str) -> Result<APIToken, Failure>;
+    fn confirm_change_mail(&self, db_main: &mut (impl Execute + Select), confirmation_id: &str) -> Result<APIToken, Failure>;
 }
 
 impl Update for Account {
-    fn change_name(&self, db_main: &mut crate::mysql::Conn, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure> {
+    fn change_name(&self, db_main: &mut impl Execute, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure> {
         if !valid_nickname(new_nickname) {
             return Err(Failure::InvalidNickname);
         }
@@ -55,7 +55,7 @@ impl Update for Account {
         Ok(self.get(member_id).unwrap())
     }
 
-    fn change_password(&self, db_main: &mut crate::mysql::Conn, new_password: &str, member_id: u32) -> Result<APIToken, Failure> {
+    fn change_password(&self, db_main: &mut (impl Execute + Select), new_password: &str, member_id: u32) -> Result<APIToken, Failure> {
         match valid_password(new_password) {
             Err(PasswordFailure::InvalidCharacters) => return Err(Failure::InvalidPasswordCharacters),
             Err(PasswordFailure::TooFewCharacters) => return Err(Failure::PasswordTooShort),
@@ -67,7 +67,7 @@ impl Update for Account {
             .and_then(|()| self.create_token(db_main, &self.dictionary.get("general.login", Language::English), member_id, time_util::get_ts_from_now_in_secs(7)))
     }
 
-    fn update_password(&self, db_main: &mut crate::mysql::Conn, new_password: &str, member_id: u32) -> Result<(), Failure> {
+    fn update_password(&self, db_main: &mut (impl Execute + Select), new_password: &str, member_id: u32) -> Result<(), Failure> {
         let mut member = self.member.write().unwrap();
 
         let hash: String;
@@ -125,7 +125,7 @@ impl Update for Account {
         Ok(false)
     }
 
-    fn confirm_change_mail(&self, db_main: &mut crate::mysql::Conn, confirmation_id: &str) -> Result<APIToken, Failure> {
+    fn confirm_change_mail(&self, db_main: &mut (impl Execute + Select), confirmation_id: &str) -> Result<APIToken, Failure> {
         let requires_mail_confirmation = self.requires_mail_confirmation.read().unwrap();
         match requires_mail_confirmation.get(confirmation_id) {
             Some(member_id) => {
