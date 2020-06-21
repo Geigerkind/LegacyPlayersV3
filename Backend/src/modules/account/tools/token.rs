@@ -11,7 +11,7 @@ pub trait Token {
     fn get_all_token(&self, member_id: u32) -> Vec<APIToken>;
     fn validate_token(&self, db_main: &mut crate::mysql::Conn, api_token: &str) -> Option<u32>;
     fn clear_tokens(&self, db_main: &mut crate::mysql::Conn, member_id: u32) -> Result<(), Failure>;
-    fn create_token(&self, db_main: &mut crate::mysql::Conn, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure>;
+    fn create_token(&self, db_main: &mut (impl Execute + Select), purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure>;
     fn delete_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32) -> Result<(), Failure>;
     fn prolong_token(&self, db_main: &mut crate::mysql::Conn, token_id: u32, member_id: u32, days: u32) -> Result<APIToken, Failure>;
     fn prolong_token_by_str(&self, db_main: &mut crate::mysql::Conn, real_token: String, member_id: u32, days: u32) -> Result<APIToken, Failure>;
@@ -83,7 +83,7 @@ impl Token for Account {
         Ok(())
     }
 
-    fn create_token(&self, db_main: &mut crate::mysql::Conn, purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure> {
+    fn create_token(&self, db_main: &mut (impl Execute + Select), purpose: &str, member_id: u32, exp_date: u64) -> Result<APIToken, Failure> {
         // Tokens may be valid for a maximum time of a year
         let now = time_util::now();
         if exp_date < now {
@@ -128,7 +128,7 @@ impl Token for Account {
 
         match db_main.select_wparams_value(
             "SELECT id, member_id, token, purpose, exp_date FROM account_api_token WHERE member_id=:member_id AND token=:token",
-            &|mut row| APIToken {
+            |mut row| APIToken {
                 id: row.take(0).unwrap(),
                 member_id: row.take(1).unwrap(),
                 token: Some(row.take(2).unwrap()),

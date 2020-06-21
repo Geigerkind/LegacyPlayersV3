@@ -24,7 +24,7 @@ impl Default for Armory {
 }
 
 impl Armory {
-    pub fn init(self, db_main: &mut crate::mysql::Conn) -> Self {
+    pub fn init(self, db_main: &mut impl Select) -> Self {
         self.characters.write().unwrap().init(db_main);
         self.guilds.write().unwrap().init(db_main);
         self
@@ -32,13 +32,13 @@ impl Armory {
 }
 
 trait Init {
-    fn init(&mut self, db: &mut crate::mysql::Conn);
+    fn init(&mut self, db: &mut impl Select);
 }
 
 impl Init for HashMap<u32, Character> {
-    fn init(&mut self, db: &mut crate::mysql::Conn) {
+    fn init(&mut self, db: &mut impl Select) {
         // Loading the character itself
-        db.select("SELECT * FROM armory_character", &|mut row| Character {
+        db.select("SELECT * FROM armory_character", |mut row| Character {
             id: row.take(0).unwrap(),
             server_id: row.take(1).unwrap(),
             server_uid: row.take(2).unwrap(),
@@ -51,7 +51,7 @@ impl Init for HashMap<u32, Character> {
         });
 
         // Loading the history_ids
-        db.select("SELECT id, timestamp, character_id FROM armory_character_history ORDER BY id", &|mut row| {
+        db.select("SELECT id, timestamp, character_id FROM armory_character_history ORDER BY id", |mut row| {
             let id: u32 = row.take(0).unwrap();
             let timestamp: u64 = row.take(1).unwrap();
             let character_id: u32 = row.take(2).unwrap();
@@ -70,7 +70,7 @@ impl Init for HashMap<u32, Character> {
              ag.belt = ai13.id LEFT JOIN armory_item ai14 ON ag.leg = ai14.id LEFT JOIN armory_item ai15 ON ag.boot = ai15.id LEFT JOIN armory_item ai16 ON ag.ring1 = ai16.id LEFT JOIN armory_item ai17 ON ag.ring2 = ai17.id LEFT JOIN armory_item \
              ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id LEFT JOIN armory_guild_rank agr ON agr.guild_id = ach.guild_id AND agr.rank_index = ach.guild_rank LEFT JOIN armory_arena_team aat1 ON aat1.id = \
              ach.arena2 LEFT JOIN armory_arena_team aat2 ON aat2.id = ach.arena3 LEFT JOIN armory_arena_team aat3 ON aat3.id = ach.arena5",
-            &|mut row| {
+            |mut row| {
                 let mut gear_slots: Vec<Option<CharacterItem>> = Vec::new();
                 for i in (31..183).step_by(8) {
                     let id = row.take_opt(i).unwrap().ok();
@@ -181,8 +181,8 @@ impl Init for HashMap<u32, Character> {
 }
 
 impl Init for HashMap<u32, Guild> {
-    fn init(&mut self, db: &mut crate::mysql::Conn) {
-        db.select("SELECT * FROM armory_guild", &|mut row| Guild {
+    fn init(&mut self, db: &mut impl Select) {
+        db.select("SELECT * FROM armory_guild", |mut row| Guild {
             id: row.take(0).unwrap(),
             server_uid: row.take(1).unwrap(),
             server_id: row.take(2).unwrap(),
@@ -194,7 +194,7 @@ impl Init for HashMap<u32, Guild> {
             self.insert(result.id, result.to_owned());
         });
 
-        db.select("SELECT * FROM armory_guild_rank ORDER BY guild_id, rank_index", &|mut row| {
+        db.select("SELECT * FROM armory_guild_rank ORDER BY guild_id, rank_index", |mut row| {
             let guild_id: u32 = row.take(0).unwrap();
 
             (

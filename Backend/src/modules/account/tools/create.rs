@@ -14,13 +14,13 @@ use crate::modules::account::{
 };
 
 pub trait Create {
-    fn create(&self, db_main: &mut crate::mysql::Conn, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure>;
+    fn create(&self, db_main: &mut (impl Select + Execute), mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure>;
     fn send_confirmation(&self, member_id: u32) -> bool;
-    fn confirm(&self, db_main: &mut crate::mysql::Conn, id: &str) -> bool;
+    fn confirm(&self, db_main: &mut impl Execute, id: &str) -> bool;
 }
 
 impl Create for Account {
-    fn create(&self, db_main: &mut crate::mysql::Conn, mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure> {
+    fn create(&self, db_main: &mut (impl Select + Execute), mail: &str, nickname: &str, password: &str) -> Result<APIToken, Failure> {
         if !valid_mail(mail) {
             return Err(Failure::InvalidMail);
         }
@@ -64,7 +64,7 @@ impl Create for Account {
             ) {
                 member_id = db_main.select_wparams_value(
                         "SELECT id FROM account_member WHERE mail = :mail",
-                        &|mut row| row.take(0).unwrap(),
+                        |mut row| row.take(0).unwrap(),
                         params!(
                           "mail" => lower_mail.clone()
                         ),
@@ -112,7 +112,7 @@ impl Create for Account {
         false
     }
 
-    fn confirm(&self, db_main: &mut crate::mysql::Conn, id: &str) -> bool {
+    fn confirm(&self, db_main: &mut impl Execute, id: &str) -> bool {
         let mut requires_mail_confirmation = self.requires_mail_confirmation.write().unwrap();
         let mut member = self.member.write().unwrap();
         let confirm_id_res = requires_mail_confirmation.get(id);

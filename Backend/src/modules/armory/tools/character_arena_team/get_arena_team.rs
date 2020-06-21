@@ -4,12 +4,12 @@ use crate::util::database::*;
 use crate::params;
 
 pub trait GetArenaTeam {
-    fn get_arena_team_by_uid(&self, db_main: &mut crate::mysql::Conn, server_id: u32, team_uid: u64) -> Option<ArenaTeam>;
-    fn get_arena_team_by_id(&self, db_main: &mut crate::mysql::Conn, team_id: u32) -> Option<ArenaTeam>;
+    fn get_arena_team_by_uid(&self, db_main: &mut impl Select, server_id: u32, team_uid: u64) -> Option<ArenaTeam>;
+    fn get_arena_team_by_id(&self, db_main: &mut impl Select, team_id: u32) -> Option<ArenaTeam>;
 }
 
 impl GetArenaTeam for Armory {
-    fn get_arena_team_by_uid(&self, db_main: &mut crate::mysql::Conn, server_id: u32, team_uid: u64) -> Option<ArenaTeam> {
+    fn get_arena_team_by_uid(&self, db_main: &mut impl Select, server_id: u32, team_uid: u64) -> Option<ArenaTeam> {
         let params = params!(
           "server_uid" => team_uid,
           "server_id" => server_id
@@ -17,7 +17,7 @@ impl GetArenaTeam for Armory {
 
         db_main.select_wparams_value(
             "SELECT id, team_name, size_type FROM armory_arena_team WHERE server_uid=:server_uid AND server_id=:server_id",
-            &|mut row| ArenaTeam {
+            move |mut row| ArenaTeam {
                 id: row.take(0).unwrap(),
                 server_uid: team_uid,
                 server_id,
@@ -28,14 +28,14 @@ impl GetArenaTeam for Armory {
         )
     }
 
-    fn get_arena_team_by_id(&self, db_main: &mut crate::mysql::Conn, team_id: u32) -> Option<ArenaTeam> {
+    fn get_arena_team_by_id(&self, db_main: &mut impl Select, team_id: u32) -> Option<ArenaTeam> {
         let params = params!(
           "id" => team_id
         );
 
         db_main.select_wparams_value(
             "SELECT server_uid, server_id, team_name, size_type FROM armory_arena_team WHERE id=:id",
-            &|mut row| ArenaTeam {
+            move |mut row| ArenaTeam {
                 id: team_id,
                 server_uid: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),

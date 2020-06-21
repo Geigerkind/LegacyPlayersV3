@@ -9,17 +9,17 @@ use crate::modules::armory::{
 use crate::params;
 
 pub trait GetCharacterGear {
-    fn get_character_gear(&self, db_main: &mut impl Select2, gear_id: u32) -> Result<CharacterGear, ArmoryFailure>;
-    fn get_character_gear_by_value(&self, db_main: &mut impl Select2, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
+    fn get_character_gear(&self, db_main: &mut impl Select, gear_id: u32) -> Result<CharacterGear, ArmoryFailure>;
+    fn get_character_gear_by_value(&self, db_main: &mut impl Select, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
 }
 
 impl GetCharacterGear for Armory {
-    fn get_character_gear(&self, db_main: &mut impl Select2, gear_id: u32) -> Result<CharacterGear, ArmoryFailure> {
+    fn get_character_gear(&self, db_main: &mut impl Select, gear_id: u32) -> Result<CharacterGear, ArmoryFailure> {
         let params = params!(
           "id" => gear_id
         );
         // Note: This implementation should not be very fast
-        let mut result = db_main.select_wparams_value2(
+        let mut result = db_main.select_wparams_value(
                 "SELECT * FROM armory_gear WHERE id=:id", |row| row, params);
         if let Some(row) = result.as_mut() {
             return Ok(CharacterGear {
@@ -48,7 +48,7 @@ impl GetCharacterGear for Armory {
         Err(ArmoryFailure::Database("get_character_gear".to_owned()))
     }
 
-    fn get_character_gear_by_value(&self, db_main: &mut impl Select2, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
+    fn get_character_gear_by_value(&self, db_main: &mut impl Select, gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
         let head = gear.head.as_ref().and_then(|item| self.get_character_item_by_value(db_main, item.to_owned()).ok());
         if head.is_none() && gear.head.is_some() {
             return Err(ArmoryFailure::InvalidInput);
@@ -148,7 +148,7 @@ impl GetCharacterGear for Armory {
           "trinket2" => trinket2.as_ref().map(|item| item.id)
         );
         // Note: This implementation should not be very fast
-        db_main.select_wparams_value2(
+        db_main.select_wparams_value(
                 "SELECT id FROM armory_gear WHERE ((ISNULL(:head) AND ISNULL(head)) OR head = :head) AND ((ISNULL(:neck) AND ISNULL(neck)) OR neck = :neck) AND ((ISNULL(:shoulder) AND ISNULL(shoulder)) OR shoulder = :shoulder) AND ((ISNULL(:back) \
                  AND ISNULL(back)) OR back = :back) AND ((ISNULL(:chest) AND ISNULL(chest)) OR chest = :chest) AND ((ISNULL(:shirt) AND ISNULL(shirt)) OR shirt = :shirt) AND ((ISNULL(:tabard) AND ISNULL(tabard)) OR tabard = :tabard) AND \
                  ((ISNULL(:wrist) AND ISNULL(wrist)) OR wrist = :wrist) AND ((ISNULL(:main_hand) AND ISNULL(main_hand)) OR main_hand = :main_hand) AND ((ISNULL(:off_hand) AND ISNULL(off_hand)) OR off_hand = :off_hand) AND ((ISNULL(:ternary_hand) \

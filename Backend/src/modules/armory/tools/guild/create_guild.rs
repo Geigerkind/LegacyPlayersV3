@@ -9,11 +9,11 @@ use crate::modules::armory::{
 };
 
 pub trait CreateGuild {
-    fn create_guild(&self, db_main: &mut crate::mysql::Conn, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
+    fn create_guild(&self, db_main: &mut (impl Select + Execute), server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure>;
 }
 
 impl CreateGuild for Armory {
-    fn create_guild(&self, db_main: &mut crate::mysql::Conn, server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
+    fn create_guild(&self, db_main: &mut (impl Select + Execute), server_id: u32, guild: GuildDto) -> Result<Guild, ArmoryFailure> {
         // Validation
         if guild.server_uid == 0 {
             return Err(ArmoryFailure::InvalidInput);
@@ -36,7 +36,7 @@ impl CreateGuild for Armory {
         ) {
             let guild_id = db_main.select_wparams_value(
                     "SELECT id FROM armory_guild WHERE server_id=:server_id AND server_uid=:server_uid",
-                    &|mut row| {
+                    |mut row| {
                         let id: u32 = row.take(0).unwrap();
                         id
                     },

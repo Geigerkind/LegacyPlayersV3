@@ -3,11 +3,11 @@ use crate::modules::armory::{dto::ArmoryFailure, material::Character, tools::Get
 use crate::params;
 
 pub trait CreateCharacter {
-    fn create_character(&self, db_main: &mut crate::mysql::Conn, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
+    fn create_character(&self, db_main: &mut (impl Select + Execute), server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;
 }
 
 impl CreateCharacter for Armory {
-    fn create_character(&self, db_main: &mut crate::mysql::Conn, server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
+    fn create_character(&self, db_main: &mut (impl Select + Execute), server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure> {
         // If character exists already, return this one
         if let Some(existing_character) = self.get_character_id_by_uid(server_id, server_uid) {
             return Ok(existing_character);
@@ -23,7 +23,7 @@ impl CreateCharacter for Armory {
         ) {
             if let Some(character) = db_main.select_wparams_value(
                 "SELECT id FROM armory_character WHERE server_id=:server_id AND server_uid=:server_uid",
-                &|mut row| Character {
+                move |mut row| Character {
                     id: row.take(0).unwrap(),
                     server_id,
                     server_uid,
