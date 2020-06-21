@@ -5,3 +5,5 @@ authors = ["Tom Dymel <tom@dymel.dev>"]
 
 [dependencies]
 dotenv = "*"
+strum = "*"
+strum_macros = "*"
