@@ -8,11 +8,11 @@ use crate::params;
 use crate::util::database::*;
 
 pub trait CreateCharacterFacial {
-    fn create_character_facial(&self, db_main: &mut crate::mysql::Conn, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure>;
+    fn create_character_facial(&self, db_main: &mut (impl Execute + Select), character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure>;
 }
 
 impl CreateCharacterFacial for Armory {
-    fn create_character_facial(&self, db_main: &mut crate::mysql::Conn, character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure> {
+    fn create_character_facial(&self, db_main: &mut (impl Execute + Select), character_facial_dto: CharacterFacialDto) -> Result<CharacterFacial, ArmoryFailure> {
         // If it already exists, return this one
         let existing_facial = self.get_character_facial_by_value(db_main, character_facial_dto.clone());
         if existing_facial.is_ok() {

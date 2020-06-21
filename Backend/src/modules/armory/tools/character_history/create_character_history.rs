@@ -12,13 +12,13 @@ use crate::modules::armory::{
 use crate::params;
 
 pub trait CreateCharacterHistory {
-    fn create_character_history(&self, db_main: &mut crate::mysql::Conn, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
+    fn create_character_history(&self, db_main: &mut (impl Execute + Select), server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl CreateCharacterHistory for Armory {
     // Assumption: It has been checked that the previous value is not the same
     // Assumption: Character exists
-    fn create_character_history(&self, db_main: &mut crate::mysql::Conn, server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
+    fn create_character_history(&self, db_main: &mut (impl Execute + Select), server_id: u32, character_history_dto: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
         let character_id = self.get_character_id_by_uid(server_id, character_uid).unwrap();
         let mut guild_id = None;
         if let Some(char_guild_dto) = character_history_dto.character_guild.as_ref() {

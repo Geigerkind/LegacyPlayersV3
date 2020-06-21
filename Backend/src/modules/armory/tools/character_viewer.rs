@@ -13,14 +13,15 @@ use crate::{
         },
     },
 };
+use crate::util::database::Select;
 
 pub trait CharacterViewer {
-    fn get_character_viewer_by_history_id(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
-    fn get_character_viewer(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
+    fn get_character_viewer_by_history_id(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
+    fn get_character_viewer(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
 }
 
 impl CharacterViewer for Armory {
-    fn get_character_viewer_by_history_id(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
+    fn get_character_viewer_by_history_id(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
         let character = self.get_character(character_id);
         if character.is_none() || character.as_ref().unwrap().last_update.is_none() || character.as_ref().unwrap().history_moments.iter().find(|hm| hm.id == character_history_id).is_none() {
             return Err(ArmoryFailure::InvalidInput);
@@ -132,7 +133,7 @@ impl CharacterViewer for Armory {
         })
     }
 
-    fn get_character_viewer(&self, db_main: &mut crate::mysql::Conn, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
+    fn get_character_viewer(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
         let character = self.get_character(character_id);
         if character.is_none() || character.as_ref().unwrap().last_update.is_none() {
             return Err(ArmoryFailure::InvalidInput);

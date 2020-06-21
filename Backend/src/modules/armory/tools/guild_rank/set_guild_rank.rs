@@ -3,11 +3,11 @@ use crate::util::database::*;
 use crate::params;
 
 pub trait SetGuildRank {
-    fn set_guild_rank(&self, db_main: &mut crate::mysql::Conn, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure>;
+    fn set_guild_rank(&self, db_main: &mut impl Execute, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure>;
 }
 
 impl SetGuildRank for Armory {
-    fn set_guild_rank(&self, db_main: &mut crate::mysql::Conn, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure> {
+    fn set_guild_rank(&self, db_main: &mut impl Execute, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure> {
         let existing_guild = self.get_guild(guild_id);
         if existing_guild.is_none() {
             return Err(ArmoryFailure::InvalidInput);

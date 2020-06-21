@@ -6,11 +6,11 @@ use crate::util::database::*;
 use crate::params;
 
 pub trait CreateArenaTeam {
-    fn create_arena_team(&self, db_main: &mut crate::mysql::Conn, server_id: u32, arena_team_dto: ArenaTeamDto) -> Result<ArenaTeam, ArmoryFailure>;
+    fn create_arena_team(&self, db_main: &mut (impl Execute + Select), server_id: u32, arena_team_dto: ArenaTeamDto) -> Result<ArenaTeam, ArmoryFailure>;
 }
 
 impl CreateArenaTeam for Armory {
-    fn create_arena_team(&self, db_main: &mut crate::mysql::Conn, server_id: u32, arena_team_dto: ArenaTeamDto) -> Result<ArenaTeam, ArmoryFailure> {
+    fn create_arena_team(&self, db_main: &mut (impl Execute + Select), server_id: u32, arena_team_dto: ArenaTeamDto) -> Result<ArenaTeam, ArmoryFailure> {
         if let Some(arena_team) = self.get_arena_team_by_uid(db_main, server_id, arena_team_dto.team_id) {
             return Ok(arena_team);
         }

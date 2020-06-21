@@ -9,12 +9,12 @@ use crate::modules::armory::{
 };
 
 pub trait GetCharacterInfo {
-    fn get_character_info(&self, db_main: &mut crate::mysql::Conn, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure>;
-    fn get_character_info_by_value(&self, db_main: &mut crate::mysql::Conn, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
+    fn get_character_info(&self, db_main: &mut impl Select, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure>;
+    fn get_character_info_by_value(&self, db_main: &mut impl Select, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
 }
 
 impl GetCharacterInfo for Armory {
-    fn get_character_info(&self, db_main: &mut crate::mysql::Conn, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure> {
+    fn get_character_info(&self, db_main: &mut impl Select, character_info_id: u32) -> Result<CharacterInfo, ArmoryFailure> {
         let params = params!(
           "id" => character_info_id
         );
@@ -37,7 +37,7 @@ impl GetCharacterInfo for Armory {
         Err(ArmoryFailure::Database("get_character_info".to_owned()))
     }
 
-    fn get_character_info_by_value(&self, db_main: &mut crate::mysql::Conn, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
+    fn get_character_info_by_value(&self, db_main: &mut impl Select, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
         let character_gear_res = self.get_character_gear_by_value(db_main, character_info.gear.clone());
         if character_gear_res.is_err() {
             return Err(character_gear_res.err().unwrap());

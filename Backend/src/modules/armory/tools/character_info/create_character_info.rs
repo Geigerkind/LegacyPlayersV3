@@ -9,11 +9,11 @@ use crate::modules::armory::{
 };
 
 pub trait CreateCharacterInfo {
-    fn create_character_info(&self, db_main: &mut crate::mysql::Conn, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
+    fn create_character_info(&self, db_main: &mut (impl Execute + Select), character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure>;
 }
 
 impl CreateCharacterInfo for Armory {
-    fn create_character_info(&self, db_main: &mut crate::mysql::Conn, character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
+    fn create_character_info(&self, db_main: &mut (impl Execute + Select), character_info: CharacterInfoDto) -> Result<CharacterInfo, ArmoryFailure> {
         // Return existing one first
 
         let existing_character_info = self.get_character_info_by_value(db_main, character_info.clone());

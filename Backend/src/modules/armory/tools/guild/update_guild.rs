@@ -4,11 +4,11 @@ use crate::params;
 use crate::modules::armory::{dto::ArmoryFailure, tools::GetGuild, Armory};
 
 pub trait UpdateGuild {
-    fn update_guild_name(&self, db_main: &mut crate::mysql::Conn, server_id: u32, uid: u64, guild_name: String) -> Result<(), ArmoryFailure>;
+    fn update_guild_name(&self, db_main: &mut impl Execute, server_id: u32, uid: u64, guild_name: String) -> Result<(), ArmoryFailure>;
 }
 
 impl UpdateGuild for Armory {
-    fn update_guild_name(&self, db_main: &mut crate::mysql::Conn, server_id: u32, uid: u64, guild_name: String) -> Result<(), ArmoryFailure> {
+    fn update_guild_name(&self, db_main: &mut impl Execute, server_id: u32, uid: u64, guild_name: String) -> Result<(), ArmoryFailure> {
         let guild_id = self.get_guild_id_by_uid(server_id, uid).unwrap();
         let mut guilds = self.guilds.write().unwrap();
         if db_main.execute_wparams(

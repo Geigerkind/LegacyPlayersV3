@@ -9,11 +9,11 @@ use crate::modules::armory::{
 use crate::params;
 
 pub trait CreateCharacterGear {
-    fn create_character_gear(&self, db_main: &mut crate::mysql::Conn, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
+    fn create_character_gear(&self, db_main: &mut (impl Execute + Select), character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure>;
 }
 
 impl CreateCharacterGear for Armory {
-    fn create_character_gear(&self, db_main: &mut crate::mysql::Conn, character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
+    fn create_character_gear(&self, db_main: &mut (impl Execute + Select), character_gear: CharacterGearDto) -> Result<CharacterGear, ArmoryFailure> {
         // Check if it already exists
         let existing_gear = self.get_character_gear_by_value(db_main, character_gear.clone());
         if existing_gear.is_ok() {

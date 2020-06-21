@@ -12,12 +12,12 @@ use crate::modules::armory::{
 };
 
 pub trait GetCharacterHistory {
-    fn get_character_history(&self, db_main: &mut crate::mysql::Conn, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure>;
-    fn get_character_history_by_value(&self, db_main: &mut crate::mysql::Conn, character_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, ArmoryFailure>;
+    fn get_character_history(&self, db_main: &mut impl Select, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure>;
+    fn get_character_history_by_value(&self, db_main: &mut impl Select, character_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl GetCharacterHistory for Armory {
-    fn get_character_history(&self, db_main: &mut crate::mysql::Conn, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure> {
+    fn get_character_history(&self, db_main: &mut impl Select, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure> {
         let mut result = db_main.select_wparams_value(
             "SELECT * FROM armory_character_history WHERE id=:id",
             &|row| row, params!("id" => character_history_id));
@@ -57,7 +57,7 @@ impl GetCharacterHistory for Armory {
         Err(ArmoryFailure::Database("get_character_history".to_owned()))
     }
 
-    fn get_character_history_by_value(&self, db_main: &mut crate::mysql::Conn, character_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, ArmoryFailure> {
+    fn get_character_history_by_value(&self, db_main: &mut impl Select, character_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, ArmoryFailure> {
         let character = self.get_character(character_id).unwrap();
         let guild_id = if character_history_dto.character_guild.is_some() {
             let guild = self.get_guild_by_uid(character.server_id, character_history_dto.character_guild.as_ref().unwrap().guild.server_uid);

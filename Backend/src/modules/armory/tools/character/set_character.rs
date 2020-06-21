@@ -7,13 +7,14 @@ use crate::{
         Armory,
     },
 };
+use crate::util::database::{Execute, Select};
 
 pub trait SetCharacter {
-    fn set_character(&self, db_main: &mut crate::mysql::Conn, server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure>;
+    fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure>;
 }
 
 impl SetCharacter for Armory {
-    fn set_character(&self, db_main: &mut crate::mysql::Conn, server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure> {
+    fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure> {
         // Validation
         if !update_character.is_plausible() {
             return Err(ArmoryFailure::ImplausibleInput);

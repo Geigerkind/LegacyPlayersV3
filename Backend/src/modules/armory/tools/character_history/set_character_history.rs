@@ -12,11 +12,11 @@ use crate::{
 };
 
 pub trait SetCharacterHistory {
-    fn set_character_history(&self, db_main: &mut crate::mysql::Conn, server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
+    fn set_character_history(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character_history: CharacterHistoryDto, uid: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl SetCharacterHistory for Armory {
-    fn set_character_history(&self, db_main: &mut crate::mysql::Conn, server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
+    fn set_character_history(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64) -> Result<CharacterHistory, ArmoryFailure> {
         // Validation
         if !update_character_history.is_plausible() {
             return Err(ArmoryFailure::ImplausibleInput);

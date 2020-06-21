@@ -9,11 +9,11 @@ use crate::modules::armory::{
 };
 
 pub trait CreateCharacterItem {
-    fn create_character_item(&self, db_main: &mut crate::mysql::Conn, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
+    fn create_character_item(&self, db_main: &mut (impl Execute + Select), character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure>;
 }
 
 impl CreateCharacterItem for Armory {
-    fn create_character_item(&self, db_main: &mut crate::mysql::Conn, character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
+    fn create_character_item(&self, db_main: &mut (impl Execute + Select), character_item: CharacterItemDto) -> Result<CharacterItem, ArmoryFailure> {
         // If it already exists, return this one
         let existing_item = self.get_character_item_by_value(db_main, character_item.clone());
         if existing_item.is_ok() {

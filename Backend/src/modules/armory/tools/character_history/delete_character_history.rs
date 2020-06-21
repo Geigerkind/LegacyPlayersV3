@@ -4,11 +4,11 @@ use crate::params;
 use crate::modules::armory::{dto::ArmoryFailure, tools::GetCharacterHistory, Armory};
 
 pub trait DeleteCharacterHistory {
-    fn delete_character_history(&self, db_main: &mut crate::mysql::Conn, character_history_id: u32) -> Result<(), ArmoryFailure>;
+    fn delete_character_history(&self, db_main: &mut (impl Execute + Select), character_history_id: u32) -> Result<(), ArmoryFailure>;
 }
 
 impl DeleteCharacterHistory for Armory {
-    fn delete_character_history(&self, db_main: &mut crate::mysql::Conn, character_history_id: u32) -> Result<(), ArmoryFailure> {
+    fn delete_character_history(&self, db_main: &mut (impl Execute + Select), character_history_id: u32) -> Result<(), ArmoryFailure> {
         let character_history_res = self.get_character_history(db_main, character_history_id);
         if character_history_res.is_err() {
             return Err(ArmoryFailure::InvalidInput);
