@@ -1,5 +1,5 @@
 #[repr(u8)]
-#[derive(PartialEq)]
+#[derive(EnumCount, EnumIter, PartialEq)]
 pub enum Language {
     English = 0,
     German = 1,
