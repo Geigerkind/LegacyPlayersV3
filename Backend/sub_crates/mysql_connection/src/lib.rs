@@ -5,3 +5,5 @@ pub use mysql::params;
 
 pub mod material;
 pub mod tools;
+
+mod tests;
