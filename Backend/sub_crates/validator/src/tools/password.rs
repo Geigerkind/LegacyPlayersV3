@@ -4,7 +4,10 @@ use crate::domain_value::PasswordFailure;
 
 pub fn valid_password(input: &str) -> Result<(), PasswordFailure> {
     lazy_static! {
-        static ref PWNED: Pwned = PwnedBuilder::default().api_key(std::env::var("HIBP_API_KEY").expect("HIBP_API_KEY environment variable not found!")).build().unwrap();
+        static ref PWNED: Pwned = PwnedBuilder::default()
+            .pad_password_responses(true)
+            .api_key(std::env::var("HIBP_API_KEY").expect("HIBP_API_KEY environment variable not found!"))
+            .build().unwrap();
     }
 
     if !input.chars().all(char::is_alphanumeric) {
