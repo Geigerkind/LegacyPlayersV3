@@ -32,5 +32,5 @@ features = ["json", "mysql_pool"]
 [dev-dependencies]
 proptest = "*"
 mutagen = { git="https://github.com/llogiq/mutagen" }
-testcontainers = "*"
 mockall = { version = "0.7.1", features = ["nightly"] }
+testcontainers = "0.9.1"

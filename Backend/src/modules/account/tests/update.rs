@@ -3,7 +3,7 @@ use str_util::sha3;
 use crate::modules::account::tests::helper::get_create_member;
 use crate::modules::account::{
     material::Account,
-    tools::{Create, Update},
+    tools::{Create, Update, GetAccountInformation},
 };
 use crate::tests::TestContainer;
 
@@ -161,4 +161,30 @@ fn change_mail() {
     assert_ne!(new_api_token.token, api_token.token);
     assert_ne!(new_api_token.id, api_token.id);
     assert_eq!(new_api_token.member_id, api_token.member_id);
+}
+
+#[test]
+fn confirm_change_without_issued_change() {
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
+
+    let account = Account::with_dns(&dns);
+
+    let request_change_mail = account.confirm_change_mail("0");
+    assert!(request_change_mail.is_err());
+}
+
+#[test]
+fn change_of_unconfirmed_mail() {
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
+
+    let account = Account::with_dns(&dns);
+    let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
+
+    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+
+    let request_change_mail = account.request_change_mail("xyz@xyz.de", api_token.member_id);
+    assert!(request_change_mail.is_ok());
+    assert_eq!(account.get(api_token.member_id).unwrap().mail, "xyz@xyz.de");
 }

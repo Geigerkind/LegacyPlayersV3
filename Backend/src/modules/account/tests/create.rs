@@ -119,3 +119,19 @@ fn confirm_mail() {
     let confirmed_information = account.get(login.member_id).unwrap();
     assert!(confirmed_information.mail_confirmed);
 }
+
+#[test]
+fn init_from_db(){
+    let container = TestContainer::new(false);
+    let (dns, _node) = container.run();
+
+    {
+        let account = Account::with_dns(&dns);
+        let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
+        let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
+    }
+    let account = Account::with_dns(&dns);
+    let account = account.init();
+
+    assert_eq!(account.member.read().unwrap().len(), 1);
+}
