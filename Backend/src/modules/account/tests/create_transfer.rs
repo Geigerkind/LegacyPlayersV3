@@ -257,12 +257,13 @@ fn password_pwned() {
 }
 
 #[test]
+#[ignore]
 fn invalid_password_characters() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, dns, _node) = container.run();
 
     // Given
-    let http_client = create_http_client(dns.clone());
+    let http_client = create_http_client(&mut conn, &dns);
     // An object that contains the input parameters is defined
     let post_obj = CreateMember {
         nickname: "someNickname".to_string(),
@@ -273,9 +274,8 @@ fn invalid_password_characters() {
     };
     // Serialize the object to the json format
     let json_body = serde_json::to_string(&post_obj).unwrap();
-    let account = Account::with_dns(&dns);
     // Verify that no account with this email is known
-    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
+    assert!(!has_existing_entry(&mut conn, &post_obj.credentials.mail));
 
     // When
     let req = http_client.post("/create").header(ContentType::JSON).body(json_body.as_str());
@@ -286,5 +286,5 @@ fn invalid_password_characters() {
     // Verify the status code of the response
     assert_eq!(response.status(), Status::new(535, "InvalidPasswordCharacters"));
     // Verify that the user has not been created in the database
-    assert!(!has_existing_entry(&account, &post_obj.credentials.mail));
+    assert!(!has_existing_entry(&mut conn, &post_obj.credentials.mail));
 }

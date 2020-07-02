@@ -123,15 +123,15 @@ fn confirm_mail() {
 #[test]
 fn init_from_db(){
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
     {
-        let account = Account::with_dns(&dns);
+        let account = Account::default();
         let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
-        let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
+        let _ = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
     }
-    let account = Account::with_dns(&dns);
-    let account = account.init();
+    let account = Account::default();
+    let account = account.init(&mut conn);
 
     assert_eq!(account.member.read().unwrap().len(), 1);
 }
