@@ -94,19 +94,19 @@ fn get_character_viewer() {
 #[test]
 fn invalid_character_id() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-    let data = Data::with_dns(&dns).init(None);
-    let armory = Armory::with_dns(&dns);
-    let result = armory.get_character_viewer(&data, 1, 123456789);
+    let (mut conn, _dns, _node) = container.run();
+    let data = Data::default().init(&mut conn);
+    let armory = Armory::default();
+    let result = armory.get_character_viewer(&mut conn, &data, 1, 123456789);
     assert!(result.is_err())
 }
 
 #[test]
 fn invalid_character_id_by_history_id() {
     let container = TestContainer::new(true);
-    let (dns, _node) = container.run();
-    let data = Data::with_dns(&dns).init(None);
-    let armory = Armory::with_dns(&dns);
-    let result = armory.get_character_viewer_by_history_id(&data, 1, 123456789, 123456789);
+    let (mut conn, _dns, _node) = container.run();
+    let data = Data::default().init(&mut conn);
+    let armory = Armory::default();
+    let result = armory.get_character_viewer_by_history_id(&mut conn, &data, 1, 123456789, 123456789);
     assert!(result.is_err())
 }

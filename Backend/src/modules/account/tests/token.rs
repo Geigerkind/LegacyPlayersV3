@@ -30,16 +30,16 @@ fn validate_invalid() {
 #[test]
 fn validate_expired() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let account = Account::with_dns(&dns);
+    let account = Account::default();
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
-    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
-    let token_invalid = account.create_token("purpose", api_token.member_id, time_util::now()+1).unwrap();
-    assert!(account.validate_token(&api_token.token.unwrap()).is_some());
+    let api_token = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    let token_invalid = account.create_token(&mut conn, "purpose", api_token.member_id, time_util::now()+1).unwrap();
+    assert!(account.validate_token(&mut conn, &api_token.token.unwrap()).is_some());
     use std::{thread, time::Duration};
     thread::sleep(Duration::from_secs(2));
-    assert!(account.validate_token(&token_invalid.token.unwrap()).is_none());
+    assert!(account.validate_token(&mut conn, &token_invalid.token.unwrap()).is_none());
 }
 
 #[test]

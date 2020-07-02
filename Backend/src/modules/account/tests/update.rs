@@ -166,23 +166,23 @@ fn change_mail() {
 #[test]
 fn confirm_change_without_issued_change() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let account = Account::with_dns(&dns);
+    let account = Account::default();
 
-    let request_change_mail = account.confirm_change_mail("0");
+    let request_change_mail = account.confirm_change_mail(&mut conn,"0");
     assert!(request_change_mail.is_err());
 }
 
 #[test]
 fn change_of_unconfirmed_mail() {
     let container = TestContainer::new(false);
-    let (dns, _node) = container.run();
+    let (mut conn, _dns, _node) = container.run();
 
-    let account = Account::with_dns(&dns);
+    let account = Account::default();
     let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
 
-    let api_token = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    let api_token = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
 
     let request_change_mail = account.request_change_mail("xyz@xyz.de", api_token.member_id);
     assert!(request_change_mail.is_ok());
