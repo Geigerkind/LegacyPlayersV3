@@ -7,7 +7,8 @@ pub fn valid_password(input: &str) -> Result<(), PasswordFailure> {
         static ref PWNED: Pwned = PwnedBuilder::default()
             .pad_password_responses(true)
             .api_key(std::env::var("HIBP_API_KEY").expect("HIBP_API_KEY environment variable not found!"))
-            .build().unwrap();
+            .build()
+            .unwrap();
     }
 
     if !input.chars().all(char::is_alphanumeric) {
