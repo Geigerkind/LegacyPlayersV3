@@ -1,6 +1,6 @@
 use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, MessageType, SpellCast, Threat, Unit};
-use crate::modules::live_data_processor::tools::server::{try_parse_spell_cast};
+use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use std::collections::HashMap;
 
 #[test]
@@ -12,10 +12,7 @@ fn test_correct_shortcut_condition() {
     summons.insert(1, 1);
 
     // setup helper objects
-    let sender_unit = Unit {
-        is_player: false,
-        unit_id: 0xF140000000000000,
-    };
+    let sender_unit = Unit { is_player: false, unit_id: 0xF140000000000000 };
     let receiver_unit = Unit {
         is_player: false,
         unit_id: 0xF140000000000000 + 1,

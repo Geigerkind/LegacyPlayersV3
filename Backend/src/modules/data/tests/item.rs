@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItem, Data};
 use crate::modules::data::domain_value::Item;
+use crate::modules::data::{tools::RetrieveItem, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -21,7 +21,7 @@ fn get_item() {
         itemset: None,
         max_durability: None,
         item_level: None,
-        delay: None
+        delay: None,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_id, item.clone());

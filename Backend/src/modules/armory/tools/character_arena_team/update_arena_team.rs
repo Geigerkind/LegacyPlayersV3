@@ -1,7 +1,7 @@
 use crate::modules::armory::dto::ArmoryFailure;
 use crate::modules::armory::Armory;
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 pub trait UpdateArenaTeam {
     fn update_arena_team_name(&self, db_main: &mut impl Execute, team_id: u32, new_name: String) -> Result<(), ArmoryFailure>;

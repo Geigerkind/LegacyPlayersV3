@@ -1,8 +1,5 @@
-use crate::modules::account::{
-    material::Account,
-    tools::GetAccountInformation,
-};
 use crate::modules::account::material::Member;
+use crate::modules::account::{material::Account, tools::GetAccountInformation};
 
 #[test]
 fn get_does_not_exist() {
@@ -17,18 +14,21 @@ fn get_exists() {
     let member_id = 1;
     {
         let member = account.member.get_mut().unwrap();
-        member.insert(member_id, Member {
-            id: member_id,
-            nickname: "abc".to_string(),
-            mail: "abc@ab.de".to_string(),
-            password: "afsd".to_string(),
-            salt: "asdas".to_string(),
-            mail_confirmed: false,
-            forgot_password: false,
-            delete_account: false,
-            new_mail: "".to_string(),
-            access_rights: 0
-        });
+        member.insert(
+            member_id,
+            Member {
+                id: member_id,
+                nickname: "abc".to_string(),
+                mail: "abc@ab.de".to_string(),
+                password: "afsd".to_string(),
+                salt: "asdas".to_string(),
+                mail_confirmed: false,
+                forgot_password: false,
+                delete_account: false,
+                new_mail: "".to_string(),
+                access_rights: 0,
+            },
+        );
     }
 
     let acc_info = account.get(member_id);

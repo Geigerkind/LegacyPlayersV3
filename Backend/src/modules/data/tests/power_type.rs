@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrievePowerType, Data};
 use crate::modules::data::domain_value::PowerType;
+use crate::modules::data::{tools::RetrievePowerType, Data};
 
 #[test]
 fn get_power_type() {
@@ -8,7 +8,7 @@ fn get_power_type() {
     let power_type = PowerType {
         id: power_type_id,
         localization_id: 213,
-        color: "sdfs".to_string()
+        color: "sdfs".to_string(),
     };
     data.power_types.insert(power_type_id, power_type.clone());
 

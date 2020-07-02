@@ -1,14 +1,11 @@
-use crate::modules::data::{tools::RetrieveItemSheath, Data};
 use crate::modules::data::domain_value::ItemSheath;
+use crate::modules::data::{tools::RetrieveItemSheath, Data};
 
 #[test]
 fn get_item_sheath() {
     let mut data = Data::default();
     let item_sheath_id = 1;
-    let item_sheath = ItemSheath {
-        id: item_sheath_id,
-        localization_id: 2242
-    };
+    let item_sheath = ItemSheath { id: item_sheath_id, localization_id: 2242 };
     data.item_sheaths.insert(item_sheath_id, item_sheath.clone());
 
     let item_sheath_res = data.get_item_sheath(item_sheath_id);

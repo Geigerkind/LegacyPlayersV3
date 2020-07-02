@@ -121,7 +121,7 @@ fn confirm_mail() {
 }
 
 #[test]
-fn init_from_db(){
+fn init_from_db() {
     let container = TestContainer::new(false);
     let (mut conn, _dns, _node) = container.run();
 

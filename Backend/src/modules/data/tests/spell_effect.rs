@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveSpellEffect, Data};
 use crate::modules::data::domain_value::SpellEffect;
+use crate::modules::data::{tools::RetrieveSpellEffect, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -14,7 +14,7 @@ fn get_spell_effects() {
         points_lower: 0,
         points_upper: 0,
         chain_targets: 0,
-        radius: 0
+        radius: 0,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(spell_id, vec![spell_effect.clone()]);

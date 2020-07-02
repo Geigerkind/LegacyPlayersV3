@@ -1,5 +1,5 @@
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 use crate::modules::armory::{
     domain_value::CharacterInfo,

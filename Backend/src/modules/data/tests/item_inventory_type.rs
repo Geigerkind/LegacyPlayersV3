@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemInventoryType, Data};
 use crate::modules::data::domain_value::ItemInventoryType;
+use crate::modules::data::{tools::RetrieveItemInventoryType, Data};
 
 #[test]
 fn get_item_inventory_type() {
@@ -7,7 +7,7 @@ fn get_item_inventory_type() {
     let item_inventory_type_id = 1;
     let item_inventory_type = ItemInventoryType {
         id: item_inventory_type_id,
-        localization_id: 4224
+        localization_id: 4224,
     };
     data.item_inventory_types.insert(item_inventory_type_id, item_inventory_type.clone());
 

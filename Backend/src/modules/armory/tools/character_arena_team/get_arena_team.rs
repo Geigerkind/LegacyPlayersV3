@@ -1,7 +1,7 @@
 use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 use crate::modules::armory::Armory;
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 pub trait GetArenaTeam {
     fn get_arena_team_by_uid(&self, db_main: &mut impl Select, server_id: u32, team_uid: u64) -> Option<ArenaTeam>;

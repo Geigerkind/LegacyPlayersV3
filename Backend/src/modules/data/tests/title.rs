@@ -1,14 +1,11 @@
-use crate::modules::data::{tools::RetrieveTitle, Data};
 use crate::modules::data::domain_value::Title;
+use crate::modules::data::{tools::RetrieveTitle, Data};
 
 #[test]
 fn get_title() {
     let mut data = Data::default();
     let title_id = 1;
-    let title = Title {
-        id: title_id,
-        localization_id: 32423
-    };
+    let title = Title { id: title_id, localization_id: 32423 };
     data.titles.insert(title_id, title.clone());
 
     let title_res = data.get_title(title_id);

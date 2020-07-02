@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveServer, Data};
 use crate::modules::data::domain_value::Server;
+use crate::modules::data::{tools::RetrieveServer, Data};
 
 #[test]
 fn get_server() {
@@ -9,7 +9,7 @@ fn get_server() {
         id: server_id,
         expansion_id: 1,
         name: "sdfs".to_string(),
-        owner: None
+        owner: None,
     };
     data.servers.insert(server_id, server.clone());
 

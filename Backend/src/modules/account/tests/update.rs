@@ -3,7 +3,7 @@ use str_util::sha3;
 use crate::modules::account::tests::helper::get_create_member;
 use crate::modules::account::{
     material::Account,
-    tools::{Create, Update, GetAccountInformation},
+    tools::{Create, GetAccountInformation, Update},
 };
 use crate::tests::TestContainer;
 
@@ -170,7 +170,7 @@ fn confirm_change_without_issued_change() {
 
     let account = Account::default();
 
-    let request_change_mail = account.confirm_change_mail(&mut conn,"0");
+    let request_change_mail = account.confirm_change_mail(&mut conn, "0");
     assert!(request_change_mail.is_err());
 }
 

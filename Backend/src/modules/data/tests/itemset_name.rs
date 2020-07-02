@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemsetName, Data};
 use crate::modules::data::domain_value::ItemsetName;
+use crate::modules::data::{tools::RetrieveItemsetName, Data};
 use std::collections::HashMap;
 
 #[test]

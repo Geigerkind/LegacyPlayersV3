@@ -1,3 +1,4 @@
+use crate::util::database::Select;
 use crate::{
     dto::SelectOption,
     modules::{
@@ -13,7 +14,6 @@ use crate::{
         },
     },
 };
-use crate::util::database::Select;
 
 pub trait CharacterViewer {
     fn get_character_viewer_by_history_id(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;

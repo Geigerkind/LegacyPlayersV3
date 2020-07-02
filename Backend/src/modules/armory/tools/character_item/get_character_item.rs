@@ -1,5 +1,5 @@
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 use crate::modules::armory::{
     domain_value::CharacterItem,
@@ -17,7 +17,8 @@ impl GetCharacterItem for Armory {
         let params = params!(
           "id" => character_item_id
         );
-        db_main.select_wparams_value(
+        db_main
+            .select_wparams_value(
                 "SELECT * FROM armory_item WHERE id=:id",
                 |mut row| {
                     Ok(CharacterItem {
@@ -43,7 +44,8 @@ impl GetCharacterItem for Armory {
           "gem_id3" => character_item.gem_ids.get(2).cloned(),
           "gem_id4" => character_item.gem_ids.get(3).cloned()
         );
-        db_main.select_wparams_value(
+        db_main
+            .select_wparams_value(
                 "SELECT * FROM armory_item WHERE item_id=:item_id AND ((ISNULL(:random_property_id) AND ISNULL(random_property_id)) OR random_property_id = :random_property_id) AND ((ISNULL(:enchant_id) AND ISNULL(enchant_id)) OR enchant_id = \
                  :enchant_id) AND ((ISNULL(:gem_id1) AND ISNULL(gem_id1)) OR gem_id1 = :gem_id1) AND ((ISNULL(:gem_id2) AND ISNULL(gem_id2)) OR gem_id2 = :gem_id2) AND ((ISNULL(:gem_id3) AND ISNULL(gem_id3)) OR gem_id3 = :gem_id3) AND \
                  ((ISNULL(:gem_id4) AND ISNULL(gem_id4)) OR gem_id4 = :gem_id4)",

@@ -3,8 +3,8 @@ use crate::modules::armory::{
     dto::{ArmoryFailure, CharacterFacialDto},
     Armory,
 };
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 pub trait GetCharacterFacial {
     fn get_character_facial(&self, db_main: &mut impl Select, facial_id: u32) -> Result<CharacterFacial, ArmoryFailure>;
@@ -16,7 +16,8 @@ impl GetCharacterFacial for Armory {
         let params = params!(
           "id" => facial_id
         );
-        db_main.select_wparams_value(
+        db_main
+            .select_wparams_value(
                 "SELECT * FROM armory_character_facial WHERE id=:id",
                 |mut row| {
                     Ok(CharacterFacial {
@@ -41,7 +42,8 @@ impl GetCharacterFacial for Armory {
           "hair_color" => character_facial_dto.hair_color,
           "facial_hair" => character_facial_dto.facial_hair
         );
-        db_main.select_wparams_value(
+        db_main
+            .select_wparams_value(
                 "SELECT * FROM armory_character_facial WHERE skin_color=:skin_color AND face_style=:face_style AND hair_style=:hair_style AND hair_color=:hair_color AND facial_hair=:facial_hair",
                 |mut row| {
                     Ok(CharacterFacial {

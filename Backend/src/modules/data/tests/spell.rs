@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveSpell, Data};
 use crate::modules::data::domain_value::Spell;
+use crate::modules::data::{tools::RetrieveSpell, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -23,7 +23,7 @@ fn get_spell() {
         duration: 0,
         icon: 0,
         description_localization_id: 0,
-        aura_localization_id: 0
+        aura_localization_id: 0,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(spell_id, spell.clone());

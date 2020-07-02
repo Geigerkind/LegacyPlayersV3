@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemClass, Data};
 use crate::modules::data::domain_value::ItemClass;
+use crate::modules::data::{tools::RetrieveItemClass, Data};
 
 #[test]
 fn get_item_class() {
@@ -9,7 +9,7 @@ fn get_item_class() {
         id: item_class_id,
         item_class: 23,
         item_sub_class: 1,
-        localization_id: 53
+        localization_id: 53,
     };
     data.item_classes.insert(item_class_id, item_class.clone());
 

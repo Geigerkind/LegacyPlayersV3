@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveDispelType, Data};
 use crate::modules::data::domain_value::DispelType;
+use crate::modules::data::{tools::RetrieveDispelType, Data};
 
 #[test]
 fn get_dispel_type() {
@@ -8,7 +8,7 @@ fn get_dispel_type() {
     let dispel_type = DispelType {
         id: dispel_type_id,
         localization_id: 42,
-        color: "abc".to_string()
+        color: "abc".to_string(),
     };
     data.dispel_types.insert(dispel_type_id, dispel_type.clone());
 

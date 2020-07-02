@@ -1,7 +1,7 @@
+use crate::mysql::Opts;
 use testcontainers::clients::Cli;
 use testcontainers::images::generic::{GenericImage, WaitFor};
 use testcontainers::{clients, Container, Docker};
-use crate::mysql::Opts;
 
 pub struct TestContainer {
     docker: Cli,

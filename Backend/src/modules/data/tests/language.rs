@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveLanguage, Data};
 use crate::modules::data::domain_value::Language;
+use crate::modules::data::{tools::RetrieveLanguage, Data};
 
 #[test]
 fn get_language() {
@@ -8,7 +8,7 @@ fn get_language() {
     let language = Language {
         id: language_id,
         name: "sdfsd".to_string(),
-        short_code: "sdfsd".to_string()
+        short_code: "sdfsd".to_string(),
     };
     data.languages.insert(language_id, language.clone());
 

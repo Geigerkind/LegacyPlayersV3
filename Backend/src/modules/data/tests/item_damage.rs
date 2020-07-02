@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemDamage, Data};
 use crate::modules::data::domain_value::ItemDamage;
+use crate::modules::data::{tools::RetrieveItemDamage, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -13,7 +13,7 @@ fn get_item_damage() {
         item_id,
         dmg_type: None,
         dmg_min: 12,
-        dmg_max: 234
+        dmg_max: 234,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_id, vec![item_damage.clone()]);

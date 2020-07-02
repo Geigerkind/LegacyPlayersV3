@@ -1,6 +1,6 @@
 use crate::modules::armory::{domain_value::GuildRank, dto::ArmoryFailure, tools::GetGuild, Armory};
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 pub trait SetGuildRank {
     fn set_guild_rank(&self, db_main: &mut impl Execute, guild_id: u32, guild_rank: GuildRank) -> Result<(), ArmoryFailure>;

@@ -1,6 +1,6 @@
+use crate::params;
 use crate::util::database::*;
 use str_util::{random, sha3};
-use crate::params;
 
 use crate::modules::account::{
     dto::Failure,

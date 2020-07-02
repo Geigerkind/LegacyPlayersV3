@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemRandomProperty, Data};
 use crate::modules::data::domain_value::ItemRandomProperty;
+use crate::modules::data::{tools::RetrieveItemRandomProperty, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -12,7 +12,7 @@ fn get_item_random_property() {
         id: item_random_property_id,
         localization_id: 23,
         enchant_ids: vec![],
-        scaling_coefficients: vec![]
+        scaling_coefficients: vec![],
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_random_property_id, item_random_property.clone());

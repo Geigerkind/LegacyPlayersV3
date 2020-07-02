@@ -101,7 +101,7 @@ jobs:
           key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Execute tests
-        run: make coverage_test ARGS="-- --test-threads=8"
+        run: make coverage_test
 
       - name: Measuring code coverage
         run: make coverage_build

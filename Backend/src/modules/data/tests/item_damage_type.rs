@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemDamageType, Data};
 use crate::modules::data::domain_value::ItemDamageType;
+use crate::modules::data::{tools::RetrieveItemDamageType, Data};
 
 #[test]
 fn get_item_damage_type() {
@@ -7,7 +7,7 @@ fn get_item_damage_type() {
     let item_damage_type_id = 1;
     let item_damage_type = ItemDamageType {
         id: item_damage_type_id,
-        localization_id: 5353
+        localization_id: 5353,
     };
     data.item_damage_types.insert(item_damage_type_id, item_damage_type.clone());
 

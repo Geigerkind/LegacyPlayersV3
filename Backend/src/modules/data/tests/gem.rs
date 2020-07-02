@@ -1,6 +1,6 @@
+use crate::modules::data::domain_value::Gem;
 use crate::modules::data::{tools::RetrieveGem, Data};
 use std::collections::HashMap;
-use crate::modules::data::domain_value::Gem;
 
 #[test]
 fn get_gem() {
@@ -11,7 +11,7 @@ fn get_gem() {
         expansion_id,
         item_id,
         enchant_id: 232,
-        flag: 1
+        flag: 1,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_id, gem.clone());

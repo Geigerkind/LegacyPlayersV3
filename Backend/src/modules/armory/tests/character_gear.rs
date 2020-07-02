@@ -30,8 +30,7 @@ fn character_gear() {
 #[test]
 fn test_get_character_gear_character_err() {
     let mut mock = MockSelect::new();
-    mock.expect_select_wparams_value::<crate::mysql::Row>()
-        .return_const(None);
+    mock.expect_select_wparams_value::<crate::mysql::Row>().return_const(None);
 
     let armory = Armory::default();
     let character_gear = armory.get_character_gear(&mut mock, 42);

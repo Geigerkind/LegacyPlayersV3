@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveHeroClass, Data};
 use crate::modules::data::domain_value::{HeroClass, HeroClassTalent};
+use crate::modules::data::{tools::RetrieveHeroClass, Data};
 
 #[test]
 fn get_hero_class() {
@@ -10,19 +10,10 @@ fn get_hero_class() {
         localization_id: 324,
         color: "dfsf".to_string(),
         talents: [
-            HeroClassTalent {
-                icon: 1243,
-                localization_id: 12
-            },
-            HeroClassTalent {
-                icon: 12423,
-                localization_id: 123
-            },
-            HeroClassTalent {
-                icon: 12434,
-                localization_id: 124
-            }
-        ]
+            HeroClassTalent { icon: 1243, localization_id: 12 },
+            HeroClassTalent { icon: 12423, localization_id: 123 },
+            HeroClassTalent { icon: 12434, localization_id: 124 },
+        ],
     };
     data.hero_classes.insert(hero_class_id, hero_class.clone());
 

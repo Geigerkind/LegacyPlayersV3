@@ -2,8 +2,8 @@ use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 use crate::modules::armory::dto::{ArenaTeamDto, ArmoryFailure};
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 pub trait CreateArenaTeam {
     fn create_arena_team(&self, db_main: &mut (impl Execute + Select), server_id: u32, arena_team_dto: ArenaTeamDto) -> Result<ArenaTeam, ArmoryFailure>;

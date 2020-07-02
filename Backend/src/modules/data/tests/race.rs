@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveRace, Data};
 use crate::modules::data::domain_value::Race;
+use crate::modules::data::{tools::RetrieveRace, Data};
 
 #[test]
 fn get_race() {
@@ -8,7 +8,7 @@ fn get_race() {
     let race = Race {
         id: race_id,
         localization_id: 3242,
-        faction: false
+        faction: false,
     };
     data.races.insert(race_id, race.clone());
 

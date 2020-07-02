@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveLocalization, Data};
 use crate::modules::data::domain_value::Localization;
+use crate::modules::data::{tools::RetrieveLocalization, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -10,7 +10,7 @@ fn get_localization() {
     let localization = Localization {
         id: localization_id,
         language_id,
-        content: "fsdsd".to_string()
+        content: "fsdsd".to_string(),
     };
 
     let mut hashmap = HashMap::new();

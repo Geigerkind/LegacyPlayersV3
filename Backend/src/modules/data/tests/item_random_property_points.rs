@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemRandomPropertyPoints, Data};
 use crate::modules::data::domain_value::ItemRandomPropertyPoints;
+use crate::modules::data::{tools::RetrieveItemRandomPropertyPoints, Data};
 
 #[test]
 fn get_item_random_property_points() {
@@ -9,9 +9,9 @@ fn get_item_random_property_points() {
     let points = ItemRandomPropertyPoints {
         item_level,
         expansion_id,
-        epic: [0,0,0,0,0],
-        rare: [1,1,1,1,1],
-        good: [2,2,2,2,2]
+        epic: [0, 0, 0, 0, 0],
+        rare: [1, 1, 1, 1, 1],
+        good: [2, 2, 2, 2, 2],
     };
     data.item_random_property_points.insert(expansion_id, vec![points.clone()]);
 

@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveEnchant, Data};
 use crate::modules::data::domain_value::Enchant;
+use crate::modules::data::{tools::RetrieveEnchant, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -11,7 +11,7 @@ fn get_enchant() {
         expansion_id,
         id: enchant_id,
         localization_id: 23,
-        stats: vec![]
+        stats: vec![],
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(enchant_id, enchant.clone());

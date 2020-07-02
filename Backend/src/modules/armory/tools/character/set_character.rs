@@ -1,3 +1,4 @@
+use crate::util::database::{Execute, Select};
 use crate::{
     dto::CheckPlausability,
     modules::armory::{
@@ -7,7 +8,6 @@ use crate::{
         Armory,
     },
 };
-use crate::util::database::{Execute, Select};
 
 pub trait SetCharacter {
     fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure>;

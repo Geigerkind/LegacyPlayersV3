@@ -1,14 +1,11 @@
-use crate::modules::data::{tools::RetrieveExpansion, Data};
 use crate::modules::data::domain_value::Expansion;
+use crate::modules::data::{tools::RetrieveExpansion, Data};
 
 #[test]
 fn get_expansion() {
     let mut data = Data::default();
     let expansion_id = 1;
-    let expansion = Expansion {
-        id: expansion_id,
-        localization_id: 422
-    };
+    let expansion = Expansion { id: expansion_id, localization_id: 422 };
     data.expansions.insert(expansion_id, expansion.clone());
 
     let expansion_res = data.get_expansion(expansion_id);

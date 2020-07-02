@@ -1,5 +1,5 @@
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 use crate::modules::armory::{
     domain_value::CharacterInfo,
@@ -18,9 +18,7 @@ impl GetCharacterInfo for Armory {
         let params = params!(
           "id" => character_info_id
         );
-        let mut result = db_main.select_wparams_value(
-                "SELECT * FROM armory_character_info WHERE id=:id",
-                &|row| row, params);
+        let mut result = db_main.select_wparams_value("SELECT * FROM armory_character_info WHERE id=:id", &|row| row, params);
         if let Some(row) = result.as_mut() {
             return Ok(CharacterInfo {
                 id: row.take(0).unwrap(),
@@ -56,9 +54,11 @@ impl GetCharacterInfo for Armory {
           "race_id" => character_info.race_id
         );
         let mut result = db_main.select_wparams_value(
-                "SELECT * FROM armory_character_info WHERE gear_id=:gear_id AND hero_class_id=:hero_class_id AND level=:level AND gender=:gender AND ((ISNULL(:profession1) AND ISNULL(profession1)) OR profession1 = :profession1) AND \
-                 ((ISNULL(:profession2) AND ISNULL(profession2)) OR profession2 = :profession2) AND ((ISNULL(:talent_specialization) AND ISNULL(talent_specialization)) OR talent_specialization = :talent_specialization) AND race_id=:race_id",
-                &|row| row, params);
+            "SELECT * FROM armory_character_info WHERE gear_id=:gear_id AND hero_class_id=:hero_class_id AND level=:level AND gender=:gender AND ((ISNULL(:profession1) AND ISNULL(profession1)) OR profession1 = :profession1) AND \
+             ((ISNULL(:profession2) AND ISNULL(profession2)) OR profession2 = :profession2) AND ((ISNULL(:talent_specialization) AND ISNULL(talent_specialization)) OR talent_specialization = :talent_specialization) AND race_id=:race_id",
+            &|row| row,
+            params,
+        );
         if let Some(row) = result.as_mut() {
             return Ok(CharacterInfo {
                 id: row.take(0).unwrap(),

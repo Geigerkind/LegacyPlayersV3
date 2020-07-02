@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemQuality, Data};
 use crate::modules::data::domain_value::ItemQuality;
+use crate::modules::data::{tools::RetrieveItemQuality, Data};
 
 #[test]
 fn get_item_quality() {
@@ -8,7 +8,7 @@ fn get_item_quality() {
     let item_quality = ItemQuality {
         id: item_quality_id,
         localization_id: 22424,
-        color: "sfd".to_string()
+        color: "sfd".to_string(),
     };
     data.item_qualities.insert(item_quality_id, item_quality.clone());
 

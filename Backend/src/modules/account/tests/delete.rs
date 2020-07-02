@@ -22,7 +22,7 @@ fn issue_delete() {
 
 #[test]
 #[should_panic]
-fn issue_delete_nonexistent(){
+fn issue_delete_nonexistent() {
     let container = TestContainer::new(false);
     let (mut conn, _dns, _node) = container.run();
 
@@ -30,7 +30,7 @@ fn issue_delete_nonexistent(){
     let post_obj = get_create_member("abc", "abc@abc.de", "password123password123password123");
 
     let val_pair = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
-    let issue_delete = account.issue_delete(&mut conn, val_pair.member_id+1);
+    let issue_delete = account.issue_delete(&mut conn, val_pair.member_id + 1);
     assert!(issue_delete.is_err());
 }
 
@@ -56,7 +56,7 @@ fn confirm_delete_without_issued_delete() {
     let (mut conn, _dns, _node) = container.run();
 
     let account = Account::default();
-    let confirm_delete = account.confirm_delete(&mut conn,"0");
+    let confirm_delete = account.confirm_delete(&mut conn, "0");
     assert!(confirm_delete.is_err());
 }
 

@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use language::material::Dictionary;
 use crate::modules::data::{
     domain_value::{
         DispelType, Enchant, Expansion, Gem, HeroClass, HeroClassTalent, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemRandomPropertyPoints, ItemSheath,
@@ -9,7 +8,7 @@ use crate::modules::data::{
     language::init::Init as DictionaryInit,
 };
 use crate::util::database::*;
-
+use language::material::Dictionary;
 
 #[derive(Debug)]
 pub struct Data {
@@ -135,10 +134,11 @@ trait Init {
 
 impl Init for HashMap<u8, Expansion> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_expansion", |mut row| Expansion {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_expansion", |mut row| Expansion {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -148,11 +148,12 @@ impl Init for HashMap<u8, Expansion> {
 
 impl Init for HashMap<u8, Language> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_language", |mut row| Language {
-            id: row.take(0).unwrap(),
-            name: row.take(1).unwrap(),
-            short_code: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_language", |mut row| Language {
+                id: row.take(0).unwrap(),
+                name: row.take(1).unwrap(),
+                short_code: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -163,11 +164,12 @@ impl Init for HashMap<u8, Language> {
 impl Init for Vec<HashMap<u32, Localization>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_language_id = 0;
-        db_main.select("SELECT * FROM data_localization ORDER BY language_id, id", |mut row| Localization {
-            language_id: row.take(0).unwrap(),
-            id: row.take(1).unwrap(),
-            content: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_localization ORDER BY language_id, id", |mut row| Localization {
+                language_id: row.take(0).unwrap(),
+                id: row.take(1).unwrap(),
+                content: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.language_id != last_language_id {
@@ -181,11 +183,12 @@ impl Init for Vec<HashMap<u32, Localization>> {
 
 impl Init for HashMap<u8, Race> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_race", |mut row| Race {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-            faction: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_race", |mut row| Race {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                faction: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -195,11 +198,12 @@ impl Init for HashMap<u8, Race> {
 
 impl Init for HashMap<u16, Profession> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_profession", |mut row| Profession {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-            icon: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_profession", |mut row| Profession {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                icon: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -209,12 +213,13 @@ impl Init for HashMap<u16, Profession> {
 
 impl Init for HashMap<u32, Server> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_server", |mut row| Server {
-            id: row.take(0).unwrap(),
-            expansion_id: row.take(1).unwrap(),
-            name: row.take(2).unwrap(),
-            owner: row.take_opt(3).unwrap().ok(),
-        })
+        db_main
+            .select("SELECT * FROM data_server", |mut row| Server {
+                id: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                name: row.take(2).unwrap(),
+                owner: row.take_opt(3).unwrap().ok(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -224,24 +229,26 @@ impl Init for HashMap<u32, Server> {
 
 impl Init for HashMap<u8, HeroClass> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_hero_class", |mut row| HeroClass {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-            color: row.take(2).unwrap(),
-            talents: [HeroClassTalent { icon: 0, localization_id: 0 }; 3],
-        })
+        db_main
+            .select("SELECT * FROM data_hero_class", |mut row| HeroClass {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                color: row.take(2).unwrap(),
+                talents: [HeroClassTalent { icon: 0, localization_id: 0 }; 3],
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
             });
 
-        db_main.select("SELECT * FROM data_hero_class_spec", |mut row| {
-            let hero_class_id: u8 = row.take(0).unwrap();
-            let index: u8 = row.take(1).unwrap();
-            let icon: u16 = row.take(2).unwrap();
-            let localization_id: u32 = row.take(3).unwrap();
-            (hero_class_id, index, icon, localization_id)
-        })
+        db_main
+            .select("SELECT * FROM data_hero_class_spec", |mut row| {
+                let hero_class_id: u8 = row.take(0).unwrap();
+                let index: u8 = row.take(1).unwrap();
+                let icon: u16 = row.take(2).unwrap();
+                let localization_id: u32 = row.take(3).unwrap();
+                (hero_class_id, index, icon, localization_id)
+            })
             .iter()
             .for_each(|result| {
                 self.get_mut(&result.0).unwrap().talents[result.1 as usize] = HeroClassTalent { icon: result.2, localization_id: result.3 };
@@ -252,24 +259,25 @@ impl Init for HashMap<u8, HeroClass> {
 impl Init for Vec<HashMap<u32, Spell>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_spell ORDER BY expansion_id, id", |mut row| Spell {
-            expansion_id: row.take(0).unwrap(),
-            id: row.take(1).unwrap(),
-            localization_id: row.take(2).unwrap(),
-            subtext_localization_id: row.take(3).unwrap(),
-            cost: row.take(4).unwrap(),
-            cost_in_percent: row.take(5).unwrap(),
-            power_type: row.take(6).unwrap(),
-            cast_time: row.take(7).unwrap(),
-            school_mask: row.take(8).unwrap(),
-            dispel_type: row.take(9).unwrap(),
-            range_max: row.take(10).unwrap(),
-            cooldown: row.take(11).unwrap(),
-            duration: row.take(12).unwrap(),
-            icon: row.take(13).unwrap(),
-            description_localization_id: row.take(14).unwrap(),
-            aura_localization_id: row.take(15).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_spell ORDER BY expansion_id, id", |mut row| Spell {
+                expansion_id: row.take(0).unwrap(),
+                id: row.take(1).unwrap(),
+                localization_id: row.take(2).unwrap(),
+                subtext_localization_id: row.take(3).unwrap(),
+                cost: row.take(4).unwrap(),
+                cost_in_percent: row.take(5).unwrap(),
+                power_type: row.take(6).unwrap(),
+                cast_time: row.take(7).unwrap(),
+                school_mask: row.take(8).unwrap(),
+                dispel_type: row.take(9).unwrap(),
+                range_max: row.take(10).unwrap(),
+                cooldown: row.take(11).unwrap(),
+                duration: row.take(12).unwrap(),
+                icon: row.take(13).unwrap(),
+                description_localization_id: row.take(14).unwrap(),
+                aura_localization_id: row.take(15).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -283,11 +291,12 @@ impl Init for Vec<HashMap<u32, Spell>> {
 
 impl Init for HashMap<u8, DispelType> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_spell_dispel_type", |mut row| DispelType {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-            color: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_spell_dispel_type", |mut row| DispelType {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                color: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -297,11 +306,12 @@ impl Init for HashMap<u8, DispelType> {
 
 impl Init for HashMap<u8, PowerType> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_spell_power_type", |mut row| PowerType {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-            color: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_spell_power_type", |mut row| PowerType {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                color: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -311,10 +321,11 @@ impl Init for HashMap<u8, PowerType> {
 
 impl Init for HashMap<u8, StatType> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_stat_type", |mut row| StatType {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_stat_type", |mut row| StatType {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -326,15 +337,16 @@ impl Init for Vec<HashMap<u32, Vec<SpellEffect>>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
         let mut last_spell_id = 0;
-        db_main.select("SELECT * FROM data_spell_effect ORDER BY expansion_id, spell_id, id", |mut row| SpellEffect {
-            id: row.take(0).unwrap(),
-            expansion_id: row.take(1).unwrap(),
-            spell_id: row.take(2).unwrap(),
-            points_lower: row.take(3).unwrap(),
-            points_upper: row.take(4).unwrap(),
-            chain_targets: row.take(5).unwrap(),
-            radius: row.take(6).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_spell_effect ORDER BY expansion_id, spell_id, id", |mut row| SpellEffect {
+                id: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                spell_id: row.take(2).unwrap(),
+                points_lower: row.take(3).unwrap(),
+                points_upper: row.take(4).unwrap(),
+                chain_targets: row.take(5).unwrap(),
+                radius: row.take(6).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -354,14 +366,15 @@ impl Init for Vec<HashMap<u32, Vec<SpellEffect>>> {
 impl Init for Vec<HashMap<u32, NPC>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_npc ORDER BY expansion_id, id", |mut row| NPC {
-            expansion_id: row.take(0).unwrap(),
-            id: row.take(1).unwrap(),
-            localization_id: row.take(2).unwrap(),
-            is_boss: row.take(3).unwrap(),
-            friend: row.take(4).unwrap(),
-            family: row.take(5).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_npc ORDER BY expansion_id, id", |mut row| NPC {
+                expansion_id: row.take(0).unwrap(),
+                id: row.take(1).unwrap(),
+                localization_id: row.take(2).unwrap(),
+                is_boss: row.take(3).unwrap(),
+                friend: row.take(4).unwrap(),
+                family: row.take(5).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -375,10 +388,11 @@ impl Init for Vec<HashMap<u32, NPC>> {
 
 impl Init for HashMap<u16, Icon> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_icon ORDER BY id", |mut row| Icon {
-            id: row.take(0).unwrap(),
-            name: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_icon ORDER BY id", |mut row| Icon {
+                id: row.take(0).unwrap(),
+                name: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|icon| {
                 self.insert(icon.id, icon.to_owned());
@@ -389,22 +403,23 @@ impl Init for HashMap<u16, Icon> {
 impl Init for Vec<HashMap<u32, Item>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_item ORDER BY expansion_id, id", |mut row| Item {
-            expansion_id: row.take(0).unwrap(),
-            id: row.take(1).unwrap(),
-            localization_id: row.take(2).unwrap(),
-            icon: row.take(3).unwrap(),
-            quality: row.take(4).unwrap(),
-            inventory_type: row.take(5).unwrap(),
-            class_id: row.take(6).unwrap(),
-            required_level: row.take_opt(7).unwrap().ok(),
-            bonding: row.take_opt(8).unwrap().ok(),
-            sheath: row.take_opt(9).unwrap().ok(),
-            itemset: row.take_opt(10).unwrap().ok(),
-            max_durability: row.take_opt(11).unwrap().ok(),
-            item_level: row.take_opt(12).unwrap().ok(),
-            delay: row.take_opt(13).unwrap().ok(),
-        })
+        db_main
+            .select("SELECT * FROM data_item ORDER BY expansion_id, id", |mut row| Item {
+                expansion_id: row.take(0).unwrap(),
+                id: row.take(1).unwrap(),
+                localization_id: row.take(2).unwrap(),
+                icon: row.take(3).unwrap(),
+                quality: row.take(4).unwrap(),
+                inventory_type: row.take(5).unwrap(),
+                class_id: row.take(6).unwrap(),
+                required_level: row.take_opt(7).unwrap().ok(),
+                bonding: row.take_opt(8).unwrap().ok(),
+                sheath: row.take_opt(9).unwrap().ok(),
+                itemset: row.take_opt(10).unwrap().ok(),
+                max_durability: row.take_opt(11).unwrap().ok(),
+                item_level: row.take_opt(12).unwrap().ok(),
+                delay: row.take_opt(13).unwrap().ok(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -419,12 +434,13 @@ impl Init for Vec<HashMap<u32, Item>> {
 impl Init for Vec<HashMap<u32, Gem>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_gem ORDER BY expansion_id, item_id", |mut row| Gem {
-            expansion_id: row.take(0).unwrap(),
-            item_id: row.take(1).unwrap(),
-            enchant_id: row.take(2).unwrap(),
-            flag: row.take(3).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_gem ORDER BY expansion_id, item_id", |mut row| Gem {
+                expansion_id: row.take(0).unwrap(),
+                item_id: row.take(1).unwrap(),
+                enchant_id: row.take(2).unwrap(),
+                flag: row.take(3).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -439,26 +455,27 @@ impl Init for Vec<HashMap<u32, Gem>> {
 impl Init for Vec<HashMap<u32, Enchant>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_enchant ORDER BY expansion_id, id", |mut row| {
-            let mut stats = Vec::new();
-            for i in (3..8).step_by(2) {
-                let stat_type = row.take_opt(i).unwrap().ok();
-                let stat_value = row.take_opt(i + 1).unwrap().ok();
-                if stat_type.is_none() {
-                    break;
+        db_main
+            .select("SELECT * FROM data_enchant ORDER BY expansion_id, id", |mut row| {
+                let mut stats = Vec::new();
+                for i in (3..8).step_by(2) {
+                    let stat_type = row.take_opt(i).unwrap().ok();
+                    let stat_value = row.take_opt(i + 1).unwrap().ok();
+                    if stat_type.is_none() {
+                        break;
+                    }
+                    stats.push(Stat {
+                        stat_type: stat_type.unwrap(),
+                        stat_value: stat_value.unwrap(),
+                    });
                 }
-                stats.push(Stat {
-                    stat_type: stat_type.unwrap(),
-                    stat_value: stat_value.unwrap(),
-                });
-            }
-            Enchant {
-                expansion_id: row.take(0).unwrap(),
-                id: row.take(1).unwrap(),
-                localization_id: row.take(2).unwrap(),
-                stats,
-            }
-        })
+                Enchant {
+                    expansion_id: row.take(0).unwrap(),
+                    id: row.take(1).unwrap(),
+                    localization_id: row.take(2).unwrap(),
+                    stats,
+                }
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -472,10 +489,11 @@ impl Init for Vec<HashMap<u32, Enchant>> {
 
 impl Init for HashMap<u8, ItemBonding> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_item_bonding", |mut row| ItemBonding {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_bonding", |mut row| ItemBonding {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -485,12 +503,13 @@ impl Init for HashMap<u8, ItemBonding> {
 
 impl Init for HashMap<u8, ItemClass> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_item_class", |mut row| ItemClass {
-            id: row.take(0).unwrap(),
-            item_class: row.take(1).unwrap(),
-            item_sub_class: row.take(2).unwrap(),
-            localization_id: row.take(3).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_class", |mut row| ItemClass {
+                id: row.take(0).unwrap(),
+                item_class: row.take(1).unwrap(),
+                item_sub_class: row.take(2).unwrap(),
+                localization_id: row.take(3).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -502,14 +521,15 @@ impl Init for Vec<HashMap<u32, Vec<ItemDamage>>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
         let mut last_item_id = 0;
-        db_main.select("SELECT * FROM data_item_dmg ORDER BY expansion_id, item_id, id", |mut row| ItemDamage {
-            id: row.take(0).unwrap(),
-            expansion_id: row.take(1).unwrap(),
-            item_id: row.take(2).unwrap(),
-            dmg_type: row.take_opt(3).unwrap().ok(),
-            dmg_min: row.take(4).unwrap(),
-            dmg_max: row.take(5).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_dmg ORDER BY expansion_id, item_id, id", |mut row| ItemDamage {
+                id: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                item_id: row.take(2).unwrap(),
+                dmg_type: row.take_opt(3).unwrap().ok(),
+                dmg_min: row.take(4).unwrap(),
+                dmg_max: row.take(5).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -528,10 +548,11 @@ impl Init for Vec<HashMap<u32, Vec<ItemDamage>>> {
 
 impl Init for HashMap<u8, ItemDamageType> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_item_dmg_type", |mut row| ItemDamageType {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_dmg_type", |mut row| ItemDamageType {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -543,12 +564,13 @@ impl Init for Vec<HashMap<u32, Vec<ItemEffect>>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
         let mut last_item_id = 0;
-        db_main.select("SELECT id, expansion_id, item_id, spell_id FROM data_item_effect ORDER BY expansion_id, item_id, id", |mut row| ItemEffect {
-            id: row.take(0).unwrap(),
-            expansion_id: row.take(1).unwrap(),
-            item_id: row.take(2).unwrap(),
-            spell_id: row.take(3).unwrap(),
-        })
+        db_main
+            .select("SELECT id, expansion_id, item_id, spell_id FROM data_item_effect ORDER BY expansion_id, item_id, id", |mut row| ItemEffect {
+                id: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                item_id: row.take(2).unwrap(),
+                spell_id: row.take(3).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -567,10 +589,11 @@ impl Init for Vec<HashMap<u32, Vec<ItemEffect>>> {
 
 impl Init for HashMap<u8, ItemInventoryType> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_item_inventory_type", |mut row| ItemInventoryType {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_inventory_type", |mut row| ItemInventoryType {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -580,11 +603,12 @@ impl Init for HashMap<u8, ItemInventoryType> {
 
 impl Init for HashMap<u8, ItemQuality> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_item_quality", |mut row| ItemQuality {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-            color: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_quality", |mut row| ItemQuality {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                color: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -595,27 +619,28 @@ impl Init for HashMap<u8, ItemQuality> {
 impl Init for Vec<HashMap<i16, ItemRandomProperty>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_item_random_property ORDER BY expansion_id, id", |mut row| {
-            let mut enchant_ids = Vec::new();
-            for i in 3..8 {
-                if let Ok(enchant_id) = row.take_opt(i).unwrap() {
-                    enchant_ids.push(enchant_id);
+        db_main
+            .select("SELECT * FROM data_item_random_property ORDER BY expansion_id, id", |mut row| {
+                let mut enchant_ids = Vec::new();
+                for i in 3..8 {
+                    if let Ok(enchant_id) = row.take_opt(i).unwrap() {
+                        enchant_ids.push(enchant_id);
+                    }
                 }
-            }
-            let mut scaling_coefficients = Vec::new();
-            for i in 8..13 {
-                if let Ok(coefficient) = row.take_opt(i).unwrap() {
-                    scaling_coefficients.push(coefficient);
+                let mut scaling_coefficients = Vec::new();
+                for i in 8..13 {
+                    if let Ok(coefficient) = row.take_opt(i).unwrap() {
+                        scaling_coefficients.push(coefficient);
+                    }
                 }
-            }
-            ItemRandomProperty {
-                expansion_id: row.take(0).unwrap(),
-                id: row.take(1).unwrap(),
-                localization_id: row.take(2).unwrap(),
-                enchant_ids,
-                scaling_coefficients,
-            }
-        })
+                ItemRandomProperty {
+                    expansion_id: row.take(0).unwrap(),
+                    id: row.take(1).unwrap(),
+                    localization_id: row.take(2).unwrap(),
+                    enchant_ids,
+                    scaling_coefficients,
+                }
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -629,10 +654,11 @@ impl Init for Vec<HashMap<i16, ItemRandomProperty>> {
 
 impl Init for HashMap<u8, ItemSheath> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_item_sheath", |mut row| ItemSheath {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_item_sheath", |mut row| ItemSheath {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -643,20 +669,21 @@ impl Init for HashMap<u8, ItemSheath> {
 impl Init for Vec<HashMap<u32, ItemSocket>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_item_socket ORDER BY expansion_id, item_id", |mut row| {
-            let mut slots = Vec::new();
-            for i in 3..6 {
-                if let Ok(slot) = row.take_opt(i).unwrap() {
-                    slots.push(slot);
+        db_main
+            .select("SELECT * FROM data_item_socket ORDER BY expansion_id, item_id", |mut row| {
+                let mut slots = Vec::new();
+                for i in 3..6 {
+                    if let Ok(slot) = row.take_opt(i).unwrap() {
+                        slots.push(slot);
+                    }
                 }
-            }
-            ItemSocket {
-                expansion_id: row.take(0).unwrap(),
-                item_id: row.take(1).unwrap(),
-                bonus: row.take(2).unwrap(),
-                slots,
-            }
-        })
+                ItemSocket {
+                    expansion_id: row.take(0).unwrap(),
+                    item_id: row.take(1).unwrap(),
+                    bonus: row.take(2).unwrap(),
+                    slots,
+                }
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -672,19 +699,20 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
         let mut last_item_id = 0;
-        db_main.select(
-            "SELECT * FROM data_item_stat WHERE stat_type IN (1,2,3,4,5,6,27,28,29,30,31) OR stat_type = 34 OR (expansion_id > 1 AND stat_type IN (7,8,37,22,23,24,10,11,12,42,38,39,40,41)) OR (expansion_id>2 AND stat_type IN (9,13,21,43)) ORDER BY \
-             expansion_id, item_id",
-            |mut row| ItemStat {
-                id: row.take(0).unwrap(),
-                expansion_id: row.take(1).unwrap(),
-                item_id: row.take(2).unwrap(),
-                stat: Stat {
-                    stat_type: row.take(3).unwrap(),
-                    stat_value: row.take(4).unwrap(),
+        db_main
+            .select(
+                "SELECT * FROM data_item_stat WHERE stat_type IN (1,2,3,4,5,6,27,28,29,30,31) OR stat_type = 34 OR (expansion_id > 1 AND stat_type IN (7,8,37,22,23,24,10,11,12,42,38,39,40,41)) OR (expansion_id>2 AND stat_type IN (9,13,21,43)) \
+                 ORDER BY expansion_id, item_id",
+                |mut row| ItemStat {
+                    id: row.take(0).unwrap(),
+                    expansion_id: row.take(1).unwrap(),
+                    item_id: row.take(2).unwrap(),
+                    stat: Stat {
+                        stat_type: row.take(3).unwrap(),
+                        stat_value: row.take(4).unwrap(),
+                    },
                 },
-            },
-        )
+            )
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -704,11 +732,12 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
 impl Init for Vec<HashMap<u16, ItemsetName>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
-        db_main.select("SELECT * FROM data_itemset_name ORDER BY expansion_id, id", |mut row| ItemsetName {
-            expansion_id: row.take(0).unwrap(),
-            id: row.take(1).unwrap(),
-            localization_id: row.take(2).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_itemset_name ORDER BY expansion_id, id", |mut row| ItemsetName {
+                expansion_id: row.take(0).unwrap(),
+                id: row.take(1).unwrap(),
+                localization_id: row.take(2).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -724,13 +753,14 @@ impl Init for Vec<HashMap<u16, Vec<ItemsetEffect>>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut last_expansion_id = 0;
         let mut last_itemset_id = 0;
-        db_main.select("SELECT * FROM data_itemset_effect ORDER BY expansion_id, itemset_id, id", |mut row| ItemsetEffect {
-            id: row.take(0).unwrap(),
-            expansion_id: row.take(1).unwrap(),
-            itemset_id: row.take(2).unwrap(),
-            threshold: row.take(3).unwrap(),
-            spell_id: row.take(4).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_itemset_effect ORDER BY expansion_id, itemset_id, id", |mut row| ItemsetEffect {
+                id: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                itemset_id: row.take(2).unwrap(),
+                threshold: row.take(3).unwrap(),
+                spell_id: row.take(4).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
@@ -749,10 +779,11 @@ impl Init for Vec<HashMap<u16, Vec<ItemsetEffect>>> {
 
 impl Init for HashMap<u16, Title> {
     fn init(&mut self, db_main: &mut impl Select) {
-        db_main.select("SELECT * FROM data_title", |mut row| Title {
-            id: row.take(0).unwrap(),
-            localization_id: row.take(1).unwrap(),
-        })
+        db_main
+            .select("SELECT * FROM data_title", |mut row| Title {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+            })
             .iter()
             .for_each(|result| {
                 self.insert(result.id, result.to_owned());
@@ -763,13 +794,14 @@ impl Init for HashMap<u16, Title> {
 impl Init for HashMap<u8, Vec<ItemRandomPropertyPoints>> {
     fn init(&mut self, db_main: &mut impl Select) {
         let mut current_vec = Vec::new();
-        db_main.select("SELECT * FROM data_item_random_property_points ORDER BY expansion_id, item_level", |mut row| ItemRandomPropertyPoints {
-            item_level: row.take(0).unwrap(),
-            expansion_id: row.take(1).unwrap(),
-            epic: [row.take(2).unwrap(), row.take(3).unwrap(), row.take(4).unwrap(), row.take(5).unwrap(), row.take(6).unwrap()],
-            rare: [row.take(7).unwrap(), row.take(8).unwrap(), row.take(9).unwrap(), row.take(10).unwrap(), row.take(11).unwrap()],
-            good: [row.take(12).unwrap(), row.take(13).unwrap(), row.take(14).unwrap(), row.take(15).unwrap(), row.take(16).unwrap()],
-        })
+        db_main
+            .select("SELECT * FROM data_item_random_property_points ORDER BY expansion_id, item_level", |mut row| ItemRandomPropertyPoints {
+                item_level: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                epic: [row.take(2).unwrap(), row.take(3).unwrap(), row.take(4).unwrap(), row.take(5).unwrap(), row.take(6).unwrap()],
+                rare: [row.take(7).unwrap(), row.take(8).unwrap(), row.take(9).unwrap(), row.take(10).unwrap(), row.take(11).unwrap()],
+                good: [row.take(12).unwrap(), row.take(13).unwrap(), row.take(14).unwrap(), row.take(15).unwrap(), row.take(16).unwrap()],
+            })
             .iter()
             .for_each(|result| {
                 if result.item_level == 300 {

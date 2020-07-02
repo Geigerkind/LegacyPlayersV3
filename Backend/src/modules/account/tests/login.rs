@@ -1,5 +1,5 @@
-use crate::modules::account::{material::Account, tools::Login, tools::Create};
 use crate::modules::account::tests::helper::get_create_member;
+use crate::modules::account::{material::Account, tools::Create, tools::Login};
 use crate::tests::TestContainer;
 
 // User exists login is tested when creating an account
@@ -20,7 +20,7 @@ fn login_wrong_password() {
 
     let account = Account::default();
     let _ = get_create_member("abc", "abc@abc.de", "password123password123password123");
-    let login = account.login(&mut conn,"abc@abc.de", "wrong!");
+    let login = account.login(&mut conn, "abc@abc.de", "wrong!");
     assert!(login.is_err());
 }
 

@@ -2,7 +2,7 @@ use crate::modules::armory::domain_value::ArenaTeam;
 use crate::modules::armory::dto::{ArenaTeamDto, ArmoryFailure};
 use crate::modules::armory::tools::{CreateArenaTeam, GetArenaTeam, UpdateArenaTeam};
 use crate::modules::armory::Armory;
-use crate::util::database::{Select, Execute};
+use crate::util::database::{Execute, Select};
 
 pub trait SetArenaTeam {
     fn set_arena_team(&self, db_main: &mut (impl Execute + Select), server_id: u32, arena_team_dto: ArenaTeamDto) -> Result<ArenaTeam, ArmoryFailure>;

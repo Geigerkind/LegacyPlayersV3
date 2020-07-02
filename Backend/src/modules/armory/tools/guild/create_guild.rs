@@ -1,5 +1,5 @@
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 use crate::modules::armory::{
     dto::{ArmoryFailure, GuildDto},
@@ -34,7 +34,8 @@ impl CreateGuild for Armory {
               "guild_name" => guild.name.clone()
             ),
         ) {
-            let guild_id = db_main.select_wparams_value(
+            let guild_id = db_main
+                .select_wparams_value(
                     "SELECT id FROM armory_guild WHERE server_id=:server_id AND server_uid=:server_uid",
                     |mut row| {
                         let id: u32 = row.take(0).unwrap();

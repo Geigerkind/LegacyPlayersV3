@@ -1,14 +1,11 @@
-use crate::modules::data::{tools::RetrieveItemBonding, Data};
 use crate::modules::data::domain_value::ItemBonding;
+use crate::modules::data::{tools::RetrieveItemBonding, Data};
 
 #[test]
 fn get_item_bonding() {
     let mut data = Data::default();
     let item_bonding_id = 1;
-    let item_bonding = ItemBonding {
-        id: item_bonding_id,
-        localization_id: 2425
-    };
+    let item_bonding = ItemBonding { id: item_bonding_id, localization_id: 2425 };
     data.item_bondings.insert(item_bonding_id, item_bonding.clone());
 
     let item_bonding_res = data.get_item_bonding(item_bonding_id);

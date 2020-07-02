@@ -2,11 +2,11 @@ use crate::modules::account::dto::{CreateMember, Credentials};
 use crate::modules::account::Account;
 use crate::tests::TestContainer;
 use crate::util::database::*;
+use crate::MainDb;
+use rocket::config::{Config, Environment, Value};
 use rocket::http::{ContentType, Status};
 use rocket::local::Client;
 use std::collections::HashMap;
-use rocket::config::{Config, Environment, Value};
-use crate::MainDb;
 
 fn has_existing_entry(db_main: &mut crate::mysql::Conn, email: &str) -> bool {
     db_main.exists(&format!("SELECT * FROM account_member WHERE mail='{}'", email))
@@ -19,15 +19,10 @@ fn create_http_client(db_main: &mut crate::mysql::Conn, dns: &str) -> Client {
     database_config.insert("url", Value::from(dns));
     databases.insert("main_test", Value::from(database_config));
 
-    let config = Config::build(Environment::Development)
-        .extra("databases", databases)
-        .finalize()
-        .unwrap();
+    let config = Config::build(Environment::Development).extra("databases", databases).finalize().unwrap();
 
     let account = Account::default().init(db_main);
-    let rocket = rocket::custom(config).manage(account)
-        .mount("/", routes![crate::modules::account::transfer::create::create])
-        .attach(MainDb::fairing());
+    let rocket = rocket::custom(config).manage(account).mount("/", routes![crate::modules::account::transfer::create::create]).attach(MainDb::fairing());
     Client::new(rocket).expect("valid rocket instance")
 }
 

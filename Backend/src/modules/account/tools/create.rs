@@ -1,11 +1,11 @@
-use language::{domain_value::Language, tools::Get};
+use crate::params;
 use crate::util::database::*;
+use language::{domain_value::Language, tools::Get};
 use str_util::{random, sha3, strformat};
 use validator::{
     domain_value::PasswordFailure,
     tools::{valid_mail, valid_nickname, valid_password},
 };
-use crate::params;
 
 use crate::modules::account::{
     dto::Failure,
@@ -62,7 +62,8 @@ impl Create for Account {
                 "salt" => salt.clone()
                 ),
             ) {
-                member_id = db_main.select_wparams_value(
+                member_id = db_main
+                    .select_wparams_value(
                         "SELECT id FROM account_member WHERE mail = :mail",
                         |mut row| row.take(0).unwrap(),
                         params!(

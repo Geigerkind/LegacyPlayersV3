@@ -1,11 +1,11 @@
-use language::{domain_value::Language, tools::Get};
+use crate::params;
 use crate::util::database::*;
+use language::{domain_value::Language, tools::Get};
 use str_util::{sha3, strformat};
 use validator::{
     domain_value::PasswordFailure,
     tools::{valid_mail, valid_nickname, valid_password},
 };
-use crate::params;
 
 use crate::modules::account::{
     domain_value::AccountInformation,

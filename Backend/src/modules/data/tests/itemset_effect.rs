@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemsetEffect, Data};
 use crate::modules::data::domain_value::ItemsetEffect;
+use crate::modules::data::{tools::RetrieveItemsetEffect, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -12,7 +12,7 @@ fn get_itemset_effects() {
         expansion_id,
         itemset_id,
         threshold: 23,
-        spell_id: 145
+        spell_id: 145,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(itemset_id, vec![itemset_effect.clone()]);

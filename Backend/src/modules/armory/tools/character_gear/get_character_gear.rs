@@ -19,8 +19,7 @@ impl GetCharacterGear for Armory {
           "id" => gear_id
         );
         // Note: This implementation should not be very fast
-        let mut result = db_main.select_wparams_value(
-                "SELECT * FROM armory_gear WHERE id=:id", |row| row, params);
+        let mut result = db_main.select_wparams_value("SELECT * FROM armory_gear WHERE id=:id", |row| row, params);
         if let Some(row) = result.as_mut() {
             return Ok(CharacterGear {
                 id: row.take(0).unwrap(),
@@ -148,7 +147,8 @@ impl GetCharacterGear for Armory {
           "trinket2" => trinket2.as_ref().map(|item| item.id)
         );
         // Note: This implementation should not be very fast
-        db_main.select_wparams_value(
+        db_main
+            .select_wparams_value(
                 "SELECT id FROM armory_gear WHERE ((ISNULL(:head) AND ISNULL(head)) OR head = :head) AND ((ISNULL(:neck) AND ISNULL(neck)) OR neck = :neck) AND ((ISNULL(:shoulder) AND ISNULL(shoulder)) OR shoulder = :shoulder) AND ((ISNULL(:back) \
                  AND ISNULL(back)) OR back = :back) AND ((ISNULL(:chest) AND ISNULL(chest)) OR chest = :chest) AND ((ISNULL(:shirt) AND ISNULL(shirt)) OR shirt = :shirt) AND ((ISNULL(:tabard) AND ISNULL(tabard)) OR tabard = :tabard) AND \
                  ((ISNULL(:wrist) AND ISNULL(wrist)) OR wrist = :wrist) AND ((ISNULL(:main_hand) AND ISNULL(main_hand)) OR main_hand = :main_hand) AND ((ISNULL(:off_hand) AND ISNULL(off_hand)) OR off_hand = :off_hand) AND ((ISNULL(:ternary_hand) \

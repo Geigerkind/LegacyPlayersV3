@@ -4,7 +4,6 @@ use test::Bencher;
 
 use crate::util::database::*;
 
-use std::time::Instant;
 use crate::modules::armory::dto::ArenaTeamDto;
 use crate::modules::armory::{
     domain_value::GuildRank,
@@ -12,9 +11,10 @@ use crate::modules::armory::{
     tools::SetCharacter,
     Armory,
 };
+use crate::params;
 use crate::tests::TestContainer;
 use std::ops::Div;
-use crate::params;
+use std::time::Instant;
 
 /*
  * Goal of this benchmark is to see how many

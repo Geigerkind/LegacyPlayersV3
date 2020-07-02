@@ -1,7 +1,6 @@
-use crate::mysql::{Value, Row};
+use crate::mysql::{Row, Value};
 #[cfg(test)]
-use mockall::{automock};
-
+use mockall::automock;
 
 #[macro_export]
 macro_rules! params {
@@ -56,21 +55,11 @@ impl Exists for crate::mysql::Conn {
 
 impl Select for crate::mysql::Conn {
     fn select<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F) -> Vec<T> {
-        self.prep_exec(query_str, ())
-            .map(|result| {
-                result.map(|x| x.unwrap())
-                    .map(|row| process_row(crate::mysql::from_row(row)))
-                    .collect()
-            }).unwrap()
+        self.prep_exec(query_str, ()).map(|result| result.map(|x| x.unwrap()).map(|row| process_row(crate::mysql::from_row(row))).collect()).unwrap()
     }
 
     fn select_wparams<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F, params: Vec<(String, Value)>) -> Vec<T> {
-        self.prep_exec(query_str, params)
-            .map(|result| {
-                result.map(|x| x.unwrap())
-                    .map(|row| process_row(crate::mysql::from_row(row)))
-                    .collect()
-            }).unwrap()
+        self.prep_exec(query_str, params).map(|result| result.map(|x| x.unwrap()).map(|row| process_row(crate::mysql::from_row(row))).collect()).unwrap()
     }
 
     fn select_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F) -> Option<T> {

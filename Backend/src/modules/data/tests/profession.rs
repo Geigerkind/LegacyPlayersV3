@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveProfession, Data};
 use crate::modules::data::domain_value::Profession;
+use crate::modules::data::{tools::RetrieveProfession, Data};
 
 #[test]
 fn get_profession() {
@@ -8,7 +8,7 @@ fn get_profession() {
     let profession = Profession {
         id: profession_id,
         localization_id: 24423,
-        icon: 12
+        icon: 12,
     };
     data.professions.insert(profession_id, profession.clone());
 

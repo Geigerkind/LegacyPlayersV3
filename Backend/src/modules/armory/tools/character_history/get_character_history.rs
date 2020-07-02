@@ -1,5 +1,5 @@
-use crate::util::database::*;
 use crate::params;
+use crate::util::database::*;
 
 use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 use crate::modules::armory::tools::GetArenaTeam;
@@ -18,9 +18,7 @@ pub trait GetCharacterHistory {
 
 impl GetCharacterHistory for Armory {
     fn get_character_history(&self, db_main: &mut impl Select, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure> {
-        let mut result = db_main.select_wparams_value(
-            "SELECT * FROM armory_character_history WHERE id=:id",
-            &|row| row, params!("id" => character_history_id));
+        let mut result = db_main.select_wparams_value("SELECT * FROM armory_character_history WHERE id=:id", &|row| row, params!("id" => character_history_id));
 
         if let Some(row) = result.as_mut() {
             let character_info = self.get_character_info(db_main, row.take(2).unwrap())?;
@@ -29,10 +27,10 @@ impl GetCharacterHistory for Armory {
                 row.take_opt(11).unwrap().ok().and_then(|team_id| self.get_arena_team_by_id(db_main, team_id)),
                 row.take_opt(12).unwrap().ok().and_then(|team_id| self.get_arena_team_by_id(db_main, team_id)),
             ]
-                .iter()
-                .filter(|team| team.is_some())
-                .map(|team| team.as_ref().unwrap().clone())
-                .collect();
+            .iter()
+            .filter(|team| team.is_some())
+            .map(|team| team.as_ref().unwrap().clone())
+            .collect();
             return Ok(CharacterHistory {
                 id: character_history_id,
                 character_id: row.take(1).unwrap(),
@@ -100,16 +98,18 @@ impl GetCharacterHistory for Armory {
         );
 
         let mut result = db_main.select_wparams_value(
-                "SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name AND ((ISNULL(:guild_id) AND ISNULL(guild_id)) OR guild_id = :guild_id) \
-                 AND ((ISNULL(:guild_rank) AND ISNULL(guild_rank)) OR guild_rank = :guild_rank) AND ((ISNULL(:title) AND ISNULL(title)) OR title = :title) AND ((ISNULL(:prof_skill_points1) AND ISNULL(prof_skill_points1)) OR prof_skill_points1 = \
-                 :prof_skill_points1) AND ((ISNULL(:prof_skill_points2) AND ISNULL(prof_skill_points2)) OR prof_skill_points2 = :prof_skill_points2) AND ((ISNULL(:facial) AND ISNULL(facial)) OR facial = :facial) AND ((ISNULL(:arena2) AND \
-                 ISNULL(arena2)) OR arena2 = :arena2) AND ((ISNULL(:arena3) AND ISNULL(arena3)) OR arena3 = :arena3) AND ((ISNULL(:arena5) AND ISNULL(arena5)) OR arena5 = :arena5) AND timestamp >= UNIX_TIMESTAMP()-60",
-                &|row| row, params);
+            "SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name AND ((ISNULL(:guild_id) AND ISNULL(guild_id)) OR guild_id = :guild_id) AND \
+             ((ISNULL(:guild_rank) AND ISNULL(guild_rank)) OR guild_rank = :guild_rank) AND ((ISNULL(:title) AND ISNULL(title)) OR title = :title) AND ((ISNULL(:prof_skill_points1) AND ISNULL(prof_skill_points1)) OR prof_skill_points1 = \
+             :prof_skill_points1) AND ((ISNULL(:prof_skill_points2) AND ISNULL(prof_skill_points2)) OR prof_skill_points2 = :prof_skill_points2) AND ((ISNULL(:facial) AND ISNULL(facial)) OR facial = :facial) AND ((ISNULL(:arena2) AND \
+             ISNULL(arena2)) OR arena2 = :arena2) AND ((ISNULL(:arena3) AND ISNULL(arena3)) OR arena3 = :arena3) AND ((ISNULL(:arena5) AND ISNULL(arena5)) OR arena5 = :arena5) AND timestamp >= UNIX_TIMESTAMP()-60",
+            &|row| row,
+            params,
+        );
         if let Some(row) = result.as_mut() {
             return Ok(CharacterHistory {
                 id: row.take(0).unwrap(),
                 character_id,
-                character_info: character_info.to_owned(),
+                character_info,
                 character_name: character_history_dto.character_name.to_owned(),
                 character_guild: guild_id.map(|id| CharacterGuild {
                     guild_id: id,
@@ -118,8 +118,8 @@ impl GetCharacterHistory for Armory {
                 character_title: character_history_dto.character_title,
                 profession_skill_points1: character_history_dto.profession_skill_points1,
                 profession_skill_points2: character_history_dto.profession_skill_points2,
-                facial: facial.to_owned(),
-                arena_teams: arena_teams.to_owned(),
+                facial,
+                arena_teams,
                 timestamp: row.take(1).unwrap(),
             });
         }

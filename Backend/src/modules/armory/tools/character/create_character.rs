@@ -1,6 +1,6 @@
-use crate::util::database::*;
 use crate::modules::armory::{dto::ArmoryFailure, material::Character, tools::GetCharacter, Armory};
 use crate::params;
+use crate::util::database::*;
 
 pub trait CreateCharacter {
     fn create_character(&self, db_main: &mut (impl Select + Execute), server_id: u32, server_uid: u64) -> Result<u32, ArmoryFailure>;

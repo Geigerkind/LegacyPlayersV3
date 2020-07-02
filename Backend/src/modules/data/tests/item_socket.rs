@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemSocket, Data};
 use crate::modules::data::domain_value::ItemSocket;
+use crate::modules::data::{tools::RetrieveItemSocket, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -11,7 +11,7 @@ fn get_item_socket() {
         expansion_id,
         item_id,
         bonus: 1,
-        slots: vec![]
+        slots: vec![],
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_id, item_socket.clone());

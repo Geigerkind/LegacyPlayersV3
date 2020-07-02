@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveItemStat, Data, Stat};
 use crate::modules::data::domain_value::ItemStat;
+use crate::modules::data::{tools::RetrieveItemStat, Data, Stat};
 use std::collections::HashMap;
 
 #[test]
@@ -11,7 +11,7 @@ fn get_item_stats() {
         id: 32142,
         expansion_id,
         item_id,
-        stat: Stat { stat_type: 11, stat_value: 12 }
+        stat: Stat { stat_type: 11, stat_value: 12 },
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_id, vec![item_stat.clone()]);

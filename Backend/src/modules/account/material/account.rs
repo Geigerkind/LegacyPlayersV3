@@ -1,8 +1,8 @@
 use std::{collections::HashMap, sync::RwLock};
 
+use crate::util::database::*;
 use language::material::Dictionary;
 use str_util::sha3;
-use crate::util::database::*;
 
 use crate::modules::account::{
     language::init::Init,

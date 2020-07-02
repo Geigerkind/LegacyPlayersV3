@@ -2,9 +2,9 @@ use crate::modules::account::guard::ServerOwner;
 use crate::modules::armory::dto::{ArmoryFailure, InstanceResetDto};
 use crate::modules::armory::tools::HandleInstanceReset;
 use crate::modules::armory::Armory;
+use crate::MainDb;
 use rocket::State;
 use rocket_contrib::json::Json;
-use crate::MainDb;
 
 #[openapi]
 #[post("/instance_reset", format = "application/json", data = "<instance_resets>")]

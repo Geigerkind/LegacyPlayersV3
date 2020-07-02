@@ -1,5 +1,5 @@
-use crate::modules::data::{tools::RetrieveNPC, Data};
 use crate::modules::data::domain_value::NPC;
+use crate::modules::data::{tools::RetrieveNPC, Data};
 use std::collections::HashMap;
 
 #[test]
@@ -13,7 +13,7 @@ fn get_npc() {
         localization_id: 2323,
         is_boss: false,
         friend: 1,
-        family: 2
+        family: 2,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(npc_id, npc.clone());
