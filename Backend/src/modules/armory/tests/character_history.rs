@@ -1,11 +1,13 @@
 use super::helper::get_character_history;
-use crate::modules::armory::dto::CharacterDto;
+use crate::modules::armory::dto::{CharacterDto, ArmoryFailure};
 use crate::modules::armory::{
     tools::{DeleteCharacterHistory, GetCharacterHistory, SetCharacter, SetCharacterHistory},
     Armory,
 };
 use crate::tests::TestContainer;
 use std::{thread, time};
+use crate::util::database::{Select, Execute};
+use rocket_contrib::databases::mysql::{Value, Row};
 
 #[test]
 fn set_character_history() {
@@ -32,8 +34,6 @@ fn set_character_history() {
     assert!(character_history_res.is_ok());
 
     let character_history = character_history_res.unwrap();
-    println!("{:?}", set_character_history.arena_teams);
-    println!("{:?}", character_history.arena_teams);
     assert!(character_history.deep_eq(&set_character_history));
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
@@ -55,4 +55,95 @@ fn set_character_history() {
 
     let character_history_res3 = armory.get_character_history(&mut conn, character_history.id);
     assert!(character_history_res3.is_err());
+}
+
+#[test]
+fn test_set_character_history_character_history_dto_inplausible() {
+    let container = TestContainer::new(true);
+    let (mut conn, _dns, _node) = container.run();
+
+    // Arrange
+    let armory = Armory::default();
+    let character_dto = CharacterDto { server_uid: 123124, character_history: None };
+    let mut character_history_dto = get_character_history();
+    character_history_dto.character_name = String::from("");
+
+    // Act
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    assert!(set_character_res.is_ok());
+    let set_character = set_character_res.unwrap();
+
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+
+    // Assert
+    assert!(set_character_history_res.is_err());
+    assert_eq!(set_character_history_res.err().unwrap(), ArmoryFailure::ImplausibleInput)
+}
+
+#[test]
+fn test_set_character_history_update_not_successful() {
+    let container = TestContainer::new(true);
+    let (mut conn, _dns, _node) = container.run();
+
+    struct DbMock;
+    impl Execute for DbMock {
+        fn execute_one(&mut self, _query_str: &str) -> bool { unimplemented!() }
+        fn execute_wparams(&mut self, _query_str: &str, _params: Vec<(String, Value)>) -> bool { false }
+    }
+    impl Select for DbMock {
+        fn select<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Vec<T> { unimplemented!() }
+        fn select_wparams<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F, _params: Vec<(String, Value)>) -> Vec<T> { unimplemented!() }
+        fn select_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Option<T> { unimplemented!() }
+        fn select_wparams_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F, _params: Vec<(String, Value)>) -> Option<T> { unimplemented!() }
+    }
+
+    // Arrange
+    let armory = Armory::default();
+    let mut db_mock = DbMock {};
+    let character_dto = CharacterDto { server_uid: 123124, character_history: None };
+    let mut character_history_dto = get_character_history();
+    character_history_dto.character_guild = None;
+
+    // Act + Assert
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    assert!(set_character_res.is_ok());
+    let set_character = set_character_res.unwrap();
+
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    assert!(set_character_history_res.is_ok());
+    thread::sleep(time::Duration::from_millis(2000));
+
+    let set_character_history_res = armory.set_character_history(&mut db_mock, 3, character_history_dto.clone(), set_character.server_uid);
+
+    assert!(set_character_history_res.is_err());
+    assert!(match set_character_history_res.err().unwrap() {
+        ArmoryFailure::Database(location) => location.contains("set_character_history"),
+        _ => false
+    });
+}
+
+#[test]
+fn test_set_character_history_different_value() {
+    let container = TestContainer::new(true);
+    let (mut conn, _dns, _node) = container.run();
+
+    // Arrange
+    let armory = Armory::default();
+    let character_dto = CharacterDto { server_uid: 123124, character_history: None };
+    let mut character_history_dto = get_character_history();
+
+    // Act + Assert
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    assert!(set_character_res.is_ok());
+    let set_character = set_character_res.unwrap();
+
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    assert!(set_character_history_res.is_ok());
+    character_history_dto.character_guild = None;
+
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    assert!(set_character_history_res.is_ok());
+
+    let set_character_history = set_character_history_res.unwrap();
+    assert!(set_character_history.character_guild.is_none());
 }

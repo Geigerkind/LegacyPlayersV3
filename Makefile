@@ -55,7 +55,7 @@ coverage_test: install_rust_nightly
 coverage_build:
 	$(CARGO) install grcov || true
 	~/.cargo/bin/grcov ./target/debug/ -s . -t lcov --llvm --branch --ignore-not-existing --filter "covered" \
-	  --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" --ignore "*/main.rs" \
+	  --ignore "/*" --ignore "*/tests/*" --ignore "*/dto/*" --ignore "*/domain_value/*" --ignore "*/main.rs" --ignore "*/benches/*" \
 	  --excl-br-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]|pub\\s\\w+:[\\w<,\\s>]+," \
 	  --excl-line "#\\[\\w+(\\([\\w\",/\\s=<>]+\\))?\\]" -o lcov.info
 

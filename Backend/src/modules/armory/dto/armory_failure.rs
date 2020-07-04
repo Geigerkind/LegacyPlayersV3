@@ -4,7 +4,7 @@ use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder, util::add_
 use schemars::JsonSchema;
 use std::io::Cursor;
 
-#[derive(Debug, JsonSchema)]
+#[derive(Debug, JsonSchema, PartialEq)]
 pub enum ArmoryFailure {
     InvalidInput,
     Database(String),
