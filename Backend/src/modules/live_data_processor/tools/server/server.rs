@@ -87,17 +87,17 @@ impl Server {
             // Events that are just of size 1
             MessageType::CombatState(CombatState { unit: unit_dto, in_combat }) => Ok(Event::new(
                 first_message.timestamp,
-                unit_dto.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                unit_dto.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::CombatState { in_combat: *in_combat },
             )),
             MessageType::Loot(Loot { unit: unit_dto, item_id }) => Ok(Event::new(
                 first_message.timestamp,
-                unit_dto.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                unit_dto.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Loot { item_id: *item_id },
             )),
             MessageType::Position(position) => Ok(Event::new(
                 first_message.timestamp,
-                position.unit.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                position.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Position((
                     UnitInstance {
                         map_id: position.map_id,
@@ -114,7 +114,7 @@ impl Server {
             )),
             MessageType::Power(power) => Ok(Event::new(
                 first_message.timestamp,
-                power.unit.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                power.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Power(Power {
                     power_type: PowerType::from_u8(power.power_type).ok_or_else(|| EventParseFailureAction::DiscardFirst)?,
                     max_power: power.max_power,
@@ -123,17 +123,17 @@ impl Server {
             )),
             MessageType::AuraApplication(aura_application) => Ok(Event::new(
                 first_message.timestamp,
-                aura_application.target.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                aura_application.target.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::AuraApplication(AuraApplication {
                     // TODO: This can also be an object, do we support this?
-                    caster: aura_application.caster.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                    caster: aura_application.caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                     stack_amount: aura_application.stack_amount,
                     spell_id: aura_application.spell_id,
                 }),
             )),
             MessageType::Death(Death { cause, victim }) => Ok(Event::new(
                 first_message.timestamp,
-                victim.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?,
+                victim.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Death {
                     murder: cause.as_ref().and_then(|cause| cause.to_unit(&armory, self.server_id, &self.summons).ok()),
                 },
@@ -159,7 +159,7 @@ impl Server {
             | MessageType::Heal(HealDone { caster: unit, .. })
             | MessageType::MeleeDamage(DamageDone { attacker: unit, .. })
             | MessageType::SpellDamage(DamageDone { attacker: unit, .. }) => {
-                let subject = unit.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardAll))?;
+                let subject = unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardAll)?;
                 Ok(Event::new(
                     first_message.timestamp,
                     subject.clone(),
@@ -169,7 +169,7 @@ impl Server {
 
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
-                let subject = interrupt.target.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?;
+                let subject = interrupt.target.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 match try_parse_interrupt(&interrupt, &self.committed_events, first_message.timestamp, &subject) {
                     Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
                     Err(err) => Err(err),
@@ -177,7 +177,7 @@ impl Server {
             },
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
-                let subject = dispel.aura_caster.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?;
+                let subject = dispel.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 match try_parse_dispel(&dispel, &self.committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
                     Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
                     Err(err) => Err(err),
@@ -185,7 +185,7 @@ impl Server {
             },
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
-                let subject = spell_steal.aura_caster.to_unit(armory, self.server_id, &self.summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?;
+                let subject = spell_steal.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 match try_parse_spell_steal(&spell_steal, &self.committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
                     Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
                     Err(err) => Err(err),
@@ -193,16 +193,16 @@ impl Server {
             },
 
             // Not handled yet
-            MessageType::InstancePvPStart(_) | MessageType::InstancePvPEndUnratedArena(_) | MessageType::InstancePvPEndBattleground(_) | MessageType::InstancePvPEndRatedArena(_) | _ => Err(EventParseFailureAction::DiscardFirst),
+            /*
+            MessageType::InstancePvPStart(_) | MessageType::InstancePvPEndUnratedArena(_) | MessageType::InstancePvPEndBattleground(_) | MessageType::InstancePvPEndRatedArena(_) |
+             */
+            _ => Err(EventParseFailureAction::DiscardFirst),
         }
     }
 
     fn extract_meta_information(&mut self, message: &Message) {
-        match &message.message_type {
-            MessageType::Summon(Summon { owner, unit }) => {
-                self.summons.insert(owner.unit_id, unit.unit_id);
-            },
-            _ => (),
-        };
+        if let MessageType::Summon(Summon { owner, unit }) = &message.message_type {
+            self.summons.insert(owner.unit_id, unit.unit_id);
+        }
     }
 }

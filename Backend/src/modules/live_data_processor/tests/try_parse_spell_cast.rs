@@ -92,12 +92,12 @@ fn test_correct_shortcut_condition() {
             is_ok: false,
         },
         TestCase {
-            non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message.clone(), heal_message.clone(), threat_message.clone()],
+            non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message, heal_message, threat_message],
             is_ok: true,
         },
     ];
 
-    let mut last_message = spell_cast_message.clone();
+    let mut last_message = spell_cast_message;
     last_message.timestamp = 42;
 
     // execute test cases

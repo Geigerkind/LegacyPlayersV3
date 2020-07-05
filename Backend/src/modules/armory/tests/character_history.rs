@@ -69,11 +69,11 @@ fn test_set_character_history_character_history_dto_inplausible() {
     character_history_dto.character_name = String::from("");
 
     // Act
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid);
 
     // Assert
     assert!(set_character_history_res.is_err());
@@ -121,7 +121,7 @@ fn test_set_character_history_update_not_successful() {
     character_history_dto.character_guild = None;
 
     // Act + Assert
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
@@ -129,7 +129,7 @@ fn test_set_character_history_update_not_successful() {
     assert!(set_character_history_res.is_ok());
     thread::sleep(time::Duration::from_millis(2000));
 
-    let set_character_history_res = armory.set_character_history(&mut db_mock, 3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut db_mock, 3, character_history_dto, set_character.server_uid);
 
     assert!(set_character_history_res.is_err());
     assert!(match set_character_history_res.err().unwrap() {
@@ -149,7 +149,7 @@ fn test_set_character_history_different_value() {
     let mut character_history_dto = get_character_history();
 
     // Act + Assert
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
@@ -157,7 +157,7 @@ fn test_set_character_history_different_value() {
     assert!(set_character_history_res.is_ok());
     character_history_dto.character_guild = None;
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid);
     assert!(set_character_history_res.is_ok());
 
     let set_character_history = set_character_history_res.unwrap();

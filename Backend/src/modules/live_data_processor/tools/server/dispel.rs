@@ -5,8 +5,8 @@ use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::HashMap;
 
 pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
-    let aura_caster = dispel.aura_caster.to_unit(armory, server_id, summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?;
-    let target = dispel.target.to_unit(armory, server_id, summons).or_else(|_| Err(EventParseFailureAction::DiscardFirst))?;
+    let aura_caster = dispel.aura_caster.to_unit(armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let target = dispel.target.to_unit(armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut spell_cast_event_id = None;
     let mut aura_application_event_ids = Vec::new();
