@@ -1,6 +1,5 @@
 use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message};
-use crate::modules::live_data_processor::tools::server::ParseEvents;
 use crate::modules::live_data_processor::tools::MessageParser;
 use crate::modules::live_data_processor::LiveDataProcessor;
 
@@ -14,7 +13,7 @@ impl ProcessMessages for LiveDataProcessor {
 
         if !msg_vec.is_empty() {
             let mut server = self.servers.get(&server_id).expect("Server Id must exist!").write().unwrap();
-            return server.parse_events(armory, server_id, msg_vec);
+            return server.parse_events(armory, msg_vec);
         }
 
         Ok(())

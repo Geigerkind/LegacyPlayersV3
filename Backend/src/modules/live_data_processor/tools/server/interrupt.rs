@@ -1,70 +1,35 @@
-use crate::modules::live_data_processor::domain_value::{Event, EventType, Unit};
-use crate::modules::live_data_processor::dto::{Interrupt, Message, MessageType};
+use crate::modules::live_data_processor::domain_value::{Event, EventType, Unit, EventParseFailureAction};
+use crate::modules::live_data_processor::dto::Interrupt;
 use std::collections::BTreeSet;
 
 /// There are indirect interrupts, e.g. stuns. These are parsed via AuraApplication
 /// There are direct interrupts. These are parsed via SpellCast
+///
+/// There are indirect interrupts due to moving, but for this we need to reorder events. We don't consider this an interrupt for now, maybe later
 /// Generally these are also out of order
-// TODO: If events dont go far enough in the future, we will postpone!
-pub fn try_parse_interrupt(non_committed_messages: &mut Vec<Message>, committed_events: &[Event], timestamp: u64, interrupt: &Interrupt, subject: &Unit) -> Option<(u32, u32)> {
-    // Case 1: There was a matching event in the past
+pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &[Event], timestamp: u64, subject: &Unit) -> Result<(u32, u32), EventParseFailureAction> {
     for i in (0..committed_events.len()).rev() {
         let event: &Event = committed_events.get(i).unwrap();
         if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
-            break;
+            return Err(EventParseFailureAction::DiscardFirst);
         }
         match &event.event {
             EventType::SpellCast(spell_cast) => {
                 if let Some(spell_id) = &spell_cast.spell_id {
-                    if let Some(victim) = &spell_cast.victim {
-                        if victim == subject && spell_is_direct_interrupt(*spell_id) {
-                            return Some((event.id, interrupt.interrupted_spell_id));
-                        }
+                    if spell_cast.victim.contains(subject) && spell_is_direct_interrupt(*spell_id) {
+                        return Ok((event.id, interrupt.interrupted_spell_id));
                     }
                 }
-            },
+            }
             EventType::AuraApplication(aura_application) => {
-                if &event.subject == subject && spell_is_indirect_interrupt(aura_application.spell_id) {
-                    return Some((event.id, interrupt.interrupted_spell_id));
+                if event.subject == *subject && spell_is_indirect_interrupt(aura_application.spell_id) {
+                    return Ok((event.id, interrupt.interrupted_spell_id));
                 }
-            },
+            }
             _ => continue,
         };
     }
-
-    // Case 2: The matching event is in the future and we need to reorder
-    let mut interrupting_event_index = None;
-    for (msg_index, msg) in non_committed_messages.iter().enumerate() {
-        if (msg.timestamp as i64 - timestamp as i64).abs() > 10 {
-            break;
-        }
-        match &msg.message_type {
-            MessageType::SpellCast(spell_cast) => {
-                if let Some(target) = &spell_cast.target {
-                    if target == &interrupt.target && spell_is_direct_interrupt(spell_cast.spell_id) {
-                        interrupting_event_index = Some(msg_index);
-                        break;
-                    }
-                }
-            },
-            MessageType::AuraApplication(aura_application) => {
-                if aura_application.target == interrupt.target && spell_is_indirect_interrupt(aura_application.spell_id) {
-                    interrupting_event_index = Some(msg_index);
-                    break;
-                }
-            },
-            _ => continue,
-        };
-    }
-
-    if let Some(index) = interrupting_event_index {
-        let removed_msg = non_committed_messages.remove(index);
-        non_committed_messages.insert(0, removed_msg);
-    } else {
-        // Then no interrupt happened
-        non_committed_messages.pop().unwrap();
-    }
-    None
+    Err(EventParseFailureAction::Wait)
 }
 
 // "Kick", "Pummel", "Shield Bash", "Counterspell", "Earth Shock",  "Silence"

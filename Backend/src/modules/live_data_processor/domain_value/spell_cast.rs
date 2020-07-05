@@ -5,7 +5,7 @@ pub struct SpellCast {
     pub victim: Option<Unit>,
     pub hit_type: HitType,
     pub spell_id: Option<u32>,
-    pub damage: Option<Damage>,
-    pub heal: Option<Heal>,
-    pub threat: Option<Threat>,
+    pub damage: Vec<Damage>,
+    pub heal: Vec<Heal>,
+    pub threat: Vec<Threat>,
 }

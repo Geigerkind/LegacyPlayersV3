@@ -2,6 +2,7 @@ use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, MessageType, SpellCast, Threat, Unit};
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use std::collections::HashMap;
+use crate::modules::live_data_processor::tools::MapUnit;
 
 #[test]
 fn test_correct_shortcut_condition() {
@@ -73,65 +74,47 @@ fn test_correct_shortcut_condition() {
     #[derive(Debug)]
     struct TestCase {
         non_committed_messages: Vec<Message>,
-        is_some: bool,
+        is_ok: bool,
     };
 
     // define test cases
-    let mut test_cases = vec![
+    let test_cases = vec![
         TestCase {
             non_committed_messages: vec![spell_cast_message.clone()],
-            is_some: false,
+            is_ok: false,
         },
         TestCase {
             non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message.clone()],
-            is_some: false,
-        },
-        TestCase {
-            non_committed_messages: vec![spell_cast_message.clone()],
-            is_some: false,
-        },
-        TestCase {
-            non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message.clone()],
-            is_some: false,
-        },
-        TestCase {
-            non_committed_messages: vec![spell_cast_message.clone(), heal_message.clone()],
-            is_some: false,
+            is_ok: false,
         },
         TestCase {
             non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message.clone(), heal_message.clone()],
-            is_some: false,
+            is_ok: false,
         },
         TestCase {
-            non_committed_messages: vec![spell_cast_message.clone(), threat_message.clone()],
-            is_some: false,
-        },
-        TestCase {
-            non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message.clone(), threat_message.clone()],
-            is_some: false,
-        },
-        TestCase {
-            non_committed_messages: vec![spell_cast_message.clone(), heal_message.clone(), threat_message.clone()],
-            is_some: false,
-        },
-        TestCase {
-            non_committed_messages: vec![spell_cast_message, spell_damage_message, heal_message, threat_message],
-            is_some: true,
-        },
+            non_committed_messages: vec![spell_cast_message.clone(), spell_damage_message.clone(), heal_message.clone(), threat_message.clone()],
+            is_ok: true,
+        }
     ];
 
-    // execute test cases
-    for test_case in test_cases.iter_mut() {
-        let first_message = test_case.non_committed_messages.first().expect("there must be at least one non-committed message").clone();
-        let non_committed_messages = test_case.non_committed_messages.clone();
+    let mut last_message = spell_cast_message.clone();
+    last_message.timestamp = 42;
 
-        let spell_cast = try_parse_spell_cast(&mut test_case.non_committed_messages, &summons, &first_message, &armory, 42);
+    // execute test cases
+    for i in 0..test_cases.len() {
+        let test_case = test_cases.get(i).unwrap();
+        let first_message = test_case.non_committed_messages.first().expect("there must be at least one non-committed message").clone();
+        let subject = first_message.message_type.extract_subject().unwrap().to_unit(&armory, 42, &summons).expect("Subject should exist");
+        let non_committed_messages = test_case.non_committed_messages.clone();
+        let next_message = if i + 1 == test_cases.len() { last_message.clone() } else { test_cases.get(i+1).unwrap().non_committed_messages.last().unwrap().clone() };
+
+        let spell_cast = try_parse_spell_cast(&armory, 42, &summons, &test_case.non_committed_messages, &next_message, &subject);
 
         assert_eq!(
-            spell_cast.is_some(),
-            test_case.is_some,
+            spell_cast.is_ok(),
+            test_case.is_ok,
             "resulting spell cast should be {} (testing with non-committed messages: {:?})",
-            test_case.is_some,
+            test_case.is_ok,
             non_committed_messages
         );
     }

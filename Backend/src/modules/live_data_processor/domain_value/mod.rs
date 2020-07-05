@@ -15,6 +15,8 @@ pub use self::spell_cast::SpellCast;
 pub use self::threat::Threat;
 pub use self::unit::Unit;
 pub use self::unit_instance::UnitInstance;
+pub use self::non_committed_event::NonCommittedEvent;
+pub use self::event_parse_failure_action::EventParseFailureAction;
 
 mod aura_application;
 mod creature;
@@ -33,3 +35,5 @@ mod spell_cast;
 mod threat;
 mod unit;
 mod unit_instance;
+mod non_committed_event;
+mod event_parse_failure_action;

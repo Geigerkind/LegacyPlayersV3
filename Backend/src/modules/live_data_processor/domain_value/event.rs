@@ -7,3 +7,14 @@ pub struct Event {
     pub subject: Unit,
     pub event: EventType,
 }
+
+impl Event {
+    pub fn new(timestamp: u64, subject: Unit, event: EventType) -> Self {
+        Event {
+            id: 0,
+            timestamp,
+            subject,
+            event
+        }
+    }
+}

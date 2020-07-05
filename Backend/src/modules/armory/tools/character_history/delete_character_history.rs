@@ -23,8 +23,8 @@ impl DeleteCharacterHistory for Armory {
             ),
         ) {
             let mut character = characters.get_mut(&character_history.character_id).unwrap();
-            let hm = character.history_moments.iter().find(|history_moment| history_moment.id == character_history_id).unwrap().clone();
-            character.history_moments.remove_item(&hm);
+            let (hm_index, _) = character.history_moments.iter().enumerate().find(|(_index, history_moment)| history_moment.id == character_history_id).unwrap();
+            character.history_moments.remove(hm_index);
             if character.last_update.contains(&character_history) {
                 if let Some(last_id) = character.history_moments.last() {
                     character.last_update = self.get_character_history(db_main, last_id.id).ok();
