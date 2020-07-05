@@ -2,5 +2,5 @@
 pub enum EventParseFailureAction {
     DiscardFirst,
     DiscardAll,
-    Wait
+    Wait,
 }

@@ -16,10 +16,7 @@ fn parse_spell_damage() {
         message_length: 0,
         timestamp: 0,
         message_type: MessageType::SpellDamage(DamageDone {
-            attacker: Unit {
-                is_player: false,
-                unit_id: caster_unit_id,
-            },
+            attacker: Unit { is_player: false, unit_id: caster_unit_id },
             victim: Unit {
                 is_player: false,
                 unit_id: 0xF140000000000000 + 43,
@@ -45,10 +42,7 @@ fn parse_spell_damage() {
         message_length: 0,
         timestamp: 5,
         message_type: MessageType::SpellCast(SpellCast {
-            caster: Unit {
-                is_player: false,
-                unit_id: caster_unit_id,
-            },
+            caster: Unit { is_player: false, unit_id: caster_unit_id },
             target: Some(Unit {
                 is_player: false,
                 unit_id: 0xF140000000000000 + 43,

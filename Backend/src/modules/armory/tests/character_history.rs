@@ -1,13 +1,13 @@
 use super::helper::get_character_history;
-use crate::modules::armory::dto::{CharacterDto, ArmoryFailure};
+use crate::modules::armory::dto::{ArmoryFailure, CharacterDto};
 use crate::modules::armory::{
     tools::{DeleteCharacterHistory, GetCharacterHistory, SetCharacter, SetCharacterHistory},
     Armory,
 };
 use crate::tests::TestContainer;
+use crate::util::database::{Execute, Select};
+use rocket_contrib::databases::mysql::{Row, Value};
 use std::{thread, time};
-use crate::util::database::{Select, Execute};
-use rocket_contrib::databases::mysql::{Value, Row};
 
 #[test]
 fn set_character_history() {
@@ -87,14 +87,30 @@ fn test_set_character_history_update_not_successful() {
 
     struct DbMock;
     impl Execute for DbMock {
-        fn execute_one(&mut self, _query_str: &str) -> bool { unimplemented!() }
-        fn execute_wparams(&mut self, _query_str: &str, _params: Vec<(String, Value)>) -> bool { false }
+        fn execute_one(&mut self, _query_str: &str) -> bool {
+            unimplemented!()
+        }
+
+        fn execute_wparams(&mut self, _query_str: &str, _params: Vec<(String, Value)>) -> bool {
+            false
+        }
     }
     impl Select for DbMock {
-        fn select<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Vec<T> { unimplemented!() }
-        fn select_wparams<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F, _params: Vec<(String, Value)>) -> Vec<T> { unimplemented!() }
-        fn select_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Option<T> { unimplemented!() }
-        fn select_wparams_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F, _params: Vec<(String, Value)>) -> Option<T> { unimplemented!() }
+        fn select<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Vec<T> {
+            unimplemented!()
+        }
+
+        fn select_wparams<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F, _params: Vec<(String, Value)>) -> Vec<T> {
+            unimplemented!()
+        }
+
+        fn select_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Option<T> {
+            unimplemented!()
+        }
+
+        fn select_wparams_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F, _params: Vec<(String, Value)>) -> Option<T> {
+            unimplemented!()
+        }
     }
 
     // Arrange
@@ -118,7 +134,7 @@ fn test_set_character_history_update_not_successful() {
     assert!(set_character_history_res.is_err());
     assert!(match set_character_history_res.err().unwrap() {
         ArmoryFailure::Database(location) => location.contains("set_character_history"),
-        _ => false
+        _ => false,
     });
 }
 

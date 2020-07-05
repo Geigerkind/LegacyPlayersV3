@@ -5,5 +5,5 @@ pub struct Heal {
     pub total: u32,
     pub effective: u32,
     pub mitigation: Vec<Mitigation>,
-    pub target: Unit
+    pub target: Unit,
 }

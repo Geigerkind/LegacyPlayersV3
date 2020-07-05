@@ -42,13 +42,7 @@ impl SetCharacterHistory for Armory {
             if character.last_update.is_some() {
                 let mut last_update = character.last_update.as_mut().unwrap();
                 if last_update.compare_by_value(&update_character_history)
-                    && (
-                        (last_update.character_guild.is_none() && guild_id.is_none())
-                        || last_update.character_guild.as_ref()
-                            .map(|guild| guild.guild_id)
-                            .filter(|inner_guild_id| guild_id.contains(inner_guild_id))
-                            .is_some()
-                )
+                    && ((last_update.character_guild.is_none() && guild_id.is_none()) || last_update.character_guild.as_ref().map(|guild| guild.guild_id).filter(|inner_guild_id| guild_id.contains(inner_guild_id)).is_some())
                 {
                     let now = time_util::now();
                     if db_main.execute_wparams(

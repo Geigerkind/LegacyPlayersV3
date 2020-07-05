@@ -1,5 +1,5 @@
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::domain_value::{Event, EventType, EventParseFailureAction};
+use crate::modules::live_data_processor::domain_value::{Event, EventParseFailureAction, EventType};
 use crate::modules::live_data_processor::dto::UnAura;
 use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::{BTreeSet, HashMap};

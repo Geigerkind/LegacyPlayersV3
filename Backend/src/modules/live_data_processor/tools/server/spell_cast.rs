@@ -1,8 +1,8 @@
 use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::domain_value;
-use crate::modules::live_data_processor::domain_value::{Damage, Heal, Mitigation, School, SpellCast, Threat, EventParseFailureAction, HitType};
-use crate::modules::live_data_processor::dto::{Message, MessageType, Unit, DamageDone, HealDone};
+use crate::modules::live_data_processor::domain_value::{Damage, EventParseFailureAction, Heal, HitType, Mitigation, School, SpellCast, Threat};
 use crate::modules::live_data_processor::dto;
+use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, MessageType, Unit};
 use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::HashMap;
 
@@ -29,7 +29,7 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
             MessageType::MeleeDamage(_) => melee_damage_done_message.push(msg.clone()),
             MessageType::Threat(_) => threat_message.push(msg.clone()),
             MessageType::Heal(_) => heal_message.push(msg.clone()),
-            _ => {}
+            _ => {},
         }
     }
 
@@ -78,28 +78,44 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
         return Err(EventParseFailureAction::DiscardAll);
     }
 
-    let mut damage = spell_damage_done_message.into_iter().map(|message| parse_spell_damage_message(message, armory, server_id, summons))
-        .filter(Option::is_some).map(Option::unwrap).collect::<Vec<Damage>>();
-    damage.append(melee_damage_done_message.into_iter().map(|message| parse_melee_damage_message(message, armory, server_id, summons))
-        .filter(Option::is_some).map(Option::unwrap).collect::<Vec<Damage>>().as_mut());
-    let heal = heal_message.into_iter().map(|message| parse_heal_message(message, armory, server_id, summons))
-        .filter(Option::is_some).map(Option::unwrap).collect::<Vec<Heal>>();
-    let threat = threat_message.into_iter()
+    let mut damage = spell_damage_done_message
+        .into_iter()
+        .map(|message| parse_spell_damage_message(message, armory, server_id, summons))
+        .filter(Option::is_some)
+        .map(Option::unwrap)
+        .collect::<Vec<Damage>>();
+    damage.append(
+        melee_damage_done_message
+            .into_iter()
+            .map(|message| parse_melee_damage_message(message, armory, server_id, summons))
+            .filter(Option::is_some)
+            .map(Option::unwrap)
+            .collect::<Vec<Damage>>()
+            .as_mut(),
+    );
+    let heal = heal_message
+        .into_iter()
+        .map(|message| parse_heal_message(message, armory, server_id, summons))
+        .filter(Option::is_some)
+        .map(Option::unwrap)
+        .collect::<Vec<Heal>>();
+    let threat = threat_message
+        .into_iter()
         .map(|message| parse_threat_message(message, armory, server_id, summons))
-        .filter(Option::is_some).map(Option::unwrap)
+        .filter(Option::is_some)
+        .map(Option::unwrap)
         .collect::<Vec<Threat>>();
 
     if let Some(spell_message) = spell_cast_message {
         if let MessageType::SpellCast(dto::SpellCast { target, spell_id, hit_type, .. }) = spell_message.message_type {
-            return
-                Ok(SpellCast {
-                    victim: target.and_then(|unit| unit.to_unit(armory, server_id, summons).ok()),
-                    hit_type: HitType::from_u8(hit_type),
-                    spell_id: Some(spell_id),
-                    damage,
-                    heal,
-                    threat,
-                });
+            return Ok(SpellCast {
+                victim: target.and_then(|unit| unit.to_unit(armory, server_id, summons).ok()),
+                hit_type: HitType::from_u8(hit_type),
+                spell_id: Some(spell_id),
+                damage,
+                heal,
+                threat,
+            });
         }
     }
     Ok(SpellCast {

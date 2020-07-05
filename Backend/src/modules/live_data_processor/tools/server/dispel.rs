@@ -1,5 +1,5 @@
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::domain_value::{Event, EventType, EventParseFailureAction};
+use crate::modules::live_data_processor::domain_value::{Event, EventParseFailureAction, EventType};
 use crate::modules::live_data_processor::dto::UnAura;
 use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::HashMap;
@@ -30,15 +30,12 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
                         }
                     }
                 }
-            }
+            },
             EventType::AuraApplication(aura_application) => {
-                if aura_application_event_ids.len() < dispel.un_aura_amount as usize
-                    && event.subject == target
-                    && aura_application.caster == aura_caster
-                    && aura_application.spell_id == dispel.target_spell_id {
+                if aura_application_event_ids.len() < dispel.un_aura_amount as usize && event.subject == target && aura_application.caster == aura_caster && aura_application.spell_id == dispel.target_spell_id {
                     aura_application_event_ids.push(event.id);
                 }
-            }
+            },
             _ => continue,
         };
 
@@ -50,8 +47,7 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
     }
 
     if let Some(spell_cast_event_id) = spell_cast_event_id {
-        if aura_application_event_ids.len() == dispel.un_aura_amount as usize
-            || !aura_application_event_ids.is_empty() && next_timestamp as i64 - timestamp as i64 > 10 {
+        if aura_application_event_ids.len() == dispel.un_aura_amount as usize || !aura_application_event_ids.is_empty() && next_timestamp as i64 - timestamp as i64 > 10 {
             return Ok((spell_cast_event_id, aura_application_event_ids));
         }
     }

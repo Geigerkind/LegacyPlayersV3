@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::domain_value::{Event, EventType, Unit, EventParseFailureAction};
+use crate::modules::live_data_processor::domain_value::{Event, EventParseFailureAction, EventType, Unit};
 use crate::modules::live_data_processor::dto::Interrupt;
 use std::collections::BTreeSet;
 
@@ -20,12 +20,12 @@ pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &[Event], ti
                         return Ok((event.id, interrupt.interrupted_spell_id));
                     }
                 }
-            }
+            },
             EventType::AuraApplication(aura_application) => {
                 if event.subject == *subject && spell_is_indirect_interrupt(aura_application.spell_id) {
                     return Ok((event.id, interrupt.interrupted_spell_id));
                 }
-            }
+            },
             _ => continue,
         };
     }

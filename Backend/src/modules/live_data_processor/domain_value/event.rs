@@ -10,11 +10,6 @@ pub struct Event {
 
 impl Event {
     pub fn new(timestamp: u64, subject: Unit, event: EventType) -> Self {
-        Event {
-            id: 0,
-            timestamp,
-            subject,
-            event
-        }
+        Event { id: 0, timestamp, subject, event }
     }
 }
