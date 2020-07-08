@@ -135,7 +135,7 @@ impl Server {
                 if event_dto.event_type == 0 {
                     if let Ok(creature @ domain_value::Unit::Creature(_)) = event_dto.unit.to_unit(armory, self.server_id, &self.summons) {
                         // TODO: Is the creature really the unit that we want to return here?
-                        return Ok(Event::new(first_message.timestamp, creature.clone(), EventType::ThreatWipe { creature }));
+                        return Ok(Event::new(first_message.timestamp, creature, EventType::ThreatWipe));
                     }
                 }
                 Err(EventParseFailureAction::DiscardFirst)

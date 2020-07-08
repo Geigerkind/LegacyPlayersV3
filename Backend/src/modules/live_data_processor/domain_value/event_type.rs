@@ -12,7 +12,7 @@ pub enum EventType {
     Interrupt { cause_event_id: u32, interrupted_spell_id: u32 },
     SpellSteal { cause_event_id: u32, target_event_id: u32 },
     Dispel { cause_event_id: u32, target_event_ids: Vec<u32> },
-    ThreatWipe { creature: Unit },
+    ThreatWipe,
     Summon { summoned: Unit },
 
     // Used for convenience
