@@ -1,11 +1,11 @@
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::{domain_value, dto};
 use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, Position, Power, PowerType, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, DamageDone, Death, HealDone, Loot, SpellCast, Summon, Threat};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_cast, try_parse_spell_steal};
 use crate::modules::live_data_processor::tools::MapUnit;
+use crate::modules::live_data_processor::{domain_value, dto};
 
 impl Server {
     pub fn parse_events(&mut self, armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
@@ -45,10 +45,10 @@ impl Server {
                     match &committable_event {
                         Event { event: EventType::SpellCast(_), .. } => {
                             remove_all_non_committed_events.push(*subject_id);
-                        }
+                        },
                         _ => {
                             remove_first_non_committed_event.push(*subject_id);
-                        }
+                        },
                     };
 
                     if let Some(unit_instance_id) = self.unit_instance_id.get(subject_id) {
@@ -60,14 +60,14 @@ impl Server {
                         }
                     }
                     // Else discard I guess
-                }
+                },
                 Err(EventParseFailureAction::DiscardAll) => {
                     remove_all_non_committed_events.push(*subject_id);
-                }
+                },
                 Err(EventParseFailureAction::DiscardFirst) => {
                     remove_first_non_committed_event.push(*subject_id);
-                }
-                Err(EventParseFailureAction::Wait) => {}
+                },
+                Err(EventParseFailureAction::Wait) => {},
             };
         }
         for subject_id in remove_all_non_committed_events {
@@ -154,12 +154,12 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::DiscardFirst)
-            }
+            },
             MessageType::Summon(summon) => {
                 let summoner = summon.owner.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let summoned = summon.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned }))
-            }
+            },
             // Spell can be between 1 and N events
             MessageType::SpellCast(SpellCast { caster: unit, .. })
             | MessageType::Threat(Threat { threater: unit, .. })
@@ -172,7 +172,7 @@ impl Server {
                     subject.clone(),
                     EventType::SpellCast(try_parse_spell_cast(armory, self.server_id, &self.summons, &non_committed_event, &next_message, &subject)?),
                 ))
-            }
+            },
 
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
@@ -187,7 +187,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::Wait)
-            }
+            },
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -201,7 +201,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::Wait)
-            }
+            },
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -215,7 +215,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::Wait)
-            }
+            },
             _ => Err(EventParseFailureAction::DiscardFirst),
         }
     }
@@ -224,42 +224,52 @@ impl Server {
         match &message.message_type {
             MessageType::Summon(Summon { owner, unit }) => {
                 self.summons.insert(owner.unit_id, unit.unit_id);
-            }
+            },
             MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
                 if !self.active_instances.contains_key(instance_id) {
-                    self.active_instances.insert(*instance_id, UnitInstance {
-                        entered: message.timestamp,
-                        map_id: *map_id as u16, // TODO: Check if exporter really exports u32 here
-                        map_difficulty: *map_difficulty,
-                        instance_id: *instance_id,
-                    });
+                    self.active_instances.insert(
+                        *instance_id,
+                        UnitInstance {
+                            entered: message.timestamp,
+                            map_id: *map_id as u16, // TODO: Check if exporter really exports u32 here
+                            map_difficulty: *map_difficulty,
+                            instance_id: *instance_id,
+                        },
+                    );
                 }
                 self.unit_instance_id.insert(unit.unit_id, *instance_id);
-            }
-            MessageType::InstancePvPEndBattleground(dto::InstanceBattleground { instance_id, .. }) |
-            MessageType::InstancePvPEndRatedArena(dto::InstanceArena { instance_id, .. }) |
-            MessageType::InstancePvPEndUnratedArena(dto::Instance { instance_id, .. }) => {
+            },
+            MessageType::InstancePvPEndBattleground(dto::InstanceBattleground { instance_id, .. })
+            | MessageType::InstancePvPEndRatedArena(dto::InstanceArena { instance_id, .. })
+            | MessageType::InstancePvPEndUnratedArena(dto::Instance { instance_id, .. }) => {
                 // TODO: Extract winner etc.
                 // TODO: Save end meta etc.
                 self.active_instances.remove(instance_id);
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
     // TODO: Update instance resets map when they are updated
     /// Returns timestamp when the next reset is required
     pub fn reset_instances(&mut self, now: u64) -> u64 {
-        for instance_id in self.active_instances.iter().filter(|(_, active_instance)| {
-            if let Some(instance_reset) = self.instance_resets.get(&active_instance.map_id) {
-                return active_instance.entered <= instance_reset.reset_time && now > instance_reset.reset_time;
-            }
-            false
-        }).map(|(instance_id, _)| *instance_id).collect::<Vec<u32>>() {
+        for instance_id in self
+            .active_instances
+            .iter()
+            .filter(|(_, active_instance)| {
+                if let Some(instance_reset) = self.instance_resets.get(&active_instance.map_id) {
+                    return active_instance.entered <= instance_reset.reset_time && now > instance_reset.reset_time;
+                }
+                false
+            })
+            .map(|(instance_id, _)| *instance_id)
+            .collect::<Vec<u32>>()
+        {
             // TODO: Save end meta info
             self.active_instances.remove(&instance_id);
         }
-        self.instance_resets.iter()
+        self.instance_resets
+            .iter()
             .filter(|(_, active_instance)| active_instance.reset_time >= now)
             .fold(u64::MAX, |acc, (_, active_instance)| acc.min(active_instance.reset_time))
     }

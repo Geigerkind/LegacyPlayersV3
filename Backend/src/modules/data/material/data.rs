@@ -454,7 +454,7 @@ impl Init for Vec<HashMap<u32, Gem>> {
                     last_expansion_id = result.expansion_id;
                 }
                 let gems = self.get_mut(result.expansion_id as usize - 2).unwrap();
-                gems.insert(result.item_id, result.to_owned());
+                gems.insert(result.item_id, result);
             });
     }
 }

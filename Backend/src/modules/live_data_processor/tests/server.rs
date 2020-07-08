@@ -1,5 +1,5 @@
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::dto::{DamageDone, Message, MessageType, SpellCast, Unit, Position};
+use crate::modules::live_data_processor::dto::{DamageDone, Message, MessageType, Position, SpellCast, Unit};
 use crate::modules::live_data_processor::material::Server;
 
 #[test]
@@ -24,8 +24,8 @@ fn parse_spell_damage() {
             x: 0,
             y: 0,
             z: 0,
-            orientation: 0
-        })
+            orientation: 0,
+        }),
     });
 
     messages.push(Message {
