@@ -15,21 +15,23 @@ pub struct Server {
     pub instance_resets: HashMap<u16, InstanceResetDto>,
 
     // Events
-    pub non_committed_events: HashMap<u64, NonCommittedEvent>,
     // Mapping player to non committed event
-    pub committed_events: Vec<Event>,                          // TODO: Write into files instead
+    pub non_committed_events: HashMap<u64, NonCommittedEvent>,
+    // Instance_id => Events
+    pub committed_events: HashMap<u32, Vec<Event>>,                          // TODO: Write into files instead
 }
 
 impl Server {
     pub fn new(server_id: u32) -> Self {
         Server {
             server_id,
+            // TODO: Preserve all data when the app is restarted?
             summons: HashMap::new(),
             active_instances: HashMap::new(),
             unit_instance_id: HashMap::new(),
             instance_resets: HashMap::new(),
             non_committed_events: HashMap::new(),
-            committed_events: Vec::new(),
+            committed_events: HashMap::new(),
         }
     }
 

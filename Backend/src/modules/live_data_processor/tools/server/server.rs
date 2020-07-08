@@ -51,7 +51,15 @@ impl Server {
                         }
                     };
 
-                    self.committed_events.push(committable_event);
+                    if let Some(unit_instance_id) = self.unit_instance_id.get(subject_id) {
+                        // TODO: Extract this general functionality
+                        if let Some(instance_events) = self.committed_events.get_mut(unit_instance_id) {
+                            instance_events.push(committable_event);
+                        } else {
+                            self.committed_events.insert(*unit_instance_id, vec![committable_event]);
+                        }
+                    }
+                    // Else discard I guess
                 }
                 Err(EventParseFailureAction::DiscardAll) => {
                     remove_all_non_committed_events.push(*subject_id);
@@ -165,27 +173,45 @@ impl Server {
 
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
-                let subject = interrupt.target.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                match try_parse_interrupt(&interrupt, &self.committed_events, first_message.timestamp, &subject) {
-                    Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
-                    Err(err) => Err(err),
+                // If we dont find any committable events for this interrupt, we need to discard
+                if let Some(unit_instance_id) = self.unit_instance_id.get(&interrupt.target.unit_id) {
+                    if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                        let subject = interrupt.target.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                        return match try_parse_interrupt(&interrupt, committed_events, first_message.timestamp, &subject) {
+                            Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
+                            Err(err) => Err(err),
+                        };
+                    }
                 }
+                Err(EventParseFailureAction::Wait)
             }
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
-                let subject = dispel.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                match try_parse_dispel(&dispel, &self.committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
-                    Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
-                    Err(err) => Err(err),
+                // If we dont find any committable events for this interrupt, we need to discard
+                if let Some(unit_instance_id) = self.unit_instance_id.get(&dispel.aura_caster.unit_id) {
+                    if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                        let subject = dispel.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                        return match try_parse_dispel(&dispel, committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
+                            Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
+                            Err(err) => Err(err),
+                        };
+                    }
                 }
+                Err(EventParseFailureAction::Wait)
             }
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
-                let subject = spell_steal.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                match try_parse_spell_steal(&spell_steal, &self.committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
-                    Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
-                    Err(err) => Err(err),
+                // If we dont find any committable events for this interrupt, we need to discard
+                if let Some(unit_instance_id) = self.unit_instance_id.get(&spell_steal.aura_caster.unit_id) {
+                    if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                        let subject = spell_steal.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                        return match try_parse_spell_steal(&spell_steal, committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
+                            Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
+                            Err(err) => Err(err),
+                        };
+                    }
                 }
+                Err(EventParseFailureAction::Wait)
             }
             _ => Err(EventParseFailureAction::DiscardFirst),
         }
@@ -219,6 +245,7 @@ impl Server {
     }
 
     // TODO: Update instance resets map when they are updated
+    /// Returns timestamp when the next reset is required
     pub fn reset_instances(&mut self, now: u64) -> u64 {
         for instance_id in self.active_instances.iter().filter(|(_, active_instance)| {
             if let Some(instance_reset) = self.instance_resets.get(&active_instance.map_id) {
