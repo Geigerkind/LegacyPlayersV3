@@ -1,5 +1,5 @@
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::dto::{DamageDone, Message, MessageType, SpellCast, Unit};
+use crate::modules::live_data_processor::dto::{DamageDone, Message, MessageType, SpellCast, Unit, Position};
 use crate::modules::live_data_processor::material::Server;
 
 #[test]
@@ -10,7 +10,24 @@ fn parse_spell_damage() {
     let armory = Armory::default();
 
     let caster_unit_id = 0xF140000000000000 + 42;
+    let caster_instance_id = 42;
     let mut messages = Vec::new();
+    messages.push(Message {
+        api_version: 0,
+        message_length: 0,
+        timestamp: 0,
+        message_type: MessageType::Position(Position {
+            map_id: 42,
+            instance_id: caster_instance_id,
+            map_difficulty: 0,
+            unit: Unit { is_player: false, unit_id: caster_unit_id },
+            x: 0,
+            y: 0,
+            z: 0,
+            orientation: 0
+        })
+    });
+
     messages.push(Message {
         api_version: 0,
         message_length: 0,
@@ -34,7 +51,8 @@ fn parse_spell_damage() {
     // Act + Assert
     let parse_result1 = server.parse_events(&armory, messages);
     assert!(parse_result1.is_ok());
-    assert!(!server.non_committed_events.is_empty());
+    assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 1);
+    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 1);
 
     let mut messages = Vec::new();
     messages.push(Message {
@@ -77,6 +95,6 @@ fn parse_spell_damage() {
 
     let parse_result3 = server.parse_events(&armory, messages);
     assert!(parse_result3.is_ok());
-    assert_eq!(server.non_committed_events.len(), 1);
-    assert_eq!(server.committed_events.len(), 1);
+    assert!(!server.non_committed_events.contains_key(&caster_unit_id));
+    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 2);
 }

@@ -76,6 +76,9 @@ impl Server {
 
         for subject_id in remove_first_non_committed_event {
             self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop();
+            if self.non_committed_events.get(&subject_id).expect("subject id should exist").is_empty() {
+                self.non_committed_events.remove(&subject_id);
+            }
         }
     }
 
