@@ -670,9 +670,9 @@ impl Init for HashMap<u8, ItemSheath> {
                 id: row.take(0).unwrap(),
                 localization_id: row.take(1).unwrap(),
             })
-            .iter()
+            .into_iter()
             .for_each(|result| {
-                self.insert(result.id, result.to_owned());
+                self.insert(result.id, result);
             });
     }
 }
@@ -695,13 +695,14 @@ impl Init for Vec<HashMap<u32, ItemSocket>> {
                     slots,
                 }
             })
-            .iter()
+            .into_iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
                     self.push(HashMap::new());
                     last_expansion_id = result.expansion_id;
                 }
-                self.get_mut(result.expansion_id as usize - 2).unwrap().insert(result.item_id, result.to_owned());
+                let item_sockets = self.get_mut(result.expansion_id as usize - 2).unwrap();
+                item_sockets.insert(result.item_id, result);
             });
     }
 }
@@ -724,7 +725,7 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
                     },
                 },
             )
-            .iter()
+            .into_iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
                     self.push(HashMap::new());
@@ -735,7 +736,8 @@ impl Init for Vec<HashMap<u32, Vec<ItemStat>>> {
                     expansion_vec.insert(result.item_id, Vec::new());
                     last_item_id = result.item_id;
                 }
-                expansion_vec.get_mut(&result.item_id).unwrap().push(result.to_owned());
+                let item_stats = expansion_vec.get_mut(&result.item_id).unwrap();
+                item_stats.push(result);
             });
     }
 }
@@ -749,13 +751,14 @@ impl Init for Vec<HashMap<u16, ItemsetName>> {
                 id: row.take(1).unwrap(),
                 localization_id: row.take(2).unwrap(),
             })
-            .iter()
+            .into_iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
                     self.push(HashMap::new());
                     last_expansion_id = result.expansion_id;
                 }
-                self.get_mut(result.expansion_id as usize - 1).unwrap().insert(result.id, result.to_owned());
+                let itemset_names = self.get_mut(result.expansion_id as usize - 1).unwrap();
+                itemset_names.insert(result.id, result);
             });
     }
 }
@@ -772,7 +775,7 @@ impl Init for Vec<HashMap<u16, Vec<ItemsetEffect>>> {
                 threshold: row.take(3).unwrap(),
                 spell_id: row.take(4).unwrap(),
             })
-            .iter()
+            .into_iter()
             .for_each(|result| {
                 if result.expansion_id != last_expansion_id {
                     self.push(HashMap::new());
@@ -783,7 +786,8 @@ impl Init for Vec<HashMap<u16, Vec<ItemsetEffect>>> {
                     expansion_vec.insert(result.itemset_id, Vec::new());
                     last_itemset_id = result.itemset_id;
                 }
-                expansion_vec.get_mut(&result.itemset_id).unwrap().push(result.to_owned());
+                let itemset_effects = expansion_vec.get_mut(&result.itemset_id).unwrap();
+                itemset_effects.push(result);
             });
     }
 }
@@ -795,9 +799,9 @@ impl Init for HashMap<u16, Title> {
                 id: row.take(0).unwrap(),
                 localization_id: row.take(1).unwrap(),
             })
-            .iter()
+            .into_iter()
             .for_each(|result| {
-                self.insert(result.id, result.to_owned());
+                self.insert(result.id, result);
             });
     }
 }
@@ -813,14 +817,14 @@ impl Init for HashMap<u8, Vec<ItemRandomPropertyPoints>> {
                 rare: [row.take(7).unwrap(), row.take(8).unwrap(), row.take(9).unwrap(), row.take(10).unwrap(), row.take(11).unwrap()],
                 good: [row.take(12).unwrap(), row.take(13).unwrap(), row.take(14).unwrap(), row.take(15).unwrap(), row.take(16).unwrap()],
             })
-            .iter()
+            .into_iter()
             .for_each(|result| {
                 if result.item_level == 300 {
                     current_vec.push(result.clone());
                     self.insert(result.expansion_id, current_vec.to_owned());
                     current_vec = Vec::new();
                 } else {
-                    current_vec.push(result.to_owned());
+                    current_vec.push(result);
                 }
             });
     }
