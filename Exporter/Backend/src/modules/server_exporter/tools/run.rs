@@ -103,6 +103,7 @@ impl Run for ServerExporter {
           msg.insert(31, 0);
           byte_writer::write_u64(&mut msg[19..27], salt_u32_u64(guid1));
           byte_writer::write_u64(&mut msg[27..35], salt_u32_u64(guid2));
+          msg[2] += 8;
           send_message(&sender, vec![guid1 as u64, guid2 as u64], msg);
         }
         _ => {} // Ignore
