@@ -200,6 +200,7 @@ impl Server {
             }
             MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
                 if !self.active_instances.contains_key(instance_id) {
+                    // TODO: How to tell that a raid instance ended?
                     self.active_instances.insert(*instance_id, UnitInstance {
                         map_id: *map_id,
                         map_difficulty: *map_difficulty,
@@ -207,6 +208,12 @@ impl Server {
                     });
                 }
                 self.unit_instance_id.insert(unit.unit_id, *instance_id);
+            }
+            MessageType::InstancePvPEndBattleground(dto::InstanceBattleground { instance_id, .. }) |
+            MessageType::InstancePvPEndRatedArena(dto::InstanceArena { instance_id, .. }) |
+            MessageType::InstancePvPEndUnratedArena(dto::Instance { instance_id, .. }) => {
+                // TODO: Extract winner etc.
+                self.active_instances.remove(instance_id);
             }
             _ => {}
         }
