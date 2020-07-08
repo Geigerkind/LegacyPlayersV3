@@ -45,9 +45,9 @@ impl Init for HashMap<u32, Character> {
             last_update: None,
             history_moments: Vec::new(),
         })
-        .iter()
+        .into_iter()
         .for_each(|result| {
-            self.insert(result.id, result.to_owned());
+            self.insert(result.id, result);
         });
 
         // Loading the history_ids
@@ -57,7 +57,7 @@ impl Init for HashMap<u32, Character> {
             let character_id: u32 = row.take(2).unwrap();
             (id, timestamp, character_id)
         })
-        .iter()
+        .into_iter()
         .for_each(|result| self.get_mut(&result.2).unwrap().history_moments.push(HistoryMoment { id: result.0, timestamp: result.1 }));
 
         // Load the actual newest character history data
@@ -111,9 +111,9 @@ impl Init for HashMap<u32, Character> {
                         size_type: ArenaTeamSizeType::from_u8(row.take(195).unwrap()),
                     }),
                 ]
-                .iter()
-                .filter(|team| team.is_some())
-                .map(|team| team.as_ref().unwrap().clone())
+                .into_iter()
+                .filter(Option::is_some)
+                .map(Option::unwrap)
                 .collect();
 
                 CharacterHistory {
@@ -133,7 +133,7 @@ impl Init for HashMap<u32, Character> {
                     arena_teams,
                     timestamp: row.take(13).unwrap(),
                     facial: row.take_opt(15).unwrap().ok().map(|facial_id: u32| CharacterFacial {
-                        id: facial_id.to_owned(),
+                        id: facial_id,
                         skin_color: row.take(16).unwrap(),
                         face_style: row.take(17).unwrap(),
                         hair_style: row.take(18).unwrap(),
@@ -175,8 +175,11 @@ impl Init for HashMap<u32, Character> {
                 }
             },
         )
-        .iter()
-        .for_each(|result| self.get_mut(&result.character_id).unwrap().last_update = Some(result.to_owned()));
+        .into_iter()
+        .for_each(|result| {
+            let character = self.get_mut(&result.character_id).unwrap();
+            character.last_update = Some(result);
+        });
     }
 }
 
@@ -189,9 +192,9 @@ impl Init for HashMap<u32, Guild> {
             name: row.take(3).unwrap(),
             ranks: Vec::new(),
         })
-        .iter()
+        .into_iter()
         .for_each(|result| {
-            self.insert(result.id, result.to_owned());
+            self.insert(result.id, result);
         });
 
         db.select("SELECT * FROM armory_guild_rank ORDER BY guild_id, rank_index", |mut row| {
@@ -205,7 +208,10 @@ impl Init for HashMap<u32, Guild> {
                 },
             )
         })
-        .iter()
-        .for_each(|(guild_id, guild_rank)| self.get_mut(&guild_id).unwrap().ranks.push(guild_rank.to_owned()));
+        .into_iter()
+        .for_each(|(guild_id, guild_rank)| {
+            let guild = self.get_mut(&guild_id).unwrap();
+            guild.ranks.push(guild_rank);
+        });
     }
 }
