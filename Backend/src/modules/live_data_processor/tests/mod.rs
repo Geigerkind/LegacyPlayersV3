@@ -4,3 +4,4 @@ mod message;
 mod message_type;
 mod server;
 mod try_parse_spell_cast;
+mod payload_mapper;
