@@ -13,6 +13,7 @@ pub enum EventType {
     SpellSteal { cause_event_id: u32, target_event_id: u32 },
     Dispel { cause_event_id: u32, target_event_ids: Vec<u32> },
     ThreatWipe { creature: Unit },
+    Summon { summoned: Unit },
 
     // Used for convenience
     PlaceHolder,

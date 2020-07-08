@@ -140,12 +140,11 @@ impl Server {
                 }
                 Err(EventParseFailureAction::DiscardFirst)
             }
-            // TODO: This can be an event
-            /*
-            MessageType::Summon(Summon { owner, unit }) => {
-                self.summons.insert(owner.unit_id, unit.unit_id);
-                None
-            },*/
+            MessageType::Summon(summon) => {
+                let summoner = summon.owner.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let summoned = summon.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned } ))
+            },
             // Spell can be between 1 and N events
             MessageType::SpellCast(SpellCast { caster: unit, .. })
             | MessageType::Threat(Threat { threater: unit, .. })
@@ -184,11 +183,6 @@ impl Server {
                     Err(err) => Err(err),
                 }
             }
-
-            // Not handled yet
-            /*
-            MessageType::InstancePvPStart(_) | MessageType::InstancePvPEndUnratedArena(_) | MessageType::InstancePvPEndBattleground(_) | MessageType::InstancePvPEndRatedArena(_) |
-             */
             _ => Err(EventParseFailureAction::DiscardFirst),
         }
     }
