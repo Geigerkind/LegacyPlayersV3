@@ -9,10 +9,14 @@ use crate::modules::live_data_processor::tools::MapUnit;
 
 impl Server {
     pub fn parse_events(&mut self, armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
+        let mut next_reset = 0;
         for msg in messages {
             self.extract_meta_information(&msg);
             self.test_for_committable_events(armory, &msg);
             self.cleanup(msg.timestamp);
+            if next_reset < msg.timestamp || next_reset == u64::MAX {
+                next_reset = self.reset_instances(msg.timestamp);
+            }
             self.push_non_committed_event(msg);
         }
         Ok(())
@@ -143,8 +147,8 @@ impl Server {
             MessageType::Summon(summon) => {
                 let summoner = summon.owner.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let summoned = summon.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned } ))
-            },
+                Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned }))
+            }
             // Spell can be between 1 and N events
             MessageType::SpellCast(SpellCast { caster: unit, .. })
             | MessageType::Threat(Threat { threater: unit, .. })
@@ -194,9 +198,9 @@ impl Server {
             }
             MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
                 if !self.active_instances.contains_key(instance_id) {
-                    // TODO: How to tell that a raid instance ended?
                     self.active_instances.insert(*instance_id, UnitInstance {
-                        map_id: *map_id,
+                        entered: message.timestamp,
+                        map_id: *map_id as u16, // TODO: Check if exporter really exports u32 here
                         map_difficulty: *map_difficulty,
                         instance_id: *instance_id,
                     });
@@ -207,9 +211,26 @@ impl Server {
             MessageType::InstancePvPEndRatedArena(dto::InstanceArena { instance_id, .. }) |
             MessageType::InstancePvPEndUnratedArena(dto::Instance { instance_id, .. }) => {
                 // TODO: Extract winner etc.
+                // TODO: Save end meta etc.
                 self.active_instances.remove(instance_id);
             }
             _ => {}
         }
+    }
+
+    // TODO: Update instance resets map when they are updated
+    pub fn reset_instances(&mut self, now: u64) -> u64 {
+        for instance_id in self.active_instances.iter().filter(|(_, active_instance)| {
+            if let Some(instance_reset) = self.instance_resets.get(&active_instance.map_id) {
+                return active_instance.entered <= instance_reset.reset_time && now > instance_reset.reset_time;
+            }
+            false
+        }).map(|(instance_id, _)| *instance_id).collect::<Vec<u32>>() {
+            // TODO: Save end meta info
+            self.active_instances.remove(&instance_id);
+        }
+        self.instance_resets.iter()
+            .filter(|(_, active_instance)| active_instance.reset_time >= now)
+            .fold(u64::MAX, |acc, (_, active_instance)| acc.min(active_instance.reset_time))
     }
 }
