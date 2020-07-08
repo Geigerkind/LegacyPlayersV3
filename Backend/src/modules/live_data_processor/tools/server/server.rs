@@ -1,5 +1,5 @@
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::domain_value;
+use crate::modules::live_data_processor::{domain_value, dto};
 use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, Position, Power, PowerType, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, DamageDone, Death, HealDone, Loot, SpellCast, Summon, Threat};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
@@ -41,21 +41,21 @@ impl Server {
                     match &committable_event {
                         Event { event: EventType::SpellCast(_), .. } => {
                             remove_all_non_committed_events.push(*subject_id);
-                        },
+                        }
                         _ => {
                             remove_first_non_committed_event.push(*subject_id);
-                        },
+                        }
                     };
 
                     self.committed_events.push(committable_event);
-                },
+                }
                 Err(EventParseFailureAction::DiscardAll) => {
                     remove_all_non_committed_events.push(*subject_id);
-                },
+                }
                 Err(EventParseFailureAction::DiscardFirst) => {
                     remove_first_non_committed_event.push(*subject_id);
-                },
-                Err(EventParseFailureAction::Wait) => {},
+                }
+                Err(EventParseFailureAction::Wait) => {}
             };
         }
         for subject_id in remove_all_non_committed_events {
@@ -98,19 +98,12 @@ impl Server {
             MessageType::Position(position) => Ok(Event::new(
                 first_message.timestamp,
                 position.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
-                EventType::Position((
-                    UnitInstance {
-                        map_id: position.map_id,
-                        map_difficulty: position.map_difficulty,
-                        instance_id: position.instance_id,
-                    },
-                    Position {
-                        x: position.x,
-                        y: position.y,
-                        z: position.z,
-                        orientation: position.orientation,
-                    },
-                )),
+                EventType::Position(Position {
+                    x: position.x,
+                    y: position.y,
+                    z: position.z,
+                    orientation: position.orientation,
+                }),
             )),
             MessageType::Power(power) => Ok(Event::new(
                 first_message.timestamp,
@@ -146,7 +139,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::DiscardFirst)
-            },
+            }
             // TODO: This can be an event
             /*
             MessageType::Summon(Summon { owner, unit }) => {
@@ -165,7 +158,7 @@ impl Server {
                     subject.clone(),
                     EventType::SpellCast(try_parse_spell_cast(armory, self.server_id, &self.summons, &non_committed_event, &next_message, &subject)?),
                 ))
-            },
+            }
 
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
@@ -174,7 +167,7 @@ impl Server {
                     Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
                     Err(err) => Err(err),
                 }
-            },
+            }
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
                 let subject = dispel.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
@@ -182,7 +175,7 @@ impl Server {
                     Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
                     Err(err) => Err(err),
                 }
-            },
+            }
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
                 let subject = spell_steal.aura_caster.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
@@ -190,7 +183,7 @@ impl Server {
                     Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
                     Err(err) => Err(err),
                 }
-            },
+            }
 
             // Not handled yet
             /*
@@ -201,8 +194,21 @@ impl Server {
     }
 
     fn extract_meta_information(&mut self, message: &Message) {
-        if let MessageType::Summon(Summon { owner, unit }) = &message.message_type {
-            self.summons.insert(owner.unit_id, unit.unit_id);
+        match &message.message_type {
+            MessageType::Summon(Summon { owner, unit }) => {
+                self.summons.insert(owner.unit_id, unit.unit_id);
+            }
+            MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
+                if !self.active_instances.contains_key(instance_id) {
+                    self.active_instances.insert(*instance_id, UnitInstance {
+                        map_id: *map_id,
+                        map_difficulty: *map_difficulty,
+                        instance_id: *instance_id,
+                    });
+                }
+                self.unit_instance_id.insert(unit.unit_id, *instance_id);
+            }
+            _ => {}
         }
     }
 }
