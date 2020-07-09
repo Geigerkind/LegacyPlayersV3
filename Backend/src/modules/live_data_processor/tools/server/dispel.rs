@@ -48,7 +48,7 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
     }
 
     if let Some(spell_cast_event_id) = spell_cast_event_id {
-        if aura_application_event_ids.len() == dispel.un_aura_amount as usize || !aura_application_event_ids.is_empty() && next_timestamp as i64 - timestamp as i64 > 10 {
+        if !aura_application_event_ids.is_empty() && next_timestamp as i64 - timestamp as i64 > 10 {
             return Ok((spell_cast_event_id, aura_application_event_ids));
         }
     }
