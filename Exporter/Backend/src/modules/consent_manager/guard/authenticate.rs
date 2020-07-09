@@ -21,7 +21,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
             return Failure((Status::Unauthorized, ()));
         }
 
-        let split: Vec<&str> = auth_header.unwrap().split("|").collect();
+        let split: Vec<&str> = auth_header.unwrap().split('|').collect();
         if split.len() != 2 {
             return Failure((Status::Unauthorized, ()));
         }
@@ -40,7 +40,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
         }
 
         let json_res = resp.unwrap().json::<bool>();
-        if json_res.is_err() || json_res.unwrap() == false {
+        if json_res.is_err() || !json_res.unwrap() {
             return Failure((Status::Unauthorized, ()));
         }
 

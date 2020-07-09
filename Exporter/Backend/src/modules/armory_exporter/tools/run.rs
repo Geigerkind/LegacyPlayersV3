@@ -67,27 +67,25 @@ impl ArmoryExporter {
                                 hero_class_id: character_table.hero_class_id,
                                 level: character_table.level,
                                 gender: character_table.gender != 0,
-                                profession1: professions.get(0).and_then(|skill| Some(skill.skill_id as u16)),
-                                profession2: professions.get(1).and_then(|skill| Some(skill.skill_id as u16)),
+                                profession1: professions.get(0).map(|skill| skill.skill_id as u16),
+                                profession2: professions.get(1).map(|skill| skill.skill_id as u16),
                                 talent_specialization: Some(talent),
                                 race_id: character_table.race_id,
                             },
                             character_name: character_table.name.to_owned(),
-                            character_guild: guild.and_then(|char_guild_table| {
-                                Some(CharacterGuildDto {
-                                    guild: GuildDto {
-                                        server_uid: salt_u32_u64(char_guild_table.guild_id),
-                                        name: char_guild_table.guild_name.to_owned(),
-                                    },
-                                    rank: GuildRank {
-                                        index: char_guild_table.rank_index,
-                                        name: char_guild_table.rank_name.to_owned(),
-                                    },
-                                })
+                            character_guild: guild.map(|char_guild_table| CharacterGuildDto {
+                                guild: GuildDto {
+                                    server_uid: salt_u32_u64(char_guild_table.guild_id),
+                                    name: char_guild_table.guild_name.to_owned(),
+                                },
+                                rank: GuildRank {
+                                    index: char_guild_table.rank_index,
+                                    name: char_guild_table.rank_name,
+                                },
                             }),
                             character_title,
-                            profession_skill_points1: professions.get(0).and_then(|skill| Some(skill.value as u16)),
-                            profession_skill_points2: professions.get(1).and_then(|skill| Some(skill.value as u16)),
+                            profession_skill_points1: professions.get(0).map(|skill| skill.value as u16),
+                            profession_skill_points2: professions.get(1).map(|skill| skill.value as u16),
                             facial: Some(CharacterFacialDto {
                                 skin_color: (character_table.playerbytes1 % 256 as u32) as u8,
                                 face_style: (character_table.playerbytes1.shr(8) % 256 as u32) as u8,
@@ -114,8 +112,8 @@ impl ArmoryExporter {
     }
 }
 
-fn get_item_slot(slot_id: u32, gear: &Vec<CharacterItemTable>, enchant_id_to_item_id: &HashMap<u32, u32>) -> Option<CharacterItemDto> {
-    gear.iter().find(|item| item.slot == slot_id).and_then(|char_item_table| {
+fn get_item_slot(slot_id: u32, gear: &[CharacterItemTable], enchant_id_to_item_id: &HashMap<u32, u32>) -> Option<CharacterItemDto> {
+    gear.iter().find(|item| item.slot == slot_id).map(|char_item_table| {
         let enchant_id;
         if char_item_table.enchant_ids[0] == 0 {
             enchant_id = None;
@@ -133,15 +131,15 @@ fn get_item_slot(slot_id: u32, gear: &Vec<CharacterItemTable>, enchant_id_to_ite
             if char_item_table.enchant_ids[i] == 0 {
                 gem_ids.push(None);
             } else if enchant_id_to_item_id.contains_key(&char_item_table.enchant_ids[i]) {
-                gem_ids.push(Some(enchant_id_to_item_id.get(&char_item_table.enchant_ids[i]).unwrap().clone()))
+                gem_ids.push(Some(*enchant_id_to_item_id.get(&char_item_table.enchant_ids[i]).unwrap()))
             }
         }
 
-        Some(CharacterItemDto {
+        CharacterItemDto {
             item_id: char_item_table.item_id,
             random_property_id,
             enchant_id,
             gem_ids,
-        })
+        }
     })
 }

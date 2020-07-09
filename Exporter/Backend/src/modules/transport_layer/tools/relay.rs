@@ -70,7 +70,11 @@ impl Relay for TransportLayer {
         if character_id == 0 {
             return true;
         }
-        return if *OPT_IN_MODE { self.character_consent.contains(&character_id) } else { !self.character_consent.contains(&character_id) };
+        if *OPT_IN_MODE {
+            self.character_consent.contains(&character_id)
+        } else {
+            !self.character_consent.contains(&character_id)
+        }
     }
 
     fn send_character_dto(&self, character_dto: CharacterDto) {

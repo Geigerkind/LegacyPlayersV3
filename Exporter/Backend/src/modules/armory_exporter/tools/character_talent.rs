@@ -39,7 +39,7 @@ impl RetrieveCharacterTalents for ArmoryExporter {
                         if *column >= 0 {
                             return acc_i + &column.to_string();
                         }
-                        return acc_i;
+                        acc_i
                     })
                 })
             })

@@ -65,8 +65,8 @@ fn main() {
     let (s_server_msg, r_server_msg) = mpsc::channel::<(Vec<u32>, Vec<u8>)>();
     let (s_meta_data_instance_reset, r_meta_data_instance_reset) = mpsc::channel::<Vec<InstanceReset>>();
 
-    *consent_manager.sender_character_consent.get_mut().unwrap() = Some(s_char_consent.to_owned());
-    *consent_manager.sender_guild_consent.get_mut().unwrap() = Some(s_guild_consent.to_owned());
+    *consent_manager.sender_character_consent.get_mut().unwrap() = Some(s_char_consent);
+    *consent_manager.sender_guild_consent.get_mut().unwrap() = Some(s_guild_consent);
     armory_exporter.sender_character = Some(s_char);
     armory_exporter.sender_meta_data_instance_reset = Some(s_meta_data_instance_reset);
     server_exporter.sender_message = Some(s_server_msg);

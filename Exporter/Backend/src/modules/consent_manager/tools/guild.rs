@@ -65,7 +65,7 @@ impl GuildConsent for ConsentManager {
     }
 
     // TODO: Implement!
-    fn is_guild_master(&self, character_id: u32, guild_id: u32) -> bool {
+    fn is_guild_master(&self, _character_id: u32, _guild_id: u32) -> bool {
         true
     }
 }
