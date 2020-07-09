@@ -6,28 +6,27 @@ use crate::modules::{ArmoryExporter, CharacterDto};
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
 use crate::modules::armory_exporter::tools::{RetrieveCharacterGuild, RetrieveCharacterItems, RetrieveCharacterSkills, RetrieveRecentOfflineCharacters, UpdateMetaData, RetrieveCharacterTalents, RetrieveCharacterArenaTeams, RetrieveMetaInstanceReset};
 use crate::modules::transport_layer::{CharacterFacialDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto, GuildRank};
-use crate::Run;
 use std::collections::HashMap;
-use crate::modules::util::{salt_u32_u64, salt_u64_u64};
+use crate::modules::util::{salt_u32_u64, salt_u64_u64, now, Execute, Select};
 
-impl Run for ArmoryExporter {
-  fn run(&mut self) {
+impl ArmoryExporter {
+  pub fn run(&mut self, mut db_characters: (impl Select + Execute), mut db_lp_consent: (impl Select + Execute)) {
     let rate = env::var("CHARACTER_FETCH_INTERVAL_IN_SEC").unwrap().parse::<u64>().unwrap();
     let sleep_duration_rate = Duration::new(rate, 0);
     loop {
       thread::sleep(sleep_duration_rate);
       println!("Exporting next batch of characters...");
-      let offline_characters= self.get_recent_offline_characters();
+      let offline_characters= self.get_recent_offline_characters(&mut db_characters);
       if !offline_characters.is_empty() {
-        self.last_fetch_time = time_util::now();
+        self.last_fetch_time = now();
       }
       offline_characters.iter().for_each(|character_table| {
         println!("Processing {} ({})", character_table.name, character_table.character_id);
-        let professions = self.get_profession_skills(character_table.character_id);
-        let gear = self.get_character_items(character_table.character_id);
-        let guild = self.get_character_guild(character_table.character_id);
-        let talent = self.get_character_talent(character_table.character_id);
-        let mut arena_teams = self.get_arena_teams(character_table.character_id);
+        let professions = self.get_profession_skills(&mut db_characters, character_table.character_id);
+        let gear = self.get_character_items(&mut db_characters, character_table.character_id);
+        let guild = self.get_character_guild(&mut db_characters, character_table.character_id);
+        let talent = self.get_character_talent(&mut db_characters, character_table.character_id);
+        let mut arena_teams = self.get_arena_teams(&mut db_characters, character_table.character_id);
         arena_teams.iter_mut().for_each(|team| team.team_id = salt_u64_u64(team.team_id));
 
         let character_title;
@@ -91,15 +90,15 @@ impl Run for ArmoryExporter {
         }));
       });
 
-      if self.last_instance_reset_fetch_time <= time_util::now() {
-        let instance_resets = self.get_instance_reset();
+      if self.last_instance_reset_fetch_time <= now() {
+        let instance_resets = self.get_instance_reset(&mut db_characters);
         if !instance_resets.is_empty() {
           self.last_instance_reset_fetch_time = instance_resets.get(0).unwrap().reset_time;
           let _ = self.sender_meta_data_instance_reset.as_ref().unwrap().send(instance_resets);
         }
       }
 
-      self.update_meta_data();
+      self.update_meta_data(&mut db_lp_consent);
     }
   }
 }

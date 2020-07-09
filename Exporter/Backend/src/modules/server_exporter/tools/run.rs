@@ -1,12 +1,11 @@
 use crate::modules::ServerExporter;
-use crate::Run;
 use crate::modules::server_exporter::tools::{byte_reader, byte_writer, GUID};
 use crate::modules::server_exporter::domain_value::MessageType;
 use crate::modules::util::{salt_u64_u64, salt_u32_u64};
 use std::sync::mpsc::Sender;
 
-impl Run for ServerExporter {
-  fn run(&mut self) {
+impl ServerExporter {
+  pub fn run(&mut self) {
     let context = zmq::Context::new();
     let responder = context.socket(zmq::PULL).unwrap();
     assert!(responder.bind("tcp://0.0.0.0:5690").is_ok());

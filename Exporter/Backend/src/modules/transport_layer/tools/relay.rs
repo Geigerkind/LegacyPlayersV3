@@ -98,7 +98,7 @@ impl Relay for TransportLayer {
       static ref URL_SERVER_PACKAGE: String = env::var("URL_SERVER_PACKAGE").unwrap();
     }
 
-    let mut form = multipart::Form::new()
+    let form = multipart::Form::new()
       .part("payload", multipart::Part::bytes(package.iter_mut().fold(Vec::new(), |mut acc, item| {
         acc.append(item);
         acc

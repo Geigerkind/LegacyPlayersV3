@@ -1,14 +1,15 @@
 use crate::modules::ArmoryExporter;
 use crate::modules::transport_layer::ArenaTeam;
-use mysql_connection::tools::Select;
 use std::env;
+use crate::modules::util::Select;
+use crate::params;
 
 pub trait RetrieveCharacterArenaTeams {
-  fn get_arena_teams(&self, character_id: u32) -> Vec<ArenaTeam>;
+  fn get_arena_teams(&self, db_characters: &mut impl Select, character_id: u32) -> Vec<ArenaTeam>;
 }
 
 impl RetrieveCharacterArenaTeams for ArmoryExporter {
-  fn get_arena_teams(&self, character_id: u32) -> Vec<ArenaTeam> {
+  fn get_arena_teams(&self, db_characters: &mut impl Select, character_id: u32) -> Vec<ArenaTeam> {
     lazy_static! {
       static ref EXPANSION_ID: u8 = env::var("EXPANSION_ID").unwrap().parse::<u8>().unwrap();
     }
@@ -16,9 +17,9 @@ impl RetrieveCharacterArenaTeams for ArmoryExporter {
       return Vec::new();
     }
 
-    self.db_characters.select_wparams(
+    db_characters.select_wparams(
       "SELECT atm.arenaTeamId, art.name,  art.type, art.rating, atm.personalRating FROM arena_team_member atm\
-       JOIN arena_team art ON atm.arenaTeamId = art.arenaTeamId WHERE atm.guid = :character_id", &|mut row| {
+       JOIN arena_team art ON atm.arenaTeamId = art.arenaTeamId WHERE atm.guid = :character_id", |mut row| {
         let team_id: u32 = row.take(0).unwrap();
         ArenaTeam {
           team_id: team_id as u64,

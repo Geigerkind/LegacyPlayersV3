@@ -1,15 +1,16 @@
 use crate::modules::armory_exporter::domain_value::CharacterItemTable;
 use crate::modules::ArmoryExporter;
-use mysql_connection::tools::Select;
+use crate::modules::util::Select;
+use crate::params;
 
 pub trait RetrieveCharacterItems {
-  fn get_character_items(&self, character_id: u32) -> Vec<CharacterItemTable>;
+  fn get_character_items(&self, db_characters: &mut impl Select, character_id: u32) -> Vec<CharacterItemTable>;
 }
 
 impl RetrieveCharacterItems for ArmoryExporter {
-  fn get_character_items(&self, character_id: u32) -> Vec<CharacterItemTable> {
-    self.db_characters.select_wparams("SELECT a.item, b.itemEntry, a.slot, b.random_prop_id, b.enchant1_id, b.enchant2_id, b.enchant3_id, b.enchant4_id, b.enchant5_id, b.enchant6_id, b.enchant7_id, b.enchant8_id, b.enchant9_id, b.enchant10_id, b.enchant11_id \
-      FROM character_inventory a JOIN item_instance b ON a.item = b.guid WHERE a.guid=:character_id AND bag = 0 AND slot <= 18", &|mut row| CharacterItemTable {
+  fn get_character_items(&self, db_characters: &mut impl Select, character_id: u32) -> Vec<CharacterItemTable> {
+    db_characters.select_wparams("SELECT a.item, b.itemEntry, a.slot, b.random_prop_id, b.enchant1_id, b.enchant2_id, b.enchant3_id, b.enchant4_id, b.enchant5_id, b.enchant6_id, b.enchant7_id, b.enchant8_id, b.enchant9_id, b.enchant10_id, b.enchant11_id \
+      FROM character_inventory a JOIN item_instance b ON a.item = b.guid WHERE a.guid=:character_id AND bag = 0 AND slot <= 18", move |mut row| CharacterItemTable {
       character_id,
       item_guid: row.take(0).unwrap(),
       item_id: row.take(1).unwrap(),

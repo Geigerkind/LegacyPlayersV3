@@ -4,6 +4,7 @@ use rocket::http::Status;
 use rocket::outcome::Outcome::*;
 use rocket::request::{self, FromRequest, Request};
 
+
 pub struct Authenticate(pub u32);
 
 #[derive(Debug, Serialize)]
