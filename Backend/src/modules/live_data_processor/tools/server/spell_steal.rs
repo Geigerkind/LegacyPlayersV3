@@ -19,6 +19,13 @@ pub fn try_parse_spell_steal(spell_steal: &UnAura, committed_events: &[Event], t
         if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
             break;
         }
+
+        if let Some(spell_cast_event_id) = spell_cast_event_id {
+            if let Some(aura_application_event_id) = aura_application_event_id {
+                return Ok((spell_cast_event_id, aura_application_event_id));
+            }
+        }
+
         match &event.event {
             EventType::SpellCast(spell_cast) => {
                 if let Some(spell_id) = &spell_cast.spell_id {
@@ -36,12 +43,6 @@ pub fn try_parse_spell_steal(spell_steal: &UnAura, committed_events: &[Event], t
             },
             _ => continue,
         };
-
-        if let Some(spell_cast_event_id) = spell_cast_event_id {
-            if let Some(aura_application_event_id) = aura_application_event_id {
-                return Ok((spell_cast_event_id, aura_application_event_id));
-            }
-        }
     }
 
     if next_timestamp as i64 - timestamp as i64 > 10 {

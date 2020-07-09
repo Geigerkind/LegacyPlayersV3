@@ -16,6 +16,13 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
         if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
             break;
         }
+
+        if let Some(spell_cast_event_id) = spell_cast_event_id {
+            if aura_application_event_ids.len() == dispel.un_aura_amount as usize {
+                return Ok((spell_cast_event_id, aura_application_event_ids));
+            }
+        }
+
         match &event.event {
             // I wonder if all hot dispel casts have the same spell id as the hot in the end
             EventType::SpellCast(spell_cast) => {
@@ -38,12 +45,6 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
             },
             _ => continue,
         };
-
-        if let Some(spell_cast_event_id) = spell_cast_event_id {
-            if aura_application_event_ids.len() == dispel.un_aura_amount as usize {
-                return Ok((spell_cast_event_id, aura_application_event_ids));
-            }
-        }
     }
 
     if let Some(spell_cast_event_id) = spell_cast_event_id {
