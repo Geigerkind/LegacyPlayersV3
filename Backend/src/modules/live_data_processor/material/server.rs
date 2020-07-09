@@ -36,6 +36,8 @@ impl Server {
     }
 
     pub fn init(mut self, db_main: &mut impl Select) -> Self {
+        // TODO: Load active instances
+
         // Load instance reset data
         db_main
             .select_wparams(
