@@ -1,6 +1,6 @@
 export CHARACTERS_URL=mysql://root:vagrant@172.17.0.1/characters
-export ROCKET_DATABASES='{characters={url="${CHARACTERS_URL}"}, lp_consent={url="${LP_CONSENT_URL}"}}'
-export LP_API_TOKEN=34f211e0ec4ca5ea67fe411b1e89f4e8bfe3d0155a3436bf85065b9c2209cb8ec6071b0c323076656250ce6caffd18bc6596967628ac375ca6c33161b4efbe35
+export ROCKET_DATABASES="{characters={url=\"${CHARACTERS_URL}\"}, lp_consent={url=\"${LP_CONSENT_URL}\"}}"
+export LP_API_TOKEN=4c3bdeddb0b9d054831866a2061f4a6a8e100633610f5cd4f4a59638f60d8fb359f68af84d5410748c55545f78b5030bcd8ad33b7e8861a373aadde37315f222
 export URL_AUTHORIZATION_ENDPOINT=http://localhost:8001/token_validator
 export CHARACTER_FETCH_INTERVAL_IN_SEC=60
 export EXPANSION_ID=2
