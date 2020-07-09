@@ -5,8 +5,8 @@ use crate::modules::live_data_processor::tools::payload_mapper::spell_cast::MapS
 fn map_spell_cast_positive_with_target() {
     // Arrange
     let payload = vec![
-        1, 78, 0, 0, 0, 0, 0, 0, 0, // caster
-        1, 22, 0, 0, 0, 0, 0, 0, 0, // target
+        78, 0, 0, 0, 0, 0, 0, 0, // caster
+        22, 0, 0, 0, 0, 0, 0, 0, // target
         77, 0, 0, 0, // SpellId
         8, // HitType
     ];
@@ -28,8 +28,8 @@ fn map_spell_cast_positive_with_target() {
 fn map_spell_cast_positive_without_target() {
     // Arrange
     let payload = vec![
-        1, 78, 0, 0, 0, 0, 0, 0, 0, // caster
-        1, 0, 0, 0, 0, 0, 0, 0, 0, // target
+        78, 0, 0, 0, 0, 0, 0, 0, // caster
+        0, 0, 0, 0, 0, 0, 0, 0, // target
         77, 0, 0, 0, // SpellId
         8, // HitType
     ];

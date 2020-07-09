@@ -4,8 +4,8 @@ use crate::modules::live_data_processor::tools::payload_mapper::summon::MapSummo
 fn map_summon_positive() {
     // Arrange
     let payload = vec![
-        1, 222, 0, 0, 0, 0, 0, 0, 0, // owner
-        1, 223, 0, 0, 0, 0, 0, 0, 0, // unit
+        222, 0, 0, 0, 0, 0, 0, 0, // owner
+        223, 0, 0, 0, 0, 0, 0, 0, // unit
     ];
 
     // Act

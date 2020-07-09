@@ -8,15 +8,15 @@ pub trait MapSpellCast {
 
 impl MapSpellCast for [u8] {
     fn to_spell_cast(&self) -> Result<SpellCast, LiveDataProcessorFailure> {
-        if self.len() != 23 {
+        if self.len() != 21 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
-        let target_id: Unit = self[9..18].to_unit()?;
+        let target_id: Unit = self[8..16].to_unit()?;
         Ok(SpellCast {
-            caster: self[0..9].to_unit()?,
+            caster: self[0..8].to_unit()?,
             target: if let Unit { is_player: _, unit_id: 0 } = target_id { None } else { Some(target_id) },
-            spell_id: byte_reader::read_u32(&self[18..22])?,
-            hit_type: self[22],
+            spell_id: byte_reader::read_u32(&self[16..20])?,
+            hit_type: self[20],
         })
     }
 }

@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::event::MapEvent;
 fn map_event_positive() {
     // Arrange
     let payload = vec![
-        1, 78, 0, 0, 0, 0, 0, 0, 0, // unit
+        78, 0, 0, 0, 0, 0, 0, 0, // unit
         0, // Event
     ];
 

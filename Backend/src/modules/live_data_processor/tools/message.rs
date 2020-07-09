@@ -17,8 +17,10 @@ impl MessageParser for Vec<u8> {
         println!("Reading Timestamp of {:?}", &self[3..11]);
         let timestamp = byte_reader::read_u64(&self[3..11]).unwrap();
         println!("Timestamp: {}", timestamp);
-        let payload = self[11..self.len()].to_vec();
-        let message_type = self[1].to_message_type(&payload)?;
+        println!("MSG TYPE {}, {:?}", self[1], self);
+        println!("LENGTH: {}", self.len()-11);
+        let message_type = self[1].to_message_type(&self[11..])?;
+        println!("MSG {:?}", message_type);
 
         Ok(Message {
             api_version,

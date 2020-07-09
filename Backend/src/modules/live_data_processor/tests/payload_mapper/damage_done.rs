@@ -4,8 +4,8 @@ use crate::modules::live_data_processor::tools::payload_mapper::damage_done::Map
 fn map_damage_done_from_melee_damage_positive() {
     // Arrange
     let payload = vec![
-        1, 234, 0, 0, 0, 0, 0, 0, 0, // Attacker
-        1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
+        234, 0, 0, 0, 0, 0, 0, 0, // Attacker
+        255, 0, 0, 0, 0, 0, 0, 0, // Victim
         32, 0, 0, 0, // Blocked
         4, // Hit Type for melee attacks
         4, // School
@@ -37,8 +37,8 @@ fn map_damage_done_from_melee_damage_positive() {
 fn map_damage_done_from_spell_damage_positive() {
     // Arrange
     let payload = vec![
-        1, 234, 0, 0, 0, 0, 0, 0, 0, // Attacker
-        1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
+        234, 0, 0, 0, 0, 0, 0, 0, // Attacker
+        255, 0, 0, 0, 0, 0, 0, 0, // Victim
         111, 0, 0, 0, // SpellId
         32, 0, 0, 0, // Blocked
         4, // School

@@ -7,12 +7,12 @@ pub trait MapCombatState {
 
 impl MapCombatState for [u8] {
     fn to_combat_state(&self) -> Result<CombatState, LiveDataProcessorFailure> {
-        if self.len() != 10 {
+        if self.len() != 9 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         Ok(CombatState {
-            unit: self[0..9].to_unit()?,
-            in_combat: self[9] == 1,
+            unit: self[0..8].to_unit()?,
+            in_combat: self[8] == 1,
         })
     }
 }

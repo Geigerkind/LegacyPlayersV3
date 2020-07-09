@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::loot::MapLoot;
 fn map_loot_positive() {
     // Arrange
     let payload = vec![
-        1, 7, 0, 0, 0, 0, 0, 0, 0, // unit
+        7, 0, 0, 0, 0, 0, 0, 0, // unit
         5, 0, 0, 0, // ItemId
     ];
 

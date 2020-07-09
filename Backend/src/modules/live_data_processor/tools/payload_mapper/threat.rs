@@ -8,15 +8,15 @@ pub trait MapThreat {
 
 impl MapThreat for [u8] {
     fn to_threat(&self) -> Result<Threat, LiveDataProcessorFailure> {
-        if self.len() != 26 {
+        if self.len() != 24 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
-        let spell_id = byte_reader::read_u32(&self[18..22])?;
+        let spell_id = byte_reader::read_u32(&self[16..20])?;
         Ok(Threat {
-            threater: self[0..9].to_unit()?,
-            threatened: self[9..18].to_unit()?,
+            threater: self[0..8].to_unit()?,
+            threatened: self[8..16].to_unit()?,
             spell_id: if spell_id == 0 { None } else { Some(spell_id) },
-            amount: byte_reader::read_i32(&self[22..26])?,
+            amount: byte_reader::read_i32(&self[20..24])?,
         })
     }
 }

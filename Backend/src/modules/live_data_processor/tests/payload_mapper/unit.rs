@@ -15,7 +15,7 @@ fn test_to_unit_failure() {
 #[test]
 fn test_to_unit_is_not_player() {
     // Arrange
-    let payload = vec![0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let payload = vec![0, 0, 0, 0, 0, 0, 0, 42];
 
     // Act
     let result = payload.to_unit();

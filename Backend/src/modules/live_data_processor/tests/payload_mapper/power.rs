@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::power::MapPower;
 fn map_power_positive() {
     // Arrange
     let payload = vec![
-        1, 78, 0, 0, 0, 0, 0, 0, 0, // unit
+        78, 0, 0, 0, 0, 0, 0, 0, // unit
         4, // PowerType
         200, 0, 0, 0, // MaxPower
         199, 0, 0, 0, // CurrentPower

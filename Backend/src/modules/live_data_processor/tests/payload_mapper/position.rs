@@ -7,7 +7,7 @@ fn map_position_positive() {
         10, 0, 0, 0, // MapId
         12, 0, 0, 0, // InstanceId
         7, // Difficulty
-        1, 78, 0, 0, 0, 0, 0, 0, 0, // unit,
+        78, 0, 0, 0, 0, 0, 0, 0, // unit,
         246, 255, 255, 255, // X
         10, 0, 0, 0, // Y
         90, 0, 0, 0, // Z

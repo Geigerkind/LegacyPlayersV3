@@ -4,8 +4,8 @@ use crate::modules::live_data_processor::tools::payload_mapper::heal_done::MapHe
 fn map_heal_done_positive() {
     // Arrange
     let payload = vec![
-        1, 12, 0, 0, 0, 0, 0, 0, 0, // caster
-        1, 13, 0, 0, 0, 0, 0, 0, 0, // target
+        12, 0, 0, 0, 0, 0, 0, 0, // caster
+        13, 0, 0, 0, 0, 0, 0, 0, // target
         99, 0, 0, 0, // SpellId
         255, 0, 0, 0, // Total heal
         100, 0, 0, 0, // Effective Heal

@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::combat_state::Ma
 fn map_combat_state_positive() {
     // Arrange
     let payload = vec![
-        1, 234, 0, 0, 0, 0, 0, 0, 0, // unit
+        234, 0, 0, 0, 0, 0, 0, 0, // unit
         1, // InCombat
     ];
 
@@ -35,7 +35,7 @@ fn map_combat_state_negative() {
 fn test_map_combat_state_in_combat_false() {
     // Arrange
     let payload = vec![
-        1, 234, 0, 0, 0, 0, 0, 0, 0, // unit
+        234, 0, 0, 0, 0, 0, 0, 0, // unit
         0, // InCombat
     ];
 

@@ -8,14 +8,14 @@ pub trait MapPower {
 
 impl MapPower for [u8] {
     fn to_power(&self) -> Result<Power, LiveDataProcessorFailure> {
-        if self.len() != 18 {
+        if self.len() != 17 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         Ok(Power {
-            unit: self[0..9].to_unit()?,
-            power_type: self[9],
-            max_power: byte_reader::read_u32(&self[10..14])?,
-            current_power: byte_reader::read_u32(&self[14..18])?,
+            unit: self[0..8].to_unit()?,
+            power_type: self[8],
+            max_power: byte_reader::read_u32(&self[9..13])?,
+            current_power: byte_reader::read_u32(&self[13..17])?,
         })
     }
 }

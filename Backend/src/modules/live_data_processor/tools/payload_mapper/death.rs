@@ -7,13 +7,13 @@ pub trait MapDeath {
 
 impl MapDeath for [u8] {
     fn to_death(&self) -> Result<Death, LiveDataProcessorFailure> {
-        if self.len() != 18 {
+        if self.len() != 16 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
-        let cause = self[0..9].to_unit()?;
+        let cause = self[0..8].to_unit()?;
         Ok(Death {
             cause: if cause.unit_id == 0 { None } else { Some(cause) },
-            victim: self[9..18].to_unit()?,
+            victim: self[8..16].to_unit()?,
         })
     }
 }

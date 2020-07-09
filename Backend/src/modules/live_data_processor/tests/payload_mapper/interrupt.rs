@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::interrupt::MapIn
 fn map_interrupt_positive() {
     // Arrange
     let payload = vec![
-        1, 78, 0, 0, 0, 0, 0, 0, 0, // Target
+        78, 0, 0, 0, 0, 0, 0, 0, // Target
         66, 0, 0, 0, // SpellId
     ];
 

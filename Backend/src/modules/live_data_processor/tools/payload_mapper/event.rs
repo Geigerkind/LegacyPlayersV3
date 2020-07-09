@@ -7,12 +7,12 @@ pub trait MapEvent {
 
 impl MapEvent for [u8] {
     fn to_event(&self) -> Result<Event, LiveDataProcessorFailure> {
-        if self.len() != 10 {
+        if self.len() != 9 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         Ok(Event {
-            unit: self[0..9].to_unit()?,
-            event_type: self[9],
+            unit: self[0..8].to_unit()?,
+            event_type: self[8],
         })
     }
 }

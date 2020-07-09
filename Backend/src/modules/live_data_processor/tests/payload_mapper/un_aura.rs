@@ -4,9 +4,9 @@ use crate::modules::live_data_processor::tools::payload_mapper::un_aura::MapUnAu
 fn map_un_aura_positive() {
     // Arrange
     let payload = vec![
-        1, 244, 0, 0, 0, 0, 0, 0, 0, // UnAura caster
-        1, 245, 0, 0, 0, 0, 0, 0, 0, // Target
-        1, 246, 0, 0, 0, 0, 0, 0, 0, // Aura caster
+        244, 0, 0, 0, 0, 0, 0, 0, // UnAura caster
+        245, 0, 0, 0, 0, 0, 0, 0, // Target
+        246, 0, 0, 0, 0, 0, 0, 0, // Aura caster
         144, 0, 0, 0, // un_aura_spell id
         145, 0, 0, 0, // target spell id
         2, // Amount

@@ -11,6 +11,7 @@ impl Server {
     pub fn parse_events(&mut self, armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
         let mut next_reset = 0;
         for msg in messages {
+            println!("Message: {:?}", msg);
             self.extract_meta_information(&msg);
             self.test_for_committable_events(armory, &msg);
             self.cleanup(msg.timestamp);

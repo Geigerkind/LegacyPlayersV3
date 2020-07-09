@@ -4,8 +4,8 @@ use crate::modules::live_data_processor::tools::payload_mapper::threat::MapThrea
 fn map_threat_positive() {
     // Arrange
     let payload = vec![
-        1, 2, 0, 0, 0, 0, 0, 0, 0, // threater
-        1, 3, 0, 0, 0, 0, 0, 0, 0, // threatened
+        2, 0, 0, 0, 0, 0, 0, 0, // threater
+        3, 0, 0, 0, 0, 0, 0, 0, // threatened
         213, 0, 0, 0, // SpellId
         240, 255, 255, 255, // Amount
     ];

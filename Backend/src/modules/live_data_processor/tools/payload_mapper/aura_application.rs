@@ -8,15 +8,15 @@ pub trait MapAuraApplication {
 
 impl MapAuraApplication for [u8] {
     fn to_aura_application(&self) -> Result<AuraApplication, LiveDataProcessorFailure> {
-        if self.len() != 27 {
+        if self.len() != 25 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         Ok(AuraApplication {
-            caster: self[0..9].to_unit()?,
-            target: self[9..18].to_unit()?,
-            spell_id: byte_reader::read_u32(&self[18..22]).unwrap(),
-            stack_amount: byte_reader::read_u32(&self[22..26]).unwrap(),
-            applied: self[26] == 1,
+            caster: self[0..8].to_unit()?,
+            target: self[8..16].to_unit()?,
+            spell_id: byte_reader::read_u32(&self[16..20]).unwrap(),
+            stack_amount: byte_reader::read_u32(&self[20..24]).unwrap(),
+            applied: self[24] == 1,
         })
     }
 }
