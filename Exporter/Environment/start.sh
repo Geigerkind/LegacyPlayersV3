@@ -9,10 +9,8 @@ updateFiles() {
 
   # Manual Backend update
   rm -r /lp_cm_backend/Backend/src
-  rm -r /lp_cm_backend/Backend/sub_crates
   rm /lp_cm_backend/Backend/Cargo.toml
   cp -r /LegacyPlayersV3/Exporter/Backend/src /lp_cm_backend/Backend/
-  cp -r /LegacyPlayersV3/Exporter/Backend/sub_crates /lp_cm_backend/Backend/
   cp /LegacyPlayersV3/Exporter/Backend/Cargo.toml /lp_cm_backend/Backend/
 
   # Manual DB update

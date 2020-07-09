@@ -57,7 +57,7 @@ fn main() {
     let mut transport_layer = TransportLayer::default().init();
     let mut armory_exporter = ArmoryExporter::default().init(&mut lp_consent_conn);
     let mut server_exporter = ServerExporter::default().init();
-    let mut consent_manager = ConsentManager::default().init(&mut lp_consent_conn);
+    let mut consent_manager = ConsentManager::default();
 
     let (s_char, r_char) = mpsc::channel::<(u32, CharacterDto)>();
     let (s_char_consent, r_char_consent) = mpsc::channel::<(bool, u32)>();
@@ -76,9 +76,11 @@ fn main() {
     transport_layer.receiver_server_message = Some(r_server_msg);
     transport_layer.receiver_meta_data_instance_reset = Some(r_meta_data_instance_reset);
 
+    consent_manager = consent_manager.init(&mut lp_consent_conn);
+
     thread::spawn(move || transport_layer.run());
-    thread::spawn(move || armory_exporter.run(characters_conn, lp_consent_conn));
     thread::spawn(move || server_exporter.run());
+    thread::spawn(move || armory_exporter.run(characters_conn, lp_consent_conn));
 
     rocket::ignite()
         .manage(consent_manager)
