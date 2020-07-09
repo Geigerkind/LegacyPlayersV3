@@ -11,14 +11,14 @@ extern crate dotenv;
 #[macro_use]
 extern crate lazy_static;
 
-use std::{thread, env};
 use dotenv::dotenv;
+use std::{env, thread};
 
 use modules::ConsentManager;
 
-use crate::modules::{ArmoryExporter, TransportLayer, CharacterDto, ServerExporter, InstanceReset};
-use std::sync::mpsc;
+use crate::modules::{ArmoryExporter, CharacterDto, InstanceReset, ServerExporter, TransportLayer};
 use crate::rocket_contrib::databases::mysql;
+use std::sync::mpsc;
 
 mod dto;
 mod modules;
@@ -39,13 +39,7 @@ fn prolong_token() {
     let token = env::var("LP_API_TOKEN").unwrap();
     let uri = env::var("URL_PROLONG_TOKEN").unwrap();
     let client = reqwest::blocking::Client::new();
-    let _ = client
-        .post(&uri)
-        .body(serde_json::to_string(&ProlongToken {
-            token,
-            days: 30,
-        }).unwrap())
-        .send();
+    let _ = client.post(&uri).body(serde_json::to_string(&ProlongToken { token, days: 30 }).unwrap()).send();
 }
 
 fn main() {
@@ -90,12 +84,15 @@ fn main() {
         .manage(consent_manager)
         .attach(DbCharacters::fairing())
         .attach(DbLpConsent::fairing())
-        .mount("/API/consent_manager/", routes![
-      modules::consent_manager::transfer::character::get_characters,
-      modules::consent_manager::transfer::character::give_consent,
-      modules::consent_manager::transfer::character::withdraw_consent,
-      modules::consent_manager::transfer::guild::give_consent,
-      modules::consent_manager::transfer::guild::withdraw_consent,
-    ])
+        .mount(
+            "/API/consent_manager/",
+            routes![
+                modules::consent_manager::transfer::character::get_characters,
+                modules::consent_manager::transfer::character::give_consent,
+                modules::consent_manager::transfer::character::withdraw_consent,
+                modules::consent_manager::transfer::guild::give_consent,
+                modules::consent_manager::transfer::guild::withdraw_consent,
+            ],
+        )
         .launch();
 }

@@ -1,3 +1,4 @@
+pub use self::arena_team::ArenaTeam;
 pub use self::character::CharacterDto;
 pub use self::character_facial::CharacterFacialDto;
 pub use self::character_gear::CharacterGearDto;
@@ -7,17 +8,16 @@ pub use self::character_info::CharacterInfoDto;
 pub use self::character_item::CharacterItemDto;
 pub use self::guild::GuildDto;
 pub use self::guild_rank::GuildRank;
-pub use self::arena_team::ArenaTeam;
 pub use self::instance_reset::InstanceReset;
 
-mod character_item;
+mod arena_team;
 mod character;
-mod character_info;
-mod character_gear;
 mod character_facial;
+mod character_gear;
 mod character_guild;
 mod character_history;
+mod character_info;
+mod character_item;
 mod guild;
 mod guild_rank;
-mod arena_team;
 mod instance_reset;

@@ -44,17 +44,22 @@ impl Exists for crate::rocket_contrib::databases::mysql::Conn {
     }
 
     fn exists_wparams(&mut self, query_str: &str, params: Vec<(String, Value)>) -> bool {
-        self.select_wparams_value(&["SELECT EXISTS(", query_str, ")"].concat(), &|row| crate::rocket_contrib::databases::mysql::from_row(row), params).unwrap()
+        self.select_wparams_value(&["SELECT EXISTS(", query_str, ")"].concat(), &|row| crate::rocket_contrib::databases::mysql::from_row(row), params)
+            .unwrap()
     }
 }
 
 impl Select for crate::rocket_contrib::databases::mysql::Conn {
     fn select<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F) -> Vec<T> {
-        self.prep_exec(query_str, ()).map(|result| result.map(|x| x.unwrap()).map(|row| process_row(crate::rocket_contrib::databases::mysql::from_row(row))).collect()).unwrap()
+        self.prep_exec(query_str, ())
+            .map(|result| result.map(|x| x.unwrap()).map(|row| process_row(crate::rocket_contrib::databases::mysql::from_row(row))).collect())
+            .unwrap()
     }
 
     fn select_wparams<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F, params: Vec<(String, Value)>) -> Vec<T> {
-        self.prep_exec(query_str, params).map(|result| result.map(|x| x.unwrap()).map(|row| process_row(crate::rocket_contrib::databases::mysql::from_row(row))).collect()).unwrap()
+        self.prep_exec(query_str, params)
+            .map(|result| result.map(|x| x.unwrap()).map(|row| process_row(crate::rocket_contrib::databases::mysql::from_row(row))).collect())
+            .unwrap()
     }
 
     fn select_value<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, query_str: &str, process_row: F) -> Option<T> {
