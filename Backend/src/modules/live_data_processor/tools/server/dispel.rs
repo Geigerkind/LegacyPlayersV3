@@ -32,7 +32,7 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
                 }
             },
             EventType::AuraApplication(aura_application) => {
-                if aura_application_event_ids.len() < dispel.un_aura_amount as usize && event.subject == target && aura_application.caster == aura_caster && aura_application.spell_id == dispel.target_spell_id {
+                if aura_application_event_ids.len() < dispel.un_aura_amount as usize && event.subject == target && aura_application.spell_id == dispel.target_spell_id {
                     aura_application_event_ids.push(event.id);
                 }
             },

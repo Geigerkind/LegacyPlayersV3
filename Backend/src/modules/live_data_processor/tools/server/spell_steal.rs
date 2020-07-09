@@ -30,7 +30,7 @@ pub fn try_parse_spell_steal(spell_steal: &UnAura, committed_events: &[Event], t
                 }
             },
             EventType::AuraApplication(aura_application) => {
-                if event.subject == target && aura_application.caster == aura_caster && aura_application.spell_id == spell_steal.target_spell_id && aura_application.stack_amount > 0 {
+                if event.subject == target && aura_application.spell_id == spell_steal.target_spell_id && aura_application.stack_amount > 0 {
                     aura_application_event_id = Some(event.id);
                 }
             },

@@ -208,6 +208,9 @@ fn main() {
                 tooltip::transfer::guild_tooltip::get_guild,
             ],
         )
-        .mount("/API/live_data_processor", routes_with_openapi![live_data_processor::transfer::package::get_package])
+        .mount("/API/live_data_processor", routes_with_openapi![
+                live_data_processor::transfer::package::get_package,
+                live_data_processor::transfer::export::get_instance
+            ])
         .launch();
 }
