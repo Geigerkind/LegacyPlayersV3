@@ -23,6 +23,7 @@ services:
         ipv4_address: 172.32.128.4
   lpcmbackend:
     build: lp_cm_backend
+    restart: always
     networks:
       lp_cm_net:
         ipv4_address: 172.32.128.5

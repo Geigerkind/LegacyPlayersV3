@@ -7,5 +7,6 @@ impl Server {
         // TODO: Set end_ts of instance
         // TODO: Extract Attempts?
         // TODO: Extract Ranking
+        // TODO: Extract Loot
     }
 }

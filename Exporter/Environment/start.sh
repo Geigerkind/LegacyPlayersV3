@@ -1,10 +1,14 @@
 running=1
 
 updateFiles() {
-  # TODO only execute this if git pull has changes
   cd /LegacyPlayersV3
   git stash
-  git pull
+
+  GIT_RESPONSE=$(git pull)
+  if [ "${GIT_RESPONSE}" == "Already up to date." ] && [ -z "${1}" ]; then
+        return 0;
+  fi;
+
   cd /
 
   # Manual Backend update
@@ -19,7 +23,6 @@ updateFiles() {
 
   ls -l /lp_cm_mariadb/Database/patches/
 
-  #yes | docker-compose rm --all
   docker-compose build --no-cache lpcmbackend
 }
 
@@ -28,7 +31,7 @@ cleanup() {
     docker-compose stop
     running=0
 }
-trap 'cleanup' SIGTERM SIGINT
+trap 'cleanup' SIGTERM SIGINT SIGHUP SIGKILL SIGABRT SIGQUIT
 
 updateFiles
 
