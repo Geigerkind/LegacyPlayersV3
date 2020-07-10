@@ -174,8 +174,10 @@ fn main() {
                 data::transfer::item_random_property_points::get_item_random_property_points,
                 data::transfer::map::get_map,
                 data::transfer::map::get_all_maps,
+                data::transfer::map::get_all_maps_by_type,
                 data::transfer::map::get_map_localized,
                 data::transfer::map::get_all_maps_localized,
+                data::transfer::map::get_all_maps_localized_by_type,
             ],
         )
         .mount(

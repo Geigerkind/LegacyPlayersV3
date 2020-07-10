@@ -46,7 +46,7 @@ pub struct Data {
     pub itemset_effects: Vec<HashMap<u16, Vec<ItemsetEffect>>>,
     pub titles: HashMap<u16, Title>,
     pub item_random_property_points: HashMap<u8, Vec<ItemRandomPropertyPoints>>,
-    pub maps: HashMap<u16, Map>
+    pub maps: HashMap<u16, Map>,
 }
 
 impl Default for Data {
@@ -87,7 +87,7 @@ impl Default for Data {
             itemset_effects: Vec::new(),
             titles: HashMap::new(),
             item_random_property_points: HashMap::new(),
-            maps: HashMap::new()
+            maps: HashMap::new(),
         }
     }
 }
@@ -839,8 +839,9 @@ impl Init for HashMap<u16, Map> {
         db_main
             .select("SELECT * FROM data_map", |mut row| Map {
                 id: row.take(0).unwrap(),
-                localization_id: row.take(1).unwrap(),
-                icon: row.take(2).unwrap(),
+                map_type: row.take(1).unwrap(),
+                localization_id: row.take(2).unwrap(),
+                icon: row.take(3).unwrap(),
             })
             .into_iter()
             .for_each(|result| {
