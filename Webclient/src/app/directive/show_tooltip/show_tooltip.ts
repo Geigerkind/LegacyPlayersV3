@@ -1,11 +1,11 @@
-import {Directive, HostListener, Input} from '@angular/core';
+import {Directive, HostListener, Input, OnDestroy} from '@angular/core';
 import {TooltipControllerService} from "../../service/tooltip_controller";
 import {Router} from "@angular/router";
 
 @Directive({
     selector: '[showTooltip]'
 })
-export class ShowTooltipDirective {
+export class ShowTooltipDirective implements OnDestroy {
 
     private clicked: boolean = false;
     @Input('showTooltip') tooltipArgs: any;
@@ -18,6 +18,10 @@ export class ShowTooltipDirective {
             this.clicked = false;
             this.tooltipControllerService.hideTooltip();
         });
+    }
+
+    ngOnDestroy(): void {
+        this.tooltipControllerService.hideTooltip();
     }
 
     @HostListener('click', ["$event"])
