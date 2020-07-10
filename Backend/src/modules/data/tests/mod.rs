@@ -31,3 +31,4 @@ mod spell_description;
 mod spell_effect;
 mod stat_type;
 mod title;
+mod map;

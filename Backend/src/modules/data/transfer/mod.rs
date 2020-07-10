@@ -30,3 +30,4 @@ pub mod spell;
 pub mod spell_effect;
 pub mod stat_type;
 pub mod title;
+pub mod map;

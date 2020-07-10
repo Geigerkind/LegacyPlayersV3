@@ -9,6 +9,7 @@ use crate::modules::data::{
 };
 use crate::util::database::*;
 use language::material::Dictionary;
+use crate::modules::data::domain_value::Map;
 
 #[derive(Debug)]
 pub struct Data {
@@ -45,6 +46,7 @@ pub struct Data {
     pub itemset_effects: Vec<HashMap<u16, Vec<ItemsetEffect>>>,
     pub titles: HashMap<u16, Title>,
     pub item_random_property_points: HashMap<u8, Vec<ItemRandomPropertyPoints>>,
+    pub maps: HashMap<u16, Map>
 }
 
 impl Default for Data {
@@ -85,6 +87,7 @@ impl Default for Data {
             itemset_effects: Vec::new(),
             titles: HashMap::new(),
             item_random_property_points: HashMap::new(),
+            maps: HashMap::new()
         }
     }
 }
@@ -123,6 +126,7 @@ impl Data {
         self.itemset_effects.init(db_main);
         self.titles.init(db_main);
         self.item_random_property_points.init(db_main);
+        self.maps.init(db_main);
         self
     }
 }
@@ -826,6 +830,21 @@ impl Init for HashMap<u8, Vec<ItemRandomPropertyPoints>> {
                 } else {
                     current_vec.push(result);
                 }
+            });
+    }
+}
+
+impl Init for HashMap<u16, Map> {
+    fn init(&mut self, db_main: &mut impl Select) {
+        db_main
+            .select("SELECT * FROM data_map", |mut row| Map {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                icon: row.take(2).unwrap(),
+            })
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.id, result);
             });
     }
 }

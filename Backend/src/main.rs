@@ -172,6 +172,10 @@ fn main() {
                 data::transfer::title::get_title,
                 data::transfer::title::get_all_titles,
                 data::transfer::item_random_property_points::get_item_random_property_points,
+                data::transfer::map::get_map,
+                data::transfer::map::get_all_maps,
+                data::transfer::map::get_map_localized,
+                data::transfer::map::get_all_maps_localized,
             ],
         )
         .mount(
