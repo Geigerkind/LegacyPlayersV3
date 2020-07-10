@@ -13,8 +13,11 @@ pub trait MapUnit {
 impl MapUnit for dto::Unit {
     fn to_unit(&self, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure> {
         if self.is_player {
+            // TODO: Create 'empty' character here!
+            let character = armory.get_character_by_uid(server_id, self.unit_id).expect("TODO: Create 'empty' character here!");
             Ok(domain_value::Unit::Player(domain_value::Player {
-                character: armory.get_character_by_uid(server_id, self.unit_id).expect("TODO: Create 'empty' character here!"),
+                character_id: character.id,
+                server_uid: character.server_uid
             }))
         } else {
             Ok(domain_value::Unit::Creature(domain_value::Creature {
