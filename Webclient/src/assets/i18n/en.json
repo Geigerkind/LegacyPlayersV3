@@ -160,8 +160,8 @@
             "signIn": "Sign in",
             "signUp": "Sign up"
         },
-        "raids": {
-            "title": "Raids",
+        "pve": {
+            "title": "PvE",
             "bosses": "Bosses",
             "ranking": "Ranking",
             "speed_kill": "Speed kills",
@@ -177,7 +177,9 @@
             "title": "PvP",
             "standings": "Standings",
             "hk_life": "Lifetime kills",
-            "arena": "Arena"
+            "arena": "Arena",
+            "skirmish": "Skirmish",
+            "battleground": "Battleground"
         },
         "tools": {
             "title": "Tools",
