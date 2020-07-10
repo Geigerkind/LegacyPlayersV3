@@ -1,7 +1,7 @@
-use crate::util::database::Execute;
+use crate::modules::live_data_processor::dto::{InstanceResetDto, LiveDataProcessorFailure};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, InstanceResetDto};
 use crate::params;
+use crate::util::database::Execute;
 
 pub trait HandleInstanceReset {
     fn set_instance_resets(&mut self, db_main: &mut impl Execute, instance_resets: Vec<InstanceResetDto>) -> Result<(), LiveDataProcessorFailure>;

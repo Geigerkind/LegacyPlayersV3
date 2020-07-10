@@ -6,8 +6,8 @@ use rocket::http::ContentType;
 use rocket::{Data, State};
 
 use crate::modules::armory::Armory;
-use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 use crate::MainDb;
+use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 
 #[openapi(skip)]
 #[post("/package", format = "multipart/form-data", data = "<data>")]

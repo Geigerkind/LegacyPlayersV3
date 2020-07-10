@@ -7,7 +7,7 @@ use std::io::Cursor;
 #[derive(Debug, JsonSchema)]
 pub enum LiveDataProcessorFailure {
     InvalidInput,
-    DatabaseFailure(String)
+    DatabaseFailure(String),
 }
 
 impl Responder<'static> for LiveDataProcessorFailure {
@@ -19,7 +19,7 @@ impl Responder<'static> for LiveDataProcessorFailure {
                 Status::new(534, "InvalidInput")
             },
             LiveDataProcessorFailure::DatabaseFailure(reason) => {
-                body = reason.clone();
+                body = reason;
                 Status::new(535, "DatabaseFailure")
             },
         };

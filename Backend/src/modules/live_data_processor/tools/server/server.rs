@@ -1,3 +1,4 @@
+use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, Position, Power, PowerType, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, DamageDone, Death, HealDone, Loot, SpellCast, Summon, Threat};
@@ -6,9 +7,8 @@ use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_cast, try_parse_spell_steal};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
-use crate::util::database::{Execute, Select};
 use crate::params;
-use crate::modules::armory::tools::GetArenaTeam;
+use crate::util::database::{Execute, Select};
 
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
@@ -49,10 +49,10 @@ impl Server {
                     match &committable_event {
                         Event { event: EventType::SpellCast(_), .. } => {
                             remove_all_non_committed_events.push(*subject_id);
-                        }
+                        },
                         _ => {
                             remove_first_non_committed_event.push(*subject_id);
-                        }
+                        },
                     };
 
                     if let Some(unit_instance_id) = self.unit_instance_id.get(subject_id) {
@@ -64,14 +64,14 @@ impl Server {
                         }
                     }
                     // Else discard I guess
-                }
+                },
                 Err(EventParseFailureAction::DiscardAll) => {
                     remove_all_non_committed_events.push(*subject_id);
-                }
+                },
                 Err(EventParseFailureAction::DiscardFirst) => {
                     remove_first_non_committed_event.push(*subject_id);
-                }
-                Err(EventParseFailureAction::Wait) => {}
+                },
+                Err(EventParseFailureAction::Wait) => {},
             };
         }
         for subject_id in remove_all_non_committed_events {
@@ -158,12 +158,12 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::DiscardFirst)
-            }
+            },
             MessageType::Summon(summon) => {
                 let summoner = summon.owner.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let summoned = summon.unit.to_unit(armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned }))
-            }
+            },
             // Spell can be between 1 and N events
             MessageType::SpellCast(SpellCast { caster: unit, .. })
             | MessageType::Threat(Threat { threater: unit, .. })
@@ -176,7 +176,7 @@ impl Server {
                     subject.clone(),
                     EventType::SpellCast(try_parse_spell_cast(armory, self.server_id, &self.summons, &non_committed_event, &next_message, &subject)?),
                 ))
-            }
+            },
 
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
@@ -191,7 +191,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::Wait)
-            }
+            },
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -205,7 +205,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::Wait)
-            }
+            },
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -219,7 +219,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::Wait)
-            }
+            },
             _ => Err(EventParseFailureAction::DiscardFirst),
         }
     }
@@ -228,35 +228,38 @@ impl Server {
         match &message.message_type {
             MessageType::Summon(Summon { owner, unit }) => {
                 self.summons.insert(owner.unit_id, unit.unit_id);
-            }
+            },
             MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
                 if !self.active_instances.contains_key(instance_id) {
                     // TODO: What if instance id is recycled during reset cycle, e.g.
                     // If a player goes into an instance but resets it afterwards without killing a boss
 
                     // Maybe sanity check, if active instance already exists, before?
-                    if db_main.execute_wparams("INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`, `map_difficulty`) VALUES \
-                                            (:server_id, :start_ts, :instance_id, :map_id, :map_difficulty)",
-                                               params!(
-                                                "server_id" => self.server_id,
-                                                "start_ts" => message.timestamp,
-                                                "instance_id" => *instance_id,
-                                                "map_id" => *map_id as u16,
-                                                "map_difficulty" => *map_difficulty
-                                                ),
+                    if db_main.execute_wparams(
+                        "INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`, `map_difficulty`) VALUES (:server_id, :start_ts, :instance_id, :map_id, :map_difficulty)",
+                        params!(
+                        "server_id" => self.server_id,
+                        "start_ts" => message.timestamp,
+                        "instance_id" => *instance_id,
+                        "map_id" => *map_id as u16,
+                        "map_difficulty" => *map_difficulty
+                        ),
                     ) {
-                        let instance_meta_id = db_main.select_wparams_value(
-                            "SELECT id FROM instance_meta \
-                            WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND map_difficulty=:map_difficulty",
-                            |mut row| {
-                                let instance_meta_id: u32 = row.take(0).unwrap();
-                                instance_meta_id
-                            }, params!(
+                        let instance_meta_id = db_main
+                            .select_wparams_value(
+                                "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND map_difficulty=:map_difficulty",
+                                |mut row| {
+                                    let instance_meta_id: u32 = row.take(0).unwrap();
+                                    instance_meta_id
+                                },
+                                params!(
                                 "server_id" => self.server_id,
                                 "instance_id" => *instance_id,
                                 "map_id" => *map_id as u16,
                                 "map_difficulty" => *map_difficulty
-                                )).expect("Should exist and DB shouldn't have gone away");
+                                ),
+                            )
+                            .expect("Should exist and DB shouldn't have gone away");
 
                         self.active_instances.insert(
                             *instance_id,
@@ -271,41 +274,55 @@ impl Server {
                     }
                 }
                 self.unit_instance_id.insert(unit.unit_id, *instance_id);
-            }
-            MessageType::InstancePvPEndBattleground(dto::InstanceBattleground { instance_id, winner, score_alliance, score_horde, .. }) => {
+            },
+            MessageType::InstancePvPEndBattleground(dto::InstanceBattleground {
+                instance_id,
+                winner,
+                score_alliance,
+                score_horde,
+                ..
+            }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     if self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id)
                         && db_main.execute_wparams(
-                        "INSERT INTO instance_battleground (`instance_meta_id`, `winner`, `score_alliance`, `score_horde`) VALUES \
-                                (:instance_meta_id, :winner, :score_alliance, :score_horde)",
-                        params!(
-                            "instance_meta_id" => *instance_meta_id,
-                            "winner" => *winner,
-                            "score_alliance" => *score_alliance,
-                            "score_horde" => *score_horde
-                        ))
+                            "INSERT INTO instance_battleground (`instance_meta_id`, `winner`, `score_alliance`, `score_horde`) VALUES (:instance_meta_id, :winner, :score_alliance, :score_horde)",
+                            params!(
+                                "instance_meta_id" => *instance_meta_id,
+                                "winner" => *winner,
+                                "score_alliance" => *score_alliance,
+                                "score_horde" => *score_horde
+                            ),
+                        )
                     {
                         // TODO: Remove regardless of db success?
                         self.active_instances.remove(instance_id);
                     }
                 }
-            }
-            MessageType::InstancePvPEndRatedArena(dto::InstanceArena { instance_id, winner, team_id1, team_id2, team_change1, team_change2, .. }) => {
+            },
+            MessageType::InstancePvPEndRatedArena(dto::InstanceArena {
+                instance_id,
+                winner,
+                team_id1,
+                team_id2,
+                team_change1,
+                team_change2,
+                ..
+            }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     if let Some(team1) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id1) {
                         if let Some(team2) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id2) {
                             if self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id)
                                 && db_main.execute_wparams(
-                                "INSERT INTO instance_rated_arena (`instance_meta_id`, `team_id1`, `team_id2`, `winner`, `team_change1`, `team_change2`) VALUES \
-                                (:instance_meta_id, :team_id1, :team_id2, :winner, :team_change1, :team_change2)",
-                                params!(
-                            "instance_meta_id" => *instance_meta_id,
-                            "team_id1" => team1.id,
-                            "team_id2" => team2.id,
-                            "winner" => *winner,
-                            "team_change1" => *team_change1,
-                            "team_change2" => *team_change2
-                        ))
+                                    "INSERT INTO instance_rated_arena (`instance_meta_id`, `team_id1`, `team_id2`, `winner`, `team_change1`, `team_change2`) VALUES (:instance_meta_id, :team_id1, :team_id2, :winner, :team_change1, :team_change2)",
+                                    params!(
+                                        "instance_meta_id" => *instance_meta_id,
+                                        "team_id1" => team1.id,
+                                        "team_id2" => team2.id,
+                                        "winner" => *winner,
+                                        "team_change1" => *team_change1,
+                                        "team_change2" => *team_change2
+                                    ),
+                                )
                             {
                                 // TODO: Remove regardless of db success?
                                 self.active_instances.remove(instance_id);
@@ -313,24 +330,24 @@ impl Server {
                         }
                     }
                 }
-            }
+            },
             MessageType::InstancePvPEndUnratedArena(dto::Instance { instance_id, winner, .. }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     if self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id)
                         && db_main.execute_wparams(
-                        "INSERT INTO instance_skirmish (`instance_meta_id`, `winner`) VALUES \
-                                (:instance_meta_id, :winner)",
-                        params!(
-                            "instance_meta_id" => *instance_meta_id,
-                            "winner" => winner.expect("Should exist for End message type")
-                        ))
+                            "INSERT INTO instance_skirmish (`instance_meta_id`, `winner`) VALUES (:instance_meta_id, :winner)",
+                            params!(
+                                "instance_meta_id" => *instance_meta_id,
+                                "winner" => winner.expect("Should exist for End message type")
+                            ),
+                        )
                     {
                         // TODO: Remove regardless of db success?
                         self.active_instances.remove(instance_id);
                     }
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -338,9 +355,10 @@ impl Server {
         db_main.execute_wparams(
             "UPDATE instance_meta SET end_ts=:end_ts, expired=1 WHERE instance_meta_id=:instance_meta_id",
             params!(
-                            "end_ts" => end_ts,
-                            "instance_meta_id" => instance_meta_id
-                        ))
+                "end_ts" => end_ts,
+                "instance_meta_id" => instance_meta_id
+            ),
+        )
     }
 
     /// Returns timestamp when the next reset is required
@@ -362,9 +380,10 @@ impl Server {
             if db_main.execute_wparams(
                 "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=1 WHERE instance_meta_id=:instance_meta_id",
                 params!(
-                            "end_ts" => now,
-                            "instance_meta_id" => instance_meta_id
-                        )) {
+                    "end_ts" => now,
+                    "instance_meta_id" => instance_meta_id
+                ),
+            ) {
                 self.active_instances.remove(&instance_id);
             }
         }

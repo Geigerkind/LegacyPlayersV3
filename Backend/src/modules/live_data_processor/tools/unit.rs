@@ -17,7 +17,7 @@ impl MapUnit for dto::Unit {
             let character = armory.get_character_by_uid(server_id, self.unit_id).expect("TODO: Create 'empty' character here!");
             Ok(domain_value::Unit::Player(domain_value::Player {
                 character_id: character.id,
-                server_uid: character.server_uid
+                server_uid: character.server_uid,
             }))
         } else {
             Ok(domain_value::Unit::Creature(domain_value::Creature {

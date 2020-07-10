@@ -95,7 +95,9 @@ fn test_set_character_history_update_not_successful() {
             false
         }
 
-        fn execute_batch_wparams<T: 'static, F: 'static + (Fn(T) -> std::vec::Vec<(std::string::String, Value)>)>(&mut self, _query_str: &str, _params: Vec<T>, _params_process: F) -> bool { unimplemented!() }
+        fn execute_batch_wparams<T: 'static, F: 'static + (Fn(T) -> std::vec::Vec<(std::string::String, Value)>)>(&mut self, _query_str: &str, _params: Vec<T>, _params_process: F) -> bool {
+            unimplemented!()
+        }
     }
     impl Select for DbMock {
         fn select<T: 'static, F: 'static + (Fn(Row) -> T)>(&mut self, _query_str: &str, _process_row: F) -> Vec<T> {

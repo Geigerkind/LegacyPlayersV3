@@ -1,9 +1,9 @@
 // TODO: Move functionality into this module?
 use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent, UnitInstance};
+use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::params;
 use crate::util::database::Select;
 use std::collections::HashMap;
-use crate::modules::live_data_processor::dto::InstanceResetDto;
 
 pub struct Server {
     pub server_id: u32,
@@ -39,14 +39,19 @@ impl Server {
 
     pub fn init(mut self, db_main: &mut impl Select) -> Self {
         // Load active instances
-        db_main.select_wparams("SELECT id, start_td, map_id, map_difficulty, instance_id FROM instance_meta WHERE expired=0 AND server_id=:server_id",
-                               |mut row| UnitInstance {
-                                   instance_meta_id: row.take(0).unwrap(),
-                                   entered: row.take(1).unwrap(),
-                                   map_id: row.take(2).unwrap(),
-                                   map_difficulty: row.take(3).unwrap(),
-                                   instance_id: row.take(4).unwrap(),
-                               }, params!("server_id" => self.server_id)).into_iter()
+        db_main
+            .select_wparams(
+                "SELECT id, start_td, map_id, map_difficulty, instance_id FROM instance_meta WHERE expired=0 AND server_id=:server_id",
+                |mut row| UnitInstance {
+                    instance_meta_id: row.take(0).unwrap(),
+                    entered: row.take(1).unwrap(),
+                    map_id: row.take(2).unwrap(),
+                    map_difficulty: row.take(3).unwrap(),
+                    instance_id: row.take(4).unwrap(),
+                },
+                params!("server_id" => self.server_id),
+            )
+            .into_iter()
             .for_each(|unit_instance| {
                 self.active_instances.insert(unit_instance.instance_id, unit_instance);
             });

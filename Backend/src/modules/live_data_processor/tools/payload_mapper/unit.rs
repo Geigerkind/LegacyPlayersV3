@@ -11,9 +11,6 @@ impl MapUnit for [u8] {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         let unit_id = byte_reader::read_u64(&self[0..8]).unwrap();
-        Ok(Unit {
-            is_player: unit_id.is_player(),
-            unit_id,
-        })
+        Ok(Unit { is_player: unit_id.is_player(), unit_id })
     }
 }

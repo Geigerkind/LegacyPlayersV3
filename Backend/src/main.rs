@@ -1,6 +1,7 @@
 #![allow(clippy::module_inception)]
 #![allow(clippy::unused_unit)]
 #![allow(clippy::ptr_arg)]
+#![allow(clippy::blocks_in_if_conditions)]
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
 #![feature(in_band_lifetimes)]
@@ -213,7 +214,7 @@ fn main() {
                 live_data_processor::transfer::package::get_package,
                 live_data_processor::transfer::export::get_instance,
                 live_data_processor::transfer::instance_reset::set_instance_resets
-                ],
+            ],
         )
         .launch();
 }
