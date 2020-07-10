@@ -28,9 +28,9 @@ export class NavigationBarComponent implements OnInit {
 
     itemsPvP = [
         ["/pvp/", "NavigationBar.pvp.title"],
-        // ["/pvp/arena/", "NavigationBar.pvp.arena"],
-        // ["/pvp/skirmish/", "NavigationBar.pvp.skirmish"],
-        // ["/pvp/battleground/", "NavigationBar.pvp.battleground"],
+        ["/pvp/battleground", "NavigationBar.pvp.battleground"],
+        ["/pvp/arena/", "NavigationBar.pvp.arena"],
+        ["/pvp/skirmish/", "NavigationBar.pvp.skirmish"],
         /*
         ["/pvp/standings/", "NavigationBar.pvp.standings"],
         ["/pvp/hk_life/", "NavigationBar.pvp.hk_life"],

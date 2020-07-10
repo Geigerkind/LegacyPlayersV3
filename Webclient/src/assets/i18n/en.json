@@ -146,7 +146,7 @@
             "title": "Connect",
             "discord": "Discord",
             "report_issue": "Report bug",
-            "report_feature": "Report feature"
+            "report_feature": "Suggest feature"
         },
         "copyright": "©2017-{{year}} {{company}}. All rights reserved."
     },
@@ -299,6 +299,46 @@
             "title": "Contribute as individual",
             "description": "Currently it is not possible to upload logs as individual. This feature is planned for mid/end of may.",
             "description2": "Please contact your server's admins and urge them to contribute directly instead."
+        }
+    },
+    "PvE": {
+        "Search": {
+            "raid": "Raid",
+            "difficulty": "Difficulty",
+            "guild": "Guild",
+            "server": "Server",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        }
+    },
+    "PvP": {
+        "Battleground": {
+            "battleground": "Battleground",
+            "server": "Server",
+            "score_alliance": "Score Alliance",
+            "score_horde": "Score Horde",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        },
+        "Arena": {
+            "arena": "Arena",
+            "server": "Server",
+            "team1": "Team Blue",
+            "team2": "Team Red",
+            "change1": "Rating Blue",
+            "change2": "Rating Red",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        },
+        "Skirmish": {
+            "arena": "Arena",
+            "server": "Server",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
         }
     }
 }
