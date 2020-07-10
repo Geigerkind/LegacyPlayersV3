@@ -8,5 +8,6 @@ mod dispel;
 mod instance_reset;
 mod interrupt;
 pub mod server;
+pub mod server_post_processing;
 mod spell_cast;
 mod spell_steal;

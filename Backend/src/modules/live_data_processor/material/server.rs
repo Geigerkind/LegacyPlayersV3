@@ -1,4 +1,3 @@
-// TODO: Move functionality into this module?
 use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent, UnitInstance};
 use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::params;
@@ -20,7 +19,7 @@ pub struct Server {
     // Mapping player to non committed event
     pub non_committed_events: HashMap<u64, NonCommittedEvent>,
     // Instance_id => Events
-    pub committed_events: HashMap<u32, Vec<Event>>, // TODO: Write into files instead
+    pub committed_events: HashMap<u32, Vec<Event>>,
 }
 
 impl Server {
