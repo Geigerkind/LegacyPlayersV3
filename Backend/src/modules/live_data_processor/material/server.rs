@@ -1,9 +1,9 @@
-use crate::modules::armory::dto::InstanceResetDto;
 // TODO: Move functionality into this module?
 use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent, UnitInstance};
 use crate::params;
 use crate::util::database::Select;
 use std::collections::HashMap;
+use crate::modules::live_data_processor::dto::InstanceResetDto;
 
 pub struct Server {
     pub server_id: u32,

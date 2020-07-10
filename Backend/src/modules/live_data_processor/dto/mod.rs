@@ -19,6 +19,7 @@ pub use self::summon::Summon;
 pub use self::threat::Threat;
 pub use self::un_aura::UnAura;
 pub use self::unit::Unit;
+pub use self::instance_reset::InstanceResetDto;
 
 mod aura_application;
 mod combat_state;
@@ -41,3 +42,4 @@ mod summon;
 mod threat;
 mod un_aura;
 mod unit;
+mod instance_reset;

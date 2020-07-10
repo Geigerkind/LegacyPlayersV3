@@ -194,8 +194,7 @@ fn main() {
                 armory::transfer::character_search::get_character_search_result,
                 armory::transfer::character_viewer::get_character_viewer,
                 armory::transfer::character_viewer::get_character_viewer_by_history,
-                armory::transfer::guild_viewer::get_guild_view,
-                armory::transfer::instance_reset::set_instance_resets
+                armory::transfer::guild_viewer::get_guild_view
             ],
         )
         .mount(
@@ -210,7 +209,11 @@ fn main() {
         )
         .mount(
             "/API/live_data_processor",
-            routes_with_openapi![live_data_processor::transfer::package::get_package, live_data_processor::transfer::export::get_instance],
+            routes_with_openapi![
+                live_data_processor::transfer::package::get_package,
+                live_data_processor::transfer::export::get_instance,
+                live_data_processor::transfer::instance_reset::set_instance_resets
+                ],
         )
         .launch();
 }

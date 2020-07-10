@@ -343,7 +343,6 @@ impl Server {
                         ))
     }
 
-    // TODO: Update instance resets map when they are updated
     /// Returns timestamp when the next reset is required
     pub fn reset_instances(&mut self, db_main: &mut impl Execute, now: u64) -> u64 {
         for (instance_id, instance_meta_id) in self
