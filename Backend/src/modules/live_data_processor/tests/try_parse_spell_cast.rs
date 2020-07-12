@@ -3,9 +3,13 @@ use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, Me
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::HashMap;
+use crate::tests::TestContainer;
 
 #[test]
 fn test_correct_shortcut_condition() {
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
+
     // setup dependencies
     let armory = Armory::default();
 
@@ -104,7 +108,7 @@ fn test_correct_shortcut_condition() {
     for i in 0..test_cases.len() {
         let test_case = test_cases.get(i).unwrap();
         let first_message = test_case.non_committed_messages.first().expect("there must be at least one non-committed message").clone();
-        let subject = first_message.message_type.extract_subject().unwrap().to_unit(&armory, 42, &summons).expect("Subject should exist");
+        let subject = first_message.message_type.extract_subject().unwrap().to_unit(&mut conn, &armory, 42, &summons).expect("Subject should exist");
         let non_committed_messages = test_case.non_committed_messages.clone();
         let next_message = if i + 1 == test_cases.len() {
             last_message.clone()
@@ -112,7 +116,7 @@ fn test_correct_shortcut_condition() {
             test_cases.get(i + 1).unwrap().non_committed_messages.last().unwrap().clone()
         };
 
-        let spell_cast = try_parse_spell_cast(&armory, 42, &summons, &test_case.non_committed_messages, &next_message, &subject);
+        let spell_cast = try_parse_spell_cast(&mut conn, &armory, 42, &summons, &test_case.non_committed_messages, &next_message, &subject);
 
         assert_eq!(
             spell_cast.is_ok(),
