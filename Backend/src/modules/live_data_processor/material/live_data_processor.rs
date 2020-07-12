@@ -1,7 +1,7 @@
 use crate::modules::live_data_processor::material::Server;
+use crate::util::database::Select;
 use std::collections::HashMap;
 use std::sync::RwLock;
-use crate::util::database::Select;
 
 pub struct LiveDataProcessor {
     pub servers: HashMap<u32, RwLock<Server>>,

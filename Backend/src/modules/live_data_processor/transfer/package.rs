@@ -19,7 +19,6 @@ pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: St
 
     let payload = multipart_form_data.raw.get_mut("payload");
 
-
     if let Some(raw_fields) = payload {
         if let Some(raw_field) = raw_fields.get_mut(0) {
             let RawField { content_type: _, file_name: _, raw } = raw_field;

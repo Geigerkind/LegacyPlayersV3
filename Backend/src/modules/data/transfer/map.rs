@@ -23,10 +23,7 @@ pub fn get_all_maps(me: State<Data>) -> Json<Vec<Map>> {
 #[openapi]
 #[get("/map/by_type/<map_type>")]
 pub fn get_all_maps_by_type(me: State<Data>, map_type: u8) -> Json<Vec<Map>> {
-    Json(me.get_all_maps()
-        .into_iter()
-        .filter(|map| map.map_type == map_type)
-        .collect())
+    Json(me.get_all_maps().into_iter().filter(|map| map.map_type == map_type).collect())
 }
 
 #[openapi]

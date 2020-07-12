@@ -2,8 +2,8 @@ use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, MessageType, SpellCast, Threat, Unit};
 use crate::modules::live_data_processor::tools::server::try_parse_spell_cast;
 use crate::modules::live_data_processor::tools::MapUnit;
-use std::collections::HashMap;
 use crate::tests::TestContainer;
+use std::collections::HashMap;
 
 #[test]
 fn test_correct_shortcut_condition() {

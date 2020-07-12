@@ -4,8 +4,8 @@ use crate::modules::live_data_processor::domain_value::{Damage, EventParseFailur
 use crate::modules::live_data_processor::dto;
 use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, MessageType, Unit};
 use crate::modules::live_data_processor::tools::MapUnit;
-use std::collections::HashMap;
 use crate::util::database::{Execute, Select};
+use std::collections::HashMap;
 
 /*
  * How is a SpellCast defined?
@@ -16,7 +16,9 @@ use crate::util::database::{Execute, Select};
  *    OR if SpellCast events are detected within the next message that don't fit the current SpellCast
  *    OR various other conditions, see below
  */
-pub fn try_parse_spell_cast(db_main: &mut (impl Select + Execute), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>, non_committed_messages: &Vec<Message>, next_message: &Message, subject: &domain_value::Unit) -> Result<SpellCast, EventParseFailureAction> {
+pub fn try_parse_spell_cast(
+    db_main: &mut (impl Select + Execute), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>, non_committed_messages: &Vec<Message>, next_message: &Message, subject: &domain_value::Unit,
+) -> Result<SpellCast, EventParseFailureAction> {
     let mut spell_cast_message = None;
     let mut spell_damage_done_message = Vec::new();
     let mut melee_damage_done_message = Vec::new();

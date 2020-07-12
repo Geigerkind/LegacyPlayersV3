@@ -2,9 +2,9 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::data::{
-    domain_value::{Localized, Difficulty},
+    domain_value::{Difficulty, Localized},
     guard::Language,
-    tools::{RetrieveLocalization, RetrieveDifficulty},
+    tools::{RetrieveDifficulty, RetrieveLocalization},
     Data,
 };
 

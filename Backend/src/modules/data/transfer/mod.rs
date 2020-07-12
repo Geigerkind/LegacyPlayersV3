@@ -1,3 +1,4 @@
+pub mod difficulty;
 pub mod dispel_type;
 pub mod enchant;
 pub mod expansion;
@@ -21,6 +22,7 @@ pub mod itemset_effect;
 pub mod itemset_name;
 pub mod language;
 pub mod localization;
+pub mod map;
 pub mod npc;
 pub mod power_type;
 pub mod profession;
@@ -30,5 +32,3 @@ pub mod spell;
 pub mod spell_effect;
 pub mod stat_type;
 pub mod title;
-pub mod map;
-pub mod difficulty;

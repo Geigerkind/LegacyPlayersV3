@@ -1,10 +1,10 @@
+use crate::modules::live_data_processor::domain_value::Event;
 use crate::modules::live_data_processor::material::Server;
 use crate::util::database::{Execute, Select};
-use crate::modules::live_data_processor::domain_value::Event;
 use std::io::Write;
 
 impl Server {
-    pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64) {
+    pub fn perform_post_processing(&mut self, _db_main: &mut (impl Execute + Select), now: u64) {
         self.save_committed_events_to_disk(now);
         // TODO: Set end_ts of instance
         // TODO: Extract Attempts?
@@ -24,7 +24,7 @@ impl Server {
 
                 // Find first event that is committable from the back
                 if let Some(extraction_index) = committable_events.iter().rposition(|event| event.timestamp + 5000 < now) {
-                    let mut drained_events = committable_events.drain(..(extraction_index+1)).into_iter().collect::<Vec<Event>>();
+                    let mut drained_events = committable_events.drain(..(extraction_index + 1)).collect::<Vec<Event>>();
                     drained_events.sort_by(|left, right| {
                         let by_event_type = left.event.to_u8().cmp(&right.event.to_u8());
                         if let std::cmp::Ordering::Equal = by_event_type {

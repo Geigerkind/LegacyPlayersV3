@@ -3,5 +3,5 @@ pub struct Map {
     pub id: u16,
     pub localization_id: u32,
     pub icon: String,
-    pub map_type: u8
+    pub map_type: u8,
 }

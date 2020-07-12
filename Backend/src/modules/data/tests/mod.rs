@@ -1,3 +1,4 @@
+mod difficulty;
 mod dispel_type;
 mod enchant;
 mod expansion;
@@ -21,6 +22,7 @@ mod itemset_effect;
 mod itemset_name;
 mod language;
 mod localization;
+mod map;
 mod npc;
 mod power_type;
 mod profession;
@@ -31,5 +33,3 @@ mod spell_description;
 mod spell_effect;
 mod stat_type;
 mod title;
-mod map;
-mod difficulty;

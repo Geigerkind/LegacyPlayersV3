@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::modules::data::domain_value::{Difficulty, Map};
 use crate::modules::data::{
     domain_value::{
         DispelType, Enchant, Expansion, Gem, HeroClass, HeroClassTalent, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemRandomPropertyPoints, ItemSheath,
@@ -9,7 +10,6 @@ use crate::modules::data::{
 };
 use crate::util::database::*;
 use language::material::Dictionary;
-use crate::modules::data::domain_value::{Map, Difficulty};
 
 #[derive(Debug)]
 pub struct Data {
@@ -47,7 +47,7 @@ pub struct Data {
     pub titles: HashMap<u16, Title>,
     pub item_random_property_points: HashMap<u8, Vec<ItemRandomPropertyPoints>>,
     pub maps: HashMap<u16, Map>,
-    pub difficulties: HashMap<u8, Difficulty>
+    pub difficulties: HashMap<u8, Difficulty>,
 }
 
 impl Default for Data {
@@ -89,7 +89,7 @@ impl Default for Data {
             titles: HashMap::new(),
             item_random_property_points: HashMap::new(),
             maps: HashMap::new(),
-            difficulties: HashMap::new()
+            difficulties: HashMap::new(),
         }
     }
 }
