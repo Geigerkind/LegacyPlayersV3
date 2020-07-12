@@ -74,11 +74,11 @@ impl ServerExporter {
                 },
                 // Special Snowflakes
                 MessageType::Position => {
-                    let guid = byte_reader::read_u64(&msg[19..27]);
+                    let guid = byte_reader::read_u64(&msg[20..28]);
                     if guid.is_player() {
-                        byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid));
+                        byte_writer::write_u64(&mut msg[20..28], salt_u64_u64(guid));
                     }
-                    msg.insert(27, guid.is_player() as u8);
+                    msg.insert(28, guid.is_player() as u8);
                     msg[2] += 1;
                     send_message(&sender, vec![guid], msg);
                 },
