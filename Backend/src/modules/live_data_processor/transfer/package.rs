@@ -20,28 +20,20 @@ pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: St
     let payload = multipart_form_data.raw.get_mut("payload");
 
 
-    println!("TEST1");
     if let Some(raw_fields) = payload {
-        // TODO: Test this new behavior
-        println!("TEST2");
         if let Some(raw_field) = raw_fields.get_mut(0) {
             let RawField { content_type: _, file_name: _, raw } = raw_field;
-            println!("TEST3");
             if raw.is_empty() {
-                println!("Is empty!");
                 return Err(LiveDataProcessorFailure::InvalidInput);
             }
-            println!("TEST4");
 
             let mut messages = Vec::new();
             while !raw.is_empty() {
                 if raw[2] == 0 {
-                    println!("TEST5");
                     return Err(LiveDataProcessorFailure::InvalidInput);
                 }
                 messages.push(raw.drain(..(raw[2] as usize)).collect());
             }
-            println!("Messages: {:?}", messages);
             return me.process_messages(&mut *db_main, owner.0, &armory, messages);
         }
     }

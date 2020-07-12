@@ -55,7 +55,7 @@ fn main() {
     let data = data::Data::default().init(&mut conn);
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
-    let live_data_processor = live_data_processor::LiveDataProcessor::default().init();
+    let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
 
     let prometheus = PrometheusMetrics::new();
 

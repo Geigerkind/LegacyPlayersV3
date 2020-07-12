@@ -3,12 +3,13 @@ use crate::modules::live_data_processor::domain_value::{Event, EventParseFailure
 use crate::modules::live_data_processor::dto::UnAura;
 use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::{BTreeSet, HashMap};
+use crate::util::database::{Execute, Select};
 
 /// There is a SpellCast event that steals an AuraApplication event
 /// Note: un_aura_spell_id is currently constant 0
-pub fn try_parse_spell_steal(spell_steal: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, u32), EventParseFailureAction> {
-    let aura_caster = spell_steal.aura_caster.to_unit(armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-    let target = spell_steal.target.to_unit(armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+pub fn try_parse_spell_steal(db_main: &mut (impl Select + Execute), spell_steal: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, u32), EventParseFailureAction> {
+    let aura_caster = spell_steal.aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let target = spell_steal.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut spell_cast_event_id = None;
     let mut aura_application_event_id = None;

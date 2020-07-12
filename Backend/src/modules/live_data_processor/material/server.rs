@@ -40,7 +40,7 @@ impl Server {
         // Load active instances
         db_main
             .select_wparams(
-                "SELECT id, start_td, map_id, map_difficulty, instance_id FROM instance_meta WHERE expired=0 AND server_id=:server_id",
+                "SELECT id, start_ts, map_id, map_difficulty, instance_id FROM instance_meta WHERE expired=0 AND server_id=:server_id",
                 |mut row| UnitInstance {
                     instance_meta_id: row.take(0).unwrap(),
                     entered: row.take(1).unwrap(),

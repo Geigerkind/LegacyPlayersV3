@@ -5,6 +5,7 @@ use crate::modules::live_data_processor::dto;
 use crate::modules::live_data_processor::dto::{DamageDone, HealDone, Message, MessageType, Unit};
 use crate::modules::live_data_processor::tools::MapUnit;
 use std::collections::HashMap;
+use crate::util::database::{Execute, Select};
 
 /*
  * How is a SpellCast defined?
@@ -15,7 +16,7 @@ use std::collections::HashMap;
  *    OR if SpellCast events are detected within the next message that don't fit the current SpellCast
  *    OR various other conditions, see below
  */
-pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>, non_committed_messages: &Vec<Message>, next_message: &Message, subject: &domain_value::Unit) -> Result<SpellCast, EventParseFailureAction> {
+pub fn try_parse_spell_cast(db_main: &mut (impl Select + Execute), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>, non_committed_messages: &Vec<Message>, next_message: &Message, subject: &domain_value::Unit) -> Result<SpellCast, EventParseFailureAction> {
     let mut spell_cast_message = None;
     let mut spell_damage_done_message = Vec::new();
     let mut melee_damage_done_message = Vec::new();
@@ -38,7 +39,7 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
         next_message.timestamp - non_committed_messages.first().unwrap().timestamp > 10
             // IF we already have a spell cast event message and the next is also one
             || (spell_cast_message.is_some() && match &next_message.message_type {
-            MessageType::SpellCast(dto::SpellCast { caster, .. }) => caster.to_unit(armory, server_id, summons).contains(subject), // This is expensive! Likewise below
+            MessageType::SpellCast(dto::SpellCast { caster, .. }) => caster.to_unit(db_main, armory, server_id, summons).contains(subject), // This is expensive! Likewise below
             _ => false
         })
             // IF the next message is non SpellCast related
@@ -48,7 +49,7 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
             MessageType::MeleeDamage(_) |
             MessageType::Threat(_) |
             MessageType::Heal(_) => false,
-            message_type => message_type.extract_subject().map(|unit_dto| unit_dto.to_unit(armory, server_id, summons).contains(subject)).contains(&true)
+            message_type => message_type.extract_subject().map(|unit_dto| unit_dto.to_unit(db_main, armory, server_id, summons).contains(subject)).contains(&true)
         }
             // IF the next event is SpellCast related but it seems to be associated with another spell cast
             || !spell_matches(non_committed_messages.first().unwrap(), next_message)
@@ -57,14 +58,14 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
             match &next_message.message_type {
                 MessageType::SpellCast(dto::SpellCast { caster, .. }) |
                 MessageType::SpellDamage(DamageDone { attacker: caster, .. }) |
-                MessageType::Heal(HealDone { caster, .. }) => caster.to_unit(armory, server_id, summons).contains(subject),
+                MessageType::Heal(HealDone { caster, .. }) => caster.to_unit(db_main, armory, server_id, summons).contains(subject),
                 _ => false
             }
         })
             // IF we collect spell events but we receive melee events
             || ((spell_cast_message.is_some() || !spell_damage_done_message.is_empty() || !heal_message.is_empty())
             && match &next_message.message_type {
-            MessageType::MeleeDamage(DamageDone { attacker: caster, .. }) => caster.to_unit(armory, server_id, summons).contains(subject),
+            MessageType::MeleeDamage(DamageDone { attacker: caster, .. }) => caster.to_unit(db_main, armory, server_id, summons).contains(subject),
             _ => false
         });
 
@@ -80,14 +81,14 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
 
     let mut damage = spell_damage_done_message
         .into_iter()
-        .map(|message| parse_spell_damage_message(message, armory, server_id, summons))
+        .map(|message| parse_spell_damage_message(db_main, message, armory, server_id, summons))
         .filter(Option::is_some)
         .map(Option::unwrap)
         .collect::<Vec<Damage>>();
     damage.append(
         melee_damage_done_message
             .into_iter()
-            .map(|message| parse_melee_damage_message(message, armory, server_id, summons))
+            .map(|message| parse_melee_damage_message(db_main, message, armory, server_id, summons))
             .filter(Option::is_some)
             .map(Option::unwrap)
             .collect::<Vec<Damage>>()
@@ -95,13 +96,13 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
     );
     let heal = heal_message
         .into_iter()
-        .map(|message| parse_heal_message(message, armory, server_id, summons))
+        .map(|message| parse_heal_message(db_main, message, armory, server_id, summons))
         .filter(Option::is_some)
         .map(Option::unwrap)
         .collect::<Vec<Heal>>();
     let threat = threat_message
         .into_iter()
-        .map(|message| parse_threat_message(message, armory, server_id, summons))
+        .map(|message| parse_threat_message(db_main, message, armory, server_id, summons))
         .filter(Option::is_some)
         .map(Option::unwrap)
         .collect::<Vec<Threat>>();
@@ -109,7 +110,7 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
     if let Some(spell_message) = spell_cast_message {
         if let MessageType::SpellCast(dto::SpellCast { target, spell_id, hit_type, .. }) = spell_message.message_type {
             return Ok(SpellCast {
-                victim: target.and_then(|unit| unit.to_unit(armory, server_id, summons).ok()),
+                victim: target.and_then(|unit| unit.to_unit(db_main, armory, server_id, summons).ok()),
                 hit_type: HitType::from_u8(hit_type),
                 spell_id: Some(spell_id),
                 damage,
@@ -128,7 +129,7 @@ pub fn try_parse_spell_cast(armory: &Armory, server_id: u32, summons: &HashMap<u
     })
 }
 
-fn parse_spell_damage_message(spell_damage_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Damage> {
+fn parse_spell_damage_message(db_main: &mut (impl Select + Execute), spell_damage_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Damage> {
     if let MessageType::SpellDamage(spell_damage) = spell_damage_message.message_type {
         let mut mitigation = Vec::new();
         if spell_damage.blocked > 0 {
@@ -145,7 +146,7 @@ fn parse_spell_damage_message(spell_damage_message: Message, armory: &Armory, se
             school: School::from_u8(spell_damage.school),
             damage: spell_damage.damage,
             mitigation,
-            victim: spell_damage.victim.to_unit(armory, server_id, summons).ok()?,
+            victim: spell_damage.victim.to_unit(db_main, armory, server_id, summons).ok()?,
             // TODO: How to tell its a crit?
             hit_type: HitType::Hit,
         });
@@ -153,7 +154,7 @@ fn parse_spell_damage_message(spell_damage_message: Message, armory: &Armory, se
     panic!("This method should only receive spell damage message types")
 }
 
-fn parse_melee_damage_message(melee_damage_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Damage> {
+fn parse_melee_damage_message(db_main: &mut (impl Select + Execute), melee_damage_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Damage> {
     if let MessageType::MeleeDamage(melee_damage) = melee_damage_message.message_type {
         let mut mitigation = Vec::new();
         if melee_damage.blocked > 0 {
@@ -170,28 +171,28 @@ fn parse_melee_damage_message(melee_damage_message: Message, armory: &Armory, se
             school: School::from_u8(melee_damage.school),
             damage: melee_damage.damage,
             mitigation,
-            victim: melee_damage.victim.to_unit(armory, server_id, summons).ok()?,
+            victim: melee_damage.victim.to_unit(db_main, armory, server_id, summons).ok()?,
             hit_type: HitType::from_u8(melee_damage.hit_type.expect("TODO: Melee Damage Hit Type can be None?")),
         });
     }
     panic!("This method should only receive melee damage message types")
 }
 
-fn parse_heal_message(heal_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Heal> {
+fn parse_heal_message(db_main: &mut (impl Select + Execute), heal_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Heal> {
     if let MessageType::Heal(heal_done) = heal_message.message_type {
         return Some(Heal {
             total: heal_done.total_heal,
             effective: heal_done.effective_heal,
             mitigation: if heal_done.absorb > 0 { vec![Mitigation::Absorb(heal_done.absorb)] } else { Vec::new() },
-            target: heal_done.target.to_unit(armory, server_id, summons).ok()?,
+            target: heal_done.target.to_unit(db_main, armory, server_id, summons).ok()?,
         });
     }
     panic!("This method should only receive heal message types")
 }
 
-fn parse_threat_message(threat_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Threat> {
+fn parse_threat_message(db_main: &mut (impl Select + Execute), threat_message: Message, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Option<Threat> {
     if let MessageType::Threat(threat) = threat_message.message_type {
-        return if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit(armory, server_id, summons) {
+        return if let Ok(threatened @ domain_value::Unit::Creature(_)) = threat.threatened.to_unit(db_main, armory, server_id, summons) {
             Some(Threat { threatened, amount: threat.amount })
         } else {
             None

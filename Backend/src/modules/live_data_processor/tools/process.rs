@@ -14,7 +14,6 @@ impl ProcessMessages for LiveDataProcessor {
 
         if !msg_vec.is_empty() {
             let mut server = self.servers.get(&server_id).expect("Server Id must exist!").write().unwrap();
-            println!("PARSING EVENTS: {} with {:?}", server_id, messages);
             return server.parse_events(db_main, armory, msg_vec);
         }
 

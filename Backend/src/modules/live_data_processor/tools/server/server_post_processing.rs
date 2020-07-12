@@ -36,6 +36,7 @@ impl Server {
                     let mut last_opened_event_type_index = 0;
                     let mut opened_file = open_options.open(format!("{}/{}/{}/{}", storage_path, self.server_id, active_instance.instance_meta_id, 0));
                     for event in drained_events {
+                        println!("TEST {}", event.event.to_u8());
                         if event.event.to_u8() != last_opened_event_type_index {
                             last_opened_event_type_index = event.event.to_u8();
                             opened_file = opened_file.and_then(|file| {
