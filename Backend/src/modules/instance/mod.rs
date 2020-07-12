@@ -1,8 +1,8 @@
 pub use self::material::Instance;
 
+mod dto;
 mod material;
 mod tools;
-mod dto;
 pub mod transfer;
 
 #[cfg(test)]

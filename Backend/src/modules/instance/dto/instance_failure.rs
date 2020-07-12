@@ -6,7 +6,7 @@ use std::io::Cursor;
 
 #[derive(Debug, JsonSchema)]
 pub enum InstanceFailure {
-    InvalidInput
+    InvalidInput,
 }
 
 impl Responder<'static> for InstanceFailure {
@@ -26,7 +26,7 @@ impl OpenApiResponder<'static> for InstanceFailure {
     fn responses(gen: &mut OpenApiGenerator) -> rocket_okapi::Result<Responses> {
         let mut responses = Responses::default();
         let schema = gen.json_schema::<String>();
-        add_schema_response(&mut responses, 534, "text/plain", schema.clone())?;
+        add_schema_response(&mut responses, 534, "text/plain", schema)?;
         Ok(responses)
     }
 }

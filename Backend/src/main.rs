@@ -32,7 +32,7 @@ pub use rocket_contrib::databases::mysql;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::{account, armory, data, live_data_processor, tooltip, instance};
+use crate::modules::{account, armory, data, instance, live_data_processor, tooltip};
 use rocket_contrib::databases::mysql::Opts;
 
 #[cfg(test)]
@@ -222,16 +222,8 @@ fn main() {
         )
         .mount(
             "/API/live_data_processor",
-            routes_with_openapi![
-                live_data_processor::transfer::package::get_package,
-                live_data_processor::transfer::instance_reset::set_instance_resets,
-            ],
+            routes_with_openapi![live_data_processor::transfer::package::get_package, live_data_processor::transfer::instance_reset::set_instance_resets,],
         )
-        .mount(
-            "/API/instance",
-            routes_with_openapi![
-                instance::transfer::export::get_instance_event_type,
-            ],
-        )
+        .mount("/API/instance", routes_with_openapi![instance::transfer::export::get_instance_event_type,])
         .launch();
 }
