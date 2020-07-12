@@ -18,3 +18,23 @@ pub enum EventType {
     // Used for convenience
     PlaceHolder,
 }
+
+impl EventType {
+    pub fn to_u8(&self) -> u8 {
+        match self {
+            EventType::SpellCast(_) => 0,
+            EventType::Death { .. } => 1,
+            EventType::CombatState { .. } => 2,
+            EventType::Loot { .. } => 3,
+            EventType::Position(_) => 4,
+            EventType::Power(_) => 5,
+            EventType::AuraApplication(_) => 6,
+            EventType::Interrupt { .. } => 7,
+            EventType::SpellSteal { .. } => 8,
+            EventType::Dispel { .. } => 9,
+            EventType::ThreatWipe => 10,
+            EventType::Summon { .. } => 11,
+            EventType::PlaceHolder => 255,
+        }
+    }
+}

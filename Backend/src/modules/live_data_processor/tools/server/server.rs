@@ -13,7 +13,7 @@ use crate::util::database::{Execute, Select};
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
         let mut next_reset = 0;
-        let post_processing_interval = 300 * 1000;
+        let post_processing_interval = 5 * 1000;
         let mut next_post_processing = 0;
         for msg in messages {
             println!("Message: {:?}", msg);
@@ -24,7 +24,7 @@ impl Server {
                 next_reset = self.reset_instances(db_main, msg.timestamp);
             }
             if next_post_processing < msg.timestamp {
-                self.perform_post_processing(db_main);
+                self.perform_post_processing(db_main, msg.timestamp);
                 next_post_processing = msg.timestamp + post_processing_interval;
             }
             self.push_non_committed_event(msg);
