@@ -1,6 +1,10 @@
 import {Component} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
+import {DataService} from "../../../../../../service/data";
+import {Localized} from "../../../../../../domain_value/localized";
+import {InstanceMap} from "../../../../../../domain_value/instance_map";
+import {AvailableServer} from "../../../../../../domain_value/available_server";
 
 @Component({
     selector: "Skirmish",
@@ -36,7 +40,21 @@ export class SkirmishComponent {
     responsiveModeWidthInPx: number = 840;
     num_characters: number = 0;
 
-    constructor() {
+    constructor(
+        private dataService: DataService
+    ) {
+        this.dataService.get_all_maps_by_type(1, (instance_maps: Array<Localized<InstanceMap>>) => {
+            instance_maps.forEach(map => this.header_columns[0].type_range.push({
+                value: map.base.id,
+                label_key: map.localization
+            }));
+        });
+        this.dataService.get_all_servers((servers: Array<AvailableServer>) => {
+            servers.forEach(server => this.header_columns[1].type_range.push({
+                value: server.id,
+                label_key: server.name
+            }));
+        });
     }
 
     onFilter(filter: any): void {
