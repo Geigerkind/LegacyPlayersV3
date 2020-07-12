@@ -34,6 +34,7 @@ impl ServerExporter {
                         byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid));
                     }
                     msg.insert(11, guid.is_player() as u8);
+                    msg[2] += 1;
                     send_message(&sender, vec![guid], msg);
                 },
                 // First 2
@@ -48,6 +49,7 @@ impl ServerExporter {
                         byte_writer::write_u64(&mut msg[20..28], salt_u64_u64(guid2));
                     }
                     msg.insert(20, guid2.is_player() as u8);
+                    msg[2] += 2;
                     send_message(&sender, vec![guid1, guid2], msg);
                 },
                 // First 3
@@ -67,6 +69,7 @@ impl ServerExporter {
                         byte_writer::write_u64(&mut msg[29..37], salt_u64_u64(guid3));
                     }
                     msg.insert(29, guid3.is_player() as u8);
+                    msg[2] += 3;
                     send_message(&sender, vec![guid1, guid2, guid3], msg);
                 },
                 // Special Snowflakes
@@ -75,6 +78,8 @@ impl ServerExporter {
                     if guid.is_player() {
                         byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid));
                     }
+                    msg.insert(27, guid.is_player() as u8);
+                    msg[2] += 1;
                     send_message(&sender, vec![guid], msg);
                 },
                 MessageType::InstancePvpEndRatedArena => {

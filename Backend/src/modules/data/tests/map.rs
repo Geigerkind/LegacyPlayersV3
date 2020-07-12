@@ -8,6 +8,7 @@ fn get_map() {
     let map = Map {
         id: map_id,
         localization_id: 3242,
+        map_type: 1,
         icon: "".to_string(),
     };
     data.maps.insert(map_id, map.clone());
