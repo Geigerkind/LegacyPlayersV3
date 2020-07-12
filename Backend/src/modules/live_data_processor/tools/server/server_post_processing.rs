@@ -47,7 +47,7 @@ impl Server {
                         if let Ok(file) = &mut opened_file {
                             if let Ok(json) = serde_json::to_string(&event) {
                                 let _ = file.write(json.as_bytes());
-                                let _ = file.write(&[44]);
+                                let _ = file.write(&[10]);
                             }
                         }
                     }

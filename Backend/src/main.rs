@@ -32,7 +32,7 @@ pub use rocket_contrib::databases::mysql;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::{account, armory, data, live_data_processor, tooltip};
+use crate::modules::{account, armory, data, live_data_processor, tooltip, instance};
 use rocket_contrib::databases::mysql::Opts;
 
 #[cfg(test)]
@@ -56,6 +56,7 @@ fn main() {
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
+    let instance = instance::Instance::default();
 
     let prometheus = PrometheusMetrics::new();
 
@@ -89,6 +90,7 @@ fn main() {
         .manage(armory)
         .manage(tooltip)
         .manage(live_data_processor)
+        .manage(instance)
         .attach(MainDb::fairing())
         .attach(prometheus.clone())
         .mount("/metrics", prometheus)
@@ -222,8 +224,13 @@ fn main() {
             "/API/live_data_processor",
             routes_with_openapi![
                 live_data_processor::transfer::package::get_package,
-                live_data_processor::transfer::export::get_instance,
-                live_data_processor::transfer::instance_reset::set_instance_resets
+                live_data_processor::transfer::instance_reset::set_instance_resets,
+            ],
+        )
+        .mount(
+            "/API/instance",
+            routes_with_openapi![
+                instance::transfer::export::get_instance_event_type,
             ],
         )
         .launch();
