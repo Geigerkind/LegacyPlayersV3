@@ -9,7 +9,7 @@ use crate::modules::data::{
 };
 use crate::util::database::*;
 use language::material::Dictionary;
-use crate::modules::data::domain_value::Map;
+use crate::modules::data::domain_value::{Map, Difficulty};
 
 #[derive(Debug)]
 pub struct Data {
@@ -47,6 +47,7 @@ pub struct Data {
     pub titles: HashMap<u16, Title>,
     pub item_random_property_points: HashMap<u8, Vec<ItemRandomPropertyPoints>>,
     pub maps: HashMap<u16, Map>,
+    pub difficulties: HashMap<u8, Difficulty>
 }
 
 impl Default for Data {
@@ -88,6 +89,7 @@ impl Default for Data {
             titles: HashMap::new(),
             item_random_property_points: HashMap::new(),
             maps: HashMap::new(),
+            difficulties: HashMap::new()
         }
     }
 }
@@ -127,6 +129,7 @@ impl Data {
         self.titles.init(db_main);
         self.item_random_property_points.init(db_main);
         self.maps.init(db_main);
+        self.difficulties.init(db_main);
         self
     }
 }
@@ -842,6 +845,21 @@ impl Init for HashMap<u16, Map> {
                 map_type: row.take(1).unwrap(),
                 localization_id: row.take(2).unwrap(),
                 icon: row.take(3).unwrap(),
+            })
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.id, result);
+            });
+    }
+}
+
+impl Init for HashMap<u8, Difficulty> {
+    fn init(&mut self, db_main: &mut impl Select) {
+        db_main
+            .select("SELECT * FROM data_difficulty", |mut row| Difficulty {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                icon: row.take(2).unwrap(),
             })
             .into_iter()
             .for_each(|result| {

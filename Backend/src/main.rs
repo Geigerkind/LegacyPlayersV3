@@ -178,6 +178,10 @@ fn main() {
                 data::transfer::map::get_map_localized,
                 data::transfer::map::get_all_maps_localized,
                 data::transfer::map::get_all_maps_localized_by_type,
+                data::transfer::difficulty::get_difficulty,
+                data::transfer::difficulty::get_all_difficulties,
+                data::transfer::difficulty::get_difficulty_localized,
+                data::transfer::difficulty::get_all_difficulties_localized,
             ],
         )
         .mount(

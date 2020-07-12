@@ -12,6 +12,6 @@ impl RetrieveMap for Data {
     }
 
     fn get_all_maps(&self) -> Vec<Map> {
-        self.maps.iter().map(|(_, race)| race.clone()).collect()
+        self.maps.iter().map(|(_, map)| map.clone()).collect()
     }
 }

@@ -3,7 +3,7 @@ pub use self::{
     item_damage::RetrieveItemDamage, item_damage_type::RetrieveItemDamageType, item_effect::RetrieveItemEffect, item_inventory_type::RetrieveItemInventoryType, item_quality::RetrieveItemQuality, item_random_property::RetrieveItemRandomProperty,
     item_random_property_points::RetrieveItemRandomPropertyPoints, item_sheath::RetrieveItemSheath, item_socket::RetrieveItemSocket, item_stat::RetrieveItemStat, itemset_effect::RetrieveItemsetEffect, itemset_name::RetrieveItemsetName,
     language::RetrieveLanguage, localization::RetrieveLocalization, npc::RetrieveNPC, power_type::RetrievePowerType, profession::RetrieveProfession, race::RetrieveRace, server::RetrieveServer, spell::RetrieveSpell,
-    spell_description::SpellDescription, spell_effect::RetrieveSpellEffect, stat_type::RetrieveStatType, title::RetrieveTitle, map::RetrieveMap
+    spell_description::SpellDescription, spell_effect::RetrieveSpellEffect, stat_type::RetrieveStatType, title::RetrieveTitle, map::RetrieveMap, difficulty::RetrieveDifficulty
 };
 
 mod dispel_type;
@@ -40,3 +40,4 @@ mod spell_effect;
 mod stat_type;
 mod title;
 mod map;
+mod difficulty;

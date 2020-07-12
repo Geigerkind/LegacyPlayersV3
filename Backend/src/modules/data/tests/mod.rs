@@ -32,3 +32,4 @@ mod spell_effect;
 mod stat_type;
 mod title;
 mod map;
+mod difficulty;
