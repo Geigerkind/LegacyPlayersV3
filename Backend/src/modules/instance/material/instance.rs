@@ -1,8 +1,8 @@
+use crate::modules::armory::tools::GetArenaTeam;
+use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
 use crate::util::database::Select;
 use std::collections::HashMap;
-use crate::modules::armory::Armory;
-use crate::modules::armory::tools::GetArenaTeam;
 
 pub struct Instance {
     pub instance_metas: HashMap<u32, InstanceMeta>,
@@ -43,25 +43,42 @@ impl Instance {
         db_main
             .select(
                 "SELECT A.*, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 FROM instance_meta A JOIN instance_rated_arena B ON A.instance_meta_id = B.instance_meta_id",
-                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap(), row.take::<u64, usize>(2).unwrap(), row.take_opt::<u64, usize>(3).unwrap().ok(), row.take::<bool, usize>(4).unwrap(),
-                           row.take::<u16, usize>(5).unwrap(), row.take::<u8, usize>(6).unwrap().to_winner(), row.take::<u32, usize>(7).unwrap(), row.take::<u32, usize>(8).unwrap(), row.take::<i32, usize>(9).unwrap(), row.take::<i32, usize>(10).unwrap()))
+                |mut row| {
+                    (
+                        row.take::<u32, usize>(0).unwrap(),
+                        row.take::<u32, usize>(1).unwrap(),
+                        row.take::<u64, usize>(2).unwrap(),
+                        row.take_opt::<u64, usize>(3).unwrap().ok(),
+                        row.take::<bool, usize>(4).unwrap(),
+                        row.take::<u16, usize>(5).unwrap(),
+                        row.take::<u8, usize>(6).unwrap().to_winner(),
+                        row.take::<u32, usize>(7).unwrap(),
+                        row.take::<u32, usize>(8).unwrap(),
+                        row.take::<i32, usize>(9).unwrap(),
+                        row.take::<i32, usize>(10).unwrap(),
+                    )
+                },
+            )
             .into_iter()
             .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team_change1, team_change2)| {
-                self.instance_metas.insert(instance_meta_id, InstanceMeta {
+                self.instance_metas.insert(
                     instance_meta_id,
-                    server_id,
-                    start_ts,
-                    end_ts,
-                    map_id,
-                    expired,
-                    instance_specific: MetaType::RatedArena {
-                        winner,
-                        team1: armory.get_arena_team_by_id(db_main, team_id1).expect("Foreign key constraint"),
-                        team2: armory.get_arena_team_by_id(db_main, team_id2).expect("Foreign key constraint"),
-                        team_change1,
-                        team_change2,
+                    InstanceMeta {
+                        instance_meta_id,
+                        server_id,
+                        start_ts,
+                        end_ts,
+                        map_id,
+                        expired,
+                        instance_specific: MetaType::RatedArena {
+                            winner,
+                            team1: armory.get_arena_team_by_id(db_main, team_id1).expect("Foreign key constraint"),
+                            team2: armory.get_arena_team_by_id(db_main, team_id2).expect("Foreign key constraint"),
+                            team_change1,
+                            team_change2,
+                        },
                     },
-                });
+                );
             });
 
         // Skirmishes
@@ -113,7 +130,7 @@ trait Winner {
 
 impl Winner for u8 {
     fn to_winner(self) -> Option<bool> {
-// TODO: Find out what these values mean!
+        // TODO: Find out what these values mean!
         if self == 0 {
             return None;
         } else if self == 1 {
