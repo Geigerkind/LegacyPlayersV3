@@ -252,7 +252,7 @@ impl Server {
                     ) {
                         let instance_meta_id = db_main
                             .select_wparams_value(
-                                "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND map_difficulty=:map_difficulty",
+                                "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND expired=0",
                                 |mut row| {
                                     let instance_meta_id: u32 = row.take(0).unwrap();
                                     instance_meta_id
@@ -260,11 +260,11 @@ impl Server {
                                 params!(
                                 "server_id" => self.server_id,
                                 "instance_id" => *instance_id,
-                                "map_id" => *map_id as u16,
-                                "map_difficulty" => *map_difficulty
+                                "map_id" => *map_id as u16
                                 ),
                             )
                             .expect("Should exist and DB shouldn't have gone away");
+                        // TODO: For all 4 types set the secondary tables as well
 
                         self.active_instances.insert(
                             *instance_id,
@@ -272,7 +272,6 @@ impl Server {
                                 instance_meta_id,
                                 entered: message.timestamp,
                                 map_id: *map_id as u16,
-                                map_difficulty: *map_difficulty,
                                 instance_id: *instance_id,
                             },
                         );

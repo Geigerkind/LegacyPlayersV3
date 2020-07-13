@@ -56,7 +56,7 @@ fn main() {
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
-    let instance = instance::Instance::default();
+    let instance = instance::Instance::default().init(&mut conn);
 
     let prometheus = PrometheusMetrics::new();
 
@@ -217,13 +217,22 @@ fn main() {
                 tooltip::transfer::item_tooltip::get_character_item,
                 tooltip::transfer::spell_tooltip::get_spell,
                 tooltip::transfer::character_tooltip::get_character,
-                tooltip::transfer::guild_tooltip::get_guild,
+                tooltip::transfer::guild_tooltip::get_guild
             ],
         )
         .mount(
             "/API/live_data_processor",
-            routes_with_openapi![live_data_processor::transfer::package::get_package, live_data_processor::transfer::instance_reset::set_instance_resets,],
+            routes_with_openapi![live_data_processor::transfer::package::get_package, live_data_processor::transfer::instance_reset::set_instance_resets],
         )
-        .mount("/API/instance", routes_with_openapi![instance::transfer::export::get_instance_event_type,])
+        .mount(
+            "/API/instance",
+            routes_with_openapi![
+                instance::transfer::export::get_instance_event_type,
+                instance::transfer::meta::export_raids,
+                instance::transfer::meta::export_rated_arenas,
+                instance::transfer::meta::export_skirmishes,
+                instance::transfer::meta::export_battlegrounds
+            ],
+        )
         .launch();
 }
