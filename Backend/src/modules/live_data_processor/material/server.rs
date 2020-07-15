@@ -20,6 +20,7 @@ pub struct Server {
     pub non_committed_events: HashMap<u64, NonCommittedEvent>,
     // Instance_id => Events
     pub committed_events: HashMap<u32, Vec<Event>>,
+    pub committed_events_count: HashMap<u32, u32>,
 }
 
 impl Server {
@@ -33,6 +34,7 @@ impl Server {
             instance_resets: HashMap::new(),
             non_committed_events: HashMap::new(),
             committed_events: HashMap::new(),
+            committed_events_count: HashMap::new(),
         }
     }
 

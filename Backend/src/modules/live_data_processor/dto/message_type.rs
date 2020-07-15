@@ -1,4 +1,6 @@
-use crate::modules::live_data_processor::dto::{AuraApplication, CombatState, DamageDone, Death, Event, HealDone, Instance, InstanceArena, InstanceBattleground, Interrupt, Loot, Position, Power, SpellCast, Summon, Threat, UnAura, Unit};
+use crate::modules::live_data_processor::dto::{
+    AuraApplication, CombatState, DamageDone, Death, Event, HealDone, InstanceArena, InstanceBattleground, InstanceStart, InstanceStartRatedArena, InstanceUnratedArena, Interrupt, Loot, Position, Power, SpellCast, Summon, Threat, UnAura, Unit,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
 pub enum MessageType {
@@ -18,8 +20,10 @@ pub enum MessageType {
     Threat(Threat),
     Event(Event),
     Summon(Summon),
-    InstancePvPStart(Instance),
-    InstancePvPEndUnratedArena(Instance),
+    InstancePvPStartUnratedArena(InstanceStart),
+    InstancePvPStartRatedArena(InstanceStartRatedArena),
+    InstancePvPStartBattleground(InstanceStart),
+    InstancePvPEndUnratedArena(InstanceUnratedArena),
     InstancePvPEndRatedArena(InstanceArena),
     InstancePvPEndBattleground(InstanceBattleground),
 }
@@ -47,7 +51,7 @@ impl MessageType {
             MessageType::Interrupt(item) => Some(item.target.clone()),
 
             // TODO!
-            MessageType::InstancePvPStart(_) | MessageType::InstancePvPEndUnratedArena(_) | MessageType::InstancePvPEndRatedArena(_) | MessageType::InstancePvPEndBattleground(_) => None,
+            _ => None,
         }
     }
 }

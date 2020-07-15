@@ -23,10 +23,12 @@ enum RPLL_MessageType : uint8_t {
     RPLL_MSG_THREAT = 13, // Works
     RPLL_MSG_EVENT = 14, // See events
     RPLL_MSG_SUMMON = 15, // Works
-    RPLL_MSG_INSTANCE_PVP_START = 16, // Works
-    RPLL_MSG_INSTANCE_PVP_END_UNRATED_ARENA = 17, // Works
-    RPLL_MSG_INSTANCE_PVP_END_RATED_ARENA = 18, // Works
-    RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND = 19 // Works
+    RPLL_MSG_INSTANCE_PVP_START_UNRATED_ARENA = 16, // Works
+    RPLL_MSG_INSTANCE_PVP_START_RATED_ARENA = 17, // Works
+    RPLL_MSG_INSTANCE_PVP_START_BATTLEGROUND = 18, // Works
+    RPLL_MSG_INSTANCE_PVP_END_UNRATED_ARENA = 19, // Works
+    RPLL_MSG_INSTANCE_PVP_END_RATED_ARENA = 20, // Works
+    RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND = 21 // Works
 };
 
 enum RPLL_Event : uint8_t {
@@ -162,6 +164,7 @@ class RPLLHooks
 
     // Helper
     static void AppendRPLLDamage(ByteBuffer &msg, RPLL_Damage &damage);
+    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_MessageType messageType);
 
     // Optimization
     static inline bool IsPowerWithinTimeout(Unit* unit, RPLL_PowerType power);
@@ -196,10 +199,12 @@ public:
     static void Position(Unit* unit, float x, float y, float z, float orientation);
     static void CombatState(Unit* unit, bool inCombat);
     static void Power(Unit * unit, RPLL_PowerType powerType, uint32_t maxPower, uint32_t currentPower);
-    static void Instance(uint32_t mapId, uint32_t instanceId);
-    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner);
-    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t scoreAlliance, uint32_t scoreHorde);
-    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t teamId1, uint32_t teamId2, int32_t teamChange1, int32_t teamChange2);
+    static void StartBattleground(uint32_t mapId, uint32_t instanceId);
+    static void StartUnratedArena(uint32_t mapId, uint32_t instanceId);
+    static void StartRatedArena(uint32_t mapId, uint32_t instanceId);
+    static void EndUnratedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner);
+    static void EndBattleground(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t scoreAlliance, uint32_t scoreHorde);
+    static void EndRatedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t teamId1, uint32_t teamId2, int32_t teamChange1, int32_t teamChange2);
     static void Loot(Unit* unit, uint32_t itemId);
     static void SpellCast(Unit* caster, uint64_t targetGUID, uint32_t spellId, RPLL_DamageHitType hitType);
     // Amount is an integer which represents the decimal amount of threat.

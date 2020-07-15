@@ -101,9 +101,8 @@ impl Instance {
 
         // Battlegrounds
         db_main
-            .select(
-                "SELECT A.*, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id",
-                |mut row| InstanceMeta {
+            .select("SELECT A.*, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id", |mut row| {
+                InstanceMeta {
                     instance_meta_id: row.take(0).unwrap(),
                     server_id: row.take(1).unwrap(),
                     start_ts: row.take(2).unwrap(),
@@ -115,8 +114,8 @@ impl Instance {
                         score_alliance: row.take(7).unwrap(),
                         score_horde: row.take(8).unwrap(),
                     },
-                },
-            )
+                }
+            })
             .into_iter()
             .for_each(|result| {
                 self.instance_metas.insert(result.instance_meta_id, result);

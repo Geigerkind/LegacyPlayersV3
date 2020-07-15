@@ -15,6 +15,8 @@ impl Server {
         let mut next_reset = 0;
         let post_processing_interval = 5 * 1000;
         let mut next_post_processing = 0;
+
+        // TODO: Wait events cause congestions, how to handle it?
         for msg in messages {
             self.extract_meta_information(db_main, armory, &msg);
             self.test_for_committable_events(db_main, armory, &msg);
@@ -48,9 +50,6 @@ impl Server {
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
             match self.commit_event(db_main, armory, non_committed_event, next_message) {
                 Ok(mut committable_event) => {
-                    println!("{:?}", committable_event);
-                    committable_event.id = (self.committed_events.len() + 1) as u32; // TODO: IS WRONG AFTER WRITING TO DISK
-
                     // For all except Spell we want to only remove the first event
                     match &committable_event {
                         Event { event: EventType::SpellCast(_), .. } => {
@@ -62,11 +61,15 @@ impl Server {
                     };
 
                     if let Some(unit_instance_id) = self.unit_instance_id.get(subject_id) {
-                        // TODO: Extract this general functionality
                         if let Some(instance_events) = self.committed_events.get_mut(unit_instance_id) {
+                            let committed_event_count = self.committed_events_count.get_mut(unit_instance_id).expect("Should exist if this exists");
+                            committable_event.id = *committed_event_count;
+                            *committed_event_count += 1;
                             instance_events.push(committable_event);
                         } else {
+                            committable_event.id = 1;
                             self.committed_events.insert(*unit_instance_id, vec![committable_event]);
+                            self.committed_events_count.insert(*unit_instance_id, 2);
                         }
                     }
                     // Else discard I guess
@@ -235,49 +238,60 @@ impl Server {
                 self.summons.insert(owner.unit_id, unit.unit_id);
             },
             MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
-                if !self.active_instances.contains_key(instance_id) {
-                    // TODO: What if instance id is recycled during reset cycle, e.g.
-                    // If a player goes into an instance but resets it afterwards without killing a boss
+                // TODO: How to handle Worldbosses in Vanilla / TBC
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
+                    // These are raids
+                    if let 249 | 309 | 409 | 469 | 509 | 531 | 532 | 533 | 534 | 544 | 548 | 550 | 564 | 565 | 568 | 580 | 603 | 615 | 616 | 624 | 631 | 649 | 724 = *map_id {
+                        // Vanilla does usually not set difficulty for raids correctly
+                        // Nor does TBC
+                        let map_difficulty = match *map_id {
+                            249 | 409 | 469 => 9,                   // 40 man
+                            309 | 509 | 531 | 565 => 148,           // 20 man
+                            532 | 568 => 3,                         // 10 man
+                            534 | 544 | 548 | 550 | 564 | 580 => 4, // 25 man
+                            533 => {
+                                if *map_difficulty == 3 || *map_difficulty == 4 {
+                                    *map_difficulty
+                                } else {
+                                    9
+                                }
+                            }, // Naxx
+                            _ => *map_difficulty,
+                        };
 
-                    // Maybe sanity check, if active instance already exists, before?
-                    if db_main.execute_wparams(
-                        "INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`, `map_difficulty`) VALUES (:server_id, :start_ts, :instance_id, :map_id, :map_difficulty)",
-                        params!(
-                        "server_id" => self.server_id,
-                        "start_ts" => message.timestamp,
-                        "instance_id" => *instance_id,
-                        "map_id" => *map_id as u16,
-                        "map_difficulty" => *map_difficulty
-                        ),
-                    ) {
-                        let instance_meta_id = db_main
-                            .select_wparams_value(
-                                "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND expired=0",
-                                |mut row| {
-                                    let instance_meta_id: u32 = row.take(0).unwrap();
-                                    instance_meta_id
-                                },
-                                params!(
-                                "server_id" => self.server_id,
-                                "instance_id" => *instance_id,
-                                "map_id" => *map_id as u16
-                                ),
-                            )
-                            .expect("Should exist and DB shouldn't have gone away");
-                        // TODO: For all 4 types set the secondary tables as well
-
-                        self.active_instances.insert(
-                            *instance_id,
-                            UnitInstance {
-                                instance_meta_id,
-                                entered: message.timestamp,
-                                map_id: *map_id as u16,
-                                instance_id: *instance_id,
-                            },
+                        db_main.execute_wparams(
+                            "INSERT INTO instance_raid (`instance_meta_id`, `map_difficulty`) VALUES (:instance_meta_id, :map_difficulty)",
+                            params!("instance_meta_id" => instance_meta_id, "map_difficulty" => map_difficulty),
                         );
                     }
                 }
                 self.unit_instance_id.insert(unit.unit_id, *instance_id);
+            },
+            MessageType::InstancePvPStartUnratedArena(dto::InstanceStart { map_id, instance_id }) => {
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
+                    db_main.execute_wparams("INSERT INTO instance_skirmish (`instance_meta_id`) VALUES (:instance_meta_id)", params!("instance_meta_id" => instance_meta_id));
+                }
+            },
+            MessageType::InstancePvPStartRatedArena(dto::InstanceStartRatedArena { map_id, instance_id, team_id1, team_id2 }) => {
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
+                    if let Some(team1) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id1) {
+                        if let Some(team2) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id2) {
+                            db_main.execute_wparams(
+                                "INSERT INTO instance_rated_arena (`instance_meta_id`, `team_id1`, `team_id2`) VALUES (:instance_meta_id, :team_id1, :team_id2)",
+                                params!(
+                                "instance_meta_id" => instance_meta_id,
+                                "team_id1" => team1.id,
+                                "team_id2" => team2.id
+                                ),
+                            );
+                        }
+                    }
+                }
+            },
+            MessageType::InstancePvPStartBattleground(dto::InstanceStart { map_id, instance_id }) => {
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
+                    db_main.execute_wparams("INSERT INTO instance_battleground (`instance_meta_id`) VALUES (:instance_meta_id)", params!("instance_meta_id" => instance_meta_id));
+                }
             },
             MessageType::InstancePvPEndBattleground(dto::InstanceBattleground {
                 instance_id,
@@ -289,7 +303,7 @@ impl Server {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
                     db_main.execute_wparams(
-                        "INSERT INTO instance_battleground (`instance_meta_id`, `winner`, `score_alliance`, `score_horde`) VALUES (:instance_meta_id, :winner, :score_alliance, :score_horde)",
+                        "UPDATE instance_battleground SET `winner`=:winner, `score_alliance`=:score_alliance, `score_horde`=:score_horde WHERE instance_meta_id=:instance_meta_id",
                         params!(
                             "instance_meta_id" => *instance_meta_id,
                             "winner" => *winner,
@@ -303,40 +317,32 @@ impl Server {
             MessageType::InstancePvPEndRatedArena(dto::InstanceArena {
                 instance_id,
                 winner,
-                team_id1,
-                team_id2,
                 team_change1,
                 team_change2,
                 ..
             }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
-                    if let Some(team1) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id1) {
-                        if let Some(team2) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id2) {
-                            self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
-                            db_main.execute_wparams(
-                                "INSERT INTO instance_rated_arena (`instance_meta_id`, `team_id1`, `team_id2`, `winner`, `team_change1`, `team_change2`) VALUES (:instance_meta_id, :team_id1, :team_id2, :winner, :team_change1, :team_change2)",
-                                params!(
-                                    "instance_meta_id" => *instance_meta_id,
-                                    "team_id1" => team1.id,
-                                    "team_id2" => team2.id,
-                                    "winner" => *winner,
-                                    "team_change1" => *team_change1,
-                                    "team_change2" => *team_change2
-                                ),
-                            );
-                            self.active_instances.remove(instance_id);
-                        }
-                    }
+                    self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
+                    db_main.execute_wparams(
+                        "UPDATE instance_rated_arena SET `winner`=:winner, `team_change1`=:team_change1, `team_change2`=:team_change2 WHERE instance_meta_id=:instance_meta_id",
+                        params!(
+                            "instance_meta_id" => *instance_meta_id,
+                            "winner" => *winner,
+                            "team_change1" => *team_change1,
+                            "team_change2" => *team_change2
+                        ),
+                    );
+                    self.active_instances.remove(instance_id);
                 }
             },
-            MessageType::InstancePvPEndUnratedArena(dto::Instance { instance_id, winner, .. }) => {
+            MessageType::InstancePvPEndUnratedArena(dto::InstanceUnratedArena { instance_id, winner, .. }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
                     db_main.execute_wparams(
-                        "INSERT INTO instance_skirmish (`instance_meta_id`, `winner`) VALUES (:instance_meta_id, :winner)",
+                        "UPDATE instance_skirmish `winner`=:winner WHERE instance_meta_id=:instance_meta_id",
                         params!(
                             "instance_meta_id" => *instance_meta_id,
-                            "winner" => winner.expect("Should exist for End message type")
+                            "winner" => *winner
                         ),
                     );
                     self.active_instances.remove(instance_id);
@@ -344,6 +350,49 @@ impl Server {
             },
             _ => {},
         }
+    }
+
+    fn create_instance_meta(&mut self, db_main: &mut (impl Execute + Select), start_ts: u64, instance_id: u32, map_id: u32) -> Option<u32> {
+        if !self.active_instances.contains_key(&instance_id) {
+            // TODO: What if instance id is recycled during reset cycle, e.g.
+            // If a player goes into an instance but resets it afterwards without killing a boss
+
+            // Maybe sanity check, if active instance already exists, before?
+            if db_main.execute_wparams(
+                "INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`) VALUES (:server_id, :start_ts, :instance_id, :map_id)",
+                params!(
+                "server_id" => self.server_id,
+                "start_ts" => start_ts,
+                "instance_id" => instance_id,
+                "map_id" => map_id as u16
+                ),
+            ) {
+                let instance_meta_id = db_main
+                    .select_wparams_value(
+                        "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND expired=0",
+                        |mut row| row.take::<u32, usize>(0).unwrap(),
+                        params!(
+                        "server_id" => self.server_id,
+                        "instance_id" => instance_id,
+                        "map_id" => map_id as u16
+                        ),
+                    )
+                    .expect("Should exist and DB shouldn't have gone away");
+
+                self.active_instances.insert(
+                    instance_id,
+                    UnitInstance {
+                        instance_meta_id,
+                        entered: start_ts,
+                        map_id: map_id as u16,
+                        instance_id,
+                    },
+                );
+
+                return Some(instance_meta_id);
+            }
+        }
+        None
     }
 
     fn finalize_instance_meta(&self, db_main: &mut impl Execute, end_ts: u64, instance_meta_id: u32) -> bool {

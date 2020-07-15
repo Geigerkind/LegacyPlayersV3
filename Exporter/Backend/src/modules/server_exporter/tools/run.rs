@@ -84,7 +84,7 @@ impl ServerExporter {
                 },
                 MessageType::InstancePvpEndRatedArena => {
                     let guid1 = byte_reader::read_u32(&msg[19..23]);
-                    let guid2 = byte_reader::read_u32(&msg[19..23]);
+                    let guid2 = byte_reader::read_u32(&msg[23..27]);
                     msg.insert(23, 0);
                     msg.insert(23, 0);
                     msg.insert(23, 0);
@@ -95,6 +95,22 @@ impl ServerExporter {
                     msg.insert(31, 0);
                     byte_writer::write_u64(&mut msg[19..27], salt_u32_u64(guid1));
                     byte_writer::write_u64(&mut msg[27..35], salt_u32_u64(guid2));
+                    msg[2] += 8;
+                    send_message(&sender, vec![guid1 as u64, guid2 as u64], msg);
+                },
+                MessageType::InstancePvpStartRatedArena => {
+                    let guid1 = byte_reader::read_u32(&msg[18..22]);
+                    let guid2 = byte_reader::read_u32(&msg[22..26]);
+                    msg.insert(22, 0);
+                    msg.insert(22, 0);
+                    msg.insert(22, 0);
+                    msg.insert(22, 0);
+                    msg.insert(30, 0);
+                    msg.insert(30, 0);
+                    msg.insert(30, 0);
+                    msg.insert(30, 0);
+                    byte_writer::write_u64(&mut msg[18..26], salt_u32_u64(guid1));
+                    byte_writer::write_u64(&mut msg[26..34], salt_u32_u64(guid2));
                     msg[2] += 8;
                     send_message(&sender, vec![guid1 as u64, guid2 as u64], msg);
                 },

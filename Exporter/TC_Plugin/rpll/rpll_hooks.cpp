@@ -507,10 +507,29 @@ void RPLLHooks::Power(Unit * unit, RPLL_PowerType powerType, uint32_t maxPower, 
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Instance(uint32_t mapId, uint32_t instanceId) {
+void RPLLHooks::StartBattleground(uint32_t mapId, uint32_t instanceId) {
+    RPLLHooks::Instance(mapId, instanceId, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START_BATTLEGROUND);
+}
+
+void RPLLHooks::StartUnratedArena(uint32_t mapId, uint32_t instanceId) {
+    RPLLHooks::Instance(mapId, instanceId, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START_UNRATED_ARENA);
+}
+
+void RPLLHooks::StartRatedArena(uint32_t mapId, uint32_t instanceId, uint32_t teamId1, uint32_t teamId2) {+
+    uint8_t msgLength = 16 + GetMessageMetaDataSize();
+    ByteBuffer msg(msgLength);
+    AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START_RATED_ARENA, msgLength);
+    msg << mapId;
+    msg << instanceId;
+    msg << teamId1;
+    msg << teamId2;
+    SendZmqMessage(std::move(msg));
+}
+
+void RPLLHooks::Instance(uint32_t mapId, uint32_t instanceId, RPLL_MessageType messageType) {
     uint8_t msgLength = 8 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
-    AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START, msgLength);
+    AppendMessageMetaData(msg, messageType, msgLength);
     msg << mapId;
     msg << instanceId;
     SendZmqMessage(std::move(msg));
