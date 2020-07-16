@@ -30,6 +30,7 @@ impl Instance {
                 end_ts: row.take_opt(3).unwrap().ok(),
                 expired: row.take(4).unwrap(),
                 map_id: row.take(5).unwrap(),
+                participants: Vec::new(),
                 instance_specific: MetaType::Raid {
                     map_difficulty: row.take::<u8, usize>(6).unwrap(),
                 },
@@ -70,6 +71,7 @@ impl Instance {
                         end_ts,
                         map_id,
                         expired,
+                        participants: Vec::new(),
                         instance_specific: MetaType::RatedArena {
                             winner,
                             team1: armory.get_arena_team_by_id(db_main, team_id1).expect("Foreign key constraint"),
@@ -90,6 +92,7 @@ impl Instance {
                 end_ts: row.take_opt(3).unwrap().ok(),
                 expired: row.take(4).unwrap(),
                 map_id: row.take(5).unwrap(),
+                participants: Vec::new(),
                 instance_specific: MetaType::Skirmish {
                     winner: row.take::<u8, usize>(6).unwrap().to_winner(),
                 },
@@ -109,6 +112,7 @@ impl Instance {
                     end_ts: row.take_opt(3).unwrap().ok(),
                     expired: row.take(4).unwrap(),
                     map_id: row.take(5).unwrap(),
+                    participants: Vec::new(),
                     instance_specific: MetaType::Battleground {
                         winner: row.take::<u8, usize>(6).unwrap().to_winner(),
                         score_alliance: row.take(7).unwrap(),
@@ -119,6 +123,16 @@ impl Instance {
             .into_iter()
             .for_each(|result| {
                 self.instance_metas.insert(result.instance_meta_id, result);
+            });
+
+        // Load participants
+        db_main
+            .select("SELECT A.id, B.character_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id", |mut row| {
+                (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap())
+            })
+            .into_iter()
+            .for_each(|(instance_meta_id, character_id)| {
+                self.instance_metas.get_mut(&instance_meta_id).unwrap().participants.push(character_id);
             });
     }
 }

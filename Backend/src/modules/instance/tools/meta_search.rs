@@ -1,18 +1,19 @@
 use crate::dto::{ApplyFilter, ApplyFilterTs, SearchResult};
+use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
 use crate::modules::instance::dto::{MetaRaidSearch, RaidSearchFilter};
-use crate::modules::instance::tools::ExportMeta;
+use crate::modules::instance::tools::{ExportMeta, FindInstanceGuild};
 use crate::modules::instance::Instance;
 use crate::rpll_table_sort;
 use crate::util::ordering::NegateOrdExt;
 use std::cmp::Ordering;
 
 pub trait MetaSearch {
-    fn search_meta_raids(&self, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
+    fn search_meta_raids(&self, armory: &Armory, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
 }
 
 impl MetaSearch for Instance {
-    fn search_meta_raids(&self, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
+    fn search_meta_raids(&self, armory: &Armory, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
         filter.guild.convert_to_lowercase();
         let mut result = self
             .export_meta(0)
@@ -21,31 +22,22 @@ impl MetaSearch for Instance {
             .filter(|raid| filter.server_id.apply_filter(raid.server_id))
             .filter(|raid| filter.start_ts.apply_filter_ts(raid.start_ts))
             .filter(|raid| filter.end_ts.apply_filter_ts(raid.end_ts))
-            .filter(|raid| {
-                if let InstanceMeta {
-                    instance_specific: MetaType::Raid { map_difficulty },
-                    ..
-                } = raid
-                {
-                    filter.map_difficulty.apply_filter(*map_difficulty)
-                } else {
-                    false
-                }
-            })
             .filter_map(|raid| {
                 if let InstanceMeta {
                     instance_specific: MetaType::Raid { map_difficulty },
                     ..
                 } = raid
                 {
-                    return Some(MetaRaidSearch {
-                        map_id: raid.map_id,
-                        map_difficulty,
-                        guild: None,
-                        server_id: raid.server_id,
-                        start_ts: raid.start_ts,
-                        end_ts: raid.end_ts,
-                    });
+                    if filter.map_difficulty.apply_filter(map_difficulty) {
+                        return Some(MetaRaidSearch {
+                            map_id: raid.map_id,
+                            map_difficulty,
+                            guild: raid.participants.find_instance_guild(armory).map(|guild| guild.name), // TODO: Use Guild DTO!
+                            server_id: raid.server_id,
+                            start_ts: raid.start_ts,
+                            end_ts: raid.end_ts,
+                        });
+                    }
                 }
                 None
             })
