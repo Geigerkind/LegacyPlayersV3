@@ -2,7 +2,7 @@ use crate::dto::{ApplyFilter, ApplyFilterTs, SearchResult};
 use crate::modules::armory::dto::SearchGuildDto;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
-use crate::modules::instance::dto::{MetaRaidSearch, MetaRatedArenaSearch, RaidSearchFilter, RatedArenaSearchFilter, SearchArenaTeam};
+use crate::modules::instance::dto::{MetaRaidSearch, MetaRatedArenaSearch, MetaSkirmishSearch, RaidSearchFilter, RatedArenaSearchFilter, SearchArenaTeam, SkirmishSearchFilter};
 use crate::modules::instance::tools::{ExportMeta, FindInstanceGuild};
 use crate::modules::instance::Instance;
 use crate::rpll_table_sort;
@@ -12,6 +12,7 @@ use std::cmp::Ordering;
 pub trait MetaSearch {
     fn search_meta_raids(&self, armory: &Armory, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
     fn search_meta_rated_arenas(&self, filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch>;
+    fn search_meta_skirmishes(&self, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch>;
 }
 
 impl MetaSearch for Instance {
@@ -116,6 +117,46 @@ impl MetaSearch for Instance {
         SearchResult {
             result: result.into_iter().skip((filter.page * 10) as usize).take(10).collect(),
             num_items: num_rated_arenas,
+        }
+    }
+
+    fn search_meta_skirmishes(&self, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch> {
+        let mut result = self
+            .export_meta(2)
+            .into_iter()
+            .filter(|skirmish| filter.map_id.apply_filter(skirmish.map_id))
+            .filter(|skirmish| filter.server_id.apply_filter(skirmish.server_id))
+            .filter(|skirmish| filter.start_ts.apply_filter_ts(skirmish.start_ts))
+            .filter(|skirmish| filter.end_ts.apply_filter_ts(skirmish.end_ts))
+            .filter_map(|skirmish| {
+                if let InstanceMeta {
+                    instance_specific: MetaType::Skirmish { .. }, ..
+                } = skirmish
+                {
+                    return Some(MetaSkirmishSearch {
+                        map_id: skirmish.map_id,
+                        server_id: skirmish.server_id,
+                        start_ts: skirmish.start_ts,
+                        end_ts: skirmish.end_ts,
+                    });
+                }
+                None
+            })
+            .collect::<Vec<MetaSkirmishSearch>>();
+        let num_skirmishes = result.len();
+
+        result.sort_by(|l_instance, r_instance| {
+            rpll_table_sort! {
+                (filter.map_id, Some(l_instance.map_id), Some(r_instance.map_id)),
+                (filter.server_id, Some(l_instance.server_id), Some(r_instance.server_id)),
+                (filter.start_ts, Some(l_instance.start_ts), Some(r_instance.start_ts)),
+                (filter.end_ts, l_instance.end_ts, r_instance.end_ts)
+            }
+        });
+
+        SearchResult {
+            result: result.into_iter().skip((filter.page * 10) as usize).take(10).collect(),
+            num_items: num_skirmishes,
         }
     }
 }

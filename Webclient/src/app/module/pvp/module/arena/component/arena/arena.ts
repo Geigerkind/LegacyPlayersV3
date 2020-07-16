@@ -6,7 +6,7 @@ import {Localized} from "../../../../../../domain_value/localized";
 import {InstanceMap} from "../../../../../../domain_value/instance_map";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
-import {ArenaSearchService} from "../service/arena_search";
+import {ArenaSearchService} from "../../service/arena_search";
 import {SettingsService} from "src/app/service/settings";
 
 @Component({

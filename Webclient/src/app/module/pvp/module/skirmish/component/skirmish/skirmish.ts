@@ -1,17 +1,20 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {DataService} from "../../../../../../service/data";
 import {Localized} from "../../../../../../domain_value/localized";
 import {InstanceMap} from "../../../../../../domain_value/instance_map";
 import {AvailableServer} from "../../../../../../domain_value/available_server";
+import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
+import {SkirmishSearchService} from "../../service/skirmish_search";
+import {SettingsService} from "src/app/service/settings";
 
 @Component({
     selector: "Skirmish",
     templateUrl: "./skirmish.html",
     styleUrls: ["./skirmish.scss"]
 })
-export class SkirmishComponent {
+export class SkirmishComponent implements OnInit {
 
     header_columns: Array<HeaderColumn> = [
         {
@@ -40,7 +43,9 @@ export class SkirmishComponent {
     num_characters: number = 0;
 
     constructor(
-        private dataService: DataService
+        private dataService: DataService,
+        private settingsService: SettingsService,
+        private skirmishSearchService: SkirmishSearchService
     ) {
         this.dataService.get_all_maps_by_type(1, (instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
@@ -56,8 +61,19 @@ export class SkirmishComponent {
         });
     }
 
-    onFilter(filter: any): void {
+    ngOnInit(): void {
+        const filter = table_init_filter(this.header_columns);
+        if (!this.settingsService.check("table_filter_skirmishes_search")) {
+            filter.last_updated.sorting = false;
+            this.settingsService.set("table_filter_skirmishes_search", filter);
+        }
+    }
 
+    onFilter(filter: any): void {
+        this.skirmishSearchService.search_skirmishes(filter, (search_result) => {
+            this.num_characters = search_result.num_items;
+            this.body_columns = search_result.result;
+        }, () => {});
     }
 
 }
