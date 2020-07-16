@@ -31,8 +31,7 @@ export class BattlegroundComponent {
             col_type: 0
         },
         {index: 2, filter_name: 'start', labelKey: "PvP.Battleground.start", type: 2, type_range: null, col_type: 2},
-        {index: 3, filter_name: 'end', labelKey: "PvP.Battleground.end", type: 2, type_range: null, col_type: 2},
-        {index: 4, filter_name: 'duration', labelKey: "PvP.Battleground.duration", type: 2, type_range: null, col_type: 2},
+        {index: 3, filter_name: 'end', labelKey: "PvP.Battleground.end", type: 2, type_range: null, col_type: 2}
     ];
     body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;

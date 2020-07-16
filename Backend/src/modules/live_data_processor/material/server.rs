@@ -2,7 +2,7 @@ use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent
 use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::params;
 use crate::util::database::Select;
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 pub struct Server {
     pub server_id: u32,
@@ -14,6 +14,7 @@ pub struct Server {
     // TODO: How to deal with changing difficulties in WOTLK?
     pub unit_instance_id: HashMap<u64, u32>,
     pub instance_resets: HashMap<u16, InstanceResetDto>,
+    pub instance_participants: HashMap<u32, BTreeSet<u32>>,
 
     // Events
     // Mapping player to non committed event
@@ -32,6 +33,7 @@ impl Server {
             active_instances: HashMap::new(),
             unit_instance_id: HashMap::new(),
             instance_resets: HashMap::new(),
+            instance_participants: HashMap::new(),
             non_committed_events: HashMap::new(),
             committed_events: HashMap::new(),
             committed_events_count: HashMap::new(),

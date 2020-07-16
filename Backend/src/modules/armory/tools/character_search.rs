@@ -21,15 +21,10 @@ pub trait PerformCharacterSearch {
 
 impl PerformCharacterSearch for Armory {
     // This implementation is far away from being optimal.
-    fn get_character_search_result(&self, data: &Data, filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult> {
-        let mut filter = filter;
+    fn get_character_search_result(&self, data: &Data, mut filter: CharacterSearchFilter) -> SearchResult<CharacterSearchResult> {
+        filter.name.convert_to_lowercase();
+        filter.guild.convert_to_lowercase();
         let characters = self.characters.read().unwrap();
-        if filter.name.filter.is_some() {
-            *filter.name.filter.as_mut().unwrap() = filter.name.filter.as_ref().unwrap().to_lowercase();
-        }
-        if filter.guild.filter.is_some() {
-            *filter.guild.filter.as_mut().unwrap() = filter.guild.filter.as_ref().unwrap().to_lowercase();
-        }
         let result = characters.iter().filter(|(_, character)| character.last_update.is_some());
         let mut result: Vec<(&Character, Option<Guild>)> = result
             .filter(|(_, character)| filter.server.filter.is_none() || filter.server.filter.contains(&character.server_id))

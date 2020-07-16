@@ -16,7 +16,6 @@ impl Server {
         let post_processing_interval = 5 * 1000;
         let mut next_post_processing = 0;
 
-        // TODO: Wait events cause congestions, how to handle it?
         for msg in messages {
             self.extract_meta_information(db_main, armory, &msg);
             self.test_for_committable_events(db_main, armory, &msg);
@@ -34,7 +33,6 @@ impl Server {
     }
 
     fn push_non_committed_event(&mut self, message: Message) {
-        // TODO: What do we do with non unit associated events?
         if let Some(unit_dto) = message.message_type.extract_subject() {
             if let Some(event) = self.non_committed_events.get_mut(&unit_dto.unit_id) {
                 event.push(message);
