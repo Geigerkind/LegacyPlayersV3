@@ -9,8 +9,8 @@ pub enum MetaType {
         winner: Option<bool>,
         team1: ArenaTeam,
         team2: ArenaTeam,
-        team_change1: i32,
-        team_change2: i32,
+        team1_change: i32,
+        team2_change: i32,
     },
     Skirmish {
         winner: Option<bool>,

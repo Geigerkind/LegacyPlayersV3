@@ -20,6 +20,12 @@ impl<T: PartialEq> ApplyFilter<T> for TableFilter<T> {
     }
 }
 
+impl ApplyFilter<Option<String>> for TableFilter<String> {
+    fn apply_filter(&self, input: Option<String>) -> bool {
+        self.filter.is_none() || input.is_some() && self.filter.contains(&input.unwrap())
+    }
+}
+
 pub trait ApplyFilterTs<T> {
     fn apply_filter_ts(&self, input: T) -> bool;
 }

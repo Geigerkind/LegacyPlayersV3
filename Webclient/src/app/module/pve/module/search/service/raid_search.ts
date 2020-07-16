@@ -5,7 +5,7 @@ import {APIService} from "../../../../../service/api";
     providedIn: "root",
 })
 export class RaidSearchService {
-    private static readonly URL_RAIDS_META: string = "/instance/meta/raids";
+    private static readonly URL_RAIDS_META: string = "/instance/meta_search/raids";
 
     constructor(
         private apiService: APIService

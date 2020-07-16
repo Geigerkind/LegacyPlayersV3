@@ -41,6 +41,7 @@ impl Instance {
             });
 
         // Rated Arenas
+        // TODO: Rename team_change1 to team1_change
         db_main
             .select(
                 "SELECT A.*, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
@@ -61,7 +62,7 @@ impl Instance {
                 },
             )
             .into_iter()
-            .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team_change1, team_change2)| {
+            .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change)| {
                 self.instance_metas.insert(
                     instance_meta_id,
                     InstanceMeta {
@@ -76,8 +77,8 @@ impl Instance {
                             winner,
                             team1: armory.get_arena_team_by_id(db_main, team_id1).expect("Foreign key constraint"),
                             team2: armory.get_arena_team_by_id(db_main, team_id2).expect("Foreign key constraint"),
-                            team_change1,
-                            team_change2,
+                            team1_change,
+                            team2_change,
                         },
                     },
                 );
