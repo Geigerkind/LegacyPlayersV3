@@ -1,4 +1,5 @@
 pub use self::arena_team::ArenaTeamDto;
+pub use self::search_guild::SearchGuildDto;
 pub use self::{
     armory_failure::ArmoryFailure, character::CharacterDto, character_facial::CharacterFacialDto, character_gear::CharacterGearDto, character_guild::CharacterGuildDto, character_history::CharacterHistoryDto, character_info::CharacterInfoDto,
     character_item::CharacterItemDto, character_search::*, character_viewer::*, guild::GuildDto, guild_viewer::*,
@@ -19,3 +20,5 @@ mod character_viewer;
 mod guild_viewer;
 
 mod armory_failure;
+
+mod search_guild;

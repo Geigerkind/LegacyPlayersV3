@@ -1,4 +1,5 @@
 use crate::dto::{ApplyFilter, ApplyFilterTs, SearchResult};
+use crate::modules::armory::dto::SearchGuildDto;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
 use crate::modules::instance::dto::{MetaRaidSearch, RaidSearchFilter};
@@ -32,7 +33,7 @@ impl MetaSearch for Instance {
                         return Some(MetaRaidSearch {
                             map_id: raid.map_id,
                             map_difficulty,
-                            guild: raid.participants.find_instance_guild(armory).map(|guild| guild.name), // TODO: Use Guild DTO!
+                            guild: raid.participants.find_instance_guild(armory).map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name }),
                             server_id: raid.server_id,
                             start_ts: raid.start_ts,
                             end_ts: raid.end_ts,
@@ -41,7 +42,6 @@ impl MetaSearch for Instance {
                 }
                 None
             })
-            // TODO: Guild (filter_map)
             .collect::<Vec<MetaRaidSearch>>();
         let num_characters = result.len();
 
@@ -49,7 +49,7 @@ impl MetaSearch for Instance {
             rpll_table_sort! {
                 (filter.map_id, Some(l_instance.map_id), Some(r_instance.map_id)),
                 (filter.map_difficulty, Some(l_instance.map_difficulty), Some(r_instance.map_difficulty)),
-                (filter.guild, l_instance.guild.as_ref(), r_instance.guild.as_ref()),
+                (filter.guild, l_instance.guild.as_ref().map(|guild| guild.name.clone()), r_instance.guild.as_ref().map(|guild| guild.name.clone())),
                 (filter.server_id, Some(l_instance.server_id), Some(r_instance.server_id)),
                 (filter.start_ts, Some(l_instance.start_ts), Some(r_instance.start_ts)),
                 (filter.end_ts, l_instance.end_ts, r_instance.end_ts)

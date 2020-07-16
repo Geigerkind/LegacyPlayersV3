@@ -6,7 +6,7 @@ use crate::{
     dto::SearchResult,
     modules::{
         armory::{
-            dto::{CharacterSearchCharacterDto, CharacterSearchFilter, CharacterSearchGuildDto, CharacterSearchResult},
+            dto::{CharacterSearchCharacterDto, CharacterSearchFilter, CharacterSearchResult, SearchGuildDto},
             tools::GetGuild,
             Armory,
         },
@@ -74,7 +74,7 @@ impl PerformCharacterSearch for Armory {
                     let last_update = character.last_update.as_ref().unwrap();
                     CharacterSearchResult {
                         faction: data.get_race(race_id).unwrap().faction,
-                        guild: guild.as_ref().map(|innr_gld| CharacterSearchGuildDto {
+                        guild: guild.as_ref().map(|innr_gld| SearchGuildDto {
                             guild_id: innr_gld.id,
                             name: innr_gld.name.clone(),
                         }),
