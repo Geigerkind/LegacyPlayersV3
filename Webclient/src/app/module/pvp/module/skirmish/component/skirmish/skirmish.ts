@@ -19,7 +19,7 @@ export class SkirmishComponent implements OnInit {
     header_columns: Array<HeaderColumn> = [
         {
             index: 0,
-            filter_name: 'arena',
+            filter_name: 'map_id',
             labelKey: "PvP.Skirmish.arena",
             type: 3,
             type_range: [{value: -1, label_key: "PvP.Skirmish.arena"}],
@@ -27,14 +27,14 @@ export class SkirmishComponent implements OnInit {
         },
         {
             index: 1,
-            filter_name: 'server',
+            filter_name: 'server_id',
             labelKey: "PvP.Skirmish.server",
             type: 3,
             type_range: [{value: -1, label_key: "PvP.Skirmish.server"}],
             col_type: 0
         },
-        {index: 2, filter_name: 'start', labelKey: "PvP.Skirmish.start", type: 2, type_range: null, col_type: 2},
-        {index: 3, filter_name: 'end', labelKey: "PvP.Skirmish.end", type: 2, type_range: null, col_type: 2}
+        {index: 2, filter_name: 'start_ts', labelKey: "PvP.Skirmish.start", type: 2, type_range: null, col_type: 2},
+        {index: 3, filter_name: 'end_ts', labelKey: "PvP.Skirmish.end", type: 2, type_range: null, col_type: 2}
     ];
     body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;

@@ -1,6 +1,6 @@
 use crate::dto::SearchResult;
 use crate::modules::armory::Armory;
-use crate::modules::instance::dto::{MetaRaidSearch, MetaRatedArenaSearch, MetaSkirmishSearch, RaidSearchFilter, RatedArenaSearchFilter, SkirmishSearchFilter};
+use crate::modules::instance::dto::{BattlegroundSearchFilter, MetaBattlegroundSearch, MetaRaidSearch, MetaRatedArenaSearch, MetaSkirmishSearch, RaidSearchFilter, RatedArenaSearchFilter, SkirmishSearchFilter};
 use crate::modules::instance::tools::MetaSearch;
 use crate::modules::instance::Instance;
 use rocket::State;
@@ -22,4 +22,10 @@ pub fn export_rated_arenas(me: State<Instance>, filter: Json<RatedArenaSearchFil
 #[post("/meta_search/skirmishes", format = "application/json", data = "<filter>")]
 pub fn export_skirmishes(me: State<Instance>, filter: Json<SkirmishSearchFilter>) -> Json<SearchResult<MetaSkirmishSearch>> {
     Json(me.search_meta_skirmishes(filter.into_inner()))
+}
+
+#[openapi]
+#[post("/meta_search/battlegrounds", format = "application/json", data = "<filter>")]
+pub fn export_battlegrounds(me: State<Instance>, filter: Json<BattlegroundSearchFilter>) -> Json<SearchResult<MetaBattlegroundSearch>> {
+    Json(me.search_meta_battlegrounds(filter.into_inner()))
 }

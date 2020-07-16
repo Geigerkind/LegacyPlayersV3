@@ -236,6 +236,7 @@ fn main() {
                 instance::transfer::meta_search::export_raids,
                 instance::transfer::meta_search::export_rated_arenas,
                 instance::transfer::meta_search::export_skirmishes,
+                instance::transfer::meta_search::export_battlegrounds,
             ],
         )
         .launch();

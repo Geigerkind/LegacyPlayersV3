@@ -1,4 +1,6 @@
+pub use self::battleground_search_filter::BattlegroundSearchFilter;
 pub use self::instance_failure::InstanceFailure;
+pub use self::meta_battleground_search::MetaBattlegroundSearch;
 pub use self::meta_raid_search::MetaRaidSearch;
 pub use self::meta_rated_arena_search::MetaRatedArenaSearch;
 pub use self::meta_skirmish_search::MetaSkirmishSearch;
@@ -7,7 +9,9 @@ pub use self::rated_arena_search_filter::RatedArenaSearchFilter;
 pub use self::search_arena_team::SearchArenaTeam;
 pub use self::skirmish_search_filter::SkirmishSearchFilter;
 
+mod battleground_search_filter;
 mod instance_failure;
+mod meta_battleground_search;
 mod meta_raid_search;
 mod meta_rated_arena_search;
 mod meta_skirmish_search;
