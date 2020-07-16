@@ -55,7 +55,18 @@ impl Server {
             )
             .into_iter()
             .for_each(|unit_instance| {
+                self.instance_participants.insert(unit_instance.instance_meta_id, BTreeSet::new());
                 self.active_instances.insert(unit_instance.instance_id, unit_instance);
+            });
+
+        // Load active instance participants
+        db_main.select_wparams("SELECT A.id, B.character_id FROM instance_meta A \
+        JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired = 0 AND A.server_id=:server_id",
+                               |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap()),
+                               params!("server_id" => self.server_id))
+            .into_iter()
+            .for_each(|(instance_meta_id, character_id)| {
+                self.instance_participants.get_mut(&instance_meta_id).unwrap().insert(character_id);
             });
 
         // Load instance reset data

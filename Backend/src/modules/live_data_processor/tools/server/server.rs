@@ -9,6 +9,7 @@ use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
+use std::collections::BTreeSet;
 
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
@@ -237,16 +238,16 @@ impl Server {
             },
             MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
                 // TODO: How to handle Worldbosses in Vanilla / TBC
-                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
-                    // These are raids
-                    if let 249 | 309 | 409 | 469 | 509 | 531 | 532 | 533 | 534 | 544 | 548 | 550 | 564 | 565 | 568 | 580 | 603 | 615 | 616 | 624 | 631 | 649 | 724 = *map_id {
+                // These are raids
+                if let 249 | 309 | 409 | 469 | 509 | 531 | 532 | 533 | 534 | 544 | 548 | 550 | 564 | 565 | 568 | 580 | 603 | 615 | 616 | 624 | 631 | 649 | 724 = *map_id {
+                    if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
                         // Vanilla does usually not set difficulty for raids correctly
                         // Nor does TBC
                         let map_difficulty = match *map_id {
                             249 | 409 | 469 => 9,                   // 40 man
-                            309 | 509 | 531 | 565 => 148,           // 20 man
+                            309 | 509 | 531 => 148,           // 20 man
                             532 | 568 => 3,                         // 10 man
-                            534 | 544 | 548 | 550 | 564 | 580 => 4, // 25 man
+                            534 | 544 | 548 | 550 | 564 | 580 | 565 => 4, // 25 man
                             533 => {
                                 if *map_difficulty == 3 || *map_difficulty == 4 {
                                     *map_difficulty
@@ -264,6 +265,20 @@ impl Server {
                     }
                 }
                 self.unit_instance_id.insert(unit.unit_id, *instance_id);
+
+                // Insert participants
+                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
+                    if !self.instance_participants.contains_key(instance_meta_id) {
+                        self.instance_participants.insert(*instance_meta_id, BTreeSet::new());
+                    }
+                    if let Ok(domain_value::Unit::Player(player)) = unit.to_unit(db_main, armory, self.server_id, &self.summons) {
+                        if db_main.execute_wparams("INSERT INTO instance_participants (`instance_meta_id`, `character_id`) VALUES (:instance_meta_id, :character_id)",
+                        params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id)) {
+                            let participants = self.instance_participants.get_mut(instance_meta_id).unwrap();
+                            participants.insert(player.character_id);
+                        }
+                    }
+                }
             },
             MessageType::InstancePvPStartUnratedArena(dto::InstanceStart { map_id, instance_id }) => {
                 if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
