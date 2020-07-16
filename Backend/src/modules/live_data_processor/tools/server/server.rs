@@ -325,6 +325,7 @@ impl Server {
                         ),
                     );
                     self.active_instances.remove(instance_id);
+                    self.instance_participants.remove(instance_meta_id);
                 }
             },
             MessageType::InstancePvPEndRatedArena(dto::InstanceArena {
@@ -346,6 +347,7 @@ impl Server {
                         ),
                     );
                     self.active_instances.remove(instance_id);
+                    self.instance_participants.remove(instance_meta_id);
                 }
             },
             MessageType::InstancePvPEndUnratedArena(dto::InstanceUnratedArena { instance_id, winner, .. }) => {
@@ -359,6 +361,7 @@ impl Server {
                         ),
                     );
                     self.active_instances.remove(instance_id);
+                    self.instance_participants.remove(instance_meta_id);
                 }
             },
             _ => {},
@@ -441,6 +444,7 @@ impl Server {
                 ),
             ) {
                 self.active_instances.remove(&instance_id);
+                self.instance_participants.remove(instance_meta_id);
             }
         }
         self.instance_resets
