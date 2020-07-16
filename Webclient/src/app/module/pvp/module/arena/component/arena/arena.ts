@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {DataService} from "../../../../../../service/data";
@@ -14,7 +14,7 @@ import {SettingsService} from "src/app/service/settings";
     templateUrl: "./arena.html",
     styleUrls: ["./arena.scss"]
 })
-export class ArenaComponent {
+export class ArenaComponent implements OnInit {
 
     header_columns: Array<HeaderColumn> = [
         {

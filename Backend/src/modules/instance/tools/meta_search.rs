@@ -70,7 +70,7 @@ impl MetaSearch for Instance {
         filter.team1.convert_to_lowercase();
         filter.team2.convert_to_lowercase();
         let mut result = self
-            .export_meta(0)
+            .export_meta(1)
             .into_iter()
             .filter(|rated_arena| filter.map_id.apply_filter(rated_arena.map_id))
             .filter(|rated_arena| filter.server_id.apply_filter(rated_arena.server_id))
