@@ -18,12 +18,12 @@ pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &[Event], ti
                 if spell_cast.victim.contains(subject) && spell_is_direct_interrupt(spell_cast.spell_id) {
                     return Ok((event.id, interrupt.interrupted_spell_id));
                 }
-            }
+            },
             EventType::AuraApplication(aura_application) => {
                 if event.subject == *subject && spell_is_indirect_interrupt(aura_application.spell_id) {
                     return Ok((event.id, interrupt.interrupted_spell_id));
                 }
-            }
+            },
             _ => continue,
         };
     }

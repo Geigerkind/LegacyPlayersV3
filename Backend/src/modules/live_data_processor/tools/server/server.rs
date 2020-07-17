@@ -1,6 +1,6 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, Position, Power, PowerType, UnitInstance, HitType};
+use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, HitType, Mitigation, Position, Power, PowerType, School, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
@@ -173,12 +173,41 @@ impl Server {
             },
             MessageType::SpellCast(spell_cast) => {
                 let subject = spell_cast.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                Ok(Event::new(first_message.timestamp, subject, EventType::SpellCast(domain_value::SpellCast {
-                    victim: spell_cast.target.as_ref().and_then(|victim| victim.to_unit(db_main, armory, self.server_id, &self.summons).ok()),
-                    hit_type: HitType::from_u8(spell_cast.hit_type),
-                    spell_id: spell_cast.spell_id
-                })))
-            }
+                Ok(Event::new(
+                    first_message.timestamp,
+                    subject,
+                    EventType::SpellCast(domain_value::SpellCast {
+                        victim: spell_cast.target.as_ref().and_then(|victim| victim.to_unit(db_main, armory, self.server_id, &self.summons).ok()),
+                        hit_type: HitType::from_u8(spell_cast.hit_type),
+                        spell_id: spell_cast.spell_id,
+                    }),
+                ))
+            },
+            MessageType::MeleeDamage(melee_damage) => {
+                let subject = melee_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let victim = melee_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let mut mitigation = Vec::with_capacity(3);
+                if melee_damage.blocked > 0 {
+                    mitigation.push(Mitigation::Block(melee_damage.blocked));
+                }
+                if melee_damage.absorbed > 0 {
+                    mitigation.push(Mitigation::Absorb(melee_damage.absorbed));
+                }
+                if melee_damage.resisted_or_glanced > 0 {
+                    mitigation.push(Mitigation::Glance(melee_damage.resisted_or_glanced));
+                }
+                Ok(Event::new(
+                    first_message.timestamp,
+                    subject,
+                    EventType::MeleeDamage(domain_value::Damage {
+                        school: School::from_u8(melee_damage.school),
+                        damage: melee_damage.damage,
+                        mitigation,
+                        victim,
+                        hit_type: HitType::from_u8(melee_damage.hit_type.expect("Can melee damage be None?")),
+                    }),
+                ))
+            },
 
             /*
             // Spell can be between 1 and N events
@@ -195,7 +224,6 @@ impl Server {
                 ))
             },
              */
-
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
                 // If we dont find any committable events for this interrupt, we need to discard

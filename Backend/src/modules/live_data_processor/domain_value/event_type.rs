@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::domain_value::{AuraApplication, Position, Power, SpellCast, Unit, Damage, Heal, Threat};
+use crate::modules::live_data_processor::domain_value::{AuraApplication, Damage, Heal, Position, Power, SpellCast, Threat, Unit};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum EventType {
