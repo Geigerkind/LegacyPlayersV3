@@ -9,7 +9,7 @@ use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
-use std::collections::BTreeSet;
+use std::collections::HashMap;
 
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
@@ -269,15 +269,25 @@ impl Server {
                 // Insert participants
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     if !self.instance_participants.contains_key(instance_meta_id) {
-                        self.instance_participants.insert(*instance_meta_id, BTreeSet::new());
+                        self.instance_participants.insert(*instance_meta_id, HashMap::new());
                     }
                     if let Ok(domain_value::Unit::Player(player)) = unit.to_unit(db_main, armory, self.server_id, &self.summons) {
-                        if db_main.execute_wparams(
-                            "INSERT INTO instance_participants (`instance_meta_id`, `character_id`) VALUES (:instance_meta_id, :character_id)",
+                        let participants = self.instance_participants.get_mut(instance_meta_id).unwrap();
+                        let current_history_id = player.character.and_then(|character| character.last_update.map(|history| history.id));
+                        if let Some(history_id) = participants.get_mut(&player.character_id) {
+                            if *history_id != current_history_id
+                                && db_main.execute_wparams(
+                                    "UPDATE instance_participants `history_id`=:history_id WHERE `instance_meta_id`=:instance_meta_id AND character_id=:character_id",
+                                    params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id, "history_id" => current_history_id),
+                                )
+                            {
+                                *history_id = current_history_id;
+                            }
+                        } else if db_main.execute_wparams(
+                            "INSERT INTO instance_participants (`instance_meta_id`, `character_id`, `history_id`) VALUES (:instance_meta_id, :character_id, :history_id)",
                             params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id),
                         ) {
-                            let participants = self.instance_participants.get_mut(instance_meta_id).unwrap();
-                            participants.insert(player.character_id);
+                            participants.insert(player.character_id, current_history_id);
                         }
                     }
                 }
@@ -373,6 +383,7 @@ impl Server {
     fn create_instance_meta(&mut self, db_main: &mut (impl Execute + Select), start_ts: u64, instance_id: u32, map_id: u32) -> Option<u32> {
         if !self.active_instances.contains_key(&instance_id) {
             // TODO: What if instance id is recycled during reset cycle, e.g.
+            // => Discard events then, also delete the ones written to disk
             // If a player goes into an instance but resets it afterwards without killing a boss
 
             // Maybe sanity check, if active instance already exists, before?

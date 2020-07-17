@@ -14,13 +14,15 @@ pub trait MapUnit {
 impl MapUnit for dto::Unit {
     fn to_unit(&self, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure> {
         if self.is_player {
-            let mut character_id = armory.get_character_by_uid(server_id, self.unit_id).map(|character| character.id);
-            if character_id.is_none() {
-                character_id = armory.create_character(db_main, server_id, self.unit_id).ok();
+            let mut character = armory.get_character_by_uid(server_id, self.unit_id);
+            if character.is_none() {
+                character = armory.create_character(db_main, server_id, self.unit_id).ok().and_then(|character_id| armory.get_character(character_id));
             }
+            let character = character.ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?;
             Ok(domain_value::Unit::Player(domain_value::Player {
-                character_id: character_id.ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?,
+                character_id: character.id,
                 server_uid: self.unit_id,
+                character: Some(character),
             }))
         } else {
             Ok(domain_value::Unit::Creature(domain_value::Creature {

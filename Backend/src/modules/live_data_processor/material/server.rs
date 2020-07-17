@@ -2,7 +2,7 @@ use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent
 use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::params;
 use crate::util::database::Select;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::HashMap;
 
 pub struct Server {
     pub server_id: u32,
@@ -14,7 +14,8 @@ pub struct Server {
     // TODO: How to deal with changing difficulties in WOTLK?
     pub unit_instance_id: HashMap<u64, u32>,
     pub instance_resets: HashMap<u16, InstanceResetDto>,
-    pub instance_participants: HashMap<u32, BTreeSet<u32>>,
+    // instance_meta_id => [(character_id, history_id)]
+    pub instance_participants: HashMap<u32, HashMap<u32, Option<u32>>>,
 
     // Events
     // Mapping player to non committed event
@@ -55,20 +56,20 @@ impl Server {
             )
             .into_iter()
             .for_each(|unit_instance| {
-                self.instance_participants.insert(unit_instance.instance_meta_id, BTreeSet::new());
+                self.instance_participants.insert(unit_instance.instance_meta_id, HashMap::new());
                 self.active_instances.insert(unit_instance.instance_id, unit_instance);
             });
 
         // Load active instance participants
         db_main
             .select_wparams(
-                "SELECT A.id, B.character_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired = 0 AND A.server_id=:server_id",
-                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap()),
+                "SELECT A.id, B.character_id, B.history_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired = 0 AND A.server_id=:server_id",
+                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap(), row.take_opt::<u32, usize>(2).unwrap().ok()),
                 params!("server_id" => self.server_id),
             )
             .into_iter()
-            .for_each(|(instance_meta_id, character_id)| {
-                self.instance_participants.get_mut(&instance_meta_id).unwrap().insert(character_id);
+            .for_each(|(instance_meta_id, character_id, history_id)| {
+                self.instance_participants.get_mut(&instance_meta_id).unwrap().insert(character_id, history_id);
             });
 
         // Load instance reset data
