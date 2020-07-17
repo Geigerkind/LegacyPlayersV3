@@ -233,6 +233,24 @@ impl Server {
                     },
                 ))
             },
+            MessageType::Heal(heal_done) => {
+                let subject = heal_done.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let spell_cast_id = self.find_matching_spell_cast(heal_done.spell_id, heal_done.caster.unit_id, &subject)?;
+                let target = heal_done.target.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                Ok(Event::new(
+                    first_message.timestamp,
+                    subject,
+                    EventType::Heal {
+                        spell_cast_id,
+                        heal: domain_value::Heal {
+                            total: heal_done.total_heal,
+                            effective: heal_done.effective_heal,
+                            mitigation: if heal_done.absorb > 0 { vec![Mitigation::Absorb(heal_done.absorb)] } else { Vec::new() },
+                            target,
+                        },
+                    },
+                ))
+            },
 
             /*
             // Spell can be between 1 and N events
