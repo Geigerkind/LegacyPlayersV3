@@ -1,7 +1,7 @@
 use crate::modules::armory::material::Guild;
 use crate::modules::armory::tools::{GetCharacter, GetGuild};
 use crate::modules::armory::Armory;
-use itertools::Itertools;
+use grouping_by::GroupingBy;
 
 pub trait FindInstanceGuild {
     fn find_instance_guild(&self, armory: &Armory) -> Option<Guild>;
@@ -21,9 +21,9 @@ impl FindInstanceGuild for Vec<u32> {
                 }
                 None
             })
-            .group_by(|character_guild_id| *character_guild_id)
+            .grouping_by(|character_guild_id| *character_guild_id)
         {
-            if (group.count() as f64) / (self.len() as f64) >= same_guild_fraction {
+            if (group.len() as f64) / (self.len() as f64) >= same_guild_fraction {
                 return guild_id.and_then(|guild_id| armory.get_guild(guild_id));
             }
         }

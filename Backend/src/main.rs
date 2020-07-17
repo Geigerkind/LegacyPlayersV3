@@ -25,7 +25,7 @@ extern crate validator;
 extern crate lazy_static;
 extern crate byteorder;
 extern crate dotenv;
-extern crate itertools;
+extern crate grouping_by;
 extern crate regex;
 
 use dotenv::dotenv;
