@@ -72,7 +72,8 @@ export class HeaderTdComponent implements OnInit {
     }
 
     private isFilterDefault(): boolean {
-        return this.filterValue === this.defaultFilterValue() || (this.specification.type === 2 && this.filterValue.getTime && !this.filterValue.getTime());
+        return this.filterValue === this.defaultFilterValue() || (this.specification.type === 2 && this.filterValue.getTime && !this.filterValue.getTime())
+        || (this.specification.type === 1 && this.filterValue === 0);
     }
 
 }
