@@ -251,22 +251,21 @@ impl Server {
                     },
                 ))
             },
-
-            /*
-            // Spell can be between 1 and N events
-            MessageType::SpellCast(SpellCast { caster: unit, .. })
-            | MessageType::Threat(Threat { threater: unit, .. })
-            | MessageType::Heal(HealDone { caster: unit, .. })
-            | MessageType::MeleeDamage(DamageDone { attacker: unit, .. })
-            | MessageType::SpellDamage(DamageDone { attacker: unit, .. }) => {
-                let subject = unit.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardAll)?;
+            // A SpellCast, Damage done and heal done can cause threat
+            // Note: That the threatened unit can be a third unit in the case of a beneficial spell
+            MessageType::Threat(threat) => {
+                let subject = threat.threater.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let threatened = threat.threatened.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let cause_event_id = self.find_matching_threat_cause(threat.spell_id, threat.threater.unit_id, &subject, &threatened)?;
                 Ok(Event::new(
                     first_message.timestamp,
-                    subject.clone(),
-                    EventType::SpellCast(try_parse_spell_cast(db_main, armory, self.server_id, &self.summons, &non_committed_event, &next_message, &subject)?),
+                    subject,
+                    EventType::Threat {
+                        cause_event_id,
+                        threat: domain_value::Threat { threatened, amount: threat.amount },
+                    },
                 ))
             },
-             */
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -554,6 +553,37 @@ impl Server {
                 if let Some(event) = committed_events.iter().find(|event| {
                     if let EventType::SpellCast(spell_cast) = &event.event {
                         return spell_cast.spell_id == spell_id && event.subject == *subject;
+                    }
+                    false
+                }) {
+                    return Ok(event.id);
+                }
+            }
+        }
+        Err(EventParseFailureAction::PrependNext)
+    }
+
+    // If the spell_id is some, then it must be a SpellCast, SpellDamage or Heal Done
+    // Else its a melee_damage event and the threatened must be the victim
+    fn find_matching_threat_cause(&self, spell_id: Option<u32>, subject_unit_id: u64, subject: &Unit, threatened: &Unit) -> Result<u32, EventParseFailureAction> {
+        if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
+            if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                if let Some(event) = committed_events.iter().find(|event| {
+                    if let Some(threatening_spell_id) = spell_id {
+                        return event.subject == *subject
+                            && match &event.event {
+                                EventType::SpellCast(domain_value::SpellCast { spell_id, .. }) => *spell_id == threatening_spell_id,
+                                EventType::SpellDamage { spell_cast_id, .. } | EventType::Heal { spell_cast_id, .. } => {
+                                    if let Some(Event { event: EventType::SpellCast(spell_cast), .. }) = committed_events.iter().find(|inner_event| inner_event.id == *spell_cast_id) {
+                                        spell_cast.spell_id == threatening_spell_id
+                                    } else {
+                                        false
+                                    }
+                                },
+                                _ => false,
+                            };
+                    } else if let EventType::MeleeDamage(melee_damage) = &event.event {
+                        return melee_damage.victim == *threatened && event.subject == *subject;
                     }
                     false
                 }) {
