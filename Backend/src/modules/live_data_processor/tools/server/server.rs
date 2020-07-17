@@ -1,6 +1,6 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, HitType, Mitigation, Position, Power, PowerType, School, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, HitType, Mitigation, Position, Power, PowerType, School, Unit, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
@@ -36,28 +36,25 @@ impl Server {
     fn push_non_committed_event(&mut self, message: Message) {
         if let Some(unit_dto) = message.message_type.extract_subject() {
             if let Some(event) = self.non_committed_events.get_mut(&unit_dto.unit_id) {
-                event.push(message);
+                if self.subject_prepend_mode_set.contains(&unit_dto.unit_id) {
+                    event.insert(0, message);
+                } else {
+                    event.push(message);
+                }
             } else {
                 self.non_committed_events.insert(unit_dto.unit_id, vec![message]);
             }
+            self.subject_prepend_mode_set.remove(&unit_dto.unit_id);
         }
     }
 
     fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, next_message: &Message) {
-        let mut remove_all_non_committed_events = Vec::new();
         let mut remove_first_non_committed_event = Vec::new();
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
             match self.commit_event(db_main, armory, non_committed_event, next_message) {
                 Ok(mut committable_event) => {
                     // For all except Spell we want to only remove the first event
-                    match &committable_event {
-                        Event { event: EventType::SpellCast(_), .. } => {
-                            remove_all_non_committed_events.push(*subject_id);
-                        },
-                        _ => {
-                            remove_first_non_committed_event.push(*subject_id);
-                        },
-                    };
+                    remove_first_non_committed_event.push(*subject_id);
 
                     if let Some(unit_instance_id) = self.unit_instance_id.get(subject_id) {
                         if let Some(instance_events) = self.committed_events.get_mut(unit_instance_id) {
@@ -73,21 +70,19 @@ impl Server {
                     }
                     // Else discard I guess
                 },
-                Err(EventParseFailureAction::DiscardAll) => {
-                    remove_all_non_committed_events.push(*subject_id);
-                },
                 Err(EventParseFailureAction::DiscardFirst) => {
                     remove_first_non_committed_event.push(*subject_id);
+                },
+                Err(EventParseFailureAction::PrependNext) => {
+                    self.subject_prepend_mode_set.insert(*subject_id);
                 },
                 Err(EventParseFailureAction::Wait) => {},
             };
         }
-        for subject_id in remove_all_non_committed_events {
-            self.non_committed_events.remove(&subject_id);
-        }
 
         for subject_id in remove_first_non_committed_event {
             self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop();
+            self.subject_prepend_mode_set.remove(&subject_id);
             if self.non_committed_events.get(&subject_id).expect("subject id should exist").is_empty() {
                 self.non_committed_events.remove(&subject_id);
             }
@@ -206,6 +201,36 @@ impl Server {
                         victim,
                         hit_type: HitType::from_u8(melee_damage.hit_type.expect("Can melee damage be None?")),
                     }),
+                ))
+            },
+            MessageType::SpellDamage(spell_damage) => {
+                let subject = spell_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let spell_cast_id = self.find_matching_spell_cast(spell_damage.spell_id.unwrap(), spell_damage.attacker.unit_id, &subject)?;
+                let victim = spell_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let mut mitigation = Vec::with_capacity(3);
+                if spell_damage.blocked > 0 {
+                    mitigation.push(Mitigation::Block(spell_damage.blocked));
+                }
+                if spell_damage.absorbed > 0 {
+                    mitigation.push(Mitigation::Absorb(spell_damage.absorbed));
+                }
+                if spell_damage.resisted_or_glanced > 0 {
+                    mitigation.push(Mitigation::Resist(spell_damage.resisted_or_glanced));
+                }
+                Ok(Event::new(
+                    first_message.timestamp,
+                    subject,
+                    EventType::SpellDamage {
+                        spell_cast_id,
+                        damage: domain_value::Damage {
+                            school: School::from_u8(spell_damage.school),
+                            damage: spell_damage.damage,
+                            mitigation,
+                            victim,
+                            // TODO: How to tell its a crit?
+                            hit_type: spell_damage.hit_type.map_or(HitType::Hit, HitType::from_u8),
+                        },
+                    },
                 ))
             },
 
@@ -503,5 +528,21 @@ impl Server {
             .iter()
             .filter(|(_, active_instance)| active_instance.reset_time >= now)
             .fold(u64::MAX, |acc, (_, active_instance)| acc.min(active_instance.reset_time))
+    }
+
+    fn find_matching_spell_cast(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit) -> Result<u32, EventParseFailureAction> {
+        if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
+            if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                if let Some(event) = committed_events.iter().find(|event| {
+                    if let EventType::SpellCast(spell_cast) = &event.event {
+                        return spell_cast.spell_id == spell_id && event.subject == *subject;
+                    }
+                    false
+                }) {
+                    return Ok(event.id);
+                }
+            }
+        }
+        Err(EventParseFailureAction::PrependNext)
     }
 }

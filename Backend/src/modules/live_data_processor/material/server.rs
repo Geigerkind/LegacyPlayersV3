@@ -2,7 +2,7 @@ use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent
 use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::params;
 use crate::util::database::Select;
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 pub struct Server {
     pub server_id: u32,
@@ -16,6 +16,9 @@ pub struct Server {
     pub instance_resets: HashMap<u16, InstanceResetDto>,
     // instance_meta_id => [(character_id, history_id)]
     pub instance_participants: HashMap<u32, HashMap<u32, Option<u32>>>,
+
+    // Used to handle unordered events
+    pub subject_prepend_mode_set: BTreeSet<u64>, // Contains server_uid of subject
 
     // Events
     // Mapping player to non committed event
@@ -38,6 +41,7 @@ impl Server {
             non_committed_events: HashMap::new(),
             committed_events: HashMap::new(),
             committed_events_count: HashMap::new(),
+            subject_prepend_mode_set: BTreeSet::new(),
         }
     }
 
