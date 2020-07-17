@@ -31,19 +31,17 @@ pub fn try_parse_spell_steal(
 
         match &event.event {
             EventType::SpellCast(spell_cast) => {
-                if let Some(spell_id) = &spell_cast.spell_id {
-                    if let Some(victim) = &spell_cast.victim {
-                        if victim == &target && event.subject == aura_caster && is_spell_steal(*spell_id) {
-                            spell_cast_event_id = Some(event.id);
-                        }
+                if let Some(victim) = &spell_cast.victim {
+                    if victim == &target && event.subject == aura_caster && is_spell_steal(spell_cast.spell_id) {
+                        spell_cast_event_id = Some(event.id);
                     }
                 }
-            },
+            }
             EventType::AuraApplication(aura_application) => {
                 if event.subject == target && aura_application.spell_id == spell_steal.target_spell_id && aura_application.stack_amount > 0 {
                     aura_application_event_id = Some(event.id);
                 }
-            },
+            }
             _ => continue,
         };
     }

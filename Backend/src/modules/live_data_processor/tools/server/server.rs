@@ -1,10 +1,10 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
-use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, Position, Power, PowerType, UnitInstance};
-use crate::modules::live_data_processor::dto::{CombatState, DamageDone, Death, HealDone, Loot, SpellCast, Summon, Threat};
+use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, Position, Power, PowerType, UnitInstance, HitType};
+use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
-use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_cast, try_parse_spell_steal};
+use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_steal};
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
@@ -171,6 +171,16 @@ impl Server {
                 let summoned = summon.unit.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned }))
             },
+            MessageType::SpellCast(spell_cast) => {
+                let subject = spell_cast.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                Ok(Event::new(first_message.timestamp, subject, EventType::SpellCast(domain_value::SpellCast {
+                    victim: spell_cast.target.as_ref().and_then(|victim| victim.to_unit(db_main, armory, self.server_id, &self.summons).ok()),
+                    hit_type: HitType::from_u8(spell_cast.hit_type),
+                    spell_id: spell_cast.spell_id
+                })))
+            }
+
+            /*
             // Spell can be between 1 and N events
             MessageType::SpellCast(SpellCast { caster: unit, .. })
             | MessageType::Threat(Threat { threater: unit, .. })
@@ -184,6 +194,7 @@ impl Server {
                     EventType::SpellCast(try_parse_spell_cast(db_main, armory, self.server_id, &self.summons, &non_committed_event, &next_message, &subject)?),
                 ))
             },
+             */
 
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {

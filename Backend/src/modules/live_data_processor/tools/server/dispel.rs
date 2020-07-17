@@ -33,11 +33,9 @@ pub fn try_parse_dispel(
                     continue;
                 }
 
-                if let Some(spell_id) = &spell_cast.spell_id {
-                    if let Some(victim) = &spell_cast.victim {
-                        if victim == &target && event.subject == aura_caster && dispel.un_aura_spell_id == *spell_id {
-                            spell_cast_event_id = Some(event.id);
-                        }
+                if let Some(victim) = &spell_cast.victim {
+                    if victim == &target && event.subject == aura_caster && dispel.un_aura_spell_id == spell_cast.spell_id {
+                        spell_cast_event_id = Some(event.id);
                     }
                 }
             },

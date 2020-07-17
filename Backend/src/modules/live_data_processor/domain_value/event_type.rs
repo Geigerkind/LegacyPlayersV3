@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::domain_value::{AuraApplication, Position, Power, SpellCast, Unit};
+use crate::modules::live_data_processor::domain_value::{AuraApplication, Position, Power, SpellCast, Unit, Damage, Heal, Threat};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum EventType {
@@ -14,6 +14,10 @@ pub enum EventType {
     Dispel { cause_event_id: u32, target_event_ids: Vec<u32> },
     ThreatWipe,
     Summon { summoned: Unit },
+    MeleeDamage(Damage),
+    SpellDamage { spell_cast_id: u32, damage: Damage },
+    Heal { spell_cast_id: u32, heal: Heal },
+    Threat { cause_event_id: u32, threat: Threat },
 
     // Used for convenience
     PlaceHolder,
@@ -34,6 +38,10 @@ impl EventType {
             EventType::Dispel { .. } => 9,
             EventType::ThreatWipe => 10,
             EventType::Summon { .. } => 11,
+            EventType::MeleeDamage { .. } => 12,
+            EventType::SpellDamage { .. } => 13,
+            EventType::Heal { .. } => 14,
+            EventType::Threat { .. } => 15,
             EventType::PlaceHolder => 255,
         }
     }
