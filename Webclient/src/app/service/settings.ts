@@ -9,7 +9,11 @@ export class SettingsService {
         "PWA_PROMPT",
         "API_TOKEN",
         "table_filter_armory_search",
-        "table_filter_guild_viewer_member"
+        "table_filter_guild_viewer_member",
+        "table_filter_raids_search",
+        "table_filter_rated_arenas_search",
+        "table_filter_battlegrounds_search",
+        "table_filter_skirmishes_search"
     ];
 
     private observers: any = {};

@@ -66,7 +66,6 @@ export class BattlegroundComponent implements OnInit {
     ngOnInit(): void {
         const filter = table_init_filter(this.header_columns);
         if (!this.settingsService.check("table_filter_battlegrounds_search")) {
-            filter.last_updated.sorting = false;
             this.settingsService.set("table_filter_battlegrounds_search", filter);
         }
     }
