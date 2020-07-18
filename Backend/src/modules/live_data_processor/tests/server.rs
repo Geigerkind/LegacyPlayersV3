@@ -1,9 +1,13 @@
 use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::dto::{DamageDone, Message, MessageType, Position, SpellCast, Unit};
 use crate::modules::live_data_processor::material::Server;
+use crate::tests::TestContainer;
 
 #[test]
 fn parse_spell_damage() {
+    let container = TestContainer::new(true);
+    let (mut conn, _dns, _node) = container.run();
+
     // Arrange
     let server_id = 2;
     let mut server = Server::new(server_id);
@@ -49,7 +53,7 @@ fn parse_spell_damage() {
     });
 
     // Act + Assert
-    let parse_result1 = server.parse_events(&armory, messages);
+    let parse_result1 = server.parse_events(&mut conn, &armory, messages);
     assert!(parse_result1.is_ok());
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 1);
     assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 1);
@@ -70,7 +74,7 @@ fn parse_spell_damage() {
         }),
     });
 
-    let parse_result2 = server.parse_events(&armory, messages);
+    let parse_result2 = server.parse_events(&mut conn, &armory, messages);
     assert!(parse_result2.is_ok());
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 2);
 
@@ -93,7 +97,7 @@ fn parse_spell_damage() {
         }),
     });
 
-    let parse_result3 = server.parse_events(&armory, messages);
+    let parse_result3 = server.parse_events(&mut conn, &armory, messages);
     assert!(parse_result3.is_ok());
     assert!(!server.non_committed_events.contains_key(&caster_unit_id));
     assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 2);

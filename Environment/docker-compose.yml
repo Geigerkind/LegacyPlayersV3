@@ -9,6 +9,7 @@ services:
     - MYSQL_USER=mysql
     - MYSQL_PASSWORD=vagrant
     - MYSQL_ROOT_PASSWORD=vagrant
+    - TZ=Europe/Berlin
   nginx:
     network_mode: host
     build: ./nginx

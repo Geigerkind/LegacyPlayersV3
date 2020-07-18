@@ -2,11 +2,14 @@ use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::domain_value::{Event, EventParseFailureAction, EventType};
 use crate::modules::live_data_processor::dto::UnAura;
 use crate::modules::live_data_processor::tools::MapUnit;
+use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
 
-pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
-    let aura_caster = dispel.aura_caster.to_unit(armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-    let target = dispel.target.to_unit(armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+pub fn try_parse_dispel(
+    db_main: &mut (impl Select + Execute), dispel: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
+) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
+    let aura_caster = dispel.aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let target = dispel.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut spell_cast_event_id = None;
     let mut aura_application_event_ids = Vec::new();
@@ -30,11 +33,9 @@ pub fn try_parse_dispel(dispel: &UnAura, committed_events: &[Event], timestamp: 
                     continue;
                 }
 
-                if let Some(spell_id) = &spell_cast.spell_id {
-                    if let Some(victim) = &spell_cast.victim {
-                        if victim == &target && event.subject == aura_caster && dispel.un_aura_spell_id == *spell_id {
-                            spell_cast_event_id = Some(event.id);
-                        }
+                if let Some(victim) = &spell_cast.victim {
+                    if victim == &target && event.subject == aura_caster && dispel.un_aura_spell_id == spell_cast.spell_id {
+                        spell_cast_event_id = Some(event.id);
                     }
                 }
             },

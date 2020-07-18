@@ -6,34 +6,40 @@
 #include "Unit.h"
 #include "ByteBuffer.h"
 
-enum RPLL_MessageType : uint8_t {
-    RPLL_MSG_MELEE_DAMAGE = 0, // Works
-    RPLL_MSG_SPELL_DAMAGE = 1, // Works
-    RPLL_MSG_HEAL = 2, // Works
-    RPLL_MSG_DEATH = 3, // Works
-    RPLL_MSG_AURA_APPLICATION = 4, // Works
-    RPLL_MSG_DISPEL = 5, // Works
-    RPLL_MSG_SPELL_STEAL = 6, // Works, but needs post analysis
-    RPLL_MSG_INTERRUPT = 7, // Works, but needs post analysis
-    RPLL_MSG_POSITION = 8, // Works
-    RPLL_MSG_COMBAT_STATE = 9, // Works
-    RPLL_MSG_POWER = 10, // Works
-    RPLL_MSG_LOOT = 11, // Works
-    RPLL_MSG_SPELL_CAST = 12, // Works
-    RPLL_MSG_THREAT = 13, // Works
-    RPLL_MSG_EVENT = 14, // See events
-    RPLL_MSG_SUMMON = 15, // Works
-    RPLL_MSG_INSTANCE_PVP_START = 16, // Works
-    RPLL_MSG_INSTANCE_PVP_END_UNRATED_ARENA = 17, // Works
-    RPLL_MSG_INSTANCE_PVP_END_RATED_ARENA = 18, // Works
-    RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND = 19 // Works
+enum RPLL_MessageType : uint8_t
+{
+    RPLL_MSG_MELEE_DAMAGE = 0,                      // Works
+    RPLL_MSG_SPELL_DAMAGE = 1,                      // Works
+    RPLL_MSG_HEAL = 2,                              // Works
+    RPLL_MSG_DEATH = 3,                             // Works
+    RPLL_MSG_AURA_APPLICATION = 4,                  // Works
+    RPLL_MSG_DISPEL = 5,                            // Works
+    RPLL_MSG_SPELL_STEAL = 6,                       // Works, but needs post analysis
+    RPLL_MSG_INTERRUPT = 7,                         // Works, but needs post analysis
+    RPLL_MSG_POSITION = 8,                          // Works
+    RPLL_MSG_COMBAT_STATE = 9,                      // Works
+    RPLL_MSG_POWER = 10,                            // Works
+    RPLL_MSG_LOOT = 11,                             // Works
+    RPLL_MSG_SPELL_CAST = 12,                       // Works
+    RPLL_MSG_THREAT = 13,                           // Works
+    RPLL_MSG_EVENT = 14,                            // See events
+    RPLL_MSG_SUMMON = 15,                           // Works
+    RPLL_MSG_INSTANCE_PVP_START_UNRATED_ARENA = 16, // Works
+    RPLL_MSG_INSTANCE_PVP_START_RATED_ARENA = 17,   // Works
+    RPLL_MSG_INSTANCE_PVP_START_BATTLEGROUND = 18,  // Works
+    RPLL_MSG_INSTANCE_PVP_END_UNRATED_ARENA = 19,   // Works
+    RPLL_MSG_INSTANCE_PVP_END_RATED_ARENA = 20,     // Works
+    RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND = 21,     // Works
+    RPLL_MSG_INSTANCE_DELETE = 22
 };
 
-enum RPLL_Event : uint8_t {
+enum RPLL_Event : uint8_t
+{
     RPLL_THREAT_WIPE // Does not work!
 };
 
-enum RPLL_DamageHitType : uint8_t {
+enum RPLL_DamageHitType : uint8_t
+{
     RPLL_EVADE = 0,
     RPLL_MISS = 1,
     RPLL_DODGE = 2,
@@ -51,7 +57,8 @@ enum RPLL_DamageHitType : uint8_t {
     RPLL_DHT_UNDEFINED = 255
 };
 
-enum RPLL_DamageSchool : uint8_t {
+enum RPLL_DamageSchool : uint8_t
+{
     RPLL_PHYSICAL = 0,
     RPLL_HOLY = 1,
     RPLL_FIRE = 2,
@@ -62,7 +69,8 @@ enum RPLL_DamageSchool : uint8_t {
     RPLL_DS_UNDEFINED = 255
 };
 
-enum RPLL_PowerType : uint8_t {
+enum RPLL_PowerType : uint8_t
+{
     RPLL_MANA = 0,
     RPLL_RAGE = 1,
     RPLL_FOCUS = 2,
@@ -72,13 +80,15 @@ enum RPLL_PowerType : uint8_t {
     RPLL_PWT_UNDEFINED = 255
 };
 
-enum RPLL_PvP_Winner : uint8_t {
+enum RPLL_PvP_Winner : uint8_t
+{
     RPLL_TEAM_NONE = 0,
     RPLL_TEAM_HORDE = 1,
     RPLL_TEAM_ALLIANCE = 2
 };
 
-struct RPLL_Damage {
+struct RPLL_Damage
+{
     RPLL_DamageSchool damageSchool;
     uint32_t damage;
     uint32_t resisted_or_glanced;
@@ -117,7 +127,7 @@ class RPLLHooks
 {
     static uint8_t API_VERSION;
     static bool DEBUG;
-    static void PrintDebugMessage(const char* msg, bool overrule = false);
+    static void PrintDebugMessage(const char *msg, bool overrule = false);
 
     static std::map<uint64_t, double> LAST_UNIT_POSITION;
     static float UPDATE_POSITION_LEEWAY;
@@ -133,27 +143,27 @@ class RPLLHooks
     static uint64_t BATTLEGROUND_UPDATE_TIMEOUT;
 
     // ZMQ Messaging
-    static void* zmqContext;
-    static void* zmqSocket;
-    static void* GetZmqSocket();
+    static void *zmqContext;
+    static void *zmqSocket;
+    static void *GetZmqSocket();
     static void SendZmqMessage(ByteBuffer &&msg);
     static void PrintMessage(ByteBuffer &&msg);
-    
+
     // Time tracking
     static uint8_t GetCurrentTimeSize();
     static uint64_t GetCurrentTime();
 
     // Conditions
     static std::set<uint32_t> raidMapIds;
-    static bool IsInRaid(Unit* unit);
+    static bool IsInRaid(Unit *unit);
     static std::set<uint32_t> arenaMapIds;
-    static bool IsInArena(Unit* unit);
+    static bool IsInArena(Unit *unit);
     static std::set<uint32_t> battlegroundMapIds;
-    static bool IsInBattleground(Unit* unit);
-    static bool IsInInstance(Unit* unit);
+    static bool IsInBattleground(Unit *unit);
+    static bool IsInInstance(Unit *unit);
 
     // Map meta data
-    static void AppendMapMetaData(ByteBuffer &msg, Unit* unit);
+    static void AppendMapMetaData(ByteBuffer &msg, Unit *unit);
     static uint8_t GetMapMetaDataSize();
 
     // Message Meta data
@@ -162,11 +172,12 @@ class RPLLHooks
 
     // Helper
     static void AppendRPLLDamage(ByteBuffer &msg, RPLL_Damage &damage);
+    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_MessageType messageType);
 
     // Optimization
-    static inline bool IsPowerWithinTimeout(Unit* unit, RPLL_PowerType power);
-    static inline bool IsPositionWithinTimeout(Unit* unit);
-    static inline bool HasSignificantPositionChange(Unit* unit, float x, float y, float z, float orientation);
+    static inline bool IsPowerWithinTimeout(Unit *unit, RPLL_PowerType power);
+    static inline bool IsPositionWithinTimeout(Unit *unit);
+    static inline bool HasSignificantPositionChange(Unit *unit, float x, float y, float z, float orientation);
 
 public:
     // Helper
@@ -183,32 +194,35 @@ public:
     // These are used from the hooks
     // But if you want to include additional information,
     // then you can use these as well
-    static void DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage>&& damages);
-    static void DealMeleeDamage(Unit* attacker, Unit* victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage&& damages);
-    static void DealSpellDamage(Unit* attacker, Unit* victim, uint32_t spellId, uint32_t blocked, RPLL_Damage&& damage);
-    static void Heal(Unit* caster, Unit* target, uint32_t spellId, uint32_t totalHeal, uint32_t effectiveHeal, uint32_t absorb);
-    static void Death(Unit* cause, Unit* victim);
-    static void AuraApplication(Unit* caster, Unit* target, uint32_t spellId, uint32_t stackAmount, bool applied);
-    static void Dispel(Unit* dispeller, Unit* target, ObjectGuid auraCaster, uint32_t dispelSpellId, uint32_t dispelledSpellId, uint8_t dispelAmount);
-    static void SpellSteal(Unit* dispeller, Unit* target, ObjectGuid auraCaster, uint32_t stealSpellId, uint32_t stolenSpellId, uint8_t stealAmount);
+    static void DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage> &&damages);
+    static void DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage &&damages);
+    static void DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, uint32_t blocked, RPLL_Damage &&damage);
+    static void Heal(Unit *caster, Unit *target, uint32_t spellId, uint32_t totalHeal, uint32_t effectiveHeal, uint32_t absorb);
+    static void Death(Unit *cause, Unit *victim);
+    static void AuraApplication(Unit *caster, Unit *target, uint32_t spellId, uint32_t stackAmount, bool applied);
+    static void Dispel(Unit *dispeller, Unit *target, ObjectGuid auraCaster, uint32_t dispelSpellId, uint32_t dispelledSpellId, uint8_t dispelAmount);
+    static void SpellSteal(Unit *dispeller, Unit *target, ObjectGuid auraCaster, uint32_t stealSpellId, uint32_t stolenSpellId, uint8_t stealAmount);
     // We just know that we were interrupted, but we need to infer from what in the post analysis
-    static void Interrupt(Unit* target, uint32_t interruptedSpellId);
-    static void Position(Unit* unit, float x, float y, float z, float orientation);
-    static void CombatState(Unit* unit, bool inCombat);
-    static void Power(Unit * unit, RPLL_PowerType powerType, uint32_t maxPower, uint32_t currentPower);
-    static void Instance(uint32_t mapId, uint32_t instanceId);
-    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner);
-    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t scoreAlliance, uint32_t scoreHorde);
-    static void Instance(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t teamId1, uint32_t teamId2, int32_t teamChange1, int32_t teamChange2);
-    static void Loot(Unit* unit, uint32_t itemId);
-    static void SpellCast(Unit* caster, uint64_t targetGUID, uint32_t spellId, RPLL_DamageHitType hitType);
+    static void Interrupt(Unit *target, uint32_t interruptedSpellId);
+    static void Position(Unit *unit, float x, float y, float z, float orientation);
+    static void CombatState(Unit *unit, bool inCombat);
+    static void Power(Unit *unit, RPLL_PowerType powerType, uint32_t maxPower, uint32_t currentPower);
+    static void StartBattleground(uint32_t mapId, uint32_t instanceId);
+    static void StartUnratedArena(uint32_t mapId, uint32_t instanceId);
+    static void StartRatedArena(uint32_t mapId, uint32_t instanceId, uint32_t teamId1, uint32_t teamId2);
+    static void EndUnratedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner);
+    static void EndBattleground(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t scoreAlliance, uint32_t scoreHorde);
+    static void EndRatedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t teamId1, uint32_t teamId2, int32_t teamChange1, int32_t teamChange2);
+    static void Loot(Unit *unit, uint32_t itemId);
+    static void SpellCast(Unit *caster, uint64_t targetGUID, uint32_t spellId, RPLL_DamageHitType hitType);
     // Amount is an integer which represents the decimal amount of threat.
     // The precision factor is 10
     // E.g. If you did 10.52 threat to a target the amount transmitted is 105
-    static void Threat(Unit* threater, Unit* threatened, uint32_t spellId, int32_t amount);
+    static void Threat(Unit *threater, Unit *threatened, uint32_t spellId, int32_t amount);
     // See RPLL_Event
-    static void Event(Unit* unit, RPLL_Event event);
-    static void Summon(Unit* unit, uint64_t ownerGUID);
+    static void Event(Unit *unit, RPLL_Event event);
+    static void Summon(Unit *unit, uint64_t ownerGUID);
+    static void InstanceDelete(uint32_t instanceId);
 };
 
 #endif

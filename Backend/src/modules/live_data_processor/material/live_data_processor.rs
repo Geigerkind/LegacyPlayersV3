@@ -1,4 +1,5 @@
 use crate::modules::live_data_processor::material::Server;
+use crate::util::database::Select;
 use std::collections::HashMap;
 use std::sync::RwLock;
 
@@ -13,10 +14,10 @@ impl Default for LiveDataProcessor {
 }
 
 impl LiveDataProcessor {
-    pub fn init(mut self) -> Self {
+    pub fn init(mut self, db_main: &mut impl Select) -> Self {
         // TODO: Get real amount of servers
         for i in 0..3 {
-            self.servers.insert(i, RwLock::new(Server::new(i)));
+            self.servers.insert(i, RwLock::new(Server::new(i).init(db_main)));
         }
 
         self

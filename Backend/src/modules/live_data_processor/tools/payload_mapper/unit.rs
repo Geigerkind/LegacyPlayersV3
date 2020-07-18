@@ -10,9 +10,7 @@ impl MapUnit for [u8] {
         if self.len() != 9 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
-        Ok(Unit {
-            is_player: self[0] == 1,
-            unit_id: byte_reader::read_u64(&self[1..9]).unwrap(),
-        })
+        let unit_id = byte_reader::read_u64(&self[1..9]).unwrap();
+        Ok(Unit { is_player: self[0] == 1, unit_id })
     }
 }

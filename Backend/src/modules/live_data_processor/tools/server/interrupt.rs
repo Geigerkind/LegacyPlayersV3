@@ -15,10 +15,8 @@ pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &[Event], ti
         }
         match &event.event {
             EventType::SpellCast(spell_cast) => {
-                if let Some(spell_id) = &spell_cast.spell_id {
-                    if spell_cast.victim.contains(subject) && spell_is_direct_interrupt(*spell_id) {
-                        return Ok((event.id, interrupt.interrupted_spell_id));
-                    }
+                if spell_cast.victim.contains(subject) && spell_is_direct_interrupt(spell_cast.spell_id) {
+                    return Ok((event.id, interrupt.interrupted_spell_id));
                 }
             },
             EventType::AuraApplication(aura_application) => {

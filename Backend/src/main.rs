@@ -1,9 +1,10 @@
 #![allow(clippy::module_inception)]
 #![allow(clippy::unused_unit)]
 #![allow(clippy::ptr_arg)]
+#![allow(clippy::blocks_in_if_conditions)]
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
-#![feature(in_band_lifetimes)]
+#![feature(with_options)]
 extern crate language;
 extern crate mail;
 extern crate okapi;
@@ -24,6 +25,7 @@ extern crate validator;
 extern crate lazy_static;
 extern crate byteorder;
 extern crate dotenv;
+extern crate grouping_by;
 extern crate regex;
 
 use dotenv::dotenv;
@@ -31,7 +33,7 @@ pub use rocket_contrib::databases::mysql;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::{account, armory, data, live_data_processor, tooltip};
+use crate::modules::{account, armory, data, instance, live_data_processor, tooltip};
 use rocket_contrib::databases::mysql::Opts;
 
 #[cfg(test)]
@@ -54,7 +56,8 @@ fn main() {
     let data = data::Data::default().init(&mut conn);
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
-    let live_data_processor = live_data_processor::LiveDataProcessor::default().init();
+    let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
+    let instance = instance::Instance::default().init(&mut conn, &armory);
 
     let prometheus = PrometheusMetrics::new();
 
@@ -88,6 +91,7 @@ fn main() {
         .manage(armory)
         .manage(tooltip)
         .manage(live_data_processor)
+        .manage(instance)
         .attach(MainDb::fairing())
         .attach(prometheus.clone())
         .mount("/metrics", prometheus)
@@ -171,6 +175,16 @@ fn main() {
                 data::transfer::title::get_title,
                 data::transfer::title::get_all_titles,
                 data::transfer::item_random_property_points::get_item_random_property_points,
+                data::transfer::map::get_map,
+                data::transfer::map::get_all_maps,
+                data::transfer::map::get_all_maps_by_type,
+                data::transfer::map::get_map_localized,
+                data::transfer::map::get_all_maps_localized,
+                data::transfer::map::get_all_maps_localized_by_type,
+                data::transfer::difficulty::get_difficulty,
+                data::transfer::difficulty::get_all_difficulties,
+                data::transfer::difficulty::get_difficulty_localized,
+                data::transfer::difficulty::get_all_difficulties_localized,
             ],
         )
         .mount(
@@ -194,8 +208,7 @@ fn main() {
                 armory::transfer::character_search::get_character_search_result,
                 armory::transfer::character_viewer::get_character_viewer,
                 armory::transfer::character_viewer::get_character_viewer_by_history,
-                armory::transfer::guild_viewer::get_guild_view,
-                armory::transfer::instance_reset::set_instance_resets
+                armory::transfer::guild_viewer::get_guild_view
             ],
         )
         .mount(
@@ -205,12 +218,26 @@ fn main() {
                 tooltip::transfer::item_tooltip::get_character_item,
                 tooltip::transfer::spell_tooltip::get_spell,
                 tooltip::transfer::character_tooltip::get_character,
-                tooltip::transfer::guild_tooltip::get_guild,
+                tooltip::transfer::guild_tooltip::get_guild
             ],
         )
         .mount(
             "/API/live_data_processor",
-            routes_with_openapi![live_data_processor::transfer::package::get_package, live_data_processor::transfer::export::get_instance],
+            routes_with_openapi![live_data_processor::transfer::package::get_package, live_data_processor::transfer::instance_reset::set_instance_resets],
+        )
+        .mount(
+            "/API/instance",
+            routes_with_openapi![
+                instance::transfer::export::get_instance_event_type,
+                instance::transfer::meta::export_raids,
+                instance::transfer::meta::export_rated_arenas,
+                instance::transfer::meta::export_skirmishes,
+                instance::transfer::meta::export_battlegrounds,
+                instance::transfer::meta_search::export_raids,
+                instance::transfer::meta_search::export_rated_arenas,
+                instance::transfer::meta_search::export_skirmishes,
+                instance::transfer::meta_search::export_battlegrounds,
+            ],
         )
         .launch();
 }

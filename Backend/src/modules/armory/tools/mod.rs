@@ -4,7 +4,6 @@ pub use self::{
 };
 
 pub use self::character_arena_team::*;
-pub use self::instance_reset::*;
 
 mod character;
 mod character_arena_team;
@@ -20,5 +19,4 @@ mod get_character_item_stats;
 mod guild;
 mod guild_rank;
 mod guild_viewer;
-mod instance_reset;
 mod talent_specialization;

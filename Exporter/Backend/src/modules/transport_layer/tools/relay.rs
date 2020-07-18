@@ -15,7 +15,7 @@ pub trait Relay {
 
 impl Relay for TransportLayer {
     fn relay(&mut self) {
-        let package_size: usize = 10000;
+        let package_size: usize = 10;
         let package_timeout = 30;
         let mut now = Instant::now();
 

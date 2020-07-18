@@ -13,11 +13,17 @@ pub mod event;
 #[cfg(test)]
 pub mod heal_done;
 #[cfg(test)]
-pub mod instance;
-#[cfg(test)]
 pub mod instance_arena;
 #[cfg(test)]
 pub mod instance_battleground;
+#[cfg(test)]
+pub mod instance_delete;
+#[cfg(test)]
+pub mod instance_start;
+#[cfg(test)]
+pub mod instance_start_rated_arena;
+#[cfg(test)]
+pub mod instance_unrated_arena;
 #[cfg(test)]
 pub mod interrupt;
 #[cfg(test)]
@@ -52,11 +58,17 @@ mod event;
 #[cfg(not(test))]
 mod heal_done;
 #[cfg(not(test))]
-mod instance;
-#[cfg(not(test))]
 mod instance_arena;
 #[cfg(not(test))]
 mod instance_battleground;
+#[cfg(not(test))]
+mod instance_delete;
+#[cfg(not(test))]
+mod instance_start;
+#[cfg(not(test))]
+mod instance_start_rated_arena;
+#[cfg(not(test))]
+mod instance_unrated_arena;
 #[cfg(not(test))]
 mod interrupt;
 #[cfg(not(test))]

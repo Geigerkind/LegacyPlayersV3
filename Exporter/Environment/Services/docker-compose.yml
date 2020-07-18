@@ -4,34 +4,36 @@ services:
     build: lp_cm_mariadb
     networks:
       lp_cm_net:
-        ipv4_address: 172.20.128.2
+        ipv4_address: 172.32.128.2
     environment:
       - MYSQL_USER=mysql
       - MYSQL_PASSWORD=notSecret
       - MYSQL_ROOT_PASSWORD=notSecret
+      - TZ=Europe/Berlin
   lpcmnginx:
     build: lp_cm_nginx
     networks:
       lp_cm_net:
-        ipv4_address: 172.20.128.3
+        ipv4_address: 172.32.128.3
     ports:
       - '8880:80'
   lpcmwebclient:
     build: lp_cm_webclient
     networks:
       lp_cm_net:
-        ipv4_address: 172.20.128.4
+        ipv4_address: 172.32.128.4
   lpcmbackend:
     build: lp_cm_backend
+    restart: always
     networks:
       lp_cm_net:
-        ipv4_address: 172.20.128.5
+        ipv4_address: 172.32.128.5
     environment:
-      - LP_CONSENT_MYSQL_DNS=mysql://root:notSecret@lpcmmariadb/lp_consent
+      - LP_CONSENT_URL=mysql://root:notSecret@lpcmmariadb/lp_consent
 
 networks:
   lp_cm_net:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.32.0.1/16

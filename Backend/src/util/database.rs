@@ -17,6 +17,7 @@ macro_rules! params {
 pub trait Execute {
     fn execute_one(&mut self, query_str: &str) -> bool;
     fn execute_wparams(&mut self, query_str: &str, params: std::vec::Vec<(std::string::String, Value)>) -> bool;
+    fn execute_batch_wparams<T: 'static, F: 'static + (Fn(T) -> std::vec::Vec<(std::string::String, Value)>)>(&mut self, query_str: &str, params: Vec<T>, params_process: F) -> bool;
 }
 
 #[cfg_attr(test, automock)]
@@ -40,6 +41,15 @@ impl Execute for crate::mysql::Conn {
 
     fn execute_wparams(&mut self, query_str: &str, params: std::vec::Vec<(std::string::String, Value)>) -> bool {
         self.prep_exec(query_str, params).is_ok()
+    }
+
+    fn execute_batch_wparams<T: 'static, F: 'static + (Fn(T) -> std::vec::Vec<(std::string::String, Value)>)>(&mut self, query_str: &str, params: Vec<T>, params_process: F) -> bool {
+        let mut prepared_statment = self.prepare(query_str).expect("Stmt is valid!");
+        let mut success = true;
+        for param in params {
+            success = success && prepared_statment.execute(params_process(param)).is_ok();
+        }
+        success
     }
 }
 

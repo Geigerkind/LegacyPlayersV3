@@ -5,9 +5,12 @@ use crate::modules::live_data_processor::tools::payload_mapper::damage_done::Map
 use crate::modules::live_data_processor::tools::payload_mapper::death::MapDeath;
 use crate::modules::live_data_processor::tools::payload_mapper::event::MapEvent;
 use crate::modules::live_data_processor::tools::payload_mapper::heal_done::MapHealDone;
-use crate::modules::live_data_processor::tools::payload_mapper::instance::MapInstance;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_arena::MapInstanceArena;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_battleground::MapInstanceBattleground;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_delete::MapInstanceDelete;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_start::MapInstanceStart;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_start_rated_arena::MapInstanceStartRatedArena;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_unrated_arena::MapInstanceUnratedArena;
 use crate::modules::live_data_processor::tools::payload_mapper::interrupt::MapInterrupt;
 use crate::modules::live_data_processor::tools::payload_mapper::loot::MapLoot;
 use crate::modules::live_data_processor::tools::payload_mapper::position::MapPosition;
@@ -40,10 +43,13 @@ impl MapMessageType for u8 {
             13 => MessageType::Threat(payload.to_threat()?),
             14 => MessageType::Event(payload.to_event()?),
             15 => MessageType::Summon(payload.to_summon()?),
-            16 => MessageType::InstancePvPStart(payload.to_instance()?),
-            17 => MessageType::InstancePvPEndUnratedArena(payload.to_instance()?),
-            18 => MessageType::InstancePvPEndRatedArena(payload.to_instance_arena()?),
-            19 => MessageType::InstancePvPEndBattleground(payload.to_instance_battleground()?),
+            16 => MessageType::InstancePvPStartUnratedArena(payload.to_instance_start()?),
+            17 => MessageType::InstancePvPStartRatedArena(payload.to_instance_start_rated_arena()?),
+            18 => MessageType::InstancePvPStartBattleground(payload.to_instance_start()?),
+            19 => MessageType::InstancePvPEndUnratedArena(payload.to_instance_unrated_arena()?),
+            20 => MessageType::InstancePvPEndRatedArena(payload.to_instance_arena()?),
+            21 => MessageType::InstancePvPEndBattleground(payload.to_instance_battleground()?),
+            22 => MessageType::InstanceDelete { instance_id: payload.to_instance_delete()? },
             _ => return Err(LiveDataProcessorFailure::InvalidInput),
         })
     }

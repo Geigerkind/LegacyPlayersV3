@@ -23,6 +23,7 @@ regex = "~1.0"
 dotenv = "*"
 byteorder="*"
 rocket-multipart-form-data="*"
+grouping_by="*"
 
 [dependencies.rocket_contrib]
 version = "*"

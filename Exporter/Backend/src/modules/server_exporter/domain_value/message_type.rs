@@ -16,10 +16,12 @@ pub enum MessageType {
     Threat = 13,
     Event = 14,
     Summon = 15,
-    InstancePvpStart = 16,
-    InstancePvpEndUnratedArena = 17,
-    InstancePvpEndRatedArena = 18,
-    InstancePvpEndBattleground = 19,
+    InstancePvpStartUnratedArena = 16,
+    InstancePvpStartRatedArena = 17,
+    InstancePvpStartBattleground = 18,
+    InstancePvpEndUnratedArena = 19,
+    InstancePvpEndRatedArena = 20,
+    InstancePvpEndBattleground = 21,
     Undefined = 255,
 }
 
@@ -42,10 +44,12 @@ impl MessageType {
             13 => MessageType::Threat,
             14 => MessageType::Event,
             15 => MessageType::Summon,
-            16 => MessageType::InstancePvpStart,
-            17 => MessageType::InstancePvpEndUnratedArena,
-            18 => MessageType::InstancePvpEndRatedArena,
-            19 => MessageType::InstancePvpEndBattleground,
+            16 => MessageType::InstancePvpStartUnratedArena,
+            17 => MessageType::InstancePvpStartRatedArena,
+            18 => MessageType::InstancePvpStartBattleground,
+            19 => MessageType::InstancePvpEndUnratedArena,
+            20 => MessageType::InstancePvpEndRatedArena,
+            21 => MessageType::InstancePvpEndBattleground,
             _ => MessageType::Undefined,
         }
     }

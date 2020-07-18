@@ -34,6 +34,7 @@ impl ServerExporter {
                         byte_writer::write_u64(&mut msg[11..19], salt_u64_u64(guid));
                     }
                     msg.insert(11, guid.is_player() as u8);
+                    msg[2] += 1;
                     send_message(&sender, vec![guid], msg);
                 },
                 // First 2
@@ -48,6 +49,7 @@ impl ServerExporter {
                         byte_writer::write_u64(&mut msg[20..28], salt_u64_u64(guid2));
                     }
                     msg.insert(20, guid2.is_player() as u8);
+                    msg[2] += 2;
                     send_message(&sender, vec![guid1, guid2], msg);
                 },
                 // First 3
@@ -67,19 +69,22 @@ impl ServerExporter {
                         byte_writer::write_u64(&mut msg[29..37], salt_u64_u64(guid3));
                     }
                     msg.insert(29, guid3.is_player() as u8);
+                    msg[2] += 3;
                     send_message(&sender, vec![guid1, guid2, guid3], msg);
                 },
                 // Special Snowflakes
                 MessageType::Position => {
-                    let guid = byte_reader::read_u64(&msg[19..27]);
+                    let guid = byte_reader::read_u64(&msg[20..28]);
                     if guid.is_player() {
-                        byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid));
+                        byte_writer::write_u64(&mut msg[20..28], salt_u64_u64(guid));
                     }
+                    msg.insert(20, guid.is_player() as u8);
+                    msg[2] += 1;
                     send_message(&sender, vec![guid], msg);
                 },
                 MessageType::InstancePvpEndRatedArena => {
                     let guid1 = byte_reader::read_u32(&msg[19..23]);
-                    let guid2 = byte_reader::read_u32(&msg[19..23]);
+                    let guid2 = byte_reader::read_u32(&msg[23..27]);
                     msg.insert(23, 0);
                     msg.insert(23, 0);
                     msg.insert(23, 0);
@@ -90,6 +95,22 @@ impl ServerExporter {
                     msg.insert(31, 0);
                     byte_writer::write_u64(&mut msg[19..27], salt_u32_u64(guid1));
                     byte_writer::write_u64(&mut msg[27..35], salt_u32_u64(guid2));
+                    msg[2] += 8;
+                    send_message(&sender, vec![guid1 as u64, guid2 as u64], msg);
+                },
+                MessageType::InstancePvpStartRatedArena => {
+                    let guid1 = byte_reader::read_u32(&msg[18..22]);
+                    let guid2 = byte_reader::read_u32(&msg[22..26]);
+                    msg.insert(22, 0);
+                    msg.insert(22, 0);
+                    msg.insert(22, 0);
+                    msg.insert(22, 0);
+                    msg.insert(30, 0);
+                    msg.insert(30, 0);
+                    msg.insert(30, 0);
+                    msg.insert(30, 0);
+                    byte_writer::write_u64(&mut msg[18..26], salt_u32_u64(guid1));
+                    byte_writer::write_u64(&mut msg[26..34], salt_u32_u64(guid2));
                     msg[2] += 8;
                     send_message(&sender, vec![guid1 as u64, guid2 as u64], msg);
                 },

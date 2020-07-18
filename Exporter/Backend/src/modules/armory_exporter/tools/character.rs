@@ -12,7 +12,7 @@ impl RetrieveRecentOfflineCharacters for ArmoryExporter {
         let last_fetch_time = self.last_fetch_time;
         db_characters
             .select_wparams(
-                "SELECT guid, name, race, class, gender, level, chosenTitle, playerBytes, playerBytes2 FROM characters WHERE online=0 AND logout_time > :last_fetch_time",
+                "SELECT guid, name, race, class, gender, level, chosenTitle, playerBytes, playerBytes2 FROM characters WHERE online=1 OR (online=0 AND logout_time > :last_fetch_time)",
                 |mut row| CharacterTable {
                     character_id: row.take(0).unwrap(),
                     name: row.take(1).unwrap(),

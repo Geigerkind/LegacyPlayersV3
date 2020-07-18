@@ -6,11 +6,12 @@ use rocket::http::ContentType;
 use rocket::{Data, State};
 
 use crate::modules::armory::Armory;
+use crate::MainDb;
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 
 #[openapi(skip)]
 #[post("/package", format = "multipart/form-data", data = "<data>")]
-pub fn get_package(me: State<LiveDataProcessor>, armory: State<Armory>, owner: ServerOwner, content_type: &ContentType, data: Data) -> Result<(), LiveDataProcessorFailure> {
+pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: State<Armory>, owner: ServerOwner, content_type: &ContentType, data: Data) -> Result<(), LiveDataProcessorFailure> {
     let mut options = MultipartFormDataOptions::new();
     options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(2 * 1024 * 1024));
 
@@ -19,11 +20,9 @@ pub fn get_package(me: State<LiveDataProcessor>, armory: State<Armory>, owner: S
     let payload = multipart_form_data.raw.get_mut("payload");
 
     if let Some(raw_fields) = payload {
-        // TODO: Test this new behavior
         if let Some(raw_field) = raw_fields.get_mut(0) {
             let RawField { content_type: _, file_name: _, raw } = raw_field;
             if raw.is_empty() {
-                println!("Is empty!");
                 return Err(LiveDataProcessorFailure::InvalidInput);
             }
 
@@ -34,8 +33,7 @@ pub fn get_package(me: State<LiveDataProcessor>, armory: State<Armory>, owner: S
                 }
                 messages.push(raw.drain(..(raw[2] as usize)).collect());
             }
-            println!("Messages: {:?}", messages);
-            return me.process_messages(owner.0, &armory, messages);
+            return me.process_messages(&mut *db_main, owner.0, &armory, messages);
         }
     }
     Err(LiveDataProcessorFailure::InvalidInput)

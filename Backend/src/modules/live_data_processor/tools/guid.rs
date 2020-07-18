@@ -23,7 +23,8 @@ impl GUID for u64 {
     }
 
     fn is_creature(&self) -> bool {
-        self.get_high() == 61744
+        let high = self.get_high();
+        high == 61744 || high == 61696 // Dynamic object o.o?
     }
 
     fn is_vehicle(&self) -> bool {
