@@ -15,7 +15,7 @@ pub struct Server {
     pub unit_instance_id: HashMap<u64, u32>,
     pub instance_resets: HashMap<u16, InstanceResetDto>,
     // instance_meta_id => [(character_id, history_id)]
-    pub instance_participants: HashMap<u32, HashMap<u32, Option<u32>>>,
+    pub instance_participants: HashMap<u32, BTreeSet<u32>>,
 
     // Used to handle unordered events
     pub subject_prepend_mode_set: BTreeSet<u64>, // Contains server_uid of subject
@@ -60,20 +60,20 @@ impl Server {
             )
             .into_iter()
             .for_each(|unit_instance| {
-                self.instance_participants.insert(unit_instance.instance_meta_id, HashMap::new());
+                self.instance_participants.insert(unit_instance.instance_meta_id, BTreeSet::new());
                 self.active_instances.insert(unit_instance.instance_id, unit_instance);
             });
 
         // Load active instance participants
         db_main
             .select_wparams(
-                "SELECT A.id, B.character_id, B.history_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired IS NULL AND A.server_id=:server_id",
-                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap(), row.take_opt::<u32, usize>(2).unwrap().ok()),
+                "SELECT A.id, B.character_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired IS NULL AND A.server_id=:server_id",
+                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap()),
                 params!("server_id" => self.server_id),
             )
             .into_iter()
-            .for_each(|(instance_meta_id, character_id, history_id)| {
-                self.instance_participants.get_mut(&instance_meta_id).unwrap().insert(character_id, history_id);
+            .for_each(|(instance_meta_id, character_id)| {
+                self.instance_participants.get_mut(&instance_meta_id).unwrap().insert(character_id);
             });
 
         // Load instance reset data

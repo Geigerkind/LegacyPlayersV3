@@ -9,7 +9,7 @@ use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
-use std::collections::HashMap;
+use std::collections::BTreeSet;
 
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
@@ -350,25 +350,17 @@ impl Server {
                 // Insert participants
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     if !self.instance_participants.contains_key(instance_meta_id) {
-                        self.instance_participants.insert(*instance_meta_id, HashMap::new());
+                        self.instance_participants.insert(*instance_meta_id, BTreeSet::new());
                     }
                     if let Ok(domain_value::Unit::Player(player)) = unit.to_unit(db_main, armory, self.server_id, &self.summons) {
                         let participants = self.instance_participants.get_mut(instance_meta_id).unwrap();
-                        let current_history_id = player.character.and_then(|character| character.last_update.map(|history| history.id));
-                        if let Some(history_id) = participants.get_mut(&player.character_id) {
-                            if *history_id != current_history_id
-                                && db_main.execute_wparams(
-                                    "UPDATE instance_participants `history_id`=:history_id WHERE `instance_meta_id`=:instance_meta_id AND character_id=:character_id",
-                                    params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id, "history_id" => current_history_id),
-                                )
-                            {
-                                *history_id = current_history_id;
-                            }
-                        } else if db_main.execute_wparams(
-                            "INSERT INTO instance_participants (`instance_meta_id`, `character_id`, `history_id`) VALUES (:instance_meta_id, :character_id, :history_id)",
-                            params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id),
-                        ) {
-                            participants.insert(player.character_id, current_history_id);
+                        if !participants.contains(&player.character_id)
+                            && db_main.execute_wparams(
+                                "INSERT INTO instance_participants (`instance_meta_id`, `character_id`) VALUES (:instance_meta_id, :character_id)",
+                                params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id),
+                            )
+                        {
+                            participants.insert(player.character_id);
                         }
                     }
                 }
