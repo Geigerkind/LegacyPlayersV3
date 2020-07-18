@@ -9,6 +9,7 @@ services:
       - MYSQL_USER=mysql
       - MYSQL_PASSWORD=notSecret
       - MYSQL_ROOT_PASSWORD=notSecret
+      - TZ=Europe/Berlin
   lpcmnginx:
     build: lp_cm_nginx
     networks:

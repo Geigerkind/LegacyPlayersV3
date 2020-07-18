@@ -190,6 +190,7 @@ function initServer {
   systemctl enable fail2ban
   systemctl start fail2ban
   systemctl start deploy
+  timedatectl set-timezone Europe/Berlin
 
   initSSH
   initCertificates
