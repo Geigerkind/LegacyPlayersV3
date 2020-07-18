@@ -457,16 +457,17 @@ impl Server {
                     self.active_instances.remove(instance_id);
                 }
             },
+            MessageType::InstanceDelete { instance_id } => {
+                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
+                    self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
+                }
+            },
             _ => {},
         }
     }
 
     fn create_instance_meta(&mut self, db_main: &mut (impl Execute + Select), start_ts: u64, instance_id: u32, map_id: u32) -> Option<u32> {
         if !self.active_instances.contains_key(&instance_id) {
-            // TODO: What if instance id is recycled during reset cycle, e.g.
-            // => Discard events then, also delete the ones written to disk
-            // If a player goes into an instance but resets it afterwards without killing a boss
-
             // Maybe sanity check, if active instance already exists, before?
             if db_main.execute_wparams(
                 "INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`) VALUES (:server_id, :start_ts, :instance_id, :map_id)",
@@ -529,7 +530,6 @@ impl Server {
             .map(|(instance_id, unit_instance)| (*instance_id, unit_instance.instance_meta_id))
             .collect::<Vec<(u32, u32)>>()
         {
-            // TODO: How to deal with guilds that prolong their ID?
             if db_main.execute_wparams(
                 "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=1 WHERE instance_meta_id=:instance_meta_id",
                 params!(

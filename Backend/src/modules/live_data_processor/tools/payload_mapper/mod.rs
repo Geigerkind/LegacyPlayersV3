@@ -17,6 +17,8 @@ pub mod instance_arena;
 #[cfg(test)]
 pub mod instance_battleground;
 #[cfg(test)]
+pub mod instance_delete;
+#[cfg(test)]
 pub mod instance_start;
 #[cfg(test)]
 pub mod instance_start_rated_arena;
@@ -59,6 +61,8 @@ mod heal_done;
 mod instance_arena;
 #[cfg(not(test))]
 mod instance_battleground;
+#[cfg(not(test))]
+mod instance_delete;
 #[cfg(not(test))]
 mod instance_start;
 #[cfg(not(test))]

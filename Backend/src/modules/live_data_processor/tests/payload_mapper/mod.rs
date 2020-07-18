@@ -6,6 +6,7 @@ mod event;
 mod heal_done;
 mod instance_arena;
 mod instance_battleground;
+mod instance_delete;
 mod instance_start;
 mod instance_start_rated_arena;
 mod instance_unrated_arena;

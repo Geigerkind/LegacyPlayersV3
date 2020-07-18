@@ -7,6 +7,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::event::MapEvent;
 use crate::modules::live_data_processor::tools::payload_mapper::heal_done::MapHealDone;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_arena::MapInstanceArena;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_battleground::MapInstanceBattleground;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_delete::MapInstanceDelete;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_start::MapInstanceStart;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_start_rated_arena::MapInstanceStartRatedArena;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_unrated_arena::MapInstanceUnratedArena;
@@ -48,6 +49,7 @@ impl MapMessageType for u8 {
             19 => MessageType::InstancePvPEndUnratedArena(payload.to_instance_unrated_arena()?),
             20 => MessageType::InstancePvPEndRatedArena(payload.to_instance_arena()?),
             21 => MessageType::InstancePvPEndBattleground(payload.to_instance_battleground()?),
+            22 => MessageType::InstanceDelete { instance_id: payload.to_instance_delete()? },
             _ => return Err(LiveDataProcessorFailure::InvalidInput),
         })
     }

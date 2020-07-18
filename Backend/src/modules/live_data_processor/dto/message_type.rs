@@ -26,6 +26,7 @@ pub enum MessageType {
     InstancePvPEndUnratedArena(InstanceUnratedArena),
     InstancePvPEndRatedArena(InstanceArena),
     InstancePvPEndBattleground(InstanceBattleground),
+    InstanceDelete { instance_id: u32 },
 }
 
 impl MessageType {
