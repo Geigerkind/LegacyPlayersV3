@@ -28,7 +28,7 @@ impl Instance {
                 server_id: row.take(1).unwrap(),
                 start_ts: row.take(2).unwrap(),
                 end_ts: row.take_opt(3).unwrap().ok(),
-                expired: row.take(4).unwrap(),
+                expired: row.take_opt(4).unwrap().ok(),
                 map_id: row.take(5).unwrap(),
                 participants: Vec::new(),
                 instance_specific: MetaType::Raid {
@@ -51,7 +51,7 @@ impl Instance {
                         row.take::<u32, usize>(1).unwrap(),
                         row.take::<u64, usize>(2).unwrap(),
                         row.take_opt::<u64, usize>(3).unwrap().ok(),
-                        row.take::<bool, usize>(4).unwrap(),
+                        row.take_opt::<u64, usize>(4).unwrap().ok(),
                         row.take::<u16, usize>(5).unwrap(),
                         row.take::<u8, usize>(6).unwrap().to_winner(),
                         row.take::<u32, usize>(7).unwrap(),
@@ -91,7 +91,7 @@ impl Instance {
                 server_id: row.take(1).unwrap(),
                 start_ts: row.take(2).unwrap(),
                 end_ts: row.take_opt(3).unwrap().ok(),
-                expired: row.take(4).unwrap(),
+                expired: row.take_opt(4).unwrap().ok(),
                 map_id: row.take(5).unwrap(),
                 participants: Vec::new(),
                 instance_specific: MetaType::Skirmish {
@@ -111,7 +111,7 @@ impl Instance {
                     server_id: row.take(1).unwrap(),
                     start_ts: row.take(2).unwrap(),
                     end_ts: row.take_opt(3).unwrap().ok(),
-                    expired: row.take(4).unwrap(),
+                    expired: row.take_opt(4).unwrap().ok(),
                     map_id: row.take(5).unwrap(),
                     participants: Vec::new(),
                     instance_specific: MetaType::Battleground {

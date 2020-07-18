@@ -7,7 +7,7 @@ pub struct InstanceMeta {
     pub start_ts: u64,
     pub end_ts: Option<u64>,
     pub map_id: u16,
-    pub expired: bool,
+    pub expired: Option<u64>,
     pub participants: Vec<u32>,
     pub instance_specific: MetaType,
 }

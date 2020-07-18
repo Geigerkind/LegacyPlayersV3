@@ -49,7 +49,7 @@ impl Server {
         // Load active instances
         db_main
             .select_wparams(
-                "SELECT id, start_ts, map_id, instance_id FROM instance_meta WHERE expired=0 AND server_id=:server_id",
+                "SELECT id, start_ts, map_id, instance_id FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
                 |mut row| UnitInstance {
                     instance_meta_id: row.take(0).unwrap(),
                     entered: row.take(1).unwrap(),
@@ -67,7 +67,7 @@ impl Server {
         // Load active instance participants
         db_main
             .select_wparams(
-                "SELECT A.id, B.character_id, B.history_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired = 0 AND A.server_id=:server_id",
+                "SELECT A.id, B.character_id, B.history_id FROM instance_meta A JOIN instance_participants B ON A.id = B.instance_meta_id WHERE A.expired IS NULL AND A.server_id=:server_id",
                 |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap(), row.take_opt::<u32, usize>(2).unwrap().ok()),
                 params!("server_id" => self.server_id),
             )

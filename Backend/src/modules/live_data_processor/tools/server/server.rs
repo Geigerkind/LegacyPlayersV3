@@ -480,7 +480,7 @@ impl Server {
             ) {
                 let instance_meta_id = db_main
                     .select_wparams_value(
-                        "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND expired=0",
+                        "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND expired IS NULL",
                         |mut row| row.take::<u32, usize>(0).unwrap(),
                         params!(
                         "server_id" => self.server_id,
@@ -508,7 +508,7 @@ impl Server {
 
     fn finalize_instance_meta(&self, db_main: &mut impl Execute, end_ts: u64, instance_meta_id: u32) -> bool {
         db_main.execute_wparams(
-            "UPDATE instance_meta SET end_ts=:end_ts, expired=1 WHERE instance_meta_id=:instance_meta_id",
+            "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=:end_ts WHERE instance_meta_id=:instance_meta_id",
             params!(
                 "end_ts" => end_ts,
                 "instance_meta_id" => instance_meta_id
@@ -530,13 +530,7 @@ impl Server {
             .map(|(instance_id, unit_instance)| (*instance_id, unit_instance.instance_meta_id))
             .collect::<Vec<(u32, u32)>>()
         {
-            if db_main.execute_wparams(
-                "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=1 WHERE instance_meta_id=:instance_meta_id",
-                params!(
-                    "end_ts" => now,
-                    "instance_meta_id" => instance_meta_id
-                ),
-            ) {
+            if self.finalize_instance_meta(db_main, now, instance_meta_id) {
                 self.active_instances.remove(&instance_id);
                 self.instance_participants.remove(&instance_meta_id);
             }
