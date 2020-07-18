@@ -80,7 +80,14 @@ impl MetaSearch for Instance {
             .filter(|rated_arena| filter.end_ts.apply_filter_ts(rated_arena.end_ts))
             .filter_map(|rated_arena| {
                 if let InstanceMeta {
-                    instance_specific: MetaType::RatedArena { team1, team2, team1_change, team2_change, .. },
+                    instance_specific:
+                        MetaType::RatedArena {
+                            winner,
+                            team1,
+                            team2,
+                            team1_change,
+                            team2_change,
+                        },
                     ..
                 } = rated_arena
                 {
@@ -89,6 +96,7 @@ impl MetaSearch for Instance {
                             map_id: rated_arena.map_id,
                             team1: SearchArenaTeam { team_id: team1.id, name: team1.team_name },
                             team2: SearchArenaTeam { team_id: team2.id, name: team2.team_name },
+                            winner,
                             server_id: rated_arena.server_id,
                             team1_change,
                             team2_change,
@@ -131,12 +139,14 @@ impl MetaSearch for Instance {
             .filter(|skirmish| filter.end_ts.apply_filter_ts(skirmish.end_ts))
             .filter_map(|skirmish| {
                 if let InstanceMeta {
-                    instance_specific: MetaType::Skirmish { .. }, ..
+                    instance_specific: MetaType::Skirmish { winner },
+                    ..
                 } = skirmish
                 {
                     return Some(MetaSkirmishSearch {
                         map_id: skirmish.map_id,
                         server_id: skirmish.server_id,
+                        winner,
                         start_ts: skirmish.start_ts,
                         end_ts: skirmish.end_ts,
                     });
@@ -171,7 +181,7 @@ impl MetaSearch for Instance {
             .filter(|skirmish| filter.end_ts.apply_filter_ts(skirmish.end_ts))
             .filter_map(|skirmish| {
                 if let InstanceMeta {
-                    instance_specific: MetaType::Battleground { score_alliance, score_horde, .. },
+                    instance_specific: MetaType::Battleground { winner, score_alliance, score_horde },
                     ..
                 } = skirmish
                 {
@@ -179,6 +189,7 @@ impl MetaSearch for Instance {
                         return Some(MetaBattlegroundSearch {
                             map_id: skirmish.map_id,
                             server_id: skirmish.server_id,
+                            winner,
                             score_alliance,
                             score_horde,
                             start_ts: skirmish.start_ts,
