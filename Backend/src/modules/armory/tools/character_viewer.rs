@@ -14,13 +14,36 @@ use crate::{
         },
     },
 };
+use chrono::DateTime;
 
 pub trait CharacterViewer {
+    fn get_character_viewer_by_date(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32, history_date: String) -> Result<CharacterViewerDto, ArmoryFailure>;
     fn get_character_viewer_by_history_id(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
     fn get_character_viewer(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
 }
 
 impl CharacterViewer for Armory {
+    fn get_character_viewer_by_date(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32, history_date: String) -> Result<CharacterViewerDto, ArmoryFailure> {
+        let date_time = DateTime::parse_from_str(&history_date, "%d.%m.%Y %I:%M %p").ok().ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        let ts_in_seconds = date_time.timestamp(); // TODO: Add GMT + 2 offset?
+        let character = self.get_character(character_id).ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        if let Some(closest_history_moment) = character
+            .history_moments
+            .into_iter()
+            .fold((i64::MAX, None), |(current_min, current_hm), moment| {
+                let current_abs = (moment.timestamp as i64 - ts_in_seconds).abs();
+                if current_abs < current_min {
+                    return (current_abs, Some(moment));
+                }
+                (current_min, current_hm)
+            })
+            .1
+        {
+            return self.get_character_viewer_by_history_id(db_main, data, language_id, closest_history_moment.id, character_id);
+        }
+        Err(ArmoryFailure::InvalidInput)
+    }
+
     fn get_character_viewer_by_history_id(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
         let character = self.get_character(character_id);
         if character.is_none() || character.as_ref().unwrap().last_update.is_none() || character.as_ref().unwrap().history_moments.iter().find(|hm| hm.id == character_history_id).is_none() {

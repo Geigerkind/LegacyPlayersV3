@@ -24,6 +24,7 @@ dotenv = "*"
 byteorder="*"
 rocket-multipart-form-data="*"
 grouping_by="*"
+chrono="*"
 
 [dependencies.rocket_contrib]
 version = "*"

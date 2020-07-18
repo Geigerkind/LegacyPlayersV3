@@ -24,6 +24,7 @@ extern crate validator;
 #[macro_use]
 extern crate lazy_static;
 extern crate byteorder;
+extern crate chrono;
 extern crate dotenv;
 extern crate grouping_by;
 extern crate regex;
@@ -208,6 +209,7 @@ fn main() {
                 armory::transfer::character_search::get_character_search_result,
                 armory::transfer::character_viewer::get_character_viewer,
                 armory::transfer::character_viewer::get_character_viewer_by_history,
+                armory::transfer::character_viewer::get_character_viewer_by_history_date,
                 armory::transfer::guild_viewer::get_guild_view
             ],
         )

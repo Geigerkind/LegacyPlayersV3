@@ -6,7 +6,7 @@ const routes: Routes = [{
     path: "", component: ArmoryComponent, children: [
         {path: "", loadChildren: () => import("./module/search/module").then(m => m.SearchModule)},
         {path: "character/:server_name/:character_name", loadChildren: () => import("./module/character_viewer/module").then(m => m.CharacterViewerModule)},
-        {path: "character/:server_name/:character_name/:character_history_id", loadChildren: () => import("./module/character_viewer/module").then(m => m.CharacterViewerModule)},
+        {path: "character/:server_name/:character_name/:character_history_date", loadChildren: () => import("./module/character_viewer/module").then(m => m.CharacterViewerModule)},
         {path: "guild/:server_name/:guild_name", loadChildren: () => import("./module/guild_viewer/module").then(m => m.GuildViewerModule)},
     ]
 }];
