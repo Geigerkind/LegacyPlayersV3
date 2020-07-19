@@ -8,11 +8,12 @@
     display: block;
     height: 100%;
     width: 100%;
+    margin-top: -$spacing;
 }
 
 .container {
     position: relative;
-    width: min(380px, calc(100% - 42px));
+    width: min(380px, calc(100% - 42px - 2 * #{$spacing}));
     height: calc(100% - 2 * #{$spacing});
     background: $tdc_darker;
     border-right: 1px solid $tdc_accent;
