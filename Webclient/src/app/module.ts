@@ -10,7 +10,6 @@ import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {FooterBarModule} from "./module/footer_bar/module";
 import {NavigationBarModule} from "./module/navigation_bar/module";
 import {CookieBannerComponent} from "./module/cookie_banner/component/cookie_banner/cookie_banner";
-import {ReactiveComponentLoaderModule} from "@wishtack/reactive-component-loader";
 import {SettingsService} from "./service/settings";
 import {NotificationListModule} from "./module/notification_list/module";
 import {NotificationService} from "./service/notification";
@@ -27,6 +26,7 @@ import {DataService} from "./service/data";
 import {TooltipModule} from "./module/tooltip/module";
 import {TooltipControllerService} from "./service/tooltip_controller";
 import {MousePositionService} from "./styling_service/mouse_position";
+import {CookieBannerModule} from "./module/cookie_banner/module";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -49,12 +49,8 @@ export function createTranslateLoader(http: HttpClient) {
                 deps: [HttpClient]
             }
         }),
-        ReactiveComponentLoaderModule.forRoot(),
-        ReactiveComponentLoaderModule.withModule({
-            moduleId: "cookie_banner",
-            loadChildren: () => import('./module/cookie_banner/module').then(m => m.CookieBannerModule)
-        }),
-        TooltipModule
+        TooltipModule,
+        CookieBannerModule
     ],
     providers: [
         SettingsService,
