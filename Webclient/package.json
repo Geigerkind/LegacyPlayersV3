@@ -18,7 +18,7 @@
     "postbuild": "bash tools/minifyHtml.sh && bash tools/inlineGlobalStyles.sh",
     "test": "jest",
     "lint": "ng lint",
-    "postinstall": "ngcc"
+    "postinstall": "ngcc --tsconfig \"./tsconfig.app.json\""
   },
   "private": true,
   "dependencies": {
