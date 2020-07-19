@@ -1,0 +1,38 @@
+@import "src/styles/colors";
+
+:host {
+    display: block;
+}
+
+ng-multiselect-dropdown {
+    display: inline-block;
+    width: 100%;
+
+    &::ng-deep {
+        color: $font_default !important;
+        .multiselect-dropdown {
+            .dropdown-btn {
+                width: calc(100% - 26px) !important;
+            }
+
+            .filter-textbox input {
+                width: calc(100% - 26px) !important;
+                background: lighten($tdc_darker, 3%);
+            }
+
+            .dropdown-list {
+                background: lighten($tdc_darker, 3%);
+                box-shadow: none;
+
+                .multiselect-item-checkbox {
+                    div {
+                        color: $font_default !important;
+                        &:hover {
+                            color: $highlight !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -12,14 +12,20 @@
 
 .container {
     position: relative;
-    width: min(400px, calc(100% - 42px));
-    height: 100%;
+    width: min(380px, calc(100% - 42px));
+    height: calc(100% - 2 * #{$spacing});
     background: $tdc_darker;
     border-right: 1px solid $tdc_accent;
     transition: margin-left 0.1s;
 
+    padding: $spacing $spacing;
+
     &.closed {
-        margin-left: calc(-1 * min(400px, calc(100% - 42px)));
+        margin-left: calc(-1 * min(380px + 2 * #{$spacing}, calc(100% - 42px)));
+    }
+
+    MultiSelect {
+        margin-bottom: $spacing;
     }
 }
 
@@ -45,4 +51,9 @@
             fill: $highlight;
         }
     }
+}
+
+.replay_btn {
+    width: 100%;
+    margin-top: $spacing;
 }
