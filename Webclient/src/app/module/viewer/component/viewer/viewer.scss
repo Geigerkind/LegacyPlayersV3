@@ -3,7 +3,16 @@
 :host {
     position: relative;
     display: flex;
+    flex-direction: column;
     align-self: stretch;
     width: 100%;
     padding: $spacing $spacing;
+}
+
+RaidTitleBar, RaidGraph {
+    z-index: 3;
+}
+
+RaidTitleBar {
+    margin-bottom: $spacing;
 }

@@ -1,0 +1,46 @@
+@import "src/styles/units";
+@import "src/styles/colors";
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.menu_bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 0 3px 3px 0;
+
+    width: calc(100% - #{$spacing});
+    height: 50px;
+    background: $tdc_darker;
+    border: 1px solid $tdc_accent;
+    padding: 0.25 * $spacing 0.5 * $spacing;
+
+    MultiSelect, SelectInput {
+        width: 200px;
+        margin-right: 0.5 * $spacing;
+    }
+
+    .question_mark {
+        $size: calc(50px - 0.5 * #{$spacing});
+
+        margin-left: auto;
+        width: $size;
+        height: $size;
+        cursor: pointer;
+        text-align: center;
+        line-height: $size;
+        font-size: 32px;
+    }
+}
+
+.graph_container{
+    width: 100%;
+    border: 1px solid $tdc_accent;
+    border-top: none;
+    height: 300px;
+    background: $tdc_darker;
+    border-radius: 3px 0 0 3px;
+}

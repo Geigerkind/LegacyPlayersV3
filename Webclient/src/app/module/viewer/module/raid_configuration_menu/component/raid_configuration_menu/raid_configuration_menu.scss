@@ -25,6 +25,10 @@
         margin-left: calc(-1 * min(380px + 2 * #{$spacing}, calc(100% - 42px)));
     }
 
+    &:not(.closed) {
+        z-index: 4;
+    }
+
     MultiSelect {
         margin-bottom: $spacing;
     }
@@ -40,6 +44,7 @@
     background: $tdc_darker;
     border: 1px solid $tdc_accent;
     border-left: none;
+    z-index: 5;
 
     svg {
         fill: white;
