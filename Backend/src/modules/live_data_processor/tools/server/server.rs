@@ -536,13 +536,13 @@ impl Server {
     fn find_matching_spell_cast(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit) -> Result<u32, EventParseFailureAction> {
         if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
             if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
-                if let Some(event) = committed_events.iter().find(|event| {
+                if let Some(event_index) = committed_events.iter().rposition(|event| {
                     if let EventType::SpellCast(spell_cast) = &event.event {
                         return spell_cast.spell_id == spell_id && event.subject == *subject;
                     }
                     false
                 }) {
-                    return Ok(event.id);
+                    return Ok(committed_events.get(event_index).unwrap().id);
                 }
             }
         }
@@ -554,7 +554,7 @@ impl Server {
     fn find_matching_threat_cause(&self, spell_id: Option<u32>, subject_unit_id: u64, subject: &Unit, threatened: &Unit) -> Result<u32, EventParseFailureAction> {
         if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
             if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
-                if let Some(event) = committed_events.iter().find(|event| {
+                if let Some(event_index) = committed_events.iter().rposition(|event| {
                     if let Some(threatening_spell_id) = spell_id {
                         return event.subject == *subject
                             && match &event.event {
@@ -573,7 +573,7 @@ impl Server {
                     }
                     false
                 }) {
-                    return Ok(event.id);
+                    return Ok(committed_events.get(event_index).unwrap().id);
                 }
             }
         }
