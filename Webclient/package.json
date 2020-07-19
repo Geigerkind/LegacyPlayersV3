@@ -17,7 +17,8 @@
         "build": "ng build --prod --configuration=production --build-optimizer",
         "postbuild": "bash tools/minifyHtml.sh && bash tools/inlineGlobalStyles.sh",
         "test": "jest",
-        "lint": "ng lint"
+        "lint": "ng lint",
+        "postinstall": "ngcc"
     },
     "private": true,
     "dependencies": {
