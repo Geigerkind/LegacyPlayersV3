@@ -6,5 +6,5 @@ import {Component} from "@angular/core";
     styleUrls: ["./raid_configuration_menu.scss"]
 })
 export class RaidConfigurationMenuComponent {
-    closed: boolean = false;
+    closed: boolean = true;
 }
