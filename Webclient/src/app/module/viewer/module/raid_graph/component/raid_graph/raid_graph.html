@@ -5,5 +5,15 @@
     <div class="question_mark">?</div>
 </div>
 <div class="graph_container">
-
+    <canvas baseChart
+            [datasets]="lineChartData"
+            [labels]="lineChartLabels"
+            [options]="lineChartOptions"
+            [colors]="lineChartColors"
+            [legend]="lineChartLegend"
+            [chartType]="lineChartType"
+            [plugins]="lineChartPlugins"
+            (chartHover)="chartHovered($event)"
+            (chartClick)="chartClicked($event)">
+    </canvas>
 </div>
