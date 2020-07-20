@@ -3,16 +3,34 @@
 :host {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-flow: row;
+    flex-wrap: wrap;
     align-self: stretch;
-    width: 100%;
-    padding: $spacing $spacing;
+    width: calc(100% - 6 * #{$spacing});
+    padding: $spacing 3 * $spacing;
+    align-content: flex-start;
+
+    @media (max-width: 658px) {
+        width: 100%;
+        padding: $spacing 0;
+    }
 }
 
-RaidTitleBar, RaidGraph {
+RaidTitleBar, RaidGraph, RaidMeter {
     z-index: 3;
 }
 
-RaidTitleBar {
+RaidTitleBar, RaidGraph, RaidMeter {
     margin-bottom: $spacing;
+}
+
+@media (min-width: 1280px) {
+    RaidMeter {
+        width: calc(50% - 0.5 * #{$spacing});
+        float: left;
+    }
+
+    #left_meter {
+        margin-right: $spacing;
+    }
 }

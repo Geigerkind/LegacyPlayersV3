@@ -80,6 +80,10 @@ $qualities: (
     .hero_class_#{$name} {
         color: $value;
     }
+
+    .hero_class_bg_#{$name} {
+        background-color: darken($value, 5%);
+    }
 }
 
 @each $name, $value in $qualities {

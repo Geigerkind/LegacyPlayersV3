@@ -10,28 +10,45 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex-wrap: wrap;
     border-radius: 0 3px 3px 0;
 
     width: calc(100% - #{$spacing});
-    height: 50px;
+    min-height: 50px;
     background: $tdc_darker;
     border: 1px solid $tdc_accent;
     padding: 0.25 * $spacing 0.5 * $spacing;
 
+    $questionmarkSize: calc(50px - 0.5 * #{$spacing});
     MultiSelect, SelectInput {
-        width: 200px;
+        width: calc(33.3% - 0.5 * #{$spacing} - 16px);
+        max-width: 300px;
         margin-right: 0.5 * $spacing;
     }
 
-    .question_mark {
-        $size: calc(50px - 0.5 * #{$spacing});
+    @media (max-width: 400px) {
+        SelectInput {
+            margin-top: 0.5 * $spacing;
+        }
 
+        MultiSelect, SelectInput {
+            margin-right: 0;
+            margin-bottom: 0.5 * $spacing;
+            width: 100%;
+        }
+
+        #last_multi_select {
+            width: calc(100% - #{$questionmarkSize});
+        }
+    }
+
+    .question_mark {
         margin-left: auto;
-        width: $size;
-        height: $size;
+        width: $questionmarkSize;
+        height: $questionmarkSize;
         cursor: pointer;
         text-align: center;
-        line-height: $size;
+        line-height: $questionmarkSize;
         font-size: 32px;
     }
 }
