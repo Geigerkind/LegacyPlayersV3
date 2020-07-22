@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="title_bar">
+        <div class="title">Loot</div>
+        <div class="insignificant_box">
+            <label for="insig_checkbox">Show insignificant items</label>
+            <GeneralInput [htmlId]="'insig_checkbox'" type="checkbox"></GeneralInput>
+        </div>
+    </div>
+    <div *ngFor="let boss of loot; index as i" class="boss_container">
+        <div class="boss_title_bar">
+            <div class="boss_label">{{boss.boss_name}}</div>
+            <CaretButton (toggled)="toggle_decisions[i]=!toggle_decisions[i]"></CaretButton>
+        </div>
+        <div class="loot_container" *ngIf="toggle_decisions[i]">
+            <LootItem *ngFor="let item of boss.items" [quality]="item.quality" [icon_path]="item.icon_path"
+                      [character_id]="item.character_id" [item_id]="item.item_id" [amount]="item.amount"></LootItem>
+        </div>
+    </div>
+</div>
