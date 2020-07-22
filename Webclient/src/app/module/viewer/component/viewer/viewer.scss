@@ -16,11 +16,11 @@
     }
 }
 
-RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot {
+RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot, RaidDetailTable {
     z-index: 3;
 }
 
-RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot {
+RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot, RaidDetailTable {
     margin-bottom: $spacing;
 }
 
