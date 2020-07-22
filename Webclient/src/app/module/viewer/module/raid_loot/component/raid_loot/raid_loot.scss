@@ -51,6 +51,10 @@
     .boss_container {
         width: 100%;
 
+        .no_border {
+            border: none !important;
+        }
+
         .boss_title_bar {
             $BTBsize: 25px - 0.25 * $spacing;
             background-color: $tdc_darker;

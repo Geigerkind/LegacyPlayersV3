@@ -7,7 +7,7 @@
         </div>
     </div>
     <div *ngFor="let boss of loot; index as i" class="boss_container">
-        <div class="boss_title_bar">
+        <div class="boss_title_bar" [class.no_border]="i+1==toggle_decisions.length">
             <div class="boss_label">{{boss.boss_name}}</div>
             <CaretButton (toggled)="toggle_decisions[i]=!toggle_decisions[i]"></CaretButton>
         </div>

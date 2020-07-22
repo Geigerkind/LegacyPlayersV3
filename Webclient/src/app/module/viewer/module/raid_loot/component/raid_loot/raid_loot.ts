@@ -74,6 +74,6 @@ export class RaidLootComponent {
         }
     ];
 
-    toggle_decisions = [ true, false, false ];
+    toggle_decisions = [ false, false, false ];
 
 }

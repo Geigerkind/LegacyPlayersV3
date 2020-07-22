@@ -25,12 +25,12 @@ RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot {
 }
 
 @media (min-width: 1280px) {
-    RaidMeter {
+    RaidMeter, RaidComposition, RaidLoot {
         width: calc(50% - 0.5 * #{$spacing});
         float: left;
     }
 
-    #left_meter {
+    #left_meter, RaidLoot {
         margin-right: $spacing;
     }
 }
