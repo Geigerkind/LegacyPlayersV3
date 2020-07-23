@@ -80,6 +80,7 @@ export class SearchComponent implements OnInit {
     ngOnInit(): void {
         const filter = table_init_filter(this.header_columns);
         if (!this.settingsService.check("table_filter_raids_search")) {
+            filter.start_ts.sorting = false;
             this.settingsService.set("table_filter_raids_search", filter);
         }
         this.onFilter(filter);
@@ -114,12 +115,12 @@ export class SearchComponent implements OnInit {
                 });
                 body_columns.push({
                     type: 2,
-                    content: (item.start_ts / 1000).toFixed(0),
+                    content: item.start_ts.toFixed(0),
                     args: null
                 });
                 body_columns.push({
                     type: 2,
-                    content: item.end_ts ? (item.end_ts / 1000).toFixed(0) : '',
+                    content: item.end_ts ? item.end_ts.toFixed(0) : '',
                     args: null
                 });
                 return {
