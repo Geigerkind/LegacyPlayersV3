@@ -43,13 +43,13 @@ export class SearchComponent implements OnInit {
             type_range: [{value: -1, label_key: "PvE.Search.server"}],
             col_type: 0
         },
-        {index: 4, filter_name: 'start_ts', labelKey: "PvE.Search.start", type: 2, type_range: null, col_type: 2},
-        {index: 5, filter_name: 'end_ts', labelKey: "PvE.Search.end", type: 2, type_range: null, col_type: 2}
+        {index: 4, filter_name: 'start_ts', labelKey: "PvE.Search.start", type: 2, type_range: null, col_type: 1},
+        {index: 5, filter_name: 'end_ts', labelKey: "PvE.Search.end", type: 2, type_range: null, col_type: 1}
     ];
     body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
-    responsiveHeadColumns: Array<number> = [0, 1, 2];
-    responsiveModeWidthInPx: number = 840;
+    responsiveHeadColumns: Array<number> = [0, 2];
+    responsiveModeWidthInPx: number = 1280;
     num_characters: number = 0;
 
     constructor(
