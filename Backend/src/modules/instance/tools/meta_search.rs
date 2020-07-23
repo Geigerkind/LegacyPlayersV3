@@ -8,16 +8,18 @@ use crate::modules::instance::Instance;
 use crate::rpll_table_sort;
 use crate::util::ordering::NegateOrdExt;
 use std::cmp::Ordering;
+use crate::modules::data::Data;
+use crate::modules::data::tools::RetrieveMap;
 
 pub trait MetaSearch {
-    fn search_meta_raids(&self, armory: &Armory, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
+    fn search_meta_raids(&self, armory: &Armory, data: &Data, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
     fn search_meta_rated_arenas(&self, filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch>;
     fn search_meta_skirmishes(&self, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch>;
     fn search_meta_battlegrounds(&self, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch>;
 }
 
 impl MetaSearch for Instance {
-    fn search_meta_raids(&self, armory: &Armory, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
+    fn search_meta_raids(&self, armory: &Armory, data: &Data, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
         filter.guild.convert_to_lowercase();
         let mut result = self
             .export_meta(0)
@@ -38,6 +40,7 @@ impl MetaSearch for Instance {
                             return Some(MetaRaidSearch {
                                 map_id: raid.map_id,
                                 map_difficulty,
+                                map_icon: data.get_map(raid.map_id).map(|map| map.icon).unwrap(),
                                 guild,
                                 server_id: raid.server_id,
                                 start_ts: raid.start_ts,

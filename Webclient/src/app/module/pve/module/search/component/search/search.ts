@@ -88,14 +88,13 @@ export class SearchComponent implements OnInit {
     onFilter(filter: any): void {
         this.searchService.search_raids(filter, (search_result) => {
             this.num_characters = search_result.num_items;
-            console.log(search_result.result);
             this.body_columns = search_result.result.map(item => {
                 const body_columns: Array<BodyColumn> = [];
                 body_columns.push({
                     type: 3,
                     content: item.map_id.toString(),
                     args: {
-                        icon: 'molten_core'
+                        icon: item.map_icon
                     }
                 });
                 body_columns.push({
@@ -115,12 +114,12 @@ export class SearchComponent implements OnInit {
                 });
                 body_columns.push({
                     type: 2,
-                    content: item.start_ts.toString(),
+                    content: (item.start_ts / 1000).toFixed(0),
                     args: null
                 });
                 body_columns.push({
                     type: 2,
-                    content: item.end_ts ? item.end_ts.toString() : '',
+                    content: item.end_ts ? (item.end_ts / 1000).toFixed(0) : '',
                     args: null
                 });
                 return {
@@ -128,7 +127,6 @@ export class SearchComponent implements OnInit {
                     columns: body_columns
                 };
             });
-            console.log("Body columns: ", this.body_columns);
         }, () => {
         });
     }
