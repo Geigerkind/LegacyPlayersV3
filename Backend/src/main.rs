@@ -58,7 +58,7 @@ fn main() {
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
-    let instance = instance::Instance::default().init(&mut conn, &armory);
+    let instance = instance::Instance::default().init(&mut conn, &armory); // TODO: Periodic updater
 
     let prometheus = PrometheusMetrics::new();
 

@@ -82,13 +82,55 @@ export class SearchComponent implements OnInit {
         if (!this.settingsService.check("table_filter_raids_search")) {
             this.settingsService.set("table_filter_raids_search", filter);
         }
+        this.onFilter(filter);
     }
 
     onFilter(filter: any): void {
         this.searchService.search_raids(filter, (search_result) => {
             this.num_characters = search_result.num_items;
-            this.body_columns = search_result.result;
-        }, () => {});
+            console.log(search_result.result);
+            this.body_columns = search_result.result.map(item => {
+                const body_columns: Array<BodyColumn> = [];
+                body_columns.push({
+                    type: 3,
+                    content: item.map_id.toString(),
+                    args: {
+                        icon: 'molten_core'
+                    }
+                });
+                body_columns.push({
+                    type: 3,
+                    content: item.map_difficulty.toString(),
+                    args: null
+                });
+                body_columns.push({
+                    type: 3,
+                    content: item.guild ? item.guild : 'Pug Raid',
+                    args: null
+                });
+                body_columns.push({
+                    type: 3,
+                    content: item.server_id.toString(),
+                    args: null
+                });
+                body_columns.push({
+                    type: 2,
+                    content: item.start_ts.toString(),
+                    args: null
+                });
+                body_columns.push({
+                    type: 2,
+                    content: item.end_ts ? item.end_ts.toString() : '',
+                    args: null
+                });
+                return {
+                    color: '',
+                    columns: body_columns
+                };
+            });
+            console.log("Body columns: ", this.body_columns);
+        }, () => {
+        });
     }
 
 }

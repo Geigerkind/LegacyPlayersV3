@@ -23,7 +23,7 @@ impl Instance {
     pub fn update_instance_metas(&mut self, db_main: &mut impl Select, armory: &Armory) {
         // Raids
         db_main
-            .select("SELECT A.*, B.map_difficulty FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id", |mut row| InstanceMeta {
+            .select("SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id", |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
                 start_ts: row.take(2).unwrap(),
@@ -44,7 +44,7 @@ impl Instance {
         // TODO: Rename team_change1 to team1_change
         db_main
             .select(
-                "SELECT A.*, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
+                "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
                 |mut row| {
                     (
                         row.take::<u32, usize>(0).unwrap(),
@@ -86,7 +86,7 @@ impl Instance {
 
         // Skirmishes
         db_main
-            .select("SELECT A.*, B.winner FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id", |mut row| InstanceMeta {
+            .select("SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id", |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
                 start_ts: row.take(2).unwrap(),
@@ -105,7 +105,7 @@ impl Instance {
 
         // Battlegrounds
         db_main
-            .select("SELECT A.*, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id", |mut row| {
+            .select("SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id", |mut row| {
                 InstanceMeta {
                     instance_meta_id: row.take(0).unwrap(),
                     server_id: row.take(1).unwrap(),

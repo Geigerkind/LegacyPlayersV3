@@ -2,5 +2,9 @@
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
        [numItems]="num_characters" unique_id="pve_search"
        (filterOrPageChanged)="onFilter($event)"
-       [et_row_items]="[]">
+       [et_row_items]="[instance_map]">
 </Table>
+
+<ng-template #instance_map let-specification="specification" let-content="content">
+    <InstanceMap [map_icon]="specification.args.icon" [instance_label]="content"></InstanceMap>
+</ng-template>
