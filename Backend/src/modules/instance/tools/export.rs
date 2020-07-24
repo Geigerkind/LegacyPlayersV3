@@ -3,11 +3,12 @@ use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
 
 pub trait ExportInstance {
-    fn export_instance_event_type(&self, server_id: u32, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
+    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
 }
 
 impl ExportInstance for Instance {
-    fn export_instance_event_type(&self, server_id: u32, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure> {
+    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure> {
+        let server_id = self.instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?.server_id;
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
         let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);
         if let Ok(file_content) = std::fs::read_to_string(event_path) {
@@ -15,7 +16,6 @@ impl ExportInstance for Instance {
             let mut events = Vec::with_capacity(segments.len());
             for segment in segments {
                 if segment.len() > 1 {
-                    println!("{}", segment);
                     events.push(serde_json::from_str(segment).map_err(|_| InstanceFailure::InvalidInput)?);
                 }
             }
