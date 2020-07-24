@@ -27,6 +27,8 @@ import {TooltipModule} from "./module/tooltip/module";
 import {TooltipControllerService} from "./service/tooltip_controller";
 import {MousePositionService} from "./styling_service/mouse_position";
 import {CookieBannerModule} from "./module/cookie_banner/module";
+import {DateService} from "./service/date";
+import {DatePipe} from "@angular/common";
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -65,7 +67,9 @@ export function createTranslateLoader(http: HttpClient) {
         MousePositionService,
         {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
-        {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true}
+        {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true},
+        DatePipe,
+        DateService
     ],
     bootstrap: [AppComponent],
     entryComponents: [CookieBannerComponent]

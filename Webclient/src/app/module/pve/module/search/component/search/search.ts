@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, LOCALE_ID, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {DataService} from "../../../../../../service/data";
@@ -9,6 +9,7 @@ import {Difficulty} from "../../../../../../domain_value/difficulty";
 import {RaidSearchService} from "../../service/raid_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {SettingsService} from "../../../../../../service/settings";
+import {DateService} from "../../../../../../service/date";
 
 @Component({
     selector: "Search",
@@ -55,7 +56,8 @@ export class SearchComponent implements OnInit {
     constructor(
         private dataService: DataService,
         private searchService: RaidSearchService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        public dateService: DateService
     ) {
         this.dataService.get_all_maps_by_type(0, (instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
