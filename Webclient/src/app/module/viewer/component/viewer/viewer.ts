@@ -1,12 +1,16 @@
 import {Component} from "@angular/core";
 import {InstanceDataService} from "../../service/instance_data";
 import {ActivatedRoute} from "@angular/router";
+import {UnitService} from "../../service/unit";
 
 @Component({
     selector: "Viewer",
     templateUrl: "./viewer.html",
     styleUrls: ["./viewer.scss"],
-    providers: [InstanceDataService]
+    providers: [
+        InstanceDataService,
+        UnitService
+    ]
 })
 export class ViewerComponent {
 

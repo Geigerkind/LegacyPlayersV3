@@ -1,3 +1,7 @@
-import {Unit} from "../../../domain_value/unit";
+import {Observable} from "rxjs";
 
-export type RaidMeterSubject = Unit;
+export interface RaidMeterSubject {
+    id: number;
+    name: Observable<string>;
+    color_class: Observable<string>;
+};

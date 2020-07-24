@@ -10,14 +10,14 @@
                     <div class="gray_bg_bar"></div>
                     <div class="bar_label_left">
                         <span>{{i+1}}.</span>
-                        <span>{{bar.subject.name}}</span>
+                        <span>{{bar.subject.name | async}}</span>
                     </div>
                     <div class="bar_label_right">
                         <span>{{bar.amount}}</span>
                         <span>{{get_dps(bar.amount).toFixed(1)}}/s</span>
                     </div>
                 </div>
-                <div class="bar_bg_color hero_class_bg_{{bar.subject.hero_class_id}}"></div>
+                <div class="bar_bg_color {{bar.subject.color_class | async}}"></div>
             </div>
             <div class="icon" style="background-image: url(assets/wow_hero_classes/c{{bar.hero_class_id}}.png)"></div>
             <div class="label_right">

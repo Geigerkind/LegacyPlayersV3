@@ -9,6 +9,7 @@ import {EventType} from "../../../domain_value/event_type";
 import {MeleeDamage} from "../../../domain_value/melee_damage";
 import {SpellDamage} from "../../../domain_value/spell_damage";
 import {Damage} from "../../../domain_value/damage";
+import {UnitService} from "../../../service/unit";
 
 @Injectable({
     providedIn: "root",
@@ -16,7 +17,8 @@ import {Damage} from "../../../domain_value/damage";
 export class DamageDoneService {
 
     constructor(
-        private instanceDataService: InstanceDataService
+        private instanceDataService: InstanceDataService,
+        private unitService: UnitService
     ) {
     }
 
@@ -63,7 +65,11 @@ export class DamageDoneService {
             row.amount += damage_extract_function(damage.event);
         } else {
             this.newRows.set(unit_id, {
-                subject: damage.subject,
+                subject: {
+                    id: unit_id,
+                    name: this.unitService.get_unit_name(damage.subject),
+                    color_class: this.unitService.get_unit_bg_color(damage.subject)
+                },
                 amount: damage_extract_function(damage.event)
             });
         }
