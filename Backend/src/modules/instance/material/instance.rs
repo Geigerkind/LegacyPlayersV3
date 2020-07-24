@@ -23,18 +23,21 @@ impl Instance {
     pub fn update_instance_metas(&mut self, db_main: &mut impl Select, armory: &Armory) {
         // Raids
         db_main
-            .select("SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id", |mut row| InstanceMeta {
-                instance_meta_id: row.take(0).unwrap(),
-                server_id: row.take(1).unwrap(),
-                start_ts: row.take(2).unwrap(),
-                end_ts: row.take_opt(3).unwrap().ok(),
-                expired: row.take_opt(4).unwrap().ok(),
-                map_id: row.take(5).unwrap(),
-                participants: Vec::new(),
-                instance_specific: MetaType::Raid {
-                    map_difficulty: row.take::<u8, usize>(6).unwrap(),
+            .select(
+                "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id",
+                |mut row| InstanceMeta {
+                    instance_meta_id: row.take(0).unwrap(),
+                    server_id: row.take(1).unwrap(),
+                    start_ts: row.take(2).unwrap(),
+                    end_ts: row.take_opt(3).unwrap().ok(),
+                    expired: row.take_opt(4).unwrap().ok(),
+                    map_id: row.take(5).unwrap(),
+                    participants: Vec::new(),
+                    instance_specific: MetaType::Raid {
+                        map_difficulty: row.take::<u8, usize>(6).unwrap(),
+                    },
                 },
-            })
+            )
             .into_iter()
             .for_each(|result| {
                 self.instance_metas.insert(result.instance_meta_id, result);
@@ -86,18 +89,21 @@ impl Instance {
 
         // Skirmishes
         db_main
-            .select("SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id", |mut row| InstanceMeta {
-                instance_meta_id: row.take(0).unwrap(),
-                server_id: row.take(1).unwrap(),
-                start_ts: row.take(2).unwrap(),
-                end_ts: row.take_opt(3).unwrap().ok(),
-                expired: row.take_opt(4).unwrap().ok(),
-                map_id: row.take(5).unwrap(),
-                participants: Vec::new(),
-                instance_specific: MetaType::Skirmish {
-                    winner: row.take::<u8, usize>(6).unwrap().to_winner(),
+            .select(
+                "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id",
+                |mut row| InstanceMeta {
+                    instance_meta_id: row.take(0).unwrap(),
+                    server_id: row.take(1).unwrap(),
+                    start_ts: row.take(2).unwrap(),
+                    end_ts: row.take_opt(3).unwrap().ok(),
+                    expired: row.take_opt(4).unwrap().ok(),
+                    map_id: row.take(5).unwrap(),
+                    participants: Vec::new(),
+                    instance_specific: MetaType::Skirmish {
+                        winner: row.take::<u8, usize>(6).unwrap().to_winner(),
+                    },
                 },
-            })
+            )
             .into_iter()
             .for_each(|result| {
                 self.instance_metas.insert(result.instance_meta_id, result);
@@ -105,8 +111,9 @@ impl Instance {
 
         // Battlegrounds
         db_main
-            .select("SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id", |mut row| {
-                InstanceMeta {
+            .select(
+                "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id",
+                |mut row| InstanceMeta {
                     instance_meta_id: row.take(0).unwrap(),
                     server_id: row.take(1).unwrap(),
                     start_ts: row.take(2).unwrap(),
@@ -119,8 +126,8 @@ impl Instance {
                         score_alliance: row.take(7).unwrap(),
                         score_horde: row.take(8).unwrap(),
                     },
-                }
-            })
+                },
+            )
             .into_iter()
             .for_each(|result| {
                 self.instance_metas.insert(result.instance_meta_id, result);

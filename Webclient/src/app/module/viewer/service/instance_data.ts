@@ -2,12 +2,14 @@ import {Injectable} from "@angular/core";
 import {APIService} from "src/app/service/api";
 import {Observable, Subject} from "rxjs";
 import {Event} from "../domain_value/event";
+import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 
 @Injectable({
     providedIn: "root",
 })
 export class InstanceDataService {
     private static INSTANCE_EXPORT_URL: string = "/instance/export/:instance_meta_id/:event_type";
+    private static INSTANCE_EXPORT_META_URL: string = "/instance/export/:instance_meta_id";
 
     private instance_meta_id$: number;
 
@@ -27,6 +29,7 @@ export class InstanceDataService {
     private spell_damage$: Subject<Array<Event>> = new Subject();
     private heal$: Subject<Array<Event>> = new Subject();
     private threat$: Subject<Array<Event>> = new Subject();
+    private instance_meta$: Subject<InstanceViewerMeta> = new Subject();
 
     constructor(private apiService: APIService) {
     }
@@ -36,6 +39,15 @@ export class InstanceDataService {
             InstanceDataService.INSTANCE_EXPORT_URL
                 .replace(":instance_meta_id", this.instance_meta_id$.toString())
                 .replace(":event_type", event_type.toString()),
+            on_success, () => {
+            }
+        );
+    }
+
+    private load_instance_meta(on_success: any): void {
+        return this.apiService.get(
+            InstanceDataService.INSTANCE_EXPORT_META_URL
+                .replace(":instance_meta_id", this.instance_meta_id$.toString()),
             on_success, () => {
             }
         );
@@ -123,6 +135,11 @@ export class InstanceDataService {
     public get threat(): Observable<Array<Event>> {
         this.load_instance_data(15, events => this.threat$.next(events));
         return this.threat$.asObservable();
+    }
+
+    public get meta(): Observable<InstanceViewerMeta> {
+        this.load_instance_meta(meta => this.instance_meta$.next(meta));
+        return this.instance_meta$.asObservable();
     }
 
 }

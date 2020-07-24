@@ -1,9 +1,13 @@
-use crate::modules::instance::dto::InstanceFailure;
+use crate::modules::armory::Armory;
+use crate::modules::instance::domain_value::MetaType;
+use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, InstanceViewerMeta};
+use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
+    fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
 }
 
 impl ExportInstance for Instance {
@@ -20,6 +24,26 @@ impl ExportInstance for Instance {
                 }
             }
             return Ok(events);
+        }
+        Ok(vec![])
+    }
+
+    fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
+        if let Some(instance_meta) = self.instance_metas.get(&instance_meta_id) {
+            let guild = instance_meta.participants.find_instance_guild(armory);
+            let map_difficulty = match instance_meta.instance_specific {
+                MetaType::Raid { map_difficulty } => Some(map_difficulty),
+                _ => None,
+            };
+            return Ok(InstanceViewerMeta {
+                instance_meta_id,
+                guild: guild.map(|guild| InstanceViewerGuild { guild_id: guild.id, guild_name: guild.name }),
+                server_id: instance_meta.server_id,
+                map_id: instance_meta.map_id,
+                map_difficulty,
+                start_ts: instance_meta.start_ts,
+                end_ts: instance_meta.end_ts,
+            });
         }
         Err(InstanceFailure::InvalidInput)
     }

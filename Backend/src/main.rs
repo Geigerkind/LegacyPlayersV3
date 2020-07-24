@@ -231,6 +231,7 @@ fn main() {
             "/API/instance",
             routes_with_openapi![
                 instance::transfer::export::get_instance_event_type,
+                instance::transfer::export::get_instance_meta,
                 instance::transfer::meta::export_raids,
                 instance::transfer::meta::export_rated_arenas,
                 instance::transfer::meta::export_skirmishes,

@@ -20,6 +20,10 @@ export class ViewerComponent {
             this.instance_meta_id = Number(params.get('instance_meta_id'));
             this.instanceDataService.instance_meta_id = this.instance_meta_id;
 
+            this.instanceDataService.meta.subscribe(meta => {
+                console.log("Meta: ", meta);
+            });
+
             this.instanceDataService.spell_casts.subscribe(events => {
                 console.log("SpellCasts: ", events);
             });

@@ -1,6 +1,8 @@
 use crate::dto::{ApplyFilter, ApplyFilterTs, SearchResult};
 use crate::modules::armory::dto::SearchGuildDto;
 use crate::modules::armory::Armory;
+use crate::modules::data::tools::RetrieveMap;
+use crate::modules::data::Data;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
 use crate::modules::instance::dto::{BattlegroundSearchFilter, MetaBattlegroundSearch, MetaRaidSearch, MetaRatedArenaSearch, MetaSkirmishSearch, RaidSearchFilter, RatedArenaSearchFilter, SearchArenaTeam, SkirmishSearchFilter};
 use crate::modules::instance::tools::{ExportMeta, FindInstanceGuild};
@@ -8,8 +10,6 @@ use crate::modules::instance::Instance;
 use crate::rpll_table_sort;
 use crate::util::ordering::NegateOrdExt;
 use std::cmp::Ordering;
-use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveMap;
 
 pub trait MetaSearch {
     fn search_meta_raids(&self, armory: &Armory, data: &Data, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
