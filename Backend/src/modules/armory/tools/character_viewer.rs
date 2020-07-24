@@ -14,7 +14,7 @@ use crate::{
         },
     },
 };
-use chrono::DateTime;
+use chrono::NaiveDateTime;
 
 pub trait CharacterViewer {
     fn get_character_viewer_by_date(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32, history_date: String) -> Result<CharacterViewerDto, ArmoryFailure>;
@@ -24,15 +24,15 @@ pub trait CharacterViewer {
 
 impl CharacterViewer for Armory {
     fn get_character_viewer_by_date(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32, history_date: String) -> Result<CharacterViewerDto, ArmoryFailure> {
-        let date_time = DateTime::parse_from_str(&history_date, "%d.%m.%Y %I:%M %p").ok().ok_or_else(|| ArmoryFailure::InvalidInput)?;
-        let ts_in_seconds = date_time.timestamp(); // TODO: Add GMT + 2 offset?
+        let date_time = NaiveDateTime::parse_from_str(&history_date, "%d.%m.%y %I:%M %p").ok().ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        let ts_in_seconds = date_time.timestamp();
         let character = self.get_character(character_id).ok_or_else(|| ArmoryFailure::InvalidInput)?;
         if let Some(closest_history_moment) = character
             .history_moments
             .into_iter()
             .fold((i64::MAX, None), |(current_min, current_hm), moment| {
                 let current_abs = (moment.timestamp as i64 - ts_in_seconds).abs();
-                if current_abs < current_min {
+                if current_abs <= current_min {
                     return (current_abs, Some(moment));
                 }
                 (current_min, current_hm)
