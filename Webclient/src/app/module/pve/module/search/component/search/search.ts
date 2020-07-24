@@ -80,10 +80,13 @@ export class SearchComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const filter = table_init_filter(this.header_columns);
+        let filter;
         if (!this.settingsService.check("table_filter_raids_search")) {
+            filter = table_init_filter(this.header_columns);
             filter.start_ts.sorting = false;
             this.settingsService.set("table_filter_raids_search", filter);
+        } else {
+            filter = this.settingsService.get("table_filter_raids_search");
         }
         this.onFilter(filter);
     }
@@ -97,7 +100,8 @@ export class SearchComponent implements OnInit {
                     type: 3,
                     content: item.map_id.toString(),
                     args: {
-                        icon: item.map_icon
+                        icon: item.map_icon,
+                        instance_meta_id: item.instance_meta_id
                     }
                 });
                 body_columns.push({

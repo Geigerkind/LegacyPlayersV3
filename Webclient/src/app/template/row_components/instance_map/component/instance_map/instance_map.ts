@@ -8,4 +8,5 @@ import {Component, Input} from "@angular/core";
 export class InstanceMapComponent {
     @Input() map_icon: string;
     @Input() instance_label: string;
+    @Input() html_href: string;
 }

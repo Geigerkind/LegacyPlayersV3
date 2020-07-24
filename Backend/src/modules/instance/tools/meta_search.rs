@@ -38,6 +38,7 @@ impl MetaSearch for Instance {
                         let guild = raid.participants.find_instance_guild(armory).map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name });
                         if filter.guild.apply_filter(guild.as_ref().map(|guild| guild.name.clone())) {
                             return Some(MetaRaidSearch {
+                                instance_meta_id: raid.instance_meta_id,
                                 map_id: raid.map_id,
                                 map_difficulty,
                                 map_icon: data.get_map(raid.map_id).map(|map| map.icon).unwrap(),
