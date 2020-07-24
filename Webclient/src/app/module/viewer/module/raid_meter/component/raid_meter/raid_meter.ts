@@ -1,79 +1,27 @@
 import {Component} from "@angular/core";
+import {DamageDoneService} from "../../service/damage_done";
+import {RaidMeterRow} from "../../domain_value/raid_meter_row";
 
 @Component({
     selector: "RaidMeter",
     templateUrl: "./raid_meter.html",
-    styleUrls: ["./raid_meter.scss"]
+    styleUrls: ["./raid_meter.scss"],
+    providers: [
+        DamageDoneService
+    ]
 })
 export class RaidMeterComponent {
 
     some_time: number = 60;
-    bars = [
-        {
-            hero_class_id: 1,
-            name: "Peter Mafai",
-            amount: 100000
-        },
-        {
-            hero_class_id: 2,
-            name: "Hans Peter",
-            amount: 90000
-        },
-        {
-            hero_class_id: 3,
-            name: "Spongebob Squarepants",
-            amount: 80000
-        },
-        {
-            hero_class_id: 4,
-            name: "Patrick Star",
-            amount: 70000
-        },
-        {
-            hero_class_id: 5,
-            name: "Peter Parker",
-            amount: 60000
-        },
-        {
-            hero_class_id: 6,
-            name: "Harry Potter",
-            amount: 50000
-        },
-        {
-            hero_class_id: 7,
-            name: "Hermine Stranger",
-            amount: 40000
-        },
-        {
-            hero_class_id: 8,
-            name: "Ragnar Lovebruk",
-            amount: 30000
-        },
-        {
-            hero_class_id: 9,
-            name: "Linus Torvalds",
-            amount: 20000
-        },
-        {
-            hero_class_id: 10,
-            name: "Im running out of names",
-            amount: 10000
-        },
-        {
-            hero_class_id: 11,
-            name: "xxXxxHunterDamageGuyxXx",
-            amount: 5000
-        },
-        {
-            hero_class_id: 12,
-            name: "Filthy Demon Hunter",
-            amount: 1000
-        }
-    ];
+    bars: Array<RaidMeterRow> = [];
 
-    get_sorted_bars(): Array<any> {
-        this.bars.sort((left, right) => right.amount - left.amount);
-        return this.bars;
+    constructor(
+        private damageDoneService: DamageDoneService
+    ) {
+        this.damageDoneService.rows
+            .subscribe(rows => this.bars = rows);
+
+        this.damageDoneService.reload();
     }
 
     get_weighted_bar_fraction(amount: number): number {

@@ -4,20 +4,20 @@
         <div class="total_and_dps">{{get_total()}} ({{get_total_dps().toFixed(1)}}/s)</div>
     </div>
     <div class="bar_container">
-        <div *ngFor="let bar of get_sorted_bars(); index as i" class="bar">
+        <div *ngFor="let bar of bars; index as i" class="bar">
             <div class="actual_value" style="width: calc(240px + max(0px, calc({{get_weighted_bar_fraction(bar.amount)*100}}% - {{get_weighted_bar_fraction(bar.amount)}} * 240px - {{get_weighted_bar_fraction(bar.amount)}} * 25px - 60px)))">
                 <div class="bar_labels">
                     <div class="gray_bg_bar"></div>
                     <div class="bar_label_left">
                         <span>{{i+1}}.</span>
-                        <span>{{bar.name}}</span>
+                        <span>{{bar.subject.name}}</span>
                     </div>
                     <div class="bar_label_right">
                         <span>{{bar.amount}}</span>
                         <span>{{get_dps(bar.amount).toFixed(1)}}/s</span>
                     </div>
                 </div>
-                <div class="bar_bg_color hero_class_bg_{{bar.hero_class_id}}"></div>
+                <div class="bar_bg_color hero_class_bg_{{bar.subject.hero_class_id}}"></div>
             </div>
             <div class="icon" style="background-image: url(assets/wow_hero_classes/c{{bar.hero_class_id}}.png)"></div>
             <div class="label_right">
