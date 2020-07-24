@@ -1,6 +1,10 @@
 <div class="container">
-    <div class="top_left">Ahn'qiraj - 01:52:33</div>
-    <div class="top_right faction_1">Banish</div>
-    <div class="bottom_left">23.04.2020 06:31 PM</div>
-    <div class="bottom_right expansion_2">Netherwing</div>
+    <div class="top_left">{{instance_name | async}} - {{ duration | async }}</div>
+    <div class="top_right">
+        <a class="faction_1" href="/armory/guild/{{ server_name | async }}/{{instance_meta.guild.name}}"
+           *ngIf="instance_meta?.guild">{{instance_meta.guild.name}}</a>
+        <span class="faction_1" *ngIf="!instance_meta?.guild">{{ 'TODO: Pug Raid' | translate }}</span>
+    </div>
+    <div class="bottom_left">{{ instance_start | async }}</div>
+    <div class="bottom_right expansion_{{expansion | async}}">{{server_name | async}}</div>
 </div>

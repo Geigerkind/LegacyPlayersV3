@@ -10,6 +10,7 @@ import {RaidSearchService} from "../../service/raid_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {SettingsService} from "../../../../../../service/settings";
 import {DateService} from "../../../../../../service/date";
+import {map} from "rxjs/operators";
 
 @Component({
     selector: "Search",
@@ -59,10 +60,10 @@ export class SearchComponent implements OnInit {
         private settingsService: SettingsService,
         public dateService: DateService
     ) {
-        this.dataService.get_all_maps_by_type(0, (instance_maps: Array<Localized<InstanceMap>>) => {
-            instance_maps.forEach(map => this.header_columns[0].type_range.push({
-                value: map.base.id,
-                label_key: map.localization
+        this.dataService.get_maps_by_type(0).subscribe( (instance_maps: Array<Localized<InstanceMap>>) => {
+            instance_maps.forEach(inner_map => this.header_columns[0].type_range.push({
+                value: inner_map.base.id,
+                label_key: inner_map.localization
             }));
         });
         this.dataService.get_all_difficulties((difficulties: Array<Localized<Difficulty>>) => {
@@ -71,7 +72,7 @@ export class SearchComponent implements OnInit {
                 label_key: difficulty.localization
             }));
         });
-        this.dataService.get_all_servers((servers: Array<AvailableServer>) => {
+        this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
             servers.forEach(server => this.header_columns[3].type_range.push({
                 value: server.id,
                 label_key: server.name

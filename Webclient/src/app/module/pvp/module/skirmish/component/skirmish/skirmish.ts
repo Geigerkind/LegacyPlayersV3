@@ -47,13 +47,13 @@ export class SkirmishComponent implements OnInit {
         private settingsService: SettingsService,
         private skirmishSearchService: SkirmishSearchService
     ) {
-        this.dataService.get_all_maps_by_type(1, (instance_maps: Array<Localized<InstanceMap>>) => {
+        this.dataService.get_maps_by_type(1).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
                 value: map.base.id,
                 label_key: map.localization
             }));
         });
-        this.dataService.get_all_servers((servers: Array<AvailableServer>) => {
+        this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
             servers.forEach(server => this.header_columns[1].type_range.push({
                 value: server.id,
                 label_key: server.name

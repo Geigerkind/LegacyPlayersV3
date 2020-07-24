@@ -52,12 +52,11 @@ export class SearchComponent implements OnInit {
             value: hero_class.base.id,
             label_key: hero_class.localization
         })));
-        this.dataService.get_all_servers((servers: Array<AvailableServer>) => {
+        this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
             servers.forEach(server => this.character_header_columns[3].type_range.push({
                 value: server.id,
                 label_key: server.name
             }));
-            this.filterCharacterSearch(this.settingsService.get("table_filter_armory_search"));
         });
     }
 
@@ -67,6 +66,7 @@ export class SearchComponent implements OnInit {
             filter.last_updated.sorting = false;
             this.settingsService.set("table_filter_armory_search", filter);
         }
+        this.filterCharacterSearch(this.settingsService.get("table_filter_armory_search"));
     }
 
     filterCharacterSearch(filter: any): void {
