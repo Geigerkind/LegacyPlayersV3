@@ -27,18 +27,23 @@ export class SettingsService {
         "data_service_difficulties",
         "data_service_hero_classes",
         "data_service_races",
-        "data_service_npcs"
+        "data_service_npcs",
+        "character_service_characters"
     ];
 
     private observers: any = {};
 
     constructor() {
+        const now = Date.now();
         for (let i = 0; i < localStorage.length; ++i) {
             const storageKey = localStorage.key(i);
             if (!this.settings.includes(storageKey))
                 continue;
 
-            this[storageKey] = JSON.parse(localStorage.getItem(storageKey));
+            const storage_item: Storage = JSON.parse(localStorage.getItem(storageKey));
+
+            if (storage_item.expiration > now)
+                this[storageKey] = storage_item;
         }
     }
 
