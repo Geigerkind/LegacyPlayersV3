@@ -29,6 +29,17 @@ export class UnitService {
         return of("hero_class_bg_1");
     }
 
+    get_unit_icon(unit: Unit): Observable<string> {
+        if (is_player(unit)) {
+            return this.characterService
+                .get_character_by_id(((unit as any).Player as Player).character_id)
+                .pipe(map(character => !!character.last_update ?
+                    "/assets/wow_hero_classes/c" + character.last_update.character_info.hero_class_id.toString() + ".png"
+                    : "/assets/wow_hero_classes/c1.png"));
+        }
+        return of("/assets/wow_hero_classes/c1.png");
+    }
+
     get_unit_name(unit: Unit, server_id: number): Observable<string> {
         if (is_player(unit)) {
             return this.characterService

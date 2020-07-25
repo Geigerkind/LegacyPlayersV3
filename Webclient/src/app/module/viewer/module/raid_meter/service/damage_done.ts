@@ -71,7 +71,8 @@ export class DamageDoneService {
                 subject: {
                     id: unit_id,
                     name: this.unitService.get_unit_name(damage.subject, meta.server_id),
-                    color_class: this.unitService.get_unit_bg_color(damage.subject)
+                    color_class: this.unitService.get_unit_bg_color(damage.subject),
+                    icon: this.unitService.get_unit_icon(damage.subject)
                 },
                 amount: damage_extract_function(damage.event)
             });

@@ -19,7 +19,7 @@
                 </div>
                 <div class="bar_bg_color {{bar.subject.color_class | async}}"></div>
             </div>
-            <div class="icon" style="background-image: url(assets/wow_hero_classes/c{{bar.hero_class_id}}.png)"></div>
+            <div class="icon" style="background-image: url({{bar.subject.icon | async}})"></div>
             <div class="label_right">
                 <span>{{(get_fraction(bar.amount)*100).toFixed(1)}}%</span>
             </div>
