@@ -27,6 +27,7 @@ export class CharacterService {
         if (!this.characters$)
             this.characters$ = get_behavior_subject_map_from_array(this.settingsService.get_or_set_with_expiration("character_service_characters", [], 0.5));
 
+
         if (this.characters$.has(character_id))
             return this.characters$.get(character_id).asObservable();
 
@@ -36,8 +37,8 @@ export class CharacterService {
         this.apiService.get(CharacterService.URL_CHARACTER
                 .replace(":character_id", character_id.toString()),
             character => {
-                this.settingsService.set_with_expiration("character_service_characters", create_array_from_behavior_subject_map(this.characters$), 0.5);
                 subject.next(character);
+                this.settingsService.set_with_expiration("character_service_characters", create_array_from_behavior_subject_map(this.characters$), 0.5);
             });
 
         return subject;

@@ -28,7 +28,24 @@ export class SettingsService {
         "data_service_hero_classes",
         "data_service_races",
         "data_service_npcs",
-        "character_service_characters"
+        "character_service_characters",
+        "instance_data_service_instance_meta",
+        "instance_data_service_threat",
+        "instance_data_service_heal",
+        "instance_data_service_spell_damage",
+        "instance_data_service_melee_damage",
+        "instance_data_service_summons",
+        "instance_data_service_threat_wipes",
+        "instance_data_service_dispels",
+        "instance_data_service_spell_steals",
+        "instance_data_service_interrupts",
+        "instance_data_service_aura_applications",
+        "instance_data_service_powers",
+        "instance_data_service_positions",
+        "instance_data_service_loot",
+        "instance_data_service_combat_states",
+        "instance_data_service_deaths",
+        "instance_data_service_spell_casts",
     ];
 
     private observers: any = {};

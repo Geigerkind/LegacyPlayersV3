@@ -88,8 +88,8 @@ export class DataService {
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":npc_id", npc_id.toString()),
             npc => {
-                this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
                 subject.next(npc);
+                this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
             });
 
         return subject;

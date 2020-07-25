@@ -4,7 +4,7 @@ import {Observable, BehaviorSubject, Subject} from "rxjs";
 import {Event} from "../domain_value/event";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {init_behavior_subject} from "../../../stdlib/init_behavior_subject";
-import {publishReplay, refCount} from "rxjs/operators";
+import {SettingsService} from "src/app/service/settings";
 
 export enum ChangedSubject {
     SpellCast = 1,
@@ -55,12 +55,10 @@ export class InstanceDataService {
 
     private changed$: Subject<ChangedSubject> = new Subject();
 
-    constructor(private apiService: APIService) {
-    }
-
-    private trigger_next<T>(what_changed: number, subject: BehaviorSubject<T>, value: T): void {
-        subject.next(value);
-        this.changed$.next(what_changed);
+    constructor(
+        private apiService: APIService,
+        private settingsService: SettingsService
+    ) {
     }
 
     private load_instance_data(event_type: number, on_success: any): void {
@@ -87,121 +85,155 @@ export class InstanceDataService {
     }
 
     public get spell_casts(): Observable<Array<Event>> {
-        this.spell_casts$ = init_behavior_subject(this.spell_casts$, [], (subject) => {
-            this.load_instance_data(0, events => this.trigger_next(ChangedSubject.SpellCast, subject, events));
-        });
+        this.spell_casts$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_spell_casts", 1, this.spell_casts$, [],
+            (callback) => this.load_instance_data(0, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.SpellCast);
+            }));
         return this.spell_casts$.asObservable();
     }
 
     public get deaths(): Observable<Array<Event>> {
-        this.deaths$ = init_behavior_subject(this.deaths$, [], (subject) => {
-            this.load_instance_data(1, events => this.trigger_next(ChangedSubject.Death, subject, events));
-        });
+        this.deaths$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_deaths", 1, this.deaths$, [],
+            (callback) => this.load_instance_data(1, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Death);
+            }));
         return this.deaths$.asObservable();
     }
 
     public get combat_states(): Observable<Array<Event>> {
-        this.combat_states$ = init_behavior_subject(this.combat_states$, [], (subject) => {
-            this.load_instance_data(2, events => this.trigger_next(ChangedSubject.CombatState, subject, events));
-        });
+        this.combat_states$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_combat_states", 1, this.combat_states$, [],
+            (callback) => this.load_instance_data(2, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.CombatState);
+            }));
         return this.combat_states$.asObservable();
     }
 
     public get loot(): Observable<Array<Event>> {
-        this.loot$ = init_behavior_subject(this.loot$, [], (subject) => {
-            this.load_instance_data(3, events => this.trigger_next(ChangedSubject.Loot, subject, events));
-        });
+        this.loot$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_loot", 1, this.loot$, [],
+            (callback) => this.load_instance_data(3, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Loot);
+            }));
         return this.loot$.asObservable();
     }
 
     public get positions(): Observable<Array<Event>> {
-        this.positions$ = init_behavior_subject(this.positions$, [], (subject) => {
-            this.load_instance_data(4, events => this.trigger_next(ChangedSubject.Position, subject, events));
-        });
+        this.positions$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_positions", 1, this.positions$, [],
+            (callback) => this.load_instance_data(4, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Position);
+            }));
         return this.positions$.asObservable();
     }
 
     public get powers(): Observable<Array<Event>> {
-        this.powers$ = init_behavior_subject(this.powers$, [], (subject) => {
-            this.load_instance_data(5, events => this.trigger_next(ChangedSubject.Power, subject, events));
-        });
+        this.powers$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_powers", 1, this.powers$, [],
+            (callback) => this.load_instance_data(5, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Power);
+            }));
         return this.powers$.asObservable();
     }
 
     public get aura_applications(): Observable<Array<Event>> {
-        this.aura_applications$ = init_behavior_subject(this.aura_applications$, [], (subject) => {
-            this.load_instance_data(6, events => this.trigger_next(ChangedSubject.AuraApplication, subject, events));
-        });
+        this.aura_applications$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_aura_applications", 1, this.aura_applications$, [],
+            (callback) => this.load_instance_data(6, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.AuraApplication);
+            }));
         return this.aura_applications$.asObservable();
     }
 
     public get interrupts(): Observable<Array<Event>> {
-        this.interrupts$ = init_behavior_subject(this.interrupts$, [], (subject) => {
-            this.load_instance_data(7, events => this.trigger_next(ChangedSubject.Interrupt, subject, events));
-        });
+        this.interrupts$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_interrupts", 1, this.interrupts$, [],
+            (callback) => this.load_instance_data(7, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Interrupt);
+            }));
         return this.interrupts$.asObservable();
     }
 
     public get spell_steals(): Observable<Array<Event>> {
-        this.spell_steals$ = init_behavior_subject(this.spell_steals$, [], (subject) => {
-            this.load_instance_data(8, events => this.trigger_next(ChangedSubject.SpellSteal, subject, events));
-        });
+        this.spell_steals$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_spell_steals", 1, this.spell_steals$, [],
+            (callback) => this.load_instance_data(8, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.SpellSteal);
+            }));
         return this.spell_steals$.asObservable();
     }
 
     public get dispels(): Observable<Array<Event>> {
-        this.dispels$ = init_behavior_subject(this.dispels$, [], (subject) => {
-            this.load_instance_data(9, events => this.trigger_next(ChangedSubject.Dispel, subject, events));
-        });
+        this.dispels$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_dispels", 1, this.dispels$, [],
+            (callback) => this.load_instance_data(9, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Dispel);
+            }));
         return this.dispels$.asObservable();
     }
 
     public get threat_wipes(): Observable<Array<Event>> {
-        this.threat_wipes$ = init_behavior_subject(this.threat_wipes$, [], (subject) => {
-            this.load_instance_data(10, events => this.trigger_next(ChangedSubject.ThreatWipe, subject, events));
-        });
+        this.threat_wipes$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_threat_wipes", 1, this.threat_wipes$, [],
+            (callback) => this.load_instance_data(10, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.ThreatWipe);
+            }));
         return this.threat_wipes$.asObservable();
     }
 
     public get summons(): Observable<Array<Event>> {
-        this.summons$ = init_behavior_subject(this.summons$, [], (subject) => {
-            this.load_instance_data(11, events => this.trigger_next(ChangedSubject.Summon, subject, events));
-        });
+        this.summons$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_summons", 1, this.summons$, [],
+            (callback) => this.load_instance_data(11, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Summon);
+            }));
         return this.summons$.asObservable();
     }
 
     public get melee_damage(): Observable<Array<Event>> {
-        this.melee_damage$ = init_behavior_subject(this.melee_damage$, [], (subject) => {
-            this.load_instance_data(12, events => this.trigger_next(ChangedSubject.MeleeDamage, subject, events));
-        });
+        this.melee_damage$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_melee_damage", 1, this.melee_damage$, [],
+            (callback) => this.load_instance_data(12, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.MeleeDamage);
+            }));
         return this.melee_damage$.asObservable();
     }
 
     public get spell_damage(): Observable<Array<Event>> {
-        this.spell_damage$ = init_behavior_subject(this.spell_damage$, [], (subject) => {
-            this.load_instance_data(13, events => this.trigger_next(ChangedSubject.SpellDamage, subject, events));
-        });
+        this.spell_damage$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_spell_damage", 1, this.spell_damage$, [],
+            (callback) => this.load_instance_data(13, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.SpellDamage);
+            }));
         return this.spell_damage$.asObservable();
     }
 
     public get heal(): Observable<Array<Event>> {
-        this.heal$ = init_behavior_subject(this.heal$, [], (subject) => {
-            this.load_instance_data(14, events => this.trigger_next(ChangedSubject.Heal, subject, events));
-        });
+        this.heal$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_heal", 1, this.heal$, [],
+            (callback) => this.load_instance_data(14, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Heal);
+            }));
         return this.heal$.asObservable();
     }
 
     public get threat(): Observable<Array<Event>> {
-        this.threat$ = init_behavior_subject(this.threat$, [], (subject) => {
-            this.load_instance_data(15, events => this.trigger_next(ChangedSubject.Threat, subject, events));
-        });
+        this.threat$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_threat", 1, this.threat$, [],
+            (callback) => this.load_instance_data(15, events => {
+                callback(events);
+                this.changed$.next(ChangedSubject.Threat);
+            }));
         return this.threat$.asObservable();
     }
 
     public get meta(): Observable<InstanceViewerMeta> {
-        this.instance_meta$ = init_behavior_subject(this.instance_meta$, undefined, (subject) => {
-            this.load_instance_meta(meta => this.trigger_next(ChangedSubject.InstanceMeta, subject, meta));
-        });
+        this.instance_meta$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_instance_meta", 1, this.instance_meta$, undefined,
+            (callback) => this.load_instance_meta(meta => {
+                callback(meta);
+                this.changed$.next(ChangedSubject.InstanceMeta);
+            }));
         return this.instance_meta$.asObservable();
     }
 
