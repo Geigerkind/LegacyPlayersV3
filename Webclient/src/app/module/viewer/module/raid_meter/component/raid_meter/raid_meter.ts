@@ -1,26 +1,45 @@
-import {Component} from "@angular/core";
+import {Component, OnDestroy} from "@angular/core";
 import {DamageDoneService} from "../../service/damage_done";
 import {RaidMeterRow} from "../../domain_value/raid_meter_row";
+import {UtilService} from "../../service/util";
+import {DamageTakenService} from "../../service/damage_taken";
+import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
+import {Subscription} from "rxjs";
+import {InstanceDataService} from "../../../../service/instance_data";
 
 @Component({
     selector: "RaidMeter",
     templateUrl: "./raid_meter.html",
     styleUrls: ["./raid_meter.scss"],
     providers: [
-        DamageDoneService
+        UtilService,
+        DamageDoneService,
+        DamageTakenService
     ]
 })
-export class RaidMeterComponent {
+export class RaidMeterComponent implements OnDestroy {
+
+    private subscription: Subscription;
 
     some_time: number = 60;
     bars: Array<RaidMeterRow> = [];
 
+    current_selection: number = 1;
+    options: Array<SelectOption> = [{value: 1, label_key: 'Damage done'}, {value: 2, label_key: 'Damage taken'}];
+
     constructor(
-        private damageDoneService: DamageDoneService
+        private instanceDataService: InstanceDataService,
+        private damageDoneService: DamageDoneService,
+        private damageTakenService: DamageTakenService
     ) {
-        this.damageDoneService.rows
-            .subscribe(rows => this.bars = rows);
+        this.instanceDataService.changed.subscribe((changed_subject) => this.selection_changed(this.current_selection));
+        this.selection_changed(this.current_selection);
     }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
+    }
+
 
     get_weighted_bar_fraction(amount: number): number {
         return amount / this.bars.reduce((acc, bar) => bar.amount > acc ? bar.amount : acc, 0);
@@ -45,11 +64,19 @@ export class RaidMeterComponent {
     selection_changed(selection: number): void {
         switch (selection) {
             case 1:
+                this.resubscribe(this.damageDoneService.rows.subscribe(rows => this.bars = rows));
                 this.damageDoneService.reload();
                 break;
             case 2:
+                this.resubscribe(this.damageTakenService.rows.subscribe(rows => this.bars = rows));
+                this.damageTakenService.reload();
                 break;
         }
+    }
+
+    private resubscribe(subscription: Subscription): void {
+        this.subscription?.unsubscribe();
+        this.subscription = subscription;
     }
 
 }

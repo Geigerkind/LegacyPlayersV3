@@ -52,9 +52,11 @@ export class UnitService {
         if (is_creature(unit)) {
             return this.dataService
                 .get_server_by_id(server_id)
-                .pipe(concatMap(server => this.dataService
-                    .get_npc(server.expansion_id, ((unit as any).Creature as Creature).entry)
-                    .pipe(map(npc => npc?.localization))));
+                .pipe(concatMap(server => {
+                    return !server ? of("Unknown") : this.dataService
+                        .get_npc(server.expansion_id, ((unit as any).Creature as Creature).entry)
+                        .pipe(map(npc => npc?.localization));
+                }));
         }
 
         return of("Unknown");
