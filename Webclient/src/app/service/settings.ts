@@ -26,7 +26,8 @@ export class SettingsService {
         "data_service_servers",
         "data_service_difficulties",
         "data_service_hero_classes",
-        "data_service_races"
+        "data_service_races",
+        "data_service_npcs"
     ];
 
     private observers: any = {};

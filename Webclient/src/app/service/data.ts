@@ -10,6 +10,10 @@ import {SettingsService} from "./settings";
 import {Race} from "../domain_value/race";
 import {HeroClass} from "../domain_value/hero_class";
 import {Difficulty} from "../domain_value/difficulty";
+import {
+    get_behavior_subject_map_from_nested_array,
+    create_array_from_nested_behavior_subject_map
+} from "../stdlib/map_persistance";
 
 @Injectable({
     providedIn: "root",
@@ -29,7 +33,7 @@ export class DataService {
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
     private difficulties$: BehaviorSubject<Array<Localized<Difficulty>>>;
 
-    private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>> = new Map();
+    private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>>;
 
     constructor(
         private apiService: APIService,
@@ -68,6 +72,9 @@ export class DataService {
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
+        if (!this.npcs$)
+            this.npcs$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_npcs", [], 7));
+
         if (!this.npcs$.has(expansion_id))
             this.npcs$.set(expansion_id, new Map());
         const expansion = this.npcs$.get(expansion_id);
@@ -80,7 +87,10 @@ export class DataService {
         this.apiService.get(DataService.URL_DATA_NPC_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":npc_id", npc_id.toString()),
-            npc => subject.next(npc));
+            npc => {
+                this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
+                subject.next(npc);
+            });
 
         return subject;
     }
