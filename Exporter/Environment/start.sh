@@ -36,7 +36,7 @@ trap 'cleanup' SIGTERM SIGINT SIGHUP SIGKILL SIGABRT SIGQUIT
 updateFiles
 
 echo "Starting the service"
-docker-compose up
+docker-compose up --build
 
 TIME_COUNTER=0
 while true; do
