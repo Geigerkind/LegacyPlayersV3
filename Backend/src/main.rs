@@ -43,6 +43,7 @@ mod tests;
 mod dto;
 mod modules;
 mod util;
+mod domain_value;
 
 #[database("main")]
 pub struct MainDb(mysql::Conn);

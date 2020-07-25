@@ -5,10 +5,11 @@ use crate::util::database::Select;
 use std::collections::HashMap;
 use crate::modules::live_data_processor::Event;
 use std::sync::RwLock;
+use crate::domain_value::Cachable;
 
 pub struct Instance {
     pub instance_metas: HashMap<u32, InstanceMeta>,
-    pub instance_exports: RwLock<HashMap<(u32, u8), Vec<Event>>>
+    pub instance_exports: RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>
 }
 
 impl Default for Instance {

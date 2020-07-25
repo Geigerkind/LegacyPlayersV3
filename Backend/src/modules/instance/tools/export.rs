@@ -4,6 +4,7 @@ use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, Instan
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
+use crate::domain_value::Cachable;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
@@ -14,8 +15,8 @@ impl ExportInstance for Instance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure> {
         {
             let instance_exports = self.instance_exports.read().unwrap();
-            if let Some(events) = instance_exports.get(&(instance_meta_id, event_type)) {
-                return Ok(events.clone());
+            if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
+                return Ok(cached.get_cached());
             }
         }
 
@@ -32,7 +33,7 @@ impl ExportInstance for Instance {
             }
 
             let mut instance_exports = self.instance_exports.write().unwrap();
-            instance_exports.insert((instance_meta_id, event_type), events.clone());
+            instance_exports.insert((instance_meta_id, event_type), Cachable::new(events.clone()));
 
             return Ok(events);
         }
