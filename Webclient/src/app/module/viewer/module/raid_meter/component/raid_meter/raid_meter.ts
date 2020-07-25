@@ -1,4 +1,4 @@
-import {Component, OnDestroy} from "@angular/core";
+import {Component, Input, OnDestroy, OnInit} from "@angular/core";
 import {DamageDoneService} from "../../service/damage_done";
 import {RaidMeterRow} from "../../domain_value/raid_meter_row";
 import {UtilService} from "../../service/util";
@@ -6,6 +6,7 @@ import {DamageTakenService} from "../../service/damage_taken";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {Subscription} from "rxjs";
 import {InstanceDataService} from "../../../../service/instance_data";
+import {SettingsService} from "src/app/service/settings";
 
 @Component({
     selector: "RaidMeter",
@@ -17,9 +18,12 @@ import {InstanceDataService} from "../../../../service/instance_data";
         DamageTakenService
     ]
 })
-export class RaidMeterComponent implements OnDestroy {
+export class RaidMeterComponent implements OnDestroy, OnInit {
+
+    @Input() unique_id: string;
 
     private subscription: Subscription;
+    private cookie_id: string;
 
     some_time: number = 60;
     bars: Array<RaidMeterRow> = [];
@@ -28,11 +32,20 @@ export class RaidMeterComponent implements OnDestroy {
     options: Array<SelectOption> = [{value: 1, label_key: 'Damage done'}, {value: 2, label_key: 'Damage taken'}];
 
     constructor(
+        private settingsService: SettingsService,
         private instanceDataService: InstanceDataService,
         private damageDoneService: DamageDoneService,
         private damageTakenService: DamageTakenService
     ) {
         this.instanceDataService.changed.subscribe((changed_subject) => this.selection_changed(this.current_selection));
+    }
+
+    ngOnInit(): void {
+        this.cookie_id = "raid_meter_" + this.unique_id;
+
+        if (this.settingsService.check(this.cookie_id)) {
+            this.current_selection = this.settingsService.get(this.cookie_id);
+        }
         this.selection_changed(this.current_selection);
     }
 
@@ -72,6 +85,8 @@ export class RaidMeterComponent implements OnDestroy {
                 this.damageTakenService.reload();
                 break;
         }
+        this.current_selection = selection;
+        this.settingsService.set(this.cookie_id, selection);
     }
 
     private resubscribe(subscription: Subscription): void {

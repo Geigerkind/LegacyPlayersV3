@@ -13,7 +13,9 @@ export class SettingsService {
         "table_filter_raids_search",
         "table_filter_rated_arenas_search",
         "table_filter_battlegrounds_search",
-        "table_filter_skirmishes_search"
+        "table_filter_skirmishes_search",
+        "raid_meter_viewer_rm_1",
+        "raid_meter_viewer_rm_2",
     ];
 
     private observers: any = {};
