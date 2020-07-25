@@ -65,7 +65,7 @@ export class GuildViewerComponent implements OnInit {
     private loadGuild(server_name: string, guild_name: string): void {
         this.guildViewerService.get_guild_view(server_name, guild_name, result => {
             this.setMemberBodyRows(server_name, result.member);
-            this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.member_header_columns[0].type_range.push({
+            this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.member_header_columns[0].type_range.push({
                 value: hero_class.base.id,
                 label_key: hero_class.localization
             })));

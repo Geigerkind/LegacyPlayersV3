@@ -66,7 +66,7 @@ export class SearchComponent implements OnInit {
                 label_key: inner_map.localization
             }));
         });
-        this.dataService.get_all_difficulties((difficulties: Array<Localized<Difficulty>>) => {
+        this.dataService.difficulties.subscribe((difficulties: Array<Localized<Difficulty>>) => {
             difficulties.forEach(difficulty => this.header_columns[1].type_range.push({
                 value: difficulty.base.id,
                 label_key: difficulty.localization

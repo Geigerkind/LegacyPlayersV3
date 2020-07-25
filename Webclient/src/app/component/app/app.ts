@@ -18,8 +18,8 @@ export class AppComponent implements OnInit {
     private googleAnalyticsSubscription: Subscription;
 
     constructor(
-        private translationService: TranslationService,
         private settingsService: SettingsService,
+        private translationService: TranslationService,
         private router: Router
     ) {
         // this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));

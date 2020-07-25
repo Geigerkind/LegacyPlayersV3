@@ -35,7 +35,14 @@ export class SearchComponent implements OnInit {
             type_range: [{value: -1, label_key: "Armory.Search.server"}],
             col_type: 0
         },
-        {index: 4, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null, col_type: 1},
+        {
+            index: 4,
+            filter_name: 'last_updated',
+            labelKey: "Armory.Search.last_update",
+            type: 2,
+            type_range: null,
+            col_type: 1
+        },
     ];
     character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
@@ -48,7 +55,8 @@ export class SearchComponent implements OnInit {
         private dataService: DataService,
         private settingsService: SettingsService
     ) {
-        this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
+        this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
+            hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
             value: hero_class.base.id,
             label_key: hero_class.localization
         })));
