@@ -12,6 +12,13 @@ pub trait ExportInstance {
 
 impl ExportInstance for Instance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure> {
+        {
+            let instance_exports = self.instance_exports.read().unwrap();
+            if let Some(events) = instance_exports.get(&(instance_meta_id, event_type)) {
+                return Ok(events.clone());
+            }
+        }
+
         let server_id = self.instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?.server_id;
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
         let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);
@@ -23,6 +30,10 @@ impl ExportInstance for Instance {
                     events.push(serde_json::from_str(segment).map_err(|_| InstanceFailure::InvalidInput)?);
                 }
             }
+
+            let mut instance_exports = self.instance_exports.write().unwrap();
+            instance_exports.insert((instance_meta_id, event_type), events.clone());
+
             return Ok(events);
         }
         Ok(vec![])

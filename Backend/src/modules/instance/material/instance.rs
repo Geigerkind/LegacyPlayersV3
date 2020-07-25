@@ -3,14 +3,20 @@ use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
 use crate::util::database::Select;
 use std::collections::HashMap;
+use crate::modules::live_data_processor::Event;
+use std::sync::RwLock;
 
 pub struct Instance {
     pub instance_metas: HashMap<u32, InstanceMeta>,
+    pub instance_exports: RwLock<HashMap<(u32, u8), Vec<Event>>>
 }
 
 impl Default for Instance {
     fn default() -> Self {
-        Instance { instance_metas: HashMap::new() }
+        Instance {
+            instance_metas: HashMap::new(),
+            instance_exports: RwLock::new(HashMap::new())
+        }
     }
 }
 
