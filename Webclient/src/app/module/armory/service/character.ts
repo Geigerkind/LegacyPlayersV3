@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {APIService} from "../../../service/api";
-import {Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {Character} from "../domain_value/character";
 
 @Injectable({
@@ -10,7 +10,7 @@ export class CharacterService {
 
     private static readonly URL_CHARACTER: string = "/armory/character/:character_id";
 
-    private characters$: Map<number, Subject<Character>> = new Map();
+    private characters$: Map<number, BehaviorSubject<Character>> = new Map();
 
     constructor(
         private apiService: APIService
@@ -21,7 +21,7 @@ export class CharacterService {
         if (this.characters$.has(character_id))
             return this.characters$.get(character_id).asObservable();
 
-        const subject = new Subject<Character>();
+        const subject = new BehaviorSubject<Character>(undefined);
         this.characters$.set(character_id, subject);
 
         this.apiService.get(CharacterService.URL_CHARACTER

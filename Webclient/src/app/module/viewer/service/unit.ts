@@ -22,7 +22,7 @@ export class UnitService {
         if (is_player(unit)) {
             return this.characterService
                 .get_character_by_id(((unit as any).Player as Player).character_id)
-                .pipe(map(character => !!character.last_update ?
+                .pipe(map(character => !!character?.last_update ?
                     "hero_class_bg_" + character.last_update.character_info.hero_class_id.toString()
                     : "hero_class_bg_1"));
         }
@@ -33,7 +33,7 @@ export class UnitService {
         if (is_player(unit)) {
             return this.characterService
                 .get_character_by_id(((unit as any).Player as Player).character_id)
-                .pipe(map(character => !!character.last_update ?
+                .pipe(map(character => !!character?.last_update ?
                     "/assets/wow_hero_classes/c" + character.last_update.character_info.hero_class_id.toString() + ".png"
                     : "/assets/wow_hero_classes/c1.png"));
         }
@@ -44,7 +44,7 @@ export class UnitService {
         if (is_player(unit)) {
             return this.characterService
                 .get_character_by_id(((unit as any).Player as Player).character_id)
-                .pipe(map(character => !!character.last_update ?
+                .pipe(map(character => !!character?.last_update ?
                     character.last_update.character_name
                     : "Unknown"));
         }
@@ -54,7 +54,7 @@ export class UnitService {
                 .get_server_by_id(server_id)
                 .pipe(concatMap(server => this.dataService
                     .get_npc(server.expansion_id, ((unit as any).Creature as Creature).entry)
-                    .pipe(map(npc => npc.localization))));
+                    .pipe(map(npc => npc?.localization))));
         }
 
         return of("Unknown");

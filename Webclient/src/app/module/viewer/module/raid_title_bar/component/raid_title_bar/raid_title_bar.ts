@@ -26,15 +26,17 @@ export class RaidTitleBarComponent {
     ) {
 
         this.instanceDataService.meta.subscribe(meta => {
-           this.instance_meta = meta;
-           this.instance_name = this.dataService.get_map_name_by_id(this.instance_meta.map_id);
-           this.dataService.get_server_by_id(this.instance_meta.server_id)
-               .subscribe(server => {
-                   this.expansion = of(server.expansion_id);
-                   this.server_name = of(server.name);
-               });
-           this.duration = this.get_duration();
-           this.instance_start = of(this.dateService.toRPLLLongDate(this.instance_meta.start_ts));
+            if (!meta) return;
+
+            this.instance_meta = meta;
+            this.instance_name = this.dataService.get_map_name_by_id(this.instance_meta.map_id);
+            this.dataService.get_server_by_id(this.instance_meta.server_id)
+                .subscribe(server => {
+                    this.expansion = of(server?.expansion_id);
+                    this.server_name = of(server?.name);
+                });
+            this.duration = this.get_duration();
+            this.instance_start = of(this.dateService.toRPLLLongDate(this.instance_meta.start_ts));
         });
 
     }

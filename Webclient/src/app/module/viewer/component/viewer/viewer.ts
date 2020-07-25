@@ -2,6 +2,7 @@ import {Component} from "@angular/core";
 import {InstanceDataService} from "../../service/instance_data";
 import {ActivatedRoute} from "@angular/router";
 import {UnitService} from "../../service/unit";
+import {take} from "rxjs/operators";
 
 @Component({
     selector: "Viewer",
@@ -76,11 +77,13 @@ export class ViewerComponent {
                 console.log("Summons: ", events);
             });
 
-            this.instanceDataService.melee_damage.subscribe(events => {
+            this.instanceDataService.melee_damage
+                .pipe(take(1)).subscribe(events => {
                 console.log("Melee Damage: ", events);
             });
 
-            this.instanceDataService.spell_damage.subscribe(events => {
+            this.instanceDataService.spell_damage
+                .pipe(take(1)).subscribe(events => {
                 console.log("Spell Damage: ", events);
             });
 

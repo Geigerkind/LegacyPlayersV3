@@ -20,8 +20,6 @@ export class RaidMeterComponent {
     ) {
         this.damageDoneService.rows
             .subscribe(rows => this.bars = rows);
-
-        this.damageDoneService.reload();
     }
 
     get_weighted_bar_fraction(amount: number): number {
@@ -44,5 +42,14 @@ export class RaidMeterComponent {
         return amount / this.some_time;
     }
 
+    selection_changed(selection: number): void {
+        switch (selection) {
+            case 1:
+                this.damageDoneService.reload();
+                break;
+            case 2:
+                break;
+        }
+    }
 
 }

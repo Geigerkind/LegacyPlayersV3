@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
 import {RaidMeterRow} from "../domain_value/raid_meter_row";
-import {Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {map, take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
 import {get_unit_id} from "../../../domain_value/unit";
@@ -28,7 +28,7 @@ export class DamageDoneService {
             .pipe(map(rows => rows.sort((left, right) => right.amount - left.amount)));
     }
 
-    private rows$: Subject<Array<RaidMeterRow>> = new Subject();
+    private rows$: BehaviorSubject<Array<RaidMeterRow>> = new BehaviorSubject([]);
     private newRows: Map<number, RaidMeterRow>;
 
     private static extract_damage_from_melee_damage(damage: EventType): number {
@@ -41,7 +41,9 @@ export class DamageDoneService {
 
     reload(): void {
         this.newRows = new Map();
-        this.instanceDataService.meta.subscribe(meta => {
+        this.instanceDataService.meta
+            .pipe(take(1))
+            .subscribe(meta => {
             this.instanceDataService.melee_damage
                 .pipe(take(1))
                 .subscribe(damage => {

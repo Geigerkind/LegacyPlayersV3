@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {APIService} from "src/app/service/api";
-import {Observable, Subject} from "rxjs";
+import {Observable, BehaviorSubject} from "rxjs";
 import {Event} from "../domain_value/event";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 
@@ -13,23 +13,23 @@ export class InstanceDataService {
 
     private instance_meta_id$: number;
 
-    private spell_casts$: Subject<Array<Event>> = new Subject();
-    private deaths$: Subject<Array<Event>> = new Subject();
-    private combat_states$: Subject<Array<Event>> = new Subject();
-    private loot$: Subject<Array<Event>> = new Subject();
-    private positions$: Subject<Array<Event>> = new Subject();
-    private powers$: Subject<Array<Event>> = new Subject();
-    private aura_applications$: Subject<Array<Event>> = new Subject();
-    private interrupts$: Subject<Array<Event>> = new Subject();
-    private spell_steals$: Subject<Array<Event>> = new Subject();
-    private dispels$: Subject<Array<Event>> = new Subject();
-    private threat_wipes$: Subject<Array<Event>> = new Subject();
-    private summons$: Subject<Array<Event>> = new Subject();
-    private melee_damage$: Subject<Array<Event>> = new Subject();
-    private spell_damage$: Subject<Array<Event>> = new Subject();
-    private heal$: Subject<Array<Event>> = new Subject();
-    private threat$: Subject<Array<Event>> = new Subject();
-    private instance_meta$: Subject<InstanceViewerMeta> = new Subject();
+    private spell_casts$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private deaths$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private combat_states$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private loot$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private positions$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private powers$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private aura_applications$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private interrupts$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private spell_steals$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private dispels$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private threat_wipes$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private summons$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private melee_damage$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private spell_damage$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private heal$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private threat$: BehaviorSubject<Array<Event>> = new BehaviorSubject([]);
+    private instance_meta$: BehaviorSubject<InstanceViewerMeta> = new BehaviorSubject(undefined);
 
     constructor(private apiService: APIService) {
     }

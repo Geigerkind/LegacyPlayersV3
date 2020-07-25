@@ -1,6 +1,6 @@
 <div class="container">
     <div class="title_bar">
-        <SelectInput [options]="[{ value: 1, label_key: 'Damage done'}]"></SelectInput>
+        <SelectInput (valueChange)="selection_changed($event)" [options]="[{ value: 1, label_key: 'Damage done'}, { value: 2, label_key: 'Damage taken'}]"></SelectInput>
         <div class="total_and_dps">{{get_total()}} ({{get_total_dps().toFixed(1)}}/s)</div>
     </div>
     <div class="bar_container">
