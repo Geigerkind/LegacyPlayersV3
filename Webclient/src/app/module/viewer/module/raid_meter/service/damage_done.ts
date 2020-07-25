@@ -31,11 +31,11 @@ export class DamageDoneService {
     private newRows: Map<number, RaidMeterRow>;
 
     private static extract_damage_from_melee_damage(damage: EventType): number {
-        return (damage.MeleeDamage as MeleeDamage).damage;
+        return ((damage as any).MeleeDamage as MeleeDamage).damage;
     }
 
     private static extract_damage_from_spell_damage(damage: EventType): number {
-        return ((damage.SpellDamage as SpellDamage).damage as Damage).damage;
+        return (((damage as any).SpellDamage as SpellDamage).damage as Damage).damage;
     }
 
     reload(): void {
