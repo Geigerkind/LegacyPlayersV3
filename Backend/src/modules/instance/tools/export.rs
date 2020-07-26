@@ -4,7 +4,7 @@ use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, Instan
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
-use crate::domain_value::Cachable;
+use crate::material::Cachable;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
@@ -13,18 +13,22 @@ pub trait ExportInstance {
 
 impl ExportInstance for Instance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure> {
+        let (server_id, expired) = {
+            let instance_metas = self.instance_metas.read().unwrap();
+            let instance_meta = instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
+            (instance_meta.server_id, instance_meta.expired)
+        };
+
         {
             let instance_exports = self.instance_exports.read().unwrap();
             if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
-                return Ok(cached.get_cached());
+                let now = time_util::now();
+                let last_updated = cached.get_last_updated();
+                if (expired.is_some() && expired.unwrap() > last_updated) || (last_updated + 60 > now) {
+                    return Ok(cached.get_cached());
+                }
             }
         }
-
-
-        let server_id = {
-            let instance_metas = self.instance_metas.read().unwrap();
-            instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?.server_id
-        };
 
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
         let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);

@@ -8,9 +8,11 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 #[openapi]
-#[get("/export/<instance_meta_id>/<event_type>")]
-pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8) -> Result<Json<Vec<Event>>, InstanceFailure> {
-    me.export_instance_event_type(instance_meta_id, event_type).map(Json)
+#[get("/export/<instance_meta_id>/<event_type>/<last_event_id>")]
+pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8, last_event_id: u32) -> Result<Json<Vec<Event>>, InstanceFailure> {
+    me.export_instance_event_type(instance_meta_id, event_type)
+        .map(|events| events.into_iter().filter(|event| event.id > last_event_id).collect())
+        .map(Json)
 }
 
 #[openapi]

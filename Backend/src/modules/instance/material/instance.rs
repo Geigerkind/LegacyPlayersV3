@@ -5,7 +5,7 @@ use crate::util::database::Select;
 use std::collections::HashMap;
 use crate::modules::live_data_processor::Event;
 use std::sync::{RwLock, Arc};
-use crate::domain_value::Cachable;
+use crate::material::Cachable;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
@@ -42,7 +42,7 @@ fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<V
     let now = time_util::now();
     let mut instance_exports = instance_exports.write().unwrap();
     for instance_meta_id in instance_exports.iter()
-        .filter(|(_, cachable)| cachable.get_ts() + 3 * 60 * 60 < now)
+        .filter(|(_, cachable)| cachable.get_last_access() + 3 * 60 * 60 < now)
         .map(|(instance_meta_id, _)| *instance_meta_id).collect::<Vec<(u32, u8)>>() {
         instance_exports.remove(&instance_meta_id);
     }
