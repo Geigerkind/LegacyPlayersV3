@@ -1,6 +1,7 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js');
 
 // Caching cachable API calls
+/*
 workbox.routing.registerRoute(
     new RegExp('/API/'),
     new workbox.strategies.CacheFirst({
@@ -22,6 +23,7 @@ workbox.routing.registerRoute(
         ]
     })
 );
+ */
 
 // Caching images
 workbox.routing.registerRoute(
