@@ -1,15 +1,26 @@
-use crate::modules::live_data_processor::domain_value::Event;
+use crate::modules::live_data_processor::domain_value::{Event, UnitInstance};
 use crate::modules::live_data_processor::material::Server;
 use crate::util::database::{Execute, Select};
 use std::io::Write;
+use crate::params;
 
 impl Server {
-    pub fn perform_post_processing(&mut self, _db_main: &mut (impl Execute + Select), now: u64) {
+    pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64) {
+        self.save_current_event_id(db_main);
         self.save_committed_events_to_disk(now);
         // TODO: Set end_ts of instance
         // TODO: Extract Attempts?
         // TODO: Extract Ranking
         // TODO: Extract Loot
+    }
+
+    fn save_current_event_id(&self, db_main: &mut impl Execute) {
+        for (instance_id, current_event_id) in self.committed_events_count.iter() {
+            if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
+                db_main.execute_wparams("UPDATE instance_meta SET last_event_id=:current_event_id WHERE instance_meta_id=:instance_meta_id",
+                params!("current_event_id" => *current_event_id, "instance_meta_id" => instance_meta_id));
+            }
+        }
     }
 
     fn save_committed_events_to_disk(&mut self, now: u64) {

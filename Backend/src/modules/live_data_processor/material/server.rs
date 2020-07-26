@@ -64,6 +64,15 @@ impl Server {
                 self.active_instances.insert(unit_instance.instance_id, unit_instance);
             });
 
+        // Load current_event_id count
+        db_main.select_wparams("SELECT instance_id, last_event_id FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
+            |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap()),
+                               params!("server_id" => self.server_id))
+            .into_iter()
+            .for_each(|(instance_id, last_event_id)| {
+                self.committed_events_count.insert(instance_id, last_event_id);
+            });
+
         // Load active instance participants
         db_main
             .select_wparams(
