@@ -89,6 +89,9 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private load_instance_data(event_type: number, on_success: any, subject: BehaviorSubject<Array<Event>>): void {
+        if (!this.instance_meta_id$)
+            return;
+
         let last_event_id = 0;
         if (!!subject?.getValue() && subject.getValue().length > 0) {
             const value = subject.getValue();
@@ -106,6 +109,9 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private load_instance_meta(on_success: any): void {
+        if (!this.instance_meta_id$)
+            return;
+
         return this.apiService.get(
             InstanceDataService.INSTANCE_EXPORT_META_URL
                 .replace(":instance_meta_id", this.instance_meta_id$.toString()),
@@ -115,6 +121,9 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private load_participants(on_success: any): void {
+        if (!this.instance_meta_id$)
+            return;
+
         return this.apiService.get(
             InstanceDataService.INSTANCE_EXPORT_PARTICIPANTS_URL
                 .replace(":instance_meta_id", this.instance_meta_id$.toString()),

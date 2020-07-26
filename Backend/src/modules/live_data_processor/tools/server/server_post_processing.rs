@@ -1,8 +1,8 @@
 use crate::modules::live_data_processor::domain_value::{Event, UnitInstance};
 use crate::modules::live_data_processor::material::Server;
+use crate::params;
 use crate::util::database::{Execute, Select};
 use std::io::Write;
-use crate::params;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64) {
@@ -17,8 +17,10 @@ impl Server {
     fn save_current_event_id(&self, db_main: &mut impl Execute) {
         for (instance_id, current_event_id) in self.committed_events_count.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
-                db_main.execute_wparams("UPDATE instance_meta SET last_event_id=:current_event_id WHERE instance_meta_id=:instance_meta_id",
-                params!("current_event_id" => *current_event_id, "instance_meta_id" => instance_meta_id));
+                db_main.execute_wparams(
+                    "UPDATE instance_meta SET last_event_id=:current_event_id WHERE instance_meta_id=:instance_meta_id",
+                    params!("current_event_id" => *current_event_id, "instance_meta_id" => instance_meta_id),
+                );
             }
         }
     }
@@ -47,7 +49,6 @@ impl Server {
                     let mut last_opened_event_type_index = 0;
                     let mut opened_file = open_options.open(format!("{}/{}/{}/{}", storage_path, self.server_id, active_instance.instance_meta_id, 0));
                     for event in drained_events {
-                        println!("TEST {}", event.event.to_u8());
                         if event.event.to_u8() != last_opened_event_type_index {
                             last_opened_event_type_index = event.event.to_u8();
                             opened_file = opened_file.and_then(|file| {

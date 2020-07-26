@@ -1,10 +1,12 @@
 <div class="menu_bar">
-    <SelectInput [options]="[{ value: 1, label_key: 'Line Graph' }, { value: 1, label_key: 'Stacked Graph' }]"></SelectInput>
-    <MultiSelect [placeholder]="'Datasets'"></MultiSelect>
+    <SelectInput
+        [options]="[{ value: 1, label_key: 'Line Graph' }]"></SelectInput>
+    <MultiSelect [placeholder]="'Datasets'" [dropdownList]="dataSets" [selectedItems]="dataSetsSelected" (item_selected)="data_set_selected($event)"
+                 (item_deselected)="data_set_deselected($event)" [enableCheckAll]="false" [allowSearchFilter]="false"></MultiSelect>
     <MultiSelect id="last_multi_select" [placeholder]="'Events'"></MultiSelect>
     <div class="question_mark">?</div>
 </div>
-<div class="graph_container">
+<div class="graph_container" *ngIf="this.lineChartData.length > 0">
     <canvas baseChart
             [datasets]="lineChartData"
             [labels]="lineChartLabels"

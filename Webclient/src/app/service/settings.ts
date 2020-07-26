@@ -47,6 +47,7 @@ export class SettingsService {
         "instance_data_service_deaths",
         "instance_data_service_spell_casts",
         "instance_data_service_participants",
+        "viewer_raid_graph_datasets"
     ];
 
     private ignoreSettings: Array<string> = [

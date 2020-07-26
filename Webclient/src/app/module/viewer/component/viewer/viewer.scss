@@ -16,8 +16,12 @@
     }
 }
 
-RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot, RaidDetailTable {
+RaidTitleBar, RaidMeter, RaidComposition, RaidLoot, RaidDetailTable {
     z-index: 3;
+}
+
+RaidGraph {
+    z-index: 4;
 }
 
 RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidLoot, RaidDetailTable {

@@ -23,7 +23,6 @@ workbox.routing.registerRoute(
         ]
     })
 );
- */
 
 // Caching images
 workbox.routing.registerRoute(
@@ -67,4 +66,6 @@ workbox.routing.registerRoute(
         ],
     })
 );
+
+ */
 

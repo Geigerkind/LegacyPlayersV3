@@ -3,10 +3,10 @@ use crate::modules::armory::tools::GetCharacter;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::MetaType;
 use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, InstanceViewerMeta, InstanceViewerParticipant};
+use crate::modules::instance::material::Role;
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
-use crate::modules::instance::material::Role;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
@@ -83,12 +83,16 @@ impl ExportInstance for Instance {
                 .filter(|character| character.is_some())
                 .map(|character| character.unwrap())
                 .map(|character| {
+                    // TODO: Use a character at a time of the raid
                     let hero_class_id = character.last_update.as_ref().map_or_else(|| 1, |history| history.character_info.hero_class_id);
                     InstanceViewerParticipant {
                         character_id: character.id,
                         name: character.last_update.as_ref().map_or_else(|| String::from("Unknown"), |history| history.character_name.clone()),
                         hero_class_id,
-                        role: Role::from_class_talent_string(hero_class_id, &character.last_update.map_or_else(|| String::from(""), |history| history.character_info.talent_specialization.unwrap_or(String::from("")))),
+                        role: Role::from_class_talent_string(
+                            hero_class_id,
+                            &character.last_update.map_or_else(|| String::from(""), |history| history.character_info.talent_specialization.unwrap_or_else(|| String::from(""))),
+                        ),
                     }
                 })
                 .collect());

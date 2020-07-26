@@ -55,10 +55,11 @@
 
 .graph_container{
     position: relative;
-    width: 100%;
+    width: calc(100% - #{$spacing});
     border: 1px solid $tdc_accent;
     border-top: none;
     height: 300px;
     background: $tdc_darker;
     border-radius: 3px 0 0 3px;
+    padding: 0.5 * $spacing 0.5 * $spacing;
 }
