@@ -24,7 +24,7 @@ impl ExportInstance for Instance {
             if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
                 let now = time_util::now();
                 let last_updated = cached.get_last_updated();
-                if (expired.is_some() && expired.unwrap() > last_updated) || (last_updated + 60 > now) {
+                if (expired.is_some() && expired.unwrap() > last_updated) || (last_updated + 10 > now) {
                     return Ok(cached.get_cached());
                 }
             }
