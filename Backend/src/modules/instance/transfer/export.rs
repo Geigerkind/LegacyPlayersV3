@@ -1,7 +1,7 @@
 use crate::modules::live_data_processor::Event;
 
 use crate::modules::armory::Armory;
-use crate::modules::instance::dto::{InstanceFailure, InstanceViewerMeta};
+use crate::modules::instance::dto::{InstanceFailure, InstanceViewerMeta, InstanceViewerParticipant};
 use crate::modules::instance::tools::ExportInstance;
 use crate::modules::instance::Instance;
 use rocket::State;
@@ -19,4 +19,10 @@ pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event
 #[get("/export/<instance_meta_id>")]
 pub fn get_instance_meta(me: State<Instance>, armory: State<Armory>, instance_meta_id: u32) -> Result<Json<InstanceViewerMeta>, InstanceFailure> {
     me.get_instance_meta(&armory, instance_meta_id).map(Json)
+}
+
+#[openapi]
+#[get("/export/participants/<instance_meta_id>")]
+pub fn get_instance_participants(me: State<Instance>, armory: State<Armory>, instance_meta_id: u32) -> Result<Json<Vec<InstanceViewerParticipant>>, InstanceFailure> {
+    me.get_instance_participants(&armory, instance_meta_id).map(Json)
 }

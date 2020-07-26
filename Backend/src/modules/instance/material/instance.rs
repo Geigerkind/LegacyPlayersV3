@@ -1,22 +1,22 @@
+use crate::material::Cachable;
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
+use crate::modules::live_data_processor::Event;
 use crate::util::database::Select;
 use std::collections::HashMap;
-use crate::modules::live_data_processor::Event;
-use std::sync::{RwLock, Arc};
-use crate::material::Cachable;
+use std::sync::{Arc, RwLock};
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
-    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>
+    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>,
 }
 
 impl Default for Instance {
     fn default() -> Self {
         Instance {
             instance_metas: Arc::new(RwLock::new(HashMap::new())),
-            instance_exports: Arc::new(RwLock::new(HashMap::new()))
+            instance_exports: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 }
@@ -41,9 +41,12 @@ impl Instance {
 fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>) {
     let now = time_util::now();
     let mut instance_exports = instance_exports.write().unwrap();
-    for instance_meta_id in instance_exports.iter()
+    for instance_meta_id in instance_exports
+        .iter()
         .filter(|(_, cachable)| cachable.get_last_access() + 3 * 60 * 60 < now)
-        .map(|(instance_meta_id, _)| *instance_meta_id).collect::<Vec<(u32, u8)>>() {
+        .map(|(instance_meta_id, _)| *instance_meta_id)
+        .collect::<Vec<(u32, u8)>>()
+    {
         instance_exports.remove(&instance_meta_id);
     }
 }
@@ -77,9 +80,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // TODO: Rename team_change1 to team1_change
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 \
-                    FROM instance_meta A \
-                    JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
             |mut row| {
                 (
                     row.take::<u32, usize>(0).unwrap(),
@@ -175,7 +176,6 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
             instance_metas.get_mut(&instance_meta_id).unwrap().participants.push(character_id);
         });
 }
-
 
 trait Winner {
     fn to_winner(self) -> Option<bool>;

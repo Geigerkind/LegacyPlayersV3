@@ -7,22 +7,8 @@
             <CaretButton (toggled)="show_tanks=!show_tanks"></CaretButton>
         </div>
         <div class="class_container" *ngIf="show_tanks">
-            <div *ngFor="let hero_class of temp_classes" class="class_row" [attr.data-hero-class-id]="hero_class">
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
-                <span>Peter</span>
+            <div *ngFor="let hero_classes of tanks" class="class_row" [attr.data-hero-class-id]="hero_classes[0].hero_class_id">
+                <span *ngFor="let participant of hero_classes">{{participant.name}}</span>
             </div>
         </div>
     </div>
@@ -33,8 +19,8 @@
             <CaretButton (toggled)="show_healers=!show_healers"></CaretButton>
         </div>
         <div class="class_container" *ngIf="show_healers">
-            <div *ngFor="let hero_class of temp_classes" class="class_row" [attr.data-hero-class-id]="hero_class">
-                <span>Peter</span>
+            <div *ngFor="let hero_classes of healer" class="class_row" [attr.data-hero-class-id]="hero_classes[0].hero_class_id">
+                <span *ngFor="let participant of hero_classes">{{participant.name}}</span>
             </div>
         </div>
     </div>
@@ -45,8 +31,8 @@
             <CaretButton (toggled)="show_dps=!show_dps"></CaretButton>
         </div>
         <div class="class_container" *ngIf="show_dps">
-            <div *ngFor="let hero_class of temp_classes" class="class_row" [attr.data-hero-class-id]="hero_class">
-                <span>Peter</span>
+            <div *ngFor="let hero_classes of dps" class="class_row" [attr.data-hero-class-id]="hero_classes[0].hero_class_id">
+                <span *ngFor="let participant of hero_classes">{{participant.name}}</span>
             </div>
         </div>
     </div>

@@ -1,14 +1,16 @@
+use crate::material::Cachable;
+use crate::modules::armory::tools::GetCharacter;
 use crate::modules::armory::Armory;
-use crate::modules::instance::domain_value::MetaType;
-use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, InstanceViewerMeta};
+use crate::modules::instance::domain_value::{MetaType, Role};
+use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, InstanceViewerMeta, InstanceViewerParticipant};
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
-use crate::material::Cachable;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
     fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
+    fn get_instance_participants(&self, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure>;
 }
 
 impl ExportInstance for Instance {
@@ -66,6 +68,26 @@ impl ExportInstance for Instance {
                 start_ts: instance_meta.start_ts,
                 end_ts: instance_meta.end_ts,
             });
+        }
+        Err(InstanceFailure::InvalidInput)
+    }
+
+    fn get_instance_participants(&self, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure> {
+        let instance_metas = self.instance_metas.read().unwrap();
+        if let Some(instance_meta) = instance_metas.get(&instance_meta_id) {
+            return Ok(instance_meta
+                .participants
+                .iter()
+                .map(|character_id| armory.get_character(*character_id))
+                .filter(|character| character.is_some())
+                .map(|character| character.unwrap())
+                .map(|character| InstanceViewerParticipant {
+                    character_id: character.id,
+                    name: character.last_update.as_ref().map_or_else(|| String::from("Unknown"), |history| history.character_name.clone()),
+                    hero_class_id: character.last_update.map_or_else(|| 1, |history| history.character_info.hero_class_id),
+                    role: Role::Tank,
+                })
+                .collect());
         }
         Err(InstanceFailure::InvalidInput)
     }

@@ -3,7 +3,7 @@ use std::cell::Cell;
 pub struct Cachable<T> {
     last_access: Cell<u64>,
     last_updated: u64,
-    cached: T
+    cached: T,
 }
 
 impl<T: Clone> Cachable<T> {
@@ -12,7 +12,7 @@ impl<T: Clone> Cachable<T> {
         Cachable {
             last_access: Cell::new(now),
             last_updated: now,
-            cached
+            cached,
         }
     }
 

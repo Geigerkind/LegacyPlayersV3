@@ -41,9 +41,9 @@ use rocket_contrib::databases::mysql::Opts;
 mod tests;
 
 mod dto;
+mod material;
 mod modules;
 mod util;
-mod material;
 
 #[database("main")]
 pub struct MainDb(mysql::Conn);
@@ -235,6 +235,7 @@ fn main() {
             routes_with_openapi![
                 instance::transfer::export::get_instance_event_type,
                 instance::transfer::export::get_instance_meta,
+                instance::transfer::export::get_instance_participants,
                 instance::transfer::meta::export_raids,
                 instance::transfer::meta::export_rated_arenas,
                 instance::transfer::meta::export_skirmishes,

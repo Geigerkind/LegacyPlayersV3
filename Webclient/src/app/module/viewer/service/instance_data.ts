@@ -4,7 +4,7 @@ import {Observable, BehaviorSubject, Subject} from "rxjs";
 import {Event} from "../domain_value/event";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {SettingsService} from "src/app/service/settings";
-import {subscriptionLogsToBeFn} from "rxjs/internal/testing/TestScheduler";
+import {InstanceViewerParticipants} from "../domain_value/instance_viewer_participants";
 
 export enum ChangedSubject {
     SpellCast = 1,
@@ -23,7 +23,8 @@ export enum ChangedSubject {
     SpellDamage,
     Heal,
     Threat,
-    InstanceMeta
+    InstanceMeta,
+    Participants
 }
 
 @Injectable({
@@ -32,6 +33,7 @@ export enum ChangedSubject {
 export class InstanceDataService implements OnDestroy {
     private static INSTANCE_EXPORT_URL: string = "/instance/export/:instance_meta_id/:event_type/:last_event_id";
     private static INSTANCE_EXPORT_META_URL: string = "/instance/export/:instance_meta_id";
+    private static INSTANCE_EXPORT_PARTICIPANTS_URL: string = "/instance/export/participants/:instance_meta_id";
 
     private instance_meta_id$: number;
 
@@ -52,6 +54,7 @@ export class InstanceDataService implements OnDestroy {
     private heal$: BehaviorSubject<Array<Event>>;
     private threat$: BehaviorSubject<Array<Event>>;
     private instance_meta$: BehaviorSubject<InstanceViewerMeta>;
+    private participants$: BehaviorSubject<Array<InstanceViewerParticipants>>;
 
     private changed$: Subject<ChangedSubject> = new Subject();
     private registered_subjects: Array<[number, string, BehaviorSubject<Array<Event>>]> = [];
@@ -105,6 +108,15 @@ export class InstanceDataService implements OnDestroy {
     private load_instance_meta(on_success: any): void {
         return this.apiService.get(
             InstanceDataService.INSTANCE_EXPORT_META_URL
+                .replace(":instance_meta_id", this.instance_meta_id$.toString()),
+            on_success, () => {
+            }
+        );
+    }
+
+    private load_participants(on_success: any): void {
+        return this.apiService.get(
+            InstanceDataService.INSTANCE_EXPORT_PARTICIPANTS_URL
                 .replace(":instance_meta_id", this.instance_meta_id$.toString()),
             on_success, () => {
             }
@@ -298,6 +310,15 @@ export class InstanceDataService implements OnDestroy {
                 this.changed$.next(ChangedSubject.InstanceMeta);
             }));
         return this.instance_meta$.asObservable();
+    }
+
+    public get participants(): Observable<Array<InstanceViewerParticipants>> {
+        this.participants$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_participants", 1, this.participants$, [],
+            (callback) => this.load_participants(participants => {
+                callback(participants);
+                this.changed$.next(ChangedSubject.Participants);
+            }));
+        return this.participants$.asObservable();
     }
 
     public get changed(): Observable<ChangedSubject> {

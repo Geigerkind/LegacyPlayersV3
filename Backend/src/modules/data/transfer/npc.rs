@@ -1,10 +1,10 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::data::{domain_value::NPC, tools::RetrieveNPC, Data};
 use crate::modules::data::domain_value::Localized;
-use crate::modules::data::tools::RetrieveLocalization;
 use crate::modules::data::guard::Language;
+use crate::modules::data::tools::RetrieveLocalization;
+use crate::modules::data::{domain_value::NPC, tools::RetrieveNPC, Data};
 
 #[openapi]
 #[get("/npc/<expansion_id>/<npc_id>")]
