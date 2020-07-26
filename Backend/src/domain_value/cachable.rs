@@ -17,6 +17,10 @@ impl<T: Clone> Cachable<T> {
         self.timestamp.set(time_util::now());
         self.cached.clone()
     }
+
+    pub fn get_ts(&self) -> u64 {
+        self.timestamp.get()
+    }
 }
 
 unsafe impl<T> Send for Cachable<T> {}
