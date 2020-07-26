@@ -76,7 +76,7 @@ export class InstanceDataService implements OnDestroy {
                     }
                 }, subject);
             }
-        }, 10000);
+        }, 60000);
     }
 
     ngOnDestroy(): void {
