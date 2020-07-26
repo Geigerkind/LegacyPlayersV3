@@ -52,14 +52,15 @@ fn main() {
     dotenv().ok();
     let dns = std::env::var("MYSQL_URL").unwrap();
     let opts = Opts::from_url(&dns).unwrap();
-    let mut conn = mysql::Conn::new(opts).unwrap();
+    let mut conn = mysql::Conn::new(opts.clone()).unwrap();
+    let instance_conn = mysql::Conn::new(opts).unwrap();
 
     let account = account::Account::default().init(&mut conn);
     let data = data::Data::default().init(&mut conn);
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
-    let instance = instance::Instance::default().init(&mut conn, &armory); // TODO: Periodic updater
+    let instance = instance::Instance::default().init(instance_conn, &armory);
 
     let prometheus = PrometheusMetrics::new();
 

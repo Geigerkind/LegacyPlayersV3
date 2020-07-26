@@ -20,7 +20,12 @@ impl ExportInstance for Instance {
             }
         }
 
-        let server_id = self.instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?.server_id;
+
+        let server_id = {
+            let instance_metas = self.instance_metas.read().unwrap();
+            instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?.server_id
+        };
+
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
         let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);
         if let Ok(file_content) = std::fs::read_to_string(event_path) {
@@ -41,7 +46,8 @@ impl ExportInstance for Instance {
     }
 
     fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
-        if let Some(instance_meta) = self.instance_metas.get(&instance_meta_id) {
+        let instance_metas = self.instance_metas.read().unwrap();
+        if let Some(instance_meta) = instance_metas.get(&instance_meta_id) {
             let guild = instance_meta.participants.find_instance_guild(armory);
             let map_difficulty = match instance_meta.instance_specific {
                 MetaType::Raid { map_difficulty } => Some(map_difficulty),

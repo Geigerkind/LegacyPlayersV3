@@ -18,3 +18,6 @@ impl<T: Clone> Cachable<T> {
         self.cached.clone()
     }
 }
+
+unsafe impl<T> Send for Cachable<T> {}
+unsafe impl<T> Sync for Cachable<T> {}
