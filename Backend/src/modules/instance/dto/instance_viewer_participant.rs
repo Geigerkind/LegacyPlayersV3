@@ -1,4 +1,4 @@
-use crate::modules::instance::domain_value::Role;
+use crate::modules::instance::material::Role;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct InstanceViewerParticipant {
