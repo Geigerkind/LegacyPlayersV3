@@ -44,7 +44,7 @@ workbox.routing.registerRoute(
 
 // Caching js/css primarily
 workbox.routing.registerRoute(
-    /\.(?:css|html|json|js)$/,
+    /\.(?:css|html|js)$/,
     new workbox.strategies.StaleWhileRevalidate({
         cacheName: 'static-resources',
         plugins: [
