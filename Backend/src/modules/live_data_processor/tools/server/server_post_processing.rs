@@ -1,7 +1,7 @@
 use crate::modules::data::tools::RetrieveNPC;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Unit, UnitInstance};
-use crate::modules::live_data_processor::material::Server;
+use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Unit, UnitInstance};
+use crate::modules::live_data_processor::material::{Attempt, Server};
 use crate::params;
 use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
@@ -10,13 +10,12 @@ use std::io::Write;
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
         self.save_current_event_id_and_end_ts(db_main);
-        self.extract_attempts(db_main, data);
-        // TODO: Extract Ranking
+        self.extract_attempts_and_collect_ranking(db_main, data);
         // TODO: Extract Loot?
         self.save_committed_events_to_disk(now);
     }
 
-    fn extract_attempts(&mut self, db_main: &mut impl Execute, data: &Data) {
+    fn extract_attempts_and_collect_ranking(&mut self, db_main: &mut (impl Execute + Select), data: &Data) {
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 if !self.active_attempts.contains_key(instance_id) {
@@ -24,40 +23,92 @@ impl Server {
                 }
                 let active_attempts = self.active_attempts.get_mut(instance_id).unwrap();
                 for event in committed_events.iter() {
-                    if let Unit::Creature(Creature { creature_id, entry, owner: _ }) = event.subject {
-                        if let Some(npc) = data.get_npc(self.expansion_id, entry) {
-                            if !npc.is_boss {
-                                continue;
-                            }
+                    match &event.subject {
+                        Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
+                            if let Some(npc) = data.get_npc(self.expansion_id, *entry) {
+                                if !npc.is_boss {
+                                    continue;
+                                }
 
-                            match event.event {
-                                EventType::CombatState { in_combat } => {
-                                    // TODO: Logic non standard single bosses, i.e. group or vehicle bosses
-                                    if in_combat {
-                                        // We missed the going into combat event (Restart of Backend?)
-                                        if let Some(attempt) = active_attempts.get(&creature_id) {
-                                            commit_attempt(db_main, *instance_meta_id, creature_id, attempt.1, event.timestamp, attempt.0);
-                                            active_attempts.remove(&creature_id);
+                                match event.event {
+                                    EventType::CombatState { in_combat } => {
+                                        // TODO: Logic non standard single bosses, i.e. group or vehicle bosses
+                                        if in_combat {
+                                            // We missed the going into combat event (Restart of Backend?)
+                                            if let Some(mut attempt) = active_attempts.remove(&creature_id) {
+                                                attempt.end_ts = event.timestamp;
+                                                commit_attempt(db_main, *instance_meta_id, attempt);
+                                            }
+                                            active_attempts.insert(*creature_id, Attempt::new(*creature_id, *entry, event.timestamp));
+                                        } else if let Some(mut attempt) = active_attempts.remove(&creature_id) {
+                                            attempt.end_ts = event.timestamp;
+                                            commit_attempt(db_main, *instance_meta_id, attempt);
                                         }
-                                        active_attempts.insert(creature_id, (false, event.timestamp));
-                                    } else {
-                                        if let Some(attempt) = active_attempts.get(&creature_id) {
-                                            commit_attempt(db_main, *instance_meta_id, creature_id, attempt.1, event.timestamp, attempt.0);
+                                    },
+                                    EventType::Death { murder: _ } => {
+                                        if let Some(attempt) = active_attempts.get_mut(&creature_id) {
+                                            attempt.is_kill = true;
+                                        } else {
+                                            // Instakill?
+                                            commit_attempt(
+                                                db_main,
+                                                *instance_meta_id,
+                                                Attempt {
+                                                    is_kill: false,
+                                                    creature_id: *creature_id,
+                                                    npc_id: *entry,
+                                                    start_ts: event.timestamp,
+                                                    end_ts: event.timestamp,
+                                                    ranking_damage: HashMap::new(),
+                                                    ranking_heal: HashMap::new(),
+                                                    ranking_threat: HashMap::new(),
+                                                },
+                                            );
                                         }
-                                        active_attempts.remove(&creature_id);
+                                    },
+                                    _ => continue,
+                                };
+                            }
+                        },
+                        Unit::Player(Player { character_id, .. }) => {
+                            match &event.event {
+                                EventType::SpellDamage { damage, .. } | EventType::MeleeDamage(damage) => {
+                                    if let Unit::Creature(Creature { creature_id, .. }) = damage.victim {
+                                        if let Some(attempt) = active_attempts.get_mut(&creature_id) {
+                                            if let Some(player_damage) = attempt.ranking_damage.get_mut(character_id) {
+                                                *player_damage += damage.damage;
+                                            } else {
+                                                attempt.ranking_damage.insert(*character_id, damage.damage);
+                                            }
+                                        }
                                     }
                                 },
-                                EventType::Death { murder: _ } => {
-                                    if let Some(attempt) = active_attempts.get_mut(&creature_id) {
-                                        attempt.0 = true;
-                                    } else {
-                                        // Instakill?
-                                        commit_attempt(db_main, *instance_meta_id, creature_id, event.timestamp, event.timestamp, true);
+                                EventType::Heal { heal, .. } => {
+                                    // TODO: We can't really tell, who this healer is in combat with
+                                    // For now attribute heal to every attempt, though its just one in 99.9% of the cases anyway.
+                                    // And in some cases its not even wrong, e.g. BWL where the dragons are cleaved
+                                    for (_, attempt) in active_attempts.iter_mut() {
+                                        if let Some(player_heal) = attempt.ranking_heal.get_mut(character_id) {
+                                            *player_heal += heal.effective;
+                                        } else {
+                                            attempt.ranking_heal.insert(*character_id, heal.effective);
+                                        }
+                                    }
+                                },
+                                EventType::Threat { threat, .. } => {
+                                    if let Unit::Creature(Creature { creature_id, .. }) = threat.threatened {
+                                        if let Some(attempt) = active_attempts.get_mut(&creature_id) {
+                                            if let Some(player_threat) = attempt.ranking_threat.get_mut(character_id) {
+                                                *player_threat += threat.amount;
+                                            } else {
+                                                attempt.ranking_threat.insert(*character_id, threat.amount);
+                                            }
+                                        }
                                     }
                                 },
                                 _ => continue,
-                            };
-                        }
+                            }
+                        },
                     }
                 }
             }
@@ -123,9 +174,61 @@ impl Server {
     }
 }
 
-fn commit_attempt(db_main: &mut impl Execute, instance_meta_id: u32, creature_id: u64, attempt_start: u64, attempt_end: u64, is_kill: bool) {
+fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, attempt: Attempt) {
+    let params = params!("instance_meta_id" => instance_meta_id, "creature_id" => attempt.creature_id, "start_ts" => attempt.start_ts, "end_ts" => attempt.end_ts, "is_kill" => attempt.is_kill);
     db_main.execute_wparams(
         "INSERT INTO `instance_attempt` (`instance_meta_id`, `creature_id`, `start_ts`, `end_ts`, `is_kill`) VALUES (:instance_meta_id, :creature_id, :start_ts, :end_ts, :is_kill)",
-        params!("instance_meta_id" => instance_meta_id, "creature_id" => creature_id, "start_ts" => attempt_start, "end_ts" => attempt_end, "is_kill" => is_kill),
+        params.clone(),
     );
+
+    if !attempt.is_kill {
+        return;
+    }
+
+    if let Some(attempt_id) = db_main.select_wparams_value(
+        "SELECT id FROM `instance_attempt` WHERE instance_meta_id=:instance_meta_id AND creature_id=:creature_id AND start_ts=:start_ts AND end_ts=:end_ts AND is_kill=:is_kill",
+        |mut row| row.take::<u32, usize>(0),
+        params,
+    ) {
+        let attempt_clone = attempt.clone();
+        db_main.execute_batch_wparams(
+            "INSERT INTO `instance_attempt_damage` (`character_id`, `npc_id`, `attempt_id`, `damage`) VALUES (:character_id, :npc_id, :attempt_id, :damage)",
+            attempt.ranking_damage.clone().into_iter().collect(),
+            move |(character_id, damage)| {
+                params! {
+                    "character_id" => character_id,
+                    "npc_id" => attempt_clone.npc_id,
+                    "attempt_id" => attempt_id,
+                    "damage" => damage
+                }
+            },
+        );
+
+        let attempt_clone = attempt.clone();
+        db_main.execute_batch_wparams(
+            "INSERT INTO `instance_attempt_heal` (`character_id`, `npc_id`, `attempt_id`, `heal`) VALUES (:character_id, :npc_id, :attempt_id, :heal)",
+            attempt.ranking_heal.clone().into_iter().collect(),
+            move |(character_id, heal)| {
+                params! {
+                    "character_id" => character_id,
+                    "npc_id" => attempt_clone.npc_id,
+                    "attempt_id" => attempt_id,
+                    "heal" => heal
+                }
+            },
+        );
+
+        db_main.execute_batch_wparams(
+            "INSERT INTO `instance_attempt_threat` (`character_id`, `npc_id`, `attempt_id`, `threat`) VALUES (:character_id, :npc_id, :attempt_id, :threat)",
+            attempt.ranking_threat.clone().into_iter().collect(),
+            move |(character_id, threat)| {
+                params! {
+                    "character_id" => character_id,
+                    "npc_id" => attempt.npc_id,
+                    "attempt_id" => attempt_id,
+                    "threat" => threat
+                }
+            },
+        );
+    }
 }

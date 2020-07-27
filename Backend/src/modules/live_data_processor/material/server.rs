@@ -1,5 +1,6 @@
 use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent, UnitInstance};
 use crate::modules::live_data_processor::dto::InstanceResetDto;
+use crate::modules::live_data_processor::material::Attempt;
 use crate::params;
 use crate::util::database::Select;
 use std::collections::{BTreeSet, HashMap};
@@ -19,7 +20,7 @@ pub struct Server {
     pub instance_participants: HashMap<u32, BTreeSet<u32>>,
     // Per instance there is a set of active attempts and when they began,
     // though most of the times only 1
-    pub active_attempts: HashMap<u32, HashMap<u64, (bool, u64)>>,
+    pub active_attempts: HashMap<u32, HashMap<u64, Attempt>>,
 
     // Used to handle unordered events
     pub subject_prepend_mode_set: BTreeSet<u64>, // Contains server_uid of subject
