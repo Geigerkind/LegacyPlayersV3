@@ -1,16 +1,67 @@
-use crate::modules::live_data_processor::domain_value::{Event, UnitInstance};
+use crate::modules::data::tools::RetrieveNPC;
+use crate::modules::data::Data;
+use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Unit, UnitInstance};
 use crate::modules::live_data_processor::material::Server;
 use crate::params;
 use crate::util::database::{Execute, Select};
+use std::collections::HashMap;
 use std::io::Write;
 
 impl Server {
-    pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64) {
+    pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
         self.save_current_event_id_and_end_ts(db_main);
-        self.save_committed_events_to_disk(now);
-        // TODO: Extract Attempts?
+        self.extract_attempts(db_main, data);
         // TODO: Extract Ranking
-        // TODO: Extract Loot
+        // TODO: Extract Loot?
+        self.save_committed_events_to_disk(now);
+    }
+
+    fn extract_attempts(&mut self, db_main: &mut impl Execute, data: &Data) {
+        for (instance_id, committed_events) in self.committed_events.iter() {
+            if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
+                if !self.active_attempts.contains_key(instance_id) {
+                    self.active_attempts.insert(*instance_id, HashMap::with_capacity(1));
+                }
+                let active_attempts = self.active_attempts.get_mut(instance_id).unwrap();
+                for event in committed_events.iter() {
+                    if let Unit::Creature(Creature { creature_id, entry, owner: _ }) = event.subject {
+                        if let Some(npc) = data.get_npc(self.expansion_id, entry) {
+                            if !npc.is_boss {
+                                continue;
+                            }
+
+                            match event.event {
+                                EventType::CombatState { in_combat } => {
+                                    // TODO: Logic non standard single bosses, i.e. group or vehicle bosses
+                                    if in_combat {
+                                        // We missed the going into combat event (Restart of Backend?)
+                                        if let Some(attempt) = active_attempts.get(&creature_id) {
+                                            commit_attempt(db_main, *instance_meta_id, creature_id, attempt.1, event.timestamp, attempt.0);
+                                            active_attempts.remove(&creature_id);
+                                        }
+                                        active_attempts.insert(creature_id, (false, event.timestamp));
+                                    } else {
+                                        if let Some(attempt) = active_attempts.get(&creature_id) {
+                                            commit_attempt(db_main, *instance_meta_id, creature_id, attempt.1, event.timestamp, attempt.0);
+                                        }
+                                        active_attempts.remove(&creature_id);
+                                    }
+                                },
+                                EventType::Death { murder: _ } => {
+                                    if let Some(attempt) = active_attempts.get_mut(&creature_id) {
+                                        attempt.0 = true;
+                                    } else {
+                                        // Instakill?
+                                        commit_attempt(db_main, *instance_meta_id, creature_id, event.timestamp, event.timestamp, true);
+                                    }
+                                },
+                                _ => continue,
+                            };
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fn save_current_event_id_and_end_ts(&self, db_main: &mut impl Execute) {
@@ -70,4 +121,11 @@ impl Server {
             }
         }
     }
+}
+
+fn commit_attempt(db_main: &mut impl Execute, instance_meta_id: u32, creature_id: u64, attempt_start: u64, attempt_end: u64, is_kill: bool) {
+    db_main.execute_wparams(
+        "INSERT INTO `instance_attempt` (`instance_meta_id`, `creature_id`, `start_ts`, `end_ts`, `is_kill`) VALUES (:instance_meta_id, :creature_id, :start_ts, :end_ts, :is_kill)",
+        params!("instance_meta_id" => instance_meta_id, "creature_id" => creature_id, "start_ts" => attempt_start, "end_ts" => attempt_end, "is_kill" => is_kill),
+    );
 }

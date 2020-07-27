@@ -17,7 +17,7 @@ impl LiveDataProcessor {
     pub fn init(mut self, db_main: &mut impl Select) -> Self {
         // TODO: Get real amount of servers
         for i in 0..3 {
-            self.servers.insert(i, RwLock::new(Server::new(i).init(db_main)));
+            self.servers.insert(i, RwLock::new(Server::new(i, i as u8 + 1).init(db_main)));
         }
 
         self

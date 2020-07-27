@@ -6,6 +6,7 @@ use std::collections::{BTreeSet, HashMap};
 
 pub struct Server {
     pub server_id: u32,
+    pub expansion_id: u8,
 
     // Meta Data
     pub summons: HashMap<u64, u64>,
@@ -16,6 +17,9 @@ pub struct Server {
     pub instance_resets: HashMap<u16, InstanceResetDto>,
     // instance_meta_id => [(character_id, history_id)]
     pub instance_participants: HashMap<u32, BTreeSet<u32>>,
+    // Per instance there is a set of active attempts and when they began,
+    // though most of the times only 1
+    pub active_attempts: HashMap<u32, HashMap<u64, (bool, u64)>>,
 
     // Used to handle unordered events
     pub subject_prepend_mode_set: BTreeSet<u64>, // Contains server_uid of subject
@@ -29,9 +33,10 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(server_id: u32) -> Self {
+    pub fn new(server_id: u32, expansion_id: u8) -> Self {
         Server {
             server_id,
+            expansion_id,
             // TODO: Preserve all data when the app is restarted?
             summons: HashMap::new(),
             active_instances: HashMap::new(),
@@ -42,6 +47,7 @@ impl Server {
             committed_events: HashMap::new(),
             committed_events_count: HashMap::new(),
             subject_prepend_mode_set: BTreeSet::new(),
+            active_attempts: HashMap::new(),
         }
     }
 

@@ -6,12 +6,13 @@ use rocket::http::ContentType;
 use rocket::{Data, State};
 
 use crate::modules::armory::Armory;
+use crate::modules::data::Data as DomainData;
 use crate::MainDb;
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 
 #[openapi(skip)]
 #[post("/package", format = "multipart/form-data", data = "<data>")]
-pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: State<Armory>, owner: ServerOwner, content_type: &ContentType, data: Data) -> Result<(), LiveDataProcessorFailure> {
+pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: State<Armory>, domain_data: State<DomainData>, owner: ServerOwner, content_type: &ContentType, data: Data) -> Result<(), LiveDataProcessorFailure> {
     let mut options = MultipartFormDataOptions::new();
     options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(2 * 1024 * 1024));
 
@@ -33,7 +34,7 @@ pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: St
                 }
                 messages.push(raw.drain(..(raw[2] as usize)).collect());
             }
-            return me.process_messages(&mut *db_main, owner.0, &armory, messages);
+            return me.process_messages(&mut *db_main, owner.0, &armory, &domain_data, messages);
         }
     }
     Err(LiveDataProcessorFailure::InvalidInput)

@@ -1,5 +1,6 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
+use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, HitType, Mitigation, Position, Power, PowerType, School, Unit, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
@@ -12,7 +13,7 @@ use crate::util::database::{Execute, Select};
 use std::collections::BTreeSet;
 
 impl Server {
-    pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
+    pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, data: &Data, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
         let mut next_reset = 0;
         let post_processing_interval = 5 * 1000;
         let mut next_post_processing = 0;
@@ -25,7 +26,7 @@ impl Server {
                 next_reset = self.reset_instances(db_main, msg.timestamp);
             }
             if next_post_processing < msg.timestamp {
-                self.perform_post_processing(db_main, msg.timestamp);
+                self.perform_post_processing(db_main, msg.timestamp, data);
                 next_post_processing = msg.timestamp + post_processing_interval;
             }
             self.push_non_committed_event(msg);
@@ -411,6 +412,7 @@ impl Server {
                     );
                     self.instance_participants.remove(instance_meta_id);
                     self.active_instances.remove(instance_id);
+                    self.active_attempts.remove(instance_id);
                 }
             },
             MessageType::InstancePvPEndRatedArena(dto::InstanceArena {
@@ -433,6 +435,7 @@ impl Server {
                     );
                     self.instance_participants.remove(instance_meta_id);
                     self.active_instances.remove(instance_id);
+                    self.active_attempts.remove(instance_id);
                 }
             },
             MessageType::InstancePvPEndUnratedArena(dto::InstanceUnratedArena { instance_id, winner, .. }) => {
@@ -447,11 +450,16 @@ impl Server {
                     );
                     self.instance_participants.remove(instance_meta_id);
                     self.active_instances.remove(instance_id);
+                    self.active_attempts.remove(instance_id);
                 }
             },
             MessageType::InstanceDelete { instance_id } => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
-                    self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
+                    if self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id) {
+                        self.instance_participants.remove(instance_meta_id);
+                        self.active_instances.remove(instance_id);
+                        self.active_attempts.remove(instance_id);
+                    }
                 }
             },
             _ => {},
@@ -525,6 +533,7 @@ impl Server {
             if self.finalize_instance_meta(db_main, now, instance_meta_id) {
                 self.active_instances.remove(&instance_id);
                 self.instance_participants.remove(&instance_meta_id);
+                self.active_attempts.remove(&instance_id);
             }
         }
         self.instance_resets
