@@ -1,6 +1,6 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {DataSet} from "../domain_value/data_set";
 import {take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
@@ -10,19 +10,24 @@ import {SpellDamage} from "../../../domain_value/spell_damage";
 @Injectable({
     providedIn: "root",
 })
-export class GraphDataService {
+export class GraphDataService implements OnDestroy {
 
+    private subscription: Subscription;
     private data_points$: BehaviorSubject<[Array<number>, Map<DataSet, [Set<number>, Array<number>]>]> = new BehaviorSubject([[], new Map()]);
     private temp_data_set: Map<DataSet, Map<number, number>> = new Map();
 
     constructor(
         private instanceDataService: InstanceDataService
     ) {
-        this.instanceDataService.changed.subscribe(changed => {
+        this.subscription = this.instanceDataService.changed.subscribe(changed => {
             for (const data_set of [...this.data_points$.getValue()[1].keys()])
                 this.add_data_set(data_set);
         });
 
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 
     get data_points(): Observable<[Array<number>, Map<DataSet, [Set<number>, Array<number>]>]> {
@@ -79,9 +84,7 @@ export class GraphDataService {
     private feed_melee_damage(data_set: DataSet, events: Array<Event>): void {
         const points = this.temp_data_set.get(data_set);
         for (const event of events) {
-            let damage = ((event.event as any).MeleeDamage as MeleeDamage).damage;
-            if (damage > 10000) damage = 0; // TODO: Remove later
-
+            const damage = ((event.event as any).MeleeDamage as MeleeDamage).damage;
             if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + damage);
             else points.set(event.timestamp, damage);
         }

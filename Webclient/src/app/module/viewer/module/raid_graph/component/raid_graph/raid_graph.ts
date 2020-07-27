@@ -1,10 +1,11 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit} from "@angular/core";
 import {ChartDataSets, ChartOptions, ChartPoint} from 'chart.js';
 import {Color} from 'ng2-charts';
 import {GraphDataService} from "../../service/graph_data";
 import {DataSet} from "../../domain_value/data_set";
 import {DateService} from "../../../../../../service/date";
 import {SettingsService} from "src/app/service/settings";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: "RaidGraph",
@@ -14,7 +15,9 @@ import {SettingsService} from "src/app/service/settings";
         GraphDataService
     ]
 })
-export class RaidGraphComponent implements OnInit {
+export class RaidGraphComponent implements OnInit, OnDestroy {
+
+    private subscription: Subscription;
 
     // Array of different segments in chart
     lineChartData: Array<ChartDataSets> = [];
@@ -87,7 +90,7 @@ export class RaidGraphComponent implements OnInit {
         private dateService: DateService,
         private settingsService: SettingsService
     ) {
-        this.graphDataService.data_points.subscribe(([x_axis, data_sets]) => {
+        this.subscription = this.graphDataService.data_points.subscribe(([x_axis, data_sets]) => {
             this.lineChartLabels = x_axis;
             this.lineChartData = [];
             for (const [data_set, [real_x_axis, real_y_axis]] of data_sets) {
@@ -109,6 +112,10 @@ export class RaidGraphComponent implements OnInit {
             this.graphDataService.add_data_set(data_set);
             this.dataSetsSelected.push(this.dataSets.find(set => set.id === data_set));
         }
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 
     // events
