@@ -6,21 +6,24 @@ use std::io::Write;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64) {
-        self.save_current_event_id(db_main);
+        self.save_current_event_id_and_end_ts(db_main);
         self.save_committed_events_to_disk(now);
-        // TODO: Set end_ts of instance
         // TODO: Extract Attempts?
         // TODO: Extract Ranking
         // TODO: Extract Loot
     }
 
-    fn save_current_event_id(&self, db_main: &mut impl Execute) {
+    fn save_current_event_id_and_end_ts(&self, db_main: &mut impl Execute) {
         for (instance_id, current_event_id) in self.committed_events_count.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
-                db_main.execute_wparams(
-                    "UPDATE instance_meta SET last_event_id=:current_event_id WHERE instance_meta_id=:instance_meta_id",
-                    params!("current_event_id" => *current_event_id, "instance_meta_id" => instance_meta_id),
-                );
+                if let Some(committed_events) = self.committed_events.get(&instance_id) {
+                    if let Some(last_entry) = committed_events.last() {
+                        db_main.execute_wparams(
+                            "UPDATE instance_meta SET last_event_id=:current_event_id, end_ts=:end_ts WHERE instance_meta_id=:instance_meta_id",
+                            params!("current_event_id" => *current_event_id, "end_ts" => last_entry.timestamp, "instance_meta_id" => instance_meta_id),
+                        );
+                    }
+                }
             }
         }
     }
