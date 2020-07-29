@@ -2,16 +2,19 @@ use crate::material::Cachable;
 use crate::modules::armory::tools::GetCharacter;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::MetaType;
-use crate::modules::instance::dto::{InstanceFailure, InstanceViewerGuild, InstanceViewerMeta, InstanceViewerParticipant};
+use crate::modules::instance::dto::{InstanceFailure, InstanceViewerAttempt, InstanceViewerGuild, InstanceViewerMeta, InstanceViewerParticipant};
 use crate::modules::instance::material::Role;
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::modules::live_data_processor::Event;
+use crate::params;
+use crate::util::database::Select;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
     fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
     fn get_instance_participants(&self, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure>;
+    fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure>;
 }
 
 impl ExportInstance for Instance {
@@ -27,7 +30,7 @@ impl ExportInstance for Instance {
             if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
                 let now = time_util::now();
                 let last_updated = cached.get_last_updated();
-                if (expired.is_some() && expired.unwrap() > last_updated) || (last_updated + 10 > now) {
+                if (expired.is_some() && expired.unwrap() < last_updated) || (last_updated + 10 > now) {
                     return Ok(cached.get_cached());
                 }
             }
@@ -98,5 +101,44 @@ impl ExportInstance for Instance {
                 .collect());
         }
         Err(InstanceFailure::InvalidInput)
+    }
+
+    fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure> {
+        let expired = {
+            let instance_metas = self.instance_metas.read().unwrap();
+            let instance_meta = instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
+            instance_meta.expired
+        };
+
+        {
+            let instance_attempts = self.instance_attempts.read().unwrap();
+            if let Some(cached) = instance_attempts.get(&instance_meta_id) {
+                let now = time_util::now();
+                let last_updated = cached.get_last_updated();
+                if (expired.is_some() && expired.unwrap() < last_updated) || (last_updated + 10 > now) {
+                    return Ok(cached.get_cached());
+                }
+            }
+        }
+
+        let attempts: Vec<InstanceViewerAttempt> = db_main
+            .select_wparams(
+                "SELECT id, creature_id, npc_id, start_ts, end_ts, is_kill FROM `instance_attempt` WHERE instance_meta_id=:instance_meta_id",
+                |mut row| InstanceViewerAttempt {
+                    id: row.take(0).unwrap(),
+                    creature_id: row.take(1).unwrap(),
+                    npc_id: row.take(2).unwrap(),
+                    start_ts: row.take(3).unwrap(),
+                    end_ts: row.take(4).unwrap(),
+                    is_kill: row.take(5).unwrap(),
+                },
+                params!("instance_meta_id" => instance_meta_id),
+            )
+            .into_iter()
+            .collect();
+
+        let mut instance_attempts = self.instance_attempts.write().unwrap();
+        instance_attempts.insert(instance_meta_id, Cachable::new(attempts.clone()));
+        Ok(attempts)
     }
 }

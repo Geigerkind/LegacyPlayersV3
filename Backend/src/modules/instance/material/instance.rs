@@ -2,6 +2,7 @@ use crate::material::Cachable;
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
+use crate::modules::instance::dto::InstanceViewerAttempt;
 use crate::modules::live_data_processor::Event;
 use crate::util::database::Select;
 use std::collections::HashMap;
@@ -10,6 +11,7 @@ use std::sync::{Arc, RwLock};
 pub struct Instance {
     pub instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
     pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>,
+    pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
 }
 
 impl Default for Instance {
@@ -17,6 +19,7 @@ impl Default for Instance {
         Instance {
             instance_metas: Arc::new(RwLock::new(HashMap::new())),
             instance_exports: Arc::new(RwLock::new(HashMap::new())),
+            instance_attempts: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 }
@@ -26,9 +29,11 @@ impl Instance {
         update_instance_metas(Arc::clone(&self.instance_metas), &mut db_main, &armory);
         let instance_metas_arc_clone = Arc::clone(&self.instance_metas);
         let instance_exports_arc_clone = Arc::clone(&self.instance_exports);
+        let instance_attempts_arc_clone = Arc::clone(&self.instance_attempts);
         std::thread::spawn(move || {
             let armory = Armory::default();
             loop {
+                evict_attempts_cache(Arc::clone(&instance_attempts_arc_clone));
                 evict_export_cache(Arc::clone(&instance_exports_arc_clone));
                 update_instance_metas(Arc::clone(&instance_metas_arc_clone), &mut db_main, &armory);
                 std::thread::sleep(std::time::Duration::from_secs(30));
@@ -38,12 +43,25 @@ impl Instance {
     }
 }
 
+fn evict_attempts_cache(instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>) {
+    let now = time_util::now();
+    let mut instance_attempts = instance_attempts.write().unwrap();
+    for instance_meta_id in instance_attempts
+        .iter()
+        .filter(|(_, cachable)| cachable.get_last_access() + 3600 < now)
+        .map(|(instance_meta_id, _)| *instance_meta_id)
+        .collect::<Vec<u32>>()
+    {
+        instance_attempts.remove(&instance_meta_id);
+    }
+}
+
 fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>) {
     let now = time_util::now();
     let mut instance_exports = instance_exports.write().unwrap();
     for instance_meta_id in instance_exports
         .iter()
-        .filter(|(_, cachable)| cachable.get_last_access() + 3 * 60 * 60 < now)
+        .filter(|(_, cachable)| cachable.get_last_access() + 3600 < now)
         .map(|(instance_meta_id, _)| *instance_meta_id)
         .collect::<Vec<(u32, u8)>>()
     {

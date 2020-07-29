@@ -197,9 +197,10 @@ impl Server {
 }
 
 fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, attempt: Attempt) {
-    let params = params!("instance_meta_id" => instance_meta_id, "creature_id" => attempt.creature_id, "start_ts" => attempt.start_ts, "end_ts" => attempt.end_ts, "is_kill" => attempt.is_kill);
+    let params = params!("instance_meta_id" => instance_meta_id, "creature_id" => attempt.creature_id,
+        "start_ts" => attempt.start_ts, "end_ts" => attempt.end_ts, "is_kill" => attempt.is_kill, "npc_id" => attempt.npc_id);
     db_main.execute_wparams(
-        "INSERT INTO `instance_attempt` (`instance_meta_id`, `creature_id`, `start_ts`, `end_ts`, `is_kill`) VALUES (:instance_meta_id, :creature_id, :start_ts, :end_ts, :is_kill)",
+        "INSERT INTO `instance_attempt` (`instance_meta_id`, `creature_id`, `start_ts`, `end_ts`, `is_kill`, `npc_id`) VALUES (:instance_meta_id, :creature_id, :start_ts, :end_ts, :is_kill, :npc_id)",
         params.clone(),
     );
 
@@ -208,7 +209,7 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
     }
 
     if let Some(attempt_id) = db_main.select_wparams_value(
-        "SELECT id FROM `instance_attempt` WHERE instance_meta_id=:instance_meta_id AND creature_id=:creature_id AND start_ts=:start_ts AND end_ts=:end_ts AND is_kill=:is_kill",
+        "SELECT id FROM `instance_attempt` WHERE instance_meta_id=:instance_meta_id AND creature_id=:creature_id AND start_ts=:start_ts AND end_ts=:end_ts AND is_kill=:is_kill AND npc_id=:npc_id",
         |mut row| row.take::<u32, usize>(0),
         params,
     ) {

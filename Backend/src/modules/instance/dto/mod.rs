@@ -1,5 +1,6 @@
 pub use self::battleground_search_filter::BattlegroundSearchFilter;
 pub use self::instance_failure::InstanceFailure;
+pub use self::instance_viewer_attempt::InstanceViewerAttempt;
 pub use self::instance_viewer_guild::InstanceViewerGuild;
 pub use self::instance_viewer_meta::InstanceViewerMeta;
 pub use self::instance_viewer_participant::InstanceViewerParticipant;
@@ -14,6 +15,7 @@ pub use self::skirmish_search_filter::SkirmishSearchFilter;
 
 mod battleground_search_filter;
 mod instance_failure;
+mod instance_viewer_attempt;
 mod instance_viewer_guild;
 mod instance_viewer_meta;
 mod instance_viewer_participant;

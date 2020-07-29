@@ -236,6 +236,7 @@ fn main() {
                 instance::transfer::export::get_instance_event_type,
                 instance::transfer::export::get_instance_meta,
                 instance::transfer::export::get_instance_participants,
+                instance::transfer::export::get_instance_attempts,
                 instance::transfer::meta::export_raids,
                 instance::transfer::meta::export_rated_arenas,
                 instance::transfer::meta::export_skirmishes,
