@@ -47,6 +47,7 @@ export class SettingsService {
         "instance_data_service_deaths",
         "instance_data_service_spell_casts",
         "instance_data_service_participants",
+        "instance_data_service_attempts",
         "viewer_raid_graph_datasets"
     ];
 
@@ -68,6 +69,8 @@ export class SettingsService {
         "instance_data_service_combat_states",
         "instance_data_service_deaths",
         "instance_data_service_spell_casts",
+        "instance_data_service_attempts",
+        "instance_data_service_participants",
     ];
 
     private observers: any = {};

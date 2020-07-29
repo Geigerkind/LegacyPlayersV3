@@ -5,6 +5,7 @@ import {Event} from "../domain_value/event";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {SettingsService} from "src/app/service/settings";
 import {InstanceViewerParticipants} from "../domain_value/instance_viewer_participants";
+import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
 
 export enum ChangedSubject {
     SpellCast = 1,
@@ -24,7 +25,8 @@ export enum ChangedSubject {
     Heal,
     Threat,
     InstanceMeta,
-    Participants
+    Participants,
+    Attempts
 }
 
 @Injectable({
@@ -34,6 +36,7 @@ export class InstanceDataService implements OnDestroy {
     private static INSTANCE_EXPORT_URL: string = "/instance/export/:instance_meta_id/:event_type/:last_event_id";
     private static INSTANCE_EXPORT_META_URL: string = "/instance/export/:instance_meta_id";
     private static INSTANCE_EXPORT_PARTICIPANTS_URL: string = "/instance/export/participants/:instance_meta_id";
+    private static INSTANCE_EXPORT_ATTEMPTS_URL: string = "/instance/export/attempts/:instance_meta_id";
 
     private instance_meta_id$: number;
 
@@ -55,6 +58,7 @@ export class InstanceDataService implements OnDestroy {
     private threat$: BehaviorSubject<Array<Event>>;
     private instance_meta$: BehaviorSubject<InstanceViewerMeta>;
     private participants$: BehaviorSubject<Array<InstanceViewerParticipants>>;
+    private attempts$: BehaviorSubject<Array<InstanceViewerAttempt>>;
 
     private changed$: Subject<ChangedSubject> = new Subject();
     private registered_subjects: Array<[number, string, BehaviorSubject<Array<Event>>]> = [];
@@ -126,6 +130,18 @@ export class InstanceDataService implements OnDestroy {
 
         return this.apiService.get(
             InstanceDataService.INSTANCE_EXPORT_PARTICIPANTS_URL
+                .replace(":instance_meta_id", this.instance_meta_id$.toString()),
+            on_success, () => {
+            }
+        );
+    }
+
+    private load_attempts(on_success: any): void {
+        if (!this.instance_meta_id$)
+            return;
+
+        return this.apiService.get(
+            InstanceDataService.INSTANCE_EXPORT_ATTEMPTS_URL
                 .replace(":instance_meta_id", this.instance_meta_id$.toString()),
             on_success, () => {
             }
@@ -328,6 +344,15 @@ export class InstanceDataService implements OnDestroy {
                 this.changed$.next(ChangedSubject.Participants);
             }));
         return this.participants$.asObservable();
+    }
+
+    public get attempts(): Observable<Array<InstanceViewerAttempt>> {
+        this.attempts$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_attempts", 1, this.attempts$, [],
+            (callback) => this.load_attempts(attempts => {
+                callback(attempts);
+                this.changed$.next(ChangedSubject.Attempts);
+            }));
+        return this.attempts$.asObservable();
     }
 
     public get changed(): Observable<ChangedSubject> {
