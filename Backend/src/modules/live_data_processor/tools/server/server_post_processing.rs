@@ -1,4 +1,4 @@
-use crate::modules::data::tools::RetrieveNPC;
+use crate::modules::data::tools::{RetrieveItem, RetrieveNPC};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Unit, UnitInstance};
 use crate::modules::live_data_processor::material::{Attempt, Server};
@@ -11,8 +11,30 @@ impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
         self.save_current_event_id_and_end_ts(db_main);
         self.extract_attempts_and_collect_ranking(db_main, data);
-        // TODO: Extract Loot?
+        self.extract_loot(db_main, data);
         self.save_committed_events_to_disk(now);
+    }
+
+    fn extract_loot(&self, db_main: &mut (impl Execute + Select), data: &Data) {
+        for (instance_id, committed_events) in self.committed_events.iter() {
+            if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
+                for event in committed_events.iter() {
+                    if let EventType::Loot { item_id } = &event.event {
+                        if let Unit::Player(Player { character_id, .. }) = event.subject {
+                            if let Some(item) = data.get_item(self.expansion_id, *item_id) {
+                                if item.quality >= 5 {
+                                    // Epic or better
+                                    db_main.execute_wparams(
+                                        "INSERT INTO instance_loot (`instance_meta_id`, `character_id`, `item_id`, `looted_ts`) VALUES (:instance_meta_id, :character_id, :item_id, :looted_ts)",
+                                        params!("instance_meta_id" => *instance_meta_id, "character_id" => character_id, "item_id" => *item_id, "looted_ts" => event.timestamp),
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fn extract_attempts_and_collect_ranking(&mut self, db_main: &mut (impl Execute + Select), data: &Data) {
