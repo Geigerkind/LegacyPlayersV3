@@ -8,10 +8,24 @@
     </button>
 
     <!-- All actual buttons that are supposed to do something -->
-    <MultiSelect [placeholder]="'Categories'"></MultiSelect>
-    <MultiSelect [placeholder]="'Segments'"></MultiSelect>
-    <MultiSelect [placeholder]="'Sources'"></MultiSelect>
-    <MultiSelect [placeholder]="'Targets'"></MultiSelect>
+    <MultiSelect [placeholder]="'Categories'" [selectedItems]="selected_items_categories"
+                 [dropdownList]="list_items_categories" (item_deselected)="this.on_category_selection_updated()"
+                 (item_selected)="this.on_category_selection_updated()"
+                 (deselect_all)="this.on_category_selection_updated()"
+                 (select_all)="this.on_category_selection_updated()"></MultiSelect>
+    <MultiSelect [placeholder]="'Segments'" [selectedItems]="selected_items_segments"
+                 [dropdownList]="list_items_segments" (deselect_all)="this.on_segment_selection_updated()"
+                 (select_all)="this.on_segment_selection_updated()"
+                 (item_selected)="this.on_segment_selection_updated()"
+                 (item_deselected)="this.on_segment_selection_updated()"></MultiSelect>
+    <MultiSelect [placeholder]="'Sources'" [selectedItems]="selected_items_sources" [dropdownList]="list_items_sources"
+                 (item_deselected)="this.on_source_selection_updated()"
+                 (item_selected)="this.on_source_selection_updated()" (select_all)="this.on_source_selection_updated()"
+                 (deselect_all)="this.on_source_selection_updated()"></MultiSelect>
+    <MultiSelect [placeholder]="'Targets'" [selectedItems]="selected_items_targets" [dropdownList]="list_items_targets"
+                 (deselect_all)="this.on_target_selection_updated()" (select_all)="this.on_target_selection_updated()"
+                 (item_selected)="this.on_target_selection_updated()"
+                 (item_deselected)="this.on_target_selection_updated()"></MultiSelect>
     <MultiSelect [placeholder]="'Options'"></MultiSelect>
 
     <GeneralInput placeholderKey="Export Link..."></GeneralInput>

@@ -1,0 +1,159 @@
+import {Injectable, OnDestroy} from "@angular/core";
+import {InstanceDataService} from "../../../service/instance_data";
+import {BehaviorSubject, Observable, of, Subscription} from "rxjs";
+import {Category} from "../domain_value/category";
+import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attempt";
+import {Segment} from "../domain_value/segment";
+import {EventSource} from "../domain_value/event_source";
+import {RaidOption} from "../domain_value/raid_option";
+import {map} from "rxjs/operators";
+import {UnitService} from "../../../service/unit";
+import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
+
+@Injectable({
+    providedIn: "root",
+})
+export class RaidConfigurationService implements OnDestroy {
+
+    private subscription_attempts: Subscription;
+    private subscription_sources: Subscription;
+    private subscription_targets: Subscription;
+
+    private categories$: BehaviorSubject<Array<Category>> = new BehaviorSubject([]);
+    private segments$: BehaviorSubject<Array<Segment>> = new BehaviorSubject([]);
+    private sources$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
+    private targets$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
+    private options$: BehaviorSubject<Array<RaidOption>> = new BehaviorSubject([]);
+
+    private category_filter: Set<number> = new Set();
+    private segment_filter: Set<number> = new Set();
+
+    constructor(
+        private instanceDataService: InstanceDataService,
+        private unitService: UnitService
+    ) {
+        this.subscription_attempts = this.instanceDataService.attempts.subscribe(attempts => {
+            this.update_categories(attempts);
+            this.update_segments(attempts);
+        });
+        this.subscription_sources = this.instanceDataService.sources.subscribe(this.update_sources);
+        this.subscription_targets = this.instanceDataService.targets.subscribe(this.update_targets);
+    }
+
+    ngOnDestroy(): void {
+        this.subscription_attempts?.unsubscribe();
+        this.subscription_sources?.unsubscribe();
+        this.subscription_targets?.unsubscribe();
+    }
+
+    // TODO: Implement
+    // If categories change => segments change
+    // If segments change => targets/sources change
+    get categories(): Observable<Array<Category>> {
+        return this.categories$.asObservable();
+    }
+
+    get segments(): Observable<Array<Segment>> {
+        return this.segments$.asObservable()
+            .pipe(map(inner_segments => inner_segments.filter(segment => {
+                return this.categories$.getValue().filter(category => this.category_filter.has(category.id))
+                    .find(category => category.segments.has(segment.id));
+            })));
+    }
+
+    get sources(): Observable<Array<EventSource>> {
+        return this.sources$.asObservable();
+    }
+
+    get targets(): Observable<Array<EventSource>> {
+        return this.targets$.asObservable();
+    }
+
+    get options(): Observable<Array<RaidOption>> {
+        return this.options$.asObservable();
+    }
+
+    private set_segment_intervals(): void {
+        this.instanceDataService.attempt_intervals = this.segments$.getValue()
+            .filter(segment => this.segment_filter.has(segment.id))
+            .map(segment => [segment.start_ts, segment.start_ts + segment.duration]);
+    }
+
+    update_category_filter(selected_categories: Array<number>): void {
+        this.category_filter = new Set(selected_categories);
+        this.segments$.next(this.segments$.getValue());
+
+        const new_segment_filter = [];
+        const filtered_categories = this.categories$.getValue().filter(category => this.category_filter.has(category.id));
+        for (const segment of this.segment_filter)
+            if (filtered_categories.find(category => category.segments.has(segment)) !== undefined)
+                new_segment_filter.push(segment);
+        this.update_segment_filter(new_segment_filter);
+    }
+
+    update_segment_filter(selected_segments: Array<number>): void {
+        this.segment_filter = new Set(selected_segments);
+        this.set_segment_intervals();
+    }
+
+    update_source_filter(selected_sources: Array<number>): void {
+        this.instanceDataService.source_filter = selected_sources;
+    }
+
+    update_target_filter(selected_targets: Array<number>): void {
+        this.instanceDataService.target_filter = selected_targets;
+    }
+
+    private update_categories(attempts: Array<InstanceViewerAttempt>): void {
+        const categories: Map<number, Category> = new Map();
+        for (const attempt of attempts) {
+            if (categories.has(attempt.npc_id)) {
+                const segment = categories.get(attempt.npc_id);
+                segment.segments.add(attempt.id);
+                segment.time += (attempt.end_ts - attempt.start_ts);
+            }
+            categories.set(attempt.npc_id, {
+                segments: new Set([attempt.id]),
+                id: attempt.npc_id,
+                label: this.unitService.get_npc_name(attempt.npc_id),
+                time: (attempt.end_ts - attempt.start_ts)
+            });
+        }
+        this.categories$.next([...categories.values()]);
+    }
+
+    private update_segments(attempts: Array<InstanceViewerAttempt>): void {
+        const segments: Array<Segment> = [];
+        for (const attempt of attempts)
+            segments.push({
+                duration: (attempt.end_ts - attempt.start_ts),
+                id: attempt.id,
+                is_kill: attempt.is_kill,
+                label: this.unitService.get_npc_name(attempt.npc_id),
+                start_ts: attempt.start_ts
+            });
+        this.segments$.next(segments);
+    }
+
+    private update_sources(sources: Array<Unit>): void {
+        const result: Array<EventSource> = [];
+        for (const source of sources)
+            result.push({
+                id: get_unit_id(source),
+                label: this.unitService.get_unit_name(source),
+                is_player: is_player(source)
+            });
+        this.sources$.next(result);
+    }
+
+    private update_targets(targets: Array<Unit>): void {
+        const result: Array<EventSource> = [];
+        for (const target of targets)
+            result.push({
+                id: get_unit_id(target),
+                label: this.unitService.get_unit_name(target),
+                is_player: is_player(target)
+            });
+        this.sources$.next(result);
+    }
+}

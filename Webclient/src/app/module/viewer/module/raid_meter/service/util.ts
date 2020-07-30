@@ -13,11 +13,11 @@ export class UtilService {
     ) {
     }
 
-    get_row_subject(unit: Unit, server_id: number): RaidMeterSubject {
+    get_row_subject(unit: Unit): RaidMeterSubject {
         const unit_id = get_unit_id(unit);
         return {
             id: unit_id,
-            name: this.unitService.get_unit_name(unit, server_id),
+            name: this.unitService.get_unit_name(unit),
             color_class: this.unitService.get_unit_bg_color(unit),
             icon: this.unitService.get_unit_icon(unit)
         };

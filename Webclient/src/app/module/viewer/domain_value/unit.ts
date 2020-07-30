@@ -19,4 +19,9 @@ function is_creature(unit: Unit): boolean {
     return !!(unit as any).Creature;
 }
 
-export { get_unit_id, is_creature, is_player };
+function has_unit(container: Array<Unit>, unit: Unit): boolean {
+    return container.find(inner_unit => ((is_player(unit) && is_player(inner_unit)) || (is_creature(unit) && is_creature(inner_unit)))
+        && get_unit_id(unit) === get_unit_id(inner_unit)) !== undefined;
+}
+
+export {get_unit_id, is_creature, is_player, has_unit};

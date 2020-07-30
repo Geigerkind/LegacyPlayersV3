@@ -9,7 +9,6 @@ import {EventType} from "../../../domain_value/event_type";
 import {MeleeDamage} from "../../../domain_value/melee_damage";
 import {SpellDamage} from "../../../domain_value/spell_damage";
 import {Damage} from "../../../domain_value/damage";
-import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {UtilService} from "./util";
 
 @Injectable({
@@ -41,22 +40,17 @@ export class DamageDoneService {
 
     reload(): void {
         this.newRows = new Map();
-        this.instanceDataService.meta
+        this.instanceDataService.melee_damage
             .pipe(take(1))
-            .subscribe(meta => {
-                if (!meta) return;
-                this.instanceDataService.melee_damage
-                    .pipe(take(1))
-                    .subscribe(damage => {
-                        damage.forEach(event => this.feed_damage(meta, event, DamageDoneService.extract_damage_from_melee_damage));
-                        this.commit();
-                    });
-                this.instanceDataService.spell_damage
-                    .pipe(take(1))
-                    .subscribe(damage => {
-                        damage.forEach(event => this.feed_damage(meta, event, DamageDoneService.extract_damage_from_spell_damage));
-                        this.commit();
-                    });
+            .subscribe(damage => {
+                damage.forEach(event => this.feed_damage(event, DamageDoneService.extract_damage_from_melee_damage));
+                this.commit();
+            });
+        this.instanceDataService.spell_damage
+            .pipe(take(1))
+            .subscribe(damage => {
+                damage.forEach(event => this.feed_damage(event, DamageDoneService.extract_damage_from_spell_damage));
+                this.commit();
             });
     }
 
@@ -64,14 +58,14 @@ export class DamageDoneService {
         this.rows$.next(new Array<RaidMeterRow>(...this.newRows.values()));
     }
 
-    private feed_damage(meta: InstanceViewerMeta, damage: Event, damage_extract_function: any): void {
+    private feed_damage(damage: Event, damage_extract_function: any): void {
         const unit_id = get_unit_id(damage.subject);
         if (this.newRows.has(unit_id)) {
             const row = this.newRows.get(unit_id);
             row.amount += damage_extract_function(damage.event);
         } else {
             this.newRows.set(unit_id, {
-                subject: this.utilService.get_row_subject(damage.subject, meta.server_id),
+                subject: this.utilService.get_row_subject(damage.subject),
                 amount: damage_extract_function(damage.event)
             });
         }
