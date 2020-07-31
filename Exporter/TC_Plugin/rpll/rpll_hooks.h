@@ -213,7 +213,7 @@ public:
     static void EndUnratedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner);
     static void EndBattleground(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t scoreAlliance, uint32_t scoreHorde);
     static void EndRatedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t teamId1, uint32_t teamId2, int32_t teamChange1, int32_t teamChange2);
-    static void Loot(Unit *unit, uint32_t itemId);
+    static void Loot(Unit *unit, uint32_t itemId, uint32_t count);
     static void SpellCast(Unit *caster, uint64_t targetGUID, uint32_t spellId, RPLL_DamageHitType hitType);
     // Amount is an integer which represents the decimal amount of threat.
     // The precision factor is 10

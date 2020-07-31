@@ -50,7 +50,7 @@ impl Server {
             committed_events_count: HashMap::new(),
             subject_prepend_mode_set: BTreeSet::new(),
             active_attempts: HashMap::new(),
-            post_processing_last_precessed_event_id: HashMap::new()
+            post_processing_last_precessed_event_id: HashMap::new(),
         }
     }
 

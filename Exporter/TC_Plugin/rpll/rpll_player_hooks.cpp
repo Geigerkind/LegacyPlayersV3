@@ -4,8 +4,8 @@ void RPLLPlayerHooks::SendNewItem(Unit* unit, Item *item, uint32_t count, bool r
     if (item == nullptr || unit == nullptr)
         return;
     
-    if (!created && (broadcast || sendChatMessage) && count == 1 && (received || !received)) // That is the question !! 
-        RPLLHooks::Loot(unit, item->GetEntry());
+    if (!created && (broadcast || sendChatMessage) && count >= 1)
+        RPLLHooks::Loot(unit, item->GetEntry(), count);
 }
 
 void RPLLPlayerHooks::EnvironmentalDamage(Unit* unit, EnviromentalDamage type, uint32_t damage, uint32_t result) {

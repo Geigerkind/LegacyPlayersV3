@@ -6,6 +6,7 @@ fn map_loot_positive() {
     let payload = vec![
         1, 7, 0, 0, 0, 0, 0, 0, 0, // unit
         5, 0, 0, 0, // ItemId
+        3, 0, 0, 0, // Count
     ];
 
     // Act
@@ -17,6 +18,7 @@ fn map_loot_positive() {
     assert_eq!(loot.unit.is_player, true);
     assert_eq!(loot.unit.unit_id, 7);
     assert_eq!(loot.item_id, 5);
+    assert_eq!(loot.count, 3);
 }
 
 #[test]

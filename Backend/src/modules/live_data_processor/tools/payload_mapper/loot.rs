@@ -8,12 +8,13 @@ pub trait MapLoot {
 
 impl MapLoot for [u8] {
     fn to_loot(&self) -> Result<Loot, LiveDataProcessorFailure> {
-        if self.len() != 13 {
+        if self.len() != 17 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         Ok(Loot {
             unit: self[0..9].to_unit()?,
             item_id: byte_reader::read_u32(&self[9..13])?,
+            count: byte_reader::read_u32(&self[13..17])?,
         })
     }
 }

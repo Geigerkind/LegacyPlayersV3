@@ -23,14 +23,14 @@ impl Server {
                         break;
                     }
 
-                    if let EventType::Loot { item_id } = &event.event {
+                    if let EventType::Loot { item_id, amount } = &event.event {
                         if let Unit::Player(Player { character_id, .. }) = event.subject {
                             if let Some(item) = data.get_item(self.expansion_id, *item_id) {
                                 if item.quality >= 5 {
                                     // Epic or better
                                     db_main.execute_wparams(
-                                        "INSERT INTO instance_loot (`instance_meta_id`, `character_id`, `item_id`, `looted_ts`) VALUES (:instance_meta_id, :character_id, :item_id, :looted_ts)",
-                                        params!("instance_meta_id" => *instance_meta_id, "character_id" => character_id, "item_id" => *item_id, "looted_ts" => event.timestamp),
+                                        "INSERT INTO instance_loot (`instance_meta_id`, `character_id`, `item_id`, `looted_ts`, `amount`) VALUES (:instance_meta_id, :character_id, :item_id, :looted_ts, :amount)",
+                                        params!("instance_meta_id" => *instance_meta_id, "character_id" => character_id, "item_id" => *item_id, "looted_ts" => event.timestamp, "amount" => *amount),
                                     );
                                 }
                             }
@@ -75,34 +75,30 @@ impl Server {
                                             let mut is_committable = true;
                                             if let Some(attempt) = active_attempts.get_mut(&creature_id) {
                                                 attempt.end_ts = event.timestamp;
-                                                if !attempt.is_kill {
-                                                    if look_ahead_death(committed_events, event, attempt.creature_id) {
-                                                        is_committable = false;
-                                                    }
+                                                if !attempt.is_kill && look_ahead_death(committed_events, event, attempt.creature_id) {
+                                                    is_committable = false;
                                                 }
                                             }
                                             if is_committable {
                                                 if let Some(attempt) = active_attempts.remove(&creature_id) {
                                                     commit_attempt(db_main, *instance_meta_id, attempt);
-                                                } else {
+                                                } else if !look_ahead_death(committed_events, event, *creature_id) {
                                                     // We missed an attempt
-                                                    if !look_ahead_death(committed_events, event, *creature_id) {
-                                                        commit_attempt(
-                                                            db_main,
-                                                            *instance_meta_id,
-                                                            Attempt {
-                                                                is_kill: false,
-                                                                creature_id: *creature_id,
-                                                                npc_id: *entry,
-                                                                start_ts: event.timestamp,
-                                                                end_ts: event.timestamp,
-                                                                ranking_damage: HashMap::new(),
-                                                                ranking_heal: HashMap::new(),
-                                                                ranking_threat: HashMap::new(),
-                                                            },
-                                                        );
-                                                    } // Else classify it as instant kill
-                                                }
+                                                    commit_attempt(
+                                                        db_main,
+                                                        *instance_meta_id,
+                                                        Attempt {
+                                                            is_kill: false,
+                                                            creature_id: *creature_id,
+                                                            npc_id: *entry,
+                                                            start_ts: event.timestamp,
+                                                            end_ts: event.timestamp,
+                                                            ranking_damage: HashMap::new(),
+                                                            ranking_heal: HashMap::new(),
+                                                            ranking_threat: HashMap::new(),
+                                                        },
+                                                    );
+                                                } // Else classify it as instant kill
                                             }
                                         }
                                     },

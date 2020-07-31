@@ -654,15 +654,16 @@ void RPLLHooks::EndRatedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winn
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Loot(Unit *unit, uint32_t itemId)
+void RPLLHooks::Loot(Unit *unit, uint32_t itemId, uint32_t count)
 {
     if (!IsInInstance(unit))
         return;
-    uint8_t msgLength = 12 + GetMessageMetaDataSize();
+    uint8_t msgLength = 16 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_LOOT, msgLength);
     msg << uint64_t(unit->GetGUID().GetRawValue());
     msg << itemId;
+    msg << count;
     SendZmqMessage(std::move(msg));
 }
 

@@ -5,7 +5,7 @@ pub enum EventType {
     SpellCast(SpellCast),
     Death { murder: Option<Unit> },
     CombatState { in_combat: bool },
-    Loot { item_id: u32 },
+    Loot { item_id: u32, amount: u32 },
     Position(Position),
     Power(Power),
     AuraApplication(AuraApplication),

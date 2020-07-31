@@ -113,10 +113,10 @@ impl Server {
                 unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::CombatState { in_combat: *in_combat },
             )),
-            MessageType::Loot(Loot { unit: unit_dto, item_id }) => Ok(Event::new(
+            MessageType::Loot(Loot { unit: unit_dto, item_id, count }) => Ok(Event::new(
                 first_message.timestamp,
                 unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
-                EventType::Loot { item_id: *item_id },
+                EventType::Loot { item_id: *item_id, amount: *count },
             )),
             MessageType::Position(position) => Ok(Event::new(
                 first_message.timestamp,
