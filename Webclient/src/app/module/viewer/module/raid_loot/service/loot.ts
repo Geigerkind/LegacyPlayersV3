@@ -56,7 +56,7 @@ export class LootService implements OnDestroy {
             .subscribe(attempts => {
                 this.instanceDataService
                     .loot.pipe(take(1))
-                    .subscribe(loot => {
+                    .subscribe( loot => {
                         this.loot$.next(this.create_loot(attempts, loot));
                     });
             });

@@ -51,11 +51,14 @@ export class GeneralInputComponent implements AfterViewInit, OnInit {
     }
 
     @Input()
-    get value(): string {
+    get value(): any {
         return this.valueData;
     }
 
-    set value(newValue: string) {
+    set value(newValue: any) {
+        if (this.type === "checkbox")
+            newValue = Boolean(newValue);
+
         if (this.valueData !== newValue) {
             this.formFailure.isInvalid = false;
             this.touch();
