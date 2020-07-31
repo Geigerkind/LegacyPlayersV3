@@ -24,6 +24,7 @@ pub struct Server {
 
     // Used to handle unordered events
     pub subject_prepend_mode_set: BTreeSet<u64>, // Contains server_uid of subject
+    pub post_processing_last_precessed_event_id: HashMap<u32, u32>,
 
     // Events
     // Mapping player to non committed event
@@ -49,6 +50,7 @@ impl Server {
             committed_events_count: HashMap::new(),
             subject_prepend_mode_set: BTreeSet::new(),
             active_attempts: HashMap::new(),
+            post_processing_last_precessed_event_id: HashMap::new()
         }
     }
 

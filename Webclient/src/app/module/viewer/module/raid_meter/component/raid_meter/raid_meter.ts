@@ -5,7 +5,7 @@ import {UtilService} from "../../service/util";
 import {DamageTakenService} from "../../service/damage_taken";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {Subscription} from "rxjs";
-import {InstanceDataService} from "../../../../service/instance_data";
+import {ChangedSubject, InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
 
 @Component({
@@ -37,7 +37,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         private damageDoneService: DamageDoneService,
         private damageTakenService: DamageTakenService
     ) {
-        this.instanceDataService.changed.subscribe((changed_subject) => this.selection_changed(this.current_selection));
+        this.instanceDataService.changed.subscribe((changed_subject) => {
+            if ([ChangedSubject.Sources, ChangedSubject.Targets, ...this.get_changed_subjects_for_current_selection()])
+                this.selection_changed(this.current_selection);
+        });
     }
 
     ngOnInit(): void {
@@ -92,6 +95,19 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private resubscribe(subscription: Subscription): void {
         this.subscription?.unsubscribe();
         this.subscription = subscription;
+    }
+
+    private get_changed_subjects_for_current_selection(): Array<ChangedSubject> {
+        const result = [];
+        switch (this.current_selection) {
+            case 1:
+            case 2:
+                result.push(ChangedSubject.MeleeDamage);
+                result.push(ChangedSubject.SpellDamage);
+                break;
+        }
+
+        return result;
     }
 
 }

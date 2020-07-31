@@ -199,6 +199,28 @@ export class InstanceDataService implements OnDestroy {
 
     // Lets see how that performs :'D
     private fire_subjects_filter_changed(): void {
+        if (!!this.spell_casts$) this.changed$.next(ChangedSubject.SpellCast);
+        if (!!this.deaths$) this.changed$.next(ChangedSubject.Death);
+        if (!!this.combat_states$) this.changed$.next(ChangedSubject.CombatState);
+        if (!!this.loot$) this.changed$.next(ChangedSubject.Loot);
+        if (!!this.positions$) this.changed$.next(ChangedSubject.Position);
+        if (!!this.powers$) this.changed$.next(ChangedSubject.Power);
+        if (!!this.aura_applications$) this.changed$.next(ChangedSubject.AuraApplication);
+        if (!!this.interrupts$) this.changed$.next(ChangedSubject.Interrupt);
+        if (!!this.spell_steals$) this.changed$.next(ChangedSubject.SpellSteal);
+        if (!!this.dispels$) this.changed$.next(ChangedSubject.Dispel);
+        if (!!this.threat_wipes$) this.changed$.next(ChangedSubject.ThreatWipe);
+        if (!!this.summons$) this.changed$.next(ChangedSubject.Summon);
+        if (!!this.melee_damage$) this.changed$.next(ChangedSubject.MeleeDamage);
+        if (!!this.spell_damage$) this.changed$.next(ChangedSubject.SpellDamage);
+        if (!!this.heal$) this.changed$.next(ChangedSubject.Heal);
+        if (!!this.threat$) this.changed$.next(ChangedSubject.Threat);
+    }
+
+    public set attempt_intervals(intervals: Array<[number, number]>) {
+        this.attempt_intervals$ = intervals;
+        this.sources$.next([]);
+        this.targets$.next([]);
         this.spell_casts$?.next(this.spell_casts$.getValue());
         this.deaths$?.next(this.deaths$.getValue());
         this.combat_states$?.next(this.combat_states$.getValue());
@@ -215,13 +237,6 @@ export class InstanceDataService implements OnDestroy {
         this.spell_damage$?.next(this.spell_damage$.getValue());
         this.heal$?.next(this.heal$.getValue());
         this.threat$?.next(this.threat$.getValue());
-    }
-
-    public set attempt_intervals(intervals: Array<[number, number]>) {
-        this.attempt_intervals$ = intervals;
-        this.sources$.next([]);
-        this.targets$.next([]);
-        this.fire_subjects_filter_changed();
     }
 
     public set source_filter(filtered_sources: Array<number>) {
@@ -245,27 +260,25 @@ export class InstanceDataService implements OnDestroy {
     private apply_interval_and_source_filter_to_events(subject: Observable<Array<Event>>): Observable<Array<Event>> {
         return subject.pipe(
             map(events => events.filter(event => this.attempt_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)),
-            map(events => events.filter(event => this.source_filter$.find(unit_id => unit_id === get_unit_id(event.subject) !== undefined)))
+            map(events => events.filter(event => this.source_filter$.find(unit_id => unit_id === get_unit_id(event.subject)) !== undefined))
         );
     }
 
     private apply_target_filter_to_events(subject: Observable<Array<Event>>, target_extraction: (Event) => Unit): Observable<Array<Event>> {
-        return subject.pipe(map(events => events.filter(event => this.target_filter$.find(unit_id => unit_id === get_unit_id(target_extraction(event)) !== undefined))));
+        return subject.pipe(map(events => events.filter(event => this.target_filter$.find(unit_id => unit_id === get_unit_id(target_extraction(event))) !== undefined)));
     }
 
     public get spell_casts(): Observable<Array<Event>> {
         const register: boolean = !!this.spell_casts$;
-        const target_extraction = (event: Event) => (event.event as SpellCast).victim;
+        const target_extraction = (event: Event) => ((event.event as any).SpellCast as SpellCast).victim;
         this.spell_casts$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_spell_casts", 1, this.spell_casts$, [],
             (callback) => this.load_instance_data(0, events => {
+                this.subscriptions.push(this.spell_casts$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.SpellCast);
             }, this.spell_casts$));
         if (register) this.register_load_instance(0, "instance_data_service_spell_casts", this.spell_casts$);
-
-        this.subscriptions.push(this.spell_casts$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
-
         return this.apply_filter_to_events(this.spell_casts$.asObservable(), target_extraction);
     }
 
@@ -273,11 +286,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.deaths$;
         this.deaths$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_deaths", 1, this.deaths$, [],
             (callback) => this.load_instance_data(1, events => {
+                this.subscriptions.push(this.deaths$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Death);
             }, this.deaths$));
         if (register) this.register_load_instance(1, "instance_data_service_deaths", this.deaths$);
-        this.subscriptions.push(this.deaths$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable());
     }
 
@@ -285,11 +298,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.combat_states$;
         this.combat_states$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_combat_states", 1, this.combat_states$, [],
             (callback) => this.load_instance_data(2, events => {
+                this.subscriptions.push(this.combat_states$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.CombatState);
             }, this.combat_states$));
         if (register) this.register_load_instance(2, "instance_data_service_combat_states", this.combat_states$);
-        this.subscriptions.push(this.combat_states$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.combat_states$.asObservable());
     }
 
@@ -297,11 +310,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.loot$;
         this.loot$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_loot", 1, this.loot$, [],
             (callback) => this.load_instance_data(3, events => {
+                this.subscriptions.push(this.loot$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Loot);
             }, this.loot$));
         if (register) this.register_load_instance(3, "instance_data_service_loot", this.loot$);
-        this.subscriptions.push(this.loot$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.loot$.asObservable());
     }
 
@@ -309,11 +322,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.positions$;
         this.positions$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_positions", 1, this.positions$, [],
             (callback) => this.load_instance_data(4, events => {
+                this.subscriptions.push(this.positions$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Position);
             }, this.positions$));
         if (register) this.register_load_instance(4, "instance_data_service_positions", this.positions$);
-        this.subscriptions.push(this.positions$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.positions$.asObservable());
     }
 
@@ -321,27 +334,25 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.powers$;
         this.powers$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_powers", 1, this.powers$, [],
             (callback) => this.load_instance_data(5, events => {
+                this.subscriptions.push(this.powers$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Power);
             }, this.powers$));
         if (register) this.register_load_instance(5, "instance_data_service_powers", this.powers$);
-        this.subscriptions.push(this.powers$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.powers$.asObservable());
     }
 
     public get aura_applications(): Observable<Array<Event>> {
         const register: boolean = !!this.aura_applications$;
-        const target_extraction = (event: Event) => (event.event as AuraApplication).caster;
+        const target_extraction = (event: Event) => ((event.event as any).AuraApplication as AuraApplication).caster;
         this.aura_applications$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_aura_applications", 1, this.aura_applications$, [],
             (callback) => this.load_instance_data(6, events => {
+                this.subscriptions.push(this.aura_applications$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.AuraApplication);
             }, this.aura_applications$));
         if (register) this.register_load_instance(6, "instance_data_service_aura_applications", this.aura_applications$);
-
-        this.subscriptions.push(this.aura_applications$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
-
         return this.apply_filter_to_events(this.aura_applications$.asObservable(), target_extraction);
     }
 
@@ -350,11 +361,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.interrupts$;
         this.interrupts$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_interrupts", 1, this.interrupts$, [],
             (callback) => this.load_instance_data(7, events => {
+                this.subscriptions.push(this.interrupts$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Interrupt);
             }, this.interrupts$));
         if (register) this.register_load_instance(7, "instance_data_service_interrupts", this.interrupts$);
-        this.subscriptions.push(this.interrupts$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.interrupts$.asObservable());
     }
 
@@ -363,11 +374,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.spell_steals$;
         this.spell_steals$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_spell_steals", 1, this.spell_steals$, [],
             (callback) => this.load_instance_data(8, events => {
+                this.subscriptions.push(this.spell_steals$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.SpellSteal);
             }, this.spell_casts$));
         if (register) this.register_load_instance(8, "instance_data_service_spell_steals", this.spell_steals$);
-        this.subscriptions.push(this.spell_steals$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.spell_steals$.asObservable());
     }
 
@@ -376,11 +387,11 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.dispels$;
         this.dispels$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_dispels", 1, this.dispels$, [],
             (callback) => this.load_instance_data(9, events => {
+                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Dispel);
             }, this.dispels$));
         if (register) this.register_load_instance(9, "instance_data_service_dispels", this.dispels$);
-        this.subscriptions.push(this.dispels$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.dispels$.asObservable());
     }
 
@@ -388,90 +399,82 @@ export class InstanceDataService implements OnDestroy {
         const register: boolean = !!this.threat_wipes$;
         this.threat_wipes$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_threat_wipes", 1, this.threat_wipes$, [],
             (callback) => this.load_instance_data(10, events => {
+                this.subscriptions.push(this.threat_wipes$.subscribe(i_events => this.extract_sources(i_events)));
                 callback(events);
                 this.changed$.next(ChangedSubject.ThreatWipe);
             }, this.threat_wipes$));
         if (register) this.register_load_instance(10, "instance_data_service_threat_wipes", this.threat_wipes$);
-        this.subscriptions.push(this.threat_wipes$.subscribe(this.extract_sources));
         return this.apply_interval_and_source_filter_to_events(this.threat_wipes$.asObservable());
     }
 
     public get summons(): Observable<Array<Event>> {
         const register: boolean = !!this.summons$;
-        const target_extraction = (event: Event) => (event.event as Summon).summoned;
+        const target_extraction = (event: Event) => ((event.event as any).Summon as Summon).summoned;
         this.summons$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_summons", 1, this.summons$, [],
             (callback) => this.load_instance_data(11, events => {
+                this.subscriptions.push(this.melee_damage$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Summon);
             }, this.summons$));
         if (register) this.register_load_instance(11, "instance_data_service_summons", this.summons$);
-
-        this.subscriptions.push(this.melee_damage$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
-
         return this.apply_filter_to_events(this.summons$.asObservable(), target_extraction);
     }
 
     public get melee_damage(): Observable<Array<Event>> {
         const register: boolean = !!this.melee_damage$;
-        const target_extraction = (event: Event) => (event.event as MeleeDamage).victim;
+        const target_extraction = (event: Event) => ((event.event as any).MeleeDamage as MeleeDamage).victim;
         this.melee_damage$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_melee_damage", 1, this.melee_damage$, [],
             (callback) => this.load_instance_data(12, events => {
+                this.subscriptions.push(this.melee_damage$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.MeleeDamage);
             }, this.melee_damage$));
         if (register) this.register_load_instance(12, "instance_data_service_melee_damage", this.melee_damage$);
-
-        this.subscriptions.push(this.melee_damage$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
-
         return this.apply_filter_to_events(this.melee_damage$.asObservable(), target_extraction);
     }
 
     public get spell_damage(): Observable<Array<Event>> {
         const register: boolean = !!this.spell_damage$;
-        const target_extraction = (event: Event) => (event.event as SpellDamage).damage.victim;
+        const target_extraction = (event: Event) => ((event.event as any).SpellDamage as SpellDamage).damage.victim;
         this.spell_damage$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_spell_damage", 1, this.spell_damage$, [],
             (callback) => this.load_instance_data(13, events => {
+                this.subscriptions.push(this.spell_damage$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.SpellDamage);
             }, this.spell_damage$));
         if (register) this.register_load_instance(13, "instance_data_service_spell_damage", this.spell_damage$);
-
-        this.subscriptions.push(this.spell_damage$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
-
         return this.apply_filter_to_events(this.spell_damage$.asObservable(), target_extraction);
     }
 
     public get heal(): Observable<Array<Event>> {
         const register: boolean = !!this.heal$;
-        const target_extraction = (event: Event) => (event.event as Heal).heal.target;
+        const target_extraction = (event: Event) => ((event.event as any).Heal as Heal).heal.target;
         this.heal$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_heal", 1, this.heal$, [],
             (callback) => this.load_instance_data(14, events => {
+                this.subscriptions.push(this.heal$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Heal);
             }, this.heal$));
         if (register) this.register_load_instance(14, "instance_data_service_heal", this.heal$);
-
-        this.subscriptions.push(this.heal$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
 
         return this.apply_filter_to_events(this.heal$.asObservable(), target_extraction);
     }
 
     public get threat(): Observable<Array<Event>> {
         const register: boolean = !!this.threat$;
-        const target_extraction = (event: Event) => (event.event as Threat).threat.threatened;
+        const target_extraction = (event: Event) => ((event.event as any).Threat as Threat).threat.threatened;
         this.threat$ = this.settingsService.init_or_load_behavior_subject("instance_data_service_threat", 1, this.threat$, [],
             (callback) => this.load_instance_data(15, events => {
+                this.subscriptions.push(this.threat$.subscribe(i_events =>
+                    this.extract_sources_and_targets(i_events, target_extraction)));
                 callback(events);
                 this.changed$.next(ChangedSubject.Threat);
             }, this.threat$));
         if (register) this.register_load_instance(15, "instance_data_service_threat", this.threat$);
-
-        this.subscriptions.push(this.threat$.subscribe(events =>
-            this.extract_sources_and_targets(events, target_extraction)));
 
         return this.apply_filter_to_events(this.threat$.asObservable(), target_extraction);
     }

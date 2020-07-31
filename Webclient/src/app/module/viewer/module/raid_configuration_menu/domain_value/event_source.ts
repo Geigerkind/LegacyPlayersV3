@@ -1,7 +1,7 @@
-import {Observable} from "rxjs";
+import {DelayedLabel} from "./delayed_label";
 
 export interface EventSource {
     id: number;
-    label: Observable<string>;
+    label: DelayedLabel;
     is_player: boolean;
 }

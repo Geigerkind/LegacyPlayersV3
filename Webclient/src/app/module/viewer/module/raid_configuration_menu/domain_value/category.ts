@@ -1,8 +1,8 @@
-import {Observable} from "rxjs";
+import {DelayedLabel} from "./delayed_label";
 
 export interface Category {
+    label: DelayedLabel;
     id: number;
-    label: Observable<string>;
     time: number;
     segments: Set<number>;
 }

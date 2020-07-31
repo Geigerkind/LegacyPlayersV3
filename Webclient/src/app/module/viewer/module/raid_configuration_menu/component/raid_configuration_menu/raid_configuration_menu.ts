@@ -42,10 +42,10 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         private raidConfigurationService: RaidConfigurationService,
         private dateService: DateService
     ) {
-        this.subscription_categories = this.raidConfigurationService.categories.subscribe(this.handle_categories);
-        this.subscription_segments = this.raidConfigurationService.segments.subscribe(this.handle_segments);
-        this.subscription_sources = this.raidConfigurationService.sources.subscribe(this.handle_sources);
-        this.subscription_targets = this.raidConfigurationService.targets.subscribe(this.handle_targets);
+        this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories));
+        this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments));
+        this.subscription_sources = this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources));
+        this.subscription_targets = this.raidConfigurationService.targets.subscribe(targets => this.handle_targets(targets));
     }
 
     ngOnDestroy(): void {
@@ -80,7 +80,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const category of categories) {
             new_list_items.push({
                 id: category.id,
-                label: (await category.label.toPromise()) + " - " + this.dateService.toTimeSpan(category.time)
+                label: category.label.content + " - " + this.dateService.toTimeSpan(category.time)
             });
         }
         const new_selected_items = [];
@@ -88,13 +88,16 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             for (const list_item of new_list_items)
                 new_selected_items.push(list_item);
         } else {
-            for (const selected_item of this.selected_items_segments) {
+            for (const selected_item of this.selected_items_categories) {
                 if (new_list_items.find(item => item.id === selected_item.id))
-                    new_list_items.push(selected_item);
+                    new_selected_items.push(selected_item);
             }
         }
         this.list_items_categories = new_list_items;
         this.selected_items_categories = new_selected_items;
+
+        if (this.use_default_filter_categories)
+            this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(item => item.id));
     }
 
     private async handle_segments(segments: Array<Segment>) {
@@ -102,7 +105,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const segment of segments) {
             new_list_items.push({
                 id: segment.id,
-                label: (await segment.label.toPromise()) + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
+                label: segment.label.content + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts)
             });
         }
@@ -113,11 +116,14 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         } else {
             for (const selected_item of this.selected_items_segments) {
                 if (new_list_items.find(item => item.id === selected_item.id))
-                    new_list_items.push(selected_item);
+                    new_selected_items.push(selected_item);
             }
         }
         this.list_items_segments = new_list_items;
         this.selected_items_segments = new_selected_items;
+
+        if (this.use_default_filter_segments)
+            this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(item => item.id));
     }
 
     private async handle_sources(sources: Array<EventSource>) {
@@ -126,16 +132,17 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const source of sources) {
             const list_item = {
                 id: source.id,
-                label: (await source.label.toPromise())
+                label: source.label.content
             };
             new_list_items.push(list_item);
             if (this.use_default_filter_sources && source.is_player)
                 new_selected_items.push(list_item);
         }
         if (!this.use_default_filter_sources) {
-            for (const selected_item of this.selected_items_segments) {
+            console.log("NEW SELECTED ITEMS", this.selected_items_sources);
+            for (const selected_item of this.selected_items_sources) {
                 if (new_list_items.find(item => item.id === selected_item.id))
-                    new_list_items.push(selected_item);
+                    new_selected_items.push(selected_item);
             }
         }
         this.list_items_sources = new_list_items;
@@ -151,7 +158,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const target of targets) {
             const list_item = {
                 id: target.id,
-                label: (await target.label.toPromise())
+                label: target.label.content
             };
             new_list_items.push(list_item);
 
@@ -160,9 +167,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
         }
         if (!this.use_default_filter_targets) {
-            for (const selected_item of this.selected_items_segments) {
+            for (const selected_item of this.selected_items_targets) {
                 if (new_list_items.find(item => item.id === selected_item.id))
-                    new_list_items.push(selected_item);
+                    new_selected_items.push(selected_item);
             }
         }
         this.list_items_targets = new_list_items;

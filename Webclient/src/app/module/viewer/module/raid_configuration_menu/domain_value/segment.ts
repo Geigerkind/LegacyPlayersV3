@@ -1,8 +1,8 @@
-import {Observable} from "rxjs";
+import {DelayedLabel} from "./delayed_label";
 
 export interface Segment {
     id: number;
-    label: Observable<string>;
+    label: DelayedLabel;
     duration: number;
     is_kill: boolean;
     start_ts: number;

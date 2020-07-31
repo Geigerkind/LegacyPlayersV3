@@ -9,6 +9,7 @@ import {RaidOption} from "../domain_value/raid_option";
 import {map} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
+import {DelayedLabel} from "../domain_value/delayed_label";
 
 @Injectable({
     providedIn: "root",
@@ -36,8 +37,8 @@ export class RaidConfigurationService implements OnDestroy {
             this.update_categories(attempts);
             this.update_segments(attempts);
         });
-        this.subscription_sources = this.instanceDataService.sources.subscribe(this.update_sources);
-        this.subscription_targets = this.instanceDataService.targets.subscribe(this.update_targets);
+        this.subscription_sources = this.instanceDataService.sources.subscribe(sources => this.update_sources(sources));
+        this.subscription_targets = this.instanceDataService.targets.subscribe(targets => this.update_targets(targets));
     }
 
     ngOnDestroy(): void {
@@ -46,9 +47,6 @@ export class RaidConfigurationService implements OnDestroy {
         this.subscription_targets?.unsubscribe();
     }
 
-    // TODO: Implement
-    // If categories change => segments change
-    // If segments change => targets/sources change
     get categories(): Observable<Array<Category>> {
         return this.categories$.asObservable();
     }
@@ -57,7 +55,7 @@ export class RaidConfigurationService implements OnDestroy {
         return this.segments$.asObservable()
             .pipe(map(inner_segments => inner_segments.filter(segment => {
                 return this.categories$.getValue().filter(category => this.category_filter.has(category.id))
-                    .find(category => category.segments.has(segment.id));
+                    .find(category => category.segments.has(segment.id)) !== undefined;
             })));
     }
 
@@ -108,14 +106,15 @@ export class RaidConfigurationService implements OnDestroy {
         const categories: Map<number, Category> = new Map();
         for (const attempt of attempts) {
             if (categories.has(attempt.npc_id)) {
-                const segment = categories.get(attempt.npc_id);
-                segment.segments.add(attempt.id);
-                segment.time += (attempt.end_ts - attempt.start_ts);
+                const category = categories.get(attempt.npc_id);
+                category.segments.add(attempt.id);
+                category.time += (attempt.end_ts - attempt.start_ts);
+                continue;
             }
             categories.set(attempt.npc_id, {
                 segments: new Set([attempt.id]),
                 id: attempt.npc_id,
-                label: this.unitService.get_npc_name(attempt.npc_id),
+                label: new DelayedLabel(this.unitService.get_npc_name(attempt.npc_id)),
                 time: (attempt.end_ts - attempt.start_ts)
             });
         }
@@ -129,7 +128,7 @@ export class RaidConfigurationService implements OnDestroy {
                 duration: (attempt.end_ts - attempt.start_ts),
                 id: attempt.id,
                 is_kill: attempt.is_kill,
-                label: this.unitService.get_npc_name(attempt.npc_id),
+                label: new DelayedLabel(this.unitService.get_npc_name(attempt.npc_id)),
                 start_ts: attempt.start_ts
             });
         this.segments$.next(segments);
@@ -140,7 +139,7 @@ export class RaidConfigurationService implements OnDestroy {
         for (const source of sources)
             result.push({
                 id: get_unit_id(source),
-                label: this.unitService.get_unit_name(source),
+                label: new DelayedLabel(this.unitService.get_unit_name(source)),
                 is_player: is_player(source)
             });
         this.sources$.next(result);
@@ -151,9 +150,9 @@ export class RaidConfigurationService implements OnDestroy {
         for (const target of targets)
             result.push({
                 id: get_unit_id(target),
-                label: this.unitService.get_unit_name(target),
+                label: new DelayedLabel(this.unitService.get_unit_name(target)),
                 is_player: is_player(target)
             });
-        this.sources$.next(result);
+        this.targets$.next(result);
     }
 }

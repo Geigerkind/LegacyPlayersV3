@@ -24,8 +24,16 @@ export class MultiSelectComponent implements OnInit {
         unSelectAllText: 'Deselect all',
         itemsShowLimit: 3,
     };
+
+    selectedItemsData: Array<any> = [];
     @Input()
-    selectedItems = [];
+    get selectedItems(): Array<any> {
+        return this.selectedItemsData;
+    }
+    set selectedItems(items: Array<any>) {
+        this.selectedItemsData = items;
+        this.selectedItemsChange.emit(items);
+    }
 
     @Output()
     item_selected: EventEmitter<any> = new EventEmitter<any>();
@@ -35,6 +43,8 @@ export class MultiSelectComponent implements OnInit {
     select_all: EventEmitter<any> = new EventEmitter<any>();
     @Output()
     deselect_all: EventEmitter<any> = new EventEmitter<any>();
+    @Output()
+    selectedItemsChange: EventEmitter<Array<any>> = new EventEmitter();
 
     ngOnInit(): void {
         this.dropdownSettings.enableCheckAll = this.enableCheckAll;
