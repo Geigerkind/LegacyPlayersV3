@@ -22,7 +22,7 @@ export class MultiSelectComponent implements OnInit {
         textField: 'label',
         selectAllText: 'Select all',
         unSelectAllText: 'Deselect all',
-        itemsShowLimit: 3,
+        itemsShowLimit: 1,
     };
 
     selectedItemsData: Array<any> = [];

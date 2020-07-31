@@ -11,9 +11,10 @@
     margin-top: -$spacing;
 }
 
+$menuSize: 500px;
 .container {
     position: relative;
-    width: min(380px, calc(100% - 42px - 2 * #{$spacing}));
+    width: min(#{$menuSize}, calc(100% - 42px - 2 * #{$spacing}));
     height: calc(100% - 2 * #{$spacing});
     background: $tdc_darker;
     border-right: 1px solid $tdc_accent;
@@ -22,7 +23,7 @@
     padding: $spacing $spacing;
 
     &.closed {
-        margin-left: calc(-1 * min(380px + 2 * #{$spacing}, calc(100% - 42px)));
+        margin-left: calc(-1 * min(#{$menuSize} + 2 * #{$spacing}, calc(100% - 42px)));
     }
 
     &:not(.closed) {

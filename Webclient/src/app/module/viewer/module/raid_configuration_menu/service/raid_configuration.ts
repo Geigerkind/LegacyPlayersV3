@@ -6,10 +6,11 @@ import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attem
 import {Segment} from "../domain_value/segment";
 import {EventSource} from "../domain_value/event_source";
 import {RaidOption} from "../domain_value/raid_option";
-import {map} from "rxjs/operators";
+import {map, take} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
 import {DelayedLabel} from "../domain_value/delayed_label";
+import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 
 @Injectable({
     providedIn: "root",
@@ -19,6 +20,8 @@ export class RaidConfigurationService implements OnDestroy {
     private subscription_attempts: Subscription;
     private subscription_sources: Subscription;
     private subscription_targets: Subscription;
+
+    private current_meta: InstanceViewerMeta;
 
     private categories$: BehaviorSubject<Array<Category>> = new BehaviorSubject([]);
     private segments$: BehaviorSubject<Array<Segment>> = new BehaviorSubject([]);
@@ -33,6 +36,7 @@ export class RaidConfigurationService implements OnDestroy {
         private instanceDataService: InstanceDataService,
         private unitService: UnitService
     ) {
+        this.instanceDataService.meta.pipe(take(1)).subscribe(meta => this.current_meta = meta);
         this.subscription_attempts = this.instanceDataService.attempts.subscribe(attempts => {
             this.update_categories(attempts);
             this.update_segments(attempts);
@@ -104,6 +108,14 @@ export class RaidConfigurationService implements OnDestroy {
 
     private update_categories(attempts: Array<InstanceViewerAttempt>): void {
         const categories: Map<number, Category> = new Map();
+        const non_boss_intervals = this.calculate_non_boss_attempts(attempts);
+        categories.set(0, {
+            segments: new Set(non_boss_intervals.map((value, index) => -index)),
+            id: 0,
+            label: new DelayedLabel(of("Non-Boss segments")),
+            time: non_boss_intervals.reduce((acc, [start, end]) => acc + end - start, 0)
+        });
+
         for (const attempt of attempts) {
             if (categories.has(attempt.npc_id)) {
                 const category = categories.get(attempt.npc_id);
@@ -123,6 +135,14 @@ export class RaidConfigurationService implements OnDestroy {
 
     private update_segments(attempts: Array<InstanceViewerAttempt>): void {
         const segments: Array<Segment> = [];
+        for (const [index, start, end] of this.calculate_non_boss_attempts(attempts).map(([i_start, i_end], i_index) => [i_index, i_start, i_end]))
+            segments.push({
+                duration: (end - start),
+                id: -index,
+                is_kill: false,
+                label: new DelayedLabel(of("Non-Boss Segment " + (index + 1).toString())),
+                start_ts: start
+            });
         for (const attempt of attempts)
             segments.push({
                 duration: (attempt.end_ts - attempt.start_ts),
@@ -154,5 +174,22 @@ export class RaidConfigurationService implements OnDestroy {
                 is_player: is_player(target)
             });
         this.targets$.next(result);
+    }
+
+    private calculate_non_boss_attempts(attempts: Array<InstanceViewerAttempt>): Array<[number, number]> {
+        if (!this.current_meta)
+            return [];
+
+        let current_start_ts = this.current_meta.start_ts;
+        const intervals = [];
+        for (const attempt of attempts.sort((left, right) => left.start_ts - right.start_ts)) {
+            if (attempt.start_ts > current_start_ts) {
+                intervals.push([current_start_ts, attempt.start_ts - 1]);
+                current_start_ts = attempt.end_ts;
+            } else if (attempt.end_ts > current_start_ts) {
+                current_start_ts = attempt.end_ts;
+            }
+        }
+        return intervals;
     }
 }
