@@ -1,4 +1,5 @@
 import {Component, Input} from "@angular/core";
+import {Observable} from "rxjs";
 
 @Component({
     selector: "LootItem",
@@ -11,6 +12,7 @@ export class LootItemComponent {
     @Input() icon_path: string;
     @Input() quality: number;
     @Input() character_id: number;
+    @Input() character_name: Observable<string>;
     @Input() amount: number;
 
 }

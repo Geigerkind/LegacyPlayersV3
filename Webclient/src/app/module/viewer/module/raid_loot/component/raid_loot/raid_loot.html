@@ -6,14 +6,16 @@
             <GeneralInput [htmlId]="'insig_checkbox'" type="checkbox"></GeneralInput>
         </div>
     </div>
-    <div *ngFor="let boss of loot; index as i" class="boss_container">
+    <div *ngFor="let group of loot; index as i" class="boss_container">
         <div class="boss_title_bar" [class.no_border]="i+1==toggle_decisions.length">
-            <div class="boss_label">{{boss.boss_name}}</div>
+            <div class="boss_label">{{group.name | async}}</div>
             <CaretButton (toggled)="toggle_decisions[i]=!toggle_decisions[i]"></CaretButton>
         </div>
         <div class="loot_container" *ngIf="toggle_decisions[i]">
-            <LootItem *ngFor="let item of boss.items" [quality]="item.quality" [icon_path]="item.icon_path"
-                      [character_id]="item.character_id" [item_id]="item.item_id" [amount]="item.amount"></LootItem>
+            <LootItem *ngFor="let loot of group.loot_items" [quality]="(loot.item | async)?.base.quality"
+                      [icon_path]="(loot.item | async)?.base.icon"
+                      [character_id]="loot.receiver_id" [item_id]="(loot.item | async)?.base.id" [amount]="loot.amount"
+                      [character_name]="loot.receiver"></LootItem>
         </div>
     </div>
 </div>

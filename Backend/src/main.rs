@@ -154,6 +154,7 @@ fn main() {
                 data::transfer::npc::get_npc_localized,
                 data::transfer::icon::get_icon,
                 data::transfer::item::get_item,
+                data::transfer::item::get_localized_basic_item,
                 data::transfer::gem::get_gem,
                 data::transfer::enchant::get_enchant,
                 data::transfer::item_bonding::get_item_bonding,

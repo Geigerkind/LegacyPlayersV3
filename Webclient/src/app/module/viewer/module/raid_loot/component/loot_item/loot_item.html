@@ -1,3 +1,3 @@
-<div class="player_label">SomeVeryLongName</div>
-<div class="stack_label">999</div>
-<ItemIcon [size]="48" [quality]="quality" [iconPath]="icon_path"></ItemIcon>
+<div class="player_label">{{character_name | async}}</div>
+<div class="stack_label">{{amount}}</div>
+<ItemIcon [size]="48" [quality]="quality" [iconPath]="'/assets/wow_icon/' + icon_path + '.jpg'" [item_id]="item_id"></ItemIcon>

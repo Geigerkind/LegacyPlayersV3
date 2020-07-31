@@ -190,7 +190,7 @@ impl Server {
                 if let Some(committed_events) = self.committed_events.get(&instance_id) {
                     if let Some(last_entry) = committed_events.last() {
                         db_main.execute_wparams(
-                            "UPDATE instance_meta SET last_event_id=:current_event_id, end_ts=:end_ts WHERE instance_meta_id=:instance_meta_id",
+                            "UPDATE instance_meta SET last_event_id=:current_event_id, end_ts=:end_ts WHERE id=:instance_meta_id",
                             params!("current_event_id" => *current_event_id, "end_ts" => last_entry.timestamp, "instance_meta_id" => instance_meta_id),
                         );
                     }

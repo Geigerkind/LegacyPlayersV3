@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {APIService} from "./api";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable, of} from "rxjs";
 import {Localized} from "../domain_value/localized";
 import {InstanceMap} from "../domain_value/instance_map";
 import {map} from "rxjs/operators";
@@ -14,6 +14,7 @@ import {
     get_behavior_subject_map_from_nested_array,
     create_array_from_nested_behavior_subject_map
 } from "../stdlib/map_persistance";
+import {BasicItem} from "../domain_value/data/basic_item";
 
 @Injectable({
     providedIn: "root",
@@ -24,8 +25,8 @@ export class DataService {
     private static readonly URL_DATA_HERO_CLASS_LOCALIZED: string = '/data/hero_class/localized';
     private static readonly URL_DATA_DIFFICULTY_LOCALIZED: string = '/data/difficulty/localized';
     private static readonly URL_DATA_MAP_LOCALIZED: string = '/data/map/localized';
-
     private static readonly URL_DATA_NPC_LOCALIZED: string = '/data/npc/localized/:expansion_id/:npc_id';
+    private static readonly URL_DATA_BASIC_ITEM_LOCALIZED: string = '/data/item/localized/basic_item/:expansion_id/:item_id';
 
     private maps$: BehaviorSubject<Array<Localized<InstanceMap>>>;
     private servers$: BehaviorSubject<Array<AvailableServer>>;
@@ -34,6 +35,7 @@ export class DataService {
     private difficulties$: BehaviorSubject<Array<Localized<Difficulty>>>;
 
     private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>>;
+    private basic_items$: Map<number, Map<number, BehaviorSubject<Localized<BasicItem>>>>;
 
     constructor(
         private apiService: APIService,
@@ -90,6 +92,30 @@ export class DataService {
             npc => {
                 subject.next(npc);
                 this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
+            });
+
+        return subject;
+    }
+
+    get_localized_basic_item(expansion_id: number, item_id: number): Observable<Localized<BasicItem>> {
+        if (!this.basic_items$)
+            this.basic_items$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_items", [], 7));
+
+        if (!this.basic_items$.has(expansion_id))
+            this.basic_items$.set(expansion_id, new Map());
+        const expansion = this.basic_items$.get(expansion_id);
+        if (expansion.has(item_id))
+            return expansion.get(item_id).asObservable();
+
+        const subject = new BehaviorSubject<Localized<BasicItem>>(undefined);
+        expansion.set(item_id, subject);
+
+        this.apiService.get(DataService.URL_DATA_BASIC_ITEM_LOCALIZED
+                .replace(":expansion_id", expansion_id.toString())
+                .replace(":item_id", item_id.toString()),
+            item => {
+                subject.next(item);
+                this.settingsService.set_with_expiration("data_service_basic_items", create_array_from_nested_behavior_subject_map(this.basic_items$), 7);
             });
 
         return subject;

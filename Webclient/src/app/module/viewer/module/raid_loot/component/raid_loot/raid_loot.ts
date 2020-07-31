@@ -1,79 +1,34 @@
-import {Component} from "@angular/core";
+import {Component, OnDestroy} from "@angular/core";
+import {LootService} from "../../service/loot";
+import {Subscription} from "rxjs";
+import {Loot} from "../../domain_value/loot";
 
 @Component({
     selector: "RaidLoot",
     templateUrl: "./raid_loot.html",
-    styleUrls: ["./raid_loot.scss"]
+    styleUrls: ["./raid_loot.scss"],
+    providers: [
+        LootService
+    ]
 })
-export class RaidLootComponent {
+export class RaidLootComponent implements OnDestroy {
 
-    loot = [
-        {
-            boss_name: "The Prophet Skeram",
-            items: [
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                },
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                },
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                },
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                },
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                }
-            ]
-        },
-        {
-            boss_name: "Edwin Van Cleef",
-            items: [
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                }
-            ]
-        },
-        {
-            boss_name: "Cookie",
-            items: [
-                {
-                    item_id: 1234,
-                    icon_path: "/assets/wow_icon/inv_kilt_cloth_02.jpg",
-                    quality: 5,
-                    character_id: 11,
-                    amount: 32
-                }
-            ]
-        }
-    ];
+    private subscription: Subscription;
 
-    toggle_decisions = [ false, false, false ];
+    loot: Array<Loot> = [];
+    toggle_decisions = [];
 
+
+    constructor(
+        private lootService: LootService
+    ) {
+        this.subscription = this.lootService.loot.subscribe(loot => {
+            this.toggle_decisions = Array(loot.length).fill(false);
+            this.loot = loot;
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
+    }
 }

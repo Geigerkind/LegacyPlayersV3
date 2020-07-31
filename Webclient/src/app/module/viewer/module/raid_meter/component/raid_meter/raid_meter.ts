@@ -38,7 +38,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         private damageTakenService: DamageTakenService
     ) {
         this.instanceDataService.changed.subscribe((changed_subject) => {
-            if ([ChangedSubject.Sources, ChangedSubject.Targets, ...this.get_changed_subjects_for_current_selection()])
+            if ([ChangedSubject.Sources, ChangedSubject.Targets, ...this.get_changed_subjects_for_current_selection()].includes(changed_subject))
                 this.selection_changed(this.current_selection);
         });
     }

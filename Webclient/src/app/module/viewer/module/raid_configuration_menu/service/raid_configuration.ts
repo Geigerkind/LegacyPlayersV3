@@ -190,6 +190,8 @@ export class RaidConfigurationService implements OnDestroy {
                 current_start_ts = attempt.end_ts;
             }
         }
+        if (current_start_ts < this.current_meta.end_ts)
+            intervals.push([current_start_ts, this.current_meta.end_ts]);
         return intervals;
     }
 }
