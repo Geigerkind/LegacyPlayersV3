@@ -20,7 +20,7 @@ impl Server {
 
         for msg in messages {
             self.extract_meta_information(db_main, armory, &msg);
-            self.test_for_committable_events(db_main, armory, &msg);
+            self.test_for_committable_events(db_main, armory);
             self.cleanup(msg.timestamp);
             if next_reset < msg.timestamp || next_reset == u64::MAX {
                 next_reset = self.reset_instances(db_main, msg.timestamp);
@@ -49,13 +49,10 @@ impl Server {
         }
     }
 
-    fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, next_message: &Message) {
+    fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory) {
         let mut remove_first_non_committed_event = Vec::new();
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
-            if *subject_id == 7902702230008184434 {
-                println!("{} => {:?}", subject_id, non_committed_event);
-            }
-            match self.commit_event(db_main, armory, non_committed_event, next_message) {
+            match self.commit_event(db_main, armory, non_committed_event) {
                 Ok(mut committable_event) => {
                     // For all except Spell we want to only remove the first event
                     remove_first_non_committed_event.push(*subject_id);
@@ -85,7 +82,7 @@ impl Server {
         }
 
         for subject_id in remove_first_non_committed_event {
-            let result = self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
+            self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
             self.subject_prepend_mode_set.remove(&subject_id);
             if self.non_committed_events.get(&subject_id).expect("subject id should exist").is_empty() {
                 self.non_committed_events.remove(&subject_id);
@@ -107,7 +104,7 @@ impl Server {
 
     // So based on the next event for the current users in the system
     // we are going to decide whether or not to commit it.
-    fn commit_event(&self, db_main: &mut (impl Select + Execute), armory: &Armory, non_committed_event: &VecDeque<Message>, next_message: &Message) -> Result<Event, EventParseFailureAction> {
+    fn commit_event(&self, db_main: &mut (impl Select + Execute), armory: &Armory, non_committed_event: &VecDeque<Message>) -> Result<Event, EventParseFailureAction> {
         let first_message = non_committed_event.front().expect("non_committed_event contains at least one entry");
         match &first_message.message_type {
             // Events that are just of size 1
