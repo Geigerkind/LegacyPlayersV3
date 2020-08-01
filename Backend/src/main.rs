@@ -1,4 +1,5 @@
 #![allow(clippy::module_inception)]
+#![allow(clippy::module_inception)]
 #![allow(clippy::unused_unit)]
 #![allow(clippy::ptr_arg)]
 #![allow(clippy::blocks_in_if_conditions)]
@@ -143,6 +144,7 @@ fn main() {
                 data::transfer::hero_class::get_hero_class_localized,
                 data::transfer::hero_class::get_all_hero_classes_localized,
                 data::transfer::spell::get_spell,
+                data::transfer::spell::get_localized_basic_spell,
                 data::transfer::dispel_type::get_dispel_type,
                 data::transfer::dispel_type::get_all_dispel_types,
                 data::transfer::power_type::get_power_type,

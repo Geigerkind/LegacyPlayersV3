@@ -7,6 +7,8 @@ import {SelectOption} from "../../../../../../template/input/select_input/domain
 import {Subscription} from "rxjs";
 import {ChangedSubject, InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
+import {ActivatedRoute, Router} from "@angular/router";
+import {ViewerMode} from "../../../../domain_value/viewer_mode";
 
 @Component({
     selector: "RaidMeter",
@@ -25,8 +27,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private subscription: Subscription;
     private subscription_changed: Subscription;
     private subscription_total_duration: Subscription;
+    private subscription_activated_route: Subscription;
 
     private cookie_id: string;
+
+    in_ability_mode: boolean = false;
 
     current_attempt_duration: number = 1;
     bars: Array<RaidMeterRow> = [];
@@ -35,11 +40,19 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     options: Array<SelectOption> = [{value: 1, label_key: 'Damage done'}, {value: 2, label_key: 'Damage taken'}];
 
     constructor(
+        private activatedRouteService: ActivatedRoute,
         private settingsService: SettingsService,
         private instanceDataService: InstanceDataService,
         private damageDoneService: DamageDoneService,
         private damageTakenService: DamageTakenService
     ) {
+        this.subscription_activated_route = this.activatedRouteService.paramMap.subscribe(params => {
+            const new_mode = params.get("mode") === ViewerMode.Ability;
+            if (this.in_ability_mode !== new_mode) {
+                this.in_ability_mode = new_mode;
+                this.selection_changed(this.current_selection);
+            }
+        });
         this.subscription_changed = this.instanceDataService.changed.subscribe((changed_subject) => {
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ...this.get_changed_subjects_for_current_selection()].includes(changed_subject))
                 this.selection_changed(this.current_selection);
@@ -60,6 +73,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription?.unsubscribe();
         this.subscription_changed?.unsubscribe();
         this.subscription_total_duration?.unsubscribe();
+        this.subscription_activated_route?.unsubscribe();
     }
 
 
@@ -87,15 +101,17 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         switch (selection) {
             case 1:
                 this.resubscribe(this.damageDoneService.rows.subscribe(rows => this.bars = rows));
-                this.damageDoneService.reload();
+                this.damageDoneService.reload(this.in_ability_mode);
                 break;
             case 2:
                 this.resubscribe(this.damageTakenService.rows.subscribe(rows => this.bars = rows));
-                this.damageTakenService.reload();
+                this.damageTakenService.reload(this.in_ability_mode);
                 break;
         }
         this.current_selection = selection;
-        this.settingsService.set(this.cookie_id, selection);
+
+        if (!!this.unique_id)
+            this.settingsService.set(this.cookie_id, selection);
     }
 
     private resubscribe(subscription: Subscription): void {
@@ -108,6 +124,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         switch (this.current_selection) {
             case 1:
             case 2:
+                result.push(ChangedSubject.SpellCast);
                 result.push(ChangedSubject.MeleeDamage);
                 result.push(ChangedSubject.SpellDamage);
                 break;

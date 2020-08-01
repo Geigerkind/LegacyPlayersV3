@@ -10,6 +10,7 @@ import {Damage} from "../../../domain_value/damage";
 import {Event} from "../../../domain_value/event";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
 import {UtilService} from "./util";
+import {SpellCast} from "../../../domain_value/spell_cast";
 
 @Injectable({
     providedIn: "root",
@@ -30,35 +31,23 @@ export class DamageTakenService {
     private rows$: BehaviorSubject<Array<RaidMeterRow>> = new BehaviorSubject([]);
     private newRows: Map<number, RaidMeterRow>;
 
-    private static extract_damage_from_melee_damage(damage: EventType): number {
-        return ((damage as any).MeleeDamage as MeleeDamage).damage;
-    }
-
-    private static extract_victim_from_melee_damage(damage: EventType): Unit {
-        return ((damage as any).MeleeDamage as MeleeDamage).victim;
-    }
-
-    private static extract_damage_from_spell_damage(damage: EventType): number {
-        return (((damage as any).SpellDamage as SpellDamage).damage as Damage).damage;
-    }
-
-    private static extract_victim_from_spell_damage(damage: EventType): Unit {
-        return (((damage as any).SpellDamage as SpellDamage).damage as Damage).victim;
-    }
-
-    reload(): void {
+    reload(in_ability_mode: boolean): void {
         this.newRows = new Map();
         this.instanceDataService.melee_damage
             .pipe(take(1))
             .subscribe(damage => {
-                damage.forEach(event => this.feed_damage(event, DamageTakenService.extract_damage_from_melee_damage, DamageTakenService.extract_victim_from_melee_damage));
+                damage.forEach(event => this.feed_melee_damage(event, in_ability_mode));
                 this.commit();
             });
-        this.instanceDataService.spell_damage
+        this.instanceDataService.spell_casts
             .pipe(take(1))
-            .subscribe(damage => {
-                damage.forEach(event => this.feed_damage(event, DamageTakenService.extract_damage_from_spell_damage, DamageTakenService.extract_victim_from_spell_damage));
-                this.commit();
+            .subscribe(spell_casts => {
+                this.instanceDataService.spell_damage
+                    .pipe(take(1))
+                    .subscribe(damage => {
+                        damage.forEach(event => this.feed_spell_damage(spell_casts, event, in_ability_mode));
+                        this.commit();
+                    });
             });
     }
 
@@ -66,16 +55,35 @@ export class DamageTakenService {
         this.rows$.next(new Array<RaidMeterRow>(...this.newRows.values()));
     }
 
-    private feed_damage(damage: Event, damage_extract_function: any, victim_extract_function: any): void {
-        const victim = victim_extract_function(damage.event);
-        const unit_id = get_unit_id(victim);
-        if (this.newRows.has(unit_id)) {
-            const row = this.newRows.get(unit_id);
-            row.amount += damage_extract_function(damage.event);
+    private feed_melee_damage(event: Event, in_ability_mode: boolean): void {
+        const damage = (event.event as any).MeleeDamage as Damage;
+        const row_id = in_ability_mode ? 0 : get_unit_id(damage.victim);
+        if (this.newRows.has(row_id)) {
+            const row = this.newRows.get(row_id);
+            row.amount += damage.damage;
         } else {
-            this.newRows.set(unit_id, {
-                subject: this.utilService.get_row_subject(victim),
-                amount: damage_extract_function(damage.event)
+            this.newRows.set(row_id, {
+                subject: in_ability_mode ? this.utilService.get_row_ability_subject_auto_attack() : this.utilService.get_row_unit_subject(damage.victim),
+                amount: damage.damage
+            });
+        }
+    }
+
+    private feed_spell_damage(spell_casts: Array<Event>, event: Event, in_ability_mode: boolean): void {
+        const damage = (event.event as any).SpellDamage.damage as Damage;
+        const spell_cast_id = ((event.event as any).SpellDamage).spell_cast_id as number;
+        const spell_cast_event = spell_casts.find(cast => cast.id === spell_cast_id);
+        if (spell_cast_event === undefined)
+            return;
+        const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;
+        const row_id = in_ability_mode ? spell_cast.spell_id : get_unit_id(damage.victim);
+        if (this.newRows.has(row_id)) {
+            const row = this.newRows.get(row_id);
+            row.amount += damage.damage;
+        } else {
+            this.newRows.set(row_id, {
+                subject: in_ability_mode ? this.utilService.get_row_ability_subject(spell_cast.spell_id) : this.utilService.get_row_unit_subject(damage.victim),
+                amount: damage.damage
             });
         }
     }

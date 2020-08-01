@@ -15,6 +15,7 @@ import {
     create_array_from_nested_behavior_subject_map
 } from "../stdlib/map_persistance";
 import {BasicItem} from "../domain_value/data/basic_item";
+import {BasicSpell} from "../domain_value/data/basic_spell";
 
 @Injectable({
     providedIn: "root",
@@ -27,6 +28,7 @@ export class DataService {
     private static readonly URL_DATA_MAP_LOCALIZED: string = '/data/map/localized';
     private static readonly URL_DATA_NPC_LOCALIZED: string = '/data/npc/localized/:expansion_id/:npc_id';
     private static readonly URL_DATA_BASIC_ITEM_LOCALIZED: string = '/data/item/localized/basic_item/:expansion_id/:item_id';
+    private static readonly URL_DATA_BASIC_SPELL_LOCALIZED: string = '/data/spell/localized/basic_spell/:expansion_id/:spell_id';
 
     private maps$: BehaviorSubject<Array<Localized<InstanceMap>>>;
     private servers$: BehaviorSubject<Array<AvailableServer>>;
@@ -36,6 +38,7 @@ export class DataService {
 
     private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>>;
     private basic_items$: Map<number, Map<number, BehaviorSubject<Localized<BasicItem>>>>;
+    private basic_spells$: Map<number, Map<number, BehaviorSubject<Localized<BasicSpell>>>>;
 
     constructor(
         private apiService: APIService,
@@ -116,6 +119,30 @@ export class DataService {
             item => {
                 subject.next(item);
                 this.settingsService.set_with_expiration("data_service_basic_items", create_array_from_nested_behavior_subject_map(this.basic_items$), 7);
+            });
+
+        return subject;
+    }
+
+    get_localized_basic_spell(expansion_id: number, spell_id: number): Observable<Localized<BasicSpell>> {
+        if (!this.basic_spells$)
+            this.basic_spells$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_spells", [], 7));
+
+        if (!this.basic_spells$.has(expansion_id))
+            this.basic_spells$.set(expansion_id, new Map());
+        const expansion = this.basic_spells$.get(expansion_id);
+        if (expansion.has(spell_id))
+            return expansion.get(spell_id).asObservable();
+
+        const subject = new BehaviorSubject<Localized<BasicSpell>>(undefined);
+        expansion.set(spell_id, subject);
+
+        this.apiService.get(DataService.URL_DATA_BASIC_SPELL_LOCALIZED
+                .replace(":expansion_id", expansion_id.toString())
+                .replace(":spell_id", spell_id.toString()),
+            item => {
+                subject.next(item);
+                this.settingsService.set_with_expiration("data_service_basic_spells", create_array_from_nested_behavior_subject_map(this.basic_spells$), 7);
             });
 
         return subject;

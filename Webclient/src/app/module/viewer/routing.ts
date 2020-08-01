@@ -3,7 +3,7 @@ import {RouterModule, Routes} from "@angular/router";
 import {ViewerComponent} from "./component/viewer/viewer";
 
 const routes: Routes = [
-    {path: "", component: ViewerComponent}
+    {path: ":instance_meta_id/:mode", component: ViewerComponent}
 ];
 
 @NgModule({
