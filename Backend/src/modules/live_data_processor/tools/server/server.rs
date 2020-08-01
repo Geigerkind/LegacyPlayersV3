@@ -10,7 +10,7 @@ use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, VecDeque};
 
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, data: &Data, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
@@ -38,12 +38,12 @@ impl Server {
         if let Some(unit_dto) = message.message_type.extract_subject() {
             if let Some(event) = self.non_committed_events.get_mut(&unit_dto.unit_id) {
                 if self.subject_prepend_mode_set.contains(&unit_dto.unit_id) {
-                    event.insert(0, message);
+                    event.push_front(message);
                 } else {
-                    event.push(message);
+                    event.push_back(message);
                 }
             } else {
-                self.non_committed_events.insert(unit_dto.unit_id, vec![message]);
+                self.non_committed_events.insert(unit_dto.unit_id, VecDeque::from(vec![message]));
             }
             self.subject_prepend_mode_set.remove(&unit_dto.unit_id);
         }
@@ -52,6 +52,9 @@ impl Server {
     fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, next_message: &Message) {
         let mut remove_first_non_committed_event = Vec::new();
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
+            if *subject_id == 7902702230008184434 {
+                println!("{} => {:?}", subject_id, non_committed_event);
+            }
             match self.commit_event(db_main, armory, non_committed_event, next_message) {
                 Ok(mut committable_event) => {
                     // For all except Spell we want to only remove the first event
@@ -82,7 +85,7 @@ impl Server {
         }
 
         for subject_id in remove_first_non_committed_event {
-            self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop();
+            let result = self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
             self.subject_prepend_mode_set.remove(&subject_id);
             if self.non_committed_events.get(&subject_id).expect("subject id should exist").is_empty() {
                 self.non_committed_events.remove(&subject_id);
@@ -94,7 +97,7 @@ impl Server {
         for subject_id in self
             .non_committed_events
             .iter()
-            .filter(|(_subject_id, event)| event.first().expect("Should be initialized with at least one element").timestamp + 10 < current_timestamp)
+            .filter(|(_subject_id, event)| event.front().expect("Should be initialized with at least one element").timestamp + 500 < current_timestamp)
             .map(|(subject_id, _event)| *subject_id)
             .collect::<Vec<u64>>()
         {
@@ -104,8 +107,8 @@ impl Server {
 
     // So based on the next event for the current users in the system
     // we are going to decide whether or not to commit it.
-    fn commit_event(&self, db_main: &mut (impl Select + Execute), armory: &Armory, non_committed_event: &Vec<Message>, next_message: &Message) -> Result<Event, EventParseFailureAction> {
-        let first_message = non_committed_event.first().expect("non_committed_event contains at least one entry");
+    fn commit_event(&self, db_main: &mut (impl Select + Execute), armory: &Armory, non_committed_event: &VecDeque<Message>, next_message: &Message) -> Result<Event, EventParseFailureAction> {
+        let first_message = non_committed_event.front().expect("non_committed_event contains at least one entry");
         match &first_message.message_type {
             // Events that are just of size 1
             MessageType::CombatState(CombatState { unit: unit_dto, in_combat }) => Ok(Event::new(
@@ -279,21 +282,21 @@ impl Server {
                         };
                     }
                 }
-                Err(EventParseFailureAction::Wait)
+                Err(EventParseFailureAction::PrependNext)
             },
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
                 // If we dont find any committable events for this interrupt, we need to discard
-                if let Some(unit_instance_id) = self.unit_instance_id.get(&dispel.aura_caster.unit_id) {
+                if let Some(unit_instance_id) = self.unit_instance_id.get(&dispel.un_aura_caster.unit_id) {
                     if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
-                        let subject = dispel.aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                        return match try_parse_dispel(db_main, &dispel, committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
+                        let subject = dispel.un_aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                        return match try_parse_dispel(db_main, &dispel, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
                             Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
                             Err(err) => Err(err),
                         };
                     }
                 }
-                Err(EventParseFailureAction::Wait)
+                Err(EventParseFailureAction::PrependNext)
             },
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
@@ -301,13 +304,13 @@ impl Server {
                 if let Some(unit_instance_id) = self.unit_instance_id.get(&spell_steal.aura_caster.unit_id) {
                     if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                         let subject = spell_steal.aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                        return match try_parse_spell_steal(db_main, &spell_steal, committed_events, first_message.timestamp, next_message.timestamp, armory, self.server_id, &self.summons) {
+                        return match try_parse_spell_steal(db_main, &spell_steal, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
                             Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
                             Err(err) => Err(err),
                         };
                     }
                 }
-                Err(EventParseFailureAction::Wait)
+                Err(EventParseFailureAction::PrependNext)
             },
             _ => Err(EventParseFailureAction::DiscardFirst),
         }

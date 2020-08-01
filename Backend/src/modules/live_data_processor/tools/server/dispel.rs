@@ -6,9 +6,9 @@ use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
 
 pub fn try_parse_dispel(
-    db_main: &mut (impl Select + Execute), dispel: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
+    db_main: &mut (impl Select + Execute), dispel: &UnAura, committed_events: &[Event], timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
 ) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
-    let aura_caster = dispel.aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let un_aura_caster = dispel.un_aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
     let target = dispel.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut spell_cast_event_id = None;
@@ -34,12 +34,13 @@ pub fn try_parse_dispel(
                 }
 
                 if let Some(victim) = &spell_cast.victim {
-                    if victim == &target && event.subject == aura_caster && dispel.un_aura_spell_id == spell_cast.spell_id {
+                    if victim == &target && event.subject == un_aura_caster && dispel.un_aura_spell_id == spell_cast.spell_id {
                         spell_cast_event_id = Some(event.id);
                     }
                 }
             },
             EventType::AuraApplication(aura_application) => {
+                // TODO: How much did the aura app change?
                 if aura_application_event_ids.len() < dispel.un_aura_amount as usize && event.subject == target && aura_application.spell_id == dispel.target_spell_id {
                     aura_application_event_ids.push(event.id);
                 }
@@ -49,13 +50,9 @@ pub fn try_parse_dispel(
     }
 
     if let Some(spell_cast_event_id) = spell_cast_event_id {
-        if !aura_application_event_ids.is_empty() && next_timestamp as i64 - timestamp as i64 > 10 {
+        if !aura_application_event_ids.is_empty() {
             return Ok((spell_cast_event_id, aura_application_event_ids));
         }
     }
-
-    if next_timestamp as i64 - timestamp as i64 > 10 {
-        return Err(EventParseFailureAction::DiscardFirst);
-    }
-    Err(EventParseFailureAction::Wait)
+    Err(EventParseFailureAction::PrependNext)
 }

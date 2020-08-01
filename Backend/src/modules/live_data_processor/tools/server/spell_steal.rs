@@ -8,7 +8,7 @@ use std::collections::{BTreeSet, HashMap};
 /// There is a SpellCast event that steals an AuraApplication event
 /// Note: un_aura_spell_id is currently constant 0
 pub fn try_parse_spell_steal(
-    db_main: &mut (impl Select + Execute), spell_steal: &UnAura, committed_events: &[Event], timestamp: u64, next_timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
+    db_main: &mut (impl Select + Execute), spell_steal: &UnAura, committed_events: &[Event], timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
 ) -> Result<(u32, u32), EventParseFailureAction> {
     let aura_caster = spell_steal.aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
     let target = spell_steal.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
@@ -46,11 +46,7 @@ pub fn try_parse_spell_steal(
         };
     }
 
-    if next_timestamp as i64 - timestamp as i64 > 10 {
-        return Err(EventParseFailureAction::DiscardFirst);
-    }
-
-    Err(EventParseFailureAction::Wait)
+    Err(EventParseFailureAction::PrependNext)
 }
 
 fn is_spell_steal(spell_id: u32) -> bool {

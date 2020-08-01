@@ -27,7 +27,7 @@ pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &[Event], ti
             _ => continue,
         };
     }
-    Err(EventParseFailureAction::Wait)
+    Err(EventParseFailureAction::PrependNext)
 }
 
 // "Kick", "Pummel", "Shield Bash", "Counterspell", "Earth Shock",  "Silence"
