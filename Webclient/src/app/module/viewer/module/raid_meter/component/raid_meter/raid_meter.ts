@@ -133,4 +133,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         return result;
     }
 
+    get_router_link(bar: RaidMeterRow): string {
+        if (this.in_ability_mode)
+            return '../detail/' + this.current_selection.toString() + '/' + bar.subject.id.toString();
+        return '../ability';
+    }
+
 }

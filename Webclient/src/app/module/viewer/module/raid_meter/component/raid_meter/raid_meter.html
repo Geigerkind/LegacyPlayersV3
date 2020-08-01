@@ -4,7 +4,7 @@
         <div class="total_and_dps">{{get_total()}} ({{get_total_dps().toFixed(1)}}/s)</div>
     </div>
     <div class="bar_container">
-        <div *ngFor="let bar of bars; index as i" class="bar" [routerLink]="in_ability_mode ? '../detail' : '../ability'">
+        <div *ngFor="let bar of bars; index as i" class="bar" [routerLink]="get_router_link(bar)">
             <div class="actual_value" style="width: calc(240px + max(0px, calc({{get_weighted_bar_fraction(bar.amount)*100}}% - {{get_weighted_bar_fraction(bar.amount)}} * 240px - {{get_weighted_bar_fraction(bar.amount)}} * 25px - 60px)))">
                 <div class="bar_labels">
                     <div class="gray_bg_bar"></div>
