@@ -1,11 +1,17 @@
-import {Observable} from "rxjs";
-import {take} from "rxjs/operators";
+import {Observable, Subscription} from "rxjs";
+import {OnDestroy} from "@angular/core";
 
-export class DelayedLabel {
+export class DelayedLabel implements OnDestroy {
+
+    private subscription: Subscription;
+
     content: string = "Unknown";
 
     constructor(content: Observable<string>) {
-        content.pipe(take(1))
-            .subscribe(result => this.content = result);
+        this.subscription = content.subscribe(result => this.content = result);
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 }

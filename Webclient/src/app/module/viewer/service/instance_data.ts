@@ -37,7 +37,8 @@ export enum ChangedSubject {
     Participants,
     Attempts,
     Sources,
-    Targets
+    Targets,
+    AttemptTotalDuration
 }
 
 @Injectable({
@@ -78,6 +79,8 @@ export class InstanceDataService implements OnDestroy {
     private source_filter$: Array<number> = [];
     private targets$: BehaviorSubject<Array<Unit>> = new BehaviorSubject([]);
     private target_filter$: Array<number> = [];
+
+    private attempt_total_duration$: BehaviorSubject<number> = new BehaviorSubject(1);
 
     private changed$: Subject<ChangedSubject> = new Subject();
     private registered_subjects: Array<[number, string, BehaviorSubject<Array<Event>>]> = [];
@@ -219,6 +222,10 @@ export class InstanceDataService implements OnDestroy {
 
     public set attempt_intervals(intervals: Array<[number, number]>) {
         this.attempt_intervals$ = intervals;
+        this.attempt_total_duration$.next(intervals.reduce((acc, [start, end]) => acc + end - start, 1));
+        this.changed$.next(ChangedSubject.AttemptTotalDuration);
+
+        // Update sources and targets
         this.sources$.next([]);
         this.targets$.next([]);
         this.spell_casts$?.next(this.spell_casts$.getValue());
@@ -516,6 +523,10 @@ export class InstanceDataService implements OnDestroy {
 
     public get targets(): Observable<Array<Unit>> {
         return this.targets$.asObservable();
+    }
+
+    public get attempt_total_duration(): Observable<number> {
+        return this.attempt_total_duration$.asObservable();
     }
 
 }

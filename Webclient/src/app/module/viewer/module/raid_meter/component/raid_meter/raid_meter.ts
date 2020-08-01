@@ -23,9 +23,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     @Input() unique_id: string;
 
     private subscription: Subscription;
+    private subscription_changed: Subscription;
+    private subscription_total_duration: Subscription;
+
     private cookie_id: string;
 
-    some_time: number = 60;
+    current_attempt_duration: number = 1;
     bars: Array<RaidMeterRow> = [];
 
     current_selection: number = 1;
@@ -37,10 +40,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         private damageDoneService: DamageDoneService,
         private damageTakenService: DamageTakenService
     ) {
-        this.instanceDataService.changed.subscribe((changed_subject) => {
+        this.subscription_changed = this.instanceDataService.changed.subscribe((changed_subject) => {
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ...this.get_changed_subjects_for_current_selection()].includes(changed_subject))
                 this.selection_changed(this.current_selection);
         });
+        this.subscription_total_duration = this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000);
     }
 
     ngOnInit(): void {
@@ -54,6 +58,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
+        this.subscription_changed?.unsubscribe();
+        this.subscription_total_duration?.unsubscribe();
     }
 
 
@@ -70,11 +76,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get_total_dps(): number {
-        return this.get_total() / this.some_time;
+        return this.get_total() / this.current_attempt_duration;
     }
 
     get_dps(amount: number): number {
-        return amount / this.some_time;
+        return amount / this.current_attempt_duration;
     }
 
     selection_changed(selection: number): void {

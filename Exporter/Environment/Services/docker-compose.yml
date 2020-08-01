@@ -2,6 +2,7 @@ version: '3.6'
 services:
   lpcmmariadb:
     build: lp_cm_mariadb
+    restart: always
     networks:
       lp_cm_net:
         ipv4_address: 172.32.128.2
