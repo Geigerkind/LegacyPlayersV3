@@ -1,6 +1,6 @@
 FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm
+RUN pacman -Sy --noconfirm
 RUN pacman -S --noconfirm git openssl pkgconf docker docker-compose
 
 COPY ./Services ./
