@@ -1,5 +1,5 @@
 export enum ViewerMode {
-    Base = "",
+    Base = "base",
     Ability = "ability",
     Detail = "detail"
 }
