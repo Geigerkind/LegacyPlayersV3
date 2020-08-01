@@ -5,14 +5,12 @@ import {DateService} from "../../../../../../service/date";
 import {Category} from "../../domain_value/category";
 import {Segment} from "../../domain_value/segment";
 import {EventSource} from "../../domain_value/event_source";
+import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
 
 @Component({
     selector: "RaidConfigurationMenu",
     templateUrl: "./raid_configuration_menu.html",
-    styleUrls: ["./raid_configuration_menu.scss"],
-    providers: [
-        RaidConfigurationService
-    ]
+    styleUrls: ["./raid_configuration_menu.scss"]
 })
 export class RaidConfigurationMenuComponent implements OnDestroy {
 
@@ -20,6 +18,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private subscription_segments: Subscription;
     private subscription_sources: Subscription;
     private subscription_targets: Subscription;
+
+    private subscription_source_selection: Subscription;
 
     closed: boolean = true;
 
@@ -40,12 +40,15 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     constructor(
         private raidConfigurationService: RaidConfigurationService,
+        private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         private dateService: DateService
     ) {
         this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories));
         this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments));
         this.subscription_sources = this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources));
         this.subscription_targets = this.raidConfigurationService.targets.subscribe(targets => this.handle_targets(targets));
+        this.subscription_source_selection = this.raidConfigurationSelectionService.source_selection.subscribe(selection =>
+            this.selected_items_sources = this.selected_items_sources.filter(item => selection.includes(item.id)));
     }
 
     ngOnDestroy(): void {
@@ -53,6 +56,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_segments?.unsubscribe();
         this.subscription_sources?.unsubscribe();
         this.subscription_targets?.unsubscribe();
+        this.subscription_source_selection?.unsubscribe();
     }
 
     on_category_selection_updated(): void {
@@ -139,7 +143,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 new_selected_items.push(list_item);
         }
         if (!this.use_default_filter_sources) {
-            console.log("NEW SELECTED ITEMS", this.selected_items_sources);
             for (const selected_item of this.selected_items_sources) {
                 if (new_list_items.find(item => item.id === selected_item.id))
                     new_selected_items.push(selected_item);

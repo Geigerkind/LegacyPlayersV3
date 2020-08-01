@@ -9,6 +9,8 @@ import {ChangedSubject, InstanceDataService} from "../../../../service/instance_
 import {SettingsService} from "src/app/service/settings";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ViewerMode} from "../../../../domain_value/viewer_mode";
+import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
+import {RaidConfigurationSelectionService} from "../../../raid_configuration_menu/service/raid_configuration_selection";
 
 @Component({
     selector: "RaidMeter",
@@ -22,12 +24,15 @@ import {ViewerMode} from "../../../../domain_value/viewer_mode";
 })
 export class RaidMeterComponent implements OnDestroy, OnInit {
 
+    private current_meta: InstanceViewerMeta;
+
     @Input() unique_id: string;
 
     private subscription: Subscription;
     private subscription_changed: Subscription;
     private subscription_total_duration: Subscription;
     private subscription_activated_route: Subscription;
+    private subscription_meta: Subscription;
 
     private cookie_id: string;
 
@@ -41,8 +46,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
     constructor(
         private activatedRouteService: ActivatedRoute,
+        private routerService: Router,
         private settingsService: SettingsService,
         private instanceDataService: InstanceDataService,
+        private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         private damageDoneService: DamageDoneService,
         private damageTakenService: DamageTakenService
     ) {
@@ -58,6 +65,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 this.selection_changed(this.current_selection);
         });
         this.subscription_total_duration = this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000);
+        this.subscription_meta = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
     }
 
     ngOnInit(): void {
@@ -74,6 +82,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription_changed?.unsubscribe();
         this.subscription_total_duration?.unsubscribe();
         this.subscription_activated_route?.unsubscribe();
+        this.subscription_meta?.unsubscribe();
     }
 
 
@@ -135,8 +144,14 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
     get_router_link(bar: RaidMeterRow): string {
         if (this.in_ability_mode)
-            return '../detail/' + this.current_selection.toString() + '/' + bar.subject.id.toString();
-        return '../ability';
+            return 'detail/' + this.current_selection.toString() + '/' + bar.subject.id.toString();
+        return 'ability';
+    }
+
+    bar_clicked(bar: RaidMeterRow): void {
+        if (!this.in_ability_mode)
+            this.raidConfigurationSelectionService.select_sources([bar.subject.id]);
+        this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)]);
     }
 
 }

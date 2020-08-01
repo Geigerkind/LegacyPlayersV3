@@ -4,12 +4,16 @@ import {ActivatedRoute} from "@angular/router";
 import {UnitService} from "../../service/unit";
 import {ViewerMode} from "../../domain_value/viewer_mode";
 import {SpellService} from "../../service/spell";
+import {RaidConfigurationSelectionService} from "../../module/raid_configuration_menu/service/raid_configuration_selection";
+import {RaidConfigurationService} from "../../module/raid_configuration_menu/service/raid_configuration";
 
 @Component({
     selector: "Viewer",
     templateUrl: "./viewer.html",
     styleUrls: ["./viewer.scss"],
     providers: [
+        RaidConfigurationService,
+        RaidConfigurationSelectionService,
         InstanceDataService,
         UnitService,
         SpellService
