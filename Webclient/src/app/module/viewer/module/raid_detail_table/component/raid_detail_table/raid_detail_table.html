@@ -1,7 +1,7 @@
 <div class="container">
     <div class="title_bar">
         <SelectInput [options]="[{ value: 1, label_key: 'Damage done' }]"></SelectInput>
-        <SelectInput [options]="abilities"></SelectInput>
+        <SelectInput [options]="abilities" [(value)]="current_ability_selection"></SelectInput>
     </div>
     <div class="table_container">
         <div class="header">

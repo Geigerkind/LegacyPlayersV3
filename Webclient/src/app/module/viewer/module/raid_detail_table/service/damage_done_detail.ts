@@ -7,7 +7,10 @@ import {Event} from "../../../domain_value/event";
 import {HitType} from "../../../domain_value/hit_type";
 import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
 import {Damage} from "../../../domain_value/damage";
-import {take} from "rxjs/operators";
+import {map, take} from "rxjs/operators";
+import {SpellCast} from "../../../domain_value/spell_cast";
+import {DelayedLabel} from "../../../domain_value/delayed_label";
+import {SpellService} from "../../../service/spell";
 
 @Injectable({
     providedIn: "root",
@@ -27,6 +30,7 @@ export class DamageDoneDetailService implements OnDestroy {
 
     constructor(
         private instanceDataService: InstanceDataService,
+        private spellService: SpellService
     ) {
     }
 
@@ -42,6 +46,18 @@ export class DamageDoneDetailService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
+        this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
+            this.spell_casts = spell_casts;
+            this.commit();
+        });
+        this.instanceDataService.spell_damage.pipe(take(1)).subscribe(spell_damage => {
+            this.spell_damage = spell_damage;
+            this.commit();
+        });
+        this.instanceDataService.melee_damage.pipe(take(1)).subscribe(melee_damage => {
+            this.melee_damage = melee_damage;
+            this.commit();
+        });
 
         this.subscription_changed = this.instanceDataService.changed.subscribe(changed => {
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellCast].includes(changed))
@@ -70,26 +86,38 @@ export class DamageDoneDetailService implements OnDestroy {
             const melee_details = new Map<HitType, DetailRow>();
             for (const event of this.melee_damage) {
                 const damage = (event.event as any).MeleeDamage as Damage;
-                if (melee_details.has(damage.hit_type)) {
-                    const details = melee_details.get(damage.hit_type);
-                    ++details.count;
-                    details.amount += damage.damage;
-                    details.min = Math.min(details.min, damage.damage);
-                    details.max = Math.max(details.max, damage.damage);
-                } else {
-                    melee_details.set(damage.hit_type, {
-                        amount: damage.damage,
-                        amount_percent: 0,
-                        average: 0,
-                        count: 1,
-                        count_percent: 0,
-                        hit_type: damage.hit_type,
-                        max: damage.damage,
-                        min: damage.damage
-                    });
-                }
+                this.fill_details(melee_details, damage);
             }
             ability_details.set(0, melee_details);
+        }
+
+        for (const event of this.spell_damage) {
+            const spell_cast_id = (event.event as any).SpellDamage.spell_cast_id as number;
+            const spell_cast_event = this.spell_casts.find(cast => cast.id === spell_cast_id);
+            if (spell_cast_event === undefined)
+                continue;
+            const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;
+            const damage = (event.event as any).SpellDamage.damage as Damage;
+            if (!ability_details.has(spell_cast.spell_id)) {
+                abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
+                    .pipe(map(spell => spell.localization)))).content);
+                ability_details.set(spell_cast.spell_id, new Map());
+            }
+            const details_map = ability_details.get(spell_cast.spell_id);
+            this.fill_details(details_map, {damage: damage.damage, hit_type: spell_cast.hit_type, mitigation: undefined, school: undefined, victim: undefined});
+        }
+
+        for (const event of this.spell_casts) {
+            const spell_cast = (event.event as any).SpellCast as SpellCast;
+            if ([HitType.Hit, HitType.Crit].includes(spell_cast.hit_type))
+                continue;
+            if (!ability_details.has(spell_cast.spell_id)) {
+                abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
+                    .pipe(map(spell => spell.localization)))).content);
+                ability_details.set(spell_cast.spell_id, new Map());
+            }
+            const details_map = ability_details.get(spell_cast.spell_id);
+            this.fill_details(details_map, {damage: 0, hit_type: spell_cast.hit_type, mitigation: undefined, school: undefined, victim: undefined});
         }
 
         // Post processing
@@ -112,5 +140,26 @@ export class DamageDoneDetailService implements OnDestroy {
             return {value, label_key};
         }));
         this.ability_details$.next(create_array_from_nested_map(ability_details));
+    }
+
+    private fill_details(details_map: Map<HitType, DetailRow>, damage: Damage): void {
+        if (details_map.has(damage.hit_type)) {
+            const details = details_map.get(damage.hit_type);
+            ++details.count;
+            details.amount += damage.damage;
+            details.min = Math.min(details.min, damage.damage);
+            details.max = Math.max(details.max, damage.damage);
+        } else {
+            details_map.set(damage.hit_type, {
+                amount: damage.damage,
+                amount_percent: 0,
+                average: 0,
+                count: 1,
+                count_percent: 0,
+                hit_type: damage.hit_type,
+                max: damage.damage,
+                min: damage.damage
+            });
+        }
     }
 }

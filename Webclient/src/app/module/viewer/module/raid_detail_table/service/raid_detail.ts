@@ -23,6 +23,8 @@ export class RaidDetailService implements OnDestroy {
     ) {}
 
     ngOnDestroy(): void {
+        this.subscription_ability?.unsubscribe();
+        this.subscription_ability_details?.unsubscribe();
     }
 
     get abilities(): Observable<Array<SelectOption>> {
