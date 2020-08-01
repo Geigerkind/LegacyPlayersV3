@@ -1,35 +1,21 @@
-import {Injectable, OnDestroy} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
 import {RaidMeterSubject} from "../domain_value/raid_meter_subject";
 import {UnitService} from "../../../service/unit";
-import {EventType} from "../../../domain_value/event_type";
-import {Observable, of, Subscription} from "rxjs";
-import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
-import {InstanceDataService} from "../../../service/instance_data";
-import {DataService} from "../../../../../service/data";
-import {Localized} from "../../../../../domain_value/localized";
-import {BasicSpell} from "../../../../../domain_value/data/basic_spell";
-import {concatMap, map} from "rxjs/operators";
+import {of} from "rxjs";
+import {map} from "rxjs/operators";
 import {first_matching_primary_school} from "../../../../../stdlib/spell";
+import {SpellService} from "../../../service/spell";
 
 @Injectable({
     providedIn: "root",
 })
-export class UtilService implements OnDestroy {
-
-    private subscription: Subscription;
-    private current_meta: InstanceViewerMeta;
+export class UtilService {
 
     constructor(
-        private instanceDataService: InstanceDataService,
-        private dataService: DataService,
-        private unitService: UnitService
+        private unitService: UnitService,
+        private spellService: SpellService
     ) {
-        this.subscription = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
-    }
-
-    ngOnDestroy(): void {
-        this.subscription?.unsubscribe();
     }
 
     get_row_unit_subject(unit: Unit): RaidMeterSubject {
@@ -51,18 +37,11 @@ export class UtilService implements OnDestroy {
     }
 
     get_row_ability_subject(spell_id: number): RaidMeterSubject {
-        const basic_spell = this.get_localized_basic_spell(spell_id);
+        const basic_spell = this.spellService.get_localized_basic_spell(spell_id);
         const name = basic_spell.pipe(map(spell => spell?.localization));
         const color_class = basic_spell.pipe(map(spell => "spell_school_bg_" + first_matching_primary_school(spell?.base.school)));
         const icon = basic_spell.pipe(map(spell => "/assets/wow_icon/" + spell?.base.icon + ".jpg"));
         return {id: spell_id, name, color_class, icon};
-    }
-
-    private get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell>> {
-        if (!this.current_meta)
-            return of(undefined);
-        return this.dataService.get_server_by_id(this.current_meta.server_id)
-            .pipe(concatMap(server => this.dataService.get_localized_basic_spell(server.expansion_id, spell_id)));
     }
 
 }

@@ -20,7 +20,12 @@
         border-bottom: 1px solid $tdc_accent;
 
         SelectInput {
+            float: left;
             max-width: 300px;
+
+            &:first-child {
+                margin-right: 0.5 * $spacing;
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 <div class="container">
     <div class="title_bar">
-        <SelectInput [options]="[{ value: 1, label_key: 'Heroic Strike' }]"></SelectInput>
+        <SelectInput [options]="[{ value: 1, label_key: 'Damage done' }]"></SelectInput>
+        <SelectInput [options]="abilities"></SelectInput>
     </div>
     <div class="table_container">
         <div class="header">
@@ -14,25 +15,15 @@
             <div class="td">Average</div>
         </div>
         <div class="body">
-            <div class="row">
-                <div class="td">Hit</div>
-                <div class="td">432</div>
-                <div class="td">99.9%</div>
-                <div class="td">3453453</div>
-                <div class="td">54.3%</div>
-                <div class="td">2323</div>
-                <div class="td">43345</div>
-                <div class="td">23000</div>
-            </div>
-            <div class="row">
-                <div class="td">Crit</div>
-                <div class="td">432</div>
-                <div class="td">99.9%</div>
-                <div class="td">3453453</div>
-                <div class="td">54.3%</div>
-                <div class="td">2323</div>
-                <div class="td">43345</div>
-                <div class="td">23000</div>
+            <div class="row" *ngFor="let row of current_ability_details">
+                <div class="td">{{row[1].hit_type}}</div>
+                <div class="td">{{row[1].count}}</div>
+                <div class="td">{{row[1].count_percent.toFixed(1)}}%</div>
+                <div class="td">{{row[1].amount}}</div>
+                <div class="td">{{row[1].amount_percent.toFixed(1)}}%</div>
+                <div class="td">{{row[1].min}}</div>
+                <div class="td">{{row[1].max}}</div>
+                <div class="td">{{row[1].average.toFixed(1)}}</div>
             </div>
         </div>
     </div>

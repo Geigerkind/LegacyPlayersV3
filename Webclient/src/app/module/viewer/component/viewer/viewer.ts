@@ -3,6 +3,7 @@ import {InstanceDataService} from "../../service/instance_data";
 import {ActivatedRoute} from "@angular/router";
 import {UnitService} from "../../service/unit";
 import {ViewerMode} from "../../domain_value/viewer_mode";
+import {SpellService} from "../../service/spell";
 
 @Component({
     selector: "Viewer",
@@ -10,7 +11,8 @@ import {ViewerMode} from "../../domain_value/viewer_mode";
     styleUrls: ["./viewer.scss"],
     providers: [
         InstanceDataService,
-        UnitService
+        UnitService,
+        SpellService
     ]
 })
 export class ViewerComponent {
