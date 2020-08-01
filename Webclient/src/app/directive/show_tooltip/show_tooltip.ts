@@ -1,12 +1,14 @@
 import {Directive, HostListener, Input, OnDestroy} from '@angular/core';
 import {TooltipControllerService} from "../../service/tooltip_controller";
 import {Router} from "@angular/router";
+import {Subscription} from "rxjs";
 
 @Directive({
     selector: '[showTooltip]'
 })
 export class ShowTooltipDirective implements OnDestroy {
 
+    private subscription: Subscription;
     private clicked: boolean = false;
     @Input('showTooltip') tooltipArgs: any;
 
@@ -14,7 +16,7 @@ export class ShowTooltipDirective implements OnDestroy {
         private tooltipControllerService: TooltipControllerService,
         private routerService: Router
     ) {
-        this.routerService.events.subscribe(() => {
+        this.subscription = this.routerService.events.subscribe(() => {
             this.clicked = false;
             this.tooltipControllerService.hideTooltip();
         });
@@ -22,6 +24,7 @@ export class ShowTooltipDirective implements OnDestroy {
 
     ngOnDestroy(): void {
         this.tooltipControllerService.hideTooltip();
+        this.subscription?.unsubscribe();
     }
 
     @HostListener('click', ["$event"])

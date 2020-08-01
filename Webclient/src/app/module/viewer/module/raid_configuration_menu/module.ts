@@ -4,6 +4,7 @@ import {RaidConfigurationMenuComponent} from "./component/raid_configuration_men
 import {CommonModule} from "@angular/common";
 import {MultiSelectModule} from "../../../../template/input/multi_select/module";
 import {GeneralInputModule} from "../../../../template/input/general_input/module";
+import {ClickOutsideDirectiveModule} from "../../../../directive/click_outside/module";
 
 @NgModule({
     declarations: [RaidConfigurationMenuComponent],
@@ -11,7 +12,8 @@ import {GeneralInputModule} from "../../../../template/input/general_input/modul
         CommonModule,
         TranslateModule,
         MultiSelectModule,
-        GeneralInputModule
+        GeneralInputModule,
+        ClickOutsideDirectiveModule
     ],
     exports: [RaidConfigurationMenuComponent]
 })

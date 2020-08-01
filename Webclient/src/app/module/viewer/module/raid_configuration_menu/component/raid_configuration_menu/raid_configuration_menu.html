@@ -1,4 +1,4 @@
-<div class="container" [class.closed]="closed">
+<div class="container" [class.closed]="closed" (clickOutside)="closed = true">
     <button (click)="closed = !closed" class="toggle_button">
         <svg aria-hidden="true" height="32" version="1.1" viewBox="0 0 12 16" width="24">
             <path
