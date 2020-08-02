@@ -4,6 +4,7 @@
 <CharacterTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 1"></CharacterTooltip>
 <ItemTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 2 || tooltipType === 4"></ItemTooltip>
 <GuildTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 3"></GuildTooltip>
+<MeterAbilitiesTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 5"></MeterAbilitiesTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>

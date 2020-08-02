@@ -45,6 +45,9 @@ export class TooltipComponent {
                     this.tooltipPayload = result;
                     this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
                 });
+            } else if (args.type === 5) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
             }
         });
     }

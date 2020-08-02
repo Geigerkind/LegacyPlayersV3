@@ -4,13 +4,14 @@ import {RaidMeterRow} from "../../domain_value/raid_meter_row";
 import {UtilService} from "../../service/util";
 import {DamageTakenService} from "../../service/damage_taken";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
-import {Subscription} from "rxjs";
+import {Observable, of, Subscription} from "rxjs";
 import {ChangedSubject, InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ViewerMode} from "../../../../domain_value/viewer_mode";
 import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
 import {RaidConfigurationSelectionService} from "../../../raid_configuration_menu/service/raid_configuration_selection";
+import {map} from "rxjs/operators";
 
 @Component({
     selector: "RaidMeter",
@@ -152,6 +153,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         if (!this.in_ability_mode)
             this.raidConfigurationSelectionService.select_sources([bar.subject.id]);
         this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)]);
+    }
+
+    get_bar_args(bar: RaidMeterRow): Observable<Array<RaidMeterRow>> {
+        this.damageDoneService.reload_preview();
+        return this.damageDoneService.preview.pipe(map(preview => preview.get(bar.subject.id)));
     }
 
 }

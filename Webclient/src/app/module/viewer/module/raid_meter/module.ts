@@ -4,6 +4,7 @@ import {RaidMeterComponent} from "./component/raid_meter/raid_meter";
 import {CommonModule} from "@angular/common";
 import {SelectInputModule} from "../../../../template/input/select_input/module";
 import {RouterModule} from "@angular/router";
+import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
 
 @NgModule({
     declarations: [RaidMeterComponent],
@@ -11,7 +12,8 @@ import {RouterModule} from "@angular/router";
         CommonModule,
         TranslateModule,
         SelectInputModule,
-        RouterModule
+        RouterModule,
+        ShowTooltipDirectiveModule
     ],
     exports: [RaidMeterComponent]
 })
