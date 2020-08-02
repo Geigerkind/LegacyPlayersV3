@@ -14,5 +14,6 @@ export class LootItemComponent {
     @Input() character_id: number;
     @Input() character_name: Observable<string>;
     @Input() amount: number;
+    @Input() expansion_id: number;
 
 }

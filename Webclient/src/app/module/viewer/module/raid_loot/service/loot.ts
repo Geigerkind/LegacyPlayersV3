@@ -29,7 +29,7 @@ export class LootService implements OnDestroy {
         private unitService: UnitService,
         private dataService: DataService
     ) {
-        this.subscription = this.instanceDataService.meta.pipe(take(1)).subscribe(meta => {
+        this.subscription = this.instanceDataService.meta.subscribe(meta => {
             this.current_meta = meta;
             this.reload();
         });

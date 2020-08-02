@@ -16,7 +16,7 @@
                 <LootItem *ngIf="show_insignificant || (loot.item | async)?.base.quality > 4" [quality]="(loot.item | async)?.base.quality"
                           [icon_path]="(loot.item | async)?.base.icon"
                           [character_id]="loot.receiver_id" [item_id]="(loot.item | async)?.base.id" [amount]="loot.amount"
-                          [character_name]="loot.receiver"></LootItem>
+                          [character_name]="loot.receiver" [expansion_id]="expansion_id | async"></LootItem>
             </ng-container>
         </div>
     </div>

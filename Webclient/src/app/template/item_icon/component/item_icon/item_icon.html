@@ -1,1 +1,1 @@
-<Icon [iconPath]="iconPath" [size]="size" class="item_quality_border_{{ quality }}" [showTooltip]="{ type: 2, item_id: item_id, history_id: history_id }" [border]="false"></Icon>
+<Icon [iconPath]="iconPath" [size]="size" class="item_quality_border_{{ quality }}" [showTooltip]="{ type: !history_id ? 4 : 2, item_id: item_id, history_id: history_id, expansion_id: expansion_id }" [border]="false"></Icon>

@@ -12,5 +12,6 @@ export class ItemIconComponent {
     @Input() item_id: number;
     @Input() history_id: number;
     @Input() iconPath: string;
+    @Input() expansion_id: number;
 
 }
