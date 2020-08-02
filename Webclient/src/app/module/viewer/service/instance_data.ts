@@ -106,7 +106,7 @@ export class InstanceDataService implements OnDestroy {
                     }
                 }, subject);
             }
-        }, 10000);
+        }, 60000);
     }
 
     ngOnDestroy(): void {
@@ -276,7 +276,8 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private apply_target_filter_to_events(subject: Observable<Array<Event>>, target_extraction: (Event) => Unit): Observable<Array<Event>> {
-        return subject.pipe(map(events => events.filter(event => this.target_filter$.find(unit_id => unit_id === get_unit_id(target_extraction(event))) !== undefined)));
+        return subject.pipe(map(events => events.filter(event => get_unit_id(event.subject) === get_unit_id(target_extraction(event)) ||
+            this.target_filter$.find(unit_id => unit_id === get_unit_id(target_extraction(event))) !== undefined)));
     }
 
     public get spell_casts(): Observable<Array<Event>> {
