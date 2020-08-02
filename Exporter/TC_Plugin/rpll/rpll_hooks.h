@@ -131,6 +131,7 @@ class RPLLHooks
 
     static std::map<uint64_t, double> LAST_UNIT_POSITION;
     static float UPDATE_POSITION_LEEWAY;
+    static float UPDATE_POSITION_LEEWAY_NPC;
     static float UPDATE_POSITION_LEEWAY_ARENA;
 
     static std::map<uint64_t, uint64_t> LAST_HEALTH_UPDATE;

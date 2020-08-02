@@ -52,9 +52,6 @@ impl Server {
     fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory) {
         let mut remove_first_non_committed_event = Vec::new();
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
-            if *subject_id == 4047697352340007260 {
-                println!("Current msgs: {:?}", non_committed_event);
-            }
             match self.commit_event(db_main, armory, non_committed_event) {
                 Ok(mut committable_event) => {
                     // For all except Spell we want to only remove the first event
@@ -85,10 +82,7 @@ impl Server {
         }
 
         for subject_id in remove_first_non_committed_event {
-            let result = self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
-            if subject_id == 4047697352340007260 {
-                println!("Popping {:?}", result);
-            }
+            self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
             self.subject_prepend_mode_set.remove(&subject_id);
             if self.non_committed_events.get(&subject_id).expect("subject id should exist").is_empty() {
                 self.non_committed_events.remove(&subject_id);
@@ -180,9 +174,6 @@ impl Server {
                 Ok(Event::new(first_message.message_count, first_message.timestamp, summoner, EventType::Summon { summoned }))
             },
             MessageType::SpellCast(spell_cast) => {
-                if spell_cast.caster.is_player {
-                    println!("{} => {:?}", first_message.timestamp, spell_cast);
-                }
                 let subject = spell_cast.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(
                     first_message.message_count,
@@ -225,9 +216,6 @@ impl Server {
                 let subject = spell_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let victim = spell_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let spell_cast_id = self.find_matching_spell_cast(spell_damage.spell_id.unwrap(), spell_damage.attacker.unit_id, &subject, &victim, first_message.message_count)?;
-                if spell_damage.attacker.is_player {
-                    println!("TEST");
-                }
                 let mut mitigation = Vec::with_capacity(3);
                 if spell_damage.blocked > 0 {
                     mitigation.push(Mitigation::Block(spell_damage.blocked));
@@ -237,9 +225,6 @@ impl Server {
                 }
                 if spell_damage.resisted_or_glanced > 0 {
                     mitigation.push(Mitigation::Resist(spell_damage.resisted_or_glanced));
-                }
-                if spell_damage.attacker.is_player {
-                    println!("{} => {:?}", first_message.timestamp, spell_damage);
                 }
                 Ok(Event::new(
                     first_message.message_count,
@@ -577,15 +562,9 @@ impl Server {
                     }
                     false
                 }) {
-                    if subject_unit_id == 4047697352340007260 {
-                        println!("OK {}", event_index);
-                    }
                     return Ok(committed_events.get(event_index).unwrap().id);
                 }
             }
-        }
-        if subject_unit_id == 4047697352340007260 {
-            println!("Prepend next");
         }
         Err(EventParseFailureAction::PrependNext)
     }

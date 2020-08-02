@@ -9,4 +9,7 @@ export interface DetailRow {
     min: number;
     max: number;
     average: number;
+    glance_or_resist: number;
+    absorb: number;
+    block: number;
 }

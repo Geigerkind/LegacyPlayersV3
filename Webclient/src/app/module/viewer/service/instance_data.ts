@@ -91,6 +91,10 @@ export class InstanceDataService implements OnDestroy {
         private settingsService: SettingsService
     ) {
         this.updater = setInterval(() => {
+            this.load_instance_meta(meta => {
+                this.instance_meta$.next(meta);
+                this.changed$.next(ChangedSubject.InstanceMeta);
+            });
             for (const [event_type, storage_key, subject] of this.registered_subjects) {
                 this.load_instance_data(event_type, (result: Array<Event>) => {
                     if (result.length > 0) {
@@ -102,7 +106,7 @@ export class InstanceDataService implements OnDestroy {
                     }
                 }, subject);
             }
-        }, 60000);
+        }, 10000);
     }
 
     ngOnDestroy(): void {

@@ -14,6 +14,7 @@ uint64_t RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT = 1000;
 
 float RPLLHooks::UPDATE_POSITION_LEEWAY = 15.0f;
 float RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA = 8.0f;
+float RPLLHooks::UPDATE_POSITION_LEEWAY_NPC = 4.0f;
 std::map<uint64_t, double> RPLLHooks::LAST_UNIT_POSITION = {};
 
 std::map<uint64_t, uint64_t> RPLLHooks::LAST_HEALTH_UPDATE = {};
@@ -280,16 +281,10 @@ bool RPLLHooks::HasSignificantPositionChange(Unit *unit, float x, float y, float
     uint64_t unitGuid = unit->GetGUID().GetRawValue();
     auto oldPos = RPLLHooks::LAST_UNIT_POSITION.find(unitGuid);
     double sumPos = std::abs(x) + std::abs(y) + std::abs(z) + std::abs(orientation);
-    if (IsInArena(unit))
-    {
-        if (oldPos == RPLLHooks::LAST_UNIT_POSITION.end() || std::fabs(oldPos->second - sumPos) >= RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA)
-        {
-            RPLLHooks::LAST_UNIT_POSITION[unitGuid] = sumPos;
-            return true;
-        }
-        return false;
-    }
-    if (oldPos == RPLLHooks::LAST_UNIT_POSITION.end() || std::fabs(oldPos->second - sumPos) >= RPLLHooks::UPDATE_POSITION_LEEWAY)
+    float position_leeway = IsInArena(unit) ? RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA :
+        (unit->GetGUID().IsPlayer() ? RPLLHooks::UPDATE_POSITION_LEEWAY : RPLLHooks::UPDATE_POSITION_LEEWAY_NPC);
+
+    if (oldPos == RPLLHooks::LAST_UNIT_POSITION.end() || std::fabs(oldPos->second - sumPos) >= position_leeway)
     {
         RPLLHooks::LAST_UNIT_POSITION[unitGuid] = sumPos;
         return true;

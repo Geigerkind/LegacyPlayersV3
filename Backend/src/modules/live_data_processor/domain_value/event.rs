@@ -6,6 +6,7 @@ pub struct Event {
     pub timestamp: u64,
     pub subject: Unit,
     pub event: EventType,
+    #[serde(skip)]
     pub message_count: u64,
 }
 

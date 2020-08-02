@@ -13,6 +13,9 @@
             <div class="td">Min</div>
             <div class="td">Max</div>
             <div class="td">Average</div>
+            <div class="td">Resist/Glance</div>
+            <div class="td">Block</div>
+            <div class="td">Absorb</div>
         </div>
         <div class="body">
             <div class="row" *ngFor="let row of current_ability_details">
@@ -24,6 +27,9 @@
                 <div class="td">{{row[1].min}}</div>
                 <div class="td">{{row[1].max}}</div>
                 <div class="td">{{row[1].average.toFixed(1)}}</div>
+                <div class="td">{{row[1].glance_or_resist}}</div>
+                <div class="td">{{row[1].block}}</div>
+                <div class="td">{{row[1].absorb}}</div>
             </div>
         </div>
     </div>

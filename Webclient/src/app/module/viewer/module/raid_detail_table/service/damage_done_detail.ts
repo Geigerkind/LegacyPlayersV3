@@ -11,6 +11,7 @@ import {map, take} from "rxjs/operators";
 import {SpellCast} from "../../../domain_value/spell_cast";
 import {DelayedLabel} from "../../../domain_value/delayed_label";
 import {SpellService} from "../../../service/spell";
+import {Mitigation} from "../../../domain_value/mitigation";
 
 @Injectable({
     providedIn: "root",
@@ -100,11 +101,16 @@ export class DamageDoneDetailService implements OnDestroy {
             const damage = (event.event as any).SpellDamage.damage as Damage;
             if (!ability_details.has(spell_cast.spell_id)) {
                 abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
-                    .pipe(map(spell => spell.localization)))).content);
+                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))).content);
                 ability_details.set(spell_cast.spell_id, new Map());
             }
             const details_map = ability_details.get(spell_cast.spell_id);
-            this.fill_details(details_map, {damage: damage.damage, hit_type: spell_cast.hit_type, mitigation: undefined, school: undefined, victim: undefined});
+            this.fill_details(details_map, {
+                damage: damage.damage,
+                hit_type: spell_cast.hit_type,
+                mitigation: damage.mitigation,
+                victim: undefined
+            });
         }
 
         for (const event of this.spell_casts) {
@@ -113,11 +119,16 @@ export class DamageDoneDetailService implements OnDestroy {
                 continue;
             if (!ability_details.has(spell_cast.spell_id)) {
                 abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
-                    .pipe(map(spell => spell.localization)))).content);
+                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))).content);
                 ability_details.set(spell_cast.spell_id, new Map());
             }
             const details_map = ability_details.get(spell_cast.spell_id);
-            this.fill_details(details_map, {damage: 0, hit_type: spell_cast.hit_type, mitigation: undefined, school: undefined, victim: undefined});
+            this.fill_details(details_map, {
+                damage: 0,
+                hit_type: spell_cast.hit_type,
+                mitigation: [],
+                victim: undefined
+            });
         }
 
         // Post processing
@@ -149,6 +160,10 @@ export class DamageDoneDetailService implements OnDestroy {
             details.amount += damage.damage;
             details.min = Math.min(details.min, damage.damage);
             details.max = Math.max(details.max, damage.damage);
+            details.absorb += this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Absorb);
+            details.block += this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Block);
+            details.glance_or_resist += this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Resist)
+                + this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Glance);
         } else {
             details_map.set(damage.hit_type, {
                 amount: damage.damage,
@@ -158,8 +173,20 @@ export class DamageDoneDetailService implements OnDestroy {
                 count_percent: 0,
                 hit_type: damage.hit_type,
                 max: damage.damage,
-                min: damage.damage
+                min: damage.damage,
+                glance_or_resist: this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Resist)
+                    + this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Glance),
+                block: this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Block),
+                absorb: this.extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Absorb)
             });
         }
+    }
+
+    private extract_mitigation_amount(mitigations: Array<Mitigation>, extract_function: (Mitigation) => number | undefined): number {
+        for (const mitigation of mitigations) {
+            if (extract_function(mitigation) !== undefined)
+                return extract_function(mitigation) as number;
+        }
+        return 0;
     }
 }

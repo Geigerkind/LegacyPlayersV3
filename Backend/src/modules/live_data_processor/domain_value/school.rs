@@ -10,6 +10,12 @@ pub enum School {
     Undefined = 255,
 }
 
+impl Default for School {
+    fn default() -> Self {
+        School::Undefined
+    }
+}
+
 impl School {
     pub fn from_u8(number: u8) -> Self {
         match number {

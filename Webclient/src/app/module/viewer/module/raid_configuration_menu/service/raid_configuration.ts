@@ -20,6 +20,7 @@ export class RaidConfigurationService implements OnDestroy {
     private subscription_attempts: Subscription;
     private subscription_sources: Subscription;
     private subscription_targets: Subscription;
+    private subscription_meta: Subscription;
 
     private current_meta: InstanceViewerMeta;
 
@@ -36,7 +37,13 @@ export class RaidConfigurationService implements OnDestroy {
         private instanceDataService: InstanceDataService,
         private unitService: UnitService
     ) {
-        this.instanceDataService.meta.pipe(take(1)).subscribe(meta => this.current_meta = meta);
+        this.subscription_meta = this.instanceDataService.meta.subscribe(meta => {
+            this.current_meta = meta;
+            this.instanceDataService.attempts.pipe(take(1)).subscribe(attempts => {
+                this.update_categories(attempts);
+                this.update_segments(attempts);
+            });
+        });
         this.subscription_attempts = this.instanceDataService.attempts.subscribe(attempts => {
             this.update_categories(attempts);
             this.update_segments(attempts);
@@ -49,6 +56,7 @@ export class RaidConfigurationService implements OnDestroy {
         this.subscription_attempts?.unsubscribe();
         this.subscription_sources?.unsubscribe();
         this.subscription_targets?.unsubscribe();
+        this.subscription_meta?.unsubscribe();
     }
 
     get categories(): Observable<Array<Category>> {

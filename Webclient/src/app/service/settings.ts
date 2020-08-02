@@ -73,6 +73,7 @@ export class SettingsService {
         "instance_data_service_spell_casts",
         "instance_data_service_attempts",
         "instance_data_service_participants",
+        "instance_data_service_instance_meta",
     ];
 
     private observers: any = {};

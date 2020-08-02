@@ -48,7 +48,7 @@ fn spell_is_direct_interrupt(spell_id: u32) -> bool {
 
 // Used Spells: "Gouge", "Death Coil", "Kidney Shot", "Cheap Shot", "Scatter Shot", "Improved Concussive Shot", "Wyvern Sting",
 // "Intimidation", "Charge Stun",  "Intercept Stun", "Concussive Blow", "Feral Charge", "Feral Charge Effect",
-// "Bash", "Pounce", "Impact", "Repentance", "Hammer of Justice",  "Pyroclasm", "Blackout", "Tidal Charm", "Reckless Charge"
+// "Bash", "Pounce", "Impact", "Repentance", "Hammer of Justice",  "Pyroclasm", "Blackout", "Tidal Charm", "Reckless Charge", "Arcane Torrent"
 fn spell_is_indirect_interrupt(spell_id: u32) -> bool {
     lazy_static! {
         static ref INDIRECT_INTERRUPTS: BTreeSet<u32> = [
@@ -58,7 +58,7 @@ fn spell_is_indirect_interrupt(spell_id: u32) -> bool {
             27223, 27615, 28412, 28445, 28456, 29425, 29511, 30153, 30195, 30197, 30500, 30621, 30741, 30832, 30986, 31819, 31843, 32416, 32709, 32779, 32864, 33130, 34243, 34437, 34940, 35954, 36732, 36862, 37369, 37506, 38065, 38764, 38863, 39077,
             39435, 39449, 39661, 41070, 41186, 41389, 41468, 43356, 43612, 44142, 44415, 45334, 46025, 46283, 46681, 47541, 47632, 47633, 47859, 47860, 49009, 49010, 49011, 49012, 49377, 49616, 49803, 49892, 49893, 49894, 49895, 50668, 50733, 52375,
             52376, 53769, 54272, 55077, 55209, 55210, 55320, 56362, 57094, 58861, 59134, 60949, 61184, 62900, 62901, 62902, 62903, 62904, 63243, 63244, 63245, 64343, 64399, 65820, 65877, 65878, 65929, 66007, 66008, 66019, 66613, 66863, 66940, 66941,
-            67929, 67930, 67931, 68139, 68140, 68141, 70495, 71490, 72335
+            67929, 67930, 67931, 68139, 68140, 68141, 70495, 71490, 72335, 28730
         ]
         .iter()
         .cloned()
