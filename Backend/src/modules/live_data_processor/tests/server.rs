@@ -19,6 +19,7 @@ fn parse_spell_damage() {
     let caster_instance_id = 42;
     let mut messages = Vec::new();
     messages.push(Message {
+        message_count: 0,
         api_version: 0,
         message_length: 0,
         timestamp: 0,
@@ -35,6 +36,7 @@ fn parse_spell_damage() {
     });
 
     messages.push(Message {
+        message_count: 1,
         api_version: 0,
         message_length: 0,
         timestamp: 0,
@@ -62,6 +64,7 @@ fn parse_spell_damage() {
 
     let mut messages = Vec::new();
     messages.push(Message {
+        message_count: 2,
         api_version: 0,
         message_length: 0,
         timestamp: 5,
@@ -82,6 +85,7 @@ fn parse_spell_damage() {
 
     let mut messages = Vec::new();
     messages.push(Message {
+        message_count: 3,
         api_version: 0,
         message_length: 0,
         timestamp: 75,

@@ -142,6 +142,8 @@ class RPLLHooks
     static uint64_t ARENA_UPDATE_TIMEOUT;
     static uint64_t BATTLEGROUND_UPDATE_TIMEOUT;
 
+    static uint64_t MESSAGE_COUNT;
+
     // ZMQ Messaging
     static void *zmqContext;
     static void *zmqSocket;

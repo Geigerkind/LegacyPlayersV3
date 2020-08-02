@@ -2,5 +2,5 @@
 pub struct BasicItem {
     pub id: u32,
     pub icon: String,
-    pub quality: u8
+    pub quality: u8,
 }

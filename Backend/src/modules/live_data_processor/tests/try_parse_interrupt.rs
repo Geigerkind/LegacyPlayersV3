@@ -30,7 +30,7 @@ fn test_timestamp() {
         spell_id: 0,
     };
     let event_type = EventType::SpellCast(spell_cast);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 0, entry: 0, owner: None });
 
@@ -53,7 +53,7 @@ fn test_spellcast_no_spell_id() {
         spell_id: 0,
     };
     let event_type = EventType::SpellCast(spell_cast);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 0, entry: 0, owner: None });
 
@@ -77,7 +77,7 @@ fn test_spellcast_different_victim_no_direct_interrupt() {
         spell_id: 73,
     };
     let event_type = EventType::SpellCast(spell_cast);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -101,7 +101,7 @@ fn test_spellcast_hit_victim_no_direct_interrupt() {
         spell_id: 73,
     };
     let event_type = EventType::SpellCast(spell_cast);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -125,7 +125,7 @@ fn test_spellcast_different_victim_direct_interrupt() {
         spell_id: 72,
     };
     let event_type = EventType::SpellCast(spell_cast);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -149,7 +149,7 @@ fn test_spellcast_hit_victim_direct_interrupt() {
         spell_id: 72,
     };
     let event_type = EventType::SpellCast(spell_cast);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -173,7 +173,7 @@ fn test_aura_app_wrong_subject_no_indirect_interrupt() {
         spell_id: 407,
     };
     let event_type = EventType::AuraApplication(aura_application);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -197,7 +197,7 @@ fn test_aura_app_correct_subject_no_indirect_interrupt() {
         spell_id: 407,
     };
     let event_type = EventType::AuraApplication(aura_application);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -221,7 +221,7 @@ fn test_aura_app_wrong_subject_indirect_interrupt() {
         spell_id: 408,
     };
     let event_type = EventType::AuraApplication(aura_application);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -245,7 +245,7 @@ fn test_aura_app_correct_subject_indirect_interrupt() {
         spell_id: 408,
     };
     let event_type = EventType::AuraApplication(aura_application);
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
@@ -263,7 +263,7 @@ fn test_unhandled_event() {
         interrupted_spell_id: 1,
     };
     let event_type = EventType::ThreatWipe;
-    let committed_event = Event::new(123456, event_subject, event_type);
+    let committed_event = Event::new(0, 123456, event_subject, event_type);
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 

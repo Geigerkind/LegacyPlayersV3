@@ -122,9 +122,10 @@ void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, Unit *unit)
 /*
  * Message Meta Data
  */
+uint64_t RPLLHooks::MESSAGE_COUNT = 0;
 uint8_t RPLLHooks::GetMessageMetaDataSize()
 {
-    return 3 * sizeof(uint8_t) + GetCurrentTimeSize();
+    return 3 * sizeof(uint8_t) + GetCurrentTimeSize() + 8;
 }
 void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, uint8_t msgType, uint8_t msgLength)
 {
@@ -132,6 +133,7 @@ void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, uint8_t msgType, uint8_t 
     msg << msgType;
     msg << msgLength;
     msg << GetCurrentTime();
+    msg << RPLLHooks::MESSAGE_COUNT++;
 }
 
 /*

@@ -6,10 +6,17 @@ pub struct Event {
     pub timestamp: u64,
     pub subject: Unit,
     pub event: EventType,
+    pub message_count: u64,
 }
 
 impl Event {
-    pub fn new(timestamp: u64, subject: Unit, event: EventType) -> Self {
-        Event { id: 0, timestamp, subject, event }
+    pub fn new(message_count: u64, timestamp: u64, subject: Unit, event: EventType) -> Self {
+        Event {
+            id: 0,
+            timestamp,
+            subject,
+            event,
+            message_count,
+        }
     }
 }

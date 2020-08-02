@@ -2,5 +2,5 @@
 pub struct BasicSpell {
     pub id: u32,
     pub icon: String,
-    pub school: u16
+    pub school: u16,
 }

@@ -52,6 +52,9 @@ impl Server {
     fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory) {
         let mut remove_first_non_committed_event = Vec::new();
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
+            if *subject_id == 4047697352340007260 {
+                println!("Current msgs: {:?}", non_committed_event);
+            }
             match self.commit_event(db_main, armory, non_committed_event) {
                 Ok(mut committable_event) => {
                     // For all except Spell we want to only remove the first event
@@ -82,7 +85,10 @@ impl Server {
         }
 
         for subject_id in remove_first_non_committed_event {
-            self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
+            let result = self.non_committed_events.get_mut(&subject_id).expect("subject id should exist").pop_front();
+            if subject_id == 4047697352340007260 {
+                println!("Popping {:?}", result);
+            }
             self.subject_prepend_mode_set.remove(&subject_id);
             if self.non_committed_events.get(&subject_id).expect("subject id should exist").is_empty() {
                 self.non_committed_events.remove(&subject_id);
@@ -94,7 +100,7 @@ impl Server {
         for subject_id in self
             .non_committed_events
             .iter()
-            .filter(|(_subject_id, event)| event.front().expect("Should be initialized with at least one element").timestamp + 500 < current_timestamp)
+            .filter(|(_subject_id, event)| event.front().expect("Should be initialized with at least one element").timestamp + 5000 < current_timestamp)
             .map(|(subject_id, _event)| *subject_id)
             .collect::<Vec<u64>>()
         {
@@ -109,16 +115,19 @@ impl Server {
         match &first_message.message_type {
             // Events that are just of size 1
             MessageType::CombatState(CombatState { unit: unit_dto, in_combat }) => Ok(Event::new(
+                first_message.message_count,
                 first_message.timestamp,
                 unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::CombatState { in_combat: *in_combat },
             )),
             MessageType::Loot(Loot { unit: unit_dto, item_id, count }) => Ok(Event::new(
+                first_message.message_count,
                 first_message.timestamp,
                 unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Loot { item_id: *item_id, amount: *count },
             )),
             MessageType::Position(position) => Ok(Event::new(
+                first_message.message_count,
                 first_message.timestamp,
                 position.unit.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Position(Position {
@@ -129,6 +138,7 @@ impl Server {
                 }),
             )),
             MessageType::Power(power) => Ok(Event::new(
+                first_message.message_count,
                 first_message.timestamp,
                 power.unit.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Power(Power {
@@ -138,6 +148,7 @@ impl Server {
                 }),
             )),
             MessageType::AuraApplication(aura_application) => Ok(Event::new(
+                first_message.message_count,
                 first_message.timestamp,
                 aura_application.target.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::AuraApplication(AuraApplication {
@@ -147,6 +158,7 @@ impl Server {
                 }),
             )),
             MessageType::Death(Death { cause, victim }) => Ok(Event::new(
+                first_message.message_count,
                 first_message.timestamp,
                 victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Death {
@@ -157,7 +169,7 @@ impl Server {
                 if event_dto.event_type == 0 {
                     if let Ok(creature @ domain_value::Unit::Creature(_)) = event_dto.unit.to_unit(db_main, armory, self.server_id, &self.summons) {
                         // TODO: Is the creature really the unit that we want to return here?
-                        return Ok(Event::new(first_message.timestamp, creature, EventType::ThreatWipe));
+                        return Ok(Event::new(first_message.message_count, first_message.timestamp, creature, EventType::ThreatWipe));
                     }
                 }
                 Err(EventParseFailureAction::DiscardFirst)
@@ -165,11 +177,15 @@ impl Server {
             MessageType::Summon(summon) => {
                 let summoner = summon.owner.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let summoned = summon.unit.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                Ok(Event::new(first_message.timestamp, summoner, EventType::Summon { summoned }))
+                Ok(Event::new(first_message.message_count, first_message.timestamp, summoner, EventType::Summon { summoned }))
             },
             MessageType::SpellCast(spell_cast) => {
+                if spell_cast.caster.is_player {
+                    println!("{} => {:?}", first_message.timestamp, spell_cast);
+                }
                 let subject = spell_cast.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(
+                    first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::SpellCast(domain_value::SpellCast {
@@ -193,6 +209,7 @@ impl Server {
                     mitigation.push(Mitigation::Glance(melee_damage.resisted_or_glanced));
                 }
                 Ok(Event::new(
+                    first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::MeleeDamage(domain_value::Damage {
@@ -206,8 +223,11 @@ impl Server {
             },
             MessageType::SpellDamage(spell_damage) => {
                 let subject = spell_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let spell_cast_id = self.find_matching_spell_cast(spell_damage.spell_id.unwrap(), spell_damage.attacker.unit_id, &subject)?;
                 let victim = spell_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let spell_cast_id = self.find_matching_spell_cast(spell_damage.spell_id.unwrap(), spell_damage.attacker.unit_id, &subject, &victim, first_message.message_count)?;
+                if spell_damage.attacker.is_player {
+                    println!("TEST");
+                }
                 let mut mitigation = Vec::with_capacity(3);
                 if spell_damage.blocked > 0 {
                     mitigation.push(Mitigation::Block(spell_damage.blocked));
@@ -218,7 +238,11 @@ impl Server {
                 if spell_damage.resisted_or_glanced > 0 {
                     mitigation.push(Mitigation::Resist(spell_damage.resisted_or_glanced));
                 }
+                if spell_damage.attacker.is_player {
+                    println!("{} => {:?}", first_message.timestamp, spell_damage);
+                }
                 Ok(Event::new(
+                    first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::SpellDamage {
@@ -236,9 +260,10 @@ impl Server {
             },
             MessageType::Heal(heal_done) => {
                 let subject = heal_done.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let spell_cast_id = self.find_matching_spell_cast(heal_done.spell_id, heal_done.caster.unit_id, &subject)?;
                 let target = heal_done.target.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let spell_cast_id = self.find_matching_spell_cast(heal_done.spell_id, heal_done.caster.unit_id, &subject, &target, first_message.message_count)?;
                 Ok(Event::new(
+                    first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::Heal {
@@ -259,6 +284,7 @@ impl Server {
                 let threatened = threat.threatened.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let cause_event_id = self.find_matching_threat_cause(threat.spell_id, threat.threater.unit_id, &subject, &threatened)?;
                 Ok(Event::new(
+                    first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::Threat {
@@ -274,7 +300,7 @@ impl Server {
                     if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                         let subject = interrupt.target.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_interrupt(&interrupt, committed_events, first_message.timestamp, &subject) {
-                            Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
+                            Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
                             Err(err) => Err(err),
                         };
                     }
@@ -288,7 +314,7 @@ impl Server {
                     if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                         let subject = dispel.un_aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_dispel(db_main, &dispel, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
-                            Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
+                            Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
                             Err(err) => Err(err),
                         };
                     }
@@ -302,7 +328,7 @@ impl Server {
                     if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                         let subject = spell_steal.aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_spell_steal(db_main, &spell_steal, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
-                            Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
+                            Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
                             Err(err) => Err(err),
                         };
                     }
@@ -542,18 +568,24 @@ impl Server {
             .fold(u64::MAX, |acc, (_, active_instance)| acc.min(active_instance.reset_time))
     }
 
-    fn find_matching_spell_cast(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit) -> Result<u32, EventParseFailureAction> {
+    fn find_matching_spell_cast(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit, victim: &Unit, message_count: u64) -> Result<u32, EventParseFailureAction> {
         if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
             if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                 if let Some(event_index) = committed_events.iter().rposition(|event| {
                     if let EventType::SpellCast(spell_cast) = &event.event {
-                        return spell_cast.spell_id == spell_id && event.subject == *subject;
+                        return message_count < event.message_count && spell_cast.spell_id == spell_id && event.subject == *subject && (spell_cast.victim.is_none() || spell_cast.victim.contains(subject) || spell_cast.victim.contains(victim));
                     }
                     false
                 }) {
+                    if subject_unit_id == 4047697352340007260 {
+                        println!("OK {}", event_index);
+                    }
                     return Ok(committed_events.get(event_index).unwrap().id);
                 }
             }
+        }
+        if subject_unit_id == 4047697352340007260 {
+            println!("Prepend next");
         }
         Err(EventParseFailureAction::PrependNext)
     }
