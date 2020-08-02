@@ -109,11 +109,11 @@ impl Server {
         match &first_message.message_type {
             // Events that are just of size 1
             MessageType::CombatState(CombatState { unit: unit_dto, in_combat }) => Ok(Event::new(
-                first_message.message_count,
-                first_message.timestamp,
-                unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
-                EventType::CombatState { in_combat: *in_combat },
-            )),
+                    first_message.message_count,
+                    first_message.timestamp,
+                    unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
+                    EventType::CombatState { in_combat: *in_combat },
+                )),
             MessageType::Loot(Loot { unit: unit_dto, item_id, count }) => Ok(Event::new(
                 first_message.message_count,
                 first_message.timestamp,

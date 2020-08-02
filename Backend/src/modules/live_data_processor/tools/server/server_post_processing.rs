@@ -62,7 +62,6 @@ impl Server {
 
                                 match event.event {
                                     EventType::CombatState { in_combat } => {
-                                        println!("{:?}", event);
                                         // TODO: Logic non standard single bosses, i.e. group or vehicle bosses
                                         if in_combat {
                                             // We missed the going into combat event (Restart of Backend?)
