@@ -298,7 +298,7 @@ impl Server {
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
                 // If we dont find any committable events for this interrupt, we need to discard
-                if let Some(unit_instance_id) = self.unit_instance_id.get(&spell_steal.aura_caster.unit_id) {
+                if let Some(unit_instance_id) = self.unit_instance_id.get(&spell_steal.un_aura_caster.unit_id) {
                     if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                         let subject = spell_steal.aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_spell_steal(db_main, &spell_steal, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
