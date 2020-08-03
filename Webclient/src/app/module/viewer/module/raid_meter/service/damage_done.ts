@@ -1,19 +1,31 @@
-import {Injectable} from "@angular/core";
-import {InstanceDataService} from "../../../service/instance_data";
-import {RaidMeterRow} from "../domain_value/raid_meter_row";
-import {BehaviorSubject, Observable} from "rxjs";
-import {map, take} from "rxjs/operators";
+import {Injectable, OnDestroy} from "@angular/core";
+import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
+import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
 import {get_unit_id} from "../../../domain_value/unit";
 import {UtilService} from "./util";
-import {Damage} from "../../../domain_value/damage";
 import {SpellCast} from "../../../domain_value/spell_cast";
 import {group_by} from "../../../../../stdlib/group_by";
+import {RaidMeterSubject} from "../domain_value/raid_meter_subject";
 
 @Injectable({
     providedIn: "root",
 })
-export class DamageDoneService {
+export class DamageDoneService implements OnDestroy {
+
+    private subscription_changed: Subscription;
+
+    private data$: BehaviorSubject<Array<[number, Array<[number, number]>]>> = new BehaviorSubject([]);
+    private abilities$: Map<number, RaidMeterSubject>;
+    private units$: Map<number, RaidMeterSubject>;
+
+    private newData: Map<number, Map<number, number>>;
+    private initialized: boolean = false;
+
+    private spell_casts: Array<Event> = [];
+    private spell_damage: Array<Event> = [];
+    private melee_damage: Array<Event> = [];
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -21,129 +33,103 @@ export class DamageDoneService {
     ) {
     }
 
-    get rows(): Observable<Array<RaidMeterRow>> {
-        return this.rows$.asObservable()
-            .pipe(map(rows => rows.sort((left, right) => right.amount - left.amount)));
+    ngOnDestroy(): void {
+        this.subscription_changed?.unsubscribe();
     }
 
-    get preview(): Observable<Map<number, Array<RaidMeterRow>>> {
-        return this.preview$.asObservable();
-    }
-
-    private rows$: BehaviorSubject<Array<RaidMeterRow>> = new BehaviorSubject([]);
-    private preview$: BehaviorSubject<Map<number, Array<RaidMeterRow>>> = new BehaviorSubject(new Map());
-    private newRows: Map<number, RaidMeterRow>;
-    private newPreview: Map<number, Map<number, RaidMeterRow>>;
-
-    reload(in_ability_mode: boolean): void {
-        this.newRows = new Map();
-        this.load_events(in_ability_mode, (result_map) => {
-            this.newRows = this.merge_maps(result_map, this.newRows);
-            this.rows$.next(new Array<RaidMeterRow>(...this.newRows.values()));
-        }, false);
-    }
-
-    reload_preview(): void {
-        this.newPreview = new Map();
-        this.load_events(true, (result_map, subject_id) => {
-            if (this.newPreview.has(subject_id)) {
-                this.newPreview.set(subject_id, this.merge_maps(result_map, this.newPreview.get(subject_id)));
-            } else {
-                this.newPreview.set(subject_id, result_map);
-            }
-
-            const result = new Map<number, Array<RaidMeterRow>>();
-            for (const [key, inner_map] of this.newPreview.entries())
-                result.set(Number(key), [...inner_map.values()]);
-            this.preview$.next(result);
-        }, true);
-    }
-
-    private load_events(in_ability_mode: boolean, commit: (map, subject_id) => void, preview: boolean): void {
-        this.instanceDataService.melee_damage
-            .pipe(take(1))
-            .subscribe(damage => {
-                if (preview) {
-                    const grouping = group_by(damage, (event) => get_unit_id(event.subject));
-                    for (const subject_id in grouping) {
-                        const new_rows = new Map();
-                        grouping[subject_id].forEach(event => this.feed_melee_damage(new_rows, event, in_ability_mode));
-                        commit(new_rows, subject_id);
-                    }
-                } else {
-                    const new_rows = new Map();
-                    damage.forEach(event => this.feed_melee_damage(new_rows, event, in_ability_mode));
-                    commit(new_rows, undefined);
-                }
-            });
-        this.instanceDataService.spell_casts
-            .pipe(take(1))
-            .subscribe(spell_casts => {
-                this.instanceDataService.spell_damage
-                    .pipe(take(1))
-                    .subscribe(damage => {
-                        if (preview) {
-                            const grouping = group_by(damage, (event) => get_unit_id(event.subject));
-                            for (const subject_id in grouping) {
-                                const new_rows = new Map();
-                                grouping[subject_id].forEach(event => this.feed_spell_damage(new_rows, spell_casts, event, in_ability_mode));
-                                commit(new_rows, subject_id);
-                            }
-                        } else {
-                            const new_rows = new Map();
-                            damage.forEach(event => this.feed_spell_damage(new_rows, spell_casts, event, in_ability_mode));
-                            commit(new_rows, undefined);
-                        }
-                    });
-            });
-    }
-
-    private merge_maps(map1: Map<number, RaidMeterRow>, map2: Map<number, RaidMeterRow>): Map<number, RaidMeterRow> {
-        const result = map2;
-        for (const [subject_id, row] of map1.entries()) {
-            if (result.has(subject_id)) {
-                const inner = result.get(subject_id);
-                inner.amount += row.amount;
-            } else {
-                result.set(subject_id, row);
-            }
+    get_data(abilities: Map<number, RaidMeterSubject>, units: Map<number, RaidMeterSubject>): Observable<Array<[number, Array<[number, number]>]>> {
+        if (!this.initialized) {
+            this.abilities$ = abilities;
+            this.units$ = units;
+            this.initialize();
         }
-        return result;
+        return this.data$.asObservable();
     }
 
-    private feed_melee_damage(new_rows: Map<number, RaidMeterRow>, event: Event, in_ability_mode: boolean): void {
-        const damage = (event.event as any).MeleeDamage as Damage;
-        const row_id = in_ability_mode ? 0 : get_unit_id(event.subject);
+    private initialize(): void {
+        this.initialized = true;
+        this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
+            this.spell_casts = spell_casts;
+            this.commit();
+        });
+        this.instanceDataService.spell_damage.pipe(take(1)).subscribe(spell_damage => {
+            this.spell_damage = spell_damage;
+            this.commit();
+        });
+        this.instanceDataService.melee_damage.pipe(take(1)).subscribe(melee_damage => {
+            this.melee_damage = melee_damage;
+            this.commit();
+        });
 
-        if (new_rows.has(row_id)) {
-            const row = new_rows.get(row_id);
-            row.amount += damage.damage;
-        } else {
-            new_rows.set(row_id, {
-                subject: in_ability_mode ? this.utilService.get_row_ability_subject_auto_attack() : this.utilService.get_row_unit_subject(event.subject),
-                amount: damage.damage
-            });
+        this.subscription_changed = this.instanceDataService.changed.subscribe(changed => {
+            if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellCast].includes(changed))
+                this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
+                    this.spell_casts = spell_casts;
+                    this.commit();
+                });
+            if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellDamage].includes(changed))
+                this.instanceDataService.spell_damage.pipe(take(1)).subscribe(spell_damage => {
+                    this.spell_damage = spell_damage;
+                    this.commit();
+                });
+            if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.MeleeDamage].includes(changed))
+                this.instanceDataService.melee_damage.pipe(take(1)).subscribe(melee_damage => {
+                    this.melee_damage = melee_damage;
+                    this.commit();
+                });
+        });
+    }
+
+    private commit(): void {
+        this.newData = new Map();
+
+        // Melee Damage
+        let grouping = group_by(this.melee_damage, (event) => get_unit_id(event.subject));
+        // @ts-ignore
+        // tslint:disable-next-line:forin
+        for (const unit_id: number in grouping) {
+            const subject_id = Number(unit_id);
+
+            if (!this.abilities$.has(0))
+                this.abilities$.set(0, this.utilService.get_row_ability_subject_auto_attack());
+            if (!this.units$.has(subject_id))
+                this.units$.set(subject_id, this.utilService.get_row_unit_subject(grouping[unit_id][0].subject));
+
+            const total_damage = grouping[unit_id].reduce((acc, event) => acc + (event.event as any).MeleeDamage.damage, 0);
+            if (!this.newData.has(subject_id))
+                this.newData.set(subject_id, new Map([[0, total_damage]]));
+            else this.newData.get(subject_id).set(0, total_damage);
         }
+
+        // Spell Damage
+        grouping = group_by(this.spell_damage, (event) => get_unit_id(event.subject));
+        // tslint:disable-next-line:forin
+        for (const unit_id in grouping) {
+            const subject_id = Number(unit_id);
+            if (!this.units$.has(subject_id))
+                this.units$.set(subject_id, this.utilService.get_row_unit_subject(grouping[unit_id][0].subject));
+            if (!this.newData.has(subject_id))
+                this.newData.set(subject_id, new Map());
+
+            grouping[subject_id].forEach(event => this.feed_spell_damage(this.newData.get(subject_id), event));
+        }
+
+        this.data$.next([...this.newData.entries()]
+            .map(([unit_id, abilities]) => [unit_id, [...abilities.entries()]]));
     }
 
-    private feed_spell_damage(new_rows: Map<number, RaidMeterRow>, spell_casts: Array<Event>, event: Event, in_ability_mode: boolean): void {
-        const damage = (event.event as any).SpellDamage.damage as Damage;
+    private feed_spell_damage(abilities_data: Map<number, number>, event: Event): void {
         const spell_cast_id = ((event.event as any).SpellDamage).spell_cast_id as number;
-        const spell_cast_event = spell_casts.find(cast => cast.id === spell_cast_id);
+        const spell_cast_event = this.spell_casts.find(cast => cast.id === spell_cast_id);
         if (spell_cast_event === undefined)
             return;
+        const damage = (event.event as any).SpellDamage.damage.damage;
         const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;
-        const row_id = in_ability_mode ? spell_cast.spell_id : get_unit_id(event.subject);
+        if (!this.abilities$.has(spell_cast.spell_id))
+            this.abilities$.set(spell_cast.spell_id, this.utilService.get_row_ability_subject(spell_cast.spell_id));
 
-        if (new_rows.has(row_id)) {
-            const row = new_rows.get(row_id);
-            row.amount += damage.damage;
-        } else {
-            new_rows.set(row_id, {
-                subject: in_ability_mode ? this.utilService.get_row_ability_subject(spell_cast.spell_id) : this.utilService.get_row_unit_subject(event.subject),
-                amount: damage.damage
-            });
-        }
+        if (abilities_data.has(spell_cast.spell_id)) abilities_data.set(spell_cast.spell_id, abilities_data.get(spell_cast.spell_id) + damage);
+        else abilities_data.set(spell_cast.spell_id, damage);
     }
 
 }

@@ -1,6 +1,5 @@
 import {Component, OnDestroy} from "@angular/core";
 import {RaidDetailService} from "../../service/raid_detail";
-import {DamageDoneDetailService} from "../../service/damage_done_detail";
 import {Subscription} from "rxjs";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {HitType} from "../../../../domain_value/hit_type";
@@ -11,10 +10,6 @@ import {ActivatedRoute} from "@angular/router";
     selector: "RaidDetailTable",
     templateUrl: "./raid_detail_table.html",
     styleUrls: ["./raid_detail_table.scss"],
-    providers: [
-        DamageDoneDetailService,
-        RaidDetailService
-    ]
 })
 export class RaidDetailTableComponent implements OnDestroy {
 

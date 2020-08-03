@@ -1,5 +1,5 @@
 import {Component, Input} from "@angular/core";
-import {RaidMeterRow} from "../../../../../viewer/module/raid_meter/domain_value/raid_meter_row";
+import {Observable} from "rxjs";
 
 @Component({
     selector: "MeterAbilitiesTooltip",
@@ -8,6 +8,6 @@ import {RaidMeterRow} from "../../../../../viewer/module/raid_meter/domain_value
 })
 export class MeterAbilitiesTooltipComponent {
 
-    @Input() payload: Array<RaidMeterRow>;
+    @Input() payload: Array<[Observable<string>, number]>;
 
 }
