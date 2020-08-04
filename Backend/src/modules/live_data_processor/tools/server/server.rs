@@ -69,7 +69,6 @@ impl Server {
                             self.committed_events_count.insert(*unit_instance_id, 2);
                         }
                     }
-                    // Else discard I guess
                 },
                 Err(EventParseFailureAction::DiscardFirst) => {
                     remove_first_non_committed_event.push(*subject_id);

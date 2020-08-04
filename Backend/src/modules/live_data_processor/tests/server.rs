@@ -15,7 +15,8 @@ fn parse_spell_damage() {
     let armory = Armory::default();
     let data = Data::default();
 
-    let caster_unit_id = 0xF140000000000000 + 42;
+    let caster_unit_id = 0xF140000000000000 + 40;
+    let target_unit_id = 0xF140000000000000 + 43;
     let caster_instance_id = 42;
     let mut messages = Vec::new();
     messages.push(Message {
@@ -24,7 +25,7 @@ fn parse_spell_damage() {
         message_length: 0,
         timestamp: 0,
         message_type: MessageType::Position(Position {
-            map_id: 42,
+            map_id: 249,
             instance_id: caster_instance_id,
             map_difficulty: 0,
             unit: Unit { is_player: false, unit_id: caster_unit_id },
@@ -40,12 +41,26 @@ fn parse_spell_damage() {
         api_version: 0,
         message_length: 0,
         timestamp: 0,
+        message_type: MessageType::Position(Position {
+            map_id: 249,
+            instance_id: caster_instance_id,
+            map_difficulty: 0,
+            unit: Unit { is_player: false, unit_id: target_unit_id },
+            x: 0,
+            y: 0,
+            z: 0,
+            orientation: 0,
+        }),
+    });
+
+    messages.push(Message {
+        message_count: 2,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 0,
         message_type: MessageType::SpellDamage(DamageDone {
             attacker: Unit { is_player: false, unit_id: caster_unit_id },
-            victim: Unit {
-                is_player: false,
-                unit_id: 0xF140000000000000 + 43,
-            },
+            victim: Unit { is_player: false, unit_id: target_unit_id },
             spell_id: Some(26),
             hit_type: None,
             blocked: 1,
@@ -60,20 +75,17 @@ fn parse_spell_damage() {
     let parse_result1 = server.parse_events(&mut conn, &armory, &data, messages);
     assert!(parse_result1.is_ok());
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 1);
-    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 1);
+    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 2);
 
     let mut messages = Vec::new();
     messages.push(Message {
-        message_count: 2,
+        message_count: 3,
         api_version: 0,
         message_length: 0,
         timestamp: 5,
         message_type: MessageType::SpellCast(SpellCast {
             caster: Unit { is_player: false, unit_id: caster_unit_id },
-            target: Some(Unit {
-                is_player: false,
-                unit_id: 0xF140000000000000 + 43,
-            }),
+            target: Some(Unit { is_player: false, unit_id: target_unit_id }),
             spell_id: 26,
             hit_type: 7,
         }),
@@ -85,15 +97,12 @@ fn parse_spell_damage() {
 
     let mut messages = Vec::new();
     messages.push(Message {
-        message_count: 3,
+        message_count: 4,
         api_version: 0,
         message_length: 0,
         timestamp: 75,
         message_type: MessageType::SpellCast(SpellCast {
-            caster: Unit {
-                is_player: false,
-                unit_id: 0xF140000000000000 + 43,
-            },
+            caster: Unit { is_player: false, unit_id: target_unit_id },
             target: Some(Unit {
                 is_player: false,
                 unit_id: 0xF140000000000000 + 22,
@@ -105,6 +114,26 @@ fn parse_spell_damage() {
 
     let parse_result3 = server.parse_events(&mut conn, &armory, &data, messages);
     assert!(parse_result3.is_ok());
+
+    let mut messages = Vec::new();
+    messages.push(Message {
+        message_count: 5,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 75,
+        message_type: MessageType::SpellCast(SpellCast {
+            caster: Unit { is_player: false, unit_id: target_unit_id },
+            target: Some(Unit {
+                is_player: false,
+                unit_id: 0xF140000000000000 + 22,
+            }),
+            spell_id: 22,
+            hit_type: 1,
+        }),
+    });
+
+    let parse_result4 = server.parse_events(&mut conn, &armory, &data, messages);
+    assert!(parse_result4.is_ok());
     assert!(!server.non_committed_events.contains_key(&caster_unit_id));
-    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 2);
+    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 5);
 }

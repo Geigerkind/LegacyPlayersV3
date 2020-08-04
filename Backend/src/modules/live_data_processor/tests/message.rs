@@ -9,6 +9,7 @@ fn parse_message_positive() {
         1,  // Message Type
         48, // Message length
         5, 0, 0, 0, 0, 0, 0, 0, // Timestamp
+        2, 0, 0, 0, 0, 0, 0, 0, // Message count
         // Payload: Damage done
         1, 234, 0, 0, 0, 0, 0, 0, 0, // Attacker
         1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
@@ -29,10 +30,8 @@ fn parse_message_positive() {
     assert_eq!(message.api_version, 0);
     assert_eq!(message.message_length, 48);
     assert_eq!(message.timestamp, 5);
-    assert!(match message.message_type {
-        MessageType::SpellDamage(_) => true,
-        _ => false,
-    });
+    assert_eq!(message.message_count, 2);
+    matches!(message.message_type, MessageType::SpellDamage(_));
 }
 
 #[test]

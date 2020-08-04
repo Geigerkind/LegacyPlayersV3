@@ -22,10 +22,7 @@ fn test_map_message_type_positive() {
     // Assert
     assert!(message_type.is_ok());
     let message_type = message_type.unwrap();
-    assert!(match message_type {
-        MessageType::SpellDamage(_) => true,
-        _ => false,
-    });
+    matches!(message_type, MessageType::SpellDamage(_));
 }
 
 #[test]
