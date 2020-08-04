@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {RaidMeterSubject} from "../domain_value/raid_meter_subject";
+import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DamageDoneService} from "./damage_done";
 import {HitType} from "../../../domain_value/hit_type";
 import {DetailRow} from "../../raid_detail_table/domain_value/detail_row";

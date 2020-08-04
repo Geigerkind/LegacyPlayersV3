@@ -50,7 +50,8 @@ export class SettingsService {
         "instance_data_service_attempts",
         "viewer_raid_graph_datasets",
         "data_service_basic_items",
-        "data_service_basic_spells"
+        "data_service_basic_spells",
+        "pve_ranking"
     ];
 
     private ignoreSettings: Array<string> = [

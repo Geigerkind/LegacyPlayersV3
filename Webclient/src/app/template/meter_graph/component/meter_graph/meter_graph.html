@@ -1,6 +1,6 @@
 <div class="bar_container">
     <div *ngFor="let bar of bars; index as i" class="bar" (click)="bar_clicked.emit(bar)">
-        <div class="actual_value" style="width: calc(240px + max(0px, calc({{get_weighted_bar_fraction(bar[1])*100}}% - {{get_weighted_bar_fraction(bar[1])}} * 240px - {{get_weighted_bar_fraction(bar[1])}} * 25px - 65px)))"
+        <div class="actual_value" style="width: {{get_width_style(bar[1])}}"
              [showTooltip]="bar_tooltips.get(bar[0])">
             <div class="bar_labels">
                 <div class="gray_bg_bar"></div>
@@ -16,7 +16,7 @@
             <div class="bar_bg_color {{get_bar_subject(bar[0]).color_class | async}}"></div>
         </div>
         <div class="icon" style="background-image: url({{get_bar_subject(bar[0]).icon | async}})"></div>
-        <div class="label_right">
+        <div class="label_right" *ngIf="show_percent">
             <span>{{(get_fraction(bar[1])*100).toFixed(1)}}%</span>
         </div>
     </div>

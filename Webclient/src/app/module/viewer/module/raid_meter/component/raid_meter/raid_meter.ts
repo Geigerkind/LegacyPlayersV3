@@ -9,7 +9,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ViewerMode} from "../../../../domain_value/viewer_mode";
 import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
 import {RaidConfigurationSelectionService} from "../../../raid_configuration_menu/service/raid_configuration_selection";
-import {RaidMeterSubject} from "../../domain_value/raid_meter_subject";
+import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {RaidMeterService} from "../../service/raid_meter";
 import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail";
 import {HitType} from "../../../../domain_value/hit_type";

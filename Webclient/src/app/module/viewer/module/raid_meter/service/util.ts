@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
-import {RaidMeterSubject} from "../domain_value/raid_meter_subject";
+import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {UnitService} from "../../../service/unit";
 import {of} from "rxjs";
 import {map} from "rxjs/operators";

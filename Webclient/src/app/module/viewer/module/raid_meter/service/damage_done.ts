@@ -7,7 +7,7 @@ import {get_unit_id} from "../../../domain_value/unit";
 import {UtilService} from "./util";
 import {SpellCast} from "../../../domain_value/spell_cast";
 import {group_by} from "../../../../../stdlib/group_by";
-import {RaidMeterSubject} from "../domain_value/raid_meter_subject";
+import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 
 @Injectable({
     providedIn: "root",

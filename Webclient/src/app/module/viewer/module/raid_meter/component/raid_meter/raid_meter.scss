@@ -8,8 +8,11 @@
 
 .container {
     width: 100%;
-    border: 1px solid $tdc_accent;
     border-radius: 3px 3px 3px 3px;
+
+    MeterGraph::ng-deep.bar_container {
+        border-radius: 0 0 0 0;
+    }
 
     .title_bar {
         $titleBarSize: 50px - $spacing;
@@ -17,9 +20,10 @@
         flex-direction: row;
         height: $titleBarSize;
         width: calc(100% - #{$spacing});
-        border-bottom: 1px solid $tdc_accent;
         background: $tdc_darker;
         padding: 0.5 * $spacing 0.5 * $spacing;
+        border: 1px solid $tdc_accent;
+        border-bottom: none;
 
         SelectInput {
             width: calc(100% - 200px);

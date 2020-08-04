@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
-import {RaidMeterSubject} from "../../../../module/viewer/module/raid_meter/domain_value/raid_meter_subject";
+import {RaidMeterSubject} from "../../domain_value/raid_meter_subject";
 import {of} from "rxjs";
 
 @Component({
@@ -13,6 +13,7 @@ export class MeterGraphComponent {
     @Input() bars: Array<[number, number]> = [];
     @Input() per_second_duration: number = 1;
     @Input() show_per_second: boolean = true;
+    @Input() show_percent: boolean = true;
 
     @Output() bar_clicked: EventEmitter<[number, number]> = new EventEmitter();
 
@@ -41,5 +42,12 @@ export class MeterGraphComponent {
             color_class: of("hero_class_bg_1"),
             icon: of("/assets/wow_icon/inv_misc_questionmark.jpg")
         };
+    }
+
+    get_width_style(amount: number): string {
+        const bar_fraction = this.get_weighted_bar_fraction(amount);
+        if (!this.show_percent)
+            return "calc(240px + max(0px, calc(" + (bar_fraction * 100).toString() + "% - " + bar_fraction.toString() + " * 240px - " + bar_fraction + " * 25px)))";
+        return "calc(240px + max(0px, calc(" + (bar_fraction * 100).toString() + "% - " + bar_fraction.toString() + " * 240px - " + bar_fraction + " * 25px - 65px)))";
     }
 }

@@ -8,6 +8,9 @@
 
 .bar_container {
     width: 100%;
+    background: $tdc_darker;
+    border: 1px solid $tdc_accent;
+    border-radius: 3px 3px 3px 3px;
 
     .bar {
         $barSize: 25px;
@@ -72,6 +75,10 @@
                     span:last-child:before {
                         content: "-";
                         margin: 0 0.5 * $spacing;
+                    }
+
+                    span:first-child:before {
+                        content: ""
                     }
                 }
 
