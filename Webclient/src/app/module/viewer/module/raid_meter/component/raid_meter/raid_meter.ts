@@ -14,6 +14,7 @@ import {RaidMeterService} from "../../service/raid_meter";
 import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail";
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../../raid_detail_table/domain_value/detail_row";
+import {DelayedLabel} from "../../../../domain_value/delayed_label";
 
 @Component({
     selector: "RaidMeter",
@@ -44,6 +45,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     private abilities: Map<number, RaidMeterSubject> = new Map();
     private units: Map<number, RaidMeterSubject> = new Map();
+    private bar_tooltips: Map<number, any> = new Map();
 
 
     in_ability_mode: boolean = false;
@@ -98,25 +100,18 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription_ability_details?.unsubscribe();
     }
 
-
-    get_weighted_bar_fraction(amount: number): number {
-        return amount / this.bars.reduce((acc, bar) => bar[1] > acc ? bar[1] : acc, 0);
+    get bar_subjects(): Map<number, RaidMeterSubject> {
+        if (this.in_ability_mode)
+            return this.abilities;
+        return this.units;
     }
 
-    get_total(): number {
+    get total(): number {
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);
     }
 
-    get_fraction(amount: number): number {
-        return amount / this.get_total();
-    }
-
-    get_total_dps(): number {
-        return this.get_total() / this.current_attempt_duration;
-    }
-
-    get_dps(amount: number): number {
-        return amount / this.current_attempt_duration;
+    get total_ps(): number {
+        return this.total / this.current_attempt_duration;
     }
 
     selection_changed(selection: number): void {
@@ -127,30 +122,31 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             this.settingsService.set(this.cookie_id, selection);
     }
 
-    get_router_link(bar: [number, number]): string {
-        if (this.in_ability_mode)
-            return 'detail/' + this.current_selection.toString() + '/' + bar[0].toString();
-        return 'ability';
-    }
-
     bar_clicked(bar: [number, number]): void {
         if (!this.in_ability_mode)
             this.raidConfigurationSelectionService.select_sources([bar[0]]);
         this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)]);
     }
 
-    get_bar_tooltip_payload(bar: [number, number]): Array<[Observable<string>, number]> | Array<[HitType, DetailRow]> {
+    private get_bar_tooltip(subject_id: number): any {
         if (!this.in_ability_mode)
-            return this.ability_rows(this.current_data.filter(([unit_id, abilities]) => unit_id === bar[0]))
-                .sort((left, right) => right[1] - left[1])
-                .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount]);
-        return this.ability_details?.find(([i_ability_id, i_details]) => i_ability_id === bar[0])[1];
+            return {
+                type: 5,
+                payload: this.ability_rows(this.current_data.filter(([unit_id, abilities]) => unit_id === subject_id))
+                    .sort((left, right) => right[1] - left[1])
+                    .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
+            };
+        return {
+            type: 6,
+            payload: this.ability_details?.find(([i_ability_id, i_details]) => i_ability_id === subject_id)[1],
+            icon: new DelayedLabel(this.abilities.get(subject_id).icon)
+        };
     }
 
-    get_bar_subject(subject_id: number): RaidMeterSubject {
+    private get_router_link(bar: [number, number]): string {
         if (this.in_ability_mode)
-            return this.abilities.get(subject_id);
-        return this.units.get(subject_id);
+            return 'detail/' + this.current_selection.toString() + '/' + bar[0].toString();
+        return 'ability';
     }
 
     private ability_rows(data: Array<[number, Array<[number, number]>]>): Array<[number, number]> {
@@ -165,11 +161,17 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     private update_bars(rows: Array<[number, Array<[number, number]>]>): void {
+        // Bars
         this.current_data = rows;
         let result;
         if (this.in_ability_mode) result = this.ability_rows(rows);
         else result = rows.map(([unit_id, abilities]) =>
             [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)]);
+
+        // Bar tooltips
+        for (const [subject_id, amount] of result)
+            this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
+
         this.bars = result.sort((left, right) => right[1] - left[1]);
     }
 

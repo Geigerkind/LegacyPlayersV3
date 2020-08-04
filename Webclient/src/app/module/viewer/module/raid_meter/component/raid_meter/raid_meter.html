@@ -1,29 +1,13 @@
 <div class="container">
     <div class="title_bar">
         <SelectInput [(value)]="current_selection" (valueChange)="selection_changed($event)" [options]="options"></SelectInput>
-        <div class="total_and_dps">{{get_total()}} ({{get_total_dps().toFixed(1)}}/s)</div>
+        <div class="total_and_dps">{{total}} ({{total_ps.toFixed(1)}}/s)</div>
     </div>
-    <div class="bar_container">
-        <div *ngFor="let bar of bars; index as i" class="bar" (click)="bar_clicked(bar)">
-            <div class="actual_value" style="width: calc(240px + max(0px, calc({{get_weighted_bar_fraction(bar[1])*100}}% - {{get_weighted_bar_fraction(bar[1])}} * 240px - {{get_weighted_bar_fraction(bar[1])}} * 25px - 65px)))"
-                [showTooltip]="{ type: in_ability_mode ? 6 : 5, payload: get_bar_tooltip_payload(bar), icon: in_ability_mode ? (get_bar_subject(bar[0]).icon | async) : null }">
-                <div class="bar_labels">
-                    <div class="gray_bg_bar"></div>
-                    <div class="bar_label_left">
-                        <span>{{i+1}}.</span>
-                        <span>{{get_bar_subject(bar[0]).name | async}}</span>
-                    </div>
-                    <div class="bar_label_right">
-                        <span>{{bar[1]}}</span>
-                        <span>{{get_dps(bar[1]).toFixed(1)}}/s</span>
-                    </div>
-                </div>
-                <div class="bar_bg_color {{get_bar_subject(bar[0]).color_class | async}}"></div>
-            </div>
-            <div class="icon" style="background-image: url({{get_bar_subject(bar[0]).icon | async}})"></div>
-            <div class="label_right">
-                <span>{{(get_fraction(bar[1])*100).toFixed(1)}}%</span>
-            </div>
-        </div>
-    </div>
+    <MeterGraph
+        [bars]="bars"
+        [per_second_duration]="current_attempt_duration"
+        [bar_subjects]="bar_subjects"
+        [bar_tooltips]="bar_tooltips"
+        (bar_clicked)="bar_clicked($event)">
+    </MeterGraph>
 </div>

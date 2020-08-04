@@ -1,0 +1,23 @@
+<div class="bar_container">
+    <div *ngFor="let bar of bars; index as i" class="bar" (click)="bar_clicked.emit(bar)">
+        <div class="actual_value" style="width: calc(240px + max(0px, calc({{get_weighted_bar_fraction(bar[1])*100}}% - {{get_weighted_bar_fraction(bar[1])}} * 240px - {{get_weighted_bar_fraction(bar[1])}} * 25px - 65px)))"
+             [showTooltip]="bar_tooltips.get(bar[0])">
+            <div class="bar_labels">
+                <div class="gray_bg_bar"></div>
+                <div class="bar_label_left">
+                    <span>{{i+1}}.</span>
+                    <span>{{get_bar_subject(bar[0]).name | async}}</span>
+                </div>
+                <div class="bar_label_right">
+                    <span>{{bar[1]}}</span>
+                    <span *ngIf="show_per_second">{{get_dps(bar[1]).toFixed(1)}}/s</span>
+                </div>
+            </div>
+            <div class="bar_bg_color {{get_bar_subject(bar[0]).color_class | async}}"></div>
+        </div>
+        <div class="icon" style="background-image: url({{get_bar_subject(bar[0]).icon | async}})"></div>
+        <div class="label_right">
+            <span>{{(get_fraction(bar[1])*100).toFixed(1)}}%</span>
+        </div>
+    </div>
+</div>
