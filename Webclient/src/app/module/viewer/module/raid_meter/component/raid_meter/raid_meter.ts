@@ -12,6 +12,8 @@ import {RaidConfigurationSelectionService} from "../../../raid_configuration_men
 import {RaidMeterSubject} from "../../domain_value/raid_meter_subject";
 import {RaidMeterService} from "../../service/raid_meter";
 import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail";
+import {HitType} from "../../../../domain_value/hit_type";
+import {DetailRow} from "../../../raid_detail_table/domain_value/detail_row";
 
 @Component({
     selector: "RaidMeter",
@@ -35,11 +37,14 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private subscription_meta: Subscription;
     private subscription_abilities: Subscription;
     private subscription_units: Subscription;
+    private subscription_ability_details: Subscription;
 
     private cookie_id: string;
     private current_data: Array<[number, Array<[number, number]>]> = [];
+    private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     private abilities: Map<number, RaidMeterSubject> = new Map();
     private units: Map<number, RaidMeterSubject> = new Map();
+
 
     in_ability_mode: boolean = false;
 
@@ -62,6 +67,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             const new_mode = params.get("mode") === ViewerMode.Ability;
             if (this.in_ability_mode !== new_mode) {
                 this.in_ability_mode = new_mode;
+                this.update_bars(this.current_data);
                 this.selection_changed(this.current_selection);
             }
         });
@@ -69,14 +75,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription_meta = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
         this.subscription_abilities = this.raidMeterService.abilities.subscribe(abilities => this.abilities = abilities);
         this.subscription_units = this.raidMeterService.units.subscribe(units => this.units = units);
-        this.subscription = this.raidMeterService.data.subscribe(rows => {
-            this.current_data = rows;
-            let result;
-            if (this.in_ability_mode) result = this.ability_rows(rows);
-            else result = rows.map(([unit_id, abilities]) =>
-                [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)]);
-            this.bars = result.sort((left, right) => right[1] - left[1]);
-        });
+        this.subscription = this.raidMeterService.data.subscribe(rows => this.update_bars(rows));
+        this.subscription_ability_details = this.raidDetailService.ability_details.subscribe(details => this.ability_details = details);
     }
 
     ngOnInit(): void {
@@ -95,6 +95,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription_meta?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_units?.unsubscribe();
+        this.subscription_ability_details?.unsubscribe();
     }
 
 
@@ -120,20 +121,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
     selection_changed(selection: number): void {
         this.raidMeterService.select(selection);
+        this.raidDetailService.select(selection);
 
         if (!!this.unique_id)
             this.settingsService.set(this.cookie_id, selection);
-    }
-
-    private ability_rows(data: Array<[number, Array<[number, number]>]>): Array<[number, number]> {
-        return data.reduce((acc, [unit_id, abilities]) => {
-            const ability_amount = new Map();
-            for (const [ability_id, amount] of abilities) {
-                if (ability_amount.has(ability_id)) ability_amount.set(ability_id, ability_amount.get(ability_id) + amount);
-                else ability_amount.set(ability_id, amount);
-            }
-            return [...ability_amount.entries()];
-        }, []);
     }
 
     get_router_link(bar: [number, number]): string {
@@ -148,18 +139,38 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)]);
     }
 
-    get_bar_tooltip_payload(bar: [number, number]): Array<[Observable<string>, number]> {
+    get_bar_tooltip_payload(bar: [number, number]): Array<[Observable<string>, number]> | Array<[HitType, DetailRow]> {
         if (!this.in_ability_mode)
             return this.ability_rows(this.current_data.filter(([unit_id, abilities]) => unit_id === bar[0]))
                 .sort((left, right) => right[1] - left[1])
                 .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount]);
-        return []; // TODO
+        return this.ability_details?.find(([i_ability_id, i_details]) => i_ability_id === bar[0])[1];
     }
 
     get_bar_subject(subject_id: number): RaidMeterSubject {
         if (this.in_ability_mode)
             return this.abilities.get(subject_id);
         return this.units.get(subject_id);
+    }
+
+    private ability_rows(data: Array<[number, Array<[number, number]>]>): Array<[number, number]> {
+        return data.reduce((acc, [unit_id, abilities]) => {
+            const ability_amount = new Map();
+            for (const [ability_id, amount] of abilities) {
+                if (ability_amount.has(ability_id)) ability_amount.set(ability_id, ability_amount.get(ability_id) + amount);
+                else ability_amount.set(ability_id, amount);
+            }
+            return [...ability_amount.entries()];
+        }, []);
+    }
+
+    private update_bars(rows: Array<[number, Array<[number, number]>]>): void {
+        this.current_data = rows;
+        let result;
+        if (this.in_ability_mode) result = this.ability_rows(rows);
+        else result = rows.map(([unit_id, abilities]) =>
+            [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)]);
+        this.bars = result.sort((left, right) => right[1] - left[1]);
     }
 
 }

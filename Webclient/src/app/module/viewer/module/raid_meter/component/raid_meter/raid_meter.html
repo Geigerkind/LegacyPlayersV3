@@ -6,7 +6,7 @@
     <div class="bar_container">
         <div *ngFor="let bar of bars; index as i" class="bar" (click)="bar_clicked(bar)">
             <div class="actual_value" style="width: calc(240px + max(0px, calc({{get_weighted_bar_fraction(bar[1])*100}}% - {{get_weighted_bar_fraction(bar[1])}} * 240px - {{get_weighted_bar_fraction(bar[1])}} * 25px - 65px)))"
-                [showTooltip]="{ type: 5, payload: get_bar_tooltip_payload(bar) }">
+                [showTooltip]="{ type: in_ability_mode ? 6 : 5, payload: get_bar_tooltip_payload(bar), icon: in_ability_mode ? (get_bar_subject(bar[0]).icon | async) : null }">
                 <div class="bar_labels">
                     <div class="gray_bg_bar"></div>
                     <div class="bar_label_left">
