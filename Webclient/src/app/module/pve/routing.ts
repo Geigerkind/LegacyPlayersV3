@@ -6,6 +6,7 @@ const routes: Routes = [
     {
         path: "", component: PveComponent, children: [
             {path: "", loadChildren: () => import("./module/search/module").then(m => m.SearchModule)},
+            {path: "ranking", loadChildren: () => import("./module/ranking/module").then(m => m.RankingModule)},
         ]
     }
 ];

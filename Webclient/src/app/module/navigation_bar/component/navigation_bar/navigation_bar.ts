@@ -17,9 +17,9 @@ export class NavigationBarComponent implements OnInit {
 
     itemsPvE = [
         ["/pve/", "NavigationBar.pve.title"],
+        ["/pve/ranking/", "NavigationBar.pve.ranking"],
         /*
         ["/raids/bosses/", "NavigationBar.raids.bosses"],
-        ["/raids/ranking/", "NavigationBar.raids.ranking"],
         ["/raids/speed_kill/", "NavigationBar.raids.speed_kill"],
         ["/raids/speed_run/", "NavigationBar.raids.speed_run"],
         ["/raids/loot/", "NavigationBar.raids.loot"],
