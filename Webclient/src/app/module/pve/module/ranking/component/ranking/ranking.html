@@ -1,5 +1,9 @@
 <div class="title_bar">
-    <SelectInput [(value)]="current_selection" (valueChange)="selection_changed($event)" [options]="options"></SelectInput>
+    <SelectInput [(value)]="modes_current_selection" (valueChange)="modes_selection_changed($event)" [options]="modes"></SelectInput>
+    <SelectInput [options]="selections"></SelectInput>
+    <MultiSelect [dropdownList]="bosses"></MultiSelect>
+    <MultiSelect [dropdownList]="classes" [allowSearchFilter]="false"></MultiSelect>
+    <MultiSelect [dropdownList]="servers" [allowSearchFilter]="false"></MultiSelect>
 </div>
 <MeterGraph [bars]="bars" [bar_subjects]="bar_subjects" [bar_tooltips]="bar_tooltips" [show_per_second]="false"
             [show_percent]="false"

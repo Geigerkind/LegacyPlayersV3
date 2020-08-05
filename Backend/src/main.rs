@@ -154,6 +154,7 @@ fn main() {
                 data::transfer::spell_effect::get_spell_effects,
                 data::transfer::npc::get_npc,
                 data::transfer::npc::get_npc_localized,
+                data::transfer::npc::get_boss_npcs,
                 data::transfer::icon::get_icon,
                 data::transfer::item::get_item,
                 data::transfer::item::get_localized_basic_item,

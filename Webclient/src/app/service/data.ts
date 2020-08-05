@@ -27,10 +27,12 @@ export class DataService {
     private static readonly URL_DATA_DIFFICULTY_LOCALIZED: string = '/data/difficulty/localized';
     private static readonly URL_DATA_MAP_LOCALIZED: string = '/data/map/localized';
     private static readonly URL_DATA_NPC_LOCALIZED: string = '/data/npc/localized/:expansion_id/:npc_id';
+    private static readonly URL_DATA_BOSS_NPCS: string = '/data/npc/localized/bosses';
     private static readonly URL_DATA_BASIC_ITEM_LOCALIZED: string = '/data/item/localized/basic_item/:expansion_id/:item_id';
     private static readonly URL_DATA_BASIC_SPELL_LOCALIZED: string = '/data/spell/localized/basic_spell/:expansion_id/:spell_id';
 
     private maps$: BehaviorSubject<Array<Localized<InstanceMap>>>;
+    private bosses$: BehaviorSubject<Array<Localized<NPC>>>;
     private servers$: BehaviorSubject<Array<AvailableServer>>;
     private races$: BehaviorSubject<Array<Localized<Race>>>;
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
@@ -49,31 +51,37 @@ export class DataService {
     get servers(): Observable<Array<AvailableServer>> {
         this.servers$ = this.settingsService.init_or_load_behavior_subject("data_service_servers", 1, this.servers$, [],
             (callback) => this.apiService.get(DataService.URL_DATA_SERVER, callback));
-        return this.servers$.asObservable();
+        return this.servers$.asObservable().pipe(map(result => result.sort((left, right) => left.id - right.id)));
     }
 
     get races(): Observable<Array<Localized<Race>>> {
         this.races$ = this.settingsService.init_or_load_behavior_subject("data_service_races", 7, this.races$, [],
             (callback) => this.apiService.get(DataService.URL_DATA_RACE_LOCALIZED, callback));
-        return this.races$.asObservable();
+        return this.races$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
     }
 
     get hero_classes(): Observable<Array<Localized<HeroClass>>> {
         this.hero_classes$ = this.settingsService.init_or_load_behavior_subject("data_service_hero_classes", 7, this.hero_classes$, [],
             (callback) => this.apiService.get(DataService.URL_DATA_HERO_CLASS_LOCALIZED, callback));
-        return this.hero_classes$.asObservable();
+        return this.hero_classes$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
     }
 
     get difficulties(): Observable<Array<Localized<Difficulty>>> {
         this.difficulties$ = this.settingsService.init_or_load_behavior_subject("data_service_difficulties", 7, this.difficulties$, [],
             (callback) => this.apiService.get(DataService.URL_DATA_DIFFICULTY_LOCALIZED, callback));
-        return this.difficulties$.asObservable();
+        return this.difficulties$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
     }
 
     get maps(): Observable<Array<Localized<InstanceMap>>> {
         this.maps$ = this.settingsService.init_or_load_behavior_subject("data_service_maps", 7, this.maps$, [],
             (callback) => this.apiService.get(DataService.URL_DATA_MAP_LOCALIZED, callback));
-        return this.maps$.asObservable();
+        return this.maps$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
+    }
+
+    get boss_npcs(): Observable<Array<Localized<NPC>>> {
+        this.bosses$ = this.settingsService.init_or_load_behavior_subject("data_service_bosses", 7, this.bosses$, [],
+            (callback) => this.apiService.get(DataService.URL_DATA_BOSS_NPCS, callback));
+        return this.bosses$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
