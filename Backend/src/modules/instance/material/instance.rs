@@ -2,16 +2,21 @@ use crate::material::Cachable;
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
-use crate::modules::instance::dto::InstanceViewerAttempt;
+use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult};
 use crate::modules::live_data_processor::Event;
 use crate::util::database::Select;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
+use crate::params;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
     pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>,
     pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
+    // npc_id => character_id => Vec<Ranking>
+    pub instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
+    pub instance_rankings_hps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
+    pub instance_rankings_tps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
 }
 
 impl Default for Instance {
@@ -20,6 +25,9 @@ impl Default for Instance {
             instance_metas: Arc::new(RwLock::new(HashMap::new())),
             instance_exports: Arc::new(RwLock::new(HashMap::new())),
             instance_attempts: Arc::new(RwLock::new(HashMap::new())),
+            instance_rankings_dps: Arc::new(RwLock::new((0, HashMap::new()))),
+            instance_rankings_hps: Arc::new(RwLock::new((0, HashMap::new()))),
+            instance_rankings_tps: Arc::new(RwLock::new((0, HashMap::new()))),
         }
     }
 }
@@ -27,20 +35,114 @@ impl Default for Instance {
 impl Instance {
     pub fn init(self, mut db_main: (impl Select + Send + 'static), armory: &Armory) -> Self {
         update_instance_metas(Arc::clone(&self.instance_metas), &mut db_main, &armory);
+        update_instance_rankings_dps(Arc::clone(&self.instance_rankings_dps), &mut db_main);
+        update_instance_rankings_hps(Arc::clone(&self.instance_rankings_hps), &mut db_main);
+        update_instance_rankings_tps(Arc::clone(&self.instance_rankings_tps), &mut db_main);
+
         let instance_metas_arc_clone = Arc::clone(&self.instance_metas);
         let instance_exports_arc_clone = Arc::clone(&self.instance_exports);
         let instance_attempts_arc_clone = Arc::clone(&self.instance_attempts);
+        let instance_rankings_dps_arc_clone = Arc::clone(&self.instance_rankings_dps);
+        let instance_rankings_hps_arc_clone = Arc::clone(&self.instance_rankings_hps);
+        let instance_rankings_tps_arc_clone = Arc::clone(&self.instance_rankings_tps);
         std::thread::spawn(move || {
             let armory = Armory::default();
             loop {
                 evict_attempts_cache(Arc::clone(&instance_attempts_arc_clone));
                 evict_export_cache(Arc::clone(&instance_exports_arc_clone));
                 update_instance_metas(Arc::clone(&instance_metas_arc_clone), &mut db_main, &armory);
+                update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main);
+                update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main);
+                update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
                 std::thread::sleep(std::time::Duration::from_secs(30));
             }
         });
         self
     }
+}
+
+fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
+    let mut rankings_dps = instance_rankings_dps.write().unwrap();
+    db_main.select_wparams("SELECT A.id, A.character_id, A.npc_id, A.attempt_id, A.damage, (B.end_ts - B.start_ts) as duration FROM instance_ranking_damage A \
+        JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id", |mut row| {
+        let id: u32 = row.take(0).unwrap();
+        let character_id: u32 = row.take(1).unwrap();
+        let npc_id: u32 = row.take(2).unwrap();
+        (id, character_id, npc_id, RankingResult {
+            attempt_id: row.take(3).unwrap(),
+            amount: row.take(4).unwrap(),
+            duration: row.take(5).unwrap()
+        })
+    }, params!("last_queried_id" => rankings_dps.0))
+        .into_iter()
+        .for_each(|(id, character_id, npc_id, ranking)| {
+            rankings_dps.0 = id;
+            if !rankings_dps.1.contains_key(&npc_id) {
+                rankings_dps.1.insert(npc_id, HashMap::new());
+            }
+            let characters_rankings = rankings_dps.1.get_mut(&npc_id).unwrap();
+            if !characters_rankings.contains_key(&character_id) {
+                characters_rankings.insert(character_id, Vec::with_capacity(1));
+            }
+            let rankings = characters_rankings.get_mut(&character_id).unwrap();
+            rankings.push(ranking);
+        });
+}
+
+fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
+    let mut rankings_hps = instance_rankings_hps.write().unwrap();
+    db_main.select_wparams("SELECT A.id, A.character_id, A.npc_id, A.attempt_id, A.heal, (B.end_ts - B.start_ts) as duration FROM instance_ranking_heal A \
+        JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id", |mut row| {
+        let id: u32 = row.take(0).unwrap();
+        let character_id: u32 = row.take(1).unwrap();
+        let npc_id: u32 = row.take(2).unwrap();
+        (id, character_id, npc_id, RankingResult {
+            attempt_id: row.take(3).unwrap(),
+            amount: row.take(4).unwrap(),
+            duration: row.take(5).unwrap()
+        })
+    }, params!("last_queried_id" => rankings_hps.0))
+        .into_iter()
+        .for_each(|(id, character_id, npc_id, ranking)| {
+            rankings_hps.0 = id;
+            if !rankings_hps.1.contains_key(&npc_id) {
+                rankings_hps.1.insert(npc_id, HashMap::new());
+            }
+            let characters_rankings = rankings_hps.1.get_mut(&npc_id).unwrap();
+            if !characters_rankings.contains_key(&character_id) {
+                characters_rankings.insert(character_id, Vec::with_capacity(1));
+            }
+            let rankings = characters_rankings.get_mut(&character_id).unwrap();
+            rankings.push(ranking);
+        });
+}
+
+fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
+    let mut rankings_tps = instance_rankings_tps.write().unwrap();
+    db_main.select_wparams("SELECT A.id, A.character_id, A.npc_id, A.attempt_id, A.threat, (B.end_ts - B.start_ts) as duration FROM instance_ranking_threat A \
+        JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id", |mut row| {
+        let id: u32 = row.take(0).unwrap();
+        let character_id: u32 = row.take(1).unwrap();
+        let npc_id: u32 = row.take(2).unwrap();
+        (id, character_id, npc_id, RankingResult {
+            attempt_id: row.take(3).unwrap(),
+            amount: row.take(4).unwrap(),
+            duration: row.take(5).unwrap()
+        })
+    }, params!("last_queried_id" => rankings_tps.0))
+        .into_iter()
+        .for_each(|(id, character_id, npc_id, ranking)| {
+            rankings_tps.0 = id;
+            if !rankings_tps.1.contains_key(&npc_id) {
+                rankings_tps.1.insert(npc_id, HashMap::new());
+            }
+            let characters_rankings = rankings_tps.1.get_mut(&npc_id).unwrap();
+            if !characters_rankings.contains_key(&character_id) {
+                characters_rankings.insert(character_id, Vec::with_capacity(1));
+            }
+            let rankings = characters_rankings.get_mut(&character_id).unwrap();
+            rankings.push(ranking);
+        });
 }
 
 fn evict_attempts_cache(instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>) {

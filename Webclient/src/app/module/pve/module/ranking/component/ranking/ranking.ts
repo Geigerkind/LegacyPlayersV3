@@ -3,9 +3,8 @@ import {RankingService} from "../../service/ranking";
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {SettingsService} from "../../../../../../service/settings";
-import {Subscription} from "rxjs";
+import {of, Subscription} from "rxjs";
 import {DataService} from "../../../../../../service/data";
-import {take} from "rxjs/operators";
 
 @Component({
     selector: "Ranking",
@@ -49,7 +48,18 @@ export class RankingComponent implements OnInit, OnDestroy {
         private rankingService: RankingService,
         private dataService: DataService
     ) {
-        this.subscription_rankings = this.rankingService.rankings.subscribe(entries => this.bars = entries);
+        this.subscription_rankings = this.rankingService.rankings.subscribe(entries => {
+            for (const row of entries) {
+                this.bar_subjects.set(row.character_id, {
+                    color_class: of("hero_class_bg_" + row.character_meta.hero_class_id.toString()),
+                    icon: of("/assets/wow_hero_classes/c" + row.character_meta.hero_class_id.toString() + ".png"),
+                    id: row.character_id,
+                    name: of(row.character_meta.name)
+                });
+                this.bar_tooltips.set(row.character_id, {type: 1, character_id: row.character_id});
+            }
+            this.bars = entries.map(row => [row.character_id, row.amount]);
+        });
         this.subscription_servers = this.dataService.servers.subscribe(servers => this.servers = servers.map(server => {
             return {id: server.id, label: server.name};
         }));
@@ -80,6 +90,7 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     modes_selection_changed(selection: number): void {
         this.modes_current_selection = selection;
+        this.rankingService.select(selection, 1, [], [], []);
         this.settingsService.set("pve_ranking", this.modes_current_selection);
     }
 

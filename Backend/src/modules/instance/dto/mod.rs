@@ -12,6 +12,8 @@ pub use self::raid_search_filter::RaidSearchFilter;
 pub use self::rated_arena_search_filter::RatedArenaSearchFilter;
 pub use self::search_arena_team::SearchArenaTeam;
 pub use self::skirmish_search_filter::SkirmishSearchFilter;
+pub use self::ranking_result::RankingResult;
+pub use self::ranking_character_meta::RankingCharacterMeta;
 
 mod battleground_search_filter;
 mod instance_failure;
@@ -27,3 +29,5 @@ mod raid_search_filter;
 mod rated_arena_search_filter;
 mod search_arena_team;
 mod skirmish_search_filter;
+mod ranking_result;
+mod ranking_character_meta;

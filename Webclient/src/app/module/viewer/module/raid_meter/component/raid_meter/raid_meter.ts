@@ -45,7 +45,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     private abilities: Map<number, RaidMeterSubject> = new Map();
     private units: Map<number, RaidMeterSubject> = new Map();
-    private bar_tooltips: Map<number, any> = new Map();
+    bar_tooltips: Map<number, any> = new Map();
 
 
     in_ability_mode: boolean = false;

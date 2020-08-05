@@ -249,6 +249,9 @@ fn main() {
                 instance::transfer::meta_search::export_rated_arenas,
                 instance::transfer::meta_search::export_skirmishes,
                 instance::transfer::meta_search::export_battlegrounds,
+                instance::transfer::ranking::get_instance_ranking_dps,
+                instance::transfer::ranking::get_instance_ranking_hps,
+                instance::transfer::ranking::get_instance_ranking_tps,
             ],
         )
         .launch();
