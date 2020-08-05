@@ -40,4 +40,18 @@
             }
         }
     }
+
+    @media (max-width: 420px) {
+        flex-direction: column;
+
+        SelectInput, MultiSelect {
+            margin-right: 0;
+            margin-bottom: 0.5 * $spacing !important;
+            max-width: 100%;
+
+            &:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+    }
 }
