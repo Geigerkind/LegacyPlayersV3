@@ -10,7 +10,6 @@ import {RaidSearchService} from "../../service/raid_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {SettingsService} from "../../../../../../service/settings";
 import {DateService} from "../../../../../../service/date";
-import {map} from "rxjs/operators";
 
 @Component({
     selector: "Search",
@@ -111,7 +110,7 @@ export class SearchComponent implements OnInit {
                     args: null
                 });
                 body_columns.push({
-                    type: 3,
+                    type: 0,
                     content: item.guild ? item.guild : 'Pug Raid',
                     args: null
                 });

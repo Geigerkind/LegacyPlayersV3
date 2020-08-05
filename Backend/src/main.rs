@@ -252,6 +252,7 @@ fn main() {
                 instance::transfer::ranking::get_instance_ranking_dps,
                 instance::transfer::ranking::get_instance_ranking_hps,
                 instance::transfer::ranking::get_instance_ranking_tps,
+                instance::transfer::ranking::get_character_ranking,
             ],
         )
         .launch();

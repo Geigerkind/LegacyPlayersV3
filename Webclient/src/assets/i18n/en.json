@@ -81,7 +81,13 @@
         },
         "Viewer": {
             "guild": "{{rank}} of {{guild}}",
-            "stats": "Item stats"
+            "stats": "Item stats",
+            "RankingTable": {
+                "boss_name": "Boss",
+                "dps": "DPS",
+                "hps": "HPS",
+                "tps": "TPS"
+            }
         }
     },
     "CookieBanner": {
