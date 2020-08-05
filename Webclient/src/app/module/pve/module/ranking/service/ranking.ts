@@ -48,14 +48,19 @@ export class RankingService {
         const new_rankings = new Map<number, [RankingCharacterMeta, Array<number>]>();
         if (this.current_selection$ === 1) {
             this.current_mode_data
+                .filter(([npc_id, char_rankings]) => this.current_npc_ids$.includes(npc_id))
                 .forEach(([npc_id, char_rankings]) =>
-                    char_rankings.map(([character_id, meta, rankings]) => {
-                        const best_result = rankings.reduce((best, ranking) =>
-                            Math.max(best, (ranking.amount * 1000) / ranking.duration), 0);
-                        if (!new_rankings.has(character_id))
-                            new_rankings.set(character_id, [meta, []]);
-                        new_rankings.get(character_id)[1].push(best_result);
-                    }));
+                    char_rankings
+                        .filter(([character_id, meta, rankings]) => this.current_server_ids$.includes(meta.server_id)
+                            && this.current_hero_class_ids$.includes(meta.hero_class_id))
+                        .map(([character_id, meta, rankings]) => {
+                            const best_result = rankings.reduce((best, ranking) =>
+                                Math.max(best, (ranking.amount * 1000) / ranking.duration), 0);
+                            if (!new_rankings.has(character_id))
+                                new_rankings.set(character_id, [meta, []]);
+                            new_rankings.get(character_id)[1].push(best_result);
+                        })
+                );
         }
         this.rankings$.next([...new_rankings.entries()].map(([character_id, [character_meta, amounts]]) => {
             const result = amounts.reduce(([count, acc], amount) => [++count, acc + amount], [0, 0]);

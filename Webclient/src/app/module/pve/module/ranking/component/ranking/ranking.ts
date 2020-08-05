@@ -32,15 +32,18 @@ export class RankingComponent implements OnInit, OnDestroy {
         {value: 3, label_key: "Threat per second"},
     ];
 
+    selections_current_selection: number = 1;
     selections: Array<SelectOption> = [
         {value: 1, label_key: "Overall"}
     ];
 
-    bosses_current_select: number = 1;
+    bosses_selected_items: Array<any> = [];
     bosses: Array<any> = [];
 
+    classes_selected_items: Array<any> = [];
     classes: Array<any> = [];
 
+    servers_selected_items: Array<any> = [];
     servers: Array<any> = [];
 
     constructor(
@@ -72,9 +75,15 @@ export class RankingComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        if (this.settingsService.check("pve_ranking"))
-            this.modes_current_selection = this.settingsService.get("pve_ranking");
-        this.modes_selection_changed(this.modes_current_selection);
+        if (this.settingsService.check("pve_ranking")) {
+            const selection_params = this.settingsService.get("pve_ranking");
+            this.modes_current_selection = selection_params[0];
+            this.selections_current_selection = selection_params[1];
+            this.bosses_selected_items = this.bosses.filter(item => selection_params[2].includes(item.id));
+            this.classes_selected_items = this.classes.filter(item => selection_params[3].includes(item.id));
+            this.servers_selected_items = this.servers.filter(item => selection_params[4].includes(item.id));
+        }
+        this.select();
     }
 
     ngOnDestroy(): void {
@@ -88,14 +97,14 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     }
 
-    modes_selection_changed(selection: number): void {
-        this.modes_current_selection = selection;
-        this.rankingService.select(selection, 1, [], [], []);
-        this.settingsService.set("pve_ranking", this.modes_current_selection);
-    }
-
-    bosses_selection_changed(selection: number): void {
-        this.bosses_current_select = selection;
+    select(): void {
+        const selection_params = [this.modes_current_selection, this.selections_current_selection,
+            this.bosses_selected_items.map(item => item.id),
+            this.classes_selected_items.map(item => item.id),
+            this.servers_selected_items.map(item => item.id)];
+        // @ts-ignore
+        this.rankingService.select(...selection_params);
+        this.settingsService.set("pve_ranking", selection_params);
     }
 
 }
