@@ -37,7 +37,7 @@ void *RPLLHooks::GetZmqSocket()
     return RPLLHooks::zmqSocket;
 }
 
-void RPLLHooks::SendZmqMessage(ByteBuffer &&msg)
+void RPLLHooks::SendZmqMessage(ByteBuffer msg)
 {
     zmq_send(GetZmqSocket(), msg.contents(), msg.size(), ZMQ_DONTWAIT);
 }
@@ -306,7 +306,7 @@ RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(uint8_t winner)
 /*
  * Pack information and send messages
  */
-void RPLLHooks::DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, uint32_t blocked, RPLL_Damage &&damage)
+void RPLLHooks::DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, uint32_t blocked, RPLL_Damage damage)
 {
     if (!IsInInstance(victim))
         return;
@@ -321,7 +321,7 @@ void RPLLHooks::DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, 
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage> &&damages)
+void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage> damages)
 {
     if (!IsInInstance(victim))
         return;
@@ -337,7 +337,7 @@ void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage &&damage)
+void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage damage)
 {
     if (!IsInInstance(victim))
         return;

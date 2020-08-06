@@ -152,7 +152,7 @@ class RPLLHooks
     static void *zmqContext;
     static void *zmqSocket;
     static void *GetZmqSocket();
-    static void SendZmqMessage(ByteBuffer &&msg);
+    static void SendZmqMessage(ByteBuffer msg);
 
     // Time tracking
     static uint8_t GetCurrentTimeSize();
@@ -199,9 +199,9 @@ public:
     // These are used from the hooks
     // But if you want to include additional information,
     // then you can use these as well
-    static void DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage> &&damages);
-    static void DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage &&damages);
-    static void DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, uint32_t blocked, RPLL_Damage &&damage);
+    static void DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage> damages);
+    static void DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage damages);
+    static void DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, uint32_t blocked, RPLL_Damage damage);
     static void Heal(Unit *caster, Unit *target, uint32_t spellId, uint32_t totalHeal, uint32_t effectiveHeal, uint32_t absorb);
     static void Death(Unit *cause, Unit *victim);
     static void AuraApplication(Unit *caster, Unit *target, uint32_t spellId, uint32_t stackAmount, bool applied);
