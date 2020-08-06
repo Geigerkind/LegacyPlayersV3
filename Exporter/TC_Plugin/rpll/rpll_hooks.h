@@ -95,6 +95,14 @@ struct RPLL_Damage
     uint32_t absorbed;
 };
 
+// Help structure
+struct RPLL_LastUpdate
+{
+    uint64_t health;
+    uint64_t power;
+    uint64_t position;
+};
+
 /*
  * HOW TO INSTALL
  * Below you will find some public methods.
@@ -126,17 +134,12 @@ struct RPLL_Damage
 class RPLLHooks
 {
     static uint8_t API_VERSION;
-    static bool DEBUG;
-    static void PrintDebugMessage(const char *msg, bool overrule = false);
 
-    static std::map<uint64_t, double> LAST_UNIT_POSITION;
+    static std::unordered_map<uint64_t, RPLL_LastUpdate> LAST_UPDATE;
+    static std::unordered_map<uint64_t, double> LAST_UNIT_POSITION;
     static float UPDATE_POSITION_LEEWAY;
     static float UPDATE_POSITION_LEEWAY_NPC;
     static float UPDATE_POSITION_LEEWAY_ARENA;
-
-    static std::map<uint64_t, uint64_t> LAST_HEALTH_UPDATE;
-    static std::map<uint64_t, uint64_t> LAST_POWER_UPDATE;
-    static std::map<uint64_t, uint64_t> LAST_POSITION_UPDATE;
 
     static uint64_t RAID_IN_BOSS_FIGHT_UPDATE_TIMEOUT;
     static uint64_t RAID_UPDATE_TIMEOUT;
@@ -150,7 +153,6 @@ class RPLLHooks
     static void *zmqSocket;
     static void *GetZmqSocket();
     static void SendZmqMessage(ByteBuffer &&msg);
-    static void PrintMessage(ByteBuffer &&msg);
 
     // Time tracking
     static uint8_t GetCurrentTimeSize();

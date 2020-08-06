@@ -15,18 +15,8 @@ uint64_t RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT = 1000;
 float RPLLHooks::UPDATE_POSITION_LEEWAY = 15.0f;
 float RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA = 8.0f;
 float RPLLHooks::UPDATE_POSITION_LEEWAY_NPC = 4.0f;
-std::map<uint64_t, double> RPLLHooks::LAST_UNIT_POSITION = {};
-
-std::map<uint64_t, uint64_t> RPLLHooks::LAST_HEALTH_UPDATE = {};
-std::map<uint64_t, uint64_t> RPLLHooks::LAST_POWER_UPDATE = {};
-std::map<uint64_t, uint64_t> RPLLHooks::LAST_POSITION_UPDATE = {};
-
-bool RPLLHooks::DEBUG = false;
-void RPLLHooks::PrintDebugMessage(const char *msg, bool overrule)
-{
-    if (RPLLHooks::DEBUG || overrule)
-        std::cout << "DEBUG: " << msg << std::endl;
-}
+std::unordered_map<uint64_t, double> RPLLHooks::LAST_UNIT_POSITION = {};
+std::unordered_map<uint64_t, RPLL_LastUpdate> RPLLHooks::LAST_UPDATE = {};
 
 /*
  * ZMQ Messaging
@@ -50,15 +40,6 @@ void *RPLLHooks::GetZmqSocket()
 void RPLLHooks::SendZmqMessage(ByteBuffer &&msg)
 {
     zmq_send(GetZmqSocket(), msg.contents(), msg.size(), ZMQ_DONTWAIT);
-    PrintMessage(std::move(msg));
-}
-
-void RPLLHooks::PrintMessage(ByteBuffer &&msg)
-{
-    std::cout << "RPLL: [ ";
-    for (size_t i = 0; i < msg.size(); ++i)
-        std::cout << uint32_t(msg[i]) << " ";
-    std::cout << "] (" << msg.size() << ")" << std::endl;
 }
 
 /*
@@ -164,114 +145,39 @@ void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, RPLL_Damage &damage)
  */
 bool RPLLHooks::IsPowerWithinTimeout(Unit *unit, RPLL_PowerType power)
 {
-    // Dont judge me
-    // I was too lazy to extract a method here
-    if (IsInRaid(unit))
+    uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
+                                      : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
+                                                         : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
+                                                                                   : std::numeric_limits<uint64_t>::max()));
+    auto now = GetCurrentTime();
+    auto guid = unit->GetGUID().GetRawValue();
+    auto res = RPLLHooks::LAST_UPDATE.find(guid);
+    if (power == RPLL_PowerType::RPLL_HEALTH && (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.health) >= timeout))
     {
-        auto now = GetCurrentTime();
-        auto guid = unit->GetGUID().GetRawValue();
-        if (power == RPLL_PowerType::RPLL_HEALTH)
-        {
-            auto res = RPLLHooks::LAST_HEALTH_UPDATE.find(guid);
-            if (res == RPLLHooks::LAST_HEALTH_UPDATE.end() || (now - res->second) >= RPLLHooks::RAID_UPDATE_TIMEOUT)
-            {
-                RPLLHooks::LAST_HEALTH_UPDATE[guid] = now;
-                return true;
-            }
-            return false;
-        }
-        auto res = RPLLHooks::LAST_POWER_UPDATE.find(guid);
-        if (res == RPLLHooks::LAST_POWER_UPDATE.end() || (now - res->second) >= RPLLHooks::RAID_UPDATE_TIMEOUT)
-        {
-            RPLLHooks::LAST_POWER_UPDATE[guid] = now;
-            return true;
-        }
-        return false;
+        res->second.health = now;
+        return true;
     }
-    else if (IsInArena(unit))
+    else if (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.power) >= timeout)
     {
-        auto now = GetCurrentTime();
-        auto guid = unit->GetGUID().GetRawValue();
-        if (power == RPLL_PowerType::RPLL_HEALTH)
-        {
-            auto res = RPLLHooks::LAST_HEALTH_UPDATE.find(guid);
-            if (res == RPLLHooks::LAST_HEALTH_UPDATE.end() || (now - res->second) >= RPLLHooks::ARENA_UPDATE_TIMEOUT)
-            {
-                RPLLHooks::LAST_HEALTH_UPDATE[guid] = now;
-                return true;
-            }
-            return false;
-        }
-        auto res = RPLLHooks::LAST_POWER_UPDATE.find(guid);
-        if (res == RPLLHooks::LAST_POWER_UPDATE.end() || (now - res->second) >= RPLLHooks::ARENA_UPDATE_TIMEOUT)
-        {
-            RPLLHooks::LAST_POWER_UPDATE[guid] = now;
-            return true;
-        }
-        return false;
-    }
-    else if (IsInBattleground(unit))
-    {
-        auto now = GetCurrentTime();
-        auto guid = unit->GetGUID().GetRawValue();
-        if (power == RPLL_PowerType::RPLL_HEALTH)
-        {
-            auto res = RPLLHooks::LAST_HEALTH_UPDATE.find(guid);
-            if (res == RPLLHooks::LAST_HEALTH_UPDATE.end() || (now - res->second) >= RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT)
-            {
-                RPLLHooks::LAST_HEALTH_UPDATE[guid] = now;
-                return true;
-            }
-            return false;
-        }
-        auto res = RPLLHooks::LAST_POWER_UPDATE.find(guid);
-        if (res == RPLLHooks::LAST_POWER_UPDATE.end() || (now - res->second) >= RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT)
-        {
-            RPLLHooks::LAST_POWER_UPDATE[guid] = now;
-            return true;
-        }
-        return false;
+        res->second.power = now;
+        return true;
     }
     return false;
 }
 
 bool RPLLHooks::IsPositionWithinTimeout(Unit *unit)
 {
-    if (IsInRaid(unit))
+    uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
+                                      : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
+                                                         : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
+                                                                                   : std::numeric_limits<uint64_t>::max()));
+    auto now = GetCurrentTime();
+    auto guid = unit->GetGUID().GetRawValue();
+    auto res = RPLLHooks::LAST_UPDATE.find(guid);
+    if (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.position) >= timeout)
     {
-        auto now = GetCurrentTime();
-        auto guid = unit->GetGUID().GetRawValue();
-        auto res = RPLLHooks::LAST_POSITION_UPDATE.find(guid);
-        if (res == RPLLHooks::LAST_POSITION_UPDATE.end() || (now - res->second) >= RPLLHooks::RAID_UPDATE_TIMEOUT)
-        {
-            RPLLHooks::LAST_POSITION_UPDATE[guid] = now;
-            return true;
-        }
-        return false;
-    }
-    else if (IsInArena(unit))
-    {
-        auto now = GetCurrentTime();
-        auto guid = unit->GetGUID().GetRawValue();
-        auto res = RPLLHooks::LAST_POSITION_UPDATE.find(guid);
-        if (res == RPLLHooks::LAST_POSITION_UPDATE.end() || (now - res->second) >= RPLLHooks::ARENA_UPDATE_TIMEOUT)
-        {
-            RPLLHooks::LAST_POSITION_UPDATE[guid] = now;
-            return true;
-        }
-        return false;
-    }
-    else if (IsInBattleground(unit))
-    {
-        auto now = GetCurrentTime();
-        auto guid = unit->GetGUID().GetRawValue();
-        auto res = RPLLHooks::LAST_POSITION_UPDATE.find(guid);
-        if (res == RPLLHooks::LAST_POSITION_UPDATE.end() || (now - res->second) >= RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT)
-        {
-            RPLLHooks::LAST_POSITION_UPDATE[guid] = now;
-            return true;
-        }
-        return false;
+        res->second.position = now;
+        return true;
     }
     return false;
 }
@@ -281,12 +187,11 @@ bool RPLLHooks::HasSignificantPositionChange(Unit *unit, float x, float y, float
     uint64_t unitGuid = unit->GetGUID().GetRawValue();
     auto oldPos = RPLLHooks::LAST_UNIT_POSITION.find(unitGuid);
     double sumPos = std::abs(x) + std::abs(y) + std::abs(z) + std::abs(orientation);
-    float position_leeway = IsInArena(unit) ? RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA :
-        (unit->GetGUID().IsPlayer() ? RPLLHooks::UPDATE_POSITION_LEEWAY : RPLLHooks::UPDATE_POSITION_LEEWAY_NPC);
+    float position_leeway = IsInArena(unit) ? RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA : (unit->GetGUID().IsPlayer() ? RPLLHooks::UPDATE_POSITION_LEEWAY : RPLLHooks::UPDATE_POSITION_LEEWAY_NPC);
 
     if (oldPos == RPLLHooks::LAST_UNIT_POSITION.end() || std::fabs(oldPos->second - sumPos) >= position_leeway)
     {
-        RPLLHooks::LAST_UNIT_POSITION[unitGuid] = sumPos;
+        oldPos->second = sumPos;
         return true;
     }
     return false;
@@ -716,7 +621,7 @@ void RPLLHooks::Summon(Unit *unit, uint64_t ownerGUID)
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::InstanceDelete(uint32_t instanceId) 
+void RPLLHooks::InstanceDelete(uint32_t instanceId)
 {
     uint8_t msgLength = 4 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
