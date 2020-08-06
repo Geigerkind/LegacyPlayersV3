@@ -23,9 +23,9 @@ export class DamageDoneService implements OnDestroy {
     private newData: Map<number, Map<number, number>>;
     private initialized: boolean = false;
 
-    private spell_casts: Array<Event> = [];
+    private spell_casts: Map<number, Event> = new Map();
     private spell_damage: Array<Event> = [];
-    private melee_damage: Array<Event> = [];
+    private melee_damage: Map<number, Event> = new Map();
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -84,7 +84,7 @@ export class DamageDoneService implements OnDestroy {
         this.newData = new Map();
 
         // Melee Damage
-        let grouping = group_by(this.melee_damage, (event) => get_unit_id(event.subject));
+        let grouping = group_by([...this.melee_damage.values()], (event) => get_unit_id(event.subject));
         // @ts-ignore
         // tslint:disable-next-line:forin
         for (const unit_id: number in grouping) {
@@ -120,8 +120,8 @@ export class DamageDoneService implements OnDestroy {
 
     private feed_spell_damage(abilities_data: Map<number, number>, event: Event): void {
         const spell_cast_id = ((event.event as any).SpellDamage).spell_cast_id as number;
-        const spell_cast_event = this.spell_casts.find(cast => cast.id === spell_cast_id);
-        if (spell_cast_event === undefined)
+        const spell_cast_event = this.spell_casts.get(spell_cast_id);
+        if (!spell_cast_event)
             return;
         const damage = (event.event as any).SpellDamage.damage.damage;
         const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;

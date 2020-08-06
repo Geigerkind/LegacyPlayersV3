@@ -88,7 +88,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     on_ability_selection_updated(): void {
         this.use_default_filter_targets = false;
-        this.raidConfigurationService.update_ability_filter(new Set(this.selected_items_abilities.map(ability => ability.id)));
+        this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id));
     }
 
     private async handle_categories(categories: Array<Category>) {
@@ -218,6 +218,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.selected_items_abilities = new_selected_items;
 
         if (this.use_default_filter_abilities)
-            this.raidConfigurationService.update_ability_filter(new Set(this.selected_items_abilities.map(ability => ability.id)));
+            this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id));
     }
 }

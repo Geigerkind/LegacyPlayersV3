@@ -42,7 +42,7 @@ export class GraphDataService implements OnDestroy {
                 this.instanceDataService.melee_damage
                     .pipe(take(1))
                     .subscribe(damage => {
-                        this.feed_melee_damage(data_set, damage);
+                        this.feed_melee_damage(data_set, [...damage.values()]);
                         this.commit_data_set(data_set);
                     });
                 this.instanceDataService.spell_damage

@@ -125,7 +125,7 @@ export class RaidConfigurationService implements OnDestroy {
         this.instanceDataService.target_filter = selected_targets;
     }
 
-    update_ability_filter(selected_abilities: Set<number>): void {
+    update_ability_filter(selected_abilities: Array<number>): void {
         this.instanceDataService.ability_filter = selected_abilities;
     }
 
@@ -200,7 +200,6 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_abilities(abilities: Set<number>): void {
-        console.log(abilities);
         const result: Array<EventAbility> = [];
         for (const spell_id of abilities)
             result.push({

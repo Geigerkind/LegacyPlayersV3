@@ -25,9 +25,9 @@ export class DamageDoneDetailService implements OnDestroy {
 
     private initialized: boolean = false;
 
-    private spell_casts: Array<Event> = [];
+    private spell_casts: Map<number, Event> = new Map();
     private spell_damage: Array<Event> = [];
-    private melee_damage: Array<Event> = [];
+    private melee_damage: Map<number, Event> = new Map();
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -82,10 +82,10 @@ export class DamageDoneDetailService implements OnDestroy {
     private commit(): void {
         const abilities = new Map<number, DelayedLabel | string>();
         const ability_details = new Map<number, Map<HitType, DetailRow>>();
-        if (this.melee_damage.length > 0) {
+        if (this.melee_damage.size > 0) {
             abilities.set(0, "Auto Attack");
             const melee_details = new Map<HitType, DetailRow>();
-            for (const event of this.melee_damage) {
+            for (const event of [...this.melee_damage.values()]) {
                 const damage = (event.event as any).MeleeDamage as Damage;
                 this.fill_details(melee_details, damage);
             }
@@ -94,8 +94,8 @@ export class DamageDoneDetailService implements OnDestroy {
 
         for (const event of this.spell_damage) {
             const spell_cast_id = (event.event as any).SpellDamage.spell_cast_id as number;
-            const spell_cast_event = this.spell_casts.find(cast => cast.id === spell_cast_id);
-            if (spell_cast_event === undefined)
+            const spell_cast_event = this.spell_casts.get(spell_cast_id);
+            if (!spell_cast_event)
                 continue;
             const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;
             const damage = (event.event as any).SpellDamage.damage as Damage;
@@ -113,7 +113,7 @@ export class DamageDoneDetailService implements OnDestroy {
             });
         }
 
-        for (const event of this.spell_casts) {
+        for (const event of [...this.spell_casts.values()]) {
             const spell_cast = (event.event as any).SpellCast as SpellCast;
             if ([HitType.Hit, HitType.Crit].includes(spell_cast.hit_type))
                 continue;

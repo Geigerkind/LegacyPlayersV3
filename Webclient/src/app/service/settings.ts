@@ -29,25 +29,6 @@ export class SettingsService {
         "data_service_races",
         "data_service_npcs",
         "character_service_characters",
-        "instance_data_service_instance_meta",
-        "instance_data_service_threat",
-        "instance_data_service_heal",
-        "instance_data_service_spell_damage",
-        "instance_data_service_melee_damage",
-        "instance_data_service_summons",
-        "instance_data_service_threat_wipes",
-        "instance_data_service_dispels",
-        "instance_data_service_spell_steals",
-        "instance_data_service_interrupts",
-        "instance_data_service_aura_applications",
-        "instance_data_service_powers",
-        "instance_data_service_positions",
-        "instance_data_service_loot",
-        "instance_data_service_combat_states",
-        "instance_data_service_deaths",
-        "instance_data_service_spell_casts",
-        "instance_data_service_participants",
-        "instance_data_service_attempts",
         "viewer_raid_graph_datasets",
         "data_service_basic_items",
         "data_service_basic_spells",
@@ -56,28 +37,7 @@ export class SettingsService {
         "table_filter_viewer_ranking_table"
     ];
 
-    private ignoreSettings: Array<string> = [
-        // We can't store these due to storage restrictions from the browser
-        "instance_data_service_threat",
-        "instance_data_service_heal",
-        "instance_data_service_spell_damage",
-        "instance_data_service_melee_damage",
-        "instance_data_service_summons",
-        "instance_data_service_threat_wipes",
-        "instance_data_service_dispels",
-        "instance_data_service_spell_steals",
-        "instance_data_service_interrupts",
-        "instance_data_service_aura_applications",
-        "instance_data_service_powers",
-        "instance_data_service_positions",
-        "instance_data_service_loot",
-        "instance_data_service_combat_states",
-        "instance_data_service_deaths",
-        "instance_data_service_spell_casts",
-        "instance_data_service_attempts",
-        "instance_data_service_participants",
-        "instance_data_service_instance_meta",
-    ];
+    private ignoreSettings: Array<string> = [];
 
     private observers: any = {};
 
