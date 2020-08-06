@@ -38,9 +38,9 @@ export class DataService {
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
     private difficulties$: BehaviorSubject<Array<Localized<Difficulty>>>;
 
-    private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>>;
-    private basic_items$: Map<number, Map<number, BehaviorSubject<Localized<BasicItem>>>>;
-    private basic_spells$: Map<number, Map<number, BehaviorSubject<Localized<BasicSpell>>>>;
+    private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>> = new Map();
+    private basic_items$: Map<number, Map<number, BehaviorSubject<Localized<BasicItem>>>> = new Map();
+    private basic_spells$: Map<number, Map<number, BehaviorSubject<Localized<BasicSpell>>>> = new Map();
 
     constructor(
         private apiService: APIService,
@@ -85,8 +85,7 @@ export class DataService {
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
-        if (!this.npcs$)
-            this.npcs$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_npcs", [], 7));
+        // if (!this.npcs$) this.npcs$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_npcs", [], 7));
 
         if (!this.npcs$.has(expansion_id))
             this.npcs$.set(expansion_id, new Map());
@@ -94,7 +93,17 @@ export class DataService {
         if (expansion.has(npc_id))
             return expansion.get(npc_id).asObservable();
 
-        const subject = new BehaviorSubject<Localized<NPC>>(undefined);
+        const subject = new BehaviorSubject<Localized<NPC>>({
+            localization: "Unknown",
+            base: {
+                id: npc_id,
+                expansion_id,
+                localization_id: 0,
+                is_boss: false,
+                friend: 0,
+                family: 0
+            }
+        });
         expansion.set(npc_id, subject);
 
         this.apiService.get(DataService.URL_DATA_NPC_LOCALIZED
@@ -102,15 +111,14 @@ export class DataService {
                 .replace(":npc_id", npc_id.toString()),
             npc => {
                 subject.next(npc);
-                this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
+                // this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
             });
 
         return subject;
     }
 
     get_localized_basic_item(expansion_id: number, item_id: number): Observable<Localized<BasicItem>> {
-        if (!this.basic_items$)
-            this.basic_items$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_items", [], 7));
+        // if (!this.basic_items$) this.basic_items$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_items", [], 7));
 
         if (!this.basic_items$.has(expansion_id))
             this.basic_items$.set(expansion_id, new Map());
@@ -118,7 +126,14 @@ export class DataService {
         if (expansion.has(item_id))
             return expansion.get(item_id).asObservable();
 
-        const subject = new BehaviorSubject<Localized<BasicItem>>(undefined);
+        const subject = new BehaviorSubject<Localized<BasicItem>>({
+            localization: "Unknown",
+            base: {
+                icon: "inv_misc_questionmark",
+                id: item_id,
+                quality: 0
+            }
+        });
         expansion.set(item_id, subject);
 
         this.apiService.get(DataService.URL_DATA_BASIC_ITEM_LOCALIZED
@@ -126,15 +141,15 @@ export class DataService {
                 .replace(":item_id", item_id.toString()),
             item => {
                 subject.next(item);
-                this.settingsService.set_with_expiration("data_service_basic_items", create_array_from_nested_behavior_subject_map(this.basic_items$), 7);
+                // this.settingsService.set_with_expiration("data_service_basic_items", create_array_from_nested_behavior_subject_map(this.basic_items$), 7);
             });
 
         return subject;
     }
 
     get_localized_basic_spell(expansion_id: number, spell_id: number): Observable<Localized<BasicSpell>> {
-        if (!this.basic_spells$)
-            this.basic_spells$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_spells", [], 7));
+        // if (!this.basic_spells$)
+        // this.basic_spells$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_spells", [], 7));
 
         if (!this.basic_spells$.has(expansion_id))
             this.basic_spells$.set(expansion_id, new Map());
@@ -142,7 +157,7 @@ export class DataService {
         if (expansion.has(spell_id))
             return expansion.get(spell_id).asObservable();
 
-        const subject = new BehaviorSubject<Localized<BasicSpell>>(undefined);
+        const subject = new BehaviorSubject<Localized<BasicSpell>>(this.unknown_basic_spell);
         expansion.set(spell_id, subject);
 
         this.apiService.get(DataService.URL_DATA_BASIC_SPELL_LOCALIZED
@@ -150,7 +165,7 @@ export class DataService {
                 .replace(":spell_id", spell_id.toString()),
             item => {
                 subject.next(item);
-                this.settingsService.set_with_expiration("data_service_basic_spells", create_array_from_nested_behavior_subject_map(this.basic_spells$), 7);
+                // this.settingsService.set_with_expiration("data_service_basic_spells", create_array_from_nested_behavior_subject_map(this.basic_spells$), 7);
             });
 
         return subject;
@@ -172,5 +187,16 @@ export class DataService {
     get_server_by_id(server_id: number): Observable<AvailableServer> {
         return this.servers
             .pipe(map(servers => servers.find(server => server.id === server_id)));
+    }
+
+    get unknown_basic_spell(): Localized<BasicSpell> {
+        return {
+            localization: "Unknown",
+            base: {
+                school: 0,
+                icon: "inv_misc_questionmark",
+                id: 0
+            }
+        };
     }
 }

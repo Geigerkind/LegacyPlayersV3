@@ -26,9 +26,9 @@ export class SpellService implements OnDestroy {
         this.subscription?.unsubscribe();
     }
 
-    get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell> | undefined> {
+    get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell>> {
         if (!this.current_meta)
-            return of(undefined);
+            return of(this.dataService.unknown_basic_spell);
         if (spell_id === 0)
             return of({
                 localization: "Auto Attack",
@@ -39,6 +39,7 @@ export class SpellService implements OnDestroy {
                 }
             });
         return this.dataService.get_server_by_id(this.current_meta.server_id)
-            .pipe(concatMap(server => !server ? undefined : this.dataService.get_localized_basic_spell(server.expansion_id, spell_id)));
+            .pipe(concatMap(server => !server ? of(this.dataService.unknown_basic_spell)
+                : this.dataService.get_localized_basic_spell(server.expansion_id, spell_id)));
     }
 }

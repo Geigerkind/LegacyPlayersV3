@@ -2,8 +2,8 @@ import {Component, Input, OnDestroy, OnInit} from "@angular/core";
 import {DamageDoneService} from "../../service/damage_done";
 import {UtilService} from "../../service/util";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
-import {Observable, of, Subscription} from "rxjs";
-import {ChangedSubject, InstanceDataService} from "../../../../service/instance_data";
+import {Subscription} from "rxjs";
+import {InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ViewerMode} from "../../../../domain_value/viewer_mode";
@@ -136,9 +136,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     .sort((left, right) => right[1] - left[1])
                     .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
             };
+        const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
         return {
             type: 6,
-            payload: this.ability_details?.find(([i_ability_id, i_details]) => i_ability_id === subject_id)[1],
+            payload: !payload ? undefined : payload[1],
             icon: new DelayedLabel(this.abilities.get(subject_id).icon)
         };
     }

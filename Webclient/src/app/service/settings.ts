@@ -37,7 +37,15 @@ export class SettingsService {
         "table_filter_viewer_ranking_table"
     ];
 
-    private ignoreSettings: Array<string> = [];
+    private ignoreSettings: Array<string> = [
+        "data_service_maps",
+        "data_service_servers",
+        "data_service_difficulties",
+        "data_service_hero_classes",
+        "data_service_races",
+        "data_service_npcs",
+        "character_service_characters",
+    ];
 
     private observers: any = {};
 
