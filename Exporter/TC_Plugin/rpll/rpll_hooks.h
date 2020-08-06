@@ -6,7 +6,7 @@
 #include "Unit.h"
 #include "ByteBuffer.h"
 
-enum RPLL_MessageType : uint8_t
+enum class RPLL_MessageType : uint8_t
 {
     RPLL_MSG_MELEE_DAMAGE = 0,                      // Works
     RPLL_MSG_SPELL_DAMAGE = 1,                      // Works
@@ -33,12 +33,12 @@ enum RPLL_MessageType : uint8_t
     RPLL_MSG_INSTANCE_DELETE = 22
 };
 
-enum RPLL_Event : uint8_t
+enum class RPLL_Event : uint8_t
 {
     RPLL_THREAT_WIPE // Does not work!
 };
 
-enum RPLL_DamageHitType : uint8_t
+enum class RPLL_DamageHitType : uint8_t
 {
     RPLL_EVADE = 0,
     RPLL_MISS = 1,
@@ -57,7 +57,7 @@ enum RPLL_DamageHitType : uint8_t
     RPLL_DHT_UNDEFINED = 255
 };
 
-enum RPLL_DamageSchool : uint8_t
+enum class RPLL_DamageSchool : uint8_t
 {
     RPLL_PHYSICAL = 0,
     RPLL_HOLY = 1,
@@ -69,7 +69,7 @@ enum RPLL_DamageSchool : uint8_t
     RPLL_DS_UNDEFINED = 255
 };
 
-enum RPLL_PowerType : uint8_t
+enum class RPLL_PowerType : uint8_t
 {
     RPLL_MANA = 0,
     RPLL_RAGE = 1,
@@ -80,7 +80,7 @@ enum RPLL_PowerType : uint8_t
     RPLL_PWT_UNDEFINED = 255
 };
 
-enum RPLL_PvP_Winner : uint8_t
+enum class RPLL_PvP_Winner : uint8_t
 {
     RPLL_TEAM_NONE = 0,
     RPLL_TEAM_HORDE = 1,
