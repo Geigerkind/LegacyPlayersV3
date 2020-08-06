@@ -29,19 +29,6 @@ pub struct DbCharacters(crate::rocket_contrib::databases::mysql::Conn);
 #[database("lp_consent")]
 pub struct DbLpConsent(crate::rocket_contrib::databases::mysql::Conn);
 
-#[derive(Debug, Serialize)]
-struct ProlongToken {
-    token: String,
-    days: u8,
-}
-
-fn prolong_token() {
-    let token = env::var("LP_API_TOKEN").unwrap();
-    let uri = env::var("URL_PROLONG_TOKEN").unwrap();
-    let client = reqwest::blocking::Client::new();
-    let _ = client.post(&uri).body(serde_json::to_string(&ProlongToken { token, days: 30 }).unwrap()).send();
-}
-
 fn main() {
     dotenv().ok();
 
@@ -51,8 +38,6 @@ fn main() {
     let lp_consent_opts = mysql::Opts::from_url(&lp_consent_dns).unwrap();
     let characters_conn = mysql::Conn::new(characters_opts).unwrap();
     let mut lp_consent_conn = mysql::Conn::new(lp_consent_opts).unwrap();
-
-    prolong_token();
 
     let mut transport_layer = TransportLayer::default().init();
     let mut armory_exporter = ArmoryExporter::default().init(&mut lp_consent_conn);
