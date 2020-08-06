@@ -146,9 +146,9 @@ void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage)
 bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType power)
 {
     const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
-                                      : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
-                                                         : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
-                                                                                   : std::numeric_limits<uint64_t>::max()));
+                                            : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
+                                                               : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
+                                                                                         : std::numeric_limits<uint64_t>::max()));
     const auto now = GetCurrentTime();
     const auto guid = unit->GetGUID().GetRawValue();
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
@@ -168,9 +168,9 @@ bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType powe
 bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
 {
     const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
-                                      : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
-                                                         : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
-                                                                                   : std::numeric_limits<uint64_t>::max()));
+                                            : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
+                                                               : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
+                                                                                         : std::numeric_limits<uint64_t>::max()));
     const auto now = GetCurrentTime();
     const auto guid = unit->GetGUID().GetRawValue();
     auto res = RPLLHooks::LAST_UPDATE.find(guid);

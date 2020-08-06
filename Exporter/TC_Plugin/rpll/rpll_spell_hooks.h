@@ -4,11 +4,12 @@
 #include "rpll_hooks.h"
 #include "Spell.h"
 
-class RPLLSpellHooks {
+class RPLLSpellHooks
+{
 public:
-    static void SendCastResult(const Spell* spell, const SpellCastResult result);
+    static void SendCastResult(const Spell *spell, const SpellCastResult result);
     // IMPORTANT: Call after the original function
-    static void DoDamageAndTriggers(const Spell* spell, const uint32 hitMask);
+    static void DoDamageAndTriggers(const Spell *spell, const uint32 hitMask);
 };
 
 #endif

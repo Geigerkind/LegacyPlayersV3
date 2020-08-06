@@ -3,9 +3,10 @@
 
 #include "rpll_hooks.h"
 
-class RPLLCombatManagerHooks {
+class RPLLCombatManagerHooks
+{
 public:
-    static void UpdateOwnerCombatState(const Unit* unit, const bool result);
+    static void UpdateOwnerCombatState(const Unit *unit, const bool result);
 };
 
 #endif

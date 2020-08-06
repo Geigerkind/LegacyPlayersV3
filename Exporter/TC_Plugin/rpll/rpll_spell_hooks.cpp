@@ -1,6 +1,7 @@
 #include "rpll_spell_hooks.h"
 
-void RPLLSpellHooks::SendCastResult(const Spell* spell, const SpellCastResult result) {
+void RPLLSpellHooks::SendCastResult(const Spell *spell, const SpellCastResult result)
+{
     if (spell == nullptr || result != SpellCastResult::SPELL_FAILED_INTERRUPTED)
         return;
 
@@ -10,23 +11,22 @@ void RPLLSpellHooks::SendCastResult(const Spell* spell, const SpellCastResult re
     RPLLHooks::Interrupt(caster->ToUnit(), spell->GetSpellInfo()->Id);
 }
 
-void RPLLSpellHooks::DoDamageAndTriggers(const Spell* spell, const uint32 hitMask) {
+void RPLLSpellHooks::DoDamageAndTriggers(const Spell *spell, const uint32 hitMask)
+{
     const auto caster = spell->GetCaster();
     if (!caster->GetGUID().IsUnit())
         return;
-    
+
     const RPLL_DamageHitType damageHitType = RPLLHooks::mapHitMaskToRPLLHitType(hitMask);
 
     const auto unitTarget = spell->m_targets.GetUnitTarget();
-    if (unitTarget != nullptr) {
+    if (unitTarget != nullptr)
+    {
         RPLLHooks::SpellCast(caster->ToUnit(), unitTarget->GetGUID().GetRawValue(), spell->GetSpellInfo()->Id, damageHitType);
         return;
     }
-    if (spell->m_targets.GetCorpseTarget() != nullptr
-        || spell->m_targets.GetItemTarget() != nullptr
-        || spell->m_targets.GetObjectTarget() != nullptr
-        || spell->m_targets.GetGOTarget() != nullptr
-    ) {
+    if (spell->m_targets.GetCorpseTarget() != nullptr || spell->m_targets.GetItemTarget() != nullptr || spell->m_targets.GetObjectTarget() != nullptr || spell->m_targets.GetGOTarget() != nullptr)
+    {
         RPLLHooks::SpellCast(caster->ToUnit(), 0, spell->GetSpellInfo()->Id, damageHitType);
         return;
     }

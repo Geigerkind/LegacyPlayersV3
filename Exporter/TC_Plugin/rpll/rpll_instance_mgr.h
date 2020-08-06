@@ -3,7 +3,8 @@
 
 #include "rpll_hooks.h"
 
-class RPLLInstanceMgrHooks {
+class RPLLInstanceMgrHooks
+{
 public:
     static void DeleteInstanceFromDB(const uint32_t instanceId);
 };

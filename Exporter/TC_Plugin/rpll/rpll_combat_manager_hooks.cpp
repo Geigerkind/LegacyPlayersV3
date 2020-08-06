@@ -1,6 +1,7 @@
 #include "rpll_combat_manager_hooks.h"
 
-void RPLLCombatManagerHooks::UpdateOwnerCombatState(const Unit* unit, const bool result) {
+void RPLLCombatManagerHooks::UpdateOwnerCombatState(const Unit *unit, const bool result)
+{
     if (!result || unit == nullptr)
         return;
     RPLLHooks::CombatState(unit, unit->IsInCombat());
