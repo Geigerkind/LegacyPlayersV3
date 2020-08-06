@@ -7,4 +7,6 @@ RUN rustup default nightly
 
 WORKDIR /Backend
 
-CMD ["RUST_ENV=production", "cargo", "run", "--release"]
+ENV RUST_ENV=production
+
+CMD ["cargo", "run", "--release"]

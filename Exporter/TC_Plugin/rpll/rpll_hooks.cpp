@@ -31,7 +31,7 @@ void *RPLLHooks::GetZmqSocket()
         RPLLHooks::zmqContext = zmq_ctx_new();
         RPLLHooks::zmqSocket = zmq_socket(RPLLHooks::zmqContext, ZMQ_PUSH);
         // Address of the Backend docker container
-        int rc = zmq_connect(RPLLHooks::zmqSocket, "tcp://172.32.128.5:5690");
+        int rc = zmq_connect(RPLLHooks::zmqSocket, "tcp://172.34.128.4:5690");
         assert(rc == 0);
     }
     return RPLLHooks::zmqSocket;

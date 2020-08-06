@@ -1,11 +1,11 @@
-if [ ! -f "./db_patch_count" ]; then
-  echo "-1" > ./db_patch_count
+if [ ! -f "/var/lib/mysql/db_patch_count" ]; then
+  echo "-1" > /var/lib/mysql/db_patch_count
 fi
-COUNT=$(cat ./db_patch_count)
+COUNT=$(cat /var/lib/mysql/db_patch_count)
 COUNT=$(expr ${COUNT} + 0)
 
-if [ -f "./merge.sql" ]; then
-  rm ./merge.sql
+if [ -f "/var/lib/mysql/merge.sql" ]; then
+  rm /var/lib/mysql/merge.sql
 fi
 for filename in ./patches/*.zip; do
   if [ ! -f "${filename}" ]; then
@@ -17,9 +17,9 @@ for filename in ./patches/*.zip; do
 
   if (( ${VERSION} > ${COUNT} )); then
     unzip ${filename}
-    cat ${filename:10:-4}.sql >> merge.sql
-    echo "" >> merge.sql
-    echo ${VERSION} > ./db_patch_count
+    cat ${filename:10:-4}.sql >> /var/lib/mysql/merge.sql
+    echo "" >> /var/lib/mysql/merge.sql
+    echo ${VERSION} > /var/lib/mysql/db_patch_count
     rm ${filename:10:-4}.sql
   fi
 done
