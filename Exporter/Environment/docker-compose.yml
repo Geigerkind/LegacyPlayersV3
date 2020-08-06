@@ -12,6 +12,9 @@ services:
       - MYSQL_ROOT_PASSWORD=notSecret
       - TZ=Europe/Berlin
   lpcmnginx:
+    depends_on:
+      - lpcmwebclient
+      - lpcmbackend
     build: lp_cm_nginx
     networks:
       lp_cm_net:
@@ -24,13 +27,25 @@ services:
       lp_cm_net:
         ipv4_address: 172.32.128.4
   lpcmbackend:
+    depends_on:
+      - lpcmmariadb
     build: lp_cm_backend
     restart: always
     networks:
       lp_cm_net:
         ipv4_address: 172.32.128.5
     environment:
+      - CHARACTERS_URL=mysql://root:vagrant@172.17.0.1/characters
       - LP_CONSENT_URL=mysql://root:notSecret@lpcmmariadb/lp_consent
+      - ROCKET_DATABASES="{characters={url=\"mysql://root:vagrant@172.17.0.1/characters\"}, lp_consent={url=\"mysql://root:notSecret@lpcmmariadb/lp_consent\"}}"
+      - LP_API_TOKEN=a7c8bdf4eaa23de1ab8489190237b7532a15b3779fe9a92914994d2c4528f1af8c434608d1dc6f3b359d009bc268506d20be9855b1100609c852e89745eb1754
+      - URL_AUTHORIZATION_ENDPOINT=http://localhost:8001/token_validator
+      - CHARACTER_FETCH_INTERVAL_IN_SEC=600
+      - EXPANSION_ID=2
+      - UID_SALT=SomeSalt
+      - OPT_IN_MODE=false
+    volumes:
+      - "./../Backend/:/Backend"
 
 networks:
   lp_cm_net:

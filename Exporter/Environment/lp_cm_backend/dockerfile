@@ -1,0 +1,10 @@
+FROM archlinux:latest
+
+RUN pacman -Syu --noconfirm
+RUN pacman -S --noconfirm rustup gcc cmake openssl pkgconf zeromq
+RUN rustup toolchain install nightly
+RUN rustup default nightly
+
+WORKDIR /Backend
+
+CMD ["RUST_ENV=production", "cargo", "run", "--release"]

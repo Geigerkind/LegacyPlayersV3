@@ -2,8 +2,8 @@ FROM mariadb:10.4.8
 
 COPY my.cnf /etc/mysql/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-COPY ./cleanup.sh ./
-COPY ./post_cleanup.sh ./
+COPY cleanup.sh ./
+COPY post_cleanup.sh ./
 RUN chmod +x ./cleanup.sh
 RUN chmod +x ./post_cleanup.sh
 
