@@ -66,11 +66,19 @@ workbox.routing.registerRoute(
 );
 
 workbox.routing.registerRoute(
-    ({url}) => stale_while_revalidate.some(route => url.pathname.startsWith(route)),
+    ({url}) => {
+        if (url.origin.includes("localhost"))
+            return false;
+        return stale_while_revalidate.some(route => url.pathname.startsWith(route));
+    },
     new workbox.strategies.StaleWhileRevalidate()
 );
 
 workbox.routing.registerRoute(
-    ({request}) => stale_while_revalidate_destinations.some(destination => request.destination === destination),
+    ({request}) => {
+        if (url.origin.includes("localhost"))
+            return false;
+        return stale_while_revalidate_destinations.some(destination => request.destination === destination);
+    },
     new workbox.strategies.StaleWhileRevalidate()
 );
