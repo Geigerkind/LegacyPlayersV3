@@ -8,6 +8,7 @@ import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {SkirmishSearchService} from "../../service/skirmish_search";
 import {SettingsService} from "src/app/service/settings";
+import {DateService} from "../../../../../../service/date";
 
 @Component({
     selector: "Skirmish",
@@ -45,7 +46,8 @@ export class SkirmishComponent implements OnInit {
     constructor(
         private dataService: DataService,
         private settingsService: SettingsService,
-        private skirmishSearchService: SkirmishSearchService
+        private skirmishSearchService: SkirmishSearchService,
+        public dateService: DateService
     ) {
         this.dataService.get_maps_by_type(1).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
@@ -71,8 +73,38 @@ export class SkirmishComponent implements OnInit {
     onFilter(filter: any): void {
         this.skirmishSearchService.search_skirmishes(filter, (search_result) => {
             this.num_characters = search_result.num_items;
-            this.body_columns = search_result.result;
-        }, () => {});
+            this.body_columns = search_result.result.map(item => {
+                const body_columns: Array<BodyColumn> = [];
+                body_columns.push({
+                    type: 3,
+                    content: item.map_id.toString(),
+                    args: {
+                        icon: item.map_icon,
+                        instance_meta_id: item.instance_meta_id
+                    }
+                });
+                body_columns.push({
+                    type: 3,
+                    content: item.server_id.toString(),
+                    args: null
+                });
+                body_columns.push({
+                    type: 2,
+                    content: item.start_ts.toFixed(0),
+                    args: null
+                });
+                body_columns.push({
+                    type: 2,
+                    content: item.end_ts ? item.end_ts.toFixed(0) : '',
+                    args: null
+                });
+                return {
+                    color: '',
+                    columns: body_columns
+                };
+            });
+        }, () => {
+        });
     }
 
 }

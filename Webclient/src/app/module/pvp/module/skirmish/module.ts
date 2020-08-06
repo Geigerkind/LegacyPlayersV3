@@ -4,6 +4,7 @@ import {SkirmishComponent} from "./component/skirmish/skirmish";
 import {CommonModule} from "@angular/common";
 import {SkirmishRouting} from "./routing";
 import {TableModule} from "../../../../template/table/module";
+import {InstanceMapModule} from "../../../../template/row_components/instance_map/module";
 
 @NgModule({
     declarations: [SkirmishComponent],
@@ -11,7 +12,8 @@ import {TableModule} from "../../../../template/table/module";
         CommonModule,
         TranslateModule,
         SkirmishRouting,
-        TableModule
+        TableModule,
+        InstanceMapModule
     ],
     exports: [SkirmishComponent]
 })
