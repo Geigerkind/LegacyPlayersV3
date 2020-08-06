@@ -172,7 +172,7 @@ class RPLLHooks
     static uint8_t GetMapMetaDataSize();
 
     // Message Meta data
-    static void AppendMessageMetaData(ByteBuffer &msg, const uint8_t msgType, uint8_t msgLength);
+    static void AppendMessageMetaData(ByteBuffer &msg, const RPLL_MessageType msgType, uint8_t msgLength);
     static uint8_t GetMessageMetaDataSize();
 
     // Helper

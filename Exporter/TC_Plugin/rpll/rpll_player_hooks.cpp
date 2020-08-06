@@ -9,7 +9,7 @@ void RPLLPlayerHooks::SendNewItem(const Unit *unit, const Item *item, const uint
         RPLLHooks::Loot(unit, item->GetEntry(), count);
 }
 
-void RPLLPlayerHooks::EnvironmentalDamage(const Unit *unit, const EnviromentalDamage type, const uint32_t damage, const uint32_t result)
+void RPLLPlayerHooks::EnvironmentalDamage(Unit *unit, const EnviromentalDamage type, const uint32_t damage, const uint32_t result)
 {
     if (result == 0)
         return;
@@ -25,7 +25,7 @@ void RPLLPlayerHooks::EnvironmentalDamage(const Unit *unit, const EnviromentalDa
         absorb = damage - result - resist;
     }
 
-    const RPLL_DamageSchool damageSchool = RPLL_DamageSchool::RPLL_PHYSICAL;
+    RPLL_DamageSchool damageSchool;
     switch (type)
     {
     case DAMAGE_LAVA:
@@ -36,6 +36,7 @@ void RPLLPlayerHooks::EnvironmentalDamage(const Unit *unit, const EnviromentalDa
         damageSchool = RPLL_DamageSchool::RPLL_NATURE;
         break;
     default:
+        damageSchool = RPLL_DamageSchool::RPLL_PHYSICAL;
         break;
     }
     RPLLHooks::DealMeleeDamage(unit, unit, RPLL_DamageHitType::RPLL_ENVIRONMENT, 0,

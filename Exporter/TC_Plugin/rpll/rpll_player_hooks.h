@@ -10,7 +10,7 @@ class RPLLPlayerHooks
 public:
     static void SendNewItem(const Unit *unit, const Item *item, const uint32_t count, const bool received, const bool created, const bool broadcast, const bool sendChatMessage);
     // Note: Use the player for the unit
-    static void EnvironmentalDamage(const Unit *unit, const EnviromentalDamage type, const uint32_t damage, const uint32_t result);
+    static void EnvironmentalDamage(Unit *unit, const EnviromentalDamage type, const uint32_t damage, const uint32_t result);
     // Used to get state on login/logout instance enter etc.
     static void SetMap(const Unit *unit);
 };

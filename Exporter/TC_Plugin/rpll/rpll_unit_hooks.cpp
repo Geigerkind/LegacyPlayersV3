@@ -33,12 +33,12 @@ void RPLLUnitHooks::DealHeal(const HealInfo &healInfo)
     RPLLHooks::Heal(healInfo.GetHealer(), healInfo.GetTarget(), healInfo.GetSpellInfo()->Id, healInfo.GetHeal(), healInfo.GetEffectiveHeal(), healInfo.GetAbsorb());
 }
 
-void RPLLUnitHooks::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
+void RPLLUnitHooks::SendPeriodicAuraLog(const SpellPeriodicAuraLogInfo *pInfo)
 {
     if (pInfo == nullptr)
         return;
 
-    const AuraEffect const *aura = pInfo->auraEff;
+    AuraEffect const *aura = pInfo->auraEff;
     const Unit *caster = aura->GetCaster();
     std::vector<Unit *> targets;
     aura->GetTargetList(targets);

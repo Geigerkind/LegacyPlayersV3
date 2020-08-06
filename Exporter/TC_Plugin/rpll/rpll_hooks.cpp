@@ -109,10 +109,10 @@ uint8_t RPLLHooks::GetMessageMetaDataSize()
 {
     return 3 * sizeof(uint8_t) + GetCurrentTimeSize() + 8;
 }
-void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, const uint8_t msgType, const uint8_t msgLength)
+void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, const RPLL_MessageType msgType, const uint8_t msgLength)
 {
     msg << API_VERSION;
-    msg << msgType;
+    msg << static_cast<uint8_t>(msgType);
     msg << msgLength;
     msg << GetCurrentTime();
     msg << RPLLHooks::MESSAGE_COUNT++;
@@ -605,7 +605,7 @@ void RPLLHooks::Event(const Unit *unit, const RPLL_Event event)
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_EVENT, msgLength);
     msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
-    msg << event;
+    msg << static_cast<uint8_t>(event);
     SendZmqMessage(std::move(msg));
 }
 
