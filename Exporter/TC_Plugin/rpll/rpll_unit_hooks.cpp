@@ -10,9 +10,9 @@ void RPLLUnitHooks::SendAttackStateUpdate(const CalcDamageInfo *damageInfo) {
         if (dmg.Damage == 0 && dmg.Absorb == 0 && dmg.Resist == 0)
             continue;
         const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(dmg.DamageSchoolMask);
-        damages.push_back(std::move(RPLLHooks::BuildRPLLDamage(damageSchool, uint32_t(dmg.Damage), uint32_t(dmg.Resist), uint32_t(dmg.Absorb))));
+        damages.push_back(std::move(RPLLHooks::BuildRPLLDamage(damageSchool, static_cast<uint32_t>(dmg.Damage), static_cast<uint32_t>(dmg.Resist), static_cast<uint32_t>(dmg.Absorb))));
     }
-    RPLLHooks::DealMeleeDamage(damageInfo->Attacker, damageInfo->Target, damageHitType, uint32_t(damageInfo->Blocked), std::move(damages));
+    RPLLHooks::DealMeleeDamage(damageInfo->Attacker, damageInfo->Target, damageHitType, static_cast<uint32_t>(damageInfo->Blocked), std::move(damages));
 }
 
 void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damageInfo) {
@@ -20,9 +20,9 @@ void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damage
         return;
 
     const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(damageInfo->schoolMask);
-    RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target, uint32_t(damageInfo->SpellID),
-        uint32_t(damageInfo->blocked),
-        std::move(RPLLHooks::BuildRPLLDamage(damageSchool, uint32_t(damageInfo->damage), uint32_t(damageInfo->absorb), uint32_t(damageInfo->resist))));
+    RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target, static_cast<uint32_t>(damageInfo->SpellID),
+        static_cast<uint32_t>(damageInfo->blocked),
+        std::move(RPLLHooks::BuildRPLLDamage(damageSchool, static_cast<uint32_t>(damageInfo->damage), static_cast<uint32_t>(damageInfo->absorb), static_cast<uint32_t>(damageInfo->resist))));
 }
 
 void RPLLUnitHooks::DealHeal(const HealInfo& healInfo) {
@@ -41,9 +41,9 @@ void RPLLUnitHooks::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo) {
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
             for (Unit* target : targets) {
-                const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(uint32_t(aura->GetSpellInfo()->SchoolMask)); 
+                const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(static_cast<uint32_t>(aura->GetSpellInfo()->SchoolMask)); 
                 RPLLHooks::DealSpellDamage(caster, target, aura->GetId(), 0,
-                    std::move(RPLLHooks::BuildRPLLDamage(damageSchool, uint32_t(pInfo->damage), uint32_t(pInfo->absorb), uint32_t(pInfo->resist))));
+                    std::move(RPLLHooks::BuildRPLLDamage(damageSchool, static_cast<uint32_t>(pInfo->damage), static_cast<uint32_t>(pInfo->absorb), static_cast<uint32_t>(pInfo->resist))));
             }
             return;
         /*
@@ -93,25 +93,25 @@ void RPLLUnitHooks::UpdatePosition(const Unit* unit, const float x, const float 
 void RPLLUnitHooks::SetHealth(const Unit* unit, const uint32_t oldVal) {
     if (unit == nullptr || oldVal == 0 || unit->GetHealth() == oldVal)
         return;
-    RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, uint32_t(unit->GetMaxHealth()), uint32_t(unit->GetHealth()));
+    RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, static_cast<uint32_t>(unit->GetMaxHealth()), static_cast<uint32_t>(unit->GetHealth()));
 }
 
 void RPLLUnitHooks::SetMaxHealth(const Unit* unit, const uint32_t oldVal) {
     if (unit == nullptr || oldVal == 0 || unit->GetMaxHealth() == oldVal)
         return;
-    RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, uint32_t(unit->GetMaxHealth()), uint32_t(unit->GetHealth()));
+    RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, static_cast<uint32_t>(unit->GetMaxHealth()), static_cast<uint32_t>(unit->GetHealth()));
 }
 
 void RPLLUnitHooks::SetPower(const Unit* unit, const Powers powerType, const uint32_t oldVal) {
     if (unit == nullptr || oldVal == 0 || unit->GetPower(powerType) == oldVal)
         return;
-    RPLLHooks::Power(unit, RPLLHooks::mapPowersToRPLLPowerType(powerType), uint32_t(unit->GetMaxPower(powerType)), uint32_t(unit->GetPower(powerType)));
+    RPLLHooks::Power(unit, RPLLHooks::mapPowersToRPLLPowerType(powerType), static_cast<uint32_t>(unit->GetMaxPower(powerType)), static_cast<uint32_t>(unit->GetPower(powerType)));
 }
 
 void RPLLUnitHooks::SetMaxPower(const Unit* unit, const Powers powerType, const uint32_t oldVal) {
     if (unit == nullptr || oldVal == 0 || unit->GetMaxPower(powerType) == oldVal)
         return;
-    RPLLHooks::Power(unit, RPLLHooks::mapPowersToRPLLPowerType(powerType), uint32_t(unit->GetMaxPower(powerType)), uint32_t(unit->GetPower(powerType)));
+    RPLLHooks::Power(unit, RPLLHooks::mapPowersToRPLLPowerType(powerType), static_cast<uint32_t>(unit->GetMaxPower(powerType)), static_cast<uint32_t>(unit->GetPower(powerType)));
 }
 
 void RPLLUnitHooks::RemoveOwnedAura(const Aura* aura) {
@@ -120,7 +120,7 @@ void RPLLUnitHooks::RemoveOwnedAura(const Aura* aura) {
     const auto owner = aura->GetOwner();
     if (owner == nullptr || !owner->GetGUID().IsUnit())
         return;
-    RPLLHooks::AuraApplication(aura->GetCaster(), owner->ToUnit(), uint32_t(aura->GetId()), 0, false);
+    RPLLHooks::AuraApplication(aura->GetCaster(), owner->ToUnit(), static_cast<uint32_t>(aura->GetId()), 0, false);
 }
 
 void RPLLUnitHooks::SetOwnerGUID(const Unit* unit, const ObjectGuid owner) {
