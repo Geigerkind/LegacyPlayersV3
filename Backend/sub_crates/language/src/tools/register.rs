@@ -23,7 +23,7 @@ impl Register for Dictionary {
         }
         let lang_index = language as usize;
         if !lang_table.contains_key(&key_str) {
-            lang_table.insert(String::from(&key_str), vec![None; Language::count()]);
+            lang_table.insert(String::from(&key_str), vec![None; Language::COUNT]);
         }
         let vec = lang_table.get_mut(&key_str).unwrap();
         match &vec[lang_index] {

@@ -1,3 +1,5 @@
+use strum_macros::{EnumCount, EnumIter};
+
 #[repr(u8)]
 #[derive(EnumCount, EnumIter, PartialEq)]
 pub enum Language {
