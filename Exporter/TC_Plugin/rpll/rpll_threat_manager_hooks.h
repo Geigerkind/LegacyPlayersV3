@@ -10,8 +10,8 @@ public:
     // Owner => _owner or GetOwner()
     // AmountBefore => GetThreat of the target called BEFORE calling the original AddThreat function
     // AmountAfter => GetThreat of the target called AFTER calling the original AddThreat function
-    static void AddThreat(Unit* owner, Unit* target, SpellInfo const* spell, float amountBefore, float amountAfter);
-    static void ScaleThreat(Unit* owner, Unit* target, float factor);
+    static void AddThreat(const Unit* owner, const Unit* target, SpellInfo const* spell, const float amountBefore, const float amountAfter);
+    static void ScaleThreat(const Unit* owner, const Unit* target, const float factor);
 };
 
 #endif

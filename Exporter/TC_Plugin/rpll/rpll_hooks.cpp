@@ -37,7 +37,7 @@ void *RPLLHooks::GetZmqSocket()
     return RPLLHooks::zmqSocket;
 }
 
-void RPLLHooks::SendZmqMessage(ByteBuffer msg)
+void RPLLHooks::SendZmqMessage(const ByteBuffer msg)
 {
     zmq_send(GetZmqSocket(), msg.contents(), msg.size(), ZMQ_DONTWAIT);
 }
@@ -62,26 +62,26 @@ std::set<uint32_t> RPLLHooks::raidMapIds = {
     532, 533, 534, 544, 548, 550, 564, 565, 568, 580, // TBC
     603, 615, 616, 624, 631, 649, 724                 // WOTLK
 };
-bool RPLLHooks::IsInRaid(Unit *unit)
+bool RPLLHooks::IsInRaid(const Unit *unit)
 {
     return RPLLHooks::raidMapIds.find(unit->GetMap()->GetId()) != RPLLHooks::raidMapIds.end();
 }
 
 std::set<uint32_t> RPLLHooks::arenaMapIds = {
     559, 562, 572, 617, 618};
-bool RPLLHooks::IsInArena(Unit *unit)
+bool RPLLHooks::IsInArena(const Unit *unit)
 {
     return RPLLHooks::arenaMapIds.find(unit->GetMap()->GetId()) != RPLLHooks::arenaMapIds.end();
 }
 
 std::set<uint32_t> RPLLHooks::battlegroundMapIds = {
     30, 489, 529, 566, 607, 628};
-bool RPLLHooks::IsInBattleground(Unit *unit)
+bool RPLLHooks::IsInBattleground(const Unit *unit)
 {
     return RPLLHooks::battlegroundMapIds.find(unit->GetMap()->GetId()) != RPLLHooks::battlegroundMapIds.end();
 }
 
-bool RPLLHooks::IsInInstance(Unit *unit)
+bool RPLLHooks::IsInInstance(const Unit *unit)
 {
     return IsInRaid(unit) || IsInArena(unit) || IsInBattleground(unit);
 }
@@ -93,7 +93,7 @@ uint8_t RPLLHooks::GetMapMetaDataSize()
 {
     return 2 * sizeof(uint32_t) + sizeof(uint8_t);
 }
-void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, Unit *unit)
+void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, const Unit *unit)
 {
     Map *map = unit->GetMap();
     msg << static_cast<uint32_t>(map->GetId());
@@ -109,7 +109,7 @@ uint8_t RPLLHooks::GetMessageMetaDataSize()
 {
     return 3 * sizeof(uint8_t) + GetCurrentTimeSize() + 8;
 }
-void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, uint8_t msgType, uint8_t msgLength)
+void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, const uint8_t msgType, const uint8_t msgLength)
 {
     msg << API_VERSION;
     msg << msgType;
@@ -122,7 +122,7 @@ void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, uint8_t msgType, uint8_t 
  * Helper
  */
 
-RPLL_Damage RPLLHooks::BuildRPLLDamage(RPLL_DamageSchool damageSchool, uint32_t damage, uint32_t resisted_or_glanced, uint32_t absorbed)
+RPLL_Damage RPLLHooks::BuildRPLLDamage(const RPLL_DamageSchool damageSchool, const uint32_t damage, const uint32_t resisted_or_glanced, const uint32_t absorbed)
 {
     RPLL_Damage dmg;
     dmg.damageSchool = damageSchool;
@@ -132,7 +132,7 @@ RPLL_Damage RPLLHooks::BuildRPLLDamage(RPLL_DamageSchool damageSchool, uint32_t 
     return std::move(dmg);
 }
 
-void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, RPLL_Damage &damage)
+void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage)
 {
     msg << static_cast<uint8_t>(damage.damageSchool);
     msg << damage.damage;
@@ -143,14 +143,14 @@ void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, RPLL_Damage &damage)
 /*
  * Methods used to optimize
  */
-bool RPLLHooks::IsPowerWithinTimeout(Unit *unit, RPLL_PowerType power)
+bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType power)
 {
-    uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
+    const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
                                       : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
                                                          : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
                                                                                    : std::numeric_limits<uint64_t>::max()));
-    auto now = GetCurrentTime();
-    auto guid = unit->GetGUID().GetRawValue();
+    const auto now = GetCurrentTime();
+    const auto guid = unit->GetGUID().GetRawValue();
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
     if (power == RPLL_PowerType::RPLL_HEALTH && (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.health) >= timeout))
     {
@@ -165,14 +165,14 @@ bool RPLLHooks::IsPowerWithinTimeout(Unit *unit, RPLL_PowerType power)
     return false;
 }
 
-bool RPLLHooks::IsPositionWithinTimeout(Unit *unit)
+bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
 {
-    uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
+    const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
                                       : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
                                                          : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
                                                                                    : std::numeric_limits<uint64_t>::max()));
-    auto now = GetCurrentTime();
-    auto guid = unit->GetGUID().GetRawValue();
+    const auto now = GetCurrentTime();
+    const auto guid = unit->GetGUID().GetRawValue();
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
     if (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.position) >= timeout)
     {
@@ -182,12 +182,12 @@ bool RPLLHooks::IsPositionWithinTimeout(Unit *unit)
     return false;
 }
 
-bool RPLLHooks::HasSignificantPositionChange(Unit *unit, float x, float y, float z, float orientation)
+bool RPLLHooks::HasSignificantPositionChange(const Unit *unit, const float x, const float y, const float z, const float orientation)
 {
-    uint64_t unitGuid = unit->GetGUID().GetRawValue();
+    const uint64_t unitGuid = unit->GetGUID().GetRawValue();
     auto oldPos = RPLLHooks::LAST_UNIT_POSITION.find(unitGuid);
-    double sumPos = std::abs(x) + std::abs(y) + std::abs(z) + std::abs(orientation);
-    float position_leeway = IsInArena(unit) ? RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA : (unit->GetGUID().IsPlayer() ? RPLLHooks::UPDATE_POSITION_LEEWAY : RPLLHooks::UPDATE_POSITION_LEEWAY_NPC);
+    const double sumPos = std::abs(x) + std::abs(y) + std::abs(z) + std::abs(orientation);
+    const float position_leeway = IsInArena(unit) ? RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA : (unit->GetGUID().IsPlayer() ? RPLLHooks::UPDATE_POSITION_LEEWAY : RPLLHooks::UPDATE_POSITION_LEEWAY_NPC);
 
     if (oldPos == RPLLHooks::LAST_UNIT_POSITION.end() || std::fabs(oldPos->second - sumPos) >= position_leeway)
     {
@@ -200,7 +200,7 @@ bool RPLLHooks::HasSignificantPositionChange(Unit *unit, float x, float y, float
 /*
  * Mapper
  */
-RPLL_DamageHitType RPLLHooks::mapHitMaskToRPLLHitType(uint32_t hitMask)
+RPLL_DamageHitType RPLLHooks::mapHitMaskToRPLLHitType(const uint32_t hitMask)
 {
     // We will break down the HitMask into an enum
     if (hitMask & ProcFlagsHit::PROC_HIT_CRITICAL)
@@ -227,7 +227,7 @@ RPLL_DamageHitType RPLLHooks::mapHitMaskToRPLLHitType(uint32_t hitMask)
     return RPLL_DamageHitType::RPLL_HIT;
 }
 
-RPLL_PowerType RPLLHooks::mapPowersToRPLLPowerType(Powers power)
+RPLL_PowerType RPLLHooks::mapPowersToRPLLPowerType(const Powers power)
 {
     switch (power)
     {
@@ -247,7 +247,7 @@ RPLL_PowerType RPLLHooks::mapPowersToRPLLPowerType(Powers power)
     return RPLL_PowerType::RPLL_PWT_UNDEFINED;
 }
 
-RPLL_DamageSchool RPLLHooks::mapSpellSchoolToRPLLDamageSchool(SpellSchools school)
+RPLL_DamageSchool RPLLHooks::mapSpellSchoolToRPLLDamageSchool(const SpellSchools school)
 {
     switch (school)
     {
@@ -269,7 +269,7 @@ RPLL_DamageSchool RPLLHooks::mapSpellSchoolToRPLLDamageSchool(SpellSchools schoo
     return RPLL_DamageSchool::RPLL_DS_UNDEFINED;
 }
 
-RPLL_DamageSchool RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(uint32_t schoolMask)
+RPLL_DamageSchool RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(const uint32_t schoolMask)
 {
     // Damage done in TC is split into each school for calcultion
     // Hence we will likely not get mixed results here
@@ -290,7 +290,7 @@ RPLL_DamageSchool RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(uint32_t schoo
     return RPLL_DamageSchool::RPLL_DS_UNDEFINED;
 }
 
-RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(uint8_t winner)
+RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(const uint8_t winner)
 {
     if (winner == TEAM_ALLIANCE)
     {
@@ -306,11 +306,11 @@ RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(uint8_t winner)
 /*
  * Pack information and send messages
  */
-void RPLLHooks::DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, uint32_t blocked, RPLL_Damage damage)
+void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage)
 {
     if (!IsInInstance(victim))
         return;
-    uint8_t msgLength = 24 + GetMessageMetaDataSize() + 13;
+    const uint8_t msgLength = 24 + GetMessageMetaDataSize() + 13;
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SPELL_DAMAGE, msgLength);
     msg << static_cast<uint64_t>(attacker->GetGUID().GetRawValue());
@@ -321,11 +321,11 @@ void RPLLHooks::DealSpellDamage(Unit *attacker, Unit *victim, uint32_t spellId, 
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, std::vector<RPLL_Damage> damages)
+void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitType damageHitType, const uint32_t blocked, const std::vector<RPLL_Damage> damages)
 {
     if (!IsInInstance(victim))
         return;
-    uint8_t msgLength = 21 + GetMessageMetaDataSize() + damages.size() * 13;
+    const uint8_t msgLength = 21 + GetMessageMetaDataSize() + damages.size() * 13;
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_MELEE_DAMAGE, msgLength);
     msg << static_cast<uint64_t>(attacker->GetGUID().GetRawValue());
@@ -337,11 +337,11 @@ void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType damageHitType, uint32_t blocked, RPLL_Damage damage)
+void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitType damageHitType, const uint32_t blocked, const RPLL_Damage damage)
 {
     if (!IsInInstance(victim))
         return;
-    uint8_t msgLength = 21 + GetMessageMetaDataSize() + sizeof(RPLL_Damage);
+    const uint8_t msgLength = 21 + GetMessageMetaDataSize() + sizeof(RPLL_Damage);
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_MELEE_DAMAGE, msgLength);
     msg << static_cast<uint64_t>(attacker->GetGUID().GetRawValue());
@@ -352,11 +352,11 @@ void RPLLHooks::DealMeleeDamage(Unit *attacker, Unit *victim, RPLL_DamageHitType
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Heal(Unit *caster, Unit *target, uint32_t spellId, uint32_t totalHeal, uint32_t effectiveHeal, uint32_t absorb)
+void RPLLHooks::Heal(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t totalHeal, const uint32_t effectiveHeal, const uint32_t absorb)
 {
     if (!IsInInstance(target))
         return;
-    uint8_t msgLength = 32 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 32 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_HEAL, msgLength);
     msg << static_cast<uint64_t>(caster->GetGUID().GetRawValue());
@@ -368,11 +368,11 @@ void RPLLHooks::Heal(Unit *caster, Unit *target, uint32_t spellId, uint32_t tota
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Death(Unit *cause, Unit *victim)
+void RPLLHooks::Death(const Unit *cause, const Unit *victim)
 {
     if (!IsInInstance(victim))
         return;
-    uint8_t msgLength = 16 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 16 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_DEATH, msgLength);
     msg << static_cast<uint64_t>(cause->GetGUID().GetRawValue());
@@ -382,11 +382,11 @@ void RPLLHooks::Death(Unit *cause, Unit *victim)
 
 // Apllied = True => A stack has been added (Also refresh)
 // Applied = False => A stack has been removed
-void RPLLHooks::AuraApplication(Unit *caster, Unit *target, uint32_t spellId, uint32_t stackAmount, bool applied)
+void RPLLHooks::AuraApplication(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t stackAmount, const bool applied)
 {
     if (!IsInInstance(target))
         return;
-    uint8_t msgLength = 25 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 25 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_AURA_APPLICATION, msgLength);
     msg << static_cast<uint64_t>(caster->GetGUID().GetRawValue());
@@ -397,11 +397,11 @@ void RPLLHooks::AuraApplication(Unit *caster, Unit *target, uint32_t spellId, ui
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Dispel(Unit *dispeller, Unit *target, ObjectGuid auraCaster, uint32_t dispelSpellId, uint32_t dispelledSpellId, uint8_t dispelAmount)
+void RPLLHooks::Dispel(const Unit *dispeller, const Unit *target, const ObjectGuid auraCaster, const uint32_t dispelSpellId, const uint32_t dispelledSpellId, const uint8_t dispelAmount)
 {
     if (!IsInInstance(target))
         return;
-    uint8_t msgLength = 33 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 33 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_DISPEL, msgLength);
     msg << static_cast<uint64_t>(dispeller->GetGUID().GetRawValue());
@@ -413,11 +413,11 @@ void RPLLHooks::Dispel(Unit *dispeller, Unit *target, ObjectGuid auraCaster, uin
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::SpellSteal(Unit *dispeller, Unit *target, ObjectGuid auraCaster, uint32_t stealSpellId, uint32_t stolenSpellId, uint8_t stealAmount)
+void RPLLHooks::SpellSteal(const Unit *dispeller, const Unit *target, const ObjectGuid auraCaster, const uint32_t stealSpellId, const uint32_t stolenSpellId, const uint8_t stealAmount)
 {
     if (!IsInInstance(target))
         return;
-    uint8_t msgLength = 33 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 33 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SPELL_STEAL, msgLength);
     msg << static_cast<uint64_t>(dispeller->GetGUID().GetRawValue());
@@ -429,11 +429,11 @@ void RPLLHooks::SpellSteal(Unit *dispeller, Unit *target, ObjectGuid auraCaster,
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Interrupt(Unit *target, uint32_t interruptedSpellId)
+void RPLLHooks::Interrupt(const Unit *target, const uint32_t interruptedSpellId)
 {
     if (!IsInInstance(target))
         return;
-    uint8_t msgLength = 12 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 12 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INTERRUPT, msgLength);
     msg << static_cast<uint64_t>(target->GetGUID().GetRawValue());
@@ -441,13 +441,13 @@ void RPLLHooks::Interrupt(Unit *target, uint32_t interruptedSpellId)
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Position(Unit *unit, float x, float y, float z, float orientation)
+void RPLLHooks::Position(const Unit *unit, const float x, const float y, const float z, const float orientation)
 {
     if (!HasSignificantPositionChange(unit, x, y, z, orientation))
         return;
     if (!IsPositionWithinTimeout(unit))
         return; // Implies is in Instance
-    uint8_t msgLength = 24 + GetMessageMetaDataSize() + GetMapMetaDataSize();
+    const uint8_t msgLength = 24 + GetMessageMetaDataSize() + GetMapMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_POSITION, msgLength);
     AppendMapMetaData(msg, unit);
@@ -459,11 +459,11 @@ void RPLLHooks::Position(Unit *unit, float x, float y, float z, float orientatio
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::CombatState(Unit *unit, bool inCombat)
+void RPLLHooks::CombatState(const Unit *unit, const bool inCombat)
 {
     if (!IsInInstance(unit))
         return;
-    uint8_t msgLength = 9 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 9 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_COMBAT_STATE, msgLength);
     msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
@@ -471,11 +471,11 @@ void RPLLHooks::CombatState(Unit *unit, bool inCombat)
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Power(Unit *unit, RPLL_PowerType powerType, uint32_t maxPower, uint32_t currentPower)
+void RPLLHooks::Power(const Unit *unit, const RPLL_PowerType powerType, const uint32_t maxPower, const uint32_t currentPower)
 {
     if (!IsPowerWithinTimeout(unit, powerType))
         return; // This implies IsInInstance
-    uint8_t msgLength = 17 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 17 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_POWER, msgLength);
     msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
@@ -485,19 +485,19 @@ void RPLLHooks::Power(Unit *unit, RPLL_PowerType powerType, uint32_t maxPower, u
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::StartBattleground(uint32_t mapId, uint32_t instanceId)
+void RPLLHooks::StartBattleground(const uint32_t mapId, const uint32_t instanceId)
 {
     RPLLHooks::Instance(mapId, instanceId, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START_BATTLEGROUND);
 }
 
-void RPLLHooks::StartUnratedArena(uint32_t mapId, uint32_t instanceId)
+void RPLLHooks::StartUnratedArena(const uint32_t mapId, const uint32_t instanceId)
 {
     RPLLHooks::Instance(mapId, instanceId, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START_UNRATED_ARENA);
 }
 
-void RPLLHooks::StartRatedArena(uint32_t mapId, uint32_t instanceId, uint32_t teamId1, uint32_t teamId2)
+void RPLLHooks::StartRatedArena(const uint32_t mapId, const uint32_t instanceId, const uint32_t teamId1, const uint32_t teamId2)
 {
-    uint8_t msgLength = 16 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 16 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_START_RATED_ARENA, msgLength);
     msg << mapId;
@@ -507,9 +507,9 @@ void RPLLHooks::StartRatedArena(uint32_t mapId, uint32_t instanceId, uint32_t te
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Instance(uint32_t mapId, uint32_t instanceId, RPLL_MessageType messageType)
+void RPLLHooks::Instance(const uint32_t mapId, const uint32_t instanceId, const RPLL_MessageType messageType)
 {
-    uint8_t msgLength = 8 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 8 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, messageType, msgLength);
     msg << mapId;
@@ -517,9 +517,9 @@ void RPLLHooks::Instance(uint32_t mapId, uint32_t instanceId, RPLL_MessageType m
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::EndUnratedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner)
+void RPLLHooks::EndUnratedArena(const uint32_t mapId, const uint32_t instanceId, const RPLL_PvP_Winner winner)
 {
-    uint8_t msgLength = 9 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 9 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_END_UNRATED_ARENA, msgLength);
     msg << mapId;
@@ -528,9 +528,9 @@ void RPLLHooks::EndUnratedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Wi
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::EndBattleground(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t scoreAlliance, uint32_t scoreHorde)
+void RPLLHooks::EndBattleground(const uint32_t mapId, const uint32_t instanceId, const RPLL_PvP_Winner winner, const uint32_t scoreAlliance, const uint32_t scoreHorde)
 {
-    uint8_t msgLength = 17 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 17 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND, msgLength);
     msg << mapId;
@@ -541,9 +541,9 @@ void RPLLHooks::EndBattleground(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Wi
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::EndRatedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winner winner, uint32_t teamId1, uint32_t teamId2, int32_t teamChange1, int32_t teamChange2)
+void RPLLHooks::EndRatedArena(const uint32_t mapId, const uint32_t instanceId, const RPLL_PvP_Winner winner, const uint32_t teamId1, const uint32_t teamId2, const int32_t teamChange1, const int32_t teamChange2)
 {
-    uint8_t msgLength = 25 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 25 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_PVP_END_RATED_ARENA, msgLength);
     msg << mapId;
@@ -556,11 +556,11 @@ void RPLLHooks::EndRatedArena(uint32_t mapId, uint32_t instanceId, RPLL_PvP_Winn
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Loot(Unit *unit, uint32_t itemId, uint32_t count)
+void RPLLHooks::Loot(const Unit *unit, const uint32_t itemId, const uint32_t count)
 {
     if (!IsInInstance(unit))
         return;
-    uint8_t msgLength = 16 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 16 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_LOOT, msgLength);
     msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
@@ -569,11 +569,11 @@ void RPLLHooks::Loot(Unit *unit, uint32_t itemId, uint32_t count)
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::SpellCast(Unit *caster, uint64_t targetGUID, uint32_t spellId, RPLL_DamageHitType hitType)
+void RPLLHooks::SpellCast(const Unit *caster, const uint64_t targetGUID, const uint32_t spellId, const RPLL_DamageHitType hitType)
 {
     if (!IsInInstance(caster))
         return;
-    uint8_t msgLength = 21 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 21 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SPELL_CAST, msgLength);
     msg << static_cast<uint64_t>(caster->GetGUID().GetRawValue());
@@ -583,11 +583,11 @@ void RPLLHooks::SpellCast(Unit *caster, uint64_t targetGUID, uint32_t spellId, R
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Threat(Unit *threater, Unit *threatened, uint32_t spellId, int32_t amount)
+void RPLLHooks::Threat(const Unit *threater, const Unit *threatened, const uint32_t spellId, const int32_t amount)
 {
     if (!IsInInstance(threater))
         return;
-    uint8_t msgLength = 24 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 24 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_THREAT, msgLength);
     msg << static_cast<uint64_t>(threater->GetGUID().GetRawValue());
@@ -597,11 +597,11 @@ void RPLLHooks::Threat(Unit *threater, Unit *threatened, uint32_t spellId, int32
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Event(Unit *unit, RPLL_Event event)
+void RPLLHooks::Event(const Unit *unit, const RPLL_Event event)
 {
     if (!IsInInstance(unit))
         return;
-    uint8_t msgLength = 9 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 9 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_EVENT, msgLength);
     msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
@@ -609,11 +609,11 @@ void RPLLHooks::Event(Unit *unit, RPLL_Event event)
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Summon(Unit *unit, uint64_t ownerGUID)
+void RPLLHooks::Summon(const Unit *unit, const uint64_t ownerGUID)
 {
     if (!IsInInstance(unit))
         return;
-    uint8_t msgLength = 16 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 16 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SUMMON, msgLength);
     msg << ownerGUID;
@@ -621,9 +621,9 @@ void RPLLHooks::Summon(Unit *unit, uint64_t ownerGUID)
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::InstanceDelete(uint32_t instanceId)
+void RPLLHooks::InstanceDelete(const uint32_t instanceId)
 {
-    uint8_t msgLength = 4 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 4 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_INSTANCE_DELETE, msgLength);
     msg << instanceId;

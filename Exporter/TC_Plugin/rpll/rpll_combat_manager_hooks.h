@@ -5,7 +5,7 @@
 
 class RPLLCombatManagerHooks {
 public:
-    static void UpdateOwnerCombatState(Unit* unit, bool result);
+    static void UpdateOwnerCombatState(const Unit* unit, const bool result);
 };
 
 #endif

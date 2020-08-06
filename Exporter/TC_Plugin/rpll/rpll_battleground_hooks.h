@@ -6,8 +6,8 @@
 
 class RPLLBattlegroundHooks {
 public:
-    static void StartBattleground(Battleground* battleground);
-    static void EndBattleground(Battleground* battleground, uint32_t *scores);
+    static void StartBattleground(const Battleground* battleground);
+    static void EndBattleground(const Battleground* battleground, const uint32_t *scores);
 };
 
 #endif

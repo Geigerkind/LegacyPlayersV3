@@ -5,7 +5,7 @@
 
 class RPLLInstanceMgrHooks {
 public:
-    static void DeleteInstanceFromDB(uint32_t instanceId);
+    static void DeleteInstanceFromDB(const uint32_t instanceId);
 };
 
 #endif
