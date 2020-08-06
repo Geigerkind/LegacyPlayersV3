@@ -8,6 +8,7 @@ import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {SettingsService} from "src/app/service/settings";
 import {BattlegroundSearchService} from "../../service/battleground_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
+import {DateService} from "../../../../../../service/date";
 
 @Component({
     selector: "Battleground",
@@ -47,7 +48,8 @@ export class BattlegroundComponent implements OnInit {
     constructor(
         private dataService: DataService,
         private settingsService: SettingsService,
-        private battlegroundSearchService: BattlegroundSearchService
+        private battlegroundSearchService: BattlegroundSearchService,
+        public dateService: DateService
     ) {
         this.dataService.get_maps_by_type(2).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
@@ -73,8 +75,48 @@ export class BattlegroundComponent implements OnInit {
     onFilter(filter: any): void {
         this.battlegroundSearchService.search_battlegrounds(filter, (search_result) => {
             this.num_characters = search_result.num_items;
-            this.body_columns = search_result.result;
-        }, () => {});
+            this.body_columns = search_result.result.map(item => {
+                const body_columns: Array<BodyColumn> = [];
+                body_columns.push({
+                    type: 3,
+                    content: item.map_id.toString(),
+                    args: {
+                        icon: item.map_icon,
+                        instance_meta_id: item.instance_meta_id
+                    }
+                });
+                body_columns.push({
+                    type: 3,
+                    content: item.server_id.toString(),
+                    args: null
+                });
+                body_columns.push({
+                    type: 1,
+                    content: item.score_alliance,
+                    args: null
+                });
+                body_columns.push({
+                    type: 1,
+                    content: item.score_horde,
+                    args: null
+                });
+                body_columns.push({
+                    type: 2,
+                    content: item.start_ts.toFixed(0),
+                    args: null
+                });
+                body_columns.push({
+                    type: 2,
+                    content: item.end_ts ? item.end_ts.toFixed(0) : '',
+                    args: null
+                });
+                return {
+                    color: '',
+                    columns: body_columns
+                };
+            });
+        }, () => {
+        });
     }
 
 }
