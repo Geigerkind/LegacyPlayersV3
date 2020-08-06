@@ -1,4 +1,4 @@
-import {DelayedLabel} from "../../../domain_value/delayed_label";
+import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 
 export interface Segment {
     id: number;

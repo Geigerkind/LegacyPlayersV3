@@ -28,19 +28,19 @@ export class RankingTableService {
                 });
 
                 columns.push({
-                    type: 1,
+                    type: 0,
                     content: !item[1] ? 0 : (item[1].amount * 1000 / item[1].duration).toFixed(1),
                     args: null
                 });
 
                 columns.push({
-                    type: 1,
+                    type: 0,
                     content: !item[2] ? 0 : (item[2].amount * 1000 / item[2].duration).toFixed(1),
                     args: null
                 });
 
                 columns.push({
-                    type: 1,
+                    type: 0,
                     content: !item[3] ? 0 : (item[3].amount * 1000 / item[3].duration).toFixed(1),
                     args: null
                 });

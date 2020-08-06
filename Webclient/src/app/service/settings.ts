@@ -52,7 +52,8 @@ export class SettingsService {
         "data_service_basic_items",
         "data_service_basic_spells",
         "pve_ranking",
-        "data_service_bosses"
+        "data_service_bosses",
+        "table_filter_viewer_ranking_table"
     ];
 
     private ignoreSettings: Array<string> = [

@@ -84,7 +84,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const category of categories) {
             new_list_items.push({
                 id: category.id,
-                label: category.label.content + " - " + this.dateService.toTimeSpan(category.time)
+                label: category.label + " - " + this.dateService.toTimeSpan(category.time)
             });
         }
         const new_selected_items = [];
@@ -109,7 +109,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const segment of segments) {
             new_list_items.push({
                 id: segment.id,
-                label: segment.label.content + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
+                label: segment.label + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts)
             });
         }
@@ -136,7 +136,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const source of sources) {
             const list_item = {
                 id: source.id,
-                label: source.label.content
+                label: source.label
             };
             new_list_items.push(list_item);
             if (this.use_default_filter_sources && source.is_player)
@@ -161,7 +161,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         for (const target of targets) {
             const list_item = {
                 id: target.id,
-                label: target.label.content
+                label: target.label
             };
             new_list_items.push(list_item);
 

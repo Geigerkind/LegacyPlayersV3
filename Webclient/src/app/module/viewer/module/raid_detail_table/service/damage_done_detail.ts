@@ -9,7 +9,7 @@ import {create_array_from_nested_map} from "../../../../../stdlib/map_persistanc
 import {Damage} from "../../../domain_value/damage";
 import {map, take} from "rxjs/operators";
 import {SpellCast} from "../../../domain_value/spell_cast";
-import {DelayedLabel} from "../../../domain_value/delayed_label";
+import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {SpellService} from "../../../service/spell";
 import {Mitigation} from "../../../domain_value/mitigation";
 
@@ -101,7 +101,7 @@ export class DamageDoneDetailService implements OnDestroy {
             const damage = (event.event as any).SpellDamage.damage as Damage;
             if (!ability_details.has(spell_cast.spell_id)) {
                 abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
-                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))).content);
+                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))));
                 ability_details.set(spell_cast.spell_id, new Map());
             }
             const details_map = ability_details.get(spell_cast.spell_id);
@@ -119,7 +119,7 @@ export class DamageDoneDetailService implements OnDestroy {
                 continue;
             if (!ability_details.has(spell_cast.spell_id)) {
                 abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
-                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))).content);
+                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))));
                 ability_details.set(spell_cast.spell_id, new Map());
             }
             const details_map = ability_details.get(spell_cast.spell_id);

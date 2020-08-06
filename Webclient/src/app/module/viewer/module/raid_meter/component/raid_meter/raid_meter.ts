@@ -14,7 +14,7 @@ import {RaidMeterService} from "../../service/raid_meter";
 import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail";
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../../raid_detail_table/domain_value/detail_row";
-import {DelayedLabel} from "../../../../domain_value/delayed_label";
+import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
 
 @Component({
     selector: "RaidMeter",

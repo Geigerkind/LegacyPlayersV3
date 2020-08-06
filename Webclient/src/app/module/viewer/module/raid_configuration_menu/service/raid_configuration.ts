@@ -9,7 +9,7 @@ import {RaidOption} from "../domain_value/raid_option";
 import {map, take} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
-import {DelayedLabel} from "../../../domain_value/delayed_label";
+import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 
 @Injectable({

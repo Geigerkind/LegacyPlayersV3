@@ -29,7 +29,7 @@ export class RankingTableComponent implements OnDestroy, OnInit {
             index: 1,
             filter_name: 'dps',
             labelKey: "Armory.Viewer.RankingTable.dps",
-            type: 1,
+            type: 0,
             type_range: null,
             col_type: 2
         },
@@ -37,7 +37,7 @@ export class RankingTableComponent implements OnDestroy, OnInit {
             index: 2,
             filter_name: 'hps',
             labelKey: "Armory.Viewer.RankingTable.hps",
-            type: 1,
+            type: 0,
             type_range: null,
             col_type: 2
         },
@@ -45,7 +45,7 @@ export class RankingTableComponent implements OnDestroy, OnInit {
             index: 3,
             filter_name: 'tps',
             labelKey: "Armory.Viewer.RankingTable.tps",
-            type: 1,
+            type: 0,
             type_range: null,
             col_type: 2
         }

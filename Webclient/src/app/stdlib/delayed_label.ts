@@ -9,4 +9,8 @@ export class DelayedLabel {
     constructor(content: Observable<string>) {
         this.subscription = content.subscribe(result => this.content = result);
     }
+
+    toString(): string {
+        return this.content;
+    }
 }
