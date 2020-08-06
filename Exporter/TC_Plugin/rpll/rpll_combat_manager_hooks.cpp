@@ -2,8 +2,10 @@
 
 void RPLLCombatManagerHooks::UpdateOwnerCombatState(const Unit *unit, const bool result)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (!result || unit == nullptr)
         return;
+    #endif
     RPLLHooks::CombatState(unit, unit->IsInCombat());
     RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, static_cast<uint32_t>(unit->GetMaxHealth()), static_cast<uint32_t>(unit->GetHealth()));
     const auto powerType = unit->GetPowerType();

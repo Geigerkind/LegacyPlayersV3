@@ -2,8 +2,10 @@
 
 void RPLLPlayerHooks::SendNewItem(const Unit *unit, const Item *item, const uint32_t count, const bool received, const bool created, const bool broadcast, const bool sendChatMessage)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (item == nullptr || unit == nullptr)
         return;
+    #endif
 
     if (!created && (broadcast || sendChatMessage) && count >= 1)
         RPLLHooks::Loot(unit, item->GetEntry(), count);

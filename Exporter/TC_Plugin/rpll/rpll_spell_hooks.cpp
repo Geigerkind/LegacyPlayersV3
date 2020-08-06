@@ -2,20 +2,28 @@
 
 void RPLLSpellHooks::SendCastResult(const Spell *spell, const SpellCastResult result)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (spell == nullptr || result != SpellCastResult::SPELL_FAILED_INTERRUPTED)
+        return;
+    #endif
+    if (result != SpellCastResult::SPELL_FAILED_INTERRUPTED)
         return;
 
     const auto caster = spell->GetCaster();
+    #ifdef RPLL_SAFETY_CHECKS
     if (!caster->GetGUID().IsUnit())
         return;
+    #endif
     RPLLHooks::Interrupt(caster->ToUnit(), spell->GetSpellInfo()->Id);
 }
 
 void RPLLSpellHooks::DoDamageAndTriggers(const Spell *spell, const uint32 hitMask)
 {
     const auto caster = spell->GetCaster();
+    #ifdef RPLL_SAFETY_CHECKS
     if (!caster->GetGUID().IsUnit())
         return;
+    #endif
 
     const RPLL_DamageHitType damageHitType = RPLLHooks::mapHitMaskToRPLLHitType(hitMask);
 

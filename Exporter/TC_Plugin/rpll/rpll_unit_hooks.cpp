@@ -2,8 +2,10 @@
 
 void RPLLUnitHooks::SendAttackStateUpdate(const CalcDamageInfo *damageInfo)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (damageInfo == nullptr || damageInfo->Attacker == nullptr || damageInfo->Target == nullptr)
         return;
+    #endif
     const RPLL_DamageHitType damageHitType = RPLLHooks::mapHitMaskToRPLLHitType(damageInfo->HitInfo);
     std::vector<RPLL_Damage> damages;
     damages.reserve(1);
@@ -19,8 +21,10 @@ void RPLLUnitHooks::SendAttackStateUpdate(const CalcDamageInfo *damageInfo)
 
 void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damageInfo)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (damageInfo == nullptr || damageInfo->attacker == nullptr || damageInfo->target == nullptr)
         return;
+    #endif
 
     const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(damageInfo->schoolMask);
     RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target, static_cast<uint32_t>(damageInfo->SpellID),
@@ -35,8 +39,10 @@ void RPLLUnitHooks::DealHeal(const HealInfo &healInfo)
 
 void RPLLUnitHooks::SendPeriodicAuraLog(const SpellPeriodicAuraLogInfo *pInfo)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (pInfo == nullptr)
         return;
+    #endif
 
     AuraEffect const *aura = pInfo->auraEff;
     const Unit *caster = aura->GetCaster();
@@ -76,26 +82,39 @@ void RPLLUnitHooks::SendPeriodicAuraLog(const SpellPeriodicAuraLogInfo *pInfo)
 
 void RPLLUnitHooks::Kill(const Unit *attacker, const Unit *victim)
 {
-    if (attacker != nullptr && victim != nullptr)
-        RPLLHooks::Death(attacker, victim);
+    #ifdef RPLL_SAFETY_CHECKS
+    if (attacker == nullptr || victim == nullptr)
+        return;
+    #endif
+
+    RPLLHooks::Death(attacker, victim);
 }
 
 void RPLLUnitHooks::RemoveAurasDueToSpellByDispel(const Unit *target, const uint32_t spellId, const uint32_t dispellerSpellId, const ObjectGuid casterGUID, const WorldObject *dispeller, const uint8 chargesRemoved)
 {
-    if (casterGUID.IsUnit() && dispeller->GetGUID().IsUnit() && dispeller->ToUnit() != nullptr)
-        RPLLHooks::Dispel(dispeller->ToUnit(), target, casterGUID, dispellerSpellId, spellId, chargesRemoved);
+    #ifdef RPLL_SAFETY_CHECKS
+    if (!casterGUID.IsUnit() || !dispeller->GetGUID().IsUnit() || dispeller->ToUnit() == nullptr)
+        return;
+    #endif    
+    RPLLHooks::Dispel(dispeller->ToUnit(), target, casterGUID, dispellerSpellId, spellId, chargesRemoved);
 }
 
 void RPLLUnitHooks::RemoveAurasDueToSpellBySteal(const Unit *target, const uint32_t spellId, const uint32_t stealSpellId, const ObjectGuid casterGUID, const WorldObject *stealer)
 {
-    if (casterGUID.IsUnit() && stealer->GetGUID().IsUnit() && stealer->ToUnit() != nullptr)
-        RPLLHooks::SpellSteal(stealer->ToUnit(), target, casterGUID, stealSpellId, spellId, 1);
+    #ifdef RPLL_SAFETY_CHECKS
+    if (!casterGUID.IsUnit() || !stealer->GetGUID().IsUnit() || stealer->ToUnit() == nullptr)
+        return;
+    #endif
+
+    RPLLHooks::SpellSteal(stealer->ToUnit(), target, casterGUID, stealSpellId, spellId, 1);
 }
 
 void RPLLUnitHooks::UpdatePosition(const Unit *unit, const float x, const float y, const float z, const float orientation)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (unit == nullptr)
         return;
+    #endif
     RPLLHooks::Position(unit, x, y, z, orientation);
 }
 
@@ -103,47 +122,73 @@ void RPLLUnitHooks::UpdatePosition(const Unit *unit, const float x, const float 
 // So while we may loose some precision, we get rid of a lot redundant events
 void RPLLUnitHooks::SetHealth(const Unit *unit, const uint32_t oldVal)
 {
-    if (unit == nullptr || oldVal == 0 || unit->GetHealth() == oldVal)
+    #ifdef RPLL_SAFETY_CHECKS
+    if (unit == nullptr)
         return;
+    #endif
+    if (oldVal == 0 || unit->GetHealth() == oldVal)
+        return;
+
     RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, static_cast<uint32_t>(unit->GetMaxHealth()), static_cast<uint32_t>(unit->GetHealth()));
 }
 
 void RPLLUnitHooks::SetMaxHealth(const Unit *unit, const uint32_t oldVal)
 {
-    if (unit == nullptr || oldVal == 0 || unit->GetMaxHealth() == oldVal)
+    #ifdef RPLL_SAFETY_CHECKS
+    if (unit == nullptr)
         return;
+    #endif
+    if (oldVal == 0 || unit->GetMaxHealth() == oldVal)
+        return;
+    
     RPLLHooks::Power(unit, RPLL_PowerType::RPLL_HEALTH, static_cast<uint32_t>(unit->GetMaxHealth()), static_cast<uint32_t>(unit->GetHealth()));
 }
 
 void RPLLUnitHooks::SetPower(const Unit *unit, const Powers powerType, const uint32_t oldVal)
 {
-    if (unit == nullptr || oldVal == 0 || unit->GetPower(powerType) == oldVal)
+    #ifdef RPLL_SAFETY_CHECKS
+    if (unit == nullptr)
         return;
+    #endif
+    if (oldVal == 0 || unit->GetPower(powerType) == oldVal)
+        return;
+
     RPLLHooks::Power(unit, RPLLHooks::mapPowersToRPLLPowerType(powerType), static_cast<uint32_t>(unit->GetMaxPower(powerType)), static_cast<uint32_t>(unit->GetPower(powerType)));
 }
 
 void RPLLUnitHooks::SetMaxPower(const Unit *unit, const Powers powerType, const uint32_t oldVal)
 {
-    if (unit == nullptr || oldVal == 0 || unit->GetMaxPower(powerType) == oldVal)
+    #ifdef RPLL_SAFETY_CHECKS
+    if (unit == nullptr)
         return;
+    #endif
+    if (oldVal == 0 || unit->GetMaxPower(powerType) == oldVal)
+        return;
+
     RPLLHooks::Power(unit, RPLLHooks::mapPowersToRPLLPowerType(powerType), static_cast<uint32_t>(unit->GetMaxPower(powerType)), static_cast<uint32_t>(unit->GetPower(powerType)));
 }
 
 void RPLLUnitHooks::RemoveOwnedAura(const Aura *aura)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (aura == nullptr)
         return;
+    #endif
     const auto owner = aura->GetOwner();
+    #ifdef RPLL_SAFETY_CHECKS
     if (owner == nullptr || !owner->GetGUID().IsUnit())
         return;
+    #endif
     RPLLHooks::AuraApplication(aura->GetCaster(), owner->ToUnit(), static_cast<uint32_t>(aura->GetId()), 0, false);
 }
 
 void RPLLUnitHooks::SetOwnerGUID(const Unit *unit, const ObjectGuid owner)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (unit == nullptr)
         return;
     if (!unit->GetGUID().IsUnit() || !owner.IsUnit())
         return;
+    #endif
     RPLLHooks::Summon(unit, owner.GetRawValue());
 }

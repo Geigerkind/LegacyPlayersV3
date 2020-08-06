@@ -1,6 +1,9 @@
 #ifndef _RPLL_HOOKS_H
 #define _RPLL_HOOKS_H
 
+// Comment out to disable them
+#define RPLL_SAFETY_CHECKS
+
 #include <zmq.h>
 #include <cinttypes>
 #include "Unit.h"

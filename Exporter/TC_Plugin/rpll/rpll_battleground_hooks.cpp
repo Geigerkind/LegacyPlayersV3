@@ -2,8 +2,10 @@
 
 void RPLLBattlegroundHooks::StartBattleground(const Battleground *battleground)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (battleground == nullptr)
         return;
+    #endif
     if (battleground->isBattleground())
     {
         RPLLHooks::StartBattleground(static_cast<uint32_t>(battleground->GetMapId()), static_cast<uint32_t>(battleground->GetInstanceID()));
@@ -22,8 +24,10 @@ void RPLLBattlegroundHooks::StartBattleground(const Battleground *battleground)
 
 void RPLLBattlegroundHooks::EndBattleground(const Battleground *battleground, const uint32_t *scores)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (battleground == nullptr || scores == nullptr)
         return;
+    #endif
     const RPLL_PvP_Winner winner = RPLLHooks::mapPvPWinnerToRPLLPvPWinner(battleground->GetWinner());
     if (battleground->isBattleground())
     {

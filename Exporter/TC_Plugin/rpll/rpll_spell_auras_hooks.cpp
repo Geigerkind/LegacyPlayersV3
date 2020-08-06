@@ -2,8 +2,10 @@
 
 void RPLLSpellAurasHooks::AuraCreate(const Aura *result)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (result == nullptr)
         return;
+    #endif
     const auto owner = result->GetOwner();
     if (owner == nullptr || !owner->GetGUID().IsUnit())
         return;
@@ -12,11 +14,15 @@ void RPLLSpellAurasHooks::AuraCreate(const Aura *result)
 
 void RPLLSpellAurasHooks::AuraSetStackAmount(const Aura *aura, const uint32_t oldAmount)
 {
+    #ifdef RPLL_SAFETY_CHECKS
     if (aura == nullptr)
         return;
+    #endif
     const auto owner = aura->GetOwner();
+    #ifdef RPLL_SAFETY_CHECKS
     if (owner == nullptr || !owner->GetGUID().IsUnit())
         return;
+    #endif
 
     const auto amount = static_cast<uint32_t>(aura->GetStackAmount());
     if (amount != oldAmount)
