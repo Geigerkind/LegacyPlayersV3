@@ -11,6 +11,7 @@ proptest! {
   ///
   /// The idea is to generate a format string with random indices, e.g. `"{2} {4} {0} {0}"`. The function `strformat::fmt()` then inserts the corresponding values from `strings`. Consider a `strings` array of `["A", "B", "C", "D", "E", "F"]` we get a format string of `"C E A A"`.
   #[test]
+  #[ignore]
   fn test_arguments(size in 0usize..33usize, permutations in prop::array::uniform32(0usize..32usize), strings in prop::array::uniform32("\\PC*")) {
     let format = (0..size)
       .map(|i| format!("{{{}}}", permutations[i]))
