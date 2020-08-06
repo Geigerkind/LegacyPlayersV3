@@ -68,10 +68,15 @@ export class ArenaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const filter = table_init_filter(this.header_columns);
+        let filter;
         if (!this.settingsService.check("table_filter_rated_arenas_search")) {
+            filter = table_init_filter(this.header_columns);
+            filter.end_ts.sorting = false;
             this.settingsService.set("table_filter_rated_arenas_search", filter);
+        } else {
+            filter = this.settingsService.get("table_filter_rated_arenas_search");
         }
+        this.onFilter(filter);
     }
 
     onFilter(filter: any): void {

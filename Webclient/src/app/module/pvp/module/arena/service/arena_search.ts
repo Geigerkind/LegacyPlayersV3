@@ -5,7 +5,7 @@ import {APIService} from "src/app/service/api";
     providedIn: "root",
 })
 export class ArenaSearchService {
-    private static readonly URL_ARENA_META: string = "/instance/meta_search/rated_arenas";
+    private static readonly URL_ARENA_META: string = "/instance/meta_search/rated_arena";
 
     constructor(
         private apiService: APIService
