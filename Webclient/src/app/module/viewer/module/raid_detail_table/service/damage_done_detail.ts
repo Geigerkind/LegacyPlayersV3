@@ -80,7 +80,7 @@ export class DamageDoneDetailService implements OnDestroy {
     }
 
     private commit(): void {
-        const abilities = new Map<number, string>();
+        const abilities = new Map<number, DelayedLabel | string>();
         const ability_details = new Map<number, Map<HitType, DetailRow>>();
         if (this.melee_damage.length > 0) {
             abilities.set(0, "Auto Attack");

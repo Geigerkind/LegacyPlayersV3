@@ -29,6 +29,15 @@ export class SpellService implements OnDestroy {
     get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell> | undefined> {
         if (!this.current_meta)
             return of(undefined);
+        if (spell_id === 0)
+            return of({
+                localization: "Auto Attack",
+                base: {
+                    id: 0,
+                    icon: "inv_sword_04",
+                    school: 0
+                }
+            });
         return this.dataService.get_server_by_id(this.current_meta.server_id)
             .pipe(concatMap(server => !server ? undefined : this.dataService.get_localized_basic_spell(server.expansion_id, spell_id)));
     }

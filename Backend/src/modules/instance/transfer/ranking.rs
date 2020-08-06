@@ -60,7 +60,7 @@ pub fn get_character_ranking(me: State<Instance>, data: State<Data>, armory: Sta
                 result.insert(*npc_id, (None, None, None));
             }
             if let Some(rankings) = result.get_mut(npc_id) {
-                rankings.0 = char_rankings.get(&character_id).map(helper_get_best_ranking);
+                rankings.1 = char_rankings.get(&character_id).map(helper_get_best_ranking);
             }
         });
 
@@ -71,7 +71,7 @@ pub fn get_character_ranking(me: State<Instance>, data: State<Data>, armory: Sta
                 result.insert(*npc_id, (None, None, None));
             }
             if let Some(rankings) = result.get_mut(npc_id) {
-                rankings.0 = char_rankings.get(&character_id).map(helper_get_best_ranking);
+                rankings.2 = char_rankings.get(&character_id).map(helper_get_best_ranking);
             }
         });
 

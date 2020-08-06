@@ -11,6 +11,8 @@ import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
 import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
+import {EventAbility} from "../domain_value/event_ability";
+import {SpellService} from "../../../service/spell";
 
 @Injectable({
     providedIn: "root",
@@ -20,6 +22,7 @@ export class RaidConfigurationService implements OnDestroy {
     private subscription_attempts: Subscription;
     private subscription_sources: Subscription;
     private subscription_targets: Subscription;
+    private subscription_abilities: Subscription;
     private subscription_meta: Subscription;
 
     private current_meta: InstanceViewerMeta;
@@ -28,6 +31,7 @@ export class RaidConfigurationService implements OnDestroy {
     private segments$: BehaviorSubject<Array<Segment>> = new BehaviorSubject([]);
     private sources$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
     private targets$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
+    private abilities$: BehaviorSubject<Array<EventAbility>> = new BehaviorSubject([]);
     private options$: BehaviorSubject<Array<RaidOption>> = new BehaviorSubject([]);
 
     private category_filter: Set<number> = new Set();
@@ -35,7 +39,8 @@ export class RaidConfigurationService implements OnDestroy {
 
     constructor(
         private instanceDataService: InstanceDataService,
-        private unitService: UnitService
+        private unitService: UnitService,
+        private spellService: SpellService
     ) {
         this.subscription_meta = this.instanceDataService.meta.subscribe(meta => {
             this.current_meta = meta;
@@ -50,12 +55,14 @@ export class RaidConfigurationService implements OnDestroy {
         });
         this.subscription_sources = this.instanceDataService.sources.subscribe(sources => this.update_sources(sources));
         this.subscription_targets = this.instanceDataService.targets.subscribe(targets => this.update_targets(targets));
+        this.subscription_abilities = this.instanceDataService.abilities.subscribe(abilities => this.update_abilities(abilities));
     }
 
     ngOnDestroy(): void {
         this.subscription_attempts?.unsubscribe();
         this.subscription_sources?.unsubscribe();
         this.subscription_targets?.unsubscribe();
+        this.subscription_abilities?.unsubscribe();
         this.subscription_meta?.unsubscribe();
     }
 
@@ -77,6 +84,10 @@ export class RaidConfigurationService implements OnDestroy {
 
     get targets(): Observable<Array<EventSource>> {
         return this.targets$.asObservable();
+    }
+
+    get abilities(): Observable<Array<EventAbility>> {
+        return this.abilities$.asObservable();
     }
 
     get options(): Observable<Array<RaidOption>> {
@@ -112,6 +123,10 @@ export class RaidConfigurationService implements OnDestroy {
 
     update_target_filter(selected_targets: Array<number>): void {
         this.instanceDataService.target_filter = selected_targets;
+    }
+
+    update_ability_filter(selected_abilities: Set<number>): void {
+        this.instanceDataService.ability_filter = selected_abilities;
     }
 
     private update_categories(attempts: Array<InstanceViewerAttempt>): void {
@@ -182,6 +197,17 @@ export class RaidConfigurationService implements OnDestroy {
                 is_player: is_player(target)
             });
         this.targets$.next(result);
+    }
+
+    private update_abilities(abilities: Set<number>): void {
+        console.log(abilities);
+        const result: Array<EventAbility> = [];
+        for (const spell_id of abilities)
+            result.push({
+                id: spell_id,
+                label: new DelayedLabel(this.spellService.get_localized_basic_spell(spell_id).pipe(map(spell => spell?.localization))),
+            });
+        this.abilities$.next(result);
     }
 
     private calculate_non_boss_attempts(attempts: Array<InstanceViewerAttempt>): Array<[number, number]> {

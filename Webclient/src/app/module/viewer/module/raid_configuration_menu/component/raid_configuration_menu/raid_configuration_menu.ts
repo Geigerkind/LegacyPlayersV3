@@ -6,6 +6,7 @@ import {Category} from "../../domain_value/category";
 import {Segment} from "../../domain_value/segment";
 import {EventSource} from "../../domain_value/event_source";
 import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
+import {EventAbility} from "../../domain_value/event_ability";
 
 @Component({
     selector: "RaidConfigurationMenu",
@@ -18,6 +19,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private subscription_segments: Subscription;
     private subscription_sources: Subscription;
     private subscription_targets: Subscription;
+    private subscription_abilities: Subscription;
 
     private subscription_source_selection: Subscription;
 
@@ -27,16 +29,19 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     selected_items_segments: Array<any> = [];
     selected_items_sources: Array<any> = [];
     selected_items_targets: Array<any> = [];
+    selected_items_abilities: Array<any> = [];
 
     list_items_categories: Array<any> = [];
     list_items_segments: Array<any> = [];
     list_items_sources: Array<any> = [];
     list_items_targets: Array<any> = [];
+    list_items_abilities: Array<any> = [];
 
     use_default_filter_categories: boolean = true;
     use_default_filter_segments: boolean = true;
     use_default_filter_sources: boolean = true;
     use_default_filter_targets: boolean = true;
+    use_default_filter_abilities: boolean = true;
 
     constructor(
         private raidConfigurationService: RaidConfigurationService,
@@ -47,6 +52,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments));
         this.subscription_sources = this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources));
         this.subscription_targets = this.raidConfigurationService.targets.subscribe(targets => this.handle_targets(targets));
+        this.subscription_abilities = this.raidConfigurationService.abilities.subscribe(abilities => this.handle_abilities(abilities));
         this.subscription_source_selection = this.raidConfigurationSelectionService.source_selection.subscribe(selection =>
             this.selected_items_sources = this.selected_items_sources.filter(item => selection.includes(item.id)));
     }
@@ -56,6 +62,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_segments?.unsubscribe();
         this.subscription_sources?.unsubscribe();
         this.subscription_targets?.unsubscribe();
+        this.subscription_abilities?.unsubscribe();
         this.subscription_source_selection?.unsubscribe();
     }
 
@@ -77,6 +84,11 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     on_target_selection_updated(): void {
         this.use_default_filter_targets = false;
         this.raidConfigurationService.update_target_filter(this.selected_items_targets.map(target => target.id));
+    }
+
+    on_ability_selection_updated(): void {
+        this.use_default_filter_targets = false;
+        this.raidConfigurationService.update_ability_filter(new Set(this.selected_items_abilities.map(ability => ability.id)));
     }
 
     private async handle_categories(categories: Array<Category>) {
@@ -180,5 +192,32 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
         if (this.use_default_filter_targets)
             this.raidConfigurationService.update_target_filter(this.selected_items_targets.map(target => target.id));
+    }
+
+    private async handle_abilities(abilities: Array<EventAbility>) {
+        const new_list_items = [];
+        const new_selected_items = [];
+        for (const ability of abilities) {
+            const list_item = {
+                id: ability.id,
+                label: ability.label + " (Id: " + ability.id.toString() + ")"
+            };
+            new_list_items.push(list_item);
+
+            if (this.use_default_filter_abilities)
+                new_selected_items.push(list_item);
+
+        }
+        if (!this.use_default_filter_abilities) {
+            for (const selected_item of this.selected_items_abilities) {
+                if (new_list_items.find(item => item.id === selected_item.id))
+                    new_selected_items.push(selected_item);
+            }
+        }
+        this.list_items_abilities = new_list_items;
+        this.selected_items_abilities = new_selected_items;
+
+        if (this.use_default_filter_abilities)
+            this.raidConfigurationService.update_ability_filter(new Set(this.selected_items_abilities.map(ability => ability.id)));
     }
 }

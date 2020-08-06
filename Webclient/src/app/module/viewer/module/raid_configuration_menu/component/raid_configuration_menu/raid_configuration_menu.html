@@ -26,6 +26,10 @@
                  (deselect_all)="this.on_target_selection_updated()" (select_all)="this.on_target_selection_updated()"
                  (item_selected)="this.on_target_selection_updated()"
                  (item_deselected)="this.on_target_selection_updated()"></MultiSelect>
+    <MultiSelect [placeholder]="'Abilities'" [(selectedItems)]="selected_items_abilities" [dropdownList]="list_items_abilities"
+                 (deselect_all)="this.on_ability_selection_updated()" (select_all)="this.on_ability_selection_updated()"
+                 (item_selected)="this.on_ability_selection_updated()"
+                 (item_deselected)="this.on_ability_selection_updated()"></MultiSelect>
     <MultiSelect [placeholder]="'Options'"></MultiSelect>
 
     <GeneralInput placeholderKey="Export Link..."></GeneralInput>
