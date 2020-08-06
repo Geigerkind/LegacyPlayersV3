@@ -37,7 +37,7 @@ void *RPLLHooks::GetZmqSocket()
     return RPLLHooks::zmqSocket;
 }
 
-void RPLLHooks::SendZmqMessage(const ByteBuffer msg)
+inline void RPLLHooks::SendZmqMessage(const ByteBuffer msg)
 {
     zmq_send(GetZmqSocket(), msg.contents(), msg.size(), ZMQ_DONTWAIT);
 }
@@ -45,11 +45,11 @@ void RPLLHooks::SendZmqMessage(const ByteBuffer msg)
 /*
  * Time
  */
-uint8_t RPLLHooks::GetCurrentTimeSize()
+inline uint8_t RPLLHooks::GetCurrentTimeSize()
 {
     return sizeof(uint64_t);
 }
-uint64_t RPLLHooks::GetCurrentTime()
+inline uint64_t RPLLHooks::GetCurrentTime()
 {
     return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 }
@@ -89,11 +89,11 @@ bool RPLLHooks::IsInInstance(const Unit *unit)
 /*
  * Health/Power data
  */
-uint8_t RPLLHooks::GetMapMetaDataSize()
+inline uint8_t RPLLHooks::GetMapMetaDataSize()
 {
     return 2 * sizeof(uint32_t) + sizeof(uint8_t);
 }
-void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, const Unit *unit)
+inline void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, const Unit *unit)
 {
     Map *map = unit->GetMap();
     msg << static_cast<uint32_t>(map->GetId());
@@ -105,11 +105,11 @@ void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, const Unit *unit)
  * Message Meta Data
  */
 uint64_t RPLLHooks::MESSAGE_COUNT = 0;
-uint8_t RPLLHooks::GetMessageMetaDataSize()
+inline uint8_t RPLLHooks::GetMessageMetaDataSize()
 {
     return 3 * sizeof(uint8_t) + GetCurrentTimeSize() + 8;
 }
-void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, const RPLL_MessageType msgType, const uint8_t msgLength)
+inline void RPLLHooks::AppendMessageMetaData(ByteBuffer &msg, const RPLL_MessageType msgType, const uint8_t msgLength)
 {
     msg << API_VERSION;
     msg << static_cast<uint8_t>(msgType);
@@ -132,7 +132,7 @@ RPLL_Damage RPLLHooks::BuildRPLLDamage(const RPLL_DamageSchool damageSchool, con
     return std::move(dmg);
 }
 
-void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage)
+inline void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage)
 {
     msg << static_cast<uint8_t>(damage.damageSchool);
     msg << damage.damage;
@@ -143,7 +143,7 @@ void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage)
 /*
  * Methods used to optimize
  */
-bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType power)
+inline bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType power)
 {
     const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
                                             : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
@@ -165,7 +165,7 @@ bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType powe
     return false;
 }
 
-bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
+inline bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
 {
     const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
                                             : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
@@ -182,7 +182,7 @@ bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
     return false;
 }
 
-bool RPLLHooks::HasSignificantPositionChange(const Unit *unit, const float x, const float y, const float z, const float orientation)
+inline bool RPLLHooks::HasSignificantPositionChange(const Unit *unit, const float x, const float y, const float z, const float orientation)
 {
     const uint64_t unitGuid = unit->GetGUID().GetRawValue();
     auto oldPos = RPLLHooks::LAST_UNIT_POSITION.find(unitGuid);

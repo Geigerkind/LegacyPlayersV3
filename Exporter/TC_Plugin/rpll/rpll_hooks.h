@@ -152,11 +152,11 @@ class RPLLHooks
     static void *zmqContext;
     static void *zmqSocket;
     static void *GetZmqSocket();
-    static void SendZmqMessage(const ByteBuffer msg);
+    static inline void SendZmqMessage(const ByteBuffer msg);
 
     // Time tracking
-    static uint8_t GetCurrentTimeSize();
-    static uint64_t GetCurrentTime();
+    static inline uint8_t GetCurrentTimeSize();
+    static inline uint64_t GetCurrentTime();
 
     // Conditions
     static std::set<uint32_t> raidMapIds;
@@ -168,15 +168,15 @@ class RPLLHooks
     static bool IsInInstance(const Unit *unit);
 
     // Map meta data
-    static void AppendMapMetaData(ByteBuffer &msg, const Unit *unit);
-    static uint8_t GetMapMetaDataSize();
+    static inline void AppendMapMetaData(ByteBuffer &msg, const Unit *unit);
+    static inline uint8_t GetMapMetaDataSize();
 
     // Message Meta data
-    static void AppendMessageMetaData(ByteBuffer &msg, const RPLL_MessageType msgType, uint8_t msgLength);
-    static uint8_t GetMessageMetaDataSize();
+    static inline void AppendMessageMetaData(ByteBuffer &msg, const RPLL_MessageType msgType, uint8_t msgLength);
+    static inline uint8_t GetMessageMetaDataSize();
 
     // Helper
-    static void AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage);
+    static inline void AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &damage);
     static void Instance(const uint32_t mapId, const uint32_t instanceId, const RPLL_MessageType messageType);
 
     // Optimization
