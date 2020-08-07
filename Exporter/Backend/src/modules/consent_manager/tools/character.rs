@@ -12,7 +12,14 @@ pub trait CharacterConsent {
 
 impl CharacterConsent for ConsentManager {
     fn has_given_consent(&self, character_id: u32) -> bool {
+        lazy_static! {
+            static ref OPT_IN_MODE: bool = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
+        }
+
         let character_consent = self.character_consent.read().unwrap();
+        if !*OPT_IN_MODE {
+            return !character_consent.contains(&character_id);
+        }
         character_consent.contains(&character_id)
     }
 
