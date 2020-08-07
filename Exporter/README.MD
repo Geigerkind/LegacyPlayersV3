@@ -37,6 +37,9 @@ and then optionally send to LegacyPlayers, where the player can view its data im
 git clone https://github.com/Geigerkind/LegacyPlayersV3
 cd LegacyPlayersV3/Exporter
 # Adjust variables in the docker-compose.yml
+# If you want to run the Frontend and Backend on different server, you have to adjust the frontend and backend ymls.
+# Currently, in the example, the docker containers are linked to each other. In production the correct domain has to be used.
+# Please hit me up if you encounter difficulties setting this up.
 docker-compose up
 ```
 I suggest to create a systemd service to start the containers on startup.  
