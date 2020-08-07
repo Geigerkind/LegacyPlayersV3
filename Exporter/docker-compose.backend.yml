@@ -28,6 +28,12 @@ services:
         ipv4_address: 172.34.128.3
     ports:
       - '8880:80'
+    volumes:
+      - "./Environment/lp_cm_nginx_backend/nginx.conf:/etc/nginx/nginx.conf"
+      # - "./Environment/lp_cm_nginx_backend/nginx_https.conf:/etc/nginx/nginx.conf"
+      # - "/path/to/your/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro"
+      # - "/path/to/your/privkey.pem:/etc/nginx/certs/privkey.pem:ro"
+      # - "/path/to/your/chain.pem:/etc/nginx/certs/chain.pem:ro"
   lpcmbackend:
     depends_on:
       - lpcmmariadb

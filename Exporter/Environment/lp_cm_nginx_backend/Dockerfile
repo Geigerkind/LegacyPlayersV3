@@ -19,6 +19,5 @@ FROM nginx:stable
 RUN mkdir -p /var/www/html/rpll
 
 COPY --from=builder /Webclient/dist/Webclient/ /var/www/html/rpll/
-COPY ./Environment/lp_cm_nginx_backend/nginx.conf /etc/nginx/
 
 RUN chmod -R 777 /var/www/html

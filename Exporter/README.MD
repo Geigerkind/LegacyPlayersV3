@@ -39,6 +39,7 @@ cd LegacyPlayersV3/Exporter
 # Adjust variables in the docker-compose.yml
 # If you want to run the Frontend and Backend on different server, you have to adjust the frontend and backend ymls.
 # Currently, in the example, the docker containers are linked to each other. In production the correct domain has to be used.
+# If you split them you probably also want to configure the backend to use https instead. Please provide your certificates via volume then.
 # Please hit me up if you encounter difficulties setting this up.
 docker-compose up
 ```
