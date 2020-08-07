@@ -15,10 +15,8 @@ pub fn get_characters(mut db_characters: DbCharacters, me: State<ConsentManager>
 
 #[post("/character/<character_id>")]
 pub fn give_consent(mut db_lp_consent: DbLpConsent, me: State<ConsentManager>, _auth: Authenticate, character_id: u32) -> Result<(), Failure> {
-    lazy_static! {
-        static ref OPT_IN_MODE: bool = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
-    }
-    if *OPT_IN_MODE {
+    let opt_in_mode = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
+    if opt_in_mode {
         me.give_consent(&mut *db_lp_consent, character_id)
     } else {
         me.withdraw_consent(&mut *db_lp_consent, character_id)
@@ -27,10 +25,8 @@ pub fn give_consent(mut db_lp_consent: DbLpConsent, me: State<ConsentManager>, _
 
 #[delete("/character/<character_id>")]
 pub fn withdraw_consent(mut db_lp_consent: DbLpConsent, me: State<ConsentManager>, _auth: Authenticate, character_id: u32) -> Result<(), Failure> {
-    lazy_static! {
-        static ref OPT_IN_MODE: bool = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
-    }
-    if *OPT_IN_MODE {
+    let opt_in_mode = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
+    if opt_in_mode {
         me.withdraw_consent(&mut *db_lp_consent, character_id)
     } else {
         me.give_consent(&mut *db_lp_consent, character_id)

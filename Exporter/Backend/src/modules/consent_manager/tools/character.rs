@@ -24,8 +24,17 @@ impl CharacterConsent for ConsentManager {
     }
 
     fn give_consent(&self, db_lp_consent: &mut impl Execute, character_id: u32) -> Result<(), Failure> {
-        if self.has_given_consent(character_id) {
-            return Err(Failure::ConsentAlreadyGiven);
+        lazy_static! {
+            static ref OPT_IN_MODE: bool = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
+        }
+        if *OPT_IN_MODE {
+            if self.has_given_consent(character_id) {
+                return Err(Failure::ConsentAlreadyGiven);
+            }
+        } else {
+            if !self.has_given_consent(character_id) {
+                return Err(Failure::NoConsentGivenYet);
+            }
         }
 
         let mut character_consent = self.character_consent.write().unwrap();
@@ -43,8 +52,17 @@ impl CharacterConsent for ConsentManager {
     }
 
     fn withdraw_consent(&self, db_lp_consent: &mut impl Execute, character_id: u32) -> Result<(), Failure> {
-        if !self.has_given_consent(character_id) {
-            return Err(Failure::NoConsentGivenYet);
+        lazy_static! {
+            static ref OPT_IN_MODE: bool = std::env::var("OPT_IN_MODE").unwrap().parse::<bool>().unwrap();
+        }
+        if *OPT_IN_MODE {
+            if !self.has_given_consent(character_id) {
+                return Err(Failure::NoConsentGivenYet);
+            }
+        } else {
+            if self.has_given_consent(character_id) {
+                return Err(Failure::ConsentAlreadyGiven);
+            }
         }
 
         let mut character_consent = self.character_consent.write().unwrap();
