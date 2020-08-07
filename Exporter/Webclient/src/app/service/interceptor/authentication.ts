@@ -16,18 +16,12 @@ export class AuthenticationInterceptor implements HttpInterceptor {
         if (!req.url.toLowerCase().includes("/api/"))
             return next.handle(req);
 
-        // TODO: REMOVE: DEBUG
-        this.settingsService.set("API_TOKEN", {
-            "token": "abc",
-            "account_id": 5
-        });
-
         // Check if the token exists
         if (!this.settingsService.check("API_TOKEN")) {
-            this.routingService.navigate(["/"]); // TODO: Where to redirect to?
+            this.routingService.navigate(["/"]);
             return;
         }
-        let api_token: APIToken = this.settingsService.get("API_TOKEN");
+        const api_token: APIToken = this.settingsService.get("API_TOKEN");
 
         req = req.clone({
             setHeaders: {
@@ -41,7 +35,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
                 catchError((failure: any) => {
                     if (failure.status === 401) {
                         this.settingsService.set("API_TOKEN", undefined);
-                        this.routingService.navigate(["/"]); // TODO: Where to redirect to?
+                        this.routingService.navigate(["/"]);
                     }
                     return throwError(failure);
                 })

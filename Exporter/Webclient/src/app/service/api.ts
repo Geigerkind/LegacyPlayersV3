@@ -9,7 +9,7 @@ import {Observable} from "rxjs";
     providedIn: "root",
 })
 export class APIService {
-    private static readonly API_PREFIX: string = "/API";
+    private static readonly API_PREFIX: string = "/rpll/API";
 
     constructor(private httpClient: HttpClient,
                 private notificationService: NotificationService) {

@@ -18,9 +18,10 @@ import {APIService} from "./service/api";
 import {NotificationListModule} from "./module/notification_list/module";
 import {SettingsService} from "./service/settings";
 import {AuthenticationInterceptor} from "./service/interceptor/authentication";
+import {APP_BASE_HREF} from '@angular/common';
 
 export function createTranslateLoader(http: HttpClient) {
-    return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
+    return new TranslateHttpLoader(http, "/rpll/assets/i18n/", ".json");
 }
 
 @NgModule({
@@ -50,6 +51,7 @@ export function createTranslateLoader(http: HttpClient) {
         APIService,
         {provide: HTTP_INTERCEPTORS, useClass: LoadingBarInterceptor, multi: true, deps: [LoadingBarService]},
         {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true, deps: [SettingsService]},
+        {provide: APP_BASE_HREF, useValue: '/rpll/'}
     ],
     bootstrap: [App]
 })

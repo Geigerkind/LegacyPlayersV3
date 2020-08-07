@@ -31,7 +31,9 @@ services:
   lpcmbackend:
     depends_on:
       - lpcmmariadb
-    build: Environment/lp_cm_backend
+    build:
+      context: ./
+      dockerfile: ./Environment/lp_cm_backend/Dockerfile
     restart: always
     networks:
       lp_cm_net:
@@ -46,8 +48,6 @@ services:
       - EXPANSION_ID=2
       - UID_SALT=SomeSalt
       - OPT_IN_MODE=false
-    volumes:
-      - "./Backend/:/Backend"
 
 networks:
   lp_cm_net:

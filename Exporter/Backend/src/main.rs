@@ -12,7 +12,7 @@ extern crate dotenv;
 extern crate lazy_static;
 
 use dotenv::dotenv;
-use std::{env, thread};
+use std::thread;
 
 use modules::ConsentManager;
 
@@ -72,7 +72,7 @@ fn main() {
         .attach(DbCharacters::fairing())
         .attach(DbLpConsent::fairing())
         .mount(
-            "/API/consent_manager/",
+            "/rpll/API/consent_manager/",
             routes![
                 modules::consent_manager::transfer::character::get_characters,
                 modules::consent_manager::transfer::character::give_consent,
