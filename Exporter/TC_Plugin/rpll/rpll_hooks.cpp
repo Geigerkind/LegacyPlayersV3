@@ -154,12 +154,12 @@ inline bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerTy
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
     if (power == RPLL_PowerType::RPLL_HEALTH && (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.health) >= timeout))
     {
-        res->second.health = now;
+        RPLLHooks::LAST_UPDATE[guid].health = now;
         return true;
     }
     else if (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.power) >= timeout)
     {
-        res->second.power = now;
+        RPLLHooks::LAST_UPDATE[guid].power = now;
         return true;
     }
     return false;
@@ -176,7 +176,7 @@ inline bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
     if (res == RPLLHooks::LAST_UPDATE.end() || (now - res->second.position) >= timeout)
     {
-        res->second.position = now;
+        RPLLHooks::LAST_UPDATE[guid].position = now;
         return true;
     }
     return false;
@@ -191,7 +191,7 @@ inline bool RPLLHooks::HasSignificantPositionChange(const Unit *unit, const floa
 
     if (oldPos == RPLLHooks::LAST_UNIT_POSITION.end() || std::fabs(oldPos->second - sumPos) >= position_leeway)
     {
-        oldPos->second = sumPos;
+        RPLLHooks::LAST_UNIT_POSITION[unitGuid] = sumPos;
         return true;
     }
     return false;

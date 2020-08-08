@@ -47,6 +47,11 @@ void RPLLPlayerHooks::EnvironmentalDamage(Unit *unit, const EnviromentalDamage t
 
 void RPLLPlayerHooks::SetMap(const Unit *unit)
 {
+    #ifdef RPLL_SAFETY_CHECKS
+        if (unit == nullptr)
+            return;
+    #endif
+
     RPLLHooks::Position(unit, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation());
     for (auto aura : unit->GetOwnedAuras())
         RPLLSpellAurasHooks::AuraCreate(aura.second);
