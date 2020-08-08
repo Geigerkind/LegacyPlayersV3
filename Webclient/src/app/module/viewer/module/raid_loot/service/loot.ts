@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from "@angular/core";
 import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, Observable, of, Subscription} from "rxjs";
 import {Loot} from "../domain_value/loot";
-import {concatMap, take} from "rxjs/operators";
+import {concatMap, map, take} from "rxjs/operators";
 import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attempt";
 import {Event} from "../../../domain_value/event";
 import {LootItem} from "../domain_value/loot_item";
@@ -98,12 +98,12 @@ export class LootService implements OnDestroy {
                     });
                 }
             } else {
-                if (result.has(last_attempt.npc_id)) {
-                    const entry = result.get(last_attempt.npc_id);
+                if (result.has(last_attempt.encounter_id)) {
+                    const entry = result.get(last_attempt.encounter_id);
                     entry.loot_items.push(loot_item);
                 } else {
-                    result.set(last_attempt.npc_id, {
-                        name: this.unitService.get_npc_name(last_attempt.npc_id),
+                    result.set(last_attempt.encounter_id, {
+                        name: this.dataService.get_encounter(last_attempt.encounter_id).pipe(map(encounter => encounter?.localization)),
                         loot_items: [loot_item]
                     });
                 }
