@@ -6,7 +6,7 @@ use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon}
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_steal};
-use crate::modules::live_data_processor::tools::{MapUnit, GUID};
+use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};

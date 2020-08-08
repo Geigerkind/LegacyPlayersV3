@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::tools::payload_mapper::position::MapPosition;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_map::MapInstanceMap;
 
 #[test]
 fn map_instance_map_positive() {

@@ -8,6 +8,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::heal_done::MapHe
 use crate::modules::live_data_processor::tools::payload_mapper::instance_arena::MapInstanceArena;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_battleground::MapInstanceBattleground;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_delete::MapInstanceDelete;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_map::MapInstanceMap;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_start::MapInstanceStart;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_start_rated_arena::MapInstanceStartRatedArena;
 use crate::modules::live_data_processor::tools::payload_mapper::instance_unrated_arena::MapInstanceUnratedArena;
@@ -19,7 +20,6 @@ use crate::modules::live_data_processor::tools::payload_mapper::spell_cast::MapS
 use crate::modules::live_data_processor::tools::payload_mapper::summon::MapSummon;
 use crate::modules::live_data_processor::tools::payload_mapper::threat::MapThreat;
 use crate::modules::live_data_processor::tools::payload_mapper::un_aura::MapUnAura;
-use crate::modules::live_data_processor::tools::payload_mapper::instance_map::MapInstanceMap;
 
 pub trait MapMessageType {
     fn to_message_type(&self, payload: &[u8]) -> Result<MessageType, LiveDataProcessorFailure>;

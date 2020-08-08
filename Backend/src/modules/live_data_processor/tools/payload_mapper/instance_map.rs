@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, InstanceMap};
+use crate::modules::live_data_processor::dto::{InstanceMap, LiveDataProcessorFailure};
 use crate::modules::live_data_processor::tools::byte_reader;
 use crate::modules::live_data_processor::tools::payload_mapper::unit::MapUnit;
 

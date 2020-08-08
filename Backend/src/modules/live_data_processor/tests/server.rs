@@ -1,6 +1,6 @@
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::{DamageDone, Message, MessageType, Position, SpellCast, Unit};
+use crate::modules::live_data_processor::dto::{DamageDone, InstanceMap, Message, MessageType, Position, SpellCast, Unit};
 use crate::modules::live_data_processor::material::Server;
 use crate::tests::TestContainer;
 
@@ -24,10 +24,33 @@ fn parse_spell_damage() {
         api_version: 0,
         message_length: 0,
         timestamp: 0,
-        message_type: MessageType::Position(Position {
+        message_type: MessageType::InstanceMap(InstanceMap {
             map_id: 249,
             instance_id: caster_instance_id,
             map_difficulty: 0,
+            unit: Unit { is_player: false, unit_id: caster_unit_id },
+        }),
+    });
+
+    messages.push(Message {
+        message_count: 1,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 0,
+        message_type: MessageType::InstanceMap(InstanceMap {
+            map_id: 249,
+            instance_id: caster_instance_id,
+            map_difficulty: 0,
+            unit: Unit { is_player: false, unit_id: target_unit_id },
+        }),
+    });
+
+    messages.push(Message {
+        message_count: 2,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 0,
+        message_type: MessageType::Position(Position {
             unit: Unit { is_player: false, unit_id: caster_unit_id },
             x: 0,
             y: 0,
@@ -37,14 +60,11 @@ fn parse_spell_damage() {
     });
 
     messages.push(Message {
-        message_count: 1,
+        message_count: 3,
         api_version: 0,
         message_length: 0,
         timestamp: 0,
         message_type: MessageType::Position(Position {
-            map_id: 249,
-            instance_id: caster_instance_id,
-            map_difficulty: 0,
             unit: Unit { is_player: false, unit_id: target_unit_id },
             x: 0,
             y: 0,
@@ -54,7 +74,7 @@ fn parse_spell_damage() {
     });
 
     messages.push(Message {
-        message_count: 2,
+        message_count: 4,
         api_version: 0,
         message_length: 0,
         timestamp: 0,
@@ -79,7 +99,7 @@ fn parse_spell_damage() {
 
     let mut messages = Vec::new();
     messages.push(Message {
-        message_count: 3,
+        message_count: 5,
         api_version: 0,
         message_length: 0,
         timestamp: 5,
@@ -97,7 +117,7 @@ fn parse_spell_damage() {
 
     let mut messages = Vec::new();
     messages.push(Message {
-        message_count: 4,
+        message_count: 6,
         api_version: 0,
         message_length: 0,
         timestamp: 75,
@@ -117,7 +137,7 @@ fn parse_spell_damage() {
 
     let mut messages = Vec::new();
     messages.push(Message {
-        message_count: 5,
+        message_count: 7,
         api_version: 0,
         message_length: 0,
         timestamp: 75,

@@ -1,4 +1,7 @@
-use crate::modules::live_data_processor::dto::{AuraApplication, CombatState, DamageDone, Death, Event, HealDone, InstanceArena, InstanceBattleground, InstanceStart, InstanceStartRatedArena, InstanceUnratedArena, Interrupt, Loot, Position, Power, SpellCast, Summon, Threat, UnAura, Unit, InstanceMap};
+use crate::modules::live_data_processor::dto::{
+    AuraApplication, CombatState, DamageDone, Death, Event, HealDone, InstanceArena, InstanceBattleground, InstanceMap, InstanceStart, InstanceStartRatedArena, InstanceUnratedArena, Interrupt, Loot, Position, Power, SpellCast, Summon, Threat,
+    UnAura, Unit,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
 pub enum MessageType {
@@ -25,7 +28,7 @@ pub enum MessageType {
     InstancePvPEndRatedArena(InstanceArena),
     InstancePvPEndBattleground(InstanceBattleground),
     InstanceDelete { instance_id: u32 },
-    InstanceMap(InstanceMap)
+    InstanceMap(InstanceMap),
 }
 
 impl MessageType {

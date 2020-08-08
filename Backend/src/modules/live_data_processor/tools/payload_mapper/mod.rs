@@ -19,6 +19,8 @@ pub mod instance_battleground;
 #[cfg(test)]
 pub mod instance_delete;
 #[cfg(test)]
+pub mod instance_map;
+#[cfg(test)]
 pub mod instance_start;
 #[cfg(test)]
 pub mod instance_start_rated_arena;
@@ -44,8 +46,6 @@ pub mod threat;
 pub mod un_aura;
 #[cfg(test)]
 pub mod unit;
-#[cfg(test)]
-pub mod instance_map;
 
 #[cfg(not(test))]
 mod aura_application;
@@ -65,6 +65,8 @@ mod instance_arena;
 mod instance_battleground;
 #[cfg(not(test))]
 mod instance_delete;
+#[cfg(not(test))]
+mod instance_map;
 #[cfg(not(test))]
 mod instance_start;
 #[cfg(not(test))]
@@ -91,5 +93,3 @@ mod threat;
 mod un_aura;
 #[cfg(not(test))]
 mod unit;
-#[cfg(not(test))]
-mod instance_map;
