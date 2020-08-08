@@ -1,11 +1,12 @@
 use crate::modules::data::tools::{RetrieveEncounterNpc, RetrieveItem};
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Unit, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Power, PowerType, Unit, UnitInstance};
 use crate::modules::live_data_processor::material::{Attempt, Server};
 use crate::params;
 use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
 use std::io::Write;
+use std::ops::Div;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
@@ -45,9 +46,10 @@ impl Server {
      * Following rules apply:
      * 1. Attempt starts if any NPC that can start an encounter is entering combat
      * 2. Attempt ends if
-     *    1. All NPCs that are are required to die and participate, died.
-     *    2. All NPCs that are not required to die leave combat (e.g. by dieing)
-     *    3. Or if pivot NPC dies
+     *    1a. All NPCs that are are required to die and participate, died.
+     *    1b. And all NPCs that are not required to die leave combat (e.g. by dieing)
+     *    2. Or if pivot NPC dies
+     *    3. Or if pivot NPC goes below a certain threshold
      */
     fn extract_attempts_and_collect_ranking(&mut self, db_main: &mut (impl Execute + Select), data: &Data, now: u64) {
         for (instance_id, committed_events) in self.committed_events.iter() {
@@ -61,9 +63,9 @@ impl Server {
                     match &event.subject {
                         Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
                             if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
-                                match event.event {
+                                match &event.event {
                                     EventType::CombatState { in_combat } => {
-                                        if in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
+                                        if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
                                             let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
                                             if encounter_npc.requires_death {
                                                 attempt.creatures_required_to_die.insert(*creature_id);
@@ -72,7 +74,7 @@ impl Server {
                                             if encounter_npc.is_pivot {
                                                 attempt.pivot_creature = Some(*creature_id);
                                             }
-                                        } else if !in_combat {
+                                        } else if !*in_combat {
                                             let mut is_commitable = false;
                                             if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                                 attempt.creatures_in_combat.remove(creature_id);
@@ -101,6 +103,26 @@ impl Server {
                                             is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
                                         }
 
+                                        if is_committable {
+                                            if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
+                                                attempt.end_ts = event.timestamp;
+                                                commit_attempt(db_main, *instance_meta_id, attempt);
+                                            }
+                                        }
+                                    },
+                                    EventType::Power(Power { power_type, max_power, current_power }) => {
+                                        if *power_type != PowerType::Health || !encounter_npc.is_pivot {
+                                            continue;
+                                        }
+                                        let mut is_committable = false;
+                                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                            if let Some(treshold) = encounter_npc.health_treshold {
+                                                if (100 * *max_power).div(current_power) <= treshold as u32 {
+                                                    attempt.creatures_required_to_die.clear();
+                                                }
+                                            }
+                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
+                                        }
                                         if is_committable {
                                             if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
                                                 attempt.end_ts = event.timestamp;

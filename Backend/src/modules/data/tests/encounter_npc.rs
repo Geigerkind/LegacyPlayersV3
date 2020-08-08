@@ -11,6 +11,7 @@ fn get_encounter_npc() {
         requires_death: true,
         can_start_encounter: true,
         is_pivot: true,
+        health_treshold: Some(2),
     };
     data.encounter_npcs.insert(encounter_npc_id, encounter_npc.clone());
 
