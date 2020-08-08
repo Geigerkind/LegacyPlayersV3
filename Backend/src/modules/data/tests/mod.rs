@@ -1,6 +1,8 @@
 mod difficulty;
 mod dispel_type;
 mod enchant;
+mod encounter;
+mod encounter_npc;
 mod expansion;
 mod gem;
 mod hero_class;

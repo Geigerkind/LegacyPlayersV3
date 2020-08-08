@@ -1,6 +1,6 @@
 pub use self::{
-    difficulty::Difficulty, dispel_type::DispelType, enchant::Enchant, expansion::Expansion, gem::Gem, hero_class::HeroClass, hero_class_talent::HeroClassTalent, icon::Icon, item::Item, item_bonding::ItemBonding, item_class::ItemClass,
-    item_damage::ItemDamage, item_damage_type::ItemDamageType, item_effect::ItemEffect, item_inventory_type::ItemInventoryType, item_quality::ItemQuality, item_random_property::ItemRandomProperty,
+    difficulty::Difficulty, dispel_type::DispelType, enchant::Enchant, encounter::Encounter, encounter_npc::EncounterNpc, expansion::Expansion, gem::Gem, hero_class::HeroClass, hero_class_talent::HeroClassTalent, icon::Icon, item::Item,
+    item_bonding::ItemBonding, item_class::ItemClass, item_damage::ItemDamage, item_damage_type::ItemDamageType, item_effect::ItemEffect, item_inventory_type::ItemInventoryType, item_quality::ItemQuality, item_random_property::ItemRandomProperty,
     item_random_property_points::ItemRandomPropertyPoints, item_sheath::ItemSheath, item_socket::ItemSocket, item_stat::ItemStat, itemset_effect::ItemsetEffect, itemset_name::ItemsetName, language::Language, localization::Localization,
     localized::Localized, map::Map, npc::NPC, power_type::PowerType, profession::Profession, race::Race, server::Server, spell::Spell, spell_effect::SpellEffect, stat::Stat, stat_type::StatType, title::Title,
 };
@@ -8,6 +8,8 @@ pub use self::{
 mod difficulty;
 mod dispel_type;
 mod enchant;
+mod encounter;
+mod encounter_npc;
 mod expansion;
 mod gem;
 mod hero_class;

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::modules::data::domain_value::{Difficulty, Map};
+use crate::modules::data::domain_value::{Difficulty, Encounter, EncounterNpc, Map};
 use crate::modules::data::{
     domain_value::{
         DispelType, Enchant, Expansion, Gem, HeroClass, HeroClassTalent, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemRandomPropertyPoints, ItemSheath,
@@ -48,6 +48,8 @@ pub struct Data {
     pub item_random_property_points: HashMap<u8, Vec<ItemRandomPropertyPoints>>,
     pub maps: HashMap<u16, Map>,
     pub difficulties: HashMap<u8, Difficulty>,
+    pub encounters: HashMap<u32, Encounter>,
+    pub encounter_npcs: HashMap<u32, EncounterNpc>,
 }
 
 impl Default for Data {
@@ -90,6 +92,8 @@ impl Default for Data {
             item_random_property_points: HashMap::new(),
             maps: HashMap::new(),
             difficulties: HashMap::new(),
+            encounters: HashMap::new(),
+            encounter_npcs: HashMap::new(),
         }
     }
 }
@@ -130,6 +134,8 @@ impl Data {
         self.item_random_property_points.init(db_main);
         self.maps.init(db_main);
         self.difficulties.init(db_main);
+        self.encounters.init(db_main);
+        self.encounter_npcs.init(db_main);
         self
     }
 }
@@ -864,6 +870,37 @@ impl Init for HashMap<u8, Difficulty> {
             .into_iter()
             .for_each(|result| {
                 self.insert(result.id, result);
+            });
+    }
+}
+
+impl Init for HashMap<u32, Encounter> {
+    fn init(&mut self, db_main: &mut impl Select) {
+        db_main
+            .select("SELECT * FROM data_encounter", |mut row| Encounter {
+                id: row.take(0).unwrap(),
+                localization_id: row.take(1).unwrap(),
+                map_id: row.take(2).unwrap(),
+            })
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.id, result);
+            });
+    }
+}
+
+impl Init for HashMap<u32, EncounterNpc> {
+    fn init(&mut self, db_main: &mut impl Select) {
+        db_main
+            .select("SELECT * FROM data_encounter_npcs", |mut row| EncounterNpc {
+                encounter_id: row.take(0).unwrap(),
+                npc_id: row.take(1).unwrap(),
+                requires_death: row.take(2).unwrap(),
+                can_start_encounter: row.take(3).unwrap(),
+            })
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.npc_id, result);
             });
     }
 }

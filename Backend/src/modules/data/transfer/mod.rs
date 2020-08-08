@@ -1,6 +1,8 @@
 pub mod difficulty;
 pub mod dispel_type;
 pub mod enchant;
+pub mod encounter;
+pub mod encounter_npc;
 pub mod expansion;
 pub mod gem;
 pub mod hero_class;

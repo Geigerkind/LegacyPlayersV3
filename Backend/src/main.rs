@@ -193,6 +193,10 @@ fn main() {
                 data::transfer::difficulty::get_all_difficulties,
                 data::transfer::difficulty::get_difficulty_localized,
                 data::transfer::difficulty::get_all_difficulties_localized,
+                data::transfer::encounter::get_encounter,
+                data::transfer::encounter::get_all_encounters,
+                data::transfer::encounter_npc::get_encounter_npc,
+                data::transfer::encounter_npc::get_all_encounter_npcs,
             ],
         )
         .mount(
