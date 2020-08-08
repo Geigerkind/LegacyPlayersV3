@@ -13,7 +13,7 @@ pub struct Instance {
     pub instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
     pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>,
     pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
-    // npc_id => character_id => Vec<Ranking>
+    // encounter_id => character_id => Vec<Ranking>
     pub instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
     pub instance_rankings_hps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
     pub instance_rankings_tps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
@@ -65,15 +65,15 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
     let mut rankings_dps = instance_rankings_dps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, A.npc_id, A.attempt_id, A.damage, (B.end_ts - B.start_ts) as duration FROM instance_ranking_damage A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.damage, (B.end_ts - B.start_ts) as duration FROM instance_ranking_damage A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
-                let npc_id: u32 = row.take(2).unwrap();
+                let encounter_id: u32 = row.take(2).unwrap();
                 (
                     id,
                     character_id,
-                    npc_id,
+                    encounter_id,
                     RankingResult {
                         attempt_id: row.take(3).unwrap(),
                         amount: row.take(4).unwrap(),
@@ -84,9 +84,9 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
             params!("last_queried_id" => rankings_dps.0),
         )
         .into_iter()
-        .for_each(|(id, character_id, npc_id, ranking)| {
+        .for_each(|(id, character_id, encounter_id, ranking)| {
             rankings_dps.0 = id;
-            let characters_rankings = rankings_dps.1.entry(npc_id).or_insert_with(HashMap::new);
+            let characters_rankings = rankings_dps.1.entry(encounter_id).or_insert_with(HashMap::new);
             let rankings = characters_rankings.entry(character_id).or_insert_with(|| Vec::with_capacity(1));
             rankings.push(ranking);
         });
@@ -96,15 +96,15 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
     let mut rankings_hps = instance_rankings_hps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, A.npc_id, A.attempt_id, A.heal, (B.end_ts - B.start_ts) as duration FROM instance_ranking_heal A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.heal, (B.end_ts - B.start_ts) as duration FROM instance_ranking_heal A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
-                let npc_id: u32 = row.take(2).unwrap();
+                let encounter_id: u32 = row.take(2).unwrap();
                 (
                     id,
                     character_id,
-                    npc_id,
+                    encounter_id,
                     RankingResult {
                         attempt_id: row.take(3).unwrap(),
                         amount: row.take(4).unwrap(),
@@ -115,9 +115,9 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
             params!("last_queried_id" => rankings_hps.0),
         )
         .into_iter()
-        .for_each(|(id, character_id, npc_id, ranking)| {
+        .for_each(|(id, character_id, encounter_id, ranking)| {
             rankings_hps.0 = id;
-            let characters_rankings = rankings_hps.1.entry(npc_id).or_insert_with(HashMap::new);
+            let characters_rankings = rankings_hps.1.entry(encounter_id).or_insert_with(HashMap::new);
             let rankings = characters_rankings.entry(character_id).or_insert_with(|| Vec::with_capacity(1));
             rankings.push(ranking);
         });
@@ -127,15 +127,15 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
     let mut rankings_tps = instance_rankings_tps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, A.npc_id, A.attempt_id, A.threat, (B.end_ts - B.start_ts) as duration FROM instance_ranking_threat A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.threat, (B.end_ts - B.start_ts) as duration FROM instance_ranking_threat A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
-                let npc_id: u32 = row.take(2).unwrap();
+                let encounter_id: u32 = row.take(2).unwrap();
                 (
                     id,
                     character_id,
-                    npc_id,
+                    encounter_id,
                     RankingResult {
                         attempt_id: row.take(3).unwrap(),
                         amount: row.take(4).unwrap(),
@@ -146,9 +146,9 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
             params!("last_queried_id" => rankings_tps.0),
         )
         .into_iter()
-        .for_each(|(id, character_id, npc_id, ranking)| {
+        .for_each(|(id, character_id, encounter_id, ranking)| {
             rankings_tps.0 = id;
-            let characters_rankings = rankings_tps.1.entry(npc_id).or_insert_with(HashMap::new);
+            let characters_rankings = rankings_tps.1.entry(encounter_id).or_insert_with(HashMap::new);
             let rankings = characters_rankings.entry(character_id).or_insert_with(|| Vec::with_capacity(1));
             rankings.push(ranking);
         });

@@ -13,6 +13,7 @@ import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {EventAbility} from "../domain_value/event_ability";
 import {SpellService} from "../../../service/spell";
+import {DataService} from "../../../../../service/data";
 
 @Injectable({
     providedIn: "root",
@@ -40,7 +41,8 @@ export class RaidConfigurationService implements OnDestroy {
     constructor(
         private instanceDataService: InstanceDataService,
         private unitService: UnitService,
-        private spellService: SpellService
+        private spellService: SpellService,
+        private dataService: DataService
     ) {
         this.subscription_meta = this.instanceDataService.meta.subscribe(meta => {
             this.current_meta = meta;
@@ -135,21 +137,21 @@ export class RaidConfigurationService implements OnDestroy {
         categories.set(0, {
             segments: new Set(non_boss_intervals.map((value, index) => -index)),
             id: 0,
-            label: new DelayedLabel(of("Non-Boss segments")),
+            label: new DelayedLabel(of("Trash & OOC segments")),
             time: non_boss_intervals.reduce((acc, [start, end]) => acc + end - start, 0)
         });
 
         for (const attempt of attempts) {
-            if (categories.has(attempt.npc_id)) {
-                const category = categories.get(attempt.npc_id);
+            if (categories.has(attempt.encounter_id)) {
+                const category = categories.get(attempt.encounter_id);
                 category.segments.add(attempt.id);
                 category.time += (attempt.end_ts - attempt.start_ts);
                 continue;
             }
-            categories.set(attempt.npc_id, {
+            categories.set(attempt.encounter_id, {
                 segments: new Set([attempt.id]),
-                id: attempt.npc_id,
-                label: new DelayedLabel(this.unitService.get_npc_name(attempt.npc_id)),
+                id: attempt.encounter_id,
+                label: new DelayedLabel(this.unitService.get_npc_name(attempt.encounter_id)),
                 time: (attempt.end_ts - attempt.start_ts)
             });
         }
@@ -171,7 +173,7 @@ export class RaidConfigurationService implements OnDestroy {
                 duration: (attempt.end_ts - attempt.start_ts),
                 id: attempt.id,
                 is_kill: attempt.is_kill,
-                label: new DelayedLabel(this.unitService.get_npc_name(attempt.npc_id)),
+                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => encounter?.localization))),
                 start_ts: attempt.start_ts
             });
         this.segments$.next(segments);

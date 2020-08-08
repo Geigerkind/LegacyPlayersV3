@@ -22,7 +22,7 @@ export class RankingService {
 
     private current_mode$: number = 1;
     private current_selection$: number = 1;
-    private current_npc_ids$: Array<number> = [];
+    private current_encounter_ids$: Array<number> = [];
     private current_hero_class_ids$: Array<number> = [];
     private current_server_ids$: Array<number> = [];
 
@@ -35,10 +35,10 @@ export class RankingService {
         return this.rankings$.asObservable();
     }
 
-    select(mode: number, selection: number, npc_ids: Array<number>, hero_class_ids: Array<number>, server_ids: Array<number>): void {
+    select(mode: number, selection: number, encounter_ids: Array<number>, hero_class_ids: Array<number>, server_ids: Array<number>): void {
         this.current_mode$ = mode;
         this.current_selection$ = selection;
-        this.current_npc_ids$ = npc_ids;
+        this.current_encounter_ids$ = encounter_ids;
         this.current_hero_class_ids$ = hero_class_ids;
         this.current_server_ids$ = server_ids;
         this.load_current_mode();
@@ -48,7 +48,7 @@ export class RankingService {
         const new_rankings = new Map<number, [RankingCharacterMeta, Array<number>]>();
         if (this.current_selection$ === 1) {
             this.current_mode_data
-                .filter(([npc_id, char_rankings]) => this.current_npc_ids$.includes(npc_id))
+                .filter(([npc_id, char_rankings]) => this.current_encounter_ids$.includes(npc_id))
                 .forEach(([npc_id, char_rankings]) =>
                     char_rankings
                         .filter(([character_id, meta, rankings]) => this.current_server_ids$.includes(meta.server_id)

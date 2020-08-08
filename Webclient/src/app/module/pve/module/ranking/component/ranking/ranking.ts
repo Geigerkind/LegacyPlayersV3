@@ -19,7 +19,7 @@ export class RankingComponent implements OnInit, OnDestroy {
     private subscription_rankings: Subscription;
     private subscription_servers: Subscription;
     private subscription_hero_classes: Subscription;
-    private subscription_boss_npcs: Subscription;
+    private subscription_encounters: Subscription;
 
     bar_subjects: Map<number, RaidMeterSubject> = new Map();
     bar_tooltips: Map<number, any> = new Map();
@@ -37,8 +37,8 @@ export class RankingComponent implements OnInit, OnDestroy {
         {value: 1, label_key: "Overall"}
     ];
 
-    bosses_selected_items: Array<any> = [];
-    bosses: Array<any> = [];
+    encounters_selected_items: Array<any> = [];
+    encounters: Array<any> = [];
 
     classes_selected_items: Array<any> = [];
     classes: Array<any> = [];
@@ -69,8 +69,8 @@ export class RankingComponent implements OnInit, OnDestroy {
         this.subscription_hero_classes = this.dataService.hero_classes.subscribe(hero_classes => this.classes = hero_classes.map(hero_class => {
             return {id: hero_class.base.id, label: hero_class.localization};
         }));
-        this.subscription_boss_npcs = this.dataService.boss_npcs.subscribe(boss_npcs => this.bosses = boss_npcs.map(boss_npc => {
-            return {id: boss_npc.base.id, label: boss_npc.localization};
+        this.subscription_encounters = this.dataService.encounters.subscribe(encounters => this.encounters = encounters.map(encounter => {
+            return {id: encounter.base.id, label: encounter.localization};
         }));
     }
 
@@ -79,7 +79,7 @@ export class RankingComponent implements OnInit, OnDestroy {
             const selection_params = this.settingsService.get("pve_ranking");
             this.modes_current_selection = selection_params[0];
             this.selections_current_selection = selection_params[1];
-            this.bosses_selected_items = this.bosses.filter(item => selection_params[2].includes(item.id));
+            this.encounters_selected_items = this.encounters.filter(item => selection_params[2].includes(item.id));
             this.classes_selected_items = this.classes.filter(item => selection_params[3].includes(item.id));
             this.servers_selected_items = this.servers.filter(item => selection_params[4].includes(item.id));
         }
@@ -89,7 +89,7 @@ export class RankingComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.subscription_rankings?.unsubscribe();
         this.subscription_hero_classes?.unsubscribe();
-        this.subscription_boss_npcs?.unsubscribe();
+        this.subscription_encounters?.unsubscribe();
         this.subscription_servers.unsubscribe();
     }
 
@@ -99,7 +99,7 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     select(): void {
         const selection_params = [this.modes_current_selection, this.selections_current_selection,
-            this.bosses_selected_items.map(item => item.id),
+            this.encounters_selected_items.map(item => item.id),
             this.classes_selected_items.map(item => item.id),
             this.servers_selected_items.map(item => item.id)];
         // @ts-ignore

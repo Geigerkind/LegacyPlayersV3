@@ -33,7 +33,7 @@ export class SettingsService {
         "data_service_basic_items",
         "data_service_basic_spells",
         "pve_ranking",
-        "data_service_bosses",
+        "data_service_encounters",
         "table_filter_viewer_ranking_table"
     ];
 
@@ -45,6 +45,7 @@ export class SettingsService {
         "data_service_races",
         "data_service_npcs",
         "character_service_characters",
+        "data_service_encounters",
     ];
 
     private observers: any = {};

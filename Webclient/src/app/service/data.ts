@@ -10,12 +10,9 @@ import {SettingsService} from "./settings";
 import {Race} from "../domain_value/race";
 import {HeroClass} from "../domain_value/hero_class";
 import {Difficulty} from "../domain_value/difficulty";
-import {
-    get_behavior_subject_map_from_nested_array,
-    create_array_from_nested_behavior_subject_map
-} from "../stdlib/map_persistance";
 import {BasicItem} from "../domain_value/data/basic_item";
 import {BasicSpell} from "../domain_value/data/basic_spell";
+import {Encounter} from "../domain_value/data/encounter";
 
 @Injectable({
     providedIn: "root",
@@ -27,12 +24,12 @@ export class DataService {
     private static readonly URL_DATA_DIFFICULTY_LOCALIZED: string = '/data/difficulty/localized';
     private static readonly URL_DATA_MAP_LOCALIZED: string = '/data/map/localized';
     private static readonly URL_DATA_NPC_LOCALIZED: string = '/data/npc/localized/:expansion_id/:npc_id';
-    private static readonly URL_DATA_BOSS_NPCS: string = '/data/npc/localized/bosses';
     private static readonly URL_DATA_BASIC_ITEM_LOCALIZED: string = '/data/item/localized/basic_item/:expansion_id/:item_id';
     private static readonly URL_DATA_BASIC_SPELL_LOCALIZED: string = '/data/spell/localized/basic_spell/:expansion_id/:spell_id';
+    private static readonly URL_DATA_ENCOUNTER_LOCALIZED: string = '/data/encounter/localized';
 
     private maps$: BehaviorSubject<Array<Localized<InstanceMap>>>;
-    private bosses$: BehaviorSubject<Array<Localized<NPC>>>;
+    private encounters$: BehaviorSubject<Array<Localized<Encounter>>>;
     private servers$: BehaviorSubject<Array<AvailableServer>>;
     private races$: BehaviorSubject<Array<Localized<Race>>>;
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
@@ -78,10 +75,10 @@ export class DataService {
         return this.maps$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
     }
 
-    get boss_npcs(): Observable<Array<Localized<NPC>>> {
-        this.bosses$ = this.settingsService.init_or_load_behavior_subject("data_service_bosses", 7, this.bosses$, [],
-            (callback) => this.apiService.get(DataService.URL_DATA_BOSS_NPCS, callback));
-        return this.bosses$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
+    get encounters(): Observable<Array<Localized<Encounter>>> {
+        this.encounters$ = this.settingsService.init_or_load_behavior_subject("data_service_encounters", 7, this.encounters$, [],
+            (callback) => this.apiService.get(DataService.URL_DATA_ENCOUNTER_LOCALIZED, callback));
+        return this.encounters$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
@@ -189,6 +186,11 @@ export class DataService {
             .pipe(map(servers => servers.find(server => server.id === server_id)));
     }
 
+    get_encounter(encounter_id: number): Observable<Localized<Encounter> | undefined> {
+        return this.encounters
+            .pipe(map(encounters => encounters.find(encounter => encounter.base.id === encounter_id)));
+    }
+
     get unknown_basic_spell(): Localized<BasicSpell> {
         return {
             localization: "Unknown",
@@ -199,4 +201,5 @@ export class DataService {
             }
         };
     }
+
 }

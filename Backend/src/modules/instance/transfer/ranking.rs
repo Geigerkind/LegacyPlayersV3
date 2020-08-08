@@ -30,6 +30,6 @@ pub fn get_instance_ranking_tps(me: State<Instance>, armory: State<Armory>) -> J
 
 #[openapi]
 #[get("/ranking/character/<character_id>")]
-pub fn get_character_ranking(me: State<Instance>, data: State<Data>, armory: State<Armory>, language: Language, character_id: u32) -> Result<Json<Vec<(String, Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)>>, InstanceFailure> {
-    me.get_character_ranking(&data, &armory, language.0, character_id).map(Json)
+pub fn get_character_ranking(me: State<Instance>, data: State<Data>, language: Language, character_id: u32) -> Result<Json<Vec<(String, Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)>>, InstanceFailure> {
+    me.get_character_ranking(&data, language.0, character_id).map(Json)
 }

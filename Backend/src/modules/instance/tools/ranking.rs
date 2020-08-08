@@ -1,25 +1,21 @@
 use crate::modules::armory::tools::GetCharacter;
 use crate::modules::armory::Armory;
-use crate::modules::data::tools::{RetrieveLocalization, RetrieveNPC, RetrieveServer};
+use crate::modules::data::tools::{RetrieveEncounter, RetrieveLocalization};
 use crate::modules::data::Data;
 use crate::modules::instance::dto::{InstanceFailure, RankingCharacterMeta, RankingResult};
 use crate::modules::instance::Instance;
 use std::collections::HashMap;
 
 pub trait ExportRanking {
-    fn get_character_ranking(&self, data: &Data, armory: &Armory, language_id: u8, character_id: u32) -> Result<Vec<(String, Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)>, InstanceFailure>;
+    fn get_character_ranking(&self, data: &Data, language_id: u8, character_id: u32) -> Result<Vec<(String, Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)>, InstanceFailure>;
 }
 
 impl ExportRanking for Instance {
-    fn get_character_ranking(&self, data: &Data, armory: &Armory, language_id: u8, character_id: u32) -> Result<Vec<(String, Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)>, InstanceFailure> {
-        let character = armory.get_character(character_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
-        let server = data.get_server(character.server_id).unwrap();
-
+    fn get_character_ranking(&self, data: &Data, language_id: u8, character_id: u32) -> Result<Vec<(String, Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)>, InstanceFailure> {
         let rankings_dps = self.instance_rankings_dps.read().unwrap();
         let rankings_hps = self.instance_rankings_hps.read().unwrap();
         let rankings_tps = self.instance_rankings_tps.read().unwrap();
 
-        // TODO: Extract as tool
         let mut result: HashMap<u32, (Option<RankingResult>, Option<RankingResult>, Option<RankingResult>)> = HashMap::new();
         rankings_dps.1.iter().filter(|(_npc_id, char_rankings)| char_rankings.contains_key(&character_id)).for_each(|(npc_id, char_rankings)| {
             let rankings = result.entry(*npc_id).or_insert((None, None, None));
@@ -38,10 +34,10 @@ impl ExportRanking for Instance {
 
         Ok(result
             .into_iter()
-            .map(|(npc_id, (r1, r2, r3))| {
+            .map(|(encounter_id, (r1, r2, r3))| {
                 (
-                    data.get_npc(server.expansion_id, npc_id)
-                        .map(|npc| data.get_localization(language_id, npc.localization_id).unwrap().content)
+                    data.get_encounter(encounter_id)
+                        .map(|encounter| data.get_localization(language_id, encounter.localization_id).unwrap().content)
                         .unwrap_or_else(|| String::from("Unknown")),
                     r1,
                     r2,
