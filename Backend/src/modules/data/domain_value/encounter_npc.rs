@@ -4,4 +4,5 @@ pub struct EncounterNpc {
     pub npc_id: u32,
     pub requires_death: bool,
     pub can_start_encounter: bool,
+    pub is_pivot: bool,
 }

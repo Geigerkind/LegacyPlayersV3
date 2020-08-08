@@ -897,6 +897,7 @@ impl Init for HashMap<u32, EncounterNpc> {
                 npc_id: row.take(1).unwrap(),
                 requires_death: row.take(2).unwrap(),
                 can_start_encounter: row.take(3).unwrap(),
+                is_pivot: row.take(4).unwrap(),
             })
             .into_iter()
             .for_each(|result| {
