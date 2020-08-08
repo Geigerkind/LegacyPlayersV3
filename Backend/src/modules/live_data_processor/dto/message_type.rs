@@ -1,6 +1,4 @@
-use crate::modules::live_data_processor::dto::{
-    AuraApplication, CombatState, DamageDone, Death, Event, HealDone, InstanceArena, InstanceBattleground, InstanceStart, InstanceStartRatedArena, InstanceUnratedArena, Interrupt, Loot, Position, Power, SpellCast, Summon, Threat, UnAura, Unit,
-};
+use crate::modules::live_data_processor::dto::{AuraApplication, CombatState, DamageDone, Death, Event, HealDone, InstanceArena, InstanceBattleground, InstanceStart, InstanceStartRatedArena, InstanceUnratedArena, Interrupt, Loot, Position, Power, SpellCast, Summon, Threat, UnAura, Unit, InstanceMap};
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
 pub enum MessageType {
@@ -27,6 +25,7 @@ pub enum MessageType {
     InstancePvPEndRatedArena(InstanceArena),
     InstancePvPEndBattleground(InstanceBattleground),
     InstanceDelete { instance_id: u32 },
+    InstanceMap(InstanceMap)
 }
 
 impl MessageType {
@@ -42,6 +41,7 @@ impl MessageType {
             MessageType::Dispel(item) => Some(item.un_aura_caster.clone()),
             MessageType::SpellSteal(item) => Some(item.un_aura_caster.clone()),
             MessageType::Position(item) => Some(item.unit.clone()),
+            MessageType::InstanceMap(item) => Some(item.unit.clone()),
             MessageType::CombatState(item) => Some(item.unit.clone()),
             MessageType::Power(item) => Some(item.unit.clone()),
             MessageType::Loot(item) => Some(item.unit.clone()),

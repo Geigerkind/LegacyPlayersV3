@@ -19,3 +19,4 @@ mod summon;
 mod threat;
 mod un_aura;
 mod unit;
+mod instance_map;

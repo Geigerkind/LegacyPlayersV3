@@ -1,9 +1,6 @@
 #ifndef _RPLL_HOOKS_H
 #define _RPLL_HOOKS_H
 
-// Comment out to disable them
-#define RPLL_SAFETY_CHECKS
-
 #include <zmq.h>
 #include <cinttypes>
 #include "Unit.h"
@@ -32,13 +29,14 @@ enum class RPLL_MessageType : uint8_t
     RPLL_MSG_INSTANCE_PVP_START_BATTLEGROUND = 18,  // Works
     RPLL_MSG_INSTANCE_PVP_END_UNRATED_ARENA = 19,   // Works
     RPLL_MSG_INSTANCE_PVP_END_RATED_ARENA = 20,     // Works
-    RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND = 21,     // Works
-    RPLL_MSG_INSTANCE_DELETE = 22
+    RPLL_MSG_INSTANCE_PVP_END_BATTLEGROUND = 21,    // Works
+    RPLL_MSG_INSTANCE_DELETE = 22,                  // Works
+    RPLL_MSG_MAP = 23                               // Works
 };
 
 enum class RPLL_Event : uint8_t
 {
-    RPLL_THREAT_WIPE // Does not work!
+    RPLL_THREAT_WIPE // Does not work :(
 };
 
 enum class RPLL_DamageHitType : uint8_t
@@ -213,6 +211,7 @@ public:
     // We just know that we were interrupted, but we need to infer from what in the post analysis
     static void Interrupt(const Unit *target, const uint32_t interruptedSpellId);
     static void Position(const Unit *unit, const float x, const float y, const float z, const float orientation);
+    static void Map(const Unit *unit);
     static void CombatState(const Unit *unit, const bool inCombat);
     static void Power(const Unit *unit, const RPLL_PowerType powerType, const uint32_t maxPower, const uint32_t currentPower);
     static void StartBattleground(const uint32_t mapId, const uint32_t instanceId);

@@ -95,7 +95,7 @@ inline uint8_t RPLLHooks::GetMapMetaDataSize()
 }
 inline void RPLLHooks::AppendMapMetaData(ByteBuffer &msg, const Unit *unit)
 {
-    Map *map = unit->GetMap();
+    const auto map = unit->GetMap();
     msg << static_cast<uint32_t>(map->GetId());
     msg << static_cast<uint32_t>(map->GetInstanceId());
     msg << static_cast<uint8_t>(map->GetDifficulty());
@@ -447,15 +447,24 @@ void RPLLHooks::Position(const Unit *unit, const float x, const float y, const f
         return;
     if (!IsPositionWithinTimeout(unit))
         return; // Implies is in Instance
-    const uint8_t msgLength = 24 + GetMessageMetaDataSize() + GetMapMetaDataSize();
+    const uint8_t msgLength = 24 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_POSITION, msgLength);
-    AppendMapMetaData(msg, unit);
     msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
     msg << static_cast<int32_t>(x * 10);
     msg << static_cast<int32_t>(y * 10);
     msg << static_cast<int32_t>(z * 10);
     msg << static_cast<int32_t>(orientation * 10);
+    SendZmqMessage(std::move(msg));
+}
+
+void RPLLHooks::Map(const Unit *unit)
+{
+    const uint8_t msgLength = 8 + GetMessageMetaDataSize() + GetMapMetaDataSize();
+    ByteBuffer msg(msgLength);
+    AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_MAP, msgLength);
+    AppendMapMetaData(msg, unit);
+    msg << static_cast<uint64_t>(unit->GetGUID().GetRawValue());
     SendZmqMessage(std::move(msg));
 }
 

@@ -28,7 +28,7 @@ impl ServerExporter {
             // Anonymize GUIDs
             match message_type {
                 // First
-                MessageType::CombatState | MessageType::Power | MessageType::Loot | MessageType::Event | MessageType::Interrupt => {
+                MessageType::CombatState | MessageType::Power | MessageType::Loot | MessageType::Event | MessageType::Interrupt | MessageType::Position => {
                     let guid = byte_reader::read_u64(&msg[19..27]);
                     if guid.is_player() {
                         byte_writer::write_u64(&mut msg[19..27], salt_u64_u64(guid));
@@ -73,7 +73,7 @@ impl ServerExporter {
                     send_message(&sender, vec![guid1, guid2, guid3], msg);
                 },
                 // Special Snowflakes
-                MessageType::Position => {
+                MessageType::Map => {
                     let guid = byte_reader::read_u64(&msg[28..36]);
                     if guid.is_player() {
                         byte_writer::write_u64(&mut msg[28..36], salt_u64_u64(guid));

@@ -22,6 +22,8 @@ pub enum MessageType {
     InstancePvpEndUnratedArena = 19,
     InstancePvpEndRatedArena = 20,
     InstancePvpEndBattleground = 21,
+    InstanceDeleted = 22,
+    Map = 23,
     Undefined = 255,
 }
 
@@ -50,6 +52,8 @@ impl MessageType {
             19 => MessageType::InstancePvpEndUnratedArena,
             20 => MessageType::InstancePvpEndRatedArena,
             21 => MessageType::InstancePvpEndBattleground,
+            22 => MessageType::InstanceDeleted,
+            23 => MessageType::Map,
             _ => MessageType::Undefined,
         }
     }

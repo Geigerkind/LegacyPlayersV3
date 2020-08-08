@@ -53,6 +53,7 @@ void RPLLPlayerHooks::SetMap(const Unit *unit)
             return;
     #endif
 
+    RPLLHooks::Map(unit);
     RPLLHooks::Position(unit, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation());
     for (auto aura : unit->GetOwnedAuras())
         RPLLSpellAurasHooks::AuraCreate(aura.second);

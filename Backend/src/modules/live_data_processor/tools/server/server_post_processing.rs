@@ -63,12 +63,10 @@ impl Server {
                     match &event.subject {
                         Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
                             if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
-                                println!("Encounter {:?}", encounter_npc);
                                 match &event.event {
                                     EventType::CombatState { in_combat } => {
                                         if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
                                             let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
-                                            println!("Starting encounter {:?} => Adding {}", encounter_npc, creature_id);
                                             if encounter_npc.requires_death {
                                                 attempt.creatures_required_to_die.insert(*creature_id);
                                             }
@@ -85,7 +83,6 @@ impl Server {
                                                         && !attempt.creatures_required_to_die.is_empty()
                                                         && attempt.creatures_required_to_die.contains(creature_id)
                                                         && look_ahead_death(committed_events, event, *creature_id));
-                                                println!("Encounter {:?} => Removing {} | {}", encounter_npc, creature_id, is_committable);
                                             }
 
                                             if is_committable {
@@ -104,7 +101,6 @@ impl Server {
                                                 attempt.creatures_required_to_die.clear();
                                             }
                                             is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
-                                            println!("Death - Encounter {:?} => Removing {} | {}", encounter_npc, creature_id, is_committable);
                                         }
 
                                         if is_committable {

@@ -106,7 +106,7 @@ export class InstanceDataService implements OnDestroy {
                 let subject_value = subject.getValue();
                 const last_event_id = subject_value instanceof Map ?
                     [...subject_value.keys()].reduce((highest, id) => Math.max(highest, id), 0) :
-                    subject_value[subject_value.length - 1].id;
+                    (subject_value.length > 0 ? subject_value[subject_value.length - 1].id : 0);
                 this.load_instance_data(event_type, (result: Array<Event>) => {
                     if (result.length > 0) {
                         if (subject_value instanceof Map)

@@ -19,6 +19,7 @@ use crate::modules::live_data_processor::tools::payload_mapper::spell_cast::MapS
 use crate::modules::live_data_processor::tools::payload_mapper::summon::MapSummon;
 use crate::modules::live_data_processor::tools::payload_mapper::threat::MapThreat;
 use crate::modules::live_data_processor::tools::payload_mapper::un_aura::MapUnAura;
+use crate::modules::live_data_processor::tools::payload_mapper::instance_map::MapInstanceMap;
 
 pub trait MapMessageType {
     fn to_message_type(&self, payload: &[u8]) -> Result<MessageType, LiveDataProcessorFailure>;
@@ -50,6 +51,7 @@ impl MapMessageType for u8 {
             20 => MessageType::InstancePvPEndRatedArena(payload.to_instance_arena()?),
             21 => MessageType::InstancePvPEndBattleground(payload.to_instance_battleground()?),
             22 => MessageType::InstanceDelete { instance_id: payload.to_instance_delete()? },
+            23 => MessageType::InstanceMap(payload.to_instance_map()?),
             _ => return Err(LiveDataProcessorFailure::InvalidInput),
         })
     }

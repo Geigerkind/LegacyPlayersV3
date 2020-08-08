@@ -44,6 +44,8 @@ pub mod threat;
 pub mod un_aura;
 #[cfg(test)]
 pub mod unit;
+#[cfg(test)]
+pub mod instance_map;
 
 #[cfg(not(test))]
 mod aura_application;
@@ -89,3 +91,5 @@ mod threat;
 mod un_aura;
 #[cfg(not(test))]
 mod unit;
+#[cfg(not(test))]
+mod instance_map;

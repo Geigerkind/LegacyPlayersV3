@@ -6,7 +6,7 @@ use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon}
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_steal};
-use crate::modules::live_data_processor::tools::MapUnit;
+use crate::modules::live_data_processor::tools::{MapUnit, GUID};
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
@@ -328,7 +328,7 @@ impl Server {
             MessageType::Summon(Summon { owner, unit }) => {
                 self.summons.insert(owner.unit_id, unit.unit_id);
             },
-            MessageType::Position(dto::Position { map_id, instance_id, map_difficulty, unit, .. }) => {
+            MessageType::InstanceMap(dto::InstanceMap { map_id, instance_id, map_difficulty, unit }) => {
                 // TODO: How to handle Worldbosses in Vanilla / TBC
                 // These are raids
                 if let 249 | 309 | 409 | 469 | 509 | 531 | 532 | 533 | 534 | 544 | 548 | 550 | 564 | 565 | 568 | 580 | 603 | 615 | 616 | 624 | 631 | 649 | 724 = *map_id {
