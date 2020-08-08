@@ -151,7 +151,7 @@ export class RaidConfigurationService implements OnDestroy {
             categories.set(attempt.encounter_id, {
                 segments: new Set([attempt.id]),
                 id: attempt.encounter_id,
-                label: new DelayedLabel(this.unitService.get_npc_name(attempt.encounter_id)),
+                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? "Unknown" : encounter.localization))),
                 time: (attempt.end_ts - attempt.start_ts)
             });
         }
@@ -173,7 +173,7 @@ export class RaidConfigurationService implements OnDestroy {
                 duration: (attempt.end_ts - attempt.start_ts),
                 id: attempt.id,
                 is_kill: attempt.is_kill,
-                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => encounter?.localization))),
+                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? "Unknown" : encounter.localization))),
                 start_ts: attempt.start_ts
             });
         this.segments$.next(segments);

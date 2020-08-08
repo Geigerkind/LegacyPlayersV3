@@ -1,4 +1,5 @@
 #include "rpll_spell_auras_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLSpellAurasHooks::AuraCreate(const Aura *result)
 {

@@ -1,4 +1,5 @@
 #include "rpll_battleground_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLBattlegroundHooks::StartBattleground(const Battleground *battleground)
 {

@@ -1,4 +1,5 @@
 #include "rpll_unit_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLUnitHooks::SendAttackStateUpdate(const CalcDamageInfo *damageInfo)
 {

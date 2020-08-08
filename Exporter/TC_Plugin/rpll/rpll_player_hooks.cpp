@@ -1,4 +1,5 @@
 #include "rpll_player_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLPlayerHooks::SendNewItem(const Unit *unit, const Item *item, const uint32_t count, const bool received, const bool created, const bool broadcast, const bool sendChatMessage)
 {

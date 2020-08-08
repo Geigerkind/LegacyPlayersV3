@@ -63,10 +63,12 @@ impl Server {
                     match &event.subject {
                         Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
                             if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
+                                println!("Encounter {:?}", encounter_npc);
                                 match &event.event {
                                     EventType::CombatState { in_combat } => {
                                         if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
                                             let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
+                                            println!("Starting encounter {:?} => Adding {}", encounter_npc, creature_id);
                                             if encounter_npc.requires_death {
                                                 attempt.creatures_required_to_die.insert(*creature_id);
                                             }
@@ -75,17 +77,18 @@ impl Server {
                                                 attempt.pivot_creature = Some(*creature_id);
                                             }
                                         } else if !*in_combat {
-                                            let mut is_commitable = false;
+                                            let mut is_committable = false;
                                             if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                                 attempt.creatures_in_combat.remove(creature_id);
-                                                is_commitable = attempt.creatures_in_combat.is_empty()
+                                                is_committable = attempt.creatures_in_combat.is_empty()
                                                     && !(encounter_npc.requires_death
                                                         && !attempt.creatures_required_to_die.is_empty()
                                                         && attempt.creatures_required_to_die.contains(creature_id)
                                                         && look_ahead_death(committed_events, event, *creature_id));
+                                                println!("Encounter {:?} => Removing {} | {}", encounter_npc, creature_id, is_committable);
                                             }
 
-                                            if is_commitable {
+                                            if is_committable {
                                                 if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
                                                     attempt.end_ts = event.timestamp;
                                                     commit_attempt(db_main, *instance_meta_id, attempt);
@@ -101,6 +104,7 @@ impl Server {
                                                 attempt.creatures_required_to_die.clear();
                                             }
                                             is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
+                                            println!("Death - Encounter {:?} => Removing {} | {}", encounter_npc, creature_id, is_committable);
                                         }
 
                                         if is_committable {
@@ -262,7 +266,7 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
     ) {
         let ranking_damage = std::mem::replace(&mut attempt.ranking_damage, HashMap::new());
         db_main.execute_batch_wparams(
-            "INSERT INTO `instance_ranking_damage` (`character_id, `attempt_id`, `damage`) VALUES (:character_id, :attempt_id, :damage)",
+            "INSERT INTO `instance_ranking_damage` (`character_id`, `attempt_id`, `damage`) VALUES (:character_id, :attempt_id, :damage)",
             ranking_damage.into_iter().collect(),
             move |(character_id, damage)| {
                 params! {
@@ -275,7 +279,7 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
 
         let ranking_heal = std::mem::replace(&mut attempt.ranking_heal, HashMap::new());
         db_main.execute_batch_wparams(
-            "INSERT INTO `instance_ranking_heal` (`character_id, `attempt_id`, `heal`) VALUES (:character_id, :attempt_id, :heal)",
+            "INSERT INTO `instance_ranking_heal` (`character_id`, `attempt_id`, `heal`) VALUES (:character_id, :attempt_id, :heal)",
             ranking_heal.into_iter().collect(),
             move |(character_id, heal)| {
                 params! {

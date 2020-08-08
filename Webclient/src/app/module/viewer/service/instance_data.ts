@@ -95,8 +95,7 @@ export class InstanceDataService implements OnDestroy {
     private readonly updater: any;
 
     constructor(
-        private apiService: APIService,
-        private settingsService: SettingsService
+        private apiService: APIService
     ) {
         this.updater = setInterval(() => {
             this.load_instance_meta(meta => {

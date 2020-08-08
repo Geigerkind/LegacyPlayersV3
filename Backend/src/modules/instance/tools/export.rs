@@ -123,14 +123,13 @@ impl ExportInstance for Instance {
 
         let attempts: Vec<InstanceViewerAttempt> = db_main
             .select_wparams(
-                "SELECT id, creature_id, npc_id, start_ts, end_ts, is_kill FROM `instance_attempt` WHERE instance_meta_id=:instance_meta_id",
+                "SELECT id, encounter_id, start_ts, end_ts, is_kill FROM `instance_attempt` WHERE instance_meta_id=:instance_meta_id",
                 |mut row| InstanceViewerAttempt {
                     id: row.take(0).unwrap(),
-                    creature_id: row.take(1).unwrap(),
-                    npc_id: row.take(2).unwrap(),
-                    start_ts: row.take(3).unwrap(),
-                    end_ts: row.take(4).unwrap(),
-                    is_kill: row.take(5).unwrap(),
+                    encounter_id: row.take(1).unwrap(),
+                    start_ts: row.take(2).unwrap(),
+                    end_ts: row.take(3).unwrap(),
+                    is_kill: row.take(4).unwrap(),
                 },
                 params!("instance_meta_id" => instance_meta_id),
             )

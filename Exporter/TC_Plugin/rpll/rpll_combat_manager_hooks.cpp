@@ -1,4 +1,5 @@
 #include "rpll_combat_manager_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLCombatManagerHooks::UpdateOwnerCombatState(const Unit *unit, const bool result)
 {

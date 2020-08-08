@@ -43,13 +43,32 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     use_default_filter_targets: boolean = true;
     use_default_filter_abilities: boolean = true;
 
+    private readonly updater: any;
+    private update_categories: () => void;
+    private update_segments: () => void;
+    private update_sources: () => void;
+    private update_targets: () => void;
+    private update_abilities: () => void;
+
     constructor(
         private raidConfigurationService: RaidConfigurationService,
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         private dateService: DateService
     ) {
-        this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories));
-        this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments));
+        this.updater = setInterval(() => {
+            if (!!this.update_categories) this.update_categories();
+            if (!!this.update_segments) this.update_segments();
+            if (!!this.update_sources) this.update_sources();
+            if (!!this.update_targets) this.update_targets();
+            if (!!this.update_abilities) this.update_abilities();
+            this.update_categories = undefined;
+            this.update_segments = undefined;
+            this.update_sources = undefined;
+            this.update_targets = undefined;
+            this.update_abilities = undefined;
+        }, 1000);
+        this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories, true));
+        this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments, true));
         this.subscription_sources = this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources, true));
         this.subscription_targets = this.raidConfigurationService.targets.subscribe(targets => this.handle_targets(targets, true));
         this.subscription_abilities = this.raidConfigurationService.abilities.subscribe(abilities => this.handle_abilities(abilities, true));
@@ -64,6 +83,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_targets?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_source_selection?.unsubscribe();
+        clearInterval(this.updater);
     }
 
     on_category_selection_updated(): void {
@@ -91,12 +111,14 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id));
     }
 
-    private async handle_categories(categories: Array<Category>) {
+    private async handle_categories(categories: Array<Category>, update_filter: boolean) {
         const new_list_items = [];
         for (const category of categories) {
+            if (category.label.toString() === "Unknown")
+                this.update_categories = () => this.handle_categories(categories, false);
             new_list_items.push({
                 id: category.id,
-                label: category.label + " - " + this.dateService.toTimeSpan(category.time)
+                label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
             });
         }
         const new_selected_items = [];
@@ -112,16 +134,18 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.list_items_categories = new_list_items;
         this.selected_items_categories = new_selected_items;
 
-        if (this.use_default_filter_categories)
+        if (this.use_default_filter_categories && update_filter)
             this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(item => item.id));
     }
 
-    private async handle_segments(segments: Array<Segment>) {
+    private async handle_segments(segments: Array<Segment>, update_filter: boolean) {
         const new_list_items = [];
         for (const segment of segments) {
+            if (segment.label.toString() === "Unknown")
+                this.update_segments = () => this.handle_segments(segments, false);
             new_list_items.push({
                 id: segment.id,
-                label: segment.label + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
+                label: segment.label.toString() + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts)
             });
         }
@@ -138,7 +162,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.list_items_segments = new_list_items;
         this.selected_items_segments = new_selected_items;
 
-        if (this.use_default_filter_segments)
+        if (this.use_default_filter_segments && update_filter)
             this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(item => item.id));
     }
 
@@ -146,7 +170,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         const new_list_items = [];
         const new_selected_items = [];
         for (const source of sources) {
-            source.label.subscribe(() => this.handle_sources(sources, false));
+            if (source.label.toString() === "Unknown")
+                this.update_sources = () => this.handle_sources(sources, false);
             const list_item = {
                 id: source.id,
                 label: source.label.toString()
@@ -172,7 +197,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         const new_list_items = [];
         const new_selected_items = [];
         for (const target of targets) {
-            target.label.subscribe(() => this.handle_targets(targets, false));
+            if (target.label.toString() === "Unknown")
+                this.update_targets = () => this.handle_targets(targets, false);
             const list_item = {
                 id: target.id,
                 label: target.label.toString()
@@ -200,7 +226,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         const new_list_items = [];
         const new_selected_items = [];
         for (const ability of abilities) {
-            ability.label.subscribe(() => this.handle_abilities(abilities, false));
+            if (ability.label.toString() === "Unknown")
+                this.update_abilities = () => this.handle_abilities(abilities, false);
             const list_item = {
                 id: ability.id,
                 label: ability.label.toString() + " (Id: " + ability.id.toString() + ")"

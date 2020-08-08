@@ -1,4 +1,5 @@
 #include "rpll_spell_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLSpellHooks::SendCastResult(const Spell *spell, const SpellCastResult result)
 {

@@ -1,4 +1,5 @@
 #include "rpll_threat_manager_hooks.h"
+#define RPLL_SAFETY_CHECKS
 
 void RPLLThreatManagerHooks::AddThreat(const Unit *owner, const Unit *target, SpellInfo const *spell, const float amountBefore, const float amountAfter)
 {
