@@ -3,13 +3,15 @@ import {HeaderColumn} from "../../../../../../../../template/table/module/table_
 import {BodyColumn} from "../../../../../../../../template/table/module/table_body/domain_value/body_column";
 import {RankingTableService} from "../../service/ranking_table";
 import {Subscription} from "rxjs";
+import {TinyUrlService} from "../../../../../../../tiny_url/service/tiny_url";
 
 @Component({
     selector: "RankingTable",
     templateUrl: "./ranking_table.html",
     styleUrls: ["./ranking_table.scss"],
     providers: [
-        RankingTableService
+        RankingTableService,
+        TinyUrlService
     ]
 })
 export class RankingTableComponent implements OnDestroy, OnInit {
@@ -59,7 +61,8 @@ export class RankingTableComponent implements OnDestroy, OnInit {
     @Input() character_id: number;
 
     constructor(
-        private rankingTableService: RankingTableService
+        private rankingTableService: RankingTableService,
+        public tinyUrlService: TinyUrlService
     ) {
     }
 
@@ -69,6 +72,10 @@ export class RankingTableComponent implements OnDestroy, OnInit {
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
+    }
+
+    get url_suffix(): string {
+        return window.location.href.replace(window.location.origin + "/armory/character/", "");
     }
 
 }

@@ -43,7 +43,6 @@ export class CharacterViewerComponent {
     private loadCharacterByHistoryDate(server_name: string, character_name: string, character_history_date: string): void {
         this.characterViewerService.get_character_viewer_by_history_date(character_history_date, server_name, character_name, result => {
             this.character = result;
-            console.log(this.character);
         }, () => {
             this.loadCharacter(server_name, character_name);
         });

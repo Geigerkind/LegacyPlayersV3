@@ -8,11 +8,15 @@ import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {Localized} from "../../../../../../domain_value/localized";
 import {HeroClass} from "../../../../../../domain_value/hero_class";
 import {SettingsService} from "src/app/service/settings";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 
 @Component({
     selector: "Search",
     templateUrl: "./search.html",
-    styleUrls: ["./search.scss"]
+    styleUrls: ["./search.scss"],
+    providers: [
+        TinyUrlService
+    ]
 })
 export class SearchComponent implements OnInit {
 
@@ -50,10 +54,14 @@ export class SearchComponent implements OnInit {
     responsiveModeWidthInPx: number = 840;
     num_characters: number = 0;
 
+    // TODO: Refactor
+    current_servers: Array<AvailableServer> = [];
+
     constructor(
         private characterSearchService: CharacterSearchService,
         private dataService: DataService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        public tinyUrlService: TinyUrlService
     ) {
         this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
             hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
@@ -61,6 +69,7 @@ export class SearchComponent implements OnInit {
             label_key: hero_class.localization
         })));
         this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
+            this.current_servers = servers;
             servers.forEach(server => this.character_header_columns[3].type_range.push({
                 value: server.id,
                 label_key: server.name + " (" + server.patch + ")"
@@ -84,7 +93,7 @@ export class SearchComponent implements OnInit {
                 this.character_body_columns = search_result.result.map(row => {
                     const body_columns: Array<BodyColumn> = [];
                     // TODO: Needs to be refactored
-                    const server_name = this.character_header_columns[3].type_range.find(content => content.value === row.character.server_id)?.label_key;
+                    const server_name = this.current_servers.find(server => server.id === row.character.server_id)?.name;
 
                     body_columns.push({
                         type: 3,

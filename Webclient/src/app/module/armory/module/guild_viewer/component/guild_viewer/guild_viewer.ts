@@ -11,11 +11,15 @@ import {GuildViewerMemberDto} from "../../domain_value/guild_viewer_member_dto";
 import {BodyRow} from "../../../../../../template/table/module/table_body/domain_value/body_row";
 import { SettingsService } from 'src/app/service/settings';
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 
 @Component({
     selector: "GuildViewer",
     templateUrl: "./guild_viewer.html",
-    styleUrls: ["./guild_viewer.scss"]
+    styleUrls: ["./guild_viewer.scss"],
+    providers: [
+        TinyUrlService
+    ]
 })
 export class GuildViewerComponent implements OnInit {
 
@@ -45,7 +49,8 @@ export class GuildViewerComponent implements OnInit {
         private activatedRouteService: ActivatedRoute,
         private dataService: DataService,
         private guildViewerService: GuildViewerService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        public tinyUrlService: TinyUrlService
     ) {
         this.activatedRouteService.paramMap.subscribe(params => {
             this.server_name = params.get('server_name');
@@ -112,5 +117,9 @@ export class GuildViewerComponent implements OnInit {
                 columns: body_columns
             };
         });
+    }
+
+    get url_suffix(): string {
+        return window.location.href.replace(window.location.origin + "/armory/guild/", "");
     }
 }

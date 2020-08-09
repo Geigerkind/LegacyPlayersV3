@@ -1,6 +1,6 @@
 <Table [bodyRows]="character_body_columns" [headColumns]="character_header_columns" [clientSide]="clientSide"
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
-       [numItems]="num_characters" unique_id="armory_search"
+       [numItems]="num_characters" unique_id="armory_search" (share)="tinyUrlService.set_table_filter(2, $event)"
        (filterOrPageChanged)="filterCharacterSearch($event)"
        [et_row_items]="[hero_class, character_name, guild_name]">
 </Table>

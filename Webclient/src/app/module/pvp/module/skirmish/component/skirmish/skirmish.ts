@@ -9,11 +9,15 @@ import {table_init_filter} from "../../../../../../template/table/utility/table_
 import {SkirmishSearchService} from "../../service/skirmish_search";
 import {SettingsService} from "src/app/service/settings";
 import {DateService} from "../../../../../../service/date";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 
 @Component({
     selector: "Skirmish",
     templateUrl: "./skirmish.html",
-    styleUrls: ["./skirmish.scss"]
+    styleUrls: ["./skirmish.scss"],
+    providers: [
+        TinyUrlService
+    ]
 })
 export class SkirmishComponent implements OnInit {
 
@@ -47,7 +51,8 @@ export class SkirmishComponent implements OnInit {
         private dataService: DataService,
         private settingsService: SettingsService,
         private skirmishSearchService: SkirmishSearchService,
-        public dateService: DateService
+        public dateService: DateService,
+        public tinyUrlService: TinyUrlService
     ) {
         this.dataService.get_maps_by_type(1).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({

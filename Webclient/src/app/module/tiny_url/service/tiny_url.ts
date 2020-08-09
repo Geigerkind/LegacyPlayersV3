@@ -17,7 +17,13 @@ export class TinyUrlService {
     private static readonly URL_UTILITY_TINY_URL_SET: string = "/utility/tiny_url";
 
     private static readonly NAVIGATION_META: Map<number, [string, string]> = new Map([
-        [1, ["pve", "table_filter_raids_search"]]
+        [1, ["/pve", "table_filter_raids_search"]],
+        [2, ["/armory", "table_filter_armory_search"]],
+        [3, ["/pvp/battleground", "table_filter_battlegrounds_search"]],
+        [4, ["/pvp/arena", "table_filter_rated_arenas_search"]],
+        [5, ["/pvp/skirmish", "table_filter_skirmishes_search"]],
+        [6, ["/armory/character/:url_suffix", "table_filter_viewer_ranking_table"]],
+        [7, ["/armory/guild/:url_suffix", "table_filter_guild_viewer_member"]],
     ]);
 
     private redirect_url$: Subject<string> = new Subject();
@@ -55,7 +61,7 @@ export class TinyUrlService {
             });
     }
 
-    set_table_filter(navigation_id: number, filter: any): void {
+    set_table_filter(navigation_id: number, filter: any, url_suffix?: string): void {
         if (!TinyUrlService.NAVIGATION_META.has(navigation_id)) {
             this.notificationService.propagate(Severity.Error, "TinyUrl.set_failure");
             return;
@@ -64,6 +70,7 @@ export class TinyUrlService {
         const tiny_url = {
             type_id: 1,
             navigation_id,
+            url_suffix,
             payload: {
                 page: 0,
                 columns: []
@@ -95,7 +102,7 @@ export class TinyUrlService {
             for (const column of table_tiny_url.payload.columns)
                 new_filter[column.filter_name] = {filter: column.filter[0], sorting: column.filter[1]};
             this.settingsService.set(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[1], new_filter);
-            this.redirect_url$.next(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[0]);
+            this.redirect_url$.next(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[0].replace(":url_suffix", table_tiny_url.url_suffix));
         } else {
             this.failure$.next();
         }

@@ -9,11 +9,15 @@ import {SettingsService} from "src/app/service/settings";
 import {BattlegroundSearchService} from "../../service/battleground_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {DateService} from "../../../../../../service/date";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 
 @Component({
     selector: "Battleground",
     templateUrl: "./battleground.html",
-    styleUrls: ["./battleground.scss"]
+    styleUrls: ["./battleground.scss"],
+    providers: [
+        TinyUrlService
+    ]
 })
 export class BattlegroundComponent implements OnInit {
 
@@ -49,7 +53,8 @@ export class BattlegroundComponent implements OnInit {
         private dataService: DataService,
         private settingsService: SettingsService,
         private battlegroundSearchService: BattlegroundSearchService,
-        public dateService: DateService
+        public dateService: DateService,
+        public tinyUrlService: TinyUrlService
     ) {
         this.dataService.get_maps_by_type(2).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
