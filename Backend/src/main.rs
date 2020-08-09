@@ -265,9 +265,6 @@ fn main() {
                 instance::transfer::ranking::get_character_ranking,
             ],
         )
-        .mount(
-            "/API/utility",
-            routes_with_openapi![utility::transfer::tiny_url::get_tiny_url, utility::transfer::tiny_url::set_tiny_url],
-        )
+        .mount("/API/utility", routes_with_openapi![utility::transfer::tiny_url::get_tiny_url, utility::transfer::tiny_url::set_tiny_url])
         .launch();
 }

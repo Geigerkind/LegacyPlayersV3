@@ -7,7 +7,8 @@ import {TinyUrlDto} from "../dto/tiny_url_dto";
 import {TableUrl} from "../domain_value/table_url";
 import {NotificationService} from "src/app/service/notification";
 import {Severity} from "../../../domain_value/severity";
-import {Clipboard} from "@angular/cdk/clipboard"
+import {Clipboard} from "@angular/cdk/clipboard";
+import {RankingUrl} from "../domain_value/ranking_url";
 
 @Injectable({
     providedIn: "root",
@@ -24,6 +25,7 @@ export class TinyUrlService {
         [5, ["/pvp/skirmish", "table_filter_skirmishes_search"]],
         [6, ["/armory/character/:url_suffix", "table_filter_viewer_ranking_table"]],
         [7, ["/armory/guild/:url_suffix", "table_filter_guild_viewer_member"]],
+        [8, ["/pve/ranking", "pve_ranking"]],
     ]);
 
     private redirect_url$: Subject<string> = new Subject();
@@ -103,6 +105,10 @@ export class TinyUrlService {
                 new_filter[column.filter_name] = {filter: column.filter[0], sorting: column.filter[1]};
             this.settingsService.set(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[1], new_filter);
             this.redirect_url$.next(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[0].replace(":url_suffix", table_tiny_url.url_suffix));
+        } else if (payload.type_id === 2) {
+            const table_tiny_url = payload as TinyUrl<RankingUrl>;
+            this.settingsService.set(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[1], table_tiny_url.payload);
+            this.redirect_url$.next(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[0]);
         } else {
             this.failure$.next();
         }

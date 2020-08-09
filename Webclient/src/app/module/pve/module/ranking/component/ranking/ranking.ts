@@ -5,13 +5,17 @@ import {SelectOption} from "../../../../../../template/input/select_input/domain
 import {SettingsService} from "../../../../../../service/settings";
 import {of, Subscription} from "rxjs";
 import {DataService} from "../../../../../../service/data";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
+import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
 
 @Component({
     selector: "Ranking",
     templateUrl: "./ranking.html",
     styleUrls: ["./ranking.scss"],
     providers: [
-        RankingService
+        RankingService,
+        TinyUrlService
     ]
 })
 export class RankingComponent implements OnInit, OnDestroy {
@@ -51,7 +55,8 @@ export class RankingComponent implements OnInit, OnDestroy {
     constructor(
         private settingsService: SettingsService,
         private rankingService: RankingService,
-        private dataService: DataService
+        private dataService: DataService,
+        private tinyUrlService: TinyUrlService
     ) {
         this.subscription_rankings = this.rankingService.rankings.subscribe(entries => {
             for (const row of entries) {
@@ -125,6 +130,15 @@ export class RankingComponent implements OnInit, OnDestroy {
         // @ts-ignore
         this.rankingService.select(...selection_params);
         this.settingsService.set("pve_ranking", selection_params);
+    }
+
+    share(): void {
+        const tiny_url = {
+            type_id: 2,
+            navigation_id: 8,
+            payload: this.settingsService.get("pve_ranking")
+        } as TinyUrl<RankingUrl>;
+        this.tinyUrlService.set_tiny_url(tiny_url);
     }
 
 }
