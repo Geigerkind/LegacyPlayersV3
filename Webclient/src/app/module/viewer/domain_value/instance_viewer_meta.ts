@@ -8,4 +8,5 @@ export interface InstanceViewerMeta {
     map_difficulty: number | null;
     start_ts: number;
     end_ts: number | null;
+    expired: number | null;
 }

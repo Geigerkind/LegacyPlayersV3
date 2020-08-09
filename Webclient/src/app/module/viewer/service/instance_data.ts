@@ -99,8 +99,17 @@ export class InstanceDataService implements OnDestroy {
     ) {
         this.updater = setInterval(() => {
             this.load_instance_meta(meta => {
-                this.instance_meta$.next(meta);
-                this.changed$.next(ChangedSubject.InstanceMeta);
+                const current_meta = this.instance_meta$.getValue();
+                if (current_meta.end_ts !== meta.end_ts) {
+                    this.instance_meta$.next(meta);
+                    this.changed$.next(ChangedSubject.InstanceMeta);
+                }
+            });
+            this.load_attempts(attempts => {
+               if (attempts.length > this.attempts$.getValue().length) {
+                   this.attempts$.next(attempts);
+                   this.changed$.next(ChangedSubject.Attempts);
+               }
             });
             for (const [event_type, subject] of this.registered_subjects) {
                 let subject_value = subject.getValue();
@@ -658,6 +667,10 @@ export class InstanceDataService implements OnDestroy {
                 this.instance_meta$.next(meta);
                 this.changed$.next(ChangedSubject.InstanceMeta);
             });
+            this.subscriptions.push(this.instance_meta$.subscribe(meta => {
+                if (!!meta && !!meta.expired)
+                    clearInterval(this.updater);
+            }));
         }
         return this.instance_meta$.asObservable();
     }

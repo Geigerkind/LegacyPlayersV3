@@ -71,6 +71,7 @@ impl ExportInstance for Instance {
                 map_difficulty,
                 start_ts: instance_meta.start_ts,
                 end_ts: instance_meta.end_ts,
+                expired: instance_meta.expired
             });
         }
         Err(InstanceFailure::InvalidInput)

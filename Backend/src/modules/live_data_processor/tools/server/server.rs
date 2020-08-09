@@ -64,9 +64,10 @@ impl Server {
                             *committed_event_count += 1;
                             instance_events.push(committable_event);
                         } else {
-                            committable_event.id = 1;
+                            let committed_event_count = self.committed_events_count.entry(*unit_instance_id).or_insert(1);
+                            committable_event.id = *committed_event_count;
+                            *committed_event_count += 1;
                             self.committed_events.insert(*unit_instance_id, vec![committable_event]);
-                            self.committed_events_count.insert(*unit_instance_id, 2);
                         }
                     }
                 },

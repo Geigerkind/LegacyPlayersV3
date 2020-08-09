@@ -9,4 +9,5 @@ pub struct InstanceViewerMeta {
     pub map_difficulty: Option<u8>,
     pub start_ts: u64,
     pub end_ts: Option<u64>,
+    pub expired: Option<u64>
 }
