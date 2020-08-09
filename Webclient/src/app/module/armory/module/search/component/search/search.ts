@@ -63,7 +63,7 @@ export class SearchComponent implements OnInit {
         this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
             servers.forEach(server => this.character_header_columns[3].type_range.push({
                 value: server.id,
-                label_key: server.name
+                label_key: server.name + " (" + server.patch + ")"
             }));
         });
     }

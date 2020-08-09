@@ -233,6 +233,7 @@ impl Init for HashMap<u32, Server> {
                 expansion_id: row.take(1).unwrap(),
                 name: row.take(2).unwrap(),
                 owner: row.take_opt(3).unwrap().ok(),
+                patch: row.take(4).unwrap(),
             })
             .into_iter()
             .for_each(|result| {

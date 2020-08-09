@@ -10,6 +10,7 @@ fn get_server() {
         expansion_id: 1,
         name: "sdfs".to_string(),
         owner: None,
+        patch: "1.12.1".to_string(),
     };
     data.servers.insert(server_id, server.clone());
 
@@ -19,6 +20,7 @@ fn get_server() {
     assert_eq!(server_res.id, server.id);
     assert_eq!(server_res.expansion_id, server.expansion_id);
     assert_eq!(server_res.name, server.name);
+    assert_eq!(server_res.patch, server.patch);
     let no_server = data.get_server(0);
     assert!(no_server.is_none());
 }

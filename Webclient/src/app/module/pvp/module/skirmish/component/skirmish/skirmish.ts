@@ -58,7 +58,7 @@ export class SkirmishComponent implements OnInit {
         this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
             servers.forEach(server => this.header_columns[1].type_range.push({
                 value: server.id,
-                label_key: server.name
+                label_key: server.name + " (" + server.patch + ")"
             }));
         });
     }
