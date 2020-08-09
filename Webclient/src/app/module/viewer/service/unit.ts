@@ -32,12 +32,11 @@ export class UnitService implements OnDestroy {
     }
 
     get_unit_bg_color(unit: Unit): Observable<string> {
+        // TODO: Use method to get character at the time of the raid
         if (is_player(unit)) {
             return this.characterService
-                .get_character_by_id(((unit as any).Player as Player).character_id)
-                .pipe(map(character => !!character?.last_update ?
-                    "hero_class_bg_" + character.last_update.character_info.hero_class_id.toString()
-                    : "hero_class_bg_1"));
+                .get_basic_character_by_id(((unit as any).Player as Player).character_id)
+                .pipe(map(character => "hero_class_bg_" + character.hero_class_id.toString()));
         }
         return of("hero_class_bg_1");
     }
@@ -45,12 +44,10 @@ export class UnitService implements OnDestroy {
     get_unit_icon(unit: Unit): Observable<string> {
         if (is_player(unit)) {
             return this.characterService
-                .get_character_by_id(((unit as any).Player as Player).character_id)
-                .pipe(map(character => !!character?.last_update ?
-                    "/assets/wow_hero_classes/c" + character.last_update.character_info.hero_class_id.toString() + ".png"
-                    : "/assets/wow_hero_classes/c1.png"));
+                .get_basic_character_by_id(((unit as any).Player as Player).character_id)
+                .pipe(map(character => "/assets/wow_hero_classes/c" + character.hero_class_id.toString() + "-" + character.spec_id + ".png"));
         }
-        return of("/assets/wow_hero_classes/c1.png");
+        return of("/assets/wow_hero_classes/c1-0.png");
     }
 
     get_unit_name(unit: Unit): Observable<string> {

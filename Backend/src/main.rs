@@ -210,6 +210,7 @@ fn main() {
             routes_with_openapi![
                 armory::transfer::character::set_character,
                 armory::transfer::character::get_character,
+                armory::transfer::character::get_basic_character,
                 armory::transfer::character::get_character_by_uid,
                 armory::transfer::character::delete_character,
                 armory::transfer::character::delete_character_by_uid,

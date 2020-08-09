@@ -34,7 +34,8 @@ export class SettingsService {
         "data_service_basic_spells",
         "pve_ranking",
         "data_service_encounters",
-        "table_filter_viewer_ranking_table"
+        "table_filter_viewer_ranking_table",
+        "character_service_basic_characters"
     ];
 
     private ignoreSettings: Array<string> = [
@@ -45,6 +46,7 @@ export class SettingsService {
         "data_service_races",
         "data_service_npcs",
         "character_service_characters",
+        "character_service_basic_characters",
         "data_service_encounters",
     ];
 

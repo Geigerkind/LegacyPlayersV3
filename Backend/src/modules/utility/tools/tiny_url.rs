@@ -25,13 +25,13 @@ impl RetrieveTinyUrl for Utility {
     }
 
     fn get_tiny_url_id_by_payload(&self, db_main: &mut impl Select, payload: &String) -> Result<u32, UtilityFailure> {
-        return db_main
+        db_main
             .select_wparams_value(
                 "SELECT id FROM utility_tiny_url WHERE url_payload=:url_payload",
                 |mut row| row.take::<u32, usize>(0).unwrap(),
                 params!("url_payload" => payload.clone()),
             )
-            .ok_or_else(|| UtilityFailure::InvalidInput);
+            .ok_or_else(|| UtilityFailure::InvalidInput)
     }
 
     fn set_tiny_url(&self, db_main: &mut (impl Select + Execute), payload: String) -> Result<u32, UtilityFailure> {

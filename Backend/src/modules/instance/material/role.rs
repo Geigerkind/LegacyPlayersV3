@@ -1,3 +1,5 @@
+use crate::modules::armory::util::talent_tree::get_talent_tree;
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum Role {
     Tank,
@@ -7,15 +9,7 @@ pub enum Role {
 
 impl Role {
     pub fn from_class_talent_string(hero_class_id: u8, talent_str: &str) -> Self {
-        let tree = talent_str
-            .split('|')
-            .collect::<Vec<&str>>()
-            .into_iter()
-            .map(|tree_str| tree_str.chars().map(|chr| chr.to_digit(10).unwrap()).sum::<u32>())
-            .enumerate()
-            .max_by(|(_, left), (_, right)| left.cmp(right))
-            .unwrap()
-            .0;
+        let tree = get_talent_tree(talent_str);
 
         // TODO: This only handles TBC and Vanilla ish
         match hero_class_id {

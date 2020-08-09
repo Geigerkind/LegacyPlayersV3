@@ -1,6 +1,7 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
+use crate::modules::armory::dto::BasicCharacter;
 use crate::modules::{
     account::guard::ServerOwner,
     armory::{
@@ -22,6 +23,12 @@ pub fn set_character(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner,
 #[get("/character/<id>")]
 pub fn get_character(me: State<Armory>, id: u32) -> Result<Json<Character>, ArmoryFailure> {
     me.get_character(id).map(Json).ok_or(ArmoryFailure::InvalidInput)
+}
+
+#[openapi]
+#[get("/character/basic/<id>")]
+pub fn get_basic_character(me: State<Armory>, id: u32) -> Result<Json<BasicCharacter>, ArmoryFailure> {
+    me.get_basic_character(id).map(Json).ok_or(ArmoryFailure::InvalidInput)
 }
 
 #[openapi]
