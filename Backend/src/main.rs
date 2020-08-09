@@ -144,6 +144,7 @@ fn main() {
                 data::transfer::profession::get_profession,
                 data::transfer::profession::get_all_professions,
                 data::transfer::server::get_server,
+                data::transfer::server::reload_server,
                 data::transfer::server::get_all_servers,
                 data::transfer::hero_class::get_hero_class,
                 data::transfer::hero_class::get_all_hero_classes,

@@ -23,7 +23,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for ServerOwner {
             }
 
             let data = data_req.unwrap();
-            let server_res = data.servers.iter().find(|(_, server)| server.owner.contains(&authenticate.0));
+            let servers = data.servers.read().unwrap();
+            let server_res = servers.iter().find(|(_, server)| server.owner.contains(&authenticate.0));
             if server_res.is_none() {
                 return Failure((Status::Unauthorized, ()));
             }
@@ -33,29 +34,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for ServerOwner {
         })
     }
 }
-/*
-impl<'a, 'r> OpenApiFromRequest<'a, 'r> for ServerOwner {
-    fn request_parameter(_: &mut OpenApiGenerator, _: String) -> rocket_okapi::Result<Parameter> {
-        Ok(Parameter {
-            name: "X-Authorization".to_owned(),
-            location: "header".to_owned(),
-            description: None,
-            required: true,
-            deprecated: false,
-            allow_empty_value: false,
-            value: ParameterValue::Schema {
-                style: None,
-                explode: None,
-                allow_reserved: false,
-                schema: Default::default(),
-                example: None,
-                examples: None,
-            },
-            extensions: Default::default(),
-        })
-    }
-}
- */
+
 // This implementation is required from OpenAPI, it does nothing here
 // and is not supposed to be used!
 impl Responder<'static> for ServerOwner {

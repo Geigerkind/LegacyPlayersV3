@@ -3,7 +3,7 @@ use crate::modules::data::{tools::RetrieveServer, Data};
 
 #[test]
 fn get_server() {
-    let mut data = Data::default();
+    let data = Data::default();
     let server_id = 1;
     let server = Server {
         id: server_id,
@@ -12,7 +12,10 @@ fn get_server() {
         owner: None,
         patch: "1.12.1".to_string(),
     };
-    data.servers.insert(server_id, server.clone());
+    {
+        let mut servers = data.servers.write().unwrap();
+        servers.insert(server_id, server.clone());
+    }
 
     let server_res = data.get_server(server_id);
     assert!(server_res.is_some());

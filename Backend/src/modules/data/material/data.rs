@@ -10,6 +10,7 @@ use crate::modules::data::{
 };
 use crate::util::database::*;
 use language::material::Dictionary;
+use std::sync::RwLock;
 
 #[derive(Debug)]
 pub struct Data {
@@ -19,7 +20,7 @@ pub struct Data {
     pub localization: Vec<HashMap<u32, Localization>>,
     pub races: HashMap<u8, Race>,
     pub professions: HashMap<u16, Profession>,
-    pub servers: HashMap<u32, Server>,
+    pub servers: RwLock<HashMap<u32, Server>>,
     pub hero_classes: HashMap<u8, HeroClass>,
     pub spells: Vec<HashMap<u32, Spell>>,
     pub dispel_types: HashMap<u8, DispelType>,
@@ -63,7 +64,7 @@ impl Default for Data {
             localization: Vec::new(),
             races: HashMap::new(),
             professions: HashMap::new(),
-            servers: HashMap::new(),
+            servers: RwLock::new(HashMap::new()),
             hero_classes: HashMap::new(),
             spells: Vec::new(),
             dispel_types: HashMap::new(),
@@ -105,7 +106,10 @@ impl Data {
         self.localization.init(db_main);
         self.races.init(db_main);
         self.professions.init(db_main);
-        self.servers.init(db_main);
+        {
+            let mut servers = self.servers.write().unwrap();
+            (*servers).init(db_main);
+        }
         self.hero_classes.init(db_main);
         self.spells.init(db_main);
         self.dispel_types.init(db_main);
@@ -141,7 +145,7 @@ impl Data {
 }
 
 // Initializer for the collections
-trait Init {
+pub trait Init {
     fn init(&mut self, db_main: &mut impl Select);
 }
 
