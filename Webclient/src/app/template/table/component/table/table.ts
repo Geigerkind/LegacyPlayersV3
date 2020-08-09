@@ -16,6 +16,7 @@ export class TableComponent implements OnChanges {
     static readonly PAGE_SIZE: number = 10;
 
     @Output() filterOrPageChanged: EventEmitter<object> = new EventEmitter<object>();
+    @Output() share: EventEmitter<any> = new EventEmitter();
 
     @Input() responsiveHeadColumns: Array<number> = [0, 2];
     @Input() responsiveModeWidthInPx: number = 500;
@@ -80,6 +81,10 @@ export class TableComponent implements OnChanges {
 
     toggleMinimize(): void {
         this.isMinimized = !this.isMinimized;
+    }
+
+    emit_share(): void {
+        this.share.emit(this.currentFilter);
     }
 
     handleFilterChanged(filter: string): void {

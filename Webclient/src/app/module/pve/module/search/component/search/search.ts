@@ -10,12 +10,16 @@ import {RaidSearchService} from "../../service/raid_search";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {SettingsService} from "../../../../../../service/settings";
 import {DateService} from "../../../../../../service/date";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 
 @Component({
     selector: "Search",
     templateUrl: "./search.html",
     styleUrls: ["./search.scss"],
-    providers: [RaidSearchService]
+    providers: [
+        RaidSearchService,
+        TinyUrlService
+    ]
 })
 export class SearchComponent implements OnInit {
     header_columns: Array<HeaderColumn> = [
@@ -57,7 +61,8 @@ export class SearchComponent implements OnInit {
         private dataService: DataService,
         private searchService: RaidSearchService,
         private settingsService: SettingsService,
-        public dateService: DateService
+        public dateService: DateService,
+        public tinyUrlService: TinyUrlService
     ) {
         this.dataService.get_maps_by_type(0).subscribe( (instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(inner_map => this.header_columns[0].type_range.push({

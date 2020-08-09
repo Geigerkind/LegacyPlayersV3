@@ -5,6 +5,7 @@
         "401": "Unauthorized!",
         "404": "Server is not available!",
         "429": "Too many requests!",
+        "500": "This is a bug! Contact Shino!",
         "502": "Backend server is down!",
         "520": "Invalid credentials!",
         "521": "Invalid mail!",
@@ -346,5 +347,10 @@
             "end": "End",
             "duration": "Duration"
         }
+    },
+    "TinyUrl": {
+        "set_failure": "Something went wrong",
+        "set_success": "Url saved to your clipboard",
+        "not_found": "Url was not found"
     }
 }

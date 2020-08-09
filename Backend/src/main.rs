@@ -35,7 +35,7 @@ pub use rocket_contrib::databases::mysql;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
-use crate::modules::{account, armory, data, instance, live_data_processor, tooltip};
+use crate::modules::{account, armory, data, instance, live_data_processor, tooltip, utility};
 use rocket_contrib::databases::mysql::Opts;
 
 #[cfg(test)]
@@ -62,6 +62,7 @@ fn main() {
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
     let instance = instance::Instance::default().init(instance_conn, &armory);
+    let utility = utility::Utility::default();
 
     let prometheus = PrometheusMetrics::new();
 
@@ -87,6 +88,10 @@ fn main() {
             name: "Live Data Processor".to_string(),
             url: "/API/live_data_processor/openapi.json".to_string(),
         },
+        UrlObject {
+            name: "Utility".to_string(),
+            url: "/API/utility/openapi.json".to_string(),
+        },
     ];
 
     rocket::ignite()
@@ -96,6 +101,7 @@ fn main() {
         .manage(tooltip)
         .manage(live_data_processor)
         .manage(instance)
+        .manage(utility)
         .attach(MainDb::fairing())
         .attach(prometheus.clone())
         .mount("/metrics", prometheus)
@@ -258,6 +264,10 @@ fn main() {
                 instance::transfer::ranking::get_instance_ranking_tps,
                 instance::transfer::ranking::get_character_ranking,
             ],
+        )
+        .mount(
+            "/API/utility",
+            routes_with_openapi![utility::transfer::tiny_url::get_tiny_url, utility::transfer::tiny_url::set_tiny_url],
         )
         .launch();
 }
