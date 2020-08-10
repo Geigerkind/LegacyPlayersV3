@@ -2,7 +2,7 @@ import {Mitigation} from "./mitigation";
 import {Unit} from "./unit";
 
 export interface Heal {
-    spell_cast_id: number;
+    spell_cause_id: number;
     heal: {
         total: number;
         effective: number;

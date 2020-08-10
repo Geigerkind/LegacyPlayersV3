@@ -590,10 +590,15 @@ export class InstanceDataService implements OnDestroy {
     public get spell_damage(): Observable<Array<Event>> {
         const target_extraction = (event: Event) => ((event.event as any).SpellDamage as SpellDamage).damage.victim;
         const ability_extraction = (event: Event) => {
+            // TODO: Refactor this extraction mess!
             const spell_damage = (event.event as any).SpellDamage as SpellDamage;
             const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(spell_damage.spell_cast_id);
-            return [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
+            const spell_cast_event = spell_casts?.get(spell_damage.spell_cause_id);
+            if (!!spell_cast_event)
+                return [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
+            const aura_applications = this.aura_applications$?.getValue();
+            const aura_application_event = aura_applications?.get(spell_damage.spell_cause_id);
+            return (aura_application_event?.event as any)?.AuraApplication?.caster;
         };
         this.spell_casts.pipe(take(1));
         if (!this.spell_damage$) {
@@ -614,8 +619,12 @@ export class InstanceDataService implements OnDestroy {
         const ability_extraction = (event: Event) => {
             const heal = (event.event as any).Heal as Heal;
             const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(heal.spell_cast_id);
-            return [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
+            const spell_cast_event = spell_casts?.get(heal.spell_cause_id);
+            if (!!spell_cast_event)
+                return [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
+            const aura_applications = this.aura_applications$?.getValue();
+            const aura_application_event = aura_applications?.get(heal.spell_cause_id);
+            return (aura_application_event?.event as any)?.AuraApplication?.caster;
         };
         this.spell_casts.pipe(take(1));
         if (!this.heal$) {

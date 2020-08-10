@@ -8,6 +8,7 @@ import {UtilService} from "./util";
 import {SpellCast} from "../../../domain_value/spell_cast";
 import {group_by} from "../../../../../stdlib/group_by";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
+import {SpellDamage} from "../../../domain_value/spell_damage";
 
 @Injectable({
     providedIn: "root",
@@ -23,6 +24,7 @@ export class DamageDoneService implements OnDestroy {
     private newData: Map<number, Map<number, number>>;
     private initialized: boolean = false;
 
+    private aura_applications: Map<number, Event> = new Map();
     private spell_casts: Map<number, Event> = new Map();
     private spell_damage: Array<Event> = [];
     private melee_damage: Map<number, Event> = new Map();
@@ -48,6 +50,10 @@ export class DamageDoneService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
+        this.instanceDataService.aura_applications.pipe(take(1)).subscribe(aura_applications => {
+            this.aura_applications = aura_applications;
+            this.commit();
+        });
         this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
             this.spell_casts = spell_casts;
             this.commit();
@@ -62,6 +68,11 @@ export class DamageDoneService implements OnDestroy {
         });
 
         this.subscription_changed = this.instanceDataService.changed.subscribe(changed => {
+            if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.AuraApplication].includes(changed))
+                this.instanceDataService.aura_applications.pipe(take(1)).subscribe(aura_applications => {
+                    this.aura_applications = aura_applications;
+                    this.commit();
+                });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellCast].includes(changed))
                 this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
                     this.spell_casts = spell_casts;
@@ -119,8 +130,8 @@ export class DamageDoneService implements OnDestroy {
     }
 
     private feed_spell_damage(abilities_data: Map<number, number>, event: Event): void {
-        const spell_cast_id = ((event.event as any).SpellDamage).spell_cast_id as number;
-        const spell_cast_event = this.spell_casts.get(spell_cast_id);
+        const spell_cause_id = ((event.event as any).SpellDamage as SpellDamage).spell_cause_id;
+        const spell_cast_event = this.spell_casts.has(spell_cause_id) ? this.spell_casts.get(spell_cause_id) : this.aura_applications.get(spell_cause_id);
         if (!spell_cast_event)
             return;
         const damage = (event.event as any).SpellDamage.damage.damage;
