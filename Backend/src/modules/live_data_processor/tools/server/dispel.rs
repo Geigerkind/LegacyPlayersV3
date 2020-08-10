@@ -5,18 +5,17 @@ use crate::modules::live_data_processor::tools::MapUnit;
 use crate::util::database::{Execute, Select};
 use std::collections::{HashMap, VecDeque};
 
-pub fn try_parse_dispel(db_main: &mut (impl Select + Execute), dispel: &UnAura, committed_events: &VecDeque<Event>, timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
+pub fn try_parse_dispel(
+    db_main: &mut (impl Select + Execute), dispel: &UnAura, recently_committed_spell_cast_and_aura_applications: &VecDeque<Event>, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
+) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
     let un_aura_caster = dispel.un_aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
     let target = dispel.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut spell_cast_event_id = None;
     let mut aura_application_event_ids = Vec::new();
 
-    for i in (0..committed_events.len()).rev() {
-        let event: &Event = committed_events.get(i).unwrap();
-        if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
-            break;
-        }
+    for i in (0..recently_committed_spell_cast_and_aura_applications.len()).rev() {
+        let event: &Event = recently_committed_spell_cast_and_aura_applications.get(i).unwrap();
 
         if let Some(spell_cast_event_id) = spell_cast_event_id {
             if aura_application_event_ids.len() == dispel.un_aura_amount as usize {

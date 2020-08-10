@@ -7,7 +7,9 @@ use std::collections::{BTreeSet, HashMap, VecDeque};
 
 /// There is a SpellCast event that steals an AuraApplication event
 /// Note: un_aura_spell_id is currently constant 0
-pub fn try_parse_spell_steal(db_main: &mut (impl Select + Execute), spell_steal: &UnAura, committed_events: &VecDeque<Event>, timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, u32), EventParseFailureAction> {
+pub fn try_parse_spell_steal(
+    db_main: &mut (impl Select + Execute), spell_steal: &UnAura, recently_committed_spell_cast_and_aura_applications: &VecDeque<Event>, timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>,
+) -> Result<(u32, u32), EventParseFailureAction> {
     let un_aura_caster = spell_steal.un_aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
     let target = spell_steal.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
@@ -15,8 +17,8 @@ pub fn try_parse_spell_steal(db_main: &mut (impl Select + Execute), spell_steal:
     let mut aura_application_event_id = None;
 
     // Case 1: There was a matching pair of events in the past
-    for i in (0..committed_events.len()).rev() {
-        let event: &Event = committed_events.get(i).unwrap();
+    for i in (0..recently_committed_spell_cast_and_aura_applications.len()).rev() {
+        let event: &Event = recently_committed_spell_cast_and_aura_applications.get(i).unwrap();
         if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
             break;
         }

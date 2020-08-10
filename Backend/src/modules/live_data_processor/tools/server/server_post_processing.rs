@@ -20,7 +20,7 @@ impl Server {
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 for event in committed_events.iter() {
-                    if event.timestamp + 30000 > now {
+                    if event.timestamp + 2000 > now {
                         break;
                     }
 
@@ -187,7 +187,7 @@ impl Server {
         for (instance_id, current_event_id) in self.committed_events_count.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 if let Some(committed_events) = self.committed_events.get(&instance_id) {
-                    if let Some(last_entry) = committed_events.last() {
+                    if let Some(last_entry) = committed_events.back() {
                         db_main.execute_wparams(
                             "UPDATE instance_meta SET last_event_id=:current_event_id, end_ts=:end_ts WHERE id=:instance_meta_id",
                             params!("current_event_id" => *current_event_id, "end_ts" => last_entry.timestamp, "instance_meta_id" => instance_meta_id),

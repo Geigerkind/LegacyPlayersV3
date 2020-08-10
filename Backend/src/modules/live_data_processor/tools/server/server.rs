@@ -68,8 +68,7 @@ impl Server {
                             _ => {},
                         };
 
-                        let instance_events = self.committed_events.entry(*unit_instance_id).or_insert_with(|| VecDeque::with_capacity(1));
-                        instance_events.push(committable_event);
+                        self.committed_events.entry(*unit_instance_id).or_insert_with(|| VecDeque::with_capacity(1)).push_back(committable_event);
                     }
                 },
                 Err(EventParseFailureAction::DiscardFirst) => {
@@ -296,9 +295,9 @@ impl Server {
             MessageType::Interrupt(interrupt) => {
                 // If we dont find any committable events for this interrupt, we need to discard
                 if let Some(unit_instance_id) = self.unit_instance_id.get(&interrupt.target.unit_id) {
-                    if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                    if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(unit_instance_id) {
                         let subject = interrupt.target.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                        return match try_parse_interrupt(&interrupt, committed_events, first_message.timestamp, &subject) {
+                        return match try_parse_interrupt(&interrupt, committed_events, &subject) {
                             Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
                             Err(err) => Err(err),
                         };
@@ -310,9 +309,9 @@ impl Server {
             MessageType::Dispel(dispel) => {
                 // If we dont find any committable events for this interrupt, we need to discard
                 if let Some(unit_instance_id) = self.unit_instance_id.get(&dispel.un_aura_caster.unit_id) {
-                    if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                    if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(unit_instance_id) {
                         let subject = dispel.un_aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                        return match try_parse_dispel(db_main, &dispel, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
+                        return match try_parse_dispel(db_main, &dispel, committed_events, armory, self.server_id, &self.summons) {
                             Ok((cause_event_id, target_event_ids)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_ids })),
                             Err(err) => Err(err),
                         };
@@ -324,7 +323,7 @@ impl Server {
             MessageType::SpellSteal(spell_steal) => {
                 // If we dont find any committable events for this interrupt, we need to discard
                 if let Some(unit_instance_id) = self.unit_instance_id.get(&spell_steal.un_aura_caster.unit_id) {
-                    if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
+                    if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(unit_instance_id) {
                         let subject = spell_steal.aura_caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_spell_steal(db_main, &spell_steal, committed_events, first_message.timestamp, armory, self.server_id, &self.summons) {
                             Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),

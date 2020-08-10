@@ -1,6 +1,7 @@
 use crate::modules::live_data_processor::domain_value::{AuraApplication, Creature, Event, EventType, HitType, SpellCast, Unit};
 use crate::modules::live_data_processor::dto;
 use crate::modules::live_data_processor::tools::server::try_parse_interrupt;
+use std::collections::VecDeque;
 
 #[test]
 fn test_no_events() {
@@ -11,9 +12,7 @@ fn test_no_events() {
 
     let subject = Unit::Creature(Creature { creature_id: 0, entry: 0, owner: None });
 
-    let timestamp: u64 = 123;
-
-    let result = try_parse_interrupt(&interrupt, [].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::new(), &subject);
     assert!(result.is_err());
 }
 
@@ -34,9 +33,7 @@ fn test_timestamp() {
 
     let subject = Unit::Creature(Creature { creature_id: 0, entry: 0, owner: None });
 
-    let timestamp: u64 = 123;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -57,9 +54,7 @@ fn test_spellcast_no_spell_id() {
 
     let subject = Unit::Creature(Creature { creature_id: 0, entry: 0, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -81,9 +76,7 @@ fn test_spellcast_different_victim_no_direct_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -105,9 +98,7 @@ fn test_spellcast_hit_victim_no_direct_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -129,9 +120,7 @@ fn test_spellcast_different_victim_direct_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -153,9 +142,7 @@ fn test_spellcast_hit_victim_direct_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_ok());
 }
 
@@ -177,9 +164,7 @@ fn test_aura_app_wrong_subject_no_indirect_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -201,9 +186,7 @@ fn test_aura_app_correct_subject_no_indirect_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -225,9 +208,7 @@ fn test_aura_app_wrong_subject_indirect_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }
 
@@ -249,9 +230,7 @@ fn test_aura_app_correct_subject_indirect_interrupt() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_ok());
 }
 
@@ -267,8 +246,6 @@ fn test_unhandled_event() {
 
     let subject = Unit::Creature(Creature { creature_id: 1, entry: 1, owner: None });
 
-    let timestamp: u64 = 123455;
-
-    let result = try_parse_interrupt(&interrupt, [committed_event].as_ref(), timestamp, &subject);
+    let result = try_parse_interrupt(&interrupt, &VecDeque::from(vec![committed_event]), &subject);
     assert!(result.is_err());
 }

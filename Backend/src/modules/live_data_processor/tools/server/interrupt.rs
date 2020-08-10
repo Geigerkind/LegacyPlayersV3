@@ -7,12 +7,9 @@ use std::collections::{BTreeSet, VecDeque};
 ///
 /// There are indirect interrupts due to moving, but for this we need to reorder events. We don't consider this an interrupt for now, maybe later
 /// Generally these are also out of order
-pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &VecDeque<Event>, timestamp: u64, subject: &Unit) -> Result<(u32, u32), EventParseFailureAction> {
-    for i in (0..committed_events.len()).rev() {
-        let event: &Event = committed_events.get(i).unwrap();
-        if (timestamp as i64 - event.timestamp as i64).abs() > 10 {
-            return Err(EventParseFailureAction::DiscardFirst);
-        }
+pub fn try_parse_interrupt(interrupt: &Interrupt, recently_committed_spell_cast_and_aura_applications: &VecDeque<Event>, subject: &Unit) -> Result<(u32, u32), EventParseFailureAction> {
+    for i in (0..recently_committed_spell_cast_and_aura_applications.len()).rev() {
+        let event: &Event = recently_committed_spell_cast_and_aura_applications.get(i).unwrap();
         match &event.event {
             EventType::SpellCast(spell_cast) => {
                 if spell_cast.victim.contains(subject) && spell_is_direct_interrupt(spell_cast.spell_id) {
