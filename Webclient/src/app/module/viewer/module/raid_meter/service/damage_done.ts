@@ -9,6 +9,7 @@ import {SpellCast} from "../../../domain_value/spell_cast";
 import {group_by} from "../../../../../stdlib/group_by";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {SpellDamage} from "../../../domain_value/spell_damage";
+import {AuraApplication} from "../../../domain_value/aura_application";
 
 @Injectable({
     providedIn: "root",
@@ -113,12 +114,23 @@ export class DamageDoneService implements OnDestroy {
         }
 
         // Spell Damage
-        grouping = group_by(this.spell_damage, (event) => get_unit_id(event.subject));
+        // TODO: Refactor
+        const source_extraction = (event: Event) => {
+            const spell_damage = (event.event as any).SpellDamage as SpellDamage;
+            const aura_applications = this.aura_applications;
+            const aura_application_event = aura_applications?.get(spell_damage.spell_cause_id);
+            if (!!aura_application_event) {
+                return ((aura_application_event?.event as any)?.AuraApplication as AuraApplication)?.caster;
+            }
+            return event.subject;
+        };
+
+        grouping = group_by(this.spell_damage, (event) => get_unit_id(source_extraction(event)));
         // tslint:disable-next-line:forin
         for (const unit_id in grouping) {
             const subject_id = Number(unit_id);
             if (!this.units$.has(subject_id))
-                this.units$.set(subject_id, this.utilService.get_row_unit_subject(grouping[unit_id][0].subject));
+                this.units$.set(subject_id, this.utilService.get_row_unit_subject(source_extraction(grouping[unit_id][0])));
             if (!this.newData.has(subject_id))
                 this.newData.set(subject_id, new Map());
 
@@ -131,16 +143,17 @@ export class DamageDoneService implements OnDestroy {
 
     private feed_spell_damage(abilities_data: Map<number, number>, event: Event): void {
         const spell_cause_id = ((event.event as any).SpellDamage as SpellDamage).spell_cause_id;
-        const spell_cast_event = this.spell_casts.has(spell_cause_id) ? this.spell_casts.get(spell_cause_id) : this.aura_applications.get(spell_cause_id);
-        if (!spell_cast_event)
+        const spell_id = this.spell_casts.has(spell_cause_id) ? (this.spell_casts.get(spell_cause_id).event as any).SpellCast.spell_id
+            : (this.aura_applications.get(spell_cause_id)?.event as any)?.AuraApplication?.spell_id;
+
+        if (!spell_id)
             return;
         const damage = (event.event as any).SpellDamage.damage.damage;
-        const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;
-        if (!this.abilities$.has(spell_cast.spell_id))
-            this.abilities$.set(spell_cast.spell_id, this.utilService.get_row_ability_subject(spell_cast.spell_id));
+        if (!this.abilities$.has(spell_id))
+            this.abilities$.set(spell_id, this.utilService.get_row_ability_subject(spell_id));
 
-        if (abilities_data.has(spell_cast.spell_id)) abilities_data.set(spell_cast.spell_id, abilities_data.get(spell_cast.spell_id) + damage);
-        else abilities_data.set(spell_cast.spell_id, damage);
+        if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
+        else abilities_data.set(spell_id, damage);
     }
 
 }

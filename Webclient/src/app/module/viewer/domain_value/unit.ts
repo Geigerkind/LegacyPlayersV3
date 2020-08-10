@@ -4,6 +4,8 @@ import {Creature} from "./creature";
 export type Unit = Player | Creature;
 
 function get_unit_id(unit: Unit): number {
+    if (!unit)
+        return 0;
     if (is_player(unit))
         return ((unit as any).Player as Player).character_id;
     if (is_creature(unit))

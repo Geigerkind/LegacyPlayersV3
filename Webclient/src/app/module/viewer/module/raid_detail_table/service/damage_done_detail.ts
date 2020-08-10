@@ -105,20 +105,21 @@ export class DamageDoneDetailService implements OnDestroy {
 
         for (const event of this.spell_damage) {
             const spell_cause_id = ((event.event as any).SpellDamage as SpellDamage).spell_cause_id;
-            const spell_cast_event = this.spell_casts.has(spell_cause_id) ? this.spell_casts.get(spell_cause_id) : this.aura_applications.get(spell_cause_id);
-            if (!spell_cast_event)
+            const spell_cause_event = this.spell_casts.has(spell_cause_id) ? this.spell_casts.get(spell_cause_id) : this.aura_applications.get(spell_cause_id);
+            if (!spell_cause_event)
                 return;
-            const spell_cast = (spell_cast_event.event as any).SpellCast as SpellCast;
+            const hit_type = !!(spell_cause_event.event as any).SpellCast ? (spell_cause_event.event as any).SpellCast.hit_type : HitType.Hit;
+            const spell_id = !!(spell_cause_event.event as any).SpellCast ? (spell_cause_event.event as any).SpellCast.spell_id : (spell_cause_event.event as any).AuraApplication.spell_id;
             const damage = (event.event as any).SpellDamage.damage as Damage;
-            if (!ability_details.has(spell_cast.spell_id)) {
-                abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
+            if (!ability_details.has(spell_id)) {
+                abilities.set(spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_id)
                     .pipe(map(spell => !spell ? "Unknown" : spell.localization)))));
-                ability_details.set(spell_cast.spell_id, new Map());
+                ability_details.set(spell_id, new Map());
             }
-            const details_map = ability_details.get(spell_cast.spell_id);
+            const details_map = ability_details.get(spell_id);
             this.fill_details(details_map, {
                 damage: damage.damage,
-                hit_type: spell_cast.hit_type,
+                hit_type,
                 mitigation: damage.mitigation,
                 victim: undefined
             });

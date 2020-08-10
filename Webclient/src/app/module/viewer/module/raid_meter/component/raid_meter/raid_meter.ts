@@ -151,14 +151,14 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     private ability_rows(data: Array<[number, Array<[number, number]>]>): Array<[number, number]> {
-        return data.reduce((acc, [unit_id, abilities]) => {
-            const ability_amount = new Map();
+        return [...data.reduce((acc, [unit_id, abilities]) => {
+            const ability_amount = acc;
             for (const [ability_id, amount] of abilities) {
                 if (ability_amount.has(ability_id)) ability_amount.set(ability_id, ability_amount.get(ability_id) + amount);
                 else ability_amount.set(ability_id, amount);
             }
-            return [...ability_amount.entries()];
-        }, []);
+            return ability_amount;
+        }, new Map())];
     }
 
     private update_bars(rows: Array<[number, Array<[number, number]>]>): void {
