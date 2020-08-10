@@ -20,7 +20,7 @@ impl Server {
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 for event in committed_events.iter() {
-                    if event.timestamp + 5000 > now {
+                    if event.timestamp + 30000 > now {
                         break;
                     }
 
@@ -56,7 +56,7 @@ impl Server {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 let active_attempts = self.active_attempts.entry(*instance_id).or_insert_with(|| HashMap::with_capacity(1));
                 for event in committed_events.iter() {
-                    if event.timestamp + 5000 > now {
+                    if event.timestamp + 2000 > now {
                         break;
                     }
 
@@ -119,9 +119,9 @@ impl Server {
                                             if let Some(treshold) = encounter_npc.health_treshold {
                                                 if (100 * *max_power).div(current_power) <= treshold as u32 {
                                                     attempt.creatures_required_to_die.clear();
+                                                    is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
                                                 }
                                             }
-                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
                                         }
                                         if is_committable {
                                             if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
@@ -209,7 +209,7 @@ impl Server {
                 let _result = std::fs::create_dir_all(format!("{}/{}/{}", storage_path, self.server_id, active_instance.instance_meta_id));
 
                 // Find first event that is committable from the back
-                if let Some(extraction_index) = committable_events.iter().rposition(|event| event.timestamp + 5000 < now) {
+                if let Some(extraction_index) = committable_events.iter().rposition(|event| event.timestamp + 2000 < now) {
                     let mut drained_events = committable_events.drain(..(extraction_index + 1)).collect::<Vec<Event>>();
                     drained_events.sort_by(|left, right| {
                         let by_event_type = left.event.to_u8().cmp(&right.event.to_u8());

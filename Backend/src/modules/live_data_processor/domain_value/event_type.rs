@@ -15,8 +15,8 @@ pub enum EventType {
     ThreatWipe,
     Summon { summoned: Unit },
     MeleeDamage(Damage),
-    SpellDamage { spell_cast_id: u32, damage: Damage },
-    Heal { spell_cast_id: u32, heal: Heal },
+    SpellDamage { spell_cause_id: u32, damage: Damage },
+    Heal { spell_cause_id: u32, heal: Heal },
     Threat { cause_event_id: u32, threat: Threat },
 
     // Used for convenience

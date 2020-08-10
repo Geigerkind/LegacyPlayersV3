@@ -16,7 +16,7 @@ services:
     build:
       context: ./
       dockerfile: ./Environment/sample_backend/Dockerfile
-    restart: always
+    restart: on-failure
     networks:
       lp_cm_net:
         ipv4_address: 172.34.128.6

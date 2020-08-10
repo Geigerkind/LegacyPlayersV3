@@ -3,7 +3,7 @@ use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::modules::live_data_processor::material::Attempt;
 use crate::params;
 use crate::util::database::Select;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 
 pub struct Server {
     pub server_id: u32,
@@ -32,6 +32,7 @@ pub struct Server {
     // Instance_id => Events
     pub committed_events: HashMap<u32, Vec<Event>>,
     pub committed_events_count: HashMap<u32, u32>,
+    pub recently_committed_spell_cast_and_aura_applications: HashMap<u32, VecDeque<Event>>,
 }
 
 impl Server {
@@ -51,6 +52,7 @@ impl Server {
             subject_prepend_mode_set: BTreeSet::new(),
             active_attempts: HashMap::new(),
             post_processing_last_precessed_event_id: HashMap::new(),
+            recently_committed_spell_cast_and_aura_applications: HashMap::new(),
         }
     }
 

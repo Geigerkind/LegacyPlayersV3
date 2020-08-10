@@ -1,10 +1,10 @@
-version: '3.6'
+version: '3.8'
 services:
   lpcmmariadb:
     build:
       context: ./
       dockerfile: ./Environment/lp_cm_mariadb/Dockerfile
-    restart: always
+    restart: on-failure
     networks:
       lp_cm_net:
         ipv4_address: 172.34.128.2
@@ -34,7 +34,7 @@ services:
     build:
       context: ./
       dockerfile: ./Environment/lp_cm_backend/Dockerfile
-    restart: always
+    restart: on-failure
     networks:
       lp_cm_net:
         ipv4_address: 172.34.128.4
