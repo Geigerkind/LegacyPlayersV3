@@ -3,9 +3,9 @@ use crate::modules::live_data_processor::domain_value::{Event, EventParseFailure
 use crate::modules::live_data_processor::dto::UnAura;
 use crate::modules::live_data_processor::tools::MapUnit;
 use crate::util::database::{Execute, Select};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
-pub fn try_parse_dispel(db_main: &mut (impl Select + Execute), dispel: &UnAura, committed_events: &[Event], timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
+pub fn try_parse_dispel(db_main: &mut (impl Select + Execute), dispel: &UnAura, committed_events: &VecDeque<Event>, timestamp: u64, armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<(u32, Vec<u32>), EventParseFailureAction> {
     let un_aura_caster = dispel.un_aura_caster.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
     let target = dispel.target.to_unit(db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 

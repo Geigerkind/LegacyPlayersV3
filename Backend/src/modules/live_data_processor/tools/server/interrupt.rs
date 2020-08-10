@@ -1,13 +1,13 @@
 use crate::modules::live_data_processor::domain_value::{Event, EventParseFailureAction, EventType, Unit};
 use crate::modules::live_data_processor::dto::Interrupt;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, VecDeque};
 
 /// There are indirect interrupts, e.g. stuns. These are parsed via AuraApplication
 /// There are direct interrupts. These are parsed via SpellCast
 ///
 /// There are indirect interrupts due to moving, but for this we need to reorder events. We don't consider this an interrupt for now, maybe later
 /// Generally these are also out of order
-pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &[Event], timestamp: u64, subject: &Unit) -> Result<(u32, u32), EventParseFailureAction> {
+pub fn try_parse_interrupt(interrupt: &Interrupt, committed_events: &VecDeque<Event>, timestamp: u64, subject: &Unit) -> Result<(u32, u32), EventParseFailureAction> {
     for i in (0..committed_events.len()).rev() {
         let event: &Event = committed_events.get(i).unwrap();
         if (timestamp as i64 - event.timestamp as i64).abs() > 10 {

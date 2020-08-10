@@ -4,7 +4,7 @@ use crate::modules::live_data_processor::domain_value::{Creature, Event, EventTy
 use crate::modules::live_data_processor::material::{Attempt, Server};
 use crate::params;
 use crate::util::database::{Execute, Select};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::io::Write;
 use std::ops::Div;
 
@@ -301,7 +301,7 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
     }
 }
 
-fn look_ahead_death(committed_events: &Vec<Event>, event: &Event, creature_id: u64) -> bool {
+fn look_ahead_death(committed_events: &VecDeque<Event>, event: &Event, creature_id: u64) -> bool {
     for la_event in committed_events.iter() {
         if la_event.id < event.id {
             continue;

@@ -30,7 +30,7 @@ pub struct Server {
     // Mapping player to non committed event
     pub non_committed_events: HashMap<u64, NonCommittedEvent>,
     // Instance_id => Events
-    pub committed_events: HashMap<u32, Vec<Event>>,
+    pub committed_events: HashMap<u32, VecDeque<Event>>,
     pub committed_events_count: HashMap<u32, u32>,
     pub recently_committed_spell_cast_and_aura_applications: HashMap<u32, VecDeque<Event>>,
 }

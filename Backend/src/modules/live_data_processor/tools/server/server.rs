@@ -68,7 +68,7 @@ impl Server {
                             _ => {},
                         };
 
-                        let instance_events = self.committed_events.entry(*unit_instance_id).or_insert_with(|| Vec::with_capacity(1));
+                        let instance_events = self.committed_events.entry(*unit_instance_id).or_insert_with(|| VecDeque::with_capacity(1));
                         instance_events.push(committable_event);
                     }
                 },
