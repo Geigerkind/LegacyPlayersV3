@@ -41,10 +41,13 @@ impl PerformCharacterSearch for Armory {
             .filter_map(|(_, character)| {
                 if let Some(character_guild) = character.last_update.as_ref().unwrap().character_guild.as_ref() {
                     if let Some(guild) = self.get_guild(character_guild.guild_id) {
-                        if filter.guild.filter.is_none() || guild.name.to_lowercase().contains(filter.guild.filter.as_ref().unwrap()) {
+                        if guild.name.to_lowercase().contains(filter.guild.filter.as_ref().unwrap()) {
                             return Some((character, Some(guild)));
                         }
                     }
+                }
+                if filter.guild.filter.is_none() {
+                    return Some((character, None));
                 }
                 None
             })
