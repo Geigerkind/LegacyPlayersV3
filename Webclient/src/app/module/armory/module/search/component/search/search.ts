@@ -9,6 +9,7 @@ import {Localized} from "../../../../../../domain_value/localized";
 import {HeroClass} from "../../../../../../domain_value/hero_class";
 import {SettingsService} from "src/app/service/settings";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {DateService} from "../../../../../../service/date";
 
 @Component({
     selector: "Search",
@@ -61,7 +62,8 @@ export class SearchComponent implements OnInit {
         private characterSearchService: CharacterSearchService,
         private dataService: DataService,
         private settingsService: SettingsService,
-        public tinyUrlService: TinyUrlService
+        public tinyUrlService: TinyUrlService,
+        public dateService: DateService
     ) {
         this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
             hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
