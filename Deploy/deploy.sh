@@ -165,6 +165,12 @@ function deployBackend {
   cd /root
 }
 
+function deployModelGenerator {
+  cp /root/${REPOSITORY_NAME}/ModelViewer/viewer/* /home/rpll/ModelViewer/viewer/
+  cp /root/${REPOSITORY_NAME}/ModelViewer/model_generator.py /home/rpll/ModelViewer/
+  chown -R rpll /home/rpll/ModelViewer
+}
+
 function updateConfigs {
   # Postfix
   cp /root/${REPOSITORY_NAME}/Deploy/conf/virtual /etc/postfix/
@@ -207,6 +213,7 @@ function stopServices {
   systemctl stop backend
   systemctl stop prometheus
   systemctl stop grafana
+  systemctl stop model_generator
 }
 
 function startServices {
@@ -217,6 +224,7 @@ function startServices {
   systemctl start backend
   systemctl start prometheus
   systemctl start grafana
+  systemctl start model_generator
 }
 
 function waitForJobs {
@@ -250,6 +258,7 @@ function deploy {
   deployDatabase
   deployWebclient
   deployBackend
+  deployModelGenerator
   waitForJobs
 
   startServices

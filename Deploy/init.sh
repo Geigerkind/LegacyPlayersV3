@@ -144,6 +144,19 @@ function initUfw {
   #yes | ufw enable
 }
 
+function initModelGenerator {
+  pacman -S --noconfirm python python-pip make git fakeroot binutils alsa-lib gtk3 libcups libxss libxtst nss xdg-utils
+  git clone https://aur.archlinux.org/chromedriver.git
+  git clone https://aur.archlinux.org/google-chrome.git
+  # TODO: Makepkg cant be done as root
+  cd chromedriver && makepkg && pacman -U --noconfirm chromedriver-*.pkg.tar.xz && cd ../
+  cd google-chrome && makepkg && pacman -U --noconfirm google-chrome-*.pkg.tar.xz && cd ../
+  pip install selenium
+  pip install flask
+  cp -r /root/${REPOSITORY_NAME}/ModelViewer /home/rpll/
+  chown -R rpll /home/rpll/ModelViewer
+}
+
 function initServer {
   # Requires user input
   useradd -m -G wheel ${BACKEND_USER}
@@ -177,6 +190,7 @@ function initServer {
   npm install
   cd /root
   cp /root/${REPOSITORY_NAME}/Deploy/conf/backend.service /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/model_generator.service /etc/systemd/system/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/deploy.service /etc/systemd/system/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/backup_db.service /etc/systemd/system/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/backup_db.timer /etc/systemd/system/
@@ -184,6 +198,7 @@ function initServer {
   cp /root/${REPOSITORY_NAME}/Deploy/conf/certbot_renew.timer /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable backend.service
+  systemctl enable model_generator.service
   systemctl enable deploy.service
   systemctl enable backup_db.timer
   systemctl enable certbot_renew.timer
@@ -200,9 +215,8 @@ function initServer {
   initPrometheus
   initGrafana
   initUfw
-
-  systemctl start backup_db.timer
-  systemctl start certbot_renew.timer
+  #initModelGenerator
+  echo "initModelGenerator must currently done manually!"
 }
 
 initServer
