@@ -101,12 +101,12 @@ impl Server {
             self.non_committed_events.remove(&subject_id);
         }
 
-        // Keep these events up to 60 seconds
+        // Keep these events up to 90 seconds
         for (_instance_id, events) in self.recently_committed_spell_cast_and_aura_applications.iter_mut() {
             loop {
                 let mut remove = false;
                 if let Some(front) = events.front() {
-                    remove = front.timestamp + 60000 < current_timestamp;
+                    remove = front.timestamp + 90000 < current_timestamp;
                 }
                 if remove {
                     events.pop_front();

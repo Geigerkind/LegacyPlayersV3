@@ -124,7 +124,7 @@ impl Init for HashMap<u32, Character> {
                         guild_id,
                         rank: GuildRank {
                             index: row.take(5).unwrap(),
-                            name: row.take(11).unwrap(),
+                            name: row.take(14).unwrap(),
                         },
                     }),
                     character_title: row.take_opt(6).unwrap().ok(),
