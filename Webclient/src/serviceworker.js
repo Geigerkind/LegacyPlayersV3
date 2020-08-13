@@ -10,6 +10,7 @@ const cache_first_permanent = [
     "/API/data/item/localized/basic_item/",
     "/API/data/spell/localized/basic_spell/",
     "/API/data/encounter/localized",
+    "/API/armory/character_viewer_model/"
 ];
 
 const cache_first_shortly = [

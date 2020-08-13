@@ -1,0 +1,12 @@
+.github*
+.idea*
+.git*
+Backend*
+Deploy*
+Exporter*
+Storage*
+target*
+Webclient*
+ModelViewer/meta*
+ModelViewer/mo3*
+ModelViewer/textures*

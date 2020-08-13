@@ -14,4 +14,5 @@ pub struct Item {
     pub max_durability: Option<u16>,
     pub item_level: Option<u16>,
     pub delay: Option<u16>,
+    pub display_info_id: Option<u32>,
 }

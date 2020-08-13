@@ -22,6 +22,7 @@ fn get_item() {
         max_durability: None,
         item_level: None,
         delay: None,
+        display_info_id: None,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(item_id, item.clone());

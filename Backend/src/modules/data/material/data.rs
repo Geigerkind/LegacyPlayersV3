@@ -425,6 +425,14 @@ impl Init for HashMap<u16, Icon> {
 
 impl Init for Vec<HashMap<u32, Item>> {
     fn init(&mut self, db_main: &mut impl Select) {
+        let mut item_x_display_info = HashMap::new();
+        db_main
+            .select("SELECT item_id, display_info_id FROM data_item_display_info", |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap()))
+            .into_iter()
+            .for_each(|(item_id, display_info_id)| {
+                item_x_display_info.insert(item_id, display_info_id);
+            });
+
         let mut last_expansion_id = 0;
         db_main
             .select("SELECT * FROM data_item ORDER BY expansion_id, id", |mut row| Item {
@@ -442,14 +450,16 @@ impl Init for Vec<HashMap<u32, Item>> {
                 max_durability: row.take_opt(11).unwrap().ok(),
                 item_level: row.take_opt(12).unwrap().ok(),
                 delay: row.take_opt(13).unwrap().ok(),
+                display_info_id: None,
             })
             .into_iter()
-            .for_each(|result| {
+            .for_each(|mut result| {
                 if result.expansion_id != last_expansion_id {
                     self.push(HashMap::new());
                     last_expansion_id = result.expansion_id;
                 }
                 let items = self.get_mut(result.expansion_id as usize - 1).unwrap();
+                result.display_info_id = item_x_display_info.get(&result.id).cloned();
                 items.insert(result.id, result);
             });
     }

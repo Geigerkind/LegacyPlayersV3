@@ -42,7 +42,7 @@ services:
       - CHARACTERS_URL=mysql://root:vagrant@172.17.0.1/characters
       - LP_CONSENT_URL=mysql://root:notSecret@lpcmmariadb/lp_consent
       - ROCKET_DATABASES={characters={url="mysql://root:vagrant@172.17.0.1/characters"}, lp_consent={url="mysql://root:notSecret@lpcmmariadb/lp_consent"}}
-      - LP_API_TOKEN=6bc2dd2398e3cf5882a076fc081265db55a8e96e4c87361c478bdf031ad21c907ec06a68de295c4f18a279a678344cbbb079e6a0b56023bbd4a4b44ffad4a41d
+      - LP_API_TOKEN=e62dd6b1c8693c1e35efde586fafa71a394d13ad5f60eb9d9785ac6d3079737beb3fdfc857d6f40cfaf985fdeebc2084dd19fc37ffee7af96063e3c5a20b8144
       - URL_AUTHORIZATION_ENDPOINT=http://localhost:8001/token_validator
       - CHARACTER_FETCH_INTERVAL_IN_SEC=60
       - EXPANSION_ID=2

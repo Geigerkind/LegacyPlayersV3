@@ -10,6 +10,19 @@ pub struct CharacterFacial {
     pub facial_hair: u8,
 }
 
+impl Default for CharacterFacial {
+    fn default() -> Self {
+        CharacterFacial {
+            id: 0,
+            skin_color: 1,
+            face_style: 1,
+            hair_style: 1,
+            hair_color: 1,
+            facial_hair: 1,
+        }
+    }
+}
+
 impl PartialEq for CharacterFacial {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id

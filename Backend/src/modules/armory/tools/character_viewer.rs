@@ -1,3 +1,5 @@
+use crate::modules::armory::domain_value::{CharacterFacial, InventoryType};
+use crate::modules::armory::dto::CharacterViewerModel;
 use crate::util::database::Select;
 use crate::{
     dto::SelectOption,
@@ -20,6 +22,7 @@ pub trait CharacterViewer {
     fn get_character_viewer_by_date(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32, history_date: String) -> Result<CharacterViewerDto, ArmoryFailure>;
     fn get_character_viewer_by_history_id(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_history_id: u32, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
     fn get_character_viewer(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure>;
+    fn get_character_viewer_model_data(&self, db_main: &mut impl Select, data: &Data, character_history_id: u32) -> Result<CharacterViewerModel, ArmoryFailure>;
 }
 
 impl CharacterViewer for Armory {
@@ -162,6 +165,49 @@ impl CharacterViewer for Armory {
             return Err(ArmoryFailure::InvalidInput);
         }
         self.get_character_viewer_by_history_id(db_main, data, language_id, character.unwrap().last_update.unwrap().id, character_id)
+    }
+
+    fn get_character_viewer_model_data(&self, db_main: &mut impl Select, data: &Data, character_history_id: u32) -> Result<CharacterViewerModel, ArmoryFailure> {
+        let character_history = self.get_character_history(db_main, character_history_id)?;
+        let character = self.get_character(character_history.character_id).unwrap();
+        let server = data.get_server(character.server_id).unwrap();
+        let model_race = if character_history.character_info.race_id == 5 {
+            String::from("scourge")
+        } else {
+            data.get_localization(1, data.get_race(character_history.character_info.race_id).unwrap().localization_id)
+                .unwrap()
+                .content
+                .to_lowercase()
+                .replace(" ", "")
+        };
+
+        let mut model_items = character_history
+            .character_info
+            .gear
+            .first_iter()
+            .map(|(inventory_type, item)| {
+                let inventory_type_result = match inventory_type {
+                    // TODO: Twohand, Robe, Bow, Shield ?
+                    InventoryType::Back => 16,
+                    InventoryType::MainHand => 21,
+                    InventoryType::OffHand => 22,
+                    InventoryType::Ranged => 26,
+                    _ => inventory_type as u8,
+                };
+                (inventory_type_result, data.get_item(server.expansion_id, item.item_id).unwrap().display_info_id)
+            })
+            .filter(|(_, display_id)| display_id.is_some())
+            .map(|(inventory_type, display_id)| (inventory_type, display_id.unwrap()))
+            .collect::<Vec<(u8, u32)>>();
+
+        model_items.sort_by(|left, right| left.0.cmp(&right.0));
+
+        Ok(CharacterViewerModel {
+            character_facial: character_history.facial.unwrap_or_else(CharacterFacial::default),
+            model_race,
+            model_gender: if character_history.character_info.gender { String::from("female") } else { String::from("male") },
+            model_items,
+        })
     }
 }
 
