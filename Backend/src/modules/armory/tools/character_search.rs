@@ -39,12 +39,9 @@ impl PerformCharacterSearch for Armory {
                 current_timestamp >= filter_timestamp && current_timestamp <= filter_timestamp + 24 * 60 * 60
             })
             .filter_map(|(_, character)| {
-                if filter.guild.filter.is_none() {
-                    return Some((character, None));
-                }
                 if let Some(character_guild) = character.last_update.as_ref().unwrap().character_guild.as_ref() {
                     if let Some(guild) = self.get_guild(character_guild.guild_id) {
-                        if guild.name.to_lowercase().contains(filter.guild.filter.as_ref().unwrap()) {
+                        if filter.guild.filter.is_none() || guild.name.to_lowercase().contains(filter.guild.filter.as_ref().unwrap()) {
                             return Some((character, Some(guild)));
                         }
                     }
