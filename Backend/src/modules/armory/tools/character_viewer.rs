@@ -191,7 +191,7 @@ impl CharacterViewer for Armory {
                     if inventory_type == InventoryType::Ranged {
                         return None; // We dont show ranged
                     }
-                    return Some((inventory_type_result, display_info.0));
+                    return Some((display_info.1, display_info.0));
                 }
                 None
             })
