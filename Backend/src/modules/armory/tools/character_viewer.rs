@@ -185,19 +185,29 @@ impl CharacterViewer for Armory {
             .character_info
             .gear
             .first_iter()
-            .map(|(inventory_type, item)| {
-                let inventory_type_result = match inventory_type {
-                    // TODO: Twohand, Robe, Bow, Shield ?
-                    InventoryType::Back => 16,
-                    InventoryType::MainHand => 21,
-                    InventoryType::OffHand => 22,
-                    InventoryType::Ranged => 26,
-                    _ => inventory_type as u8,
-                };
-                (inventory_type_result, data.get_item(server.expansion_id, item.item_id).unwrap().display_info_id)
+            .filter_map(|(inventory_type, item)| {
+                let item = data.get_item(server.expansion_id, item.item_id)?;
+                if let Some(display_info) = item.display_info {
+                    let inventory_type_result = match inventory_type {
+                        InventoryType::MainHand => 21,
+                        InventoryType::OffHand => {
+                            if display_info.1 == 14 {
+                                14
+                            } else {
+                                22
+                            }
+                        },
+                        InventoryType::Ranged => 26,
+                        _ => display_info.1,
+                    };
+                    if inventory_type_result == 26 || inventory_type_result == 25 {
+                        return None; // We dont show ranged
+                    }
+
+                    return Some((inventory_type_result, display_info.0));
+                }
+                None
             })
-            .filter(|(_, display_id)| display_id.is_some())
-            .map(|(inventory_type, display_id)| (inventory_type, display_id.unwrap()))
             .collect::<Vec<(u8, u32)>>();
 
         model_items.sort_by(|left, right| left.0.cmp(&right.0));
