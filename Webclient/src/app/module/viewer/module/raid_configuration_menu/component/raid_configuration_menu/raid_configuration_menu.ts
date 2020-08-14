@@ -7,6 +7,7 @@ import {Segment} from "../../domain_value/segment";
 import {EventSource} from "../../domain_value/event_source";
 import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
 import {EventAbility} from "../../domain_value/event_ability";
+import {CONST_UNKNOWN_LABEL} from "../../../../constant/viewer";
 
 @Component({
     selector: "RaidConfigurationMenu",
@@ -114,7 +115,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_categories(categories: Array<Category>, update_filter: boolean) {
         const new_list_items = [];
         for (const category of categories) {
-            if (category.label.toString() === "Unknown")
+            if (category.label.toString() === CONST_UNKNOWN_LABEL)
                 this.update_categories = () => this.handle_categories(categories, false);
             new_list_items.push({
                 id: category.id,
@@ -141,7 +142,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_segments(segments: Array<Segment>, update_filter: boolean) {
         const new_list_items = [];
         for (const segment of segments) {
-            if (segment.label.toString() === "Unknown")
+            if (segment.label.toString() === CONST_UNKNOWN_LABEL)
                 this.update_segments = () => this.handle_segments(segments, false);
             new_list_items.push({
                 id: segment.id,
@@ -170,7 +171,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         const new_list_items = [];
         const new_selected_items = [];
         for (const source of sources) {
-            if (source.label.toString() === "Unknown")
+            if (source.label.toString() === CONST_UNKNOWN_LABEL)
                 this.update_sources = () => this.handle_sources(sources, false);
             const list_item = {
                 id: source.id,
@@ -197,7 +198,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         const new_list_items = [];
         const new_selected_items = [];
         for (const target of targets) {
-            if (target.label.toString() === "Unknown")
+            if (target.label.toString() === CONST_UNKNOWN_LABEL)
                 this.update_targets = () => this.handle_targets(targets, false);
             const list_item = {
                 id: target.id,
@@ -226,7 +227,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         const new_list_items = [];
         const new_selected_items = [];
         for (const ability of abilities) {
-            if (ability.label.toString() === "Unknown")
+            if (ability.label.toString() === CONST_UNKNOWN_LABEL)
                 this.update_abilities = () => this.handle_abilities(abilities, false);
             const list_item = {
                 id: ability.id,

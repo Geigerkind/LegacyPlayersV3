@@ -13,6 +13,7 @@ import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {Localized} from "../../../../../domain_value/localized";
 import {BasicItem} from "../../../../../domain_value/data/basic_item";
 import {Loot as ViewerLoot} from "../../../domain_value/loot";
+import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -93,7 +94,7 @@ export class LootService implements OnDestroy {
                     entry.loot_items.push(loot_item);
                 } else  {
                     result.set(0, {
-                        name: of("Unknown"),
+                        name: of(CONST_UNKNOWN_LABEL),
                         loot_items: [loot_item]
                     });
                 }

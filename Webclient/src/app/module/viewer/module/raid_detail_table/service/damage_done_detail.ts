@@ -13,6 +13,7 @@ import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {SpellService} from "../../../service/spell";
 import {Mitigation} from "../../../domain_value/mitigation";
 import {SpellDamage} from "../../../domain_value/spell_damage";
+import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -113,7 +114,7 @@ export class DamageDoneDetailService implements OnDestroy {
             const damage = (event.event as any).SpellDamage.damage as Damage;
             if (!ability_details.has(spell_id)) {
                 abilities.set(spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_id)
-                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))));
+                    .pipe(map(spell => !spell ? CONST_UNKNOWN_LABEL : spell.localization)))));
                 ability_details.set(spell_id, new Map());
             }
             const details_map = ability_details.get(spell_id);
@@ -131,7 +132,7 @@ export class DamageDoneDetailService implements OnDestroy {
                 continue;
             if (!ability_details.has(spell_cast.spell_id)) {
                 abilities.set(spell_cast.spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_cast.spell_id)
-                    .pipe(map(spell => !spell ? "Unknown" : spell.localization)))));
+                    .pipe(map(spell => !spell ? CONST_UNKNOWN_LABEL : spell.localization)))));
                 ability_details.set(spell_cast.spell_id, new Map());
             }
             const details_map = ability_details.get(spell_cast.spell_id);

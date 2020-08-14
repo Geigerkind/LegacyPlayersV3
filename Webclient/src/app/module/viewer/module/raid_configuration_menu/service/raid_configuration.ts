@@ -14,6 +14,7 @@ import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {EventAbility} from "../domain_value/event_ability";
 import {SpellService} from "../../../service/spell";
 import {DataService} from "../../../../../service/data";
+import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -151,7 +152,7 @@ export class RaidConfigurationService implements OnDestroy {
             categories.set(attempt.encounter_id, {
                 segments: new Set([attempt.id]),
                 id: attempt.encounter_id,
-                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? "Unknown" : encounter.localization))),
+                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? CONST_UNKNOWN_LABEL : encounter.localization))),
                 time: (attempt.end_ts - attempt.start_ts)
             });
         }
@@ -173,7 +174,7 @@ export class RaidConfigurationService implements OnDestroy {
                 duration: (attempt.end_ts - attempt.start_ts),
                 id: attempt.id,
                 is_kill: attempt.is_kill,
-                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? "Unknown" : encounter.localization))),
+                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? CONST_UNKNOWN_LABEL : encounter.localization))),
                 start_ts: attempt.start_ts
             });
         this.segments$.next(segments);

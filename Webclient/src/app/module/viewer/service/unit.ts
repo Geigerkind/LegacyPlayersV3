@@ -10,6 +10,7 @@ import {InstanceDataService} from "./instance_data";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {NPC} from "../../../domain_value/data/npc";
 import {Localized} from "../../../domain_value/localized";
+import {CONST_UNKNOWN_LABEL} from "../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -56,17 +57,17 @@ export class UnitService implements OnDestroy {
                 .get_character_by_id(((unit as any).Player as Player).character_id)
                 .pipe(map(character => !!character?.last_update ?
                     character.last_update.character_name
-                    : "Unknown"));
+                    : CONST_UNKNOWN_LABEL));
 
         if (is_creature(unit))
             return this.get_npc_name(((unit as any).Creature as Creature).entry);
 
-        return of("Unknown");
+        return of(CONST_UNKNOWN_LABEL);
     }
 
     get_npc_name(npc_id: number): Observable<string | undefined> {
         return this.get_npc(npc_id)
-            .pipe(map(npc => !npc ? "Unknown" : npc.localization));
+            .pipe(map(npc => !npc ? CONST_UNKNOWN_LABEL : npc.localization));
     }
 
     get_npc(npc_id: number): Observable<Localized<NPC> | undefined> {
