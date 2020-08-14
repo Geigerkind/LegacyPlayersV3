@@ -13,7 +13,7 @@ import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {SpellService} from "../../../service/spell";
 import {Mitigation} from "../../../domain_value/mitigation";
 import {SpellDamage} from "../../../domain_value/spell_damage";
-import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
+import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL, CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -95,13 +95,13 @@ export class DamageDoneDetailService implements OnDestroy {
         const abilities = new Map<number, DelayedLabel | string>();
         const ability_details = new Map<number, Map<HitType, DetailRow>>();
         if (this.melee_damage.size > 0) {
-            abilities.set(0, "Auto Attack");
+            abilities.set(CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL);
             const melee_details = new Map<HitType, DetailRow>();
             for (const event of [...this.melee_damage.values()]) {
                 const damage = (event.event as any).MeleeDamage as Damage;
                 this.fill_details(melee_details, damage);
             }
-            ability_details.set(0, melee_details);
+            ability_details.set(CONST_AUTO_ATTACK_ID, melee_details);
         }
 
         for (const event of this.spell_damage) {

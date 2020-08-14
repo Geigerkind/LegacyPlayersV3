@@ -6,6 +6,7 @@ import {of} from "rxjs";
 import {map} from "rxjs/operators";
 import {first_matching_primary_school} from "../../../../../stdlib/spell";
 import {SpellService} from "../../../service/spell";
+import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL} from "../../../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -29,8 +30,8 @@ export class UtilService {
     }
 
     get_row_ability_subject_auto_attack(): RaidMeterSubject {
-        const id = 0;
-        const name = of("Auto Attack");
+        const id = CONST_AUTO_ATTACK_ID;
+        const name = of(CONST_AUTO_ATTACK_LABEL);
         const color_class = of("spell_school_bg_0");
         const icon = of("/assets/wow_icon/inv_sword_04.jpg");
         return {id, name, color_class, icon};

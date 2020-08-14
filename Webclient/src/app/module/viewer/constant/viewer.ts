@@ -1,3 +1,5 @@
 const CONST_UNKNOWN_LABEL: string = "Unknown";
+const CONST_AUTO_ATTACK_ID: number = 0;
+const CONST_AUTO_ATTACK_LABEL: string = "Auto Attack";
 
-export {CONST_UNKNOWN_LABEL};
+export {CONST_UNKNOWN_LABEL, CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL};

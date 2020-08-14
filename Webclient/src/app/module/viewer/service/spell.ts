@@ -6,6 +6,7 @@ import {concatMap} from "rxjs/operators";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {InstanceDataService} from "./instance_data";
 import {DataService} from "../../../service/data";
+import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL} from "../constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -29,11 +30,11 @@ export class SpellService implements OnDestroy {
     get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell>> {
         if (!this.current_meta)
             return of(this.dataService.unknown_basic_spell);
-        if (spell_id === 0)
+        if (spell_id === CONST_AUTO_ATTACK_ID)
             return of({
-                localization: "Auto Attack",
+                localization: CONST_AUTO_ATTACK_LABEL,
                 base: {
-                    id: 0,
+                    id: CONST_AUTO_ATTACK_ID,
                     icon: "inv_sword_04",
                     school: 0
                 }
