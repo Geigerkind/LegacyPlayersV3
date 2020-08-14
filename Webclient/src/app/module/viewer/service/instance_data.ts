@@ -6,24 +6,14 @@ import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {InstanceViewerParticipants} from "../domain_value/instance_viewer_participants";
 import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
 import {get_unit_id, has_unit, Unit} from "../domain_value/unit";
-import {SpellCast} from "../domain_value/spell_cast";
-import {AuraApplication} from "../domain_value/aura_application";
-import {MeleeDamage} from "../domain_value/melee_damage";
-import {SpellDamage} from "../domain_value/spell_damage";
-import {Heal} from "../domain_value/heal";
-import {Threat} from "../domain_value/threat";
-import {Summon} from "../domain_value/summon";
 import {map, take} from "rxjs/operators";
-import {Interrupt} from "../domain_value/interrupt";
-import {SpellSteal} from "../domain_value/spell_steal";
-import {Dispel} from "../domain_value/dispel";
 import {
     te_aura_application, te_heal, te_melee_damage,
     te_spell_cast,
     te_spell_cast_by_cause,
     te_spell_cast_or_aura_app, te_spell_damage, te_summon, te_threat
 } from "../extractor/targets";
-import {ce_dispel, ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal, ce_threat} from "../extractor/causes";
+import {ce_dispel, ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal} from "../extractor/causes";
 import {
     ae_aura_application,
     ae_dispel,
@@ -32,7 +22,7 @@ import {
     ae_spell_cast, ae_spell_cast_or_aura_application,
     ae_spell_steal, ae_threat
 } from "../extractor/abilities";
-import {se_aura_app_or_own} from "../extractor/sources";
+import {se_aura_app_or_own, se_identity} from "../extractor/sources";
 
 export enum ChangedSubject {
     SpellCast = 1,
@@ -206,9 +196,6 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private extract_subjects(events: Array<Event>, source_extractor: (Event) => Unit, target_extractor: (Event) => Unit, ability_extractor: (Event) => Array<number>): void {
-        if (!source_extractor)
-            source_extractor = (event) => event.subject;
-
         const current_sources = this.sources$.getValue();
         const current_targets = this.targets$.getValue();
         const current_abilities = this.abilities$.getValue();
@@ -317,11 +304,7 @@ export class InstanceDataService implements OnDestroy {
 
     private apply_filter_to_events_map(subject: Observable<Map<number, Event>>, source_extraction: (Event) => Unit,
                                        target_extraction: (Event) => Unit, ability_extraction: (Event) => Array<number>): Observable<Map<number, Event>> {
-        if (!source_extraction)
-            source_extraction = (event) => event.subject;
-
         // Not sure how this will be performance wise
-        return subject;
         return subject.pipe(
             map(events => [...events]),
             map(events => events.filter(([id, event]) => this.attempt_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)),
@@ -333,9 +316,6 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private apply_interval_and_source_filter_to_events(subject: Observable<Array<Event>>, source_extraction: (Event) => Unit): Observable<Array<Event>> {
-        if (!source_extraction)
-            source_extraction = (event) => event.subject;
-
         return subject.pipe(
             map(events => events.filter(event => this.attempt_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)),
             map(events => events.filter(event => this.source_filter$.has(get_unit_id(source_extraction(event)))))
@@ -356,7 +336,7 @@ export class InstanceDataService implements OnDestroy {
             this.spell_casts$ = new BehaviorSubject(new Map());
             this.load_instance_data(0, events => {
                 this.subscriptions.push(this.spell_casts$.subscribe(i_events =>
-                    this.extract_subjects([...i_events.values()], undefined, te_spell_cast, ae_spell_cast)));
+                    this.extract_subjects([...i_events.values()], se_identity, te_spell_cast, ae_spell_cast)));
                 this.spell_casts$.next(events.reduce((result, event) => {
                     result.set(event.id, event);
                     return result;
@@ -374,72 +354,72 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(0, this.spell_casts$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.spell_casts$.asObservable(), undefined, te_spell_cast, ae_spell_cast);
+        return this.apply_filter_to_events_map(this.spell_casts$.asObservable(), se_identity, te_spell_cast, ae_spell_cast);
     }
 
     public get deaths(): Observable<Array<Event>> {
         if (!this.deaths$) {
             this.deaths$ = new BehaviorSubject([]);
             this.load_instance_data(1, events => {
-                this.subscriptions.push(this.deaths$.subscribe(i_events => this.extract_subjects(i_events, undefined, undefined, undefined)));
+                this.subscriptions.push(this.deaths$.subscribe(i_events => this.extract_subjects(i_events, se_identity, undefined, undefined)));
                 this.deaths$.next(events);
                 this.changed$.next(ChangedSubject.Death);
                 this.register_load_instance(1, this.deaths$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable(), undefined);
+        return this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable(), se_identity);
     }
 
     public get combat_states(): Observable<Array<Event>> {
         if (!this.combat_states$) {
             this.combat_states$ = new BehaviorSubject([]);
             this.load_instance_data(2, events => {
-                this.subscriptions.push(this.combat_states$.subscribe(i_events => this.extract_subjects(i_events, undefined, undefined, undefined)));
+                this.subscriptions.push(this.combat_states$.subscribe(i_events => this.extract_subjects(i_events, se_identity, undefined, undefined)));
                 this.combat_states$.next(events);
                 this.changed$.next(ChangedSubject.CombatState);
                 this.register_load_instance(2, this.combat_states$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.combat_states$.asObservable(), undefined);
+        return this.apply_interval_and_source_filter_to_events(this.combat_states$.asObservable(), se_identity);
     }
 
     public get loot(): Observable<Array<Event>> {
         if (!this.loot$) {
             this.loot$ = new BehaviorSubject([]);
             this.load_instance_data(3, events => {
-                this.subscriptions.push(this.loot$.subscribe(i_events => this.extract_subjects(i_events, undefined, undefined, undefined)));
+                this.subscriptions.push(this.loot$.subscribe(i_events => this.extract_subjects(i_events, se_identity, undefined, undefined)));
                 this.loot$.next(events);
                 this.changed$.next(ChangedSubject.Loot);
                 this.register_load_instance(3, this.loot$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.loot$.asObservable(), undefined);
+        return this.apply_interval_and_source_filter_to_events(this.loot$.asObservable(), se_identity);
     }
 
     public get positions(): Observable<Array<Event>> {
         if (!this.positions$) {
             this.positions$ = new BehaviorSubject([]);
             this.load_instance_data(4, events => {
-                this.subscriptions.push(this.positions$.subscribe(i_events => this.extract_subjects(i_events, undefined, undefined, undefined)));
+                this.subscriptions.push(this.positions$.subscribe(i_events => this.extract_subjects(i_events, se_identity, undefined, undefined)));
                 this.positions$.next(events);
                 this.changed$.next(ChangedSubject.Position);
                 this.register_load_instance(4, this.positions$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.positions$.asObservable(), undefined);
+        return this.apply_interval_and_source_filter_to_events(this.positions$.asObservable(), se_identity);
     }
 
     public get powers(): Observable<Array<Event>> {
         if (!this.powers$) {
             this.powers$ = new BehaviorSubject([]);
             this.load_instance_data(5, events => {
-                this.subscriptions.push(this.powers$.subscribe(i_events => this.extract_subjects(i_events, undefined, undefined, undefined)));
+                this.subscriptions.push(this.powers$.subscribe(i_events => this.extract_subjects(i_events, se_identity, undefined, undefined)));
                 this.powers$.next(events);
                 this.changed$.next(ChangedSubject.Power);
                 this.register_load_instance(5, this.powers$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.powers$.asObservable(), undefined);
+        return this.apply_interval_and_source_filter_to_events(this.powers$.asObservable(), se_identity);
     }
 
     public get aura_applications(): Observable<Map<number, Event>> {
@@ -447,7 +427,7 @@ export class InstanceDataService implements OnDestroy {
             this.aura_applications$ = new BehaviorSubject(new Map());
             this.load_instance_data(6, events => {
                 this.subscriptions.push(this.aura_applications$.subscribe(i_events =>
-                    this.extract_subjects([...i_events.values()], undefined, te_aura_application, ae_aura_application)));
+                    this.extract_subjects([...i_events.values()], se_identity, te_aura_application, ae_aura_application)));
                 this.aura_applications$.next(events.reduce((result, event) => {
                     result.set(event.id, event);
                     return result;
@@ -462,7 +442,7 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(6, this.aura_applications$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.aura_applications$.asObservable(), undefined, te_aura_application, ae_aura_application);
+        return this.apply_filter_to_events_map(this.aura_applications$.asObservable(), se_identity, te_aura_application, ae_aura_application);
     }
 
     public get interrupts(): Observable<Array<Event>> {
@@ -471,7 +451,7 @@ export class InstanceDataService implements OnDestroy {
         if (!this.interrupts$) {
             this.interrupts$ = new BehaviorSubject([]);
             this.load_instance_data(7, events => {
-                this.subscriptions.push(this.interrupts$.subscribe(i_events => this.extract_subjects(i_events, undefined,
+                this.subscriptions.push(this.interrupts$.subscribe(i_events => this.extract_subjects(i_events, se_identity,
                     te_spell_cast_or_aura_app(ce_interrupt, this.spell_casts$.getValue(), this.aura_applications$.getValue()),
                     ae_interrupt(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.interrupts$.next(events);
@@ -479,7 +459,7 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(7, this.interrupts$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.interrupts$.asObservable(), undefined,
+        return this.apply_filter_to_events(this.interrupts$.asObservable(), se_identity,
             te_spell_cast_or_aura_app(ce_interrupt, this.spell_casts$.getValue(), this.aura_applications$.getValue()),
             ae_interrupt(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
@@ -490,14 +470,14 @@ export class InstanceDataService implements OnDestroy {
         if (!this.spell_steals$) {
             this.spell_steals$ = new BehaviorSubject([]);
             this.load_instance_data(8, events => {
-                this.subscriptions.push(this.spell_steals$.subscribe(i_events => this.extract_subjects(i_events, undefined,
+                this.subscriptions.push(this.spell_steals$.subscribe(i_events => this.extract_subjects(i_events, se_identity,
                     te_spell_cast_by_cause(ce_spell_steal, this.spell_casts$.getValue()), ae_spell_steal(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.spell_steals$.next(events);
                 this.changed$.next(ChangedSubject.SpellSteal);
                 this.register_load_instance(8, this.spell_steals$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.spell_steals$.asObservable(), undefined,
+        return this.apply_filter_to_events(this.spell_steals$.asObservable(), se_identity,
             te_spell_cast_by_cause(ce_spell_steal, this.spell_casts$.getValue()), ae_spell_steal(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
@@ -507,14 +487,14 @@ export class InstanceDataService implements OnDestroy {
         if (!this.dispels$) {
             this.dispels$ = new BehaviorSubject([]);
             this.load_instance_data(9, events => {
-                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_subjects(i_events, undefined,
+                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_subjects(i_events, se_identity,
                     te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.dispels$.next(events);
                 this.changed$.next(ChangedSubject.Dispel);
                 this.register_load_instance(9, this.dispels$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.dispels$.asObservable(), undefined,
+        return this.apply_filter_to_events(this.dispels$.asObservable(), se_identity,
             te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
@@ -522,13 +502,13 @@ export class InstanceDataService implements OnDestroy {
         if (!this.threat_wipes$) {
             this.threat_wipes$ = new BehaviorSubject([]);
             this.load_instance_data(10, events => {
-                this.subscriptions.push(this.threat_wipes$.subscribe(i_events => this.extract_subjects(i_events, undefined, undefined, undefined)));
+                this.subscriptions.push(this.threat_wipes$.subscribe(i_events => this.extract_subjects(i_events, se_identity, undefined, undefined)));
                 this.threat_wipes$.next(events);
                 this.changed$.next(ChangedSubject.ThreatWipe);
                 this.register_load_instance(10, this.threat_wipes$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.threat_wipes$.asObservable(), undefined);
+        return this.apply_interval_and_source_filter_to_events(this.threat_wipes$.asObservable(), se_identity);
     }
 
     public get summons(): Observable<Array<Event>> {
@@ -536,13 +516,13 @@ export class InstanceDataService implements OnDestroy {
             this.summons$ = new BehaviorSubject([]);
             this.load_instance_data(11, events => {
                 this.subscriptions.push(this.summons$.subscribe(i_events =>
-                    this.extract_subjects(i_events, undefined, te_summon, undefined)));
+                    this.extract_subjects(i_events, undefined, te_summon, se_identity)));
                 this.summons$.next(events);
                 this.changed$.next(ChangedSubject.Summon);
                 this.register_load_instance(11, this.summons$);
             }, 0);
         }
-        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.summons$, undefined), te_summon);
+        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.summons$, se_identity), te_summon);
     }
 
     public get melee_damage(): Observable<Map<number, Event>> {
@@ -550,7 +530,7 @@ export class InstanceDataService implements OnDestroy {
             this.melee_damage$ = new BehaviorSubject(new Map());
             this.load_instance_data(12, events => {
                 this.subscriptions.push(this.melee_damage$.subscribe(i_events =>
-                    this.extract_subjects([...i_events.values()], undefined, te_melee_damage, ae_melee_damage)));
+                    this.extract_subjects([...i_events.values()], se_identity, te_melee_damage, ae_melee_damage)));
                 this.melee_damage$.next(events.reduce((result, event) => {
                     result.set(event.id, event);
                     return result;
@@ -563,7 +543,7 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(12, this.melee_damage$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.melee_damage$.asObservable(), undefined, te_melee_damage, ae_melee_damage);
+        return this.apply_filter_to_events_map(this.melee_damage$.asObservable(), se_identity, te_melee_damage, ae_melee_damage);
     }
 
     public get spell_damage(): Observable<Array<Event>> {
@@ -609,13 +589,13 @@ export class InstanceDataService implements OnDestroy {
             this.threat$ = new BehaviorSubject([]);
             this.load_instance_data(15, events => {
                 this.subscriptions.push(this.threat$.subscribe(i_events =>
-                    this.extract_subjects(i_events, undefined, te_threat, ae_threat(this.spell_casts$.getValue()))));
+                    this.extract_subjects(i_events, se_identity, te_threat, ae_threat(this.spell_casts$.getValue()))));
                 this.threat$.next(events);
                 this.changed$.next(ChangedSubject.Threat);
                 this.register_load_instance(15, this.threat$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.threat$.asObservable(), undefined, te_threat, ae_threat(this.spell_casts$.getValue()));
+        return this.apply_filter_to_events(this.threat$.asObservable(), se_identity, te_threat, ae_threat(this.spell_casts$.getValue()));
     }
 
     public get meta(): Observable<InstanceViewerMeta> {
