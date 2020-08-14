@@ -39,13 +39,13 @@ export class GraphDataService implements OnDestroy {
         switch (data_set) {
             case DataSet.DamageDone:
             case DataSet.DamageTaken:
-                this.instanceDataService.melee_damage
+                this.instanceDataService.get_melee_damage()
                     .pipe(take(1))
                     .subscribe(damage => {
                         this.feed_melee_damage(data_set, [...damage.values()]);
                         this.commit_data_set(data_set);
                     });
-                this.instanceDataService.spell_damage
+                this.instanceDataService.get_spell_damage()
                     .pipe(take(1))
                     .subscribe(damage => {
                         this.feed_spell_damage(data_set, damage);

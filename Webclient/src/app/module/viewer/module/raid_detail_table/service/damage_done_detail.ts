@@ -50,41 +50,41 @@ export class DamageDoneDetailService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
-        this.instanceDataService.aura_applications.pipe(take(1)).subscribe(aura_applications => {
+        this.instanceDataService.get_aura_applications().pipe(take(1)).subscribe(aura_applications => {
             this.aura_applications = aura_applications;
             this.commit();
         });
-        this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
+        this.instanceDataService.get_spell_casts().pipe(take(1)).subscribe(spell_casts => {
             this.spell_casts = spell_casts;
             this.commit();
         });
-        this.instanceDataService.spell_damage.pipe(take(1)).subscribe(spell_damage => {
+        this.instanceDataService.get_spell_damage().pipe(take(1)).subscribe(spell_damage => {
             this.spell_damage = spell_damage;
             this.commit();
         });
-        this.instanceDataService.melee_damage.pipe(take(1)).subscribe(melee_damage => {
+        this.instanceDataService.get_melee_damage().pipe(take(1)).subscribe(melee_damage => {
             this.melee_damage = melee_damage;
             this.commit();
         });
 
         this.subscription_changed = this.instanceDataService.changed.subscribe(changed => {
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.AuraApplication].includes(changed))
-                this.instanceDataService.aura_applications.pipe(take(1)).subscribe(aura_applications => {
+                this.instanceDataService.get_aura_applications().pipe(take(1)).subscribe(aura_applications => {
                     this.aura_applications = aura_applications;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellCast].includes(changed))
-                this.instanceDataService.spell_casts.pipe(take(1)).subscribe(spell_casts => {
+                this.instanceDataService.get_spell_casts().pipe(take(1)).subscribe(spell_casts => {
                     this.spell_casts = spell_casts;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellDamage].includes(changed))
-                this.instanceDataService.spell_damage.pipe(take(1)).subscribe(spell_damage => {
+                this.instanceDataService.get_spell_damage().pipe(take(1)).subscribe(spell_damage => {
                     this.spell_damage = spell_damage;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.MeleeDamage].includes(changed))
-                this.instanceDataService.melee_damage.pipe(take(1)).subscribe(melee_damage => {
+                this.instanceDataService.get_melee_damage().pipe(take(1)).subscribe(melee_damage => {
                     this.melee_damage = melee_damage;
                     this.commit();
                 });

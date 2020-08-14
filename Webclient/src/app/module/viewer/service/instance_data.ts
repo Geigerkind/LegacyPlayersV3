@@ -294,44 +294,47 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private apply_filter_to_events(subject: Observable<Array<Event>>, source_extraction: (Event) => Unit,
-                                   target_extraction: (Event) => Unit, ability_extraction: (Event) => Array<number>): Observable<Array<Event>> {
+                                   target_extraction: (Event) => Unit, ability_extraction: (Event) => Array<number>, inverse_filter: boolean = false): Observable<Array<Event>> {
         return this.apply_ability_filter_to_events(
             this.apply_target_filter_to_events(
-                this.apply_interval_and_source_filter_to_events(subject, source_extraction),
-                target_extraction),
+                this.apply_interval_and_source_filter_to_events(subject, source_extraction, inverse_filter),
+                target_extraction, inverse_filter),
             ability_extraction);
     }
 
     private apply_filter_to_events_map(subject: Observable<Map<number, Event>>, source_extraction: (Event) => Unit,
-                                       target_extraction: (Event) => Unit, ability_extraction: (Event) => Array<number>): Observable<Map<number, Event>> {
-        // Not sure how this will be performance wise
+                                       target_extraction: (Event) => Unit, ability_extraction: (Event) => Array<number>, inverse_filter: boolean = false): Observable<Map<number, Event>> {
+        const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
+        const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
         return subject.pipe(
             map(events => [...events]),
             map(events => events.filter(([id, event]) => this.attempt_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)),
-            map(events => events.filter(([id, event]) => this.source_filter$.has(get_unit_id(source_extraction(event))))),
-            map(events => events.filter(([id, event]) => get_unit_id(event.subject) === get_unit_id(target_extraction(event)) || this.target_filter$.has(get_unit_id(target_extraction(event))))),
+            map(events => events.filter(([id, event]) => filter_source.has(get_unit_id(source_extraction(event))))),
+            map(events => events.filter(([id, event]) => get_unit_id(event.subject) === get_unit_id(target_extraction(event)) || filter_target.has(get_unit_id(target_extraction(event))))),
             map(events => events.filter(([id, event]) => ability_extraction(event).every(ability => this.ability_filter$.has(ability)))),
             map(events => new Map(events))
         );
     }
 
-    private apply_interval_and_source_filter_to_events(subject: Observable<Array<Event>>, source_extraction: (Event) => Unit): Observable<Array<Event>> {
+    private apply_interval_and_source_filter_to_events(subject: Observable<Array<Event>>, source_extraction: (Event) => Unit, inverse_filter: boolean = false): Observable<Array<Event>> {
+        const filter = inverse_filter ? this.target_filter$ : this.source_filter$;
         return subject.pipe(
             map(events => events.filter(event => this.attempt_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)),
-            map(events => events.filter(event => this.source_filter$.has(get_unit_id(source_extraction(event)))))
+            map(events => events.filter(event => filter.has(get_unit_id(source_extraction(event)))))
         );
     }
 
-    private apply_target_filter_to_events(subject: Observable<Array<Event>>, target_extraction: (Event) => Unit): Observable<Array<Event>> {
+    private apply_target_filter_to_events(subject: Observable<Array<Event>>, target_extraction: (Event) => Unit, inverse_filter: boolean = false): Observable<Array<Event>> {
+        const filter = inverse_filter ? this.source_filter$ : this.target_filter$;
         return subject.pipe(map(events => events.filter(event => get_unit_id(event.subject) === get_unit_id(target_extraction(event)) ||
-            this.target_filter$.has(get_unit_id(target_extraction(event))))));
+            filter.has(get_unit_id(target_extraction(event))))));
     }
 
     private apply_ability_filter_to_events(subject: Observable<Array<Event>>, ability_extraction: (Event) => Array<number>): Observable<Array<Event>> {
         return subject.pipe(map(events => events.filter(event => ability_extraction(event).every(ability => this.ability_filter$.has(ability)))));
     }
 
-    public get spell_casts(): Observable<Map<number, Event>> {
+    public get_spell_casts(inverse_filter: boolean = false): Observable<Map<number, Event>> {
         if (!this.spell_casts$) {
             this.spell_casts$ = new BehaviorSubject(new Map());
             this.load_instance_data(0, events => {
@@ -354,10 +357,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(0, this.spell_casts$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.spell_casts$.asObservable(), se_identity, te_spell_cast, ae_spell_cast);
+        return this.apply_filter_to_events_map(this.spell_casts$.asObservable(), se_identity, te_spell_cast, ae_spell_cast, inverse_filter);
     }
 
-    public get deaths(): Observable<Array<Event>> {
+    public get_deaths(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.deaths$) {
             this.deaths$ = new BehaviorSubject([]);
             this.load_instance_data(1, events => {
@@ -367,10 +370,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(1, this.deaths$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable(), se_identity);
+        return this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable(), se_identity, inverse_filter);
     }
 
-    public get combat_states(): Observable<Array<Event>> {
+    public get_combat_states(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.combat_states$) {
             this.combat_states$ = new BehaviorSubject([]);
             this.load_instance_data(2, events => {
@@ -380,10 +383,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(2, this.combat_states$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.combat_states$.asObservable(), se_identity);
+        return this.apply_interval_and_source_filter_to_events(this.combat_states$.asObservable(), se_identity, inverse_filter);
     }
 
-    public get loot(): Observable<Array<Event>> {
+    public get_loot(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.loot$) {
             this.loot$ = new BehaviorSubject([]);
             this.load_instance_data(3, events => {
@@ -393,10 +396,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(3, this.loot$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.loot$.asObservable(), se_identity);
+        return this.apply_interval_and_source_filter_to_events(this.loot$.asObservable(), se_identity, inverse_filter);
     }
 
-    public get positions(): Observable<Array<Event>> {
+    public get_positions(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.positions$) {
             this.positions$ = new BehaviorSubject([]);
             this.load_instance_data(4, events => {
@@ -406,10 +409,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(4, this.positions$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.positions$.asObservable(), se_identity);
+        return this.apply_interval_and_source_filter_to_events(this.positions$.asObservable(), se_identity, inverse_filter);
     }
 
-    public get powers(): Observable<Array<Event>> {
+    public get_powers(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.powers$) {
             this.powers$ = new BehaviorSubject([]);
             this.load_instance_data(5, events => {
@@ -419,10 +422,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(5, this.powers$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.powers$.asObservable(), se_identity);
+        return this.apply_interval_and_source_filter_to_events(this.powers$.asObservable(), se_identity, inverse_filter);
     }
 
-    public get aura_applications(): Observable<Map<number, Event>> {
+    public get_aura_applications(inverse_filter: boolean = false): Observable<Map<number, Event>> {
         if (!this.aura_applications$) {
             this.aura_applications$ = new BehaviorSubject(new Map());
             this.load_instance_data(6, events => {
@@ -442,12 +445,12 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(6, this.aura_applications$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.aura_applications$.asObservable(), se_identity, te_aura_application, ae_aura_application);
+        return this.apply_filter_to_events_map(this.aura_applications$.asObservable(), se_identity, te_aura_application, ae_aura_application, inverse_filter);
     }
 
-    public get interrupts(): Observable<Array<Event>> {
-        this.spell_casts.pipe(take(1));
-        this.aura_applications.pipe(take(1));
+    public get_interrupts(inverse_filter: boolean = false): Observable<Array<Event>> {
+        this.get_spell_casts().pipe(take(1));
+        this.get_aura_applications().pipe(take(1));
         if (!this.interrupts$) {
             this.interrupts$ = new BehaviorSubject([]);
             this.load_instance_data(7, events => {
@@ -461,12 +464,12 @@ export class InstanceDataService implements OnDestroy {
         }
         return this.apply_filter_to_events(this.interrupts$.asObservable(), se_identity,
             te_spell_cast_or_aura_app(ce_interrupt, this.spell_casts$.getValue(), this.aura_applications$.getValue()),
-            ae_interrupt(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
+            ae_interrupt(this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
     }
 
-    public get spell_steals(): Observable<Array<Event>> {
-        this.spell_casts.pipe(take(1));
-        this.aura_applications.pipe(take(1));
+    public get_spell_steals(inverse_filter: boolean = false): Observable<Array<Event>> {
+        this.get_spell_casts().pipe(take(1));
+        this.get_aura_applications().pipe(take(1));
         if (!this.spell_steals$) {
             this.spell_steals$ = new BehaviorSubject([]);
             this.load_instance_data(8, events => {
@@ -478,12 +481,13 @@ export class InstanceDataService implements OnDestroy {
             }, 0);
         }
         return this.apply_filter_to_events(this.spell_steals$.asObservable(), se_identity,
-            te_spell_cast_by_cause(ce_spell_steal, this.spell_casts$.getValue()), ae_spell_steal(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
+            te_spell_cast_by_cause(ce_spell_steal, this.spell_casts$.getValue()),
+            ae_spell_steal(this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
     }
 
-    public get dispels(): Observable<Array<Event>> {
-        this.spell_casts.pipe(take(1));
-        this.aura_applications.pipe(take(1));
+    public get_dispels(inverse_filter: boolean = false): Observable<Array<Event>> {
+        this.get_spell_casts().pipe(take(1));
+        this.get_aura_applications().pipe(take(1));
         if (!this.dispels$) {
             this.dispels$ = new BehaviorSubject([]);
             this.load_instance_data(9, events => {
@@ -495,10 +499,11 @@ export class InstanceDataService implements OnDestroy {
             }, 0);
         }
         return this.apply_filter_to_events(this.dispels$.asObservable(), se_identity,
-            te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
+            te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()),
+            ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
     }
 
-    public get threat_wipes(): Observable<Array<Event>> {
+    public get_threat_wipes(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.threat_wipes$) {
             this.threat_wipes$ = new BehaviorSubject([]);
             this.load_instance_data(10, events => {
@@ -508,10 +513,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(10, this.threat_wipes$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.threat_wipes$.asObservable(), se_identity);
+        return this.apply_interval_and_source_filter_to_events(this.threat_wipes$.asObservable(), se_identity, inverse_filter);
     }
 
-    public get summons(): Observable<Array<Event>> {
+    public get_summons(inverse_filter: boolean = false): Observable<Array<Event>> {
         if (!this.summons$) {
             this.summons$ = new BehaviorSubject([]);
             this.load_instance_data(11, events => {
@@ -522,10 +527,10 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(11, this.summons$);
             }, 0);
         }
-        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.summons$, se_identity), te_summon);
+        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.summons$, se_identity), te_summon, inverse_filter);
     }
 
-    public get melee_damage(): Observable<Map<number, Event>> {
+    public get_melee_damage(inverse_filter: boolean = false): Observable<Map<number, Event>> {
         if (!this.melee_damage$) {
             this.melee_damage$ = new BehaviorSubject(new Map());
             this.load_instance_data(12, events => {
@@ -543,12 +548,12 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(12, this.melee_damage$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.melee_damage$.asObservable(), se_identity, te_melee_damage, ae_melee_damage);
+        return this.apply_filter_to_events_map(this.melee_damage$.asObservable(), se_identity, te_melee_damage, ae_melee_damage, inverse_filter);
     }
 
-    public get spell_damage(): Observable<Array<Event>> {
-        this.aura_applications.pipe(take(1));
-        this.spell_casts.pipe(take(1));
+    public get_spell_damage(inverse_filter: boolean = false): Observable<Array<Event>> {
+        this.get_aura_applications().pipe(take(1));
+        this.get_spell_casts().pipe(take(1));
         if (!this.spell_damage$) {
             this.spell_damage$ = new BehaviorSubject([]);
             this.load_instance_data(13, events => {
@@ -561,12 +566,12 @@ export class InstanceDataService implements OnDestroy {
             }, 0);
         }
         return this.apply_filter_to_events(this.spell_damage$.asObservable(), se_aura_app_or_own(ce_spell_damage, this.aura_applications$.getValue()),
-            te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.spell_casts$.getValue(), this.aura_applications$.getValue()));
+            te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
     }
 
-    public get heal(): Observable<Array<Event>> {
-        this.aura_applications.pipe(take(1));
-        this.spell_casts.pipe(take(1));
+    public get_heal(inverse_filter: boolean = false): Observable<Array<Event>> {
+        this.get_aura_applications().pipe(take(1));
+        this.get_spell_casts().pipe(take(1));
         if (!this.heal$) {
             this.heal$ = new BehaviorSubject([]);
             this.load_instance_data(14, events => {
@@ -579,12 +584,12 @@ export class InstanceDataService implements OnDestroy {
             }, 0);
         }
         return this.apply_filter_to_events(this.heal$.asObservable(), se_aura_app_or_own(ce_heal, this.aura_applications$.getValue()),
-            te_heal, ae_spell_cast_or_aura_application(ce_heal, this.spell_casts$.getValue(), this.aura_applications$.getValue()));
+            te_heal, ae_spell_cast_or_aura_application(ce_heal, this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
     }
 
-    public get threat(): Observable<Array<Event>> {
-        this.spell_casts.pipe(take(1));
-        this.melee_damage.pipe(take(1));
+    public get_threat(inverse_filter: boolean = false): Observable<Array<Event>> {
+        this.get_spell_casts().pipe(take(1));
+        this.get_melee_damage().pipe(take(1));
         if (!this.threat$) {
             this.threat$ = new BehaviorSubject([]);
             this.load_instance_data(15, events => {
@@ -595,7 +600,7 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(15, this.threat$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.threat$.asObservable(), se_identity, te_threat, ae_threat(this.spell_casts$.getValue()));
+        return this.apply_filter_to_events(this.threat$.asObservable(), se_identity, te_threat, ae_threat(this.spell_casts$.getValue()), inverse_filter);
     }
 
     public get meta(): Observable<InstanceViewerMeta> {
