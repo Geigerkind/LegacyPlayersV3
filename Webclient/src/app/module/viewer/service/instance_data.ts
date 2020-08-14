@@ -3,7 +3,6 @@ import {APIService} from "src/app/service/api";
 import {Observable, BehaviorSubject, Subject, Subscription} from "rxjs";
 import {Event} from "../domain_value/event";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
-import {SettingsService} from "src/app/service/settings";
 import {InstanceViewerParticipants} from "../domain_value/instance_viewer_participants";
 import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
 import {get_unit_id, has_unit, Unit} from "../domain_value/unit";
@@ -18,6 +17,22 @@ import {map, take} from "rxjs/operators";
 import {Interrupt} from "../domain_value/interrupt";
 import {SpellSteal} from "../domain_value/spell_steal";
 import {Dispel} from "../domain_value/dispel";
+import {
+    te_aura_application, te_heal, te_melee_damage,
+    te_spell_cast,
+    te_spell_cast_by_cause,
+    te_spell_cast_or_aura_app, te_spell_damage, te_summon, te_threat
+} from "../extractor/targets";
+import {ce_dispel, ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal, ce_threat} from "../extractor/causes";
+import {
+    ae_aura_application,
+    ae_dispel,
+    ae_interrupt,
+    ae_melee_damage,
+    ae_spell_cast, ae_spell_cast_or_aura_application,
+    ae_spell_steal, ae_threat
+} from "../extractor/abilities";
+import {se_aura_app_or_own} from "../extractor/sources";
 
 export enum ChangedSubject {
     SpellCast = 1,
@@ -337,13 +352,11 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public get spell_casts(): Observable<Map<number, Event>> {
-        const target_extraction = (event: Event) => ((event.event as any).SpellCast as SpellCast).victim;
-        const ability_extraction = (event: Event) => [((event.event as any).SpellCast as SpellCast).spell_id];
         if (!this.spell_casts$) {
             this.spell_casts$ = new BehaviorSubject(new Map());
             this.load_instance_data(0, events => {
                 this.subscriptions.push(this.spell_casts$.subscribe(i_events =>
-                    this.extract_subjects([...i_events.values()], undefined, target_extraction, ability_extraction)));
+                    this.extract_subjects([...i_events.values()], undefined, te_spell_cast, ae_spell_cast)));
                 this.spell_casts$.next(events.reduce((result, event) => {
                     result.set(event.id, event);
                     return result;
@@ -361,7 +374,7 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(0, this.spell_casts$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.spell_casts$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events_map(this.spell_casts$.asObservable(), undefined, te_spell_cast, ae_spell_cast);
     }
 
     public get deaths(): Observable<Array<Event>> {
@@ -430,13 +443,11 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public get aura_applications(): Observable<Map<number, Event>> {
-        const target_extraction = (event: Event) => ((event.event as any).AuraApplication as AuraApplication).caster;
-        const ability_extraction = (event: Event) => [((event.event as any).AuraApplication as AuraApplication).spell_id];
         if (!this.aura_applications$) {
             this.aura_applications$ = new BehaviorSubject(new Map());
             this.load_instance_data(6, events => {
                 this.subscriptions.push(this.aura_applications$.subscribe(i_events =>
-                    this.extract_subjects([...i_events.values()], undefined, target_extraction, ability_extraction)));
+                    this.extract_subjects([...i_events.values()], undefined, te_aura_application, ae_aura_application)));
                 this.aura_applications$.next(events.reduce((result, event) => {
                     result.set(event.id, event);
                     return result;
@@ -451,102 +462,60 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(6, this.aura_applications$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.aura_applications$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events_map(this.aura_applications$.asObservable(), undefined, te_aura_application, ae_aura_application);
     }
 
     public get interrupts(): Observable<Array<Event>> {
-        const target_extraction = (event: Event) => {
-            const interrupt = (event.event as any).Interrupt as Interrupt;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(interrupt.cause_event_id);
-            if (!!spell_cast_event)
-                return (spell_cast_event.event as any).SpellCast.victim;
-            const aura_applications = this.aura_applications$?.getValue();
-            const aura_application_event = aura_applications?.get(interrupt.cause_event_id);
-            return (aura_application_event?.event as any)?.AuraApplication?.caster;
-        };
-        const ability_extraction = (event: Event) => {
-            const interrupt = (event.event as any).Interrupt as Interrupt;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(interrupt.cause_event_id);
-            if (!!spell_cast_event)
-                return [(spell_cast_event.event as any).SpellCast.spell_id, interrupt.interrupted_spell_id];
-            const aura_applications = this.aura_applications$?.getValue();
-            const aura_application_event = aura_applications?.get(interrupt.cause_event_id);
-            return [(aura_application_event?.event as any)?.AuraApplication?.spell_id, interrupt.interrupted_spell_id];
-        };
         this.spell_casts.pipe(take(1));
         this.aura_applications.pipe(take(1));
         if (!this.interrupts$) {
             this.interrupts$ = new BehaviorSubject([]);
             this.load_instance_data(7, events => {
-                this.subscriptions.push(this.interrupts$.subscribe(i_events => this.extract_subjects(i_events, undefined, target_extraction, ability_extraction)));
+                this.subscriptions.push(this.interrupts$.subscribe(i_events => this.extract_subjects(i_events, undefined,
+                    te_spell_cast_or_aura_app(ce_interrupt, this.spell_casts$.getValue(), this.aura_applications$.getValue()),
+                    ae_interrupt(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.interrupts$.next(events);
                 this.changed$.next(ChangedSubject.Interrupt);
                 this.register_load_instance(7, this.interrupts$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.interrupts$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events(this.interrupts$.asObservable(), undefined,
+            te_spell_cast_or_aura_app(ce_interrupt, this.spell_casts$.getValue(), this.aura_applications$.getValue()),
+            ae_interrupt(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
     public get spell_steals(): Observable<Array<Event>> {
-        const target_extraction = (event: Event) => {
-            const spell_steal = (event.event as any).SpellSteal as SpellSteal;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(spell_steal.cause_event_id);
-            return (spell_cast_event?.event as any).SpellCast.victim;
-        };
-        const ability_extraction = (event: Event) => {
-            const spell_steal = (event.event as any).SpellSteal as SpellSteal;
-            const spell_casts = this.spell_casts$?.getValue();
-            const aura_applications = this.aura_applications$?.getValue();
-            const spell_cast_event = spell_casts?.get(spell_steal.cause_event_id);
-            const aura_application_event = aura_applications?.get(spell_steal.target_event_id);
-            return [(aura_application_event?.event as any)?.AuraApplication?.spell_id, (spell_cast_event?.event as any)?.SpellCast?.spell_id];
-        };
         this.spell_casts.pipe(take(1));
         this.aura_applications.pipe(take(1));
         if (!this.spell_steals$) {
             this.spell_steals$ = new BehaviorSubject([]);
             this.load_instance_data(8, events => {
-                this.subscriptions.push(this.spell_steals$.subscribe(i_events => this.extract_subjects(i_events, undefined, target_extraction, ability_extraction)));
+                this.subscriptions.push(this.spell_steals$.subscribe(i_events => this.extract_subjects(i_events, undefined,
+                    te_spell_cast_by_cause(ce_spell_steal, this.spell_casts$.getValue()), ae_spell_steal(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.spell_steals$.next(events);
                 this.changed$.next(ChangedSubject.SpellSteal);
                 this.register_load_instance(8, this.spell_steals$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.spell_steals$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events(this.spell_steals$.asObservable(), undefined,
+            te_spell_cast_by_cause(ce_spell_steal, this.spell_casts$.getValue()), ae_spell_steal(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
     public get dispels(): Observable<Array<Event>> {
-        const target_extraction = (event: Event) => {
-            const dispel = (event.event as any).Dispel as Dispel;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(dispel.cause_event_id);
-            return (spell_cast_event?.event as any)?.SpellCast?.victim;
-        };
-        const ability_extraction = (event: Event) => {
-            const dispel = (event.event as any).Dispel as Dispel;
-            const spell_casts = this.spell_casts$?.getValue();
-            const aura_applications = this.aura_applications$?.getValue();
-            const spell_cast_event = spell_casts?.get(dispel.cause_event_id);
-            const result = [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
-            dispel.target_event_ids.forEach(target_event_id =>
-                result.push((aura_applications?.get(target_event_id).event as any).AuraApplication.spell_id));
-            return result;
-        };
         this.spell_casts.pipe(take(1));
         this.aura_applications.pipe(take(1));
         if (!this.dispels$) {
             this.dispels$ = new BehaviorSubject([]);
             this.load_instance_data(9, events => {
-                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_subjects(i_events, undefined, target_extraction, ability_extraction)));
+                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_subjects(i_events, undefined,
+                    te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.dispels$.next(events);
                 this.changed$.next(ChangedSubject.Dispel);
                 this.register_load_instance(9, this.dispels$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.dispels$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events(this.dispels$.asObservable(), undefined,
+            te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
     public get threat_wipes(): Observable<Array<Event>> {
@@ -563,28 +532,25 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public get summons(): Observable<Array<Event>> {
-        const target_extraction = (event: Event) => ((event.event as any).Summon as Summon).summoned;
         if (!this.summons$) {
             this.summons$ = new BehaviorSubject([]);
             this.load_instance_data(11, events => {
                 this.subscriptions.push(this.summons$.subscribe(i_events =>
-                    this.extract_subjects(i_events, undefined, target_extraction, undefined)));
+                    this.extract_subjects(i_events, undefined, te_summon, undefined)));
                 this.summons$.next(events);
                 this.changed$.next(ChangedSubject.Summon);
                 this.register_load_instance(11, this.summons$);
             }, 0);
         }
-        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.summons$, undefined), target_extraction);
+        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.summons$, undefined), te_summon);
     }
 
     public get melee_damage(): Observable<Map<number, Event>> {
-        const target_extraction = (event: Event) => ((event.event as any).MeleeDamage as MeleeDamage).victim;
-        const ability_extraction = (event: Event) => [0];
         if (!this.melee_damage$) {
             this.melee_damage$ = new BehaviorSubject(new Map());
             this.load_instance_data(12, events => {
                 this.subscriptions.push(this.melee_damage$.subscribe(i_events =>
-                    this.extract_subjects([...i_events.values()], undefined, target_extraction, ability_extraction)));
+                    this.extract_subjects([...i_events.values()], undefined, te_melee_damage, ae_melee_damage)));
                 this.melee_damage$.next(events.reduce((result, event) => {
                     result.set(event.id, event);
                     return result;
@@ -597,107 +563,59 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(12, this.melee_damage$);
             }, 0);
         }
-        return this.apply_filter_to_events_map(this.melee_damage$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events_map(this.melee_damage$.asObservable(), undefined, te_melee_damage, ae_melee_damage);
     }
 
     public get spell_damage(): Observable<Array<Event>> {
-        const source_extraction = (event: Event) => {
-            const spell_damage = (event.event as any).SpellDamage as SpellDamage;
-            const aura_applications = this.aura_applications$?.getValue();
-            const aura_application_event = aura_applications?.get(spell_damage.spell_cause_id);
-            if (!!aura_application_event)
-                return ((aura_application_event?.event as any)?.AuraApplication as AuraApplication)?.caster;
-            return event.subject;
-        };
-        const target_extraction = (event: Event) => ((event.event as any).SpellDamage as SpellDamage).damage.victim;
-        const ability_extraction = (event: Event) => {
-            // TODO: Refactor this extraction mess!
-            const spell_damage = (event.event as any).SpellDamage as SpellDamage;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(spell_damage.spell_cause_id);
-            if (!!spell_cast_event)
-                return [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
-            const aura_applications = this.aura_applications$?.getValue();
-            const aura_application_event = aura_applications?.get(spell_damage.spell_cause_id);
-            return [((aura_application_event?.event as any)?.AuraApplication as AuraApplication)?.spell_id];
-        };
         this.aura_applications.pipe(take(1));
         this.spell_casts.pipe(take(1));
         if (!this.spell_damage$) {
             this.spell_damage$ = new BehaviorSubject([]);
             this.load_instance_data(13, events => {
                 this.subscriptions.push(this.spell_damage$.subscribe(i_events =>
-                    this.extract_subjects(i_events, source_extraction, target_extraction, ability_extraction)));
+                    this.extract_subjects(i_events, se_aura_app_or_own(ce_spell_damage, this.aura_applications$.getValue()),
+                        te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.spell_damage$.next(events);
                 this.changed$.next(ChangedSubject.SpellDamage);
                 this.register_load_instance(13, this.spell_damage$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.spell_damage$.asObservable(), source_extraction, target_extraction, ability_extraction);
+        return this.apply_filter_to_events(this.spell_damage$.asObservable(), se_aura_app_or_own(ce_spell_damage, this.aura_applications$.getValue()),
+            te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
     public get heal(): Observable<Array<Event>> {
-        const source_extraction = (event: Event) => {
-            const heal = (event.event as any).Heal as Heal;
-            const aura_applications = this.aura_applications$?.getValue();
-            const aura_application_event = aura_applications?.get(heal.spell_cause_id);
-            if (!!aura_application_event)
-                return ((aura_application_event?.event as any)?.AuraApplication as AuraApplication)?.caster;
-            return event.subject;
-        };
-        const target_extraction = (event: Event) => ((event.event as any).Heal as Heal).heal.target;
-        const ability_extraction = (event: Event) => {
-            const heal = (event.event as any).Heal as Heal;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(heal.spell_cause_id);
-            if (!!spell_cast_event)
-                return [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
-            const aura_applications = this.aura_applications$?.getValue();
-            const aura_application_event = aura_applications?.get(heal.spell_cause_id);
-            return [((aura_application_event?.event as any)?.AuraApplication as AuraApplication)?.spell_id];
-        };
         this.aura_applications.pipe(take(1));
         this.spell_casts.pipe(take(1));
         if (!this.heal$) {
             this.heal$ = new BehaviorSubject([]);
             this.load_instance_data(14, events => {
                 this.subscriptions.push(this.heal$.subscribe(i_events =>
-                    this.extract_subjects(i_events, source_extraction, target_extraction, ability_extraction)));
+                    this.extract_subjects(i_events, se_aura_app_or_own(ce_heal, this.aura_applications$.getValue()),
+                        te_heal, ae_spell_cast_or_aura_application(ce_heal, this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.heal$.next(events);
                 this.changed$.next(ChangedSubject.Heal);
                 this.register_load_instance(14, this.heal$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.heal$.asObservable(), source_extraction, target_extraction, ability_extraction);
+        return this.apply_filter_to_events(this.heal$.asObservable(), se_aura_app_or_own(ce_heal, this.aura_applications$.getValue()),
+            te_heal, ae_spell_cast_or_aura_application(ce_heal, this.spell_casts$.getValue(), this.aura_applications$.getValue()));
     }
 
     public get threat(): Observable<Array<Event>> {
-        const target_extraction = (event: Event) => ((event.event as any).Threat as Threat).threat.threatened;
-        const ability_extraction = (event: Event) => {
-            const threat = (event.event as any).Threat as Threat;
-            const spell_casts = this.spell_casts$?.getValue();
-            const spell_cast_event = spell_casts?.get(threat.cause_event_id);
-            if (!!spell_cast_event)
-                return [(spell_cast_event.event as any).SpellCast.spell_id];
-            const melee_damage = this.melee_damage$?.getValue();
-            const melee_damage_event = melee_damage?.get(threat.cause_event_id);
-            if (!!melee_damage_event)
-                return [0];
-            return [];
-        };
         this.spell_casts.pipe(take(1));
         this.melee_damage.pipe(take(1));
         if (!this.threat$) {
             this.threat$ = new BehaviorSubject([]);
             this.load_instance_data(15, events => {
                 this.subscriptions.push(this.threat$.subscribe(i_events =>
-                    this.extract_subjects(i_events, undefined, target_extraction, ability_extraction)));
+                    this.extract_subjects(i_events, undefined, te_threat, ae_threat(this.spell_casts$.getValue()))));
                 this.threat$.next(events);
                 this.changed$.next(ChangedSubject.Threat);
                 this.register_load_instance(15, this.threat$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.threat$.asObservable(), undefined, target_extraction, ability_extraction);
+        return this.apply_filter_to_events(this.threat$.asObservable(), undefined, te_threat, ae_threat(this.spell_casts$.getValue()));
     }
 
     public get meta(): Observable<InstanceViewerMeta> {

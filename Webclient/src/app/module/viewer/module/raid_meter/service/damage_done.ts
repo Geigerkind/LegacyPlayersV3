@@ -10,6 +10,8 @@ import {group_by} from "../../../../../stdlib/group_by";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {SpellDamage} from "../../../domain_value/spell_damage";
 import {AuraApplication} from "../../../domain_value/aura_application";
+import {se_aura_app_or_own} from "../../../extractor/sources";
+import {ce_spell_damage} from "../../../extractor/causes";
 
 @Injectable({
     providedIn: "root",
@@ -114,17 +116,7 @@ export class DamageDoneService implements OnDestroy {
         }
 
         // Spell Damage
-        // TODO: Refactor
-        const source_extraction = (event: Event) => {
-            const spell_damage = (event.event as any).SpellDamage as SpellDamage;
-            const aura_applications = this.aura_applications;
-            const aura_application_event = aura_applications?.get(spell_damage.spell_cause_id);
-            if (!!aura_application_event) {
-                return ((aura_application_event?.event as any)?.AuraApplication as AuraApplication)?.caster;
-            }
-            return event.subject;
-        };
-
+        const source_extraction = se_aura_app_or_own(ce_spell_damage, this.aura_applications);
         grouping = group_by(this.spell_damage, (event) => get_unit_id(source_extraction(event)));
         // tslint:disable-next-line:forin
         for (const unit_id in grouping) {
