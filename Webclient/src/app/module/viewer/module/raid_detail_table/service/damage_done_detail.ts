@@ -7,7 +7,7 @@ import {Event} from "../../../domain_value/event";
 import {HitType} from "../../../domain_value/hit_type";
 import {take} from "rxjs/operators";
 import {SpellService} from "../../../service/spell";
-import {commit_damage} from "../stdlib/damage_detail";
+import {commit_damage_detail} from "../stdlib/damage_detail";
 
 @Injectable({
     providedIn: "root",
@@ -86,6 +86,6 @@ export class DamageDoneDetailService implements OnDestroy {
     }
 
     private commit(): void {
-        commit_damage(this.spellService, this.ability_details$, this.abilities$, this.spell_damage, this.melee_damage, this.spell_casts, this.aura_applications);
+        commit_damage_detail(this.spellService, this.ability_details$, this.abilities$, this.spell_damage, this.melee_damage, this.spell_casts, this.aura_applications);
     }
 }

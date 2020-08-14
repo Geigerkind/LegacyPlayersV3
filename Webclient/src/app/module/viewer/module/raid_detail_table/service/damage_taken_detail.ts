@@ -13,7 +13,7 @@ import {Damage} from "../../../domain_value/damage";
 import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
 import {Mitigation} from "../../../domain_value/mitigation";
 import {get_aura_application, get_spell_cast, get_spell_damage} from "../../../extractor/events";
-import {commit_damage} from "../stdlib/damage_detail";
+import {commit_damage_detail} from "../stdlib/damage_detail";
 
 @Injectable({
     providedIn: "root",
@@ -92,6 +92,6 @@ export class DamageTakenDetailService implements OnDestroy {
     }
 
     private commit(): void {
-        commit_damage(this.spellService, this.ability_details$, this.abilities$, this.spell_damage, this.melee_damage, this.spell_casts, this.aura_applications);
+        commit_damage_detail(this.spellService, this.ability_details$, this.abilities$, this.spell_damage, this.melee_damage, this.spell_casts, this.aura_applications);
     }
 }

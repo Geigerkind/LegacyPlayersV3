@@ -3,20 +3,18 @@ import {HitType} from "../../../domain_value/hit_type";
 import {DetailRow} from "../domain_value/detail_row";
 import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL, CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {Damage} from "../../../domain_value/damage";
-import {SpellDamage} from "../../../domain_value/spell_damage";
 import {map} from "rxjs/operators";
-import {SpellCast} from "../../../domain_value/spell_cast";
 import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
 import {Mitigation} from "../../../domain_value/mitigation";
 import {Event} from "../../../domain_value/event";
 import {SpellService} from "../../../service/spell";
 import {BehaviorSubject} from "rxjs";
 import {SelectOption} from "../../../../../template/input/select_input/domain_value/select_option";
-import {get_aura_application, get_spell_cast, get_spell_damage} from "../../../extractor/events";
+import {get_aura_application, get_melee_damage, get_spell_cast, get_spell_damage} from "../../../extractor/events";
 
-function commit_damage(spellService: SpellService, ability_details$: BehaviorSubject<Array<[number, Array<[HitType, DetailRow]>]>>,
-                       abilities$: BehaviorSubject<Array<SelectOption>>, spell_damage: Array<Event>,
-                       melee_damage: Map<number, Event>, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): void {
+function commit_damage_detail(spellService: SpellService, ability_details$: BehaviorSubject<Array<[number, Array<[HitType, DetailRow]>]>>,
+                              abilities$: BehaviorSubject<Array<SelectOption>>, spell_damage: Array<Event>,
+                              melee_damage: Map<number, Event>, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): void {
     const abilities = new Map<number, DelayedLabel | string>();
     const ability_details = new Map<number, Map<HitType, DetailRow>>();
 
@@ -24,10 +22,8 @@ function commit_damage(spellService: SpellService, ability_details$: BehaviorSub
         abilities.set(CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL);
         const melee_details = new Map<HitType, DetailRow>();
         // @ts-ignore
-        for (const event of [...melee_damage.values()]) {
-            const damage = (event.event as any).MeleeDamage as Damage;
-            fill_details(melee_details, damage);
-        }
+        for (const event of [...melee_damage.values()])
+            fill_details(melee_details, get_melee_damage(event));
         ability_details.set(CONST_AUTO_ATTACK_ID, melee_details);
     }
 
@@ -135,4 +131,4 @@ function extract_mitigation_amount(mitigations: Array<Mitigation>, extract_funct
     return 0;
 }
 
-export {commit_damage};
+export {commit_damage_detail};
