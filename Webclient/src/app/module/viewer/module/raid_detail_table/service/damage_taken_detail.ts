@@ -1,24 +1,23 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {SelectOption} from "../../../../../template/input/select_input/domain_value/select_option";
+import {HitType} from "../../../domain_value/hit_type";
 import {DetailRow} from "../domain_value/detail_row";
 import {Event} from "../../../domain_value/event";
-import {HitType} from "../../../domain_value/hit_type";
-import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
-import {Damage} from "../../../domain_value/damage";
-import {map, take} from "rxjs/operators";
-import {SpellCast} from "../../../domain_value/spell_cast";
-import {DelayedLabel} from "../../../../../stdlib/delayed_label";
+import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
 import {SpellService} from "../../../service/spell";
-import {Mitigation} from "../../../domain_value/mitigation";
-import {SpellDamage} from "../../../domain_value/spell_damage";
+import {map, take} from "rxjs/operators";
+import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL, CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
+import {Damage} from "../../../domain_value/damage";
+import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
+import {Mitigation} from "../../../domain_value/mitigation";
+import {get_aura_application, get_spell_cast, get_spell_damage} from "../../../extractor/events";
 
 @Injectable({
     providedIn: "root",
 })
-export class DamageDoneDetailService implements OnDestroy {
+export class DamageTakenDetailService implements OnDestroy {
 
     private subscription_changed: Subscription;
 
@@ -50,41 +49,41 @@ export class DamageDoneDetailService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
-        this.instanceDataService.get_aura_applications(true).pipe(take(1)).subscribe(aura_applications => {
+        this.instanceDataService.get_aura_applications().pipe(take(1)).subscribe(aura_applications => {
             this.aura_applications = aura_applications;
             this.commit();
         });
-        this.instanceDataService.get_spell_casts().pipe(take(1)).subscribe(spell_casts => {
+        this.instanceDataService.get_spell_casts(true).pipe(take(1)).subscribe(spell_casts => {
             this.spell_casts = spell_casts;
             this.commit();
         });
-        this.instanceDataService.get_spell_damage().pipe(take(1)).subscribe(spell_damage => {
+        this.instanceDataService.get_spell_damage(true).pipe(take(1)).subscribe(spell_damage => {
             this.spell_damage = spell_damage;
             this.commit();
         });
-        this.instanceDataService.get_melee_damage().pipe(take(1)).subscribe(melee_damage => {
+        this.instanceDataService.get_melee_damage(true).pipe(take(1)).subscribe(melee_damage => {
             this.melee_damage = melee_damage;
             this.commit();
         });
 
         this.subscription_changed = this.instanceDataService.changed.subscribe(changed => {
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.AuraApplication].includes(changed))
-                this.instanceDataService.get_aura_applications(true).pipe(take(1)).subscribe(aura_applications => {
+                this.instanceDataService.get_aura_applications().pipe(take(1)).subscribe(aura_applications => {
                     this.aura_applications = aura_applications;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellCast].includes(changed))
-                this.instanceDataService.get_spell_casts().pipe(take(1)).subscribe(spell_casts => {
+                this.instanceDataService.get_spell_casts(true).pipe(take(1)).subscribe(spell_casts => {
                     this.spell_casts = spell_casts;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellDamage].includes(changed))
-                this.instanceDataService.get_spell_damage().pipe(take(1)).subscribe(spell_damage => {
+                this.instanceDataService.get_spell_damage(true).pipe(take(1)).subscribe(spell_damage => {
                     this.spell_damage = spell_damage;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.MeleeDamage].includes(changed))
-                this.instanceDataService.get_melee_damage().pipe(take(1)).subscribe(melee_damage => {
+                this.instanceDataService.get_melee_damage(true).pipe(take(1)).subscribe(melee_damage => {
                     this.melee_damage = melee_damage;
                     this.commit();
                 });
@@ -105,13 +104,13 @@ export class DamageDoneDetailService implements OnDestroy {
         }
 
         for (const event of this.spell_damage) {
-            const spell_cause_id = ((event.event as any).SpellDamage as SpellDamage).spell_cause_id;
+            const spell_cause_id = get_spell_damage(event).spell_cause_id;
             const spell_cause_event = this.spell_casts.has(spell_cause_id) ? this.spell_casts.get(spell_cause_id) : this.aura_applications.get(spell_cause_id);
             if (!spell_cause_event)
                 return;
-            const hit_type = !!(spell_cause_event.event as any).SpellCast ? (spell_cause_event.event as any).SpellCast.hit_type : HitType.Hit;
-            const spell_id = !!(spell_cause_event.event as any).SpellCast ? (spell_cause_event.event as any).SpellCast.spell_id : (spell_cause_event.event as any).AuraApplication.spell_id;
-            const damage = (event.event as any).SpellDamage.damage as Damage;
+            const hit_type = !!get_spell_cast(spell_cause_event) ? get_spell_cast(spell_cause_event).hit_type : HitType.Hit;
+            const spell_id = !!get_spell_cast(spell_cause_event) ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
+            const damage = get_spell_damage(event).damage as Damage;
             if (!ability_details.has(spell_id)) {
                 abilities.set(spell_id, (new DelayedLabel(this.spellService.get_localized_basic_spell(spell_id)
                     .pipe(map(spell => !spell ? CONST_UNKNOWN_LABEL : spell.localization)))));
@@ -127,7 +126,7 @@ export class DamageDoneDetailService implements OnDestroy {
         }
 
         for (const event of [...this.spell_casts.values()]) {
-            const spell_cast = (event.event as any).SpellCast as SpellCast;
+            const spell_cast = get_spell_cast(event);
             if ([HitType.Hit, HitType.Crit].includes(spell_cast.hit_type))
                 continue;
             if (!ability_details.has(spell_cast.spell_id)) {

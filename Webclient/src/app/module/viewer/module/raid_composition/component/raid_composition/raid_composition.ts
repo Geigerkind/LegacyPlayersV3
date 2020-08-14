@@ -2,7 +2,7 @@ import {Component, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {InstanceViewerParticipants} from "../../../../domain_value/instance_viewer_participants";
 import {Role} from "../../../../domain_value/role";
-import {Observable, of, Subscription} from "rxjs";
+import {Observable, Subscription} from "rxjs";
 import {concatMap, map} from "rxjs/operators";
 import {DataService} from "../../../../../../service/data";
 

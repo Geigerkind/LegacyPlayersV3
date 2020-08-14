@@ -5,11 +5,18 @@ import {SelectOption} from "../../../../../../template/input/select_input/domain
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../domain_value/detail_row";
 import {ActivatedRoute} from "@angular/router";
+import {DamageDoneDetailService} from "../../service/damage_done_detail";
+import {DamageTakenDetailService} from "../../service/damage_taken_detail";
 
 @Component({
     selector: "RaidDetailTable",
     templateUrl: "./raid_detail_table.html",
     styleUrls: ["./raid_detail_table.scss"],
+    providers: [
+        DamageDoneDetailService,
+        DamageTakenDetailService,
+        RaidDetailService
+    ]
 })
 export class RaidDetailTableComponent implements OnDestroy {
 

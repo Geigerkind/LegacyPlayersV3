@@ -6,8 +6,6 @@ import {ViewerMode} from "../../domain_value/viewer_mode";
 import {SpellService} from "../../service/spell";
 import {RaidConfigurationSelectionService} from "../../module/raid_configuration_menu/service/raid_configuration_selection";
 import {RaidConfigurationService} from "../../module/raid_configuration_menu/service/raid_configuration";
-import {DamageDoneDetailService} from "../../module/raid_detail_table/service/damage_done_detail";
-import {RaidDetailService} from "../../module/raid_detail_table/service/raid_detail";
 
 @Component({
     selector: "Viewer",
@@ -18,10 +16,7 @@ import {RaidDetailService} from "../../module/raid_detail_table/service/raid_det
         RaidConfigurationSelectionService,
         InstanceDataService,
         UnitService,
-        SpellService,
-        // Raid Detail Service
-        DamageDoneDetailService,
-        RaidDetailService
+        SpellService
     ]
 })
 export class ViewerComponent {

@@ -13,7 +13,7 @@ import {SpellDamage} from "../../../domain_value/spell_damage";
 export class GraphDataService implements OnDestroy {
 
     private subscription: Subscription;
-    private data_points$: BehaviorSubject<[Array<number>, Map<DataSet, [Set<number>, Array<number>]>]> = new BehaviorSubject([[], new Map()]);
+    private data_points$: BehaviorSubject<[Array<number>, Map<DataSet, [Array<number>, Array<number>]>]> = new BehaviorSubject([[], new Map()]);
     private temp_data_set: Map<DataSet, Map<number, number>> = new Map();
 
     constructor(
@@ -30,7 +30,7 @@ export class GraphDataService implements OnDestroy {
         this.subscription?.unsubscribe();
     }
 
-    get data_points(): Observable<[Array<number>, Map<DataSet, [Set<number>, Array<number>]>]> {
+    get data_points(): Observable<[Array<number>, Map<DataSet, [Array<number>, Array<number>]>]> {
         return this.data_points$.asObservable();
     }
 
@@ -39,13 +39,13 @@ export class GraphDataService implements OnDestroy {
         switch (data_set) {
             case DataSet.DamageDone:
             case DataSet.DamageTaken:
-                this.instanceDataService.get_melee_damage()
+                this.instanceDataService.get_melee_damage(data_set === DataSet.DamageTaken)
                     .pipe(take(1))
                     .subscribe(damage => {
                         this.feed_melee_damage(data_set, [...damage.values()]);
                         this.commit_data_set(data_set);
                     });
-                this.instanceDataService.get_spell_damage()
+                this.instanceDataService.get_spell_damage(data_set === DataSet.DamageTaken)
                     .pipe(take(1))
                     .subscribe(damage => {
                         this.feed_spell_damage(data_set, damage);
@@ -57,11 +57,11 @@ export class GraphDataService implements OnDestroy {
 
     commit_data_set(data_set: DataSet): void {
         const [old_total_x_axis, data_points] = this.data_points$.getValue();
-        const x_axis = new Set<number>();
+        const x_axis = new Array<number>();
         const y_axis = [];
         for (const [x, y] of [...this.temp_data_set.get(data_set).entries()]
             .sort(([left_x, left_y], [right_x, right_y]) => left_x - right_x)) {
-            x_axis.add(x);
+            x_axis.push(x);
             y_axis.push(y);
         }
         data_points.set(data_set, [x_axis, y_axis]);
@@ -74,10 +74,11 @@ export class GraphDataService implements OnDestroy {
         this.data_points$.next([this.compute_x_axis(data_points), data_points]);
     }
 
-    private compute_x_axis(data_points: Map<DataSet, [Set<number>, Array<number>]>): Array<number> {
+    private compute_x_axis(data_points: Map<DataSet, [Array<number>, Array<number>]>): Array<number> {
         let result = new Set<number>();
-        for (const [timestamps, values] of data_points.values())
+        for (const [timestamps, values] of data_points.values()) {
             result = new Set<number>([...result.values(), ...timestamps.values()]);
+        }
         return [...result.values()].sort((left, right) => left - right);
     }
 

@@ -95,9 +95,8 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             this.lineChartData = [];
             for (const [data_set, [real_x_axis, real_y_axis]] of data_sets) {
                 const chart_points: Array<ChartPoint> = [];
-                for (let i = 0; i < real_x_axis.size; ++i)
+                for (let i = 0; i < real_x_axis.length; ++i)
                     chart_points.push({x: real_x_axis[i], y: real_y_axis[i]});
-
                 this.lineChartData.push({
                     data: chart_points,
                     label: data_set

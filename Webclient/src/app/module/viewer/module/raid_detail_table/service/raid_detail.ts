@@ -4,6 +4,7 @@ import {DetailRow} from "../domain_value/detail_row";
 import {SelectOption} from "../../../../../template/input/select_input/domain_value/select_option";
 import {DamageDoneDetailService} from "./damage_done_detail";
 import {HitType} from "../../../domain_value/hit_type";
+import {DamageTakenDetailService} from "./damage_taken_detail";
 
 @Injectable({
     providedIn: "root",
@@ -19,8 +20,10 @@ export class RaidDetailService implements OnDestroy {
     private current_selection: number = -1;
 
     constructor(
-        private damageDoneDetailService: DamageDoneDetailService
-    ) {}
+        private damageDoneDetailService: DamageDoneDetailService,
+        private damageTakenDetailService: DamageTakenDetailService
+    ) {
+    }
 
     ngOnDestroy(): void {
         this.subscription_ability?.unsubscribe();
@@ -43,11 +46,18 @@ export class RaidDetailService implements OnDestroy {
         this.subscription_ability_details?.unsubscribe();
 
         switch (selection) {
-            case 1:
+            case 1: {
                 const [abilities, ability_details] = this.damageDoneDetailService.ability_and_details;
                 this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
                 this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
                 break;
+            }
+            case 2: {
+                const [abilities, ability_details] = this.damageTakenDetailService.ability_and_details;
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
         }
 
         this.current_selection = selection;

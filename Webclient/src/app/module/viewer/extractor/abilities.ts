@@ -53,10 +53,10 @@ function ae_spell_cast_or_aura_application(cause_extraction: (Event) => number, 
         const cause_event_id = cause_extraction(event);
         const spell_cast_event = spell_casts?.get(cause_event_id);
         if (!!spell_cast_event)
-            return [(spell_cast_event.event as any).SpellCast.spell_id];
+            return [get_spell_cast(spell_cast_event).spell_id];
         const aura_application_event = aura_applications?.get(cause_event_id);
         if (!!aura_application_event)
-            return [(aura_application_event.event as any).AuraApplication.spell_id];
+            return [get_aura_application(aura_application_event).spell_id];
         return [];
     };
 }

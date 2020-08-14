@@ -15,6 +15,9 @@ import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail"
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../../raid_detail_table/domain_value/detail_row";
 import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
+import {DamageTakenService} from "../../service/damage_taken";
+import {DamageDoneDetailService} from "../../../raid_detail_table/service/damage_done_detail";
+import {DamageTakenDetailService} from "../../../raid_detail_table/service/damage_taken_detail";
 
 @Component({
     selector: "RaidMeter",
@@ -23,7 +26,12 @@ import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
     providers: [
         UtilService,
         DamageDoneService,
-        RaidMeterService
+        DamageTakenService,
+        RaidMeterService,
+        // Raid Detail Service
+        DamageDoneDetailService,
+        DamageTakenDetailService,
+        RaidDetailService
     ]
 })
 export class RaidMeterComponent implements OnDestroy, OnInit {

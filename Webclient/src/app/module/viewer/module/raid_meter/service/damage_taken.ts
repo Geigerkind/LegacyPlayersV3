@@ -1,21 +1,21 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {take} from "rxjs/operators";
-import {Event} from "../../../domain_value/event";
-import {get_unit_id} from "../../../domain_value/unit";
-import {UtilService} from "./util";
-import {group_by} from "../../../../../stdlib/group_by";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
-import {se_aura_app_or_own} from "../../../extractor/sources";
+import {Event} from "../../../domain_value/event";
+import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
+import {UtilService} from "./util";
+import {take} from "rxjs/operators";
+import {group_by} from "../../../../../stdlib/group_by";
+import {get_unit_id} from "../../../domain_value/unit";
 import {ce_spell_damage} from "../../../extractor/causes";
+import {te_melee_damage, te_spell_damage} from "../../../extractor/targets";
 import {ae_spell_cast_or_aura_application} from "../../../extractor/abilities";
 import {get_spell_damage} from "../../../extractor/events";
 
 @Injectable({
     providedIn: "root",
 })
-export class DamageDoneService implements OnDestroy {
+export class DamageTakenService implements OnDestroy {
 
     private subscription_changed: Subscription;
 
@@ -52,41 +52,41 @@ export class DamageDoneService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
-        this.instanceDataService.get_aura_applications(true).pipe(take(1)).subscribe(aura_applications => {
+        this.instanceDataService.get_aura_applications().pipe(take(1)).subscribe(aura_applications => {
             this.aura_applications = aura_applications;
             this.commit();
         });
-        this.instanceDataService.get_spell_casts().pipe(take(1)).subscribe(spell_casts => {
+        this.instanceDataService.get_spell_casts(true).pipe(take(1)).subscribe(spell_casts => {
             this.spell_casts = spell_casts;
             this.commit();
         });
-        this.instanceDataService.get_spell_damage().pipe(take(1)).subscribe(spell_damage => {
+        this.instanceDataService.get_spell_damage(true).pipe(take(1)).subscribe(spell_damage => {
             this.spell_damage = spell_damage;
             this.commit();
         });
-        this.instanceDataService.get_melee_damage().pipe(take(1)).subscribe(melee_damage => {
+        this.instanceDataService.get_melee_damage(true).pipe(take(1)).subscribe(melee_damage => {
             this.melee_damage = melee_damage;
             this.commit();
         });
 
         this.subscription_changed = this.instanceDataService.changed.subscribe(changed => {
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.AuraApplication].includes(changed))
-                this.instanceDataService.get_aura_applications(true).pipe(take(1)).subscribe(aura_applications => {
+                this.instanceDataService.get_aura_applications().pipe(take(1)).subscribe(aura_applications => {
                     this.aura_applications = aura_applications;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellCast].includes(changed))
-                this.instanceDataService.get_spell_casts().pipe(take(1)).subscribe(spell_casts => {
+                this.instanceDataService.get_spell_casts(true).pipe(take(1)).subscribe(spell_casts => {
                     this.spell_casts = spell_casts;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.SpellDamage].includes(changed))
-                this.instanceDataService.get_spell_damage().pipe(take(1)).subscribe(spell_damage => {
+                this.instanceDataService.get_spell_damage(true).pipe(take(1)).subscribe(spell_damage => {
                     this.spell_damage = spell_damage;
                     this.commit();
                 });
             if ([ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Attempts, ChangedSubject.MeleeDamage].includes(changed))
-                this.instanceDataService.get_melee_damage().pipe(take(1)).subscribe(melee_damage => {
+                this.instanceDataService.get_melee_damage(true).pipe(take(1)).subscribe(melee_damage => {
                     this.melee_damage = melee_damage;
                     this.commit();
                 });
@@ -97,7 +97,7 @@ export class DamageDoneService implements OnDestroy {
         this.newData = new Map();
 
         // Melee Damage
-        let grouping = group_by([...this.melee_damage.values()], (event) => get_unit_id(event.subject));
+        let grouping = group_by([...this.melee_damage.values()], (event) => get_unit_id(te_melee_damage(event)));
         // @ts-ignore
         // tslint:disable-next-line:forin
         for (const unit_id: number in grouping) {
@@ -115,13 +115,12 @@ export class DamageDoneService implements OnDestroy {
         }
 
         // Spell Damage
-        const source_extraction = se_aura_app_or_own(ce_spell_damage, this.aura_applications);
-        grouping = group_by(this.spell_damage, (event) => get_unit_id(source_extraction(event)));
+        grouping = group_by(this.spell_damage, (event) => get_unit_id(te_spell_damage(event)));
         // tslint:disable-next-line:forin
         for (const unit_id in grouping) {
             const subject_id = Number(unit_id);
             if (!this.units$.has(subject_id))
-                this.units$.set(subject_id, this.utilService.get_row_unit_subject(source_extraction(grouping[unit_id][0])));
+                this.units$.set(subject_id, this.utilService.get_row_unit_subject(te_spell_damage(grouping[unit_id][0])));
             if (!this.newData.has(subject_id))
                 this.newData.set(subject_id, new Map());
 
@@ -143,5 +142,4 @@ export class DamageDoneService implements OnDestroy {
         if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
         else abilities_data.set(spell_id, damage);
     }
-
 }

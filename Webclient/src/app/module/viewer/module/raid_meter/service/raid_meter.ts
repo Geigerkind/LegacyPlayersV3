@@ -2,6 +2,7 @@ import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DamageDoneService} from "./damage_done";
+import {DamageTakenService} from "./damage_taken";
 
 @Injectable({
     providedIn: "root",
@@ -17,7 +18,8 @@ export class RaidMeterService implements OnDestroy {
     private current_selection: number = -1;
 
     constructor(
-        private damageDoneService: DamageDoneService
+        private damageDoneService: DamageDoneService,
+        private damageTakenService: DamageTakenService
     ) {
     }
 
@@ -46,6 +48,10 @@ export class RaidMeterService implements OnDestroy {
         switch (selection) {
             case 1:
                 this.subscription_data = this.damageDoneService.get_data(this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 2:
+                this.subscription_data = this.damageTakenService.get_data(this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
         }
