@@ -188,6 +188,15 @@ impl CharacterViewer for Armory {
             .filter_map(|(inventory_type, item)| {
                 let item = data.get_item(server.expansion_id, item.item_id)?;
                 if let Some(display_info) = item.display_info {
+                    // Show Ranged weapon for hunter instead
+                    if character_history.character_info.hero_class_id == 3 {
+                        return match inventory_type {
+                            InventoryType::MainHand |
+                            InventoryType::OffHand => None,
+                            _ => Some((display_info.1, display_info.0))
+                        };
+                    }
+
                     if inventory_type == InventoryType::Ranged {
                         return None; // We dont show ranged
                     }
