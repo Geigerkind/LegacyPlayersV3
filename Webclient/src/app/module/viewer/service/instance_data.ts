@@ -516,7 +516,7 @@ export class InstanceDataService implements OnDestroy {
             this.summons$ = new BehaviorSubject([]);
             this.load_instance_data(11, events => {
                 this.subscriptions.push(this.summons$.subscribe(i_events =>
-                    this.extract_subjects(i_events, undefined, te_summon, se_identity)));
+                    this.extract_subjects(i_events, se_identity, te_summon, undefined)));
                 this.summons$.next(events);
                 this.changed$.next(ChangedSubject.Summon);
                 this.register_load_instance(11, this.summons$);
