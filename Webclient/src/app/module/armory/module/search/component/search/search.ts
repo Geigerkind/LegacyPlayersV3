@@ -125,7 +125,7 @@ export class SearchComponent implements OnInit {
                     });
                     body_columns.push({
                         type: 2,
-                        content: row.timestamp.toString(),
+                        content: (row.timestamp * 1000).toString(),
                         args: null
                     });
 
