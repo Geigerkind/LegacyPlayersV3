@@ -67,7 +67,9 @@ def get_model(model, sk, ha, hc, fa, fh, items):
     options.add_experimental_option('useAutomationExtension', False)
     driver = webdriver.Chrome(options=options, executable_path=r'/usr/bin/chromedriver', service_args=["--log-path=./logs"])
     driver.implicitly_wait(45)
-    driver.get("file://" + working_dir + "/viewer/index.html?model="+model+"&sk="+str(sk)+"&ha="+str(ha)+"&hc="+str(hc)+"&fa="+str(fa)+"&fh="+str(fh)+"&items="+items)
+    viewer_file_path = "file://" + working_dir + "/viewer/index.html?model="+model+"&sk="+str(sk)+"&ha="+str(ha)+"&hc="+str(hc)+"&fa="+str(fa)+"&fh="+str(fh)+"&items="+items
+    #print(viewer_file_path)
+    driver.get(viewer_file_path)
 
     try:
         image = driver.find_element_by_id("result_image")
