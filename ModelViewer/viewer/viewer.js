@@ -13118,7 +13118,7 @@
                   (e.viewOffset = a.create()),
                   (e.aniFilterExt = null),
                   (e.aniFilterMax = 0),
-                  this.addedCss || ((this.addedCss = !0), $("head").append('<link rel="stylesheet" href="http://localhost/model_viewer/viewer/viewer.css" type="text/css" />'));
+                  this.addedCss || ((this.addedCss = !0), $("head").append('<link rel="stylesheet" href="https://alpha.legacyplayers.com/model_viewer/viewer/viewer.css" type="text/css" />'));
           }
           updateProgress() {
               var t = 0,

@@ -152,7 +152,7 @@ function buildBackend {
 }
 
 function deployBackend {
-  echo "Deplying Backend"
+  echo "Deploying Backend"
   cd /root/${REPOSITORY_NAME}/Backend
   cargo install --path ./ --force
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
