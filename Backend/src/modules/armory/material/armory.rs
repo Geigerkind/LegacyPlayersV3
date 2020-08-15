@@ -98,17 +98,17 @@ impl Init for HashMap<u32, Character> {
                     }),
                     row.take_opt(11).unwrap().ok().map(|team_id| ArenaTeam {
                         id: team_id,
-                        server_uid: row.take(188).unwrap(),
-                        server_id: row.take(189).unwrap(),
-                        team_name: row.take(190).unwrap(),
-                        size_type: ArenaTeamSizeType::from_u8(row.take(191).unwrap()),
+                        server_uid: row.take(189).unwrap(),
+                        server_id: row.take(190).unwrap(),
+                        team_name: row.take(191).unwrap(),
+                        size_type: ArenaTeamSizeType::from_u8(row.take(192).unwrap()),
                     }),
                     row.take_opt(12).unwrap().ok().map(|team_id| ArenaTeam {
                         id: team_id,
-                        server_uid: row.take(193).unwrap(),
-                        server_id: row.take(194).unwrap(),
-                        team_name: row.take(195).unwrap(),
-                        size_type: ArenaTeamSizeType::from_u8(row.take(195).unwrap()),
+                        server_uid: row.take(194).unwrap(),
+                        server_id: row.take(195).unwrap(),
+                        team_name: row.take(196).unwrap(),
+                        size_type: ArenaTeamSizeType::from_u8(row.take(197).unwrap()),
                     }),
                 ]
                 .into_iter()
