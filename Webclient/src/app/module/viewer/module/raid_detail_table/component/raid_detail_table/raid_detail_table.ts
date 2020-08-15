@@ -38,8 +38,9 @@ export class RaidDetailTableComponent implements OnDestroy {
         this.raidDetailService.select(this.current_meter_selection);
 
         this.activatedRouteService.firstChild?.paramMap.subscribe(params => {
-           this.current_meter_selection = Number(params.get("meter"));
-           this.current_ability_selection = Number(params.get("spell_id"));
+            this.current_meter_selection = Number(params.get("meter"));
+            this.current_ability_selection = Number(params.get("spell_id"));
+            this.raidDetailService.select(this.current_meter_selection);
         });
     }
 
