@@ -2,7 +2,7 @@
 Description=RPLL model generator
 
 [Service]
-WorkingDirectory=/home/rpll/
+WorkingDirectory=/home/rpll/ModelViewer/
 ExecStart=python /home/rpll/ModelViewer/model_generator.py
 User=rpll
 Type=simple
