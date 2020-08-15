@@ -6,6 +6,7 @@ import {DamageTakenService} from "./damage_taken";
 import {HealDoneService} from "./heal_done";
 import {HealTakenService} from "./heal_taken";
 import {HealMode} from "../../../domain_value/heal_mode";
+import {ThreatDoneService} from "./threat_done";
 
 @Injectable({
     providedIn: "root",
@@ -24,7 +25,8 @@ export class RaidMeterService implements OnDestroy {
         private damageDoneService: DamageDoneService,
         private damageTakenService: DamageTakenService,
         private healDoneService: HealDoneService,
-        private healTakenService: HealTakenService
+        private healTakenService: HealTakenService,
+        private threatDoneService: ThreatDoneService
     ) {
     }
 
@@ -81,6 +83,10 @@ export class RaidMeterService implements OnDestroy {
                 break;
             case 8:
                 this.subscription_data = this.healTakenService.get_data(HealMode.Overheal, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 9:
+                this.subscription_data = this.threatDoneService.get_data(this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
         }

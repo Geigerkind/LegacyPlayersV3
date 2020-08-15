@@ -8,6 +8,7 @@ import {DamageTakenDetailService} from "./damage_taken_detail";
 import {HealDoneDetailService} from "./heal_done_detail";
 import {HealMode} from "../../../domain_value/heal_mode";
 import {HealTakenDetailService} from "./heal_taken_detail";
+import {ThreatDoneDetailService} from "./threat_done_detail";
 
 @Injectable({
     providedIn: "root",
@@ -26,7 +27,8 @@ export class RaidDetailService implements OnDestroy {
         private damageDoneDetailService: DamageDoneDetailService,
         private damageTakenDetailService: DamageTakenDetailService,
         private healDoneDetailService: HealDoneDetailService,
-        private healTakenDetailService: HealTakenDetailService
+        private healTakenDetailService: HealTakenDetailService,
+        private threatDoneDetailService: ThreatDoneDetailService
     ) {
     }
 
@@ -95,6 +97,12 @@ export class RaidDetailService implements OnDestroy {
             }
             case 8: {
                 const [abilities, ability_details] = this.healTakenDetailService.get_ability_and_details(HealMode.Overheal);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 9: {
+                const [abilities, ability_details] = this.threatDoneDetailService.ability_and_details;
                 this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
                 this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
                 break;

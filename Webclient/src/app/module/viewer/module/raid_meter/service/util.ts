@@ -38,6 +38,9 @@ export class UtilService {
     }
 
     get_row_ability_subject(spell_id: number): RaidMeterSubject {
+        if (spell_id === 0)
+            return this.get_row_ability_subject_auto_attack();
+
         const basic_spell = this.spellService.get_localized_basic_spell(spell_id);
         const name = basic_spell.pipe(map(spell => spell?.localization));
         const color_class = basic_spell.pipe(map(spell => "spell_school_bg_" + first_matching_primary_school(spell?.base.school)));

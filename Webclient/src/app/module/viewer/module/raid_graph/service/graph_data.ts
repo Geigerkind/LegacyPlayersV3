@@ -4,9 +4,7 @@ import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {DataSet} from "../domain_value/data_set";
 import {take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
-import {MeleeDamage} from "../../../domain_value/melee_damage";
-import {SpellDamage} from "../../../domain_value/spell_damage";
-import {get_heal, get_melee_damage, get_spell_damage} from "../../../extractor/events";
+import {get_heal, get_melee_damage, get_spell_damage, get_threat} from "../../../extractor/events";
 
 @Injectable({
     providedIn: "root",
@@ -63,6 +61,14 @@ export class GraphDataService implements OnDestroy {
                     .pipe(take(1))
                     .subscribe(heal => {
                         this.feed_heal(data_set, heal);
+                        this.commit_data_set(data_set);
+                    });
+                break;
+            case DataSet.ThreatDone:
+                this.instanceDataService.get_threat()
+                    .pipe(take(1))
+                    .subscribe(threat => {
+                        this.feed_threat(data_set, threat);
                         this.commit_data_set(data_set);
                     });
                 break;
@@ -126,6 +132,15 @@ export class GraphDataService implements OnDestroy {
                 if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + healing);
                 else points.set(event.timestamp, healing);
             }
+        }
+    }
+
+    private feed_threat(data_set: DataSet, events: Array<Event>): void {
+        const points = this.temp_data_set.get(data_set);
+        for (const event of events) {
+            const threat = get_threat(event).threat.amount;
+            if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + threat);
+            else points.set(event.timestamp, threat);
         }
     }
 

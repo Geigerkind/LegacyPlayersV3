@@ -9,6 +9,7 @@ import {DamageDoneDetailService} from "../../service/damage_done_detail";
 import {DamageTakenDetailService} from "../../service/damage_taken_detail";
 import {HealDoneDetailService} from "../../service/heal_done_detail";
 import {HealTakenDetailService} from "../../service/heal_taken_detail";
+import {ThreatDoneDetailService} from "../../service/threat_done_detail";
 
 @Component({
     selector: "RaidDetailTable",
@@ -19,6 +20,7 @@ import {HealTakenDetailService} from "../../service/heal_taken_detail";
         DamageTakenDetailService,
         HealDoneDetailService,
         HealTakenDetailService,
+        ThreatDoneDetailService,
         RaidDetailService
     ]
 })
@@ -32,6 +34,18 @@ export class RaidDetailTableComponent implements OnDestroy {
 
     current_meter_selection: number = 1;
     current_ability_selection: number = 0;
+
+    options: Array<SelectOption> = [
+        {value: 1, label_key: 'Damage done'},
+        {value: 2, label_key: 'Damage taken'},
+        {value: 3, label_key: 'Total healing done'},
+        {value: 4, label_key: 'Total healing taken'},
+        {value: 5, label_key: 'Effective healing done'},
+        {value: 6, label_key: 'Effective healing taken'},
+        {value: 7, label_key: 'Overhealing done'},
+        {value: 8, label_key: 'Overhealing taken'},
+        {value: 9, label_key: 'Threat done'},
+    ];
 
     constructor(
         private activatedRouteService: ActivatedRoute,
@@ -60,4 +74,8 @@ export class RaidDetailTableComponent implements OnDestroy {
         return details[1];
     }
 
+    change_meter_selection(selection: number): void {
+        this.current_meter_selection = selection;
+        this.raidDetailService.select(selection);
+    }
 }

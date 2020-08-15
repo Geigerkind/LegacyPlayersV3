@@ -6,5 +6,6 @@ export enum DataSet {
     EffectiveHealingDone = "Effective healing done",
     EffectiveHealingTaken = "Effective healing taken",
     OverhealingDone = "Overhealing done",
-    OverhealingTaken = "Overhealing taken"
+    OverhealingTaken = "Overhealing taken",
+    ThreatDone = "Threat done"
 }

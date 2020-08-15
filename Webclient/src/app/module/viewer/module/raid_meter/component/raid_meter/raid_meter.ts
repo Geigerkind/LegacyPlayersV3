@@ -22,6 +22,8 @@ import {HealDoneService} from "../../service/heal_done";
 import {HealTakenService} from "../../service/heal_taken";
 import {HealDoneDetailService} from "../../../raid_detail_table/service/heal_done_detail";
 import {HealTakenDetailService} from "../../../raid_detail_table/service/heal_taken_detail";
+import {ThreatDoneService} from "../../service/threat_done";
+import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat_done_detail";
 
 @Component({
     selector: "RaidMeter",
@@ -33,12 +35,14 @@ import {HealTakenDetailService} from "../../../raid_detail_table/service/heal_ta
         DamageTakenService,
         HealDoneService,
         HealTakenService,
+        ThreatDoneService,
         RaidMeterService,
         // Raid Detail Service
         DamageDoneDetailService,
         DamageTakenDetailService,
         HealDoneDetailService,
         HealTakenDetailService,
+        ThreatDoneDetailService,
         RaidDetailService
     ]
 })
@@ -79,6 +83,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 6, label_key: 'Effective healing taken'},
         {value: 7, label_key: 'Overhealing done'},
         {value: 8, label_key: 'Overhealing taken'},
+        {value: 9, label_key: 'Threat done'},
     ];
 
     constructor(
