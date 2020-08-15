@@ -18,6 +18,10 @@ import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
 import {DamageTakenService} from "../../service/damage_taken";
 import {DamageDoneDetailService} from "../../../raid_detail_table/service/damage_done_detail";
 import {DamageTakenDetailService} from "../../../raid_detail_table/service/damage_taken_detail";
+import {HealDoneService} from "../../service/heal_done";
+import {HealTakenService} from "../../service/heal_taken";
+import {HealDoneDetailService} from "../../../raid_detail_table/service/heal_done_detail";
+import {HealTakenDetailService} from "../../../raid_detail_table/service/heal_taken_detail";
 
 @Component({
     selector: "RaidMeter",
@@ -27,10 +31,14 @@ import {DamageTakenDetailService} from "../../../raid_detail_table/service/damag
         UtilService,
         DamageDoneService,
         DamageTakenService,
+        HealDoneService,
+        HealTakenService,
         RaidMeterService,
         // Raid Detail Service
         DamageDoneDetailService,
         DamageTakenDetailService,
+        HealDoneDetailService,
+        HealTakenDetailService,
         RaidDetailService
     ]
 })
@@ -62,7 +70,16 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     bars: Array<[number, number]> = [];
 
     current_selection: number = 1;
-    options: Array<SelectOption> = [{value: 1, label_key: 'Damage done'}, {value: 2, label_key: 'Damage taken'}];
+    options: Array<SelectOption> = [
+        {value: 1, label_key: 'Damage done'},
+        {value: 2, label_key: 'Damage taken'},
+        {value: 3, label_key: 'Total healing done'},
+        {value: 4, label_key: 'Total healing taken'},
+        {value: 5, label_key: 'Effective healing done'},
+        {value: 6, label_key: 'Effective healing taken'},
+        {value: 7, label_key: 'Overhealing done'},
+        {value: 8, label_key: 'Overhealing taken'},
+    ];
 
     constructor(
         private activatedRouteService: ActivatedRoute,
@@ -178,7 +195,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         let result;
         if (this.in_ability_mode) result = this.ability_rows(rows);
         else result = rows.map(([unit_id, abilities]) =>
-            [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)]);
+            [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)])
+            .filter(([unit_id, row_amount]) => row_amount !== 0);
 
         // Bar tooltips
         for (const [subject_id, amount] of result)

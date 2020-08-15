@@ -6,6 +6,7 @@ import {take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
 import {MeleeDamage} from "../../../domain_value/melee_damage";
 import {SpellDamage} from "../../../domain_value/spell_damage";
+import {get_heal, get_melee_damage, get_spell_damage} from "../../../extractor/events";
 
 @Injectable({
     providedIn: "root",
@@ -52,6 +53,19 @@ export class GraphDataService implements OnDestroy {
                         this.commit_data_set(data_set);
                     });
                 break;
+            case DataSet.TotalHealingDone:
+            case DataSet.TotalHealingTaken:
+            case DataSet.EffectiveHealingDone:
+            case DataSet.EffectiveHealingTaken:
+            case DataSet.OverhealingDone:
+            case DataSet.OverhealingTaken:
+                this.instanceDataService.get_heal([DataSet.TotalHealingTaken, DataSet.EffectiveHealingTaken, DataSet.OverhealingTaken].includes(data_set))
+                    .pipe(take(1))
+                    .subscribe(heal => {
+                        this.feed_heal(data_set, heal);
+                        this.commit_data_set(data_set);
+                    });
+                break;
         }
     }
 
@@ -85,7 +99,7 @@ export class GraphDataService implements OnDestroy {
     private feed_melee_damage(data_set: DataSet, events: Array<Event>): void {
         const points = this.temp_data_set.get(data_set);
         for (const event of events) {
-            const damage = ((event.event as any).MeleeDamage as MeleeDamage).damage;
+            const damage = get_melee_damage(event).damage;
             if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + damage);
             else points.set(event.timestamp, damage);
         }
@@ -94,9 +108,24 @@ export class GraphDataService implements OnDestroy {
     private feed_spell_damage(data_set: DataSet, events: Array<Event>): void {
         const points = this.temp_data_set.get(data_set);
         for (const event of events) {
-            const damage = ((event.event as any).SpellDamage as SpellDamage).damage.damage;
+            const damage = get_spell_damage(event).damage.damage;
             if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + damage);
             else points.set(event.timestamp, damage);
+        }
+    }
+
+    private feed_heal(data_set: DataSet, events: Array<Event>): void {
+        const points = this.temp_data_set.get(data_set);
+        for (const event of events) {
+            const heal_event = get_heal(event);
+            let healing;
+            if ([DataSet.TotalHealingDone, DataSet.TotalHealingTaken].includes(data_set)) healing = heal_event.heal.total
+            else if ([DataSet.EffectiveHealingDone, DataSet.EffectiveHealingTaken].includes(data_set)) healing = heal_event.heal.effective
+            else healing = heal_event.heal.total - heal_event.heal.effective;
+            if (![DataSet.OverhealingDone, DataSet.OverhealingTaken].includes(data_set) || healing > 0) {
+                if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + healing);
+                else points.set(event.timestamp, healing);
+            }
         }
     }
 

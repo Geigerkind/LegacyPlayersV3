@@ -310,7 +310,8 @@ export class InstanceDataService implements OnDestroy {
             map(events => [...events]),
             map(events => events.filter(([id, event]) => this.attempt_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)),
             map(events => events.filter(([id, event]) => filter_source.has(get_unit_id(source_extraction(event))))),
-            map(events => events.filter(([id, event]) => get_unit_id(event.subject) === get_unit_id(target_extraction(event)) || filter_target.has(get_unit_id(target_extraction(event))))),
+            map(events => events.filter(([id, event]) => (!!((event.event) as any).SpellCast && get_unit_id(event.subject) === get_unit_id(target_extraction(event)))
+                || filter_target.has(get_unit_id(target_extraction(event))))),
             map(events => events.filter(([id, event]) => ability_extraction(event).every(ability => this.ability_filter$.has(ability)))),
             map(events => new Map(events))
         );
@@ -326,8 +327,7 @@ export class InstanceDataService implements OnDestroy {
 
     private apply_target_filter_to_events(subject: Observable<Array<Event>>, target_extraction: (Event) => Unit, inverse_filter: boolean = false): Observable<Array<Event>> {
         const filter = inverse_filter ? this.source_filter$ : this.target_filter$;
-        return subject.pipe(map(events => events.filter(event => get_unit_id(event.subject) === get_unit_id(target_extraction(event)) ||
-            filter.has(get_unit_id(target_extraction(event))))));
+        return subject.pipe(map(events => events.filter(event => filter.has(get_unit_id(target_extraction(event))))));
     }
 
     private apply_ability_filter_to_events(subject: Observable<Array<Event>>, ability_extraction: (Event) => Array<number>): Observable<Array<Event>> {

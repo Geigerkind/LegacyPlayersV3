@@ -5,6 +5,9 @@ import {SelectOption} from "../../../../../template/input/select_input/domain_va
 import {DamageDoneDetailService} from "./damage_done_detail";
 import {HitType} from "../../../domain_value/hit_type";
 import {DamageTakenDetailService} from "./damage_taken_detail";
+import {HealDoneDetailService} from "./heal_done_detail";
+import {HealMode} from "../../../domain_value/heal_mode";
+import {HealTakenDetailService} from "./heal_taken_detail";
 
 @Injectable({
     providedIn: "root",
@@ -21,7 +24,9 @@ export class RaidDetailService implements OnDestroy {
 
     constructor(
         private damageDoneDetailService: DamageDoneDetailService,
-        private damageTakenDetailService: DamageTakenDetailService
+        private damageTakenDetailService: DamageTakenDetailService,
+        private healDoneDetailService: HealDoneDetailService,
+        private healTakenDetailService: HealTakenDetailService
     ) {
     }
 
@@ -54,6 +59,42 @@ export class RaidDetailService implements OnDestroy {
             }
             case 2: {
                 const [abilities, ability_details] = this.damageTakenDetailService.ability_and_details;
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 3: {
+                const [abilities, ability_details] = this.healDoneDetailService.get_ability_and_details(HealMode.Total);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 4: {
+                const [abilities, ability_details] = this.healTakenDetailService.get_ability_and_details(HealMode.Total);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 5: {
+                const [abilities, ability_details] = this.healDoneDetailService.get_ability_and_details(HealMode.Effective);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 6: {
+                const [abilities, ability_details] = this.healTakenDetailService.get_ability_and_details(HealMode.Effective);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 7: {
+                const [abilities, ability_details] = this.healDoneDetailService.get_ability_and_details(HealMode.Overheal);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 8: {
+                const [abilities, ability_details] = this.healTakenDetailService.get_ability_and_details(HealMode.Overheal);
                 this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
                 this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
                 break;

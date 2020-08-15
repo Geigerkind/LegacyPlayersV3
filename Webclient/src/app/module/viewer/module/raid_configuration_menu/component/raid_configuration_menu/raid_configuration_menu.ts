@@ -206,7 +206,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             };
             new_list_items.push(list_item);
 
-            if (this.use_default_filter_targets && !target.is_player)
+            if (this.use_default_filter_targets)
                 new_selected_items.push(list_item);
 
         }

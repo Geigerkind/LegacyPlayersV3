@@ -7,6 +7,8 @@ import {DetailRow} from "../../domain_value/detail_row";
 import {ActivatedRoute} from "@angular/router";
 import {DamageDoneDetailService} from "../../service/damage_done_detail";
 import {DamageTakenDetailService} from "../../service/damage_taken_detail";
+import {HealDoneDetailService} from "../../service/heal_done_detail";
+import {HealTakenDetailService} from "../../service/heal_taken_detail";
 
 @Component({
     selector: "RaidDetailTable",
@@ -15,6 +17,8 @@ import {DamageTakenDetailService} from "../../service/damage_taken_detail";
     providers: [
         DamageDoneDetailService,
         DamageTakenDetailService,
+        HealDoneDetailService,
+        HealTakenDetailService,
         RaidDetailService
     ]
 })

@@ -11,6 +11,7 @@ import {SpellService} from "../../../service/spell";
 import {BehaviorSubject} from "rxjs";
 import {SelectOption} from "../../../../../template/input/select_input/domain_value/select_option";
 import {get_aura_application, get_melee_damage, get_spell_cast, get_spell_damage} from "../../../extractor/events";
+import {detail_row_post_processing} from "./util";
 
 function commit_damage_detail(spellService: SpellService, ability_details$: BehaviorSubject<Array<[number, Array<[HitType, DetailRow]>]>>,
                               abilities$: BehaviorSubject<Array<SelectOption>>, spell_damage: Array<Event>,
@@ -70,22 +71,7 @@ function commit_damage_detail(spellService: SpellService, ability_details$: Beha
         });
     }
 
-    // Post processing
-    // @ts-ignore
-    for (const [ability, hit_types] of ability_details) {
-        let total_count = 0;
-        let total_amount = 0;
-        for (const [hit_type, details] of hit_types) {
-            total_count += details.count;
-            total_amount += details.amount;
-        }
-
-        for (const [hit_type, details] of hit_types) {
-            details.amount_percent = 100 * (details.amount / total_amount);
-            details.count_percent = 100 * (details.count / total_count);
-            details.average = details.amount / details.count;
-        }
-    }
+    detail_row_post_processing(ability_details);
 
     // @ts-ignore
     abilities$.next([...abilities.entries()].map(([value, label_key]) => {

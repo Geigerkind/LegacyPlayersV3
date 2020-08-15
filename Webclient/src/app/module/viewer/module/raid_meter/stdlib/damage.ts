@@ -22,11 +22,10 @@ function commit_damage(utilService: UtilService, data$: BehaviorSubject<Array<[n
     // tslint:disable-next-line:forin
     for (const unit_id: number in grouping) {
         const subject_id = Number(unit_id);
-
         if (!abilities$.has(CONST_AUTO_ATTACK_ID))
             abilities$.set(CONST_AUTO_ATTACK_ID, utilService.get_row_ability_subject_auto_attack());
         if (!units$.has(subject_id))
-            units$.set(subject_id, utilService.get_row_unit_subject(grouping[unit_id][0].subject));
+            units$.set(subject_id, utilService.get_row_unit_subject(melee_unit_extraction(grouping[unit_id][0])));
 
         const total_damage = grouping[unit_id].reduce((acc, event) => acc + get_melee_damage(event).damage, 0);
         if (!newData.has(subject_id))

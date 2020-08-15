@@ -3,6 +3,9 @@ import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DamageDoneService} from "./damage_done";
 import {DamageTakenService} from "./damage_taken";
+import {HealDoneService} from "./heal_done";
+import {HealTakenService} from "./heal_taken";
+import {HealMode} from "../../../domain_value/heal_mode";
 
 @Injectable({
     providedIn: "root",
@@ -19,7 +22,9 @@ export class RaidMeterService implements OnDestroy {
 
     constructor(
         private damageDoneService: DamageDoneService,
-        private damageTakenService: DamageTakenService
+        private damageTakenService: DamageTakenService,
+        private healDoneService: HealDoneService,
+        private healTakenService: HealTakenService
     ) {
     }
 
@@ -52,6 +57,30 @@ export class RaidMeterService implements OnDestroy {
                 break;
             case 2:
                 this.subscription_data = this.damageTakenService.get_data(this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 3:
+                this.subscription_data = this.healDoneService.get_data(HealMode.Total, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 4:
+                this.subscription_data = this.healTakenService.get_data(HealMode.Total, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 5:
+                this.subscription_data = this.healDoneService.get_data(HealMode.Effective, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 6:
+                this.subscription_data = this.healTakenService.get_data(HealMode.Effective, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 7:
+                this.subscription_data = this.healDoneService.get_data(HealMode.Overheal, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 8:
+                this.subscription_data = this.healTakenService.get_data(HealMode.Overheal, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
         }
