@@ -6,7 +6,6 @@
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
 #![feature(with_options)]
-#![feature(assoc_int_consts)]
 extern crate language;
 extern crate mail;
 extern crate okapi;
