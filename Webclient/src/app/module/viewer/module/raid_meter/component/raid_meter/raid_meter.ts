@@ -86,7 +86,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription_abilities = this.raidMeterService.abilities.subscribe(abilities => this.abilities = abilities);
         this.subscription_units = this.raidMeterService.units.subscribe(units => this.units = units);
         this.subscription = this.raidMeterService.data.subscribe(rows => this.update_bars(rows));
-        this.subscription_ability_details = this.raidDetailService.ability_details.subscribe(details => this.ability_details = details);
+        this.subscription_ability_details = this.raidDetailService.ability_details.subscribe(details => {
+            this.ability_details = details;
+            this.update_bars(this.current_data);
+        });
     }
 
     ngOnInit(): void {
