@@ -39,6 +39,19 @@ export class TooltipComponent {
                     this.tooltipType = args.type;
                     this.tooltipPayload = result;
                 });
+            } else if (args.type === 4) {
+                this.tooltipService.loadItemTooltip(args.expansion_id, args.item_id, result => {
+                    this.tooltipType = args.type;
+                    this.tooltipPayload = result;
+                    this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
+                });
+            } else if (args.type === 5) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+            } else if (args.type === 6) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.iconPath = args.icon.content;
             }
         });
     }

@@ -21,6 +21,7 @@ export class GeneralInputComponent implements AfterViewInit, OnInit {
     @Input() max_spec: string;
     @Input() name: string;
     @Input() autoFocus: boolean = false;
+    @Input() htmlId: string;
 
     @Output() valueChange: EventEmitter<string> = new EventEmitter<string>();
     valueData = "";
@@ -50,11 +51,14 @@ export class GeneralInputComponent implements AfterViewInit, OnInit {
     }
 
     @Input()
-    get value(): string {
+    get value(): any {
         return this.valueData;
     }
 
-    set value(newValue: string) {
+    set value(newValue: any) {
+        if (this.type === "checkbox")
+            newValue = Boolean(newValue);
+
         if (this.valueData !== newValue) {
             this.formFailure.isInvalid = false;
             this.touch();

@@ -4,6 +4,7 @@ $medium_black: rgba(0, 0, 0, 0.5);
 $font_title: #212934;
 $font_less_important: #141e23;
 $font_default: #e1f2f5;
+$font_grayish: #999;
 
 $highlight: #368bd6;
 $non_highlight: #eee;
@@ -59,6 +60,17 @@ $qualities: (
     8: #00ccff, // Heirloom
 );
 
+$schools: (
+    0: #C79C6E, // Physical
+    1: #C79C6E, // Physical
+    2: #F2E699, // Holy
+    4: #FF6B6B, // Fire
+    8: #85FF85, // Nature
+    16: #00D1FF, // Frost
+    32: #C942FD, // Shadow
+    64: #B5FFEB, // Arcane
+);
+
 @each $name, $value in $expansions {
     .expansion_#{$name} {
         color: $value;
@@ -75,9 +87,23 @@ $qualities: (
     }
 }
 
+@each $name, $value in $schools {
+    .spell_school_#{$name} {
+        color: $value;
+    }
+
+    .spell_school_bg_#{$name} {
+        background-color: darken($value, 5%);
+    }
+}
+
 @each $name, $value in $hero_classes {
     .hero_class_#{$name} {
         color: $value;
+    }
+
+    .hero_class_bg_#{$name} {
+        background-color: darken($value, 5%);
     }
 }
 

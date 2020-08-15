@@ -6,7 +6,7 @@ import {APIService} from "../../../../../service/api";
 })
 export class CharacterViewerService {
     private static readonly URL_ARMORY_CHARACTER_VIEWER: string = "/armory/character_viewer";
-    private static readonly URL_ARMORY_CHARACTER_VIEWER_BY_HISTORY: string = "/armory/character_viewer";
+    private static readonly URL_ARMORY_CHARACTER_VIEWER_BY_HISTORY_DATE: string = "/armory/character_viewer/by_date";
 
     constructor(
         private apiService: APIService
@@ -18,8 +18,8 @@ export class CharacterViewerService {
                 result => on_success.call(on_success, result), on_failure);
     }
 
-    get_character_viewer_by_history(character_history_id: number, server_name: string, character_name: string, on_success: any, on_failure: any): void {
-        this.apiService.get(CharacterViewerService.URL_ARMORY_CHARACTER_VIEWER_BY_HISTORY + "/" + server_name + "/" + character_name + "/" + character_history_id,
+    get_character_viewer_by_history_date(character_history_date: string, server_name: string, character_name: string, on_success: any, on_failure: any): void {
+        this.apiService.get(CharacterViewerService.URL_ARMORY_CHARACTER_VIEWER_BY_HISTORY_DATE + "/" + server_name + "/" + character_name + "/" + character_history_date,
             result => on_success.call(on_success, result), on_failure);
     }
 }

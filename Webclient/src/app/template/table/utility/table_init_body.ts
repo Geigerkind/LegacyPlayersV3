@@ -18,8 +18,7 @@ export function init_body_columns_from_result(result: any, header: Array<HeaderC
             body_columns.push({
                 type: entry.type,
                 content,
-                sub_type: null,
-                sub_type_args: null
+                args: null
             });
         });
         return body_columns;

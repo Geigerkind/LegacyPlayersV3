@@ -1,22 +1,8 @@
-use mysql_connection::material::MySQLConnection;
-
 #[derive(Debug)]
-pub struct Tooltip {
-  pub db_main: MySQLConnection,
-}
+pub struct Tooltip;
 
 impl Default for Tooltip {
-  fn default() -> Self
-  {
-    Tooltip {
-      db_main: MySQLConnection::new("main"),
+    fn default() -> Self {
+        Tooltip {}
     }
-  }
-}
-
-impl Tooltip {
-  pub fn init(self) -> Self
-  {
-    self
-  }
 }

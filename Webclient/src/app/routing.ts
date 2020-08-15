@@ -32,10 +32,14 @@ const routes: Routes = [
         loadChildren: () => import("./module/confirm/module").then(m => m.ConfirmModule),
     },
     {path: "armory", loadChildren: () => import("./module/armory/module").then(m => m.ArmoryModule)},
+    {path: "pve", loadChildren: () => import("./module/pve/module").then(m => m.PveModule)},
+    {path: "pvp", loadChildren: () => import("./module/pvp/module").then(m => m.PvpModule)},
     {path: "privacy", loadChildren: () => import("./module/privacy/module").then(m => m.PrivacyModule)},
     {path: "imprint", loadChildren: () => import("./module/imprint/module").then(m => m.ImprintModule)},
     {path: "404", loadChildren: () => import("./module/404/module").then(m => m.FourOFourModule)},
     {path: "contribute", loadChildren: () => import("./module/contribute/module").then(m => m.ContributeModule)},
+    {path: "viewer", loadChildren: () => import("./module/viewer/module").then(m => m.ViewerModule)},
+    {path: "tiny_url/:link", loadChildren: () => import("./module/tiny_url/module").then(m => m.TinyUrlModule)},
 ];
 
 @NgModule({

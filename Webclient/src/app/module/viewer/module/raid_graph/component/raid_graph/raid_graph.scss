@@ -1,0 +1,65 @@
+@import "src/styles/units";
+@import "src/styles/colors";
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.menu_bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    border-radius: 0 3px 3px 0;
+
+    width: calc(100% - #{$spacing});
+    min-height: 50px;
+    background: $tdc_darker;
+    border: 1px solid $tdc_accent;
+    padding: 0.25 * $spacing 0.5 * $spacing;
+
+    $questionmarkSize: calc(50px - 0.5 * #{$spacing});
+    MultiSelect, SelectInput {
+        width: calc(33.3% - 0.5 * #{$spacing} - 16px);
+        max-width: 300px;
+        margin-right: 0.5 * $spacing;
+    }
+
+    @media (max-width: 400px) {
+        SelectInput {
+            margin-top: 0.5 * $spacing;
+        }
+
+        MultiSelect, SelectInput {
+            margin-right: 0;
+            margin-bottom: 0.5 * $spacing;
+            width: 100%;
+        }
+
+        #last_multi_select {
+            width: calc(100% - #{$questionmarkSize});
+        }
+    }
+
+    .question_mark {
+        margin-left: auto;
+        width: $questionmarkSize;
+        height: $questionmarkSize;
+        cursor: pointer;
+        text-align: center;
+        line-height: $questionmarkSize;
+        font-size: 32px;
+    }
+}
+
+.graph_container{
+    position: relative;
+    width: calc(100% - #{$spacing});
+    border: 1px solid $tdc_accent;
+    border-top: none;
+    height: 300px;
+    background: $tdc_darker;
+    border-radius: 3px 0 0 3px;
+    padding: 0.5 * $spacing 0.5 * $spacing;
+}

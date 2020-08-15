@@ -6,6 +6,7 @@ import {CharacterItemComponent} from "./component/character_item/character_item"
 import {CommonModule} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgModule} from "@angular/core";
+import {RouterModule} from "@angular/router";
 
 @NgModule({
     declarations: [CharacterItemsComponent, CharacterItemComponent],
@@ -14,7 +15,8 @@ import {NgModule} from "@angular/core";
         TranslateModule,
         IconModule,
         ItemIconModule,
-        SelectInputModule
+        SelectInputModule,
+        RouterModule
     ],
     exports: [CharacterItemsComponent]
 })

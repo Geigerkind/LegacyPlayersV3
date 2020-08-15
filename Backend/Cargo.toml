@@ -7,8 +7,8 @@ edition = "2018"
 [dependencies]
 rocket = "*"
 rocket_prometheus = "*"
-rocket_okapi = { git = "https://github.com/Geigerkind/okapi" }
-okapi = { git = "https://github.com/Geigerkind/okapi" }
+rocket_okapi = "*"
+okapi = "*"
 schemars = "*"
 serde = "*"
 serde_derive = "*"
@@ -18,13 +18,20 @@ validator = { path = "sub_crates/validator" }
 str_util = { path = "sub_crates/str_util" }
 language = { path = "sub_crates/language" }
 time_util = { path = "sub_crates/time_util" }
-mysql_connection = { path = "sub_crates/mysql_connection" }
-time = "*"
 lazy_static = "*"
-regex = "*"
+regex = "~1.0"
 dotenv = "*"
+byteorder="*"
+rocket-multipart-form-data="*"
+grouping_by="*"
+chrono="*"
 
 [dependencies.rocket_contrib]
 version = "*"
 default-features = false
-features = ["json"]
+features = ["json", "mysql_pool"]
+
+[dev-dependencies]
+proptest = "*"
+mockall = { version = "0.7.1", features = ["nightly"] }
+testcontainers = "0.9.1"

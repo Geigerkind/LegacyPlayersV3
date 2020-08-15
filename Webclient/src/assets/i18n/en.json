@@ -3,7 +3,9 @@
         "0": "Server is not reachable!",
         "200": "Success!",
         "401": "Unauthorized!",
+        "404": "Server is not available!",
         "429": "Too many requests!",
+        "500": "This is a bug! Contact Shino!",
         "502": "Backend server is down!",
         "520": "Invalid credentials!",
         "521": "Invalid mail!",
@@ -20,6 +22,7 @@
         "532": "Date may not be in the past!",
         "533": "The purpose must have a length between 1 and 24 characters!",
         "534": "Invalid Input!",
+        "535": "Invalid characters used!",
         "599": "An unknown error occurred!",
         "mail_confirm": "A confirmation mail has been send to you!",
         "reset_mail_confirm": "A mail has been send to the specified address!"
@@ -79,7 +82,13 @@
         },
         "Viewer": {
             "guild": "{{rank}} of {{guild}}",
-            "stats": "Item stats"
+            "stats": "Item stats",
+            "RankingTable": {
+                "boss_name": "Boss",
+                "dps": "DPS",
+                "hps": "HPS",
+                "tps": "TPS"
+            }
         }
     },
     "CookieBanner": {
@@ -143,7 +152,8 @@
         "connect": {
             "title": "Connect",
             "discord": "Discord",
-            "report_issue": "Report bug"
+            "report_issue": "Report bug",
+            "report_feature": "Suggest feature"
         },
         "copyright": "©2017-{{year}} {{company}}. All rights reserved."
     },
@@ -157,8 +167,8 @@
             "signIn": "Sign in",
             "signUp": "Sign up"
         },
-        "raids": {
-            "title": "Raids",
+        "pve": {
+            "title": "PvE",
             "bosses": "Bosses",
             "ranking": "Ranking",
             "speed_kill": "Speed kills",
@@ -174,7 +184,9 @@
             "title": "PvP",
             "standings": "Standings",
             "hk_life": "Lifetime kills",
-            "arena": "Arena"
+            "arena": "Arena",
+            "skirmish": "Skirmish",
+            "battleground": "Battleground"
         },
         "tools": {
             "title": "Tools",
@@ -273,27 +285,72 @@
             "title": "Contribute as a private server project",
             "description": "LegacyPlayers v3 makes private server projects first class data providers. Using LP's RestAPI a private key, armory and raid data can be inserted, modified and deleted. This way you are in full control of the data you provide through LegacyPlayers. If you don't want to bother coding your own exporter, you can use LP's open-source exporter which is easy to configure and provides you with a number of features:",
             "advantages": {
-                "0": "0. Your players have fine grained control about their data on LegacyPlayers: give/withdraw consent, modifying/deleting data and choose in a fine grained way which data is uploaded.",
-                "1": "1. The exporter is a configurable docker container that updates and prolongs it access token by itself.",
-                "2": "2. It is completely open-source. You can 100% trust that the application is not malicious.",
-                "3": "3. The consent manager enables you to comply with the GDPR."
+                "0": "1. Your players have fine grained control about their data on LegacyPlayers: give/withdraw consent, modifying/deleting data and choose in a fine grained way which data is uploaded.",
+                "1": "2. The exporter is a configurable docker container which is easy to install.",
+                "2": "3. It is completely open-source. You can 100% trust that the application is not malicious.",
+                "3": "4. The consent manager enables you to comply with the GDPR."
             },
             "whyLp": "Using LegacyPlayers your players can have easy and detailed access to an armory, pve and pvp logs. This will improve the quality of your service significantly.",
             "advantages2": {
-                "0": "0. Extremely easy to set up.",
-                "1": "1. Keep the data up to date, delete or modify it.",
-                "2": "2. Maintain a history of your player's character's developments.",
-                "3": "3. Provide more detailed data that is otherwise not accessible through player uploads.",
-                "4": "4. Use LPs armory, PvP and PvE log viewer as a service by your server for your player.",
-                "5": "5. Player use a familiar interface and can access their player data from anywhere."
+                "0": "1. Extremely easy to set up.",
+                "1": "2. Keep the data up to date, delete or modify it.",
+                "2": "3. Maintain a history of your player's character's developments.",
+                "3": "4. Provide more detailed data that is otherwise not accessible through player uploads.",
+                "4": "5. Use LPs armory, PvP and PvE log viewer as a service by your server for your player.",
+                "5": "6. Player use a familiar interface and can access their character data from anywhere."
             },
-            "disadvantages": "There are really no disadvantages in this deal. If you choose to provide the data directly then you are in full control of it. If you don't players can freely upload any data from your server to the site, regardless of validity. This has worked well in the past, but it has its obvious flaws. So take the leashes in your own hands instead.",
+            "disadvantages": "There are really no disadvantages to this deal. If you choose to provide the data directly then you are in full control of it. If you don't, players can freely upload any data from your server to the site, regardless of validity. This has worked well in the past, but it has its obvious flaws. So take the leashes in your own hands instead.",
             "contact": "If you are interested please contact Shino#3990 on Discord! (Links are in the footer)"
         },
         "Individual": {
             "title": "Contribute as individual",
-            "description": "Currently it is not possible to upload logs as individual. This feature is planned for mid/end of may.",
+            "description": "Currently it is not possible to upload logs as individual. This feature is planned for mid/end of september.",
             "description2": "Please contact your server's admins and urge them to contribute directly instead."
         }
+    },
+    "PvE": {
+        "Search": {
+            "raid": "Raid",
+            "difficulty": "Difficulty",
+            "guild": "Guild",
+            "server": "Server",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        }
+    },
+    "PvP": {
+        "Battleground": {
+            "battleground": "Battleground",
+            "server": "Server",
+            "score_alliance": "Score Alliance",
+            "score_horde": "Score Horde",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        },
+        "Arena": {
+            "arena": "Arena",
+            "server": "Server",
+            "team1": "Team Blue",
+            "team2": "Team Red",
+            "change1": "Rating Blue",
+            "change2": "Rating Red",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        },
+        "Skirmish": {
+            "arena": "Arena",
+            "server": "Server",
+            "start": "Start",
+            "end": "End",
+            "duration": "Duration"
+        }
+    },
+    "TinyUrl": {
+        "set_failure": "Something went wrong",
+        "set_success": "Url saved to your clipboard",
+        "not_found": "Url was not found"
     }
 }

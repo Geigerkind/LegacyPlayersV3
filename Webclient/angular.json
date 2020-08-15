@@ -33,7 +33,10 @@
                         "styles": [
                             "src/default.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "allowedCommonJsDependencies": [
+                            "chart.js"
+                        ]
                     },
                     "configurations": {
                         "production": {

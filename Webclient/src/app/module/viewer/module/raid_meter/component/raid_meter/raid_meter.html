@@ -1,0 +1,13 @@
+<div class="container">
+    <div class="title_bar">
+        <SelectInput [(value)]="current_selection" (valueChange)="selection_changed($event)" [options]="options"></SelectInput>
+        <div class="total_and_dps">{{total}} ({{total_ps.toFixed(1)}}/s)</div>
+    </div>
+    <MeterGraph
+        [bars]="bars"
+        [per_second_duration]="current_attempt_duration"
+        [bar_subjects]="bar_subjects"
+        [bar_tooltips]="bar_tooltips"
+        (bar_clicked)="bar_clicked($event)">
+    </MeterGraph>
+</div>

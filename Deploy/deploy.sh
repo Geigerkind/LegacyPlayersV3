@@ -156,11 +156,19 @@ function deployBackend {
   cd /root/${REPOSITORY_NAME}/Backend
   cargo install --path ./ --force
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
-  cp .env_prod /home/${BACKEND_USER}/.env
+  cp ./../.env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
   echo "" >> /home/${BACKEND_USER}/.env
-  echo "MYSQL_DNS=\"mysql://rpll:${DB_PASSWORD}@127.0.0.1/\"" >> /home/${BACKEND_USER}/.env
+  echo "ROCKET_DATABASES='{main={url=\""mysql://rpll:${DB_PASSWORD}@127.0.0.1/main\""}}'" >> /home/${BACKEND_USER}/.env
+  echo "" >> /home/${BACKEND_USER}/.env
+  echo "MYSQL_URL='mysql://rpll:${DB_PASSWORD}@127.0.0.1/main'" >> /home/${BACKEND_USER}/.env
   cd /root
+}
+
+function deployModelGenerator {
+  cp /root/${REPOSITORY_NAME}/ModelViewer/viewer/* /home/rpll/ModelViewer/viewer/
+  cp /root/${REPOSITORY_NAME}/ModelViewer/model_generator.py /home/rpll/ModelViewer/
+  chown -R rpll /home/rpll/ModelViewer
 }
 
 function updateConfigs {
@@ -205,6 +213,7 @@ function stopServices {
   systemctl stop backend
   systemctl stop prometheus
   systemctl stop grafana
+  systemctl stop model_generator
 }
 
 function startServices {
@@ -215,6 +224,7 @@ function startServices {
   systemctl start backend
   systemctl start prometheus
   systemctl start grafana
+  systemctl start model_generator
 }
 
 function waitForJobs {
@@ -224,8 +234,6 @@ function waitForJobs {
 }
 
 function deploy {
-  pacman -Syu --noconfirm
-
   cd /root/${REPOSITORY_NAME}
 
   git stash
@@ -235,6 +243,8 @@ function deploy {
   fi;
 
   cd /root
+
+  pacman -Syu --noconfirm
 
   optimizeAssets &
   buildWebclient &
@@ -248,6 +258,7 @@ function deploy {
   deployDatabase
   deployWebclient
   deployBackend
+  deployModelGenerator
   waitForJobs
 
   startServices

@@ -1,9 +1,6 @@
-pub use self::create_guild::CreateGuild;
-pub use self::delete_guild::DeleteGuild;
-pub use self::get_guild::GetGuild;
-pub use self::update_guild::UpdateGuild;
+pub use self::{create_guild::CreateGuild, delete_guild::DeleteGuild, get_guild::GetGuild, update_guild::UpdateGuild};
 
-mod get_guild;
 mod create_guild;
 mod delete_guild;
+mod get_guild;
 mod update_guild;

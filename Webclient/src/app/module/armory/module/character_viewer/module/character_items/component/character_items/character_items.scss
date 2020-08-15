@@ -1,5 +1,6 @@
 @import "src/styles/global";
 
+
 :host {
     display: block;
     position: relative;
@@ -25,6 +26,10 @@
 
         &.faction_1 {
             background-image: url('/assets/armory/logo-horde.png');
+        }
+
+        &.model {
+            background-size: 87% 87%;
         }
     }
 
@@ -58,9 +63,12 @@
     }
 
     .cr_guild {
+        position: relative;
         min-height: 24px;
         width: 100%;
-        font-size: 18px;
+        a {
+            font-size: 18px;
+        }
         line-height: 24px;
         margin-bottom: $spacing / 2;
     }

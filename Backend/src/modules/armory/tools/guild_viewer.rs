@@ -1,8 +1,11 @@
-use crate::modules::armory::Armory;
-use crate::modules::armory::dto::{ArmoryFailure, GuildViewerDto, GuildViewerMemberDto};
-use crate::modules::data::Data;
-use crate::modules::armory::tools::GetGuild;
-use crate::modules::data::tools::RetrieveRace;
+use crate::modules::{
+    armory::{
+        dto::{ArmoryFailure, GuildViewerDto, GuildViewerMemberDto},
+        tools::GetGuild,
+        Armory,
+    },
+    data::{tools::RetrieveRace, Data},
+};
 
 pub trait GuildViewer {
     fn get_guild_view(&self, data: &Data, language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure>;
@@ -17,7 +20,8 @@ impl GuildViewer for Armory {
         let guild = guild.unwrap();
 
         let characters = self.characters.read().unwrap();
-        let member = characters.iter()
+        let member = characters
+            .iter()
             .filter(|(_, character)| character.last_update.is_some())
             .filter(|(_, character)| character.last_update.as_ref().unwrap().character_guild.is_some())
             .filter(|(_, character)| character.last_update.as_ref().unwrap().character_guild.as_ref().unwrap().guild_id == guild_id)
@@ -26,20 +30,22 @@ impl GuildViewer for Armory {
                 let race = data.get_race(last_update.character_info.race_id).unwrap();
 
                 GuildViewerMemberDto {
-                    character_id: character_id.clone(),
+                    character_id: *character_id,
                     character_name: last_update.character_name.clone(),
                     faction: race.faction,
                     race_id: race.id,
                     hero_class_id: last_update.character_info.hero_class_id,
-                    rank: last_update.character_guild.as_ref().unwrap().rank.clone(),
-                    last_seen: last_update.timestamp
+                    rank_index: last_update.character_guild.as_ref().unwrap().rank.index,
+                    last_seen: last_update.timestamp,
                 }
-            }).collect();
+            })
+            .collect();
 
         Ok(GuildViewerDto {
             guild_id,
             guild_name: guild.name,
-            member
+            ranks: guild.ranks,
+            member,
         })
     }
 }

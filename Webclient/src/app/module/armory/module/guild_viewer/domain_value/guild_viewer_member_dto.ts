@@ -4,6 +4,6 @@ export interface GuildViewerMemberDto {
     faction: boolean;
     race_id: number;
     hero_class_id: number;
-    rank: string;
+    rank_index: number;
     last_seen: number;
 }

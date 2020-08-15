@@ -1,54 +1,22 @@
-pub use self::dispel_type::RetrieveDispelType;
-pub use self::enchant::RetrieveEnchant;
-pub use self::expansion::RetrieveExpansion;
-pub use self::gem::RetrieveGem;
-pub use self::hero_class::RetrieveHeroClass;
-pub use self::icon::RetrieveIcon;
-pub use self::item::RetrieveItem;
-pub use self::item_bonding::RetrieveItemBonding;
-pub use self::item_class::RetrieveItemClass;
-pub use self::item_damage::RetrieveItemDamage;
-pub use self::item_damage_type::RetrieveItemDamageType;
-pub use self::item_effect::RetrieveItemEffect;
-pub use self::item_inventory_type::RetrieveItemInventoryType;
-pub use self::item_quality::RetrieveItemQuality;
-pub use self::item_random_property::RetrieveItemRandomProperty;
-pub use self::item_sheath::RetrieveItemSheath;
-pub use self::item_socket::RetrieveItemSocket;
-pub use self::item_stat::RetrieveItemStat;
-pub use self::itemset_effect::RetrieveItemsetEffect;
-pub use self::itemset_name::RetrieveItemsetName;
-pub use self::language::RetrieveLanguage;
-pub use self::localization::RetrieveLocalization;
-pub use self::npc::RetrieveNPC;
-pub use self::power_type::RetrievePowerType;
-pub use self::profession::RetrieveProfession;
-pub use self::race::RetrieveRace;
-pub use self::server::RetrieveServer;
-pub use self::spell::RetrieveSpell;
-pub use self::spell_effect::RetrieveSpellEffect;
-pub use self::stat_type::RetrieveStatType;
-pub use self::spell_description::SpellDescription;
-pub use self::title::RetrieveTitle;
-pub use self::item_random_property_points::RetrieveItemRandomPropertyPoints;
+pub use self::{
+    difficulty::RetrieveDifficulty, dispel_type::RetrieveDispelType, enchant::RetrieveEnchant, encounter::RetrieveEncounter, encounter_npc::RetrieveEncounterNpc, expansion::RetrieveExpansion, gem::RetrieveGem, hero_class::RetrieveHeroClass,
+    icon::RetrieveIcon, item::RetrieveItem, item_bonding::RetrieveItemBonding, item_class::RetrieveItemClass, item_damage::RetrieveItemDamage, item_damage_type::RetrieveItemDamageType, item_effect::RetrieveItemEffect,
+    item_inventory_type::RetrieveItemInventoryType, item_quality::RetrieveItemQuality, item_random_property::RetrieveItemRandomProperty, item_random_property_points::RetrieveItemRandomPropertyPoints, item_sheath::RetrieveItemSheath,
+    item_socket::RetrieveItemSocket, item_stat::RetrieveItemStat, itemset_effect::RetrieveItemsetEffect, itemset_name::RetrieveItemsetName, language::RetrieveLanguage, localization::RetrieveLocalization, map::RetrieveMap, npc::RetrieveNPC,
+    power_type::RetrievePowerType, profession::RetrieveProfession, race::RetrieveRace, server::RetrieveServer, spell::RetrieveSpell, spell_description::SpellDescription, spell_effect::RetrieveSpellEffect, stat_type::RetrieveStatType,
+    title::RetrieveTitle,
+};
 
-mod expansion;
-mod language;
-mod localization;
-mod race;
-mod profession;
-mod server;
-mod hero_class;
-mod spell;
+mod difficulty;
 mod dispel_type;
-mod power_type;
-mod stat_type;
-mod spell_effect;
-mod npc;
+mod enchant;
+mod encounter;
+mod encounter_npc;
+mod expansion;
+mod gem;
+mod hero_class;
 mod icon;
 mod item;
-mod gem;
-mod enchant;
 mod item_bonding;
 mod item_class;
 mod item_damage;
@@ -57,11 +25,22 @@ mod item_effect;
 mod item_inventory_type;
 mod item_quality;
 mod item_random_property;
+mod item_random_property_points;
 mod item_sheath;
 mod item_socket;
 mod item_stat;
-mod itemset_name;
 mod itemset_effect;
+mod itemset_name;
+mod language;
+mod localization;
+mod map;
+mod npc;
+mod power_type;
+mod profession;
+mod race;
+mod server;
+mod spell;
 mod spell_description;
+mod spell_effect;
+mod stat_type;
 mod title;
-mod item_random_property_points;

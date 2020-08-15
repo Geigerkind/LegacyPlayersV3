@@ -1,0 +1,8 @@
+<RaidTitleBar></RaidTitleBar>
+<RaidGraph></RaidGraph>
+<RaidMeter *ngIf="!is_detail_mode()" id="left_meter" [unique_id]="'viewer_rm_1'"></RaidMeter>
+<RaidMeter *ngIf="!is_detail_mode()" [unique_id]="'viewer_rm_2'"></RaidMeter>
+<RaidDetailTable *ngIf="is_detail_mode()"></RaidDetailTable>
+<RaidLoot *ngIf="is_base_mode()"></RaidLoot>
+<RaidComposition *ngIf="is_base_mode()"></RaidComposition>
+<RaidConfigurationMenu></RaidConfigurationMenu>

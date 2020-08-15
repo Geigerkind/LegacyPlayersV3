@@ -12,14 +12,15 @@ struct APIToken {
   account_id: u32
 }
 
-#[post("/", format = "application/json", data = "<api_token>")]
+#[post("/token_validator", data = "<api_token>")]
 fn validate_token(api_token: Json<APIToken>) -> Json<bool> {
-  Json(api_token.token == "abc" && api_token.account_id == 42)
+  // Json(api_token.token == "abc" && api_token.account_id == 5)
+  Json(true)
 }
 
 fn main() {
   rocket::ignite()
-    .mount("/token_validator/", routes![
+    .mount("/", routes![
       validate_token
     ])
     .launch();

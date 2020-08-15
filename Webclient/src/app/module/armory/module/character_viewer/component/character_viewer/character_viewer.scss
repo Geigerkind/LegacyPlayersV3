@@ -3,11 +3,12 @@
 :host {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     @media (max-width: 775px) {
         display: block;
     }
 
-    CharacterItems, .rightBar {
+    CharacterItems, .rightBar, RankingTable {
         float:left;
     }
 
@@ -22,6 +23,17 @@
         CharacterItems {
             width: 500px;
             margin-right: $spacing / 2;
+        }
+
+        RankingTable {
+            width: 908px;
+            margin-left: 0.5 * $spacing;
+        }
+    }
+
+    @media (max-width: 1840px) {
+        RankingTable {
+            margin-left: 0;
         }
     }
 

@@ -18,9 +18,9 @@ export class CharacterViewerComponent {
         private characterViewerService: CharacterViewerService
     ) {
         this.activatedRouteService.paramMap.subscribe(params => {
-            const history_id = params.get('character_history_id');
-            if (history_id) {
-                this.loadCharacterByHistoryId(params.get('server_name'), params.get('character_name'), Number(history_id));
+            const history_date = params.get('character_history_date');
+            if (history_date) {
+                this.loadCharacterByHistoryDate(params.get('server_name'), params.get('character_name'), history_date);
                 return;
             }
             this.loadCharacter(params.get('server_name'), params.get('character_name'));
@@ -28,17 +28,22 @@ export class CharacterViewerComponent {
     }
 
     historyChanged(character_history_id: number): void {
-        this.routerService.navigate(['/armory/character/' + this.character.server_name + '/' + this.character.name + '/' + character_history_id]);
+        const character_history_date = this.character.history.find(option => option.value === Number(character_history_id)).label_key;
+        this.routerService.navigate(['/armory/character/' + this.character.server_name + '/' + this.character.name + '/' + character_history_date]);
     }
 
     private loadCharacter(server_name: string, character_name: string): void {
-        this.characterViewerService.get_character_viewer(server_name, character_name, result => this.character = result, () => {
+        this.characterViewerService.get_character_viewer(server_name, character_name, result => {
+            this.character = result;
+        }, () => {
             this.routerService.navigate(['/404']);
         });
     }
 
-    private loadCharacterByHistoryId(server_name: string, character_name: string, character_history_id: number): void {
-        this.characterViewerService.get_character_viewer_by_history(character_history_id, server_name, character_name, result => this.character = result, () => {
+    private loadCharacterByHistoryDate(server_name: string, character_name: string, character_history_date: string): void {
+        this.characterViewerService.get_character_viewer_by_history_date(character_history_date, server_name, character_name, result => {
+            this.character = result;
+        }, () => {
             this.loadCharacter(server_name, character_name);
         });
     }

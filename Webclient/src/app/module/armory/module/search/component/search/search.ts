@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {CharacterSearchService} from "../../service/character_search";
@@ -8,13 +8,18 @@ import {AvailableServer} from "../../../../../../domain_value/available_server";
 import {Localized} from "../../../../../../domain_value/localized";
 import {HeroClass} from "../../../../../../domain_value/hero_class";
 import {SettingsService} from "src/app/service/settings";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {DateService} from "../../../../../../service/date";
 
 @Component({
     selector: "Search",
     templateUrl: "./search.html",
-    styleUrls: ["./search.scss"]
+    styleUrls: ["./search.scss"],
+    providers: [
+        TinyUrlService
+    ]
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit {
 
     character_header_columns: Array<HeaderColumn> = [
         {
@@ -35,7 +40,14 @@ export class SearchComponent {
             type_range: [{value: -1, label_key: "Armory.Search.server"}],
             col_type: 0
         },
-        {index: 4, filter_name: 'last_updated', labelKey: "Armory.Search.last_update", type: 2, type_range: null, col_type: 1},
+        {
+            index: 4,
+            filter_name: 'last_updated',
+            labelKey: "Armory.Search.last_update",
+            type: 2,
+            type_range: null,
+            col_type: 1
+        },
     ];
     character_body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
@@ -43,26 +55,37 @@ export class SearchComponent {
     responsiveModeWidthInPx: number = 840;
     num_characters: number = 0;
 
+    // TODO: Refactor
+    current_servers: Array<AvailableServer> = [];
+
     constructor(
         private characterSearchService: CharacterSearchService,
         private dataService: DataService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        public tinyUrlService: TinyUrlService,
+        public dateService: DateService
     ) {
-        this.dataService.get_all_hero_classes((hero_classes: Array<Localized<HeroClass>>) => hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
+        this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
+            hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
             value: hero_class.base.id,
             label_key: hero_class.localization
         })));
-        this.dataService.get_all_servers((servers: Array<AvailableServer>) => {
+        this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
+            this.current_servers = servers;
             servers.forEach(server => this.character_header_columns[3].type_range.push({
                 value: server.id,
-                label_key: server.name
+                label_key: server.name + " (" + server.patch + ")"
             }));
-            let filter = table_init_filter(this.character_header_columns);
-            if (this.settingsService.check("table_filter_armory_search")) {
-                filter = this.settingsService.get("table_filter_armory_search");
-            }
-            this.filterCharacterSearch(filter);
         });
+    }
+
+    ngOnInit(): void {
+        const filter = table_init_filter(this.character_header_columns);
+        if (!this.settingsService.check("table_filter_armory_search")) {
+            filter.last_updated.sorting = false;
+            this.settingsService.set("table_filter_armory_search", filter);
+        }
+        this.filterCharacterSearch(this.settingsService.get("table_filter_armory_search"));
     }
 
     filterCharacterSearch(filter: any): void {
@@ -72,7 +95,7 @@ export class SearchComponent {
                 this.character_body_columns = search_result.result.map(row => {
                     const body_columns: Array<BodyColumn> = [];
                     // TODO: Needs to be refactored
-                    const server_name = this.character_header_columns[3].type_range.find(content => content.value === row.character.server_id)?.label_key;
+                    const server_name = this.current_servers.find(server => server.id === row.character.server_id)?.name;
 
                     body_columns.push({
                         type: 3,
@@ -102,7 +125,7 @@ export class SearchComponent {
                     });
                     body_columns.push({
                         type: 2,
-                        content: row.timestamp.toString(),
+                        content: (row.timestamp * 1000).toString(),
                         args: null
                     });
 

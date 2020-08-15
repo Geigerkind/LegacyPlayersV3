@@ -4,13 +4,12 @@ import {APITokensService} from "../../service/api_tokens";
 import {APIToken} from "../../../../domain_value/api_token";
 import {CreateToken} from "../../dto/create_token";
 import {APIFailure} from "../../../../../../domain_value/api_failure";
-import {DatePipe} from "@angular/common";
+import {DateService} from "../../../../../../service/date";
 
 @Component({
     selector: "APITokens",
     templateUrl: "./api_tokens.html",
-    styleUrls: ["./api_tokens.scss"],
-    providers: [DatePipe]
+    styleUrls: ["./api_tokens.scss"]
 })
 export class APITokensComponent {
     disabledSubmit: boolean = false;
@@ -24,7 +23,7 @@ export class APITokensComponent {
 
     constructor(
         private apiTokensService: APITokensService,
-        private datePipe: DatePipe
+        private dateService: DateService
     ) {
         this.get_tokens();
     }
@@ -52,7 +51,7 @@ export class APITokensComponent {
     }
 
     toEuropeanDate(timestamp: number): string {
-        return this.datePipe.transform(new Date(timestamp * 1000), 'dd.MM.yyyy');
+        return this.dateService.toRPLLShortDate(timestamp * 1000);
     }
 
     clearGeneratedToken(): void {

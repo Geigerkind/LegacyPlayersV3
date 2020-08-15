@@ -4,10 +4,11 @@ pub use self::material::Armory;
 mod tests;
 
 #[cfg(test)]
-mod benchmarks;
+mod benches;
 
-pub mod dto;
-pub mod tools;
-pub mod material;
 pub mod domain_value;
+pub mod dto;
+pub mod material;
+pub mod tools;
 pub mod transfer;
+pub mod util;

@@ -29,7 +29,7 @@
 }
 
 .btnNonHighlight {
-    background: $non_highlight;
+    background: darken($non_highlight, 5%);
     color: $highlight;
 
     &:hover {

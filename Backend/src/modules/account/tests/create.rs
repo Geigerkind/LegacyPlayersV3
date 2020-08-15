@@ -1,162 +1,137 @@
-use mysql_connection::tools::Execute;
 use str_util::sha3;
 
-use crate::modules::account::dto::{CreateMember, Credentials};
-use crate::modules::account::material::Account;
-use crate::modules::account::tools::{Create, GetAccountInformation};
+use crate::modules::account::{
+    material::Account,
+    tools::{Create, GetAccountInformation},
+};
+
+use crate::modules::account::tests::helper::get_create_member;
+use crate::tests::TestContainer;
 
 #[test]
 fn create_account() {
-  let account = Account::default();
-  let acc_mail = "mail@jaylappTest.dev";
-  let post_obj = CreateMember {
-    nickname: "NickName".to_string(),
-    credentials: Credentials {
-      mail: acc_mail.to_string(),
-      password: "Password123456Password123456Password123456".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
-  assert!(login.is_ok());
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
-  account.db_main.execute("DELETE FROM account_member WHERE mail='mail@jaylappTest.dev'");
+    let login = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
+    assert!(login.is_ok());
 }
 
 #[test]
 fn mail_twice() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "BlaNameqqweq".to_string(),
-    credentials: Credentials {
-      mail: "bla@jaylappTest.dev".to_string(),
-      password: "Password123456Password123456Password123456".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
-  assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
-  account.db_main.execute("DELETE FROM account_member WHERE mail='bla@jaylappTest.dev'");
+    account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    assert!(account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
 fn nickname_twice() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "BlaName".to_string(),
-    credentials: Credentials {
-      mail: "bla2@jaylappTest.dev".to_string(),
-      password: "Password123456Password123456Password123456".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  let post_obj_two = CreateMember {
-    nickname: "BlaName".to_string(),
-    credentials: Credentials {
-      mail: "bla3@jaylappTest.dev".to_string(),
-      password: "Password123456Password123456Password123456".to_string(),
-    },
-  };
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
+    let post_obj_two = get_create_member("Sth", "mail2@mail.de", "Password123456Password123456Password123456");
 
-  let _ = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
-  assert!(account.create(&post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).is_err());
-
-  account.db_main.execute("DELETE FROM account_member WHERE mail='bla2@jaylappTest.dev'");
-  account.db_main.execute("DELETE FROM account_member WHERE mail='bla3@jaylappTest.dev'");
+    let _ = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    assert!(account.create(&mut conn, &post_obj_two.credentials.mail, &post_obj_two.nickname, &post_obj_two.credentials.password).is_err());
 }
 
 #[test]
 fn mail_empty() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "NickName".to_string(),
-    credentials: Credentials {
-      mail: "".to_string(),
-      password: "Password123456Password123456Password123456".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "", "Password123456Password123456Password123456");
+
+    assert!(account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
 fn password_empty() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "NickName".to_string(),
-    credentials: Credentials {
-      mail: "34234234".to_string(),
-      password: "".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "mail@mail.de", "");
+
+    assert!(account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
 fn nickname_empty() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "".to_string(),
-    credentials: Credentials {
-      mail: "34234234".to_string(),
-      password: "dgsdfsfd".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
+    let account = Account::default();
+    let post_obj = get_create_member("", "mail@mail.de", "Password123456Password123456Password123456");
+
+    assert!(account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
 fn invalid_mail() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "asdasd".to_string(),
-    credentials: Credentials {
-      mail: "34234234".to_string(),
-      password: "dgsdfsfd".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "mailmailde", "Password123456Password123456Password123456");
+
+    assert!(account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
 fn invalid_nickname() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "asdasd asdfsdfs".to_string(),
-    credentials: Credentials {
-      mail: "abc@test.de".to_string(),
-      password: "dgsdfsfd".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  assert!(account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
+    let account = Account::default();
+    let post_obj = get_create_member("Sth adasd", "mail@mail.de", "Password123456Password123456Password123456");
+
+    assert!(account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).is_err());
 }
 
 #[test]
 fn confirm_mail() {
-  let account = Account::default();
-  let post_obj = CreateMember {
-    nickname: "SomeNameWuuh".to_string(),
-    credentials: Credentials {
-      mail: "someNameWuuuuh@jaylappTest.dev".to_string(),
-      password: "Password123456Password123456Password123456".to_string(),
-    },
-  };
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
 
-  let login = account.create(&post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
-  let mail_id;
-  {
-    let member_guard = account.member.read().unwrap();
-    let member = member_guard.get(&login.member_id).unwrap();
-    mail_id = sha3::hash(&[&login.member_id.to_string(), "mail", &member.salt]);
-  }
-  account.confirm(&mail_id);
-  let confirmed_information = account.get(login.member_id).unwrap();
-  assert!(confirmed_information.mail_confirmed);
+    let account = Account::default();
+    let post_obj = get_create_member("Sth", "mail@mail.de", "Password123456Password123456Password123456");
 
-  account.db_main.execute("DELETE FROM account_member WHERE mail='someNameWuuuuh@jaylappTest.dev'");
+    let login = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password).unwrap();
+    let mail_id;
+    {
+        let member_guard = account.member.read().unwrap();
+        let member = member_guard.get(&login.member_id).unwrap();
+        mail_id = sha3::hash(&[&login.member_id.to_string(), "mail", &member.salt]);
+    }
+    account.confirm(&mut conn, &mail_id);
+    let confirmed_information = account.get(login.member_id).unwrap();
+    assert!(confirmed_information.mail_confirmed);
+}
+
+#[test]
+fn init_from_db() {
+    let container = TestContainer::new(false);
+    let (mut conn, _dns, _node) = container.run();
+
+    {
+        let account = Account::default();
+        let post_obj = get_create_member("abc", "abc@abc.de", "Password123456Password123456Password123456");
+        let _ = account.create(&mut conn, &post_obj.credentials.mail, &post_obj.nickname, &post_obj.credentials.password);
+    }
+    let account = Account::default();
+    let account = account.init(&mut conn);
+
+    assert_eq!(account.member.read().unwrap().len(), 1);
 }

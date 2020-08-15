@@ -1,21 +1,15 @@
-pub use self::stat::Stat;
-pub use self::weapon_stat::WeaponStat;
-pub use self::weapon_damage::WeaponDamage;
-pub use self::item_set::ItemSet;
-pub use self::set_effect::SetEffect;
-pub use self::socket_slot::SocketSlot;
-pub use self::socket_slot_item::SocketSlotItem;
-pub use self::spell_cost::SpellCost;
-pub use self::character_guild::CharacterGuild;
-pub use self::character_tooltip_item::CharacterTooltipItem;
+pub use self::{
+    character_guild::CharacterGuild, character_tooltip_item::CharacterTooltipItem, item_set::ItemSet, set_effect::SetEffect, socket_slot::SocketSlot, socket_slot_item::SocketSlotItem, spell_cost::SpellCost, stat::Stat, weapon_damage::WeaponDamage,
+    weapon_stat::WeaponStat,
+};
 
-mod stat;
-mod weapon_stat;
-mod weapon_damage;
+mod character_guild;
+mod character_tooltip_item;
 mod item_set;
 mod set_effect;
 mod socket_slot;
 mod socket_slot_item;
 mod spell_cost;
-mod character_guild;
-mod character_tooltip_item;
+mod stat;
+mod weapon_damage;
+mod weapon_stat;

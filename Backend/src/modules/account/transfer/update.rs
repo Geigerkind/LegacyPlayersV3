@@ -1,36 +1,35 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
-use crate::modules::account::dto::Failure;
-use crate::modules::account::domain_value::AccountInformation;
-use crate::modules::account::guard::Authenticate;
-use crate::modules::account::material::{Account, APIToken};
-use crate::modules::account::tools::Update;
+use crate::modules::account::{
+    domain_value::AccountInformation,
+    dto::Failure,
+    guard::Authenticate,
+    material::{APIToken, Account},
+    tools::Update,
+};
+use crate::MainDb;
 
 #[openapi]
 #[post("/update/password", format = "application/json", data = "<content>")]
-pub fn password(me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<APIToken>, Failure> {
-  me.change_password(&content, auth.0)
-    .and_then(|api_token| Ok(Json(api_token)))
+pub fn password(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<APIToken>, Failure> {
+    me.change_password(&mut *db_main, &content, auth.0).map(Json)
 }
 
 #[openapi]
 #[post("/update/nickname", format = "application/json", data = "<content>")]
-pub fn nickname(me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<AccountInformation>, Failure> {
-  me.change_name(&content, auth.0)
-    .and_then(|acc_info| Ok(Json(acc_info)))
+pub fn nickname(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<AccountInformation>, Failure> {
+    me.change_name(&mut *db_main, &content, auth.0).map(Json)
 }
 
 #[openapi]
 #[post("/update/mail", format = "application/json", data = "<content>")]
 pub fn request_mail(me: State<Account>, auth: Authenticate, content: Json<String>) -> Result<Json<bool>, Failure> {
-  me.request_change_mail(&content, auth.0)
-    .and_then(|changed_password| Ok(Json(changed_password)))
+    me.request_change_mail(&content, auth.0).map(Json)
 }
 
 #[openapi]
 #[get("/update/mail/<id>")]
-pub fn confirm_mail(me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
-  me.confirm_change_mail(&id)
-    .and_then(|api_token| Ok(Json(api_token)))
+pub fn confirm_mail(mut db_main: MainDb, me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
+    me.confirm_change_mail(&mut *db_main, &id).map(Json)
 }

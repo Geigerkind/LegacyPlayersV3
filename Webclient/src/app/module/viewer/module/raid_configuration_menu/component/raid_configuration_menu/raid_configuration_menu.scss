@@ -1,0 +1,67 @@
+@import "src/styles/global";
+@import "src/styles/buttons";
+@import "src/styles/colors";
+
+:host {
+    position: absolute;
+    left: 0;
+    display: block;
+    height: 100%;
+    width: 100%;
+    margin-top: -$spacing;
+}
+
+$menuSize: 500px;
+.container {
+    position: relative;
+    width: min(#{$menuSize}, calc(100% - 42px - 2 * #{$spacing}));
+    height: calc(100% - 2 * #{$spacing});
+    background: $tdc_darker;
+    border-right: 1px solid $tdc_accent;
+    transition: margin-left 0.1s;
+
+    padding: $spacing $spacing;
+
+    &.closed {
+        margin-left: calc(-1 * min(#{$menuSize} + 2 * #{$spacing}, calc(100% - 42px)));
+    }
+
+    &:not(.closed) {
+        z-index: 4;
+    }
+
+    MultiSelect {
+        margin-bottom: $spacing;
+    }
+}
+
+.toggle_button {
+    position: absolute;
+    top: calc(50% - 50px);
+    right: -41px;
+
+    height: 100px;
+    width: 40px;
+    background: $tdc_darker;
+    border: 1px solid $tdc_accent;
+    border-left: none;
+    z-index: 5;
+    opacity: 0.5;
+
+    svg {
+        fill: white;
+    }
+
+    &:hover {
+        background: lighten($tdc_darker, 3%);
+
+        svg {
+            fill: $highlight;
+        }
+    }
+}
+
+.replay_btn {
+    width: 100%;
+    margin-top: $spacing;
+}

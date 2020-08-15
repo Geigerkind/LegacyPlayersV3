@@ -50,7 +50,8 @@ export class APIService {
                 arg1: reason.error
             }
         };
-        this.notificationService.propagate(Severity.Error, api_failure.translation, api_failure.arguments);
+        if (![404].includes(reason.status))
+            this.notificationService.propagate(Severity.Error, api_failure.translation, api_failure.arguments);
         return api_failure;
     }
 }

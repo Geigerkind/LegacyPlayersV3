@@ -1,0 +1,29 @@
+.header {
+    display: flex;
+    flex-direction: row;
+
+    div {
+        min-width: 60px;
+        flex: 1;
+
+        &:nth-child(9) {
+            min-width: 100px;
+        }
+    }
+}
+
+.body {
+    div {
+        display: flex;
+        flex-direction: row;
+
+        div {
+            min-width: 60px;
+            flex: 1;
+
+            &:nth-child(9) {
+                min-width: 100px;
+            }
+        }
+    }
+}

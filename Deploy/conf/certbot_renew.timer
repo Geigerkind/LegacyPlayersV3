@@ -1,8 +1,8 @@
 [Unit]
-Description=Runs certbot renew daily
+Description=Runs certbot renew monthly
 
 [Timer]
-OnCalender=*-*-* 05:00:00
+OnCalendar=*-*-1 05:00:00
 Unit=certbot_renew.service
 
 [Install]

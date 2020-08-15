@@ -1,11 +1,10 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {FormFailure} from "../../../../../material/form_failure";
-import {DatePipe} from "@angular/common";
+import {DateService} from "../../../../../service/date";
 
 @Component({
     selector: "DateInput",
-    templateUrl: "./date_input.html",
-    providers: [DatePipe]
+    templateUrl: "./date_input.html"
 })
 export class DateInputComponent {
     @Input() required: boolean;
@@ -21,7 +20,7 @@ export class DateInputComponent {
     valueData: Date;
 
     constructor(
-        private dataPipe: DatePipe
+        private dateService: DateService
     ) {}
 
     @Input()
@@ -42,6 +41,6 @@ export class DateInputComponent {
     passDate(dateVal: Date): string {
         if (!dateVal || !dateVal.getTime || !dateVal.getTime())
             return '';
-        return this.dataPipe.transform(dateVal, 'yyyy-MM-dd');
+        return this.dateService.toRPLLDateInputDate(dateVal);
     }
 }

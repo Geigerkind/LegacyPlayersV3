@@ -1,11 +1,8 @@
 pub use self::material::ConsentManager;
 
-#[cfg(test)]
-mod tests;
-
-mod tools;
-mod material;
-mod guard;
 mod domain_value;
+mod guard;
+mod material;
+mod tools;
 
 pub mod transfer;

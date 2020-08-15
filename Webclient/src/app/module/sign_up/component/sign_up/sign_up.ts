@@ -43,7 +43,7 @@ export class SignUpComponent {
     on_failure(api_failure: APIFailure): void {
         this.formFailureNickname = FormFailure.from(api_failure, 522, 526);
         this.formFailureMail = FormFailure.from(api_failure, 521, 525);
-        this.formFailurePassword = FormFailure.from(api_failure, 523, 524);
+        this.formFailurePassword = FormFailure.from(api_failure, 523, 524, 535);
         this.disableSubmit = false;
     }
 }
