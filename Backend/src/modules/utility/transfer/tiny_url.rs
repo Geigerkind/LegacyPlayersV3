@@ -12,8 +12,10 @@ pub fn get_tiny_url(mut db_main: MainDb, me: State<Utility>, id: u32) -> Result<
     me.get_tiny_url(&mut *db_main, id).map(Json)
 }
 
+/*
 #[openapi(skip)]
 #[post("/tiny_url", data = "<url_payload>")]
 pub fn set_tiny_url(mut db_main: MainDb, me: State<Utility>, url_payload: String) -> Result<Json<u32>, UtilityFailure> {
     me.set_tiny_url(&mut *db_main, url_payload).map(Json)
 }
+ */
