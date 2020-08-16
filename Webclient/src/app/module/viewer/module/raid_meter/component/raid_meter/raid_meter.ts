@@ -26,6 +26,7 @@ import {ThreatDoneService} from "../../service/threat_done";
 import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat_done_detail";
 import {DeathService} from "../../service/death";
 import {DeathOverviewRow} from "../../module/deaths_overview/domain_value/death_overview_row";
+import {KillService} from "../../service/kill";
 
 @Component({
     selector: "RaidMeter",
@@ -39,6 +40,7 @@ import {DeathOverviewRow} from "../../module/deaths_overview/domain_value/death_
         HealTakenService,
         ThreatDoneService,
         DeathService,
+        KillService,
         RaidMeterService,
         // Raid Detail Service
         DamageDoneDetailService,
@@ -88,6 +90,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 8, label_key: 'Overhealing taken'},
         {value: 9, label_key: 'Threat done'},
         {value: 10, label_key: 'Deaths'},
+        {value: 11, label_key: 'Kills'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -145,7 +148,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get total(): number {
-        if ([10].includes(this.current_selection) && this.in_ability_mode)
+        if ([10, 11].includes(this.current_selection) && this.in_ability_mode)
             return this.bars.length;
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);
     }
@@ -176,7 +179,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private get_bar_tooltip(subject_id: number): any {
         if (!this.in_ability_mode) {
             // TODO: Refactor condition
-            if ([10].includes(this.current_selection)) {
+            if ([10, 11].includes(this.current_selection)) {
                 return {
                     type: 7,
                     payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
@@ -221,10 +224,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.current_data = rows;
         let result;
         if (this.in_ability_mode) {
-            if ([10].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
+            if ([10, 11].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
             else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
-            if ([10].includes(this.current_selection)) {
+            if ([10, 11].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
             } else {
                 result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
@@ -234,18 +237,18 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }
 
         // Bar tooltips
-        if (this.current_selection !== 10 || !this.in_ability_mode) {
+        if (![10, 11].includes(this.current_selection) || !this.in_ability_mode) {
             for (const [subject_id, amount] of result)
                 this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
         }
 
-        if (this.current_selection === 10)
+        if ([10, 11].includes(this.current_selection))
             this.bars = result.sort((left, right) => right.timestamp - left.timestamp);
         else this.bars = result.sort((left, right) => right[1] - left[1]);
     }
 
     get show_per_second(): boolean {
-        return ![10].includes(this.current_selection);
+        return ![10, 11].includes(this.current_selection);
     }
 
 }

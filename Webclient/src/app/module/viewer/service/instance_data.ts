@@ -8,7 +8,7 @@ import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
 import {get_unit_id, has_unit, Unit} from "../domain_value/unit";
 import {map, take} from "rxjs/operators";
 import {
-    te_aura_application, te_heal, te_melee_damage,
+    te_aura_application, te_death, te_heal, te_melee_damage,
     te_spell_cast,
     te_spell_cast_by_cause,
     te_spell_cast_or_aura_app, te_spell_damage, te_summon, te_threat
@@ -370,7 +370,7 @@ export class InstanceDataService implements OnDestroy {
                 this.register_load_instance(1, this.deaths$);
             }, 0);
         }
-        return this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable(), se_identity, inverse_filter);
+        return this.apply_target_filter_to_events(this.apply_interval_and_source_filter_to_events(this.deaths$.asObservable(), se_identity, inverse_filter), te_death, inverse_filter);
     }
 
     public get_combat_states(inverse_filter: boolean = false): Observable<Array<Event>> {

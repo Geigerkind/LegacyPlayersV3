@@ -34,11 +34,12 @@ function commit_death(utilService: UtilService, data$: BehaviorSubject<Array<[nu
             let spell_id;
             let found_spell_min_ts = Number.MAX_VALUE;
             let amount = 0;
+            const event_subject_id = get_unit_id(event.subject);
             for (const [md_index, md_event] of melee_damage) {
                 const difference = Math.abs(md_event.timestamp - event.timestamp);
                 if (difference >= 1000)
                     continue;
-                if (get_unit_id(melee_unit_extraction(md_event)) === subject_id && difference < found_spell_min_ts) {
+                if (get_unit_id(melee_unit_extraction(md_event)) === event_subject_id && difference < found_spell_min_ts) {
                     const kb_amount = get_melee_damage(md_event).damage;
                     if (kb_amount > 0) {
                         spell_id = 0;
@@ -53,7 +54,7 @@ function commit_death(utilService: UtilService, data$: BehaviorSubject<Array<[nu
                 const difference = Math.abs(sd_event.timestamp - event.timestamp);
                 if (difference >= 1000)
                     continue;
-                if (get_unit_id(spell_unit_extraction(sd_event)) === subject_id && difference < found_spell_min_ts) {
+                if (get_unit_id(spell_unit_extraction(sd_event)) === event_subject_id && difference < found_spell_min_ts) {
                     const [indicator, cause_event] = get_spell_cause(get_spell_damage(sd_event).spell_cause_id, spell_casts, aura_applications);
                     const kb_amount = get_spell_damage(sd_event).damage.damage;
                     if (kb_amount > 0) {

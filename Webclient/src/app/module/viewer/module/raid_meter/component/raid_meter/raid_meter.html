@@ -9,7 +9,7 @@
             </ng-container>
         </div>
     </div>
-    <MeterGraph *ngIf="!in_ability_mode || ![10].includes(current_selection)"
+    <MeterGraph *ngIf="!in_ability_mode || ![10, 11].includes(current_selection)"
                 [bars]="bars"
                 [per_second_duration]="current_attempt_duration"
                 [bar_subjects]="bar_subjects"
@@ -17,7 +17,7 @@
                 [show_per_second]="show_per_second"
                 (bar_clicked)="bar_clicked($event)">
     </MeterGraph>
-    <DeathsOverview *ngIf="current_selection === 10 && in_ability_mode" [death_overview_rows]="bars"
-                    [server_id]="this.current_meta.server_id">
+    <DeathsOverview *ngIf="[10, 11].includes(current_selection) && in_ability_mode" [death_overview_rows]="bars"
+                    [server_id]="this.current_meta?.server_id" [to_actor]="this.current_selection === 10">
     </DeathsOverview>
 </div>

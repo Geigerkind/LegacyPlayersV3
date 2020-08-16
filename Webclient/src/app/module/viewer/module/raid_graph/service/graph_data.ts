@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {DataSet, is_event_data_set} from "../domain_value/data_set";
-import {max, take} from "rxjs/operators";
+import {take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
 import {get_heal, get_melee_damage, get_spell_damage, get_threat} from "../../../extractor/events";
 
@@ -77,7 +77,8 @@ export class GraphDataService implements OnDestroy {
                     });
                 break;
             case DataSet.Deaths:
-                this.instanceDataService.get_deaths()
+            case DataSet.Kills:
+                this.instanceDataService.get_deaths(data_set === DataSet.Kills)
                     .pipe(take(1))
                     .subscribe(death => {
                         this.feed_death(data_set, death);
