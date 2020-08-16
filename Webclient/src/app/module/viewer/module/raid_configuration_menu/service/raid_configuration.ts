@@ -220,7 +220,7 @@ export class RaidConfigurationService implements OnDestroy {
         const intervals = [];
         for (const attempt of attempts.sort((left, right) => left.start_ts - right.start_ts)) {
             if (attempt.start_ts > current_start_ts) {
-                intervals.push([current_start_ts, attempt.start_ts - 1]);
+                intervals.push([current_start_ts, attempt.start_ts]);
                 current_start_ts = attempt.end_ts;
             } else if (attempt.end_ts > current_start_ts) {
                 current_start_ts = attempt.end_ts;

@@ -1,0 +1,16 @@
+<div class="table_container">
+    <div class="header">
+        <div class="td">Timestamp</div>
+        <div class="td">Murder</div>
+        <div class="td">Murdered</div>
+        <div class="td">Killing blow</div>
+    </div>
+    <div class="body">
+        <div class="row" *ngFor="let row of death_overview_rows" routerLink="../event_log/to_actor" [showTooltip]="get_tooltip(row)">
+            <div class="td">{{dateService.toRPLLTime(row.timestamp)}}</div>
+            <div class="td">{{unitService.get_unit_name(row.murder) | async}}</div>
+            <div class="td">{{unitService.get_unit_name(row.murdered) | async}}</div>
+            <div class="td">{{(spellService.get_spell_name(row.killing_blow.ability_id) | async) + " (" + row.killing_blow.amount + ")"}}</div>
+        </div>
+    </div>
+</div>

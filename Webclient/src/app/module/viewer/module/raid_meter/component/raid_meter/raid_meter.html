@@ -1,13 +1,23 @@
 <div class="container">
     <div class="title_bar">
-        <SelectInput [(value)]="current_selection" (valueChange)="selection_changed($event)" [options]="options"></SelectInput>
-        <div class="total_and_dps">{{total}} ({{total_ps.toFixed(1)}}/s)</div>
+        <SelectInput [(value)]="current_selection" (valueChange)="selection_changed($event)"
+                     [options]="options"></SelectInput>
+        <div class="total_and_dps">
+            {{total}}
+            <ng-container *ngIf="show_per_second">
+                ({{total_ps.toFixed(1)}}/s)
+            </ng-container>
+        </div>
     </div>
-    <MeterGraph
-        [bars]="bars"
-        [per_second_duration]="current_attempt_duration"
-        [bar_subjects]="bar_subjects"
-        [bar_tooltips]="bar_tooltips"
-        (bar_clicked)="bar_clicked($event)">
+    <MeterGraph *ngIf="!in_ability_mode || ![10].includes(current_selection)"
+                [bars]="bars"
+                [per_second_duration]="current_attempt_duration"
+                [bar_subjects]="bar_subjects"
+                [bar_tooltips]="bar_tooltips"
+                [show_per_second]="show_per_second"
+                (bar_clicked)="bar_clicked($event)">
     </MeterGraph>
+    <DeathsOverview *ngIf="current_selection === 10 && in_ability_mode" [death_overview_rows]="bars"
+                    [server_id]="this.current_meta.server_id">
+    </DeathsOverview>
 </div>

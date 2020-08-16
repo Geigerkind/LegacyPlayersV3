@@ -8,6 +8,8 @@ import {ItemTooltipModule} from "./module/item_tooltip/module";
 import {GuildTooltipModule} from "./module/guild_tooltip/module";
 import {MeterAbilitiesTooltipModule} from "./module/meter_abilities_tooltip/module";
 import {MeterDetailsTooltipModule} from "./module/meter_details_tooltip/module";
+import {DeathsOverviewModule} from "../viewer/module/raid_meter/module/deaths_overview/module";
+import {ViewerEventLogTooltipModule} from "./module/viewer_event_log_tooltip/module";
 
 @NgModule({
     declarations: [TooltipComponent],
@@ -18,7 +20,9 @@ import {MeterDetailsTooltipModule} from "./module/meter_details_tooltip/module";
         GuildTooltipModule,
         MeterAbilitiesTooltipModule,
         MeterDetailsTooltipModule,
-        TranslateModule
+        TranslateModule,
+        DeathsOverviewModule,
+        ViewerEventLogTooltipModule
     ],
     exports: [TooltipComponent],
     providers: [TooltipService]

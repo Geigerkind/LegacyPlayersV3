@@ -1,0 +1,8 @@
+<table>
+    <tbody>
+    <tr *ngFor="let entry of payload">
+        <td>[{{dateService.toRPLLTimePreciseLong(entry.timestamp)}}]</td>
+        <td>{{entry.event_message | async}}</td>
+    </tr>
+    </tbody>
+</table>

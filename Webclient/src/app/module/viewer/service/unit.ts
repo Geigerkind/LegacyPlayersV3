@@ -1,13 +1,11 @@
-import {Injectable, OnDestroy} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {is_creature, is_player, Unit} from "../domain_value/unit";
-import {Observable, of, Subscription} from "rxjs";
+import {Observable, of} from "rxjs";
 import {CharacterService} from "../../armory/service/character";
 import {Player} from "../domain_value/player";
 import {concatMap, map} from "rxjs/operators";
 import {DataService} from "../../../service/data";
 import {Creature} from "../domain_value/creature";
-import {InstanceDataService} from "./instance_data";
-import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {NPC} from "../../../domain_value/data/npc";
 import {Localized} from "../../../domain_value/localized";
 import {CONST_UNKNOWN_LABEL} from "../constant/viewer";
@@ -15,21 +13,18 @@ import {CONST_UNKNOWN_LABEL} from "../constant/viewer";
 @Injectable({
     providedIn: "root",
 })
-export class UnitService implements OnDestroy {
+export class UnitService {
 
-    private subscription: Subscription;
-    private current_meta: InstanceViewerMeta;
+    private server_id$: number;
 
     constructor(
         private characterService: CharacterService,
-        private dataService: DataService,
-        private instanceDataService: InstanceDataService
+        private dataService: DataService
     ) {
-        this.subscription = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
     }
 
-    ngOnDestroy(): void {
-        this.subscription?.unsubscribe();
+    set_server_id(server_id: number): void {
+        this.server_id$ = server_id;
     }
 
     get_unit_bg_color(unit: Unit): Observable<string> {
@@ -54,10 +49,8 @@ export class UnitService implements OnDestroy {
     get_unit_name(unit: Unit): Observable<string> {
         if (is_player(unit))
             return this.characterService
-                .get_character_by_id(((unit as any).Player as Player).character_id)
-                .pipe(map(character => !!character?.last_update ?
-                    character.last_update.character_name
-                    : CONST_UNKNOWN_LABEL));
+                .get_basic_character_by_id(((unit as any).Player as Player).character_id)
+                .pipe(map(character => character.name));
 
         if (is_creature(unit))
             return this.get_npc_name(((unit as any).Creature as Creature).entry);
@@ -71,10 +64,10 @@ export class UnitService implements OnDestroy {
     }
 
     get_npc(npc_id: number): Observable<Localized<NPC> | undefined> {
-        if (!this.current_meta)
+        if (!this.server_id$)
             return of(undefined);
         return this.dataService
-            .get_server_by_id(this.current_meta.server_id)
+            .get_server_by_id(this.server_id$)
             .pipe(concatMap(server => {
                 return !server ? of(undefined) : this.dataService
                     .get_npc(server.expansion_id, npc_id);

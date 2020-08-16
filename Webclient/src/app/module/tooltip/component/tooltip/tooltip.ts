@@ -12,6 +12,7 @@ export class TooltipComponent {
     iconPath: string;
     tooltipType: number;
     tooltipPayload: any;
+    tooltipArgs: any;
 
     constructor(
         private tooltipControllerService: TooltipControllerService,
@@ -52,6 +53,15 @@ export class TooltipComponent {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
                 this.iconPath = args.icon.content;
+            } else if (args.type === 7) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.tooltipArgs = args.server_id;
+                this.iconPath = "/assets/wow_icon/inv_misc_bone_skull_02.jpg";
+            } else if (args.type === 8) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.iconPath = "/assets/wow_icon/inv_misc_book_08.jpg";
             }
         });
     }

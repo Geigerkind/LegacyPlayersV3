@@ -1,8 +1,8 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {DataSet} from "../domain_value/data_set";
-import {take} from "rxjs/operators";
+import {DataSet, is_event_data_set} from "../domain_value/data_set";
+import {max, take} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
 import {get_heal, get_melee_damage, get_spell_damage, get_threat} from "../../../extractor/events";
 
@@ -31,6 +31,10 @@ export class GraphDataService implements OnDestroy {
 
     get data_points(): Observable<[Array<number>, Map<DataSet, [Array<number>, Array<number>]>]> {
         return this.data_points$.asObservable();
+    }
+
+    update(): void {
+        this.data_points$.next(this.data_points$.getValue());
     }
 
     add_data_set(data_set: DataSet): void {
@@ -72,6 +76,14 @@ export class GraphDataService implements OnDestroy {
                         this.commit_data_set(data_set);
                     });
                 break;
+            case DataSet.Deaths:
+                this.instanceDataService.get_deaths()
+                    .pipe(take(1))
+                    .subscribe(death => {
+                        this.feed_death(data_set, death);
+                        this.commit_data_set(data_set);
+                    });
+                break;
         }
     }
 
@@ -84,6 +96,16 @@ export class GraphDataService implements OnDestroy {
             x_axis.push(x);
             y_axis.push(y);
         }
+
+        if (is_event_data_set(data_set)) {
+            let max_value = [...data_points.values()]
+                .map(([x, y]) => y)
+                .reduce((acc, y) => Math.max(acc, ...y), 0);
+            max_value *= 0.75;
+            for (let i = 0; i < y_axis.length; ++i)
+                y_axis[i] = max_value;
+        }
+
         data_points.set(data_set, [x_axis, y_axis]);
         this.data_points$.next([this.compute_x_axis(data_points), data_points]);
     }
@@ -125,8 +147,8 @@ export class GraphDataService implements OnDestroy {
         for (const event of events) {
             const heal_event = get_heal(event);
             let healing;
-            if ([DataSet.TotalHealingDone, DataSet.TotalHealingTaken].includes(data_set)) healing = heal_event.heal.total
-            else if ([DataSet.EffectiveHealingDone, DataSet.EffectiveHealingTaken].includes(data_set)) healing = heal_event.heal.effective
+            if ([DataSet.TotalHealingDone, DataSet.TotalHealingTaken].includes(data_set)) healing = heal_event.heal.total;
+            else if ([DataSet.EffectiveHealingDone, DataSet.EffectiveHealingTaken].includes(data_set)) healing = heal_event.heal.effective;
             else healing = heal_event.heal.total - heal_event.heal.effective;
             if (![DataSet.OverhealingDone, DataSet.OverhealingTaken].includes(data_set) || healing > 0) {
                 if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + healing);
@@ -144,4 +166,11 @@ export class GraphDataService implements OnDestroy {
         }
     }
 
+    private feed_death(data_set: DataSet, events: Array<Event>): void {
+        const points = this.temp_data_set.get(data_set);
+        for (const event of events) {
+            if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + 1);
+            else points.set(event.timestamp, 1);
+        }
+    }
 }

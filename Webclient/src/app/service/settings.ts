@@ -9,7 +9,8 @@ interface Storage {
 @Injectable({
     providedIn: "root",
 })
-export class SettingsService {
+export class
+SettingsService {
     private settings: Array<string> = [
         "cookieDecisions",
         "PWA_PROMPT",
@@ -30,6 +31,7 @@ export class SettingsService {
         "data_service_npcs",
         "character_service_characters",
         "viewer_raid_graph_datasets",
+        "viewer_raid_graph_events",
         "data_service_basic_items",
         "data_service_basic_spells",
         "pve_ranking",

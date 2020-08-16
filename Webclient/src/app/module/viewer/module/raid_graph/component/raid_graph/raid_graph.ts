@@ -2,10 +2,11 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {ChartDataSets, ChartOptions, ChartPoint} from 'chart.js';
 import {Color} from 'ng2-charts';
 import {GraphDataService} from "../../service/graph_data";
-import {DataSet} from "../../domain_value/data_set";
+import {DataSet, get_point_style, is_event_data_set} from "../../domain_value/data_set";
 import {DateService} from "../../../../../../service/date";
 import {SettingsService} from "src/app/service/settings";
 import {Subscription} from "rxjs";
+import {number_to_chart_type} from "../../domain_value/chart_type";
 
 @Component({
     selector: "RaidGraph",
@@ -18,15 +19,11 @@ import {Subscription} from "rxjs";
 export class RaidGraphComponent implements OnInit, OnDestroy {
 
     private subscription: Subscription;
+    private subscription_events: Subscription;
 
-    // Array of different segments in chart
-    lineChartData: Array<ChartDataSets> = [];
-
-    // Labels shown on the x-axis
-    lineChartLabels: any = [];
-
-    // Define chart options
-    lineChartOptions: ChartOptions = {
+    chartDataSets: Array<ChartDataSets> = [];
+    chartLabels: any = [];
+    chartOptions: ChartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         legend: {
@@ -53,12 +50,17 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                         return this.dateService.toRPLLTime(value);
                     }
                 }
+            }],
+            yAxes: [{
+                // stacked: true
             }]
+        },
+        hover: {
+            intersect: false,
+            mode: "point"
         }
     };
-
-    // Define colors of chart segments
-    lineChartColors: Array<Color> = [
+    chartColors: Array<Color> = [
         {
             backgroundColor: 'red',
             borderColor: 'red',
@@ -68,14 +70,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             borderColor: 'blue',
         }
     ];
-
-    // Set true to show legends
-    lineChartLegend = true;
-
-    // Define type of chart
-    lineChartType = 'line';
-
-    lineChartPlugins = [];
+    chartPlugins = [];
 
     dataSets = [
         {id: DataSet.DamageDone, label: "Damage done"},
@@ -89,8 +84,20 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         {id: DataSet.ThreatDone, label: "Threat done"},
     ];
     dataSetsSelected = [];
+    selectedDataSets: Set<DataSet> = new Set();
 
-    selected: Set<DataSet> = new Set();
+    events = [
+        {id: DataSet.Deaths, label: "Deaths"},
+    ];
+    eventsSelected = [];
+    selectedEvents: Set<DataSet> = new Set();
+
+    chartTypes = [
+        {value: 0, label_key: "Line Chart"},
+        {value: 1, label_key: "Bar Chart"},
+        {value: 2, label_key: "Scatter Chart"},
+    ];
+    selected_chart_type: number = 0;
 
     constructor(
         private graphDataService: GraphDataService,
@@ -98,54 +105,80 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         private settingsService: SettingsService
     ) {
         this.subscription = this.graphDataService.data_points.subscribe(([x_axis, data_sets]) => {
-            this.lineChartLabels = x_axis;
-            this.lineChartData = [];
+            this.chartLabels = x_axis;
+            this.chartDataSets = [];
             for (const [data_set, [real_x_axis, real_y_axis]] of data_sets) {
                 const chart_points: Array<ChartPoint> = [];
                 for (let i = 0; i < real_x_axis.length; ++i)
                     chart_points.push({x: real_x_axis[i], y: real_y_axis[i]});
-                this.lineChartData.push({
+                this.chartDataSets.push({
                     data: chart_points,
-                    label: data_set
+                    label: data_set,
+                    type: is_event_data_set(data_set) ? "scatter" : number_to_chart_type(this.selected_chart_type),
+                    pointStyle: get_point_style(data_set)
                 });
             }
         });
     }
 
     ngOnInit(): void {
-        this.selected = new Set(this.settingsService.get_or_set("viewer_raid_graph_datasets", []));
-        for (const data_set of this.selected) {
+        this.selectedDataSets = new Set(this.settingsService.get_or_set("viewer_raid_graph_datasets", []));
+        for (const data_set of this.selectedDataSets) {
             this.graphDataService.add_data_set(data_set);
             this.dataSetsSelected.push(this.dataSets.find(set => set.id === data_set));
+        }
+
+        this.selectedEvents = new Set(this.settingsService.get_or_set("viewer_raid_graph_events", []));
+        for (const data_set of this.selectedEvents) {
+            this.graphDataService.add_data_set(data_set);
+            this.eventsSelected.push(this.events.find(set => set.id === data_set));
         }
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
+        this.subscription_events?.unsubscribe();
     }
 
-    // events
     chartClicked({event, active}: { event: MouseEvent, active: Array<{}> }): void {
-        console.log(event, active);
+        // console.log(event, active);
     }
 
     chartHovered({event, active}: { event: MouseEvent, active: Array<{}> }): void {
-        console.log(event, active);
+        // console.log(event, active);
     }
 
     data_set_selected(data_set: any): void {
-        this.selected.add(data_set.id);
+        this.selectedDataSets.add(data_set.id);
         this.graphDataService.add_data_set(data_set.id);
         this.save_selected();
     }
 
     data_set_deselected(data_set: any): void {
-        this.selected.delete(data_set.id);
+        this.selectedDataSets.delete(data_set.id);
         this.graphDataService.remove_data_set(data_set.id);
         this.save_selected();
     }
 
+    event_selected(event: any): void {
+        this.selectedEvents.add(event.id);
+        this.graphDataService.add_data_set(event.id);
+        this.save_selected();
+    }
+
+    event_deselected(event: any): void {
+        this.selectedEvents.delete(event.id);
+        this.graphDataService.remove_data_set(event.id);
+        this.save_selected();
+    }
+
+    select_chart_type(chart_type: number): void {
+        this.selected_chart_type = chart_type;
+        this.graphDataService.update();
+    }
+
     private save_selected(): void {
-        this.settingsService.set("viewer_raid_graph_datasets", [...this.selected.values()]);
+        this.settingsService.set("viewer_raid_graph_datasets", [...this.selectedDataSets.values()]);
+        this.settingsService.set("viewer_raid_graph_events", [...this.selectedEvents.values()]);
     }
 }

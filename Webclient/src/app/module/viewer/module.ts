@@ -10,6 +10,7 @@ import {RaidMeterModule} from "./module/raid_meter/module";
 import {RaidLootModule} from "./module/raid_loot/module";
 import {RaidCompositionModule} from "./module/raid_composition/module";
 import {RaidDetailTableModule} from "./module/raid_detail_table/module";
+import {RaidEventLogModule} from "./module/raid_event_log/module";
 
 @NgModule({
     declarations: [ViewerComponent],
@@ -23,7 +24,8 @@ import {RaidDetailTableModule} from "./module/raid_detail_table/module";
         RaidMeterModule,
         RaidLootModule,
         RaidCompositionModule,
-        RaidDetailTableModule
+        RaidDetailTableModule,
+        RaidEventLogModule
     ],
     exports: [ViewerComponent]
 })

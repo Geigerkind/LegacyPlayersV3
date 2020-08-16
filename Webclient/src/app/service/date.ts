@@ -20,6 +20,14 @@ export class DateService {
         return this.datePipe.transform(new Date(Number(timestamp_in_ms)), 'HH:mm:ss', "+0000");
     }
 
+    toRPLLTimePrecise(timestamp_in_ms: any): string {
+        return this.datePipe.transform(new Date(Number(timestamp_in_ms)), 'HH:mm:ss:SSS', "+0000");
+    }
+
+    toRPLLTimePreciseLong(timestamp_in_ms: any): string {
+        return this.datePipe.transform(new Date(Number(timestamp_in_ms)), 'dd.MM HH:mm:ss:SSS', "+0000");
+    }
+
     toRPLLDateInputDate(timestamp_in_ms: any): string {
         return this.datePipe.transform(new Date(Number(timestamp_in_ms)), 'yyyy-MM-dd', "+0000");
     }

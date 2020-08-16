@@ -24,6 +24,8 @@ import {HealDoneDetailService} from "../../../raid_detail_table/service/heal_don
 import {HealTakenDetailService} from "../../../raid_detail_table/service/heal_taken_detail";
 import {ThreatDoneService} from "../../service/threat_done";
 import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat_done_detail";
+import {DeathService} from "../../service/death";
+import {DeathOverviewRow} from "../../module/deaths_overview/domain_value/death_overview_row";
 
 @Component({
     selector: "RaidMeter",
@@ -36,6 +38,7 @@ import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat
         HealDoneService,
         HealTakenService,
         ThreatDoneService,
+        DeathService,
         RaidMeterService,
         // Raid Detail Service
         DamageDoneDetailService,
@@ -43,12 +46,12 @@ import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat
         HealDoneDetailService,
         HealTakenDetailService,
         ThreatDoneDetailService,
-        RaidDetailService
+        RaidDetailService,
     ]
 })
 export class RaidMeterComponent implements OnDestroy, OnInit {
 
-    private current_meta: InstanceViewerMeta;
+    current_meta: InstanceViewerMeta;
 
     @Input() unique_id: string;
 
@@ -61,7 +64,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private subscription_ability_details: Subscription;
 
     private cookie_id: string;
-    private current_data: Array<[number, Array<[number, number]>]> = [];
+    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow>]> = [];
     private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     private abilities: Map<number, RaidMeterSubject> = new Map();
     private units: Map<number, RaidMeterSubject> = new Map();
@@ -71,7 +74,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     in_ability_mode: boolean = false;
 
     current_attempt_duration: number = 1;
-    bars: Array<[number, number]> = [];
+    bars: Array<[number, number] | DeathOverviewRow> = [];
 
     current_selection: number = 1;
     options: Array<SelectOption> = [
@@ -84,6 +87,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 7, label_key: 'Overhealing done'},
         {value: 8, label_key: 'Overhealing taken'},
         {value: 9, label_key: 'Threat done'},
+        {value: 10, label_key: 'Deaths'},
+        {value: 99, label_key: 'Event Log'},
     ];
 
     constructor(
@@ -140,6 +145,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get total(): number {
+        if ([10].includes(this.current_selection) && this.in_ability_mode)
+            return this.bars.length;
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);
     }
 
@@ -148,6 +155,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     selection_changed(selection: number): void {
+        if (selection === 99) {
+            this.routerService.navigate(["/viewer/" + this.current_meta?.instance_meta_id + "/event_log/by_actor"]);
+            return;
+        }
+
         this.raidMeterService.select(selection);
         this.raidDetailService.select(selection);
 
@@ -162,13 +174,23 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     private get_bar_tooltip(subject_id: number): any {
-        if (!this.in_ability_mode)
-            return {
-                type: 5,
-                payload: this.ability_rows(this.current_data.filter(([unit_id, abilities]) => unit_id === subject_id))
-                    .sort((left, right) => right[1] - left[1])
-                    .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
-            };
+        if (!this.in_ability_mode) {
+            // TODO: Refactor condition
+            if ([10].includes(this.current_selection)) {
+                return {
+                    type: 7,
+                    payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
+                    server_id: this.current_meta.server_id
+                };
+            } else {
+                return {
+                    type: 5,
+                    payload: this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>).filter(([unit_id, abilities]) => unit_id === subject_id))
+                        .sort((left, right) => right[1] - left[1])
+                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
+                };
+            }
+        }
         const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
         return {
             type: 6,
@@ -194,20 +216,36 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }, new Map())];
     }
 
-    private update_bars(rows: Array<[number, Array<[number, number]>]>): void {
+    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow>]>): void {
         // Bars
         this.current_data = rows;
         let result;
-        if (this.in_ability_mode) result = this.ability_rows(rows);
-        else result = rows.map(([unit_id, abilities]) =>
-            [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)])
-            .filter(([unit_id, row_amount]) => row_amount !== 0);
+        if (this.in_ability_mode) {
+            if ([10].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
+            else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
+        } else {
+            if ([10].includes(this.current_selection)) {
+                result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
+            } else {
+                result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
+                    [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)])
+                    .filter(([unit_id, row_amount]) => row_amount !== 0);
+            }
+        }
 
         // Bar tooltips
-        for (const [subject_id, amount] of result)
-            this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
+        if (this.current_selection !== 10 || !this.in_ability_mode) {
+            for (const [subject_id, amount] of result)
+                this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
+        }
 
-        this.bars = result.sort((left, right) => right[1] - left[1]);
+        if (this.current_selection === 10)
+            this.bars = result.sort((left, right) => right.timestamp - left.timestamp);
+        else this.bars = result.sort((left, right) => right[1] - left[1]);
+    }
+
+    get show_per_second(): boolean {
+        return ![10].includes(this.current_selection);
     }
 
 }

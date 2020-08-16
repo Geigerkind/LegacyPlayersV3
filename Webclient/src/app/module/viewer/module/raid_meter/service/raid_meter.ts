@@ -7,6 +7,8 @@ import {HealDoneService} from "./heal_done";
 import {HealTakenService} from "./heal_taken";
 import {HealMode} from "../../../domain_value/heal_mode";
 import {ThreatDoneService} from "./threat_done";
+import {DeathService} from "./death";
+import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
 
 @Injectable({
     providedIn: "root",
@@ -15,7 +17,7 @@ export class RaidMeterService implements OnDestroy {
 
     private subscription_data: Subscription;
 
-    private data$: BehaviorSubject<Array<[number, Array<[number, number]>]>> = new BehaviorSubject([]);
+    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow>]>> = new BehaviorSubject([]);
     private abilities$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
     private units$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
 
@@ -26,7 +28,8 @@ export class RaidMeterService implements OnDestroy {
         private damageTakenService: DamageTakenService,
         private healDoneService: HealDoneService,
         private healTakenService: HealTakenService,
-        private threatDoneService: ThreatDoneService
+        private threatDoneService: ThreatDoneService,
+        private deathService: DeathService
     ) {
     }
 
@@ -34,7 +37,7 @@ export class RaidMeterService implements OnDestroy {
         this.subscription_data?.unsubscribe();
     }
 
-    get data(): Observable<Array<[number, Array<[number, number]>]>> {
+    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow>]>> {
         return this.data$.asObservable();
     }
 
@@ -89,12 +92,16 @@ export class RaidMeterService implements OnDestroy {
                 this.subscription_data = this.threatDoneService.get_data(this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
+            case 10:
+                this.subscription_data = this.deathService.get_data(this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
         }
 
         this.current_selection = selection;
     }
 
-    private commit(data: Array<[number, Array<[number, number]>]>): void {
+    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow>]>): void {
         this.abilities$.next(this.abilities$.getValue());
         this.units$.next(this.units$.getValue());
         this.data$.next(data);

@@ -6,6 +6,7 @@ import {SelectInputModule} from "../../../../template/input/select_input/module"
 import {RouterModule} from "@angular/router";
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
 import {MeterGraphModule} from "../../../../template/meter_graph/module";
+import {DeathsOverviewModule} from "./module/deaths_overview/module";
 
 @NgModule({
     declarations: [RaidMeterComponent],
@@ -15,7 +16,8 @@ import {MeterGraphModule} from "../../../../template/meter_graph/module";
         SelectInputModule,
         RouterModule,
         ShowTooltipDirectiveModule,
-        MeterGraphModule
+        MeterGraphModule,
+        DeathsOverviewModule
     ],
     exports: [RaidMeterComponent]
 })
