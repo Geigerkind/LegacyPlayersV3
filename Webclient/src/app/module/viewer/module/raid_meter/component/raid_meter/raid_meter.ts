@@ -27,6 +27,9 @@ import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat
 import {DeathService} from "../../service/death";
 import {DeathOverviewRow} from "../../module/deaths_overview/domain_value/death_overview_row";
 import {KillService} from "../../service/kill";
+import {DispelDoneService} from "../../service/dispel_done";
+import {UnAuraOverviewRow} from "../../module/un_aura_overview/domain_value/un_aura_overview_row";
+import {DispelReceivedService} from "../../service/dispel_received";
 
 @Component({
     selector: "RaidMeter",
@@ -41,6 +44,8 @@ import {KillService} from "../../service/kill";
         ThreatDoneService,
         DeathService,
         KillService,
+        DispelDoneService,
+        DispelReceivedService,
         RaidMeterService,
         // Raid Detail Service
         DamageDoneDetailService,
@@ -66,7 +71,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private subscription_ability_details: Subscription;
 
     private cookie_id: string;
-    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow>]> = [];
+    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]> = [];
     private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     private abilities: Map<number, RaidMeterSubject> = new Map();
     private units: Map<number, RaidMeterSubject> = new Map();
@@ -78,7 +83,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     current_attempt_duration: number = 1;
     bars: Array<[number, number] | DeathOverviewRow> = [];
 
-    current_selection: number = 1;
+    current_selection: number = -1;
     options: Array<SelectOption> = [
         {value: 1, label_key: 'Damage done'},
         {value: 2, label_key: 'Damage taken'},
@@ -91,6 +96,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 9, label_key: 'Threat done'},
         {value: 10, label_key: 'Deaths'},
         {value: 11, label_key: 'Kills'},
+        {value: 12, label_key: 'Dispels done'},
+        {value: 13, label_key: 'Dispels received'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -127,6 +134,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
         if (this.settingsService.check(this.cookie_id)) {
             this.current_selection = this.settingsService.get(this.cookie_id);
+        } else {
+            this.current_selection = 1;
         }
         this.selection_changed(this.current_selection);
     }
@@ -148,7 +157,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get total(): number {
-        if ([10, 11].includes(this.current_selection) && this.in_ability_mode)
+        if ([10, 11, 12, 13].includes(this.current_selection) && this.in_ability_mode)
             return this.bars.length;
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);
     }
@@ -158,6 +167,9 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     selection_changed(selection: number): void {
+        if (this.current_selection === -1)
+            return;
+
         if (selection === 99) {
             this.routerService.navigate(["/viewer/" + this.current_meta?.instance_meta_id + "/event_log/by_actor"]);
             return;
@@ -182,6 +194,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             if ([10, 11].includes(this.current_selection)) {
                 return {
                     type: 7,
+                    payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
+                    server_id: this.current_meta.server_id
+                };
+            } else if ([12, 13].includes(this.current_selection)) {
+                return {
+                    type: 9,
                     payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
                     server_id: this.current_meta.server_id
                 };
@@ -219,15 +237,15 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }, new Map())];
     }
 
-    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow>]>): void {
+    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>): void {
         // Bars
         this.current_data = rows;
         let result;
         if (this.in_ability_mode) {
-            if ([10, 11].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
+            if ([10, 11, 12, 13].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
             else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
-            if ([10, 11].includes(this.current_selection)) {
+            if ([10, 11, 12, 13].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
             } else {
                 result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
@@ -237,18 +255,18 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }
 
         // Bar tooltips
-        if (![10, 11].includes(this.current_selection) || !this.in_ability_mode) {
+        if (![10, 11, 12, 13].includes(this.current_selection) || !this.in_ability_mode) {
             for (const [subject_id, amount] of result)
                 this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
         }
 
-        if ([10, 11].includes(this.current_selection))
+        if ([10, 11, 12, 13].includes(this.current_selection))
             this.bars = result.sort((left, right) => right.timestamp - left.timestamp);
         else this.bars = result.sort((left, right) => right[1] - left[1]);
     }
 
     get show_per_second(): boolean {
-        return ![10, 11].includes(this.current_selection);
+        return ![10, 11, 12, 13].includes(this.current_selection);
     }
 
 }

@@ -10,6 +10,9 @@ import {ThreatDoneService} from "./threat_done";
 import {DeathService} from "./death";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
 import {KillService} from "./kill";
+import {DispelDoneService} from "./dispel_done";
+import {UnAuraOverviewRow} from "../module/un_aura_overview/domain_value/un_aura_overview_row";
+import {DispelReceivedService} from "./dispel_received";
 
 @Injectable({
     providedIn: "root",
@@ -18,7 +21,7 @@ export class RaidMeterService implements OnDestroy {
 
     private subscription_data: Subscription;
 
-    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow>]>> = new BehaviorSubject([]);
+    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>> = new BehaviorSubject([]);
     private abilities$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
     private units$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
 
@@ -31,6 +34,8 @@ export class RaidMeterService implements OnDestroy {
         private healTakenService: HealTakenService,
         private threatDoneService: ThreatDoneService,
         private deathService: DeathService,
+        private dispelDoneService: DispelDoneService,
+        private dispelReceivedService: DispelReceivedService,
         private killService: KillService
     ) {
     }
@@ -39,7 +44,7 @@ export class RaidMeterService implements OnDestroy {
         this.subscription_data?.unsubscribe();
     }
 
-    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow>]>> {
+    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>> {
         return this.data$.asObservable();
     }
 
@@ -102,12 +107,20 @@ export class RaidMeterService implements OnDestroy {
                 this.subscription_data = this.killService.get_data(this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
+            case 12:
+                this.subscription_data = this.dispelDoneService.get_data(this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 13:
+                this.subscription_data = this.dispelReceivedService.get_data(this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
         }
 
         this.current_selection = selection;
     }
 
-    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow>]>): void {
+    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>): void {
         this.abilities$.next(this.abilities$.getValue());
         this.units$.next(this.units$.getValue());
         this.data$.next(data);

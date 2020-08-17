@@ -14,10 +14,12 @@ export enum DataSet {
     // Events
     Deaths = "Deaths",
     Kills = "Kills",
+    DispelsDone = "Dispels done",
+    DispelsReceived = "Dispels received",
 }
 
 function is_event_data_set(data_set: DataSet): boolean {
-    return [DataSet.Deaths, DataSet.Kills].includes(data_set);
+    return [DataSet.Deaths, DataSet.Kills, DataSet.DispelsDone, DataSet.DispelsReceived].includes(data_set);
 }
 
 function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
@@ -33,6 +35,14 @@ function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
             kill_icon.width = 20;
             kill_icon.height = 20;
             return kill_icon;
+        }
+        case DataSet.DispelsDone:
+        case DataSet.DispelsReceived: {
+            const dispel_icon = new Image();
+            dispel_icon.src = "/assets/viewer/dispel_icon.png";
+            dispel_icon.width = 20;
+            dispel_icon.height = 20;
+            return dispel_icon;
         }
     }
     return "circle";

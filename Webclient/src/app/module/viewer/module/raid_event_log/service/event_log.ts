@@ -33,12 +33,13 @@ export class EventLogService implements OnDestroy {
 
     private to_actor: boolean = false;
 
+    private initialized: boolean = false;
+
     constructor(
         private instanceDataService: InstanceDataService,
         private unitService: UnitService,
         private spellService: SpellService
     ) {
-        this.load_events(ChangedSubject.Sources);
         this.subscription = this.instanceDataService.changed.subscribe(change => this.load_events(change));
     }
 
@@ -47,6 +48,10 @@ export class EventLogService implements OnDestroy {
     }
 
     get event_log_entries(): Observable<Array<EventLogEntry>> {
+        if (!this.initialized) {
+            // this.initialized = true;
+            this.load_events(ChangedSubject.Sources);
+        }
         return this.event_log_entries$.asObservable();
     }
 
@@ -58,6 +63,9 @@ export class EventLogService implements OnDestroy {
     }
 
     private load_events(current_change: ChangedSubject): void {
+        if (!this.initialized)
+            return;
+
         this.load_on_change([ChangedSubject.MeleeDamage], current_change, () => {
             this.instanceDataService.get_melee_damage(this.to_actor).pipe(take(1))
                 .subscribe(events => this.entry_melee_damage = [...events.values()]

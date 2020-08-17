@@ -1,0 +1,18 @@
+<div class="table_container">
+    <div class="header">
+        <div class="td">Timestamp</div>
+        <div class="td">Caster</div>
+        <div class="td">Target</div>
+        <div class="td">Dispel</div>
+        <div class="td">Dispelled</div>
+    </div>
+    <div class="body">
+        <div class="row" *ngFor="let row of un_aura_overview_rows" [routerLink]="routerLink" [showTooltip]="get_tooltip(row)">
+            <div class="td">{{dateService.toRPLLTime(row.timestamp)}}</div>
+            <div class="td">{{unitService.get_unit_name(row.caster) | async}}</div>
+            <div class="td">{{unitService.get_unit_name(row.target) | async}}</div>
+            <div class="td">{{(spellService.get_spell_name(row.caster_spell_id) | async)}}</div>
+            <div class="td">{{(spellService.get_spell_name(row.target_spell_id) | async)}}</div>
+        </div>
+    </div>
+</div>

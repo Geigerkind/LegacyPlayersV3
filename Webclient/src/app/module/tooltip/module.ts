@@ -10,6 +10,7 @@ import {MeterAbilitiesTooltipModule} from "./module/meter_abilities_tooltip/modu
 import {MeterDetailsTooltipModule} from "./module/meter_details_tooltip/module";
 import {DeathsOverviewModule} from "../viewer/module/raid_meter/module/deaths_overview/module";
 import {ViewerEventLogTooltipModule} from "./module/viewer_event_log_tooltip/module";
+import {UnAuraOverviewModule} from "../viewer/module/raid_meter/module/un_aura_overview/module";
 
 @NgModule({
     declarations: [TooltipComponent],
@@ -22,7 +23,8 @@ import {ViewerEventLogTooltipModule} from "./module/viewer_event_log_tooltip/mod
         MeterDetailsTooltipModule,
         TranslateModule,
         DeathsOverviewModule,
-        ViewerEventLogTooltipModule
+        ViewerEventLogTooltipModule,
+        UnAuraOverviewModule
     ],
     exports: [TooltipComponent],
     providers: [TooltipService]

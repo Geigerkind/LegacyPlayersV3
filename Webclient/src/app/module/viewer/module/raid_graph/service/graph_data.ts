@@ -85,6 +85,15 @@ export class GraphDataService implements OnDestroy {
                         this.commit_data_set(data_set);
                     });
                 break;
+            case DataSet.DispelsDone:
+            case DataSet.DispelsReceived:
+                this.instanceDataService.get_dispels(data_set === DataSet.DispelsReceived)
+                    .pipe(take(1))
+                    .subscribe(dispel => {
+                        this.feed_dispel(data_set, dispel);
+                        this.commit_data_set(data_set);
+                    });
+                break;
         }
     }
 
@@ -168,6 +177,14 @@ export class GraphDataService implements OnDestroy {
     }
 
     private feed_death(data_set: DataSet, events: Array<Event>): void {
+        const points = this.temp_data_set.get(data_set);
+        for (const event of events) {
+            if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + 1);
+            else points.set(event.timestamp, 1);
+        }
+    }
+
+    private feed_dispel(data_set: DataSet, events: Array<Event>): void {
         const points = this.temp_data_set.get(data_set);
         for (const event of events) {
             if (points.has(event.timestamp)) points.set(event.timestamp, points.get(event.timestamp) + 1);

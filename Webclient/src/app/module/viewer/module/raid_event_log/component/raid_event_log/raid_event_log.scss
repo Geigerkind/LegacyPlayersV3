@@ -8,7 +8,7 @@
 }
 
 #table_header {
-    width: 100%;
+    width: calc(100% - #{$spacing});
     height: calc(50px - #{$spacing});
     background: $tdc_darker;
     border: 1px solid $tdc_accent;

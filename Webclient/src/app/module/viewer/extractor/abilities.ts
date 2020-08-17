@@ -1,7 +1,13 @@
 import {Event} from "../domain_value/event";
-import {get_aura_application, get_dispel, get_interrupt, get_spell_cast, get_spell_steal} from "./events";
+import {
+    get_aura_application,
+    get_dispel,
+    get_interrupt,
+    get_spell_cast,
+    get_spell_cause,
+    get_spell_steal
+} from "./events";
 import {ce_interrupt, ce_threat} from "./causes";
-import {Threat} from "../domain_value/threat";
 
 function ae_spell_cast(event: Event): Array<number> {
     return [get_spell_cast(event).spell_id];
@@ -27,11 +33,9 @@ function ae_spell_steal(spell_casts: Map<number, Event>, aura_applications: Map<
 function ae_dispel(spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): (Event) => Array<number> {
     return (event: Event) => {
         const dispel = get_dispel(event);
-        const spell_cast_event = spell_casts?.get(dispel.cause_event_id);
-        const result = [(spell_cast_event?.event as any)?.SpellCast?.spell_id];
-        dispel.target_event_ids.forEach(target_event_id =>
-            result.push((aura_applications?.get(target_event_id).event as any).AuraApplication.spell_id));
-        return result;
+        const [indicator, spell_cause_event] = get_spell_cause(dispel.cause_event_id, spell_casts, aura_applications);
+        const spell_cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
+        return [(spell_cause as any)?.spell_id, get_aura_application(aura_applications?.get(dispel.target_event_id))?.spell_id];
     };
 }
 

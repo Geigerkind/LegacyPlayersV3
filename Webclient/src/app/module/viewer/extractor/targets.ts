@@ -1,7 +1,7 @@
 import {Event} from "../domain_value/event";
 import {Unit} from "../domain_value/unit";
 import {
-    get_aura_application, get_death,
+    get_aura_application, get_death, get_dispel,
     get_heal,
     get_melee_damage,
     get_spell_cast,
@@ -42,6 +42,10 @@ function te_death(event: Event): Unit {
     return get_death(event).murder;
 }
 
+function te_dispel(aura_applications: Map<number, Event>): (Event) => Unit {
+    return (event: Event) => aura_applications?.get(get_dispel(event).target_event_id)?.subject;
+}
+
 function te_spell_cast_by_cause(cause_extraction: (Event) => number, spell_casts: Map<number, Event>): (Event) => Unit {
     return (event: Event) => {
         const cause_event_id = cause_extraction(event);
@@ -63,6 +67,6 @@ function te_spell_cast_or_aura_app(cause_extraction: (Event) => number, spell_ca
     };
 }
 
-export {te_spell_cast, te_aura_application, te_summon, te_melee_damage, te_spell_damage, te_heal, te_threat, te_death};
+export {te_spell_cast, te_aura_application, te_summon, te_melee_damage, te_spell_damage, te_heal, te_threat, te_death, te_dispel};
 export {te_spell_cast_by_cause};
 export {te_spell_cast_or_aura_app};

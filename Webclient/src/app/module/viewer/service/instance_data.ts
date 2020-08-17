@@ -8,7 +8,7 @@ import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
 import {get_unit_id, has_unit, Unit} from "../domain_value/unit";
 import {map, take} from "rxjs/operators";
 import {
-    te_aura_application, te_death, te_heal, te_melee_damage,
+    te_aura_application, te_death, te_dispel, te_heal, te_melee_damage,
     te_spell_cast,
     te_spell_cast_by_cause,
     te_spell_cast_or_aura_app, te_spell_damage, te_summon, te_threat
@@ -22,7 +22,7 @@ import {
     ae_spell_cast, ae_spell_cast_or_aura_application,
     ae_spell_steal, ae_threat
 } from "../extractor/abilities";
-import {se_aura_app_or_own, se_identity} from "../extractor/sources";
+import {se_aura_app_or_own, se_dispel, se_identity} from "../extractor/sources";
 
 export enum ChangedSubject {
     SpellCast = 1,
@@ -204,7 +204,7 @@ export class InstanceDataService implements OnDestroy {
                 continue;
 
             const source = source_extractor(event);
-            if (!has_unit(current_sources, source))
+            if (!!source && !has_unit(current_sources, source))
                 current_sources.push(source);
 
             if (!!target_extractor) {
@@ -491,16 +491,15 @@ export class InstanceDataService implements OnDestroy {
         if (!this.dispels$) {
             this.dispels$ = new BehaviorSubject([]);
             this.load_instance_data(9, events => {
-                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_subjects(i_events, se_identity,
-                    te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
+                this.subscriptions.push(this.dispels$.subscribe(i_events => this.extract_subjects(i_events, se_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()),
+                    te_dispel(this.aura_applications$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()))));
                 this.dispels$.next(events);
                 this.changed$.next(ChangedSubject.Dispel);
                 this.register_load_instance(9, this.dispels$);
             }, 0);
         }
-        return this.apply_filter_to_events(this.dispels$.asObservable(), se_identity,
-            te_spell_cast_by_cause(ce_dispel, this.spell_casts$.getValue()),
-            ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
+        return this.apply_filter_to_events(this.dispels$.asObservable(), se_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()),
+            te_dispel(this.aura_applications$.getValue()), ae_dispel(this.spell_casts$.getValue(), this.aura_applications$.getValue()), inverse_filter);
     }
 
     public get_threat_wipes(inverse_filter: boolean = false): Observable<Array<Event>> {

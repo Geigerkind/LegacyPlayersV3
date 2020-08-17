@@ -62,6 +62,10 @@ export class TooltipComponent {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
                 this.iconPath = "/assets/wow_icon/inv_misc_book_08.jpg";
+            } else if (args.type === 9) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.iconPath = "/assets/wow_icon/spell_holy_dispelmagic.jpg";
             }
         });
     }

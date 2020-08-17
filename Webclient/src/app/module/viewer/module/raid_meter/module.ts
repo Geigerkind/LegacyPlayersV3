@@ -7,6 +7,7 @@ import {RouterModule} from "@angular/router";
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
 import {MeterGraphModule} from "../../../../template/meter_graph/module";
 import {DeathsOverviewModule} from "./module/deaths_overview/module";
+import {UnAuraOverviewModule} from "./module/un_aura_overview/module";
 
 @NgModule({
     declarations: [RaidMeterComponent],
@@ -17,7 +18,8 @@ import {DeathsOverviewModule} from "./module/deaths_overview/module";
         RouterModule,
         ShowTooltipDirectiveModule,
         MeterGraphModule,
-        DeathsOverviewModule
+        DeathsOverviewModule,
+        UnAuraOverviewModule
     ],
     exports: [RaidMeterComponent]
 })

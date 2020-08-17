@@ -9,6 +9,8 @@
 <DeathsOverview [death_overview_rows]="tooltipPayload" *ngIf="tooltipType === 7"
                 [server_id]="tooltipArgs"></DeathsOverview>
 <ViewerEventLogTooltip [payload]="tooltipPayload | async" *ngIf="tooltipType === 8"></ViewerEventLogTooltip>
+<UnAuraOverview [un_aura_overview_rows]="tooltipPayload" *ngIf="tooltipType === 9"
+                [server_id]="tooltipArgs"></UnAuraOverview>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>
