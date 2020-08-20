@@ -1,6 +1,6 @@
-import {DelayedLabel} from "../../../../stdlib/delayed_label";
+import {Observable} from "rxjs";
 
 export interface SelectOption {
     value: number;
-    label_key: string | DelayedLabel;
+    label_key: string | Observable<string>;
 }

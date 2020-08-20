@@ -191,9 +191,8 @@ impl CharacterViewer for Armory {
                     // Show Ranged weapon for hunter instead
                     if character_history.character_info.hero_class_id == 3 {
                         return match inventory_type {
-                            InventoryType::MainHand |
-                            InventoryType::OffHand => None,
-                            _ => Some((display_info.1, display_info.0))
+                            InventoryType::MainHand | InventoryType::OffHand => None,
+                            _ => Some((display_info.1, display_info.0)),
                         };
                     }
 

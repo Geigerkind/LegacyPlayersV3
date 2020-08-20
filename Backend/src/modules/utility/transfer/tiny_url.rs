@@ -2,10 +2,10 @@ use crate::modules::utility::domain_value::TinyUrl;
 use crate::modules::utility::dto::UtilityFailure;
 use crate::modules::utility::tools::RetrieveTinyUrl;
 use crate::modules::utility::Utility;
+use crate::rocket_impl::from_data_string::RawString;
 use crate::MainDb;
 use rocket::State;
 use rocket_contrib::json::Json;
-use crate::rocket_impl::from_data_string::RawString;
 
 #[openapi]
 #[get("/tiny_url/<id>")]

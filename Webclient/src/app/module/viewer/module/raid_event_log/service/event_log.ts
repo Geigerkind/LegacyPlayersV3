@@ -1,8 +1,8 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {BehaviorSubject, combineLatest, forkJoin, Observable, of, Subscription} from "rxjs";
+import {BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription} from "rxjs";
 import {EventLogEntry} from "../domain_value/event_log_entry";
-import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
-import {map, take} from "rxjs/operators";
+import {InstanceDataService} from "../../../service/instance_data";
+import {debounceTime, map} from "rxjs/operators";
 import {Event} from "../../../domain_value/event";
 import {UnitService} from "../../../service/unit";
 import {
@@ -11,7 +11,6 @@ import {
     get_heal,
     get_melee_damage,
     get_spell_cast,
-    get_spell_cause,
     get_spell_damage
 } from "../../../extractor/events";
 import {HitType} from "../../../domain_value/hit_type";
@@ -23,24 +22,71 @@ import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 })
 export class EventLogService implements OnDestroy {
 
-    private subscription: Subscription;
+    private subscription: Subscription = new Subscription();
     private event_log_entries$: BehaviorSubject<Array<EventLogEntry>> = new BehaviorSubject([]);
-
-    private entry_melee_damage: Array<EventLogEntry> = [];
-    private entry_spell_damage: Array<EventLogEntry> = [];
-    private entry_heal: Array<EventLogEntry> = [];
-    private entry_death: Array<EventLogEntry> = [];
-
     private to_actor: boolean = false;
-
     private initialized: boolean = false;
+
+    private last_global_offset: number = 0;
+    private log_offsets: Map<number, [number, Set<number>]> = new Map([
+        [0, [0, new Set()]],
+        [1, [0, new Set()]],
+        [2, [0, new Set()]],
+        [3, [0, new Set()]],
+        [4, [0, new Set()]],
+        [5, [0, new Set()]],
+        [6, [0, new Set()]],
+        [7, [0, new Set()]],
+        [8, [0, new Set()]],
+        [9, [0, new Set()]],
+        [10, [0, new Set()]],
+        [11, [0, new Set()]],
+        [12, [0, new Set()]],
+        [13, [0, new Set()]],
+        [14, [0, new Set()]],
+        [15, [0, new Set()]],
+    ]);
+    public offset_changed: Subject<number> = new Subject();
 
     constructor(
         private instanceDataService: InstanceDataService,
         private unitService: UnitService,
         private spellService: SpellService
     ) {
-        this.subscription = this.instanceDataService.changed.subscribe(change => this.load_events(change));
+        this.subscription.add(this.offset_changed.asObservable().pipe(debounceTime(2)).subscribe(offset => {
+            if (offset === 0) {
+                // Reset
+                for (const log_offset of this.log_offsets) {
+                    log_offset[1][0] = 0;
+                    log_offset[1][1].clear();
+                }
+            } else {
+                if (this.last_global_offset > offset) {
+                    // Scrolled up
+                    for (let i = this.last_global_offset; i > offset; --i) {
+                        for (const log_offset of this.log_offsets) {
+                            if (log_offset[1][1].has(i)) {
+                                log_offset[1][1].delete(i);
+                                --log_offset[1][0];
+                            }
+                        }
+                    }
+                } else {
+                    // Scrolled down
+                    const log_entries = this.event_log_entries$.getValue();
+                    for (let i = 0; i < (offset - this.last_global_offset); ++i) {
+                        if (log_entries.length <= i)
+                            break; // Scrolling too fast?
+                        const log_entry = log_entries[i];
+                        const log_offset = this.log_offsets.get(log_entry.type);
+                        log_offset[1].add(offset + i);
+                        ++log_offset[0];
+                    }
+                }
+            }
+            this.last_global_offset = offset;
+            this.update_event_log_entries();
+        }));
     }
 
     ngOnDestroy(): void {
@@ -49,74 +95,48 @@ export class EventLogService implements OnDestroy {
 
     get event_log_entries(): Observable<Array<EventLogEntry>> {
         if (!this.initialized) {
-            // this.initialized = true;
-            this.load_events(ChangedSubject.Sources);
+            this.update_event_log_entries();
+            this.subscription.add(this.instanceDataService.knecht_updates.subscribe(knecht_update => {
+                this.update_event_log_entries();
+            }));
+            this.initialized = true;
         }
-        return this.event_log_entries$.asObservable();
+        return this.event_log_entries$.asObservable().pipe(map(entries => entries.slice(0, 19)));
     }
 
     set_actor(to_actor: boolean): void {
         if (this.to_actor !== to_actor) {
             this.to_actor = to_actor;
-            this.load_events(ChangedSubject.Sources);
+            this.update_event_log_entries();
         }
     }
 
-    private load_events(current_change: ChangedSubject): void {
-        if (!this.initialized)
-            return;
-
-        this.load_on_change([ChangedSubject.MeleeDamage], current_change, () => {
-            this.instanceDataService.get_melee_damage(this.to_actor).pipe(take(1))
-                .subscribe(events => this.entry_melee_damage = [...events.values()]
-                    .map(event => this.create_event_log_entry(event, (i_event) => this.process_melee_damage(i_event))));
-        });
-        this.load_on_change([ChangedSubject.SpellDamage, ChangedSubject.SpellCast, ChangedSubject.AuraApplication], current_change, () => {
-            const spell_damage$ = this.instanceDataService.get_spell_damage(this.to_actor).pipe(take(1));
-            const spell_casts$ = this.instanceDataService.get_spell_casts(this.to_actor).pipe(take(1));
-            const aura_applications$ = this.instanceDataService.get_aura_applications(!this.to_actor).pipe(take(1));
-            forkJoin([spell_damage$, spell_casts$, aura_applications$]).pipe(take(3))
-                .subscribe(([spell_damage, spell_casts, aura_applications]) =>
-                    this.entry_spell_damage = spell_damage.map(event => this.create_event_log_entry(event,
-                        (i_event) => this.process_spell_damage(i_event, spell_casts, aura_applications))));
-        });
-        this.load_on_change([ChangedSubject.Heal, ChangedSubject.SpellCast, ChangedSubject.AuraApplication], current_change, () => {
-            const heal$ = this.instanceDataService.get_heal(this.to_actor).pipe(take(1));
-            const spell_casts$ = this.instanceDataService.get_spell_casts(this.to_actor).pipe(take(1));
-            const aura_applications$ = this.instanceDataService.get_aura_applications(!this.to_actor).pipe(take(1));
-            forkJoin([heal$, spell_casts$, aura_applications$]).pipe(take(3))
-                .subscribe(([heal, spell_casts, aura_applications]) =>
-                    this.entry_spell_damage = heal.map(event => this.create_event_log_entry(event,
-                        (i_event) => this.process_heal(i_event, spell_casts, aura_applications))));
-        });
-        this.load_on_change([ChangedSubject.Death], current_change, () => {
-            this.instanceDataService.get_deaths(this.to_actor).pipe(take(1))
-                .subscribe(events => this.entry_death = events.map(event => this.create_event_log_entry(event, (i_event) => this.process_death(i_event))));
-        });
-    }
-
-    private load_on_change(expected_change: Array<ChangedSubject>, current_change: ChangedSubject, update_function: () => void) {
-        if (![ChangedSubject.Sources, ChangedSubject.Targets, ChangedSubject.Abilities, ChangedSubject.Attempts, ...expected_change].includes(current_change))
-            return;
-        update_function();
-        this.update_event_log_entries();
-    }
-
-    private create_event_log_entry(event: Event, processor: (Event) => Observable<string>): EventLogEntry {
+    private create_event_log_entry(type: number, event: Event, processor: (Event) => Observable<string>): EventLogEntry {
         return {
             id: event.id,
+            type,
             timestamp: event.timestamp,
             event_message: processor(event)
         };
     }
 
-    private update_event_log_entries(): void {
-        this.event_log_entries$.next([
-            ...this.entry_melee_damage,
-            ...this.entry_spell_damage,
-            ...this.entry_heal,
-            ...this.entry_death,
-        ].sort((left, right) => right.timestamp - left.timestamp));
+    async get_event_log_entries(up_to_timestamp: number): Promise<Array<EventLogEntry>> {
+        return [
+            ...(await this.instanceDataService.knecht_melee.event_log_melee_damage(this.to_actor, this.log_offsets.get(12)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(12, event, (evt) => this.process_melee_damage(evt))),
+            ...(await this.instanceDataService.knecht_spell.event_log_spell_damage(this.to_actor, this.log_offsets.get(13)[0], up_to_timestamp))
+                .map(([event, [indicator, spell_cause_event]]) =>
+                    this.create_event_log_entry(13, event, (evt) => this.process_spell_damage(evt, indicator, spell_cause_event))),
+            ...(await this.instanceDataService.knecht_spell.event_log_heal(this.to_actor, this.log_offsets.get(14)[0], up_to_timestamp))
+                .map(([event, [indicator, spell_cause_event]]) =>
+                    this.create_event_log_entry(14, event, (evt) => this.process_heal(evt, indicator, spell_cause_event))),
+            ...(await this.instanceDataService.knecht_melee.event_log_deaths(this.to_actor, this.log_offsets.get(1)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(1, event, (evt) => this.process_death(evt))),
+        ].sort((left, right) => right.timestamp - left.timestamp);
+    }
+
+    private async update_event_log_entries(): Promise<void> {
+        this.event_log_entries$.next(await this.get_event_log_entries(0));
     }
 
     // TODO: Mitigations!
@@ -162,13 +182,12 @@ export class EventLogService implements OnDestroy {
     }
 
     // TODO: Mitigations!
-    private process_spell_damage(event: Event, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): Observable<string> {
+    private process_spell_damage(event: Event, indicator: boolean, spell_cause_event: Event): Observable<string> {
         const spell_damage_event = get_spell_damage(event);
-        const [indicator, cause_event] = get_spell_cause(spell_damage_event.spell_cause_id, spell_casts, aura_applications);
-        if (!cause_event)
+        if (!spell_cause_event)
             return of(CONST_UNKNOWN_LABEL);
 
-        const spell_id = indicator ? get_spell_cast(cause_event).spell_id : get_aura_application(cause_event).spell_id;
+        const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
         const subject$ = this.unitService.get_unit_name(event.subject);
         const victim$ = this.unitService.get_unit_name(spell_damage_event.damage.victim);
         const ability$ = this.spellService.get_spell_name(spell_id);
@@ -196,12 +215,11 @@ export class EventLogService implements OnDestroy {
     }
 
     // TODO: Mitigations!
-    private process_heal(event: Event, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): Observable<string> {
+    private process_heal(event: Event, indicator: boolean, spell_cause_event: Event): Observable<string> {
         const heal_event = get_heal(event);
-        const [indicator, cause_event] = get_spell_cause(heal_event.spell_cause_id, spell_casts, aura_applications);
-        if (!cause_event)
+        if (!spell_cause_event)
             return of(CONST_UNKNOWN_LABEL);
-        const cause = indicator ? get_spell_cast(cause_event) : get_aura_application(cause_event);
+        const cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
 
         const hit_type = !!(cause as any).hit_type ? (cause as any).hit_type : HitType.Hit;
         const spell_id = cause.spell_id;

@@ -1,11 +1,11 @@
 use std::io::Read;
 
-use rocket::{Request, Data, Outcome, Outcome::*};
 use rocket::data::FromDataSimple;
-use rocket::http::{Status, ContentType};
+use rocket::http::{ContentType, Status};
+use rocket::{Data, Outcome, Outcome::*, Request};
 
 pub struct RawString {
-    pub content: String
+    pub content: String,
 }
 
 const LIMIT: u64 = 1024;
@@ -24,8 +24,6 @@ impl FromDataSimple for RawString {
             return Failure((Status::InternalServerError, format!("{:?}", e)));
         }
 
-        Success(RawString {
-            content: string
-        })
+        Success(RawString { content: string })
     }
 }

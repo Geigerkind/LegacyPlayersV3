@@ -3,7 +3,6 @@ import {Observable, of} from "rxjs";
 import {Localized} from "../../../domain_value/localized";
 import {BasicSpell} from "../../../domain_value/data/basic_spell";
 import {concatMap, map} from "rxjs/operators";
-import {InstanceDataService} from "./instance_data";
 import {DataService} from "../../../service/data";
 import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL} from "../constant/viewer";
 
@@ -15,7 +14,6 @@ export class SpellService {
     private server_id$: number;
 
     constructor(
-        private instanceDataService: InstanceDataService,
         private dataService: DataService
     ) {
     }

@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
-import {BehaviorSubject, Observable, of, Subscription} from "rxjs";
+import {BehaviorSubject, from, Observable, of, Subscription} from "rxjs";
 import {Loot} from "../domain_value/loot";
 import {concatMap, map, take} from "rxjs/operators";
 import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attempt";
@@ -34,10 +34,7 @@ export class LootService implements OnDestroy {
             this.current_meta = meta;
             this.reload();
         });
-        this.instanceDataService.changed.subscribe(changed => {
-            if (changed === ChangedSubject.Loot)
-                this.reload();
-        });
+        this.instanceDataService.knecht_updates.subscribe(() => this.reload());
     }
 
     ngOnDestroy(): void {
@@ -51,12 +48,10 @@ export class LootService implements OnDestroy {
     private reload() {
         if (!this.current_meta)
             return;
-
         this.instanceDataService
             .attempts.pipe(take(1))
             .subscribe(attempts => {
-                this.instanceDataService
-                    .get_loot().pipe(take(1))
+                from(this.instanceDataService.knecht_misc.get_loot()).pipe(take(1))
                     .subscribe( loot => {
                         this.loot$.next(this.create_loot(attempts, loot));
                     });

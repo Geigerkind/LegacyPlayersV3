@@ -7,7 +7,7 @@
         <div class="td">Dispelled</div>
     </div>
     <div class="body">
-        <div class="row" *ngFor="let row of un_aura_overview_rows" [routerLink]="routerLink" [showTooltip]="get_tooltip(row)">
+        <div class="row" *ngFor="let row of un_aura_overview_rows; index as i" [routerLink]="routerLink" [showTooltip]="get_tooltip(i)">
             <div class="td">{{dateService.toRPLLTime(row.timestamp)}}</div>
             <div class="td">{{unitService.get_unit_name(row.caster) | async}}</div>
             <div class="td">{{unitService.get_unit_name(row.target) | async}}</div>

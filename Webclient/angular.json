@@ -36,7 +36,8 @@
                         "scripts": [],
                         "allowedCommonJsDependencies": [
                             "chart.js"
-                        ]
+                        ],
+                        "webWorkerTsConfig": "tsconfig.worker.json"
                     },
                     "configurations": {
                         "production": {
@@ -86,7 +87,8 @@
                     "options": {
                         "tsConfig": [
                             "tsconfig.app.json",
-                            "tsconfig.spec.json"
+                            "tsconfig.spec.json",
+                            "tsconfig.worker.json"
                         ],
                         "exclude": [
                             "**/node_modules/**"

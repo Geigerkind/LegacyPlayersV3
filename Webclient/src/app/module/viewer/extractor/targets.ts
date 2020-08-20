@@ -4,7 +4,7 @@ import {
     get_aura_application, get_death, get_dispel,
     get_heal,
     get_melee_damage,
-    get_spell_cast,
+    get_spell_cast, get_spell_cause,
     get_spell_damage,
     get_summon,
     get_threat
@@ -42,27 +42,25 @@ function te_death(event: Event): Unit {
     return get_death(event).murder;
 }
 
-function te_dispel(aura_applications: Map<number, Event>): (Event) => Unit {
-    return (event: Event) => aura_applications?.get(get_dispel(event).target_event_id)?.subject;
+function te_dispel(event_map: Map<number, Event>): (Event) => Unit {
+    return (event: Event) => event_map?.get(get_dispel(event).target_event_id)?.subject;
 }
 
-function te_spell_cast_by_cause(cause_extraction: (Event) => number, spell_casts: Map<number, Event>): (Event) => Unit {
+function te_spell_cast_by_cause(cause_extraction: (Event) => number, event_map: Map<number, Event>): (Event) => Unit {
     return (event: Event) => {
         const cause_event_id = cause_extraction(event);
-        const spell_cast_event = spell_casts?.get(cause_event_id);
+        const spell_cast_event = event_map?.get(cause_event_id);
         return te_spell_cast(spell_cast_event);
     };
 }
 
-function te_spell_cast_or_aura_app(cause_extraction: (Event) => number, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): (Event) => Unit {
+function te_spell_cast_or_aura_app(cause_extraction: (Event) => number, event_map: Map<number, Event>): (Event) => Unit {
     return (event: Event) => {
         const cause_event_id = cause_extraction(event);
-        const spell_cast_event = spell_casts?.get(cause_event_id);
-        if (!!spell_cast_event)
-            return te_spell_cast(spell_cast_event);
-        const aura_application_event = aura_applications?.get(cause_event_id);
-        if (!!aura_application_event)
-            return te_aura_application(aura_application_event);
+        const [indicator, spell_cause_event] = get_spell_cause(cause_event_id, event_map);
+        if (!!spell_cause_event) {
+            return indicator ? te_spell_cast(spell_cause_event) : te_aura_application(spell_cause_event);
+        }
         return undefined;
     };
 }

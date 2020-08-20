@@ -17,25 +17,25 @@ function ae_aura_application(event: Event): Array<number> {
     return [get_aura_application(event).spell_id];
 }
 
-function ae_interrupt(spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): (Event) => Array<number> {
-    return (event: Event) => [get_interrupt(event).interrupted_spell_id, ...ae_spell_cast_or_aura_application(ce_interrupt, spell_casts, aura_applications)(event)];
+function ae_interrupt(event_map: Map<number, Event>): (Event) => Array<number> {
+    return (event: Event) => [get_interrupt(event).interrupted_spell_id, ...ae_spell_cast_or_aura_application(ce_interrupt, event_map)(event)];
 }
 
-function ae_spell_steal(spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): (Event) => Array<number> {
+function ae_spell_steal(event_map: Map<number, Event>): (Event) => Array<number> {
     return (event: Event) => {
         const spell_steal = get_spell_steal(event);
-        const spell_cast_event = spell_casts?.get(spell_steal.cause_event_id);
-        const aura_application_event = aura_applications?.get(spell_steal.target_event_id);
+        const spell_cast_event = event_map?.get(spell_steal.cause_event_id);
+        const aura_application_event = event_map?.get(spell_steal.target_event_id);
         return [(aura_application_event?.event as any)?.AuraApplication?.spell_id, (spell_cast_event?.event as any)?.SpellCast?.spell_id];
     };
 }
 
-function ae_dispel(spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): (Event) => Array<number> {
+function ae_dispel(event_map: Map<number, Event>): (Event) => Array<number> {
     return (event: Event) => {
         const dispel = get_dispel(event);
-        const [indicator, spell_cause_event] = get_spell_cause(dispel.cause_event_id, spell_casts, aura_applications);
+        const [indicator, spell_cause_event] = get_spell_cause(dispel.cause_event_id, event_map);
         const spell_cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
-        return [(spell_cause as any)?.spell_id, get_aura_application(aura_applications?.get(dispel.target_event_id))?.spell_id];
+        return [(spell_cause as any)?.spell_id, get_aura_application(event_map?.get(dispel.target_event_id))?.spell_id];
     };
 }
 
@@ -43,24 +43,24 @@ function ae_melee_damage(event: Event): Array<number> {
     return [0];
 }
 
-function ae_threat(spell_casts: Map<number, Event>): (Event) => Array<number> {
+function ae_threat(event_map: Map<number, Event>): (Event) => Array<number> {
     return (event: Event) => {
-        const spell_cast_event = spell_casts?.get(ce_threat(event));
-        if (!!spell_cast_event)
-            return [(spell_cast_event.event as any).SpellCast.spell_id];
+        const [indicator, spell_cause_event] = get_spell_cause(ce_threat(event), event_map);
+        if (!!spell_cause_event)
+            return [(indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event)).spell_id];
         return ae_melee_damage(event);
     };
 }
 
-function ae_spell_cast_or_aura_application(cause_extraction: (Event) => number, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): (Event) => Array<number> {
+function ae_spell_cast_or_aura_application(cause_extraction: (Event) => number, event_map: Map<number, Event>): (Event) => Array<number> {
     return (event: Event) => {
         const cause_event_id = cause_extraction(event);
-        const spell_cast_event = spell_casts?.get(cause_event_id);
-        if (!!spell_cast_event)
-            return [get_spell_cast(spell_cast_event).spell_id];
-        const aura_application_event = aura_applications?.get(cause_event_id);
-        if (!!aura_application_event)
-            return [get_aura_application(aura_application_event).spell_id];
+        const [indicator, spell_cause_event] = get_spell_cause(cause_event_id, event_map);
+        if (!!spell_cause_event) {
+            if (indicator)
+                return [get_spell_cast(spell_cause_event).spell_id];
+            return [get_aura_application(spell_cause_event).spell_id];
+        }
         return [];
     };
 }

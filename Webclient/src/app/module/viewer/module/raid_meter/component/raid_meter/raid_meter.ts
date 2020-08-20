@@ -1,8 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from "@angular/core";
-import {DamageDoneService} from "../../service/damage_done";
 import {UtilService} from "../../service/util";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
-import {Subscription} from "rxjs";
+import {from, Subscription} from "rxjs";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -15,21 +14,19 @@ import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail"
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../../raid_detail_table/domain_value/detail_row";
 import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
-import {DamageTakenService} from "../../service/damage_taken";
-import {DamageDoneDetailService} from "../../../raid_detail_table/service/damage_done_detail";
-import {DamageTakenDetailService} from "../../../raid_detail_table/service/damage_taken_detail";
-import {HealDoneService} from "../../service/heal_done";
-import {HealTakenService} from "../../service/heal_taken";
-import {HealDoneDetailService} from "../../../raid_detail_table/service/heal_done_detail";
-import {HealTakenDetailService} from "../../../raid_detail_table/service/heal_taken_detail";
-import {ThreatDoneService} from "../../service/threat_done";
-import {ThreatDoneDetailService} from "../../../raid_detail_table/service/threat_done_detail";
-import {DeathService} from "../../service/death";
 import {DeathOverviewRow} from "../../module/deaths_overview/domain_value/death_overview_row";
-import {KillService} from "../../service/kill";
-import {DispelDoneService} from "../../service/dispel_done";
 import {UnAuraOverviewRow} from "../../module/un_aura_overview/domain_value/un_aura_overview_row";
-import {DispelReceivedService} from "../../service/dispel_received";
+import {MeterDamageService} from "../../service/meter_damage";
+import {MeterHealService} from "../../service/meter_heal";
+import {MeterThreatService} from "../../service/meter_threat";
+import {MeterDeathService} from "../../service/meter_death";
+import {MeterDispelService} from "../../service/meter_dispel";
+import {DetailDamageService} from "../../../raid_detail_table/service/detail_damage";
+import {DetailHealService} from "../../../raid_detail_table/service/detail_heal";
+import {DetailThreatService} from "../../../raid_detail_table/service/detail_threat";
+import {DateService} from "../../../../../../service/date";
+import {EventLogService} from "../../../raid_event_log/service/event_log";
+import {map} from "rxjs/operators";
 
 @Component({
     selector: "RaidMeter",
@@ -37,23 +34,19 @@ import {DispelReceivedService} from "../../service/dispel_received";
     styleUrls: ["./raid_meter.scss"],
     providers: [
         UtilService,
-        DamageDoneService,
-        DamageTakenService,
-        HealDoneService,
-        HealTakenService,
-        ThreatDoneService,
-        DeathService,
-        KillService,
-        DispelDoneService,
-        DispelReceivedService,
+        MeterDamageService,
+        MeterHealService,
+        MeterThreatService,
+        MeterDeathService,
+        MeterDispelService,
         RaidMeterService,
         // Raid Detail Service
-        DamageDoneDetailService,
-        DamageTakenDetailService,
-        HealDoneDetailService,
-        HealTakenDetailService,
-        ThreatDoneDetailService,
+        DetailDamageService,
+        DetailHealService,
+        DetailThreatService,
         RaidDetailService,
+        // Tooltip
+        EventLogService
     ]
 })
 export class RaidMeterComponent implements OnDestroy, OnInit {
@@ -94,10 +87,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 7, label_key: 'Overhealing done'},
         {value: 8, label_key: 'Overhealing taken'},
         {value: 9, label_key: 'Threat done'},
-        {value: 10, label_key: 'Deaths'},
-        {value: 11, label_key: 'Kills'},
-        {value: 12, label_key: 'Dispels done'},
-        {value: 13, label_key: 'Dispels received'},
+        {value: 10, label_key: 'Threat taken'},
+        {value: 11, label_key: 'Deaths'},
+        {value: 12, label_key: 'Kills'},
+        {value: 13, label_key: 'Dispels done'},
+        {value: 14, label_key: 'Dispels received'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -108,7 +102,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         private instanceDataService: InstanceDataService,
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         private raidMeterService: RaidMeterService,
-        private raidDetailService: RaidDetailService
+        private raidDetailService: RaidDetailService,
+        private event_log_service: EventLogService
     ) {
         this.subscription_activated_route = this.activatedRouteService.paramMap.subscribe(params => {
             const new_mode = params.get("mode") === ViewerMode.Ability;
@@ -157,7 +152,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get total(): number {
-        if ([10, 11, 12, 13].includes(this.current_selection) && this.in_ability_mode)
+        if ([11, 12, 13, 14].includes(this.current_selection) && this.in_ability_mode)
             return this.bars.length;
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);
     }
@@ -175,6 +170,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             return;
         }
 
+        this.current_selection = selection;
         this.raidMeterService.select(selection);
         this.raidDetailService.select(selection);
 
@@ -191,17 +187,17 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private get_bar_tooltip(subject_id: number): any {
         if (!this.in_ability_mode) {
             // TODO: Refactor condition
-            if ([10, 11].includes(this.current_selection)) {
+            if ([11, 12].includes(this.current_selection)) {
                 return {
                     type: 7,
                     payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
-                    server_id: this.current_meta.server_id
+                    server_id: this.current_meta?.server_id
                 };
-            } else if ([12, 13].includes(this.current_selection)) {
+            } else if ([13, 14].includes(this.current_selection)) {
                 return {
                     type: 9,
                     payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
-                    server_id: this.current_meta.server_id
+                    server_id: this.current_meta?.server_id
                 };
             } else {
                 return {
@@ -211,6 +207,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
                 };
             }
+        } else if ([11, 12, 13, 14].includes(this.current_selection)) {
+            return {
+                type: 8,
+                payload: from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp)).pipe(map(entries => entries.slice(0, 10)))
+            };
         }
         const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
         return {
@@ -242,10 +243,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.current_data = rows;
         let result;
         if (this.in_ability_mode) {
-            if ([10, 11, 12, 13].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
+            if ([11, 12, 13, 14].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
             else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
-            if ([10, 11, 12, 13].includes(this.current_selection)) {
+            if ([11, 12, 13, 14].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
             } else {
                 result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
@@ -254,19 +255,23 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             }
         }
 
-        // Bar tooltips
-        if (![10, 11, 12, 13].includes(this.current_selection) || !this.in_ability_mode) {
-            for (const [subject_id, amount] of result)
-                this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
-        }
-
-        if ([10, 11, 12, 13].includes(this.current_selection))
+        if ([11, 12, 13, 14].includes(this.current_selection))
             this.bars = result.sort((left, right) => right.timestamp - left.timestamp);
         else this.bars = result.sort((left, right) => right[1] - left[1]);
+
+        // Bar tooltips
+        if ([11, 12, 13, 14].includes(this.current_selection) && this.in_ability_mode) {
+            for (const [row_index, row] of this.bars.entries())
+                this.bar_tooltips.set(row_index, this.get_bar_tooltip(row_index));
+        } else {
+            // @ts-ignore
+            for (const [subject_id, amount] of this.bars)
+                this.bar_tooltips.set(subject_id, this.get_bar_tooltip(subject_id));
+        }
     }
 
     get show_per_second(): boolean {
-        return ![10, 11, 12, 13].includes(this.current_selection);
+        return ![11, 12, 13, 14].includes(this.current_selection);
     }
 
 }

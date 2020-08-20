@@ -32,8 +32,11 @@
 }
 
 #table_wrapper {
-    max-height: 570px;
+    height: 514px;
+    width: calc(100% + 2px);
+    //overflow: hidden;
     overflow-y: scroll;
+    background: $tdc_darker;
 }
 
 table {

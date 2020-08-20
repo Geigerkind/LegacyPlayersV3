@@ -51,12 +51,12 @@ function get_heal(event: Event): Heal {
     return ((event?.event as any)?.Heal as Heal);
 }
 
-function get_spell_cause(spell_cause_id: number, spell_casts: Map<number, Event>, aura_applications: Map<number, Event>): [boolean, Event] {
-    let cause = spell_casts?.get(spell_cause_id);
-    if (!!cause)
-        return [true, cause];
-    cause = aura_applications?.get(spell_cause_id);
-    return [false, cause];
+function get_spell_cause(spell_cause_id: number, event_map: Map<number, Event>): [boolean, Event] {
+    const cause_event = event_map?.get(spell_cause_id);
+    const is_spell_cast = !!get_spell_cast(cause_event);
+    if (!!cause_event && (is_spell_cast || !!get_aura_application(cause_event)))
+        return [is_spell_cast, cause_event];
+    return [undefined, undefined];
 }
 
 function get_death(event: Event): Death {

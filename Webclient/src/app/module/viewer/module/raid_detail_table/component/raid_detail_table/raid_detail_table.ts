@@ -5,22 +5,18 @@ import {SelectOption} from "../../../../../../template/input/select_input/domain
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../domain_value/detail_row";
 import {ActivatedRoute} from "@angular/router";
-import {DamageDoneDetailService} from "../../service/damage_done_detail";
-import {DamageTakenDetailService} from "../../service/damage_taken_detail";
-import {HealDoneDetailService} from "../../service/heal_done_detail";
-import {HealTakenDetailService} from "../../service/heal_taken_detail";
-import {ThreatDoneDetailService} from "../../service/threat_done_detail";
+import {DetailDamageService} from "../../service/detail_damage";
+import {DetailHealService} from "../../service/detail_heal";
+import {DetailThreatService} from "../../service/detail_threat";
 
 @Component({
     selector: "RaidDetailTable",
     templateUrl: "./raid_detail_table.html",
     styleUrls: ["./raid_detail_table.scss"],
     providers: [
-        DamageDoneDetailService,
-        DamageTakenDetailService,
-        HealDoneDetailService,
-        HealTakenDetailService,
-        ThreatDoneDetailService,
+        DetailDamageService,
+        DetailHealService,
+        DetailThreatService,
         RaidDetailService
     ]
 })
@@ -45,6 +41,7 @@ export class RaidDetailTableComponent implements OnDestroy {
         {value: 7, label_key: 'Overhealing done'},
         {value: 8, label_key: 'Overhealing taken'},
         {value: 9, label_key: 'Threat done'},
+        {value: 10, label_key: 'Threat taken'},
     ];
 
     constructor(

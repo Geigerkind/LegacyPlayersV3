@@ -98,7 +98,7 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private set_segment_intervals(): void {
-        this.instanceDataService.attempt_intervals = this.segments$.getValue()
+        this.instanceDataService.segment_intervals = this.segments$.getValue()
             .filter(segment => this.segment_filter.has(segment.id))
             .map(segment => [segment.start_ts, segment.start_ts + segment.duration]);
     }

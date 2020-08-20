@@ -34,6 +34,7 @@
     "@ngx-translate/core": "^11.0.1",
     "@ngx-translate/http-loader": "^4.0.0",
     "chart.js": "^2.9.3",
+    "comlink": "^4.3.0",
     "ng-multiselect-dropdown": "^0.2.10",
     "ng2-charts": "^2.3.2",
     "rxjs": "^6.6.0",

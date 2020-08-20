@@ -1,18 +1,14 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
-import {DamageDoneService} from "./damage_done";
-import {DamageTakenService} from "./damage_taken";
-import {HealDoneService} from "./heal_done";
-import {HealTakenService} from "./heal_taken";
 import {HealMode} from "../../../domain_value/heal_mode";
-import {ThreatDoneService} from "./threat_done";
-import {DeathService} from "./death";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
-import {KillService} from "./kill";
-import {DispelDoneService} from "./dispel_done";
 import {UnAuraOverviewRow} from "../module/un_aura_overview/domain_value/un_aura_overview_row";
-import {DispelReceivedService} from "./dispel_received";
+import {MeterDamageService} from "./meter_damage";
+import {MeterHealService} from "./meter_heal";
+import {MeterThreatService} from "./meter_threat";
+import {MeterDeathService} from "./meter_death";
+import {MeterDispelService} from "./meter_dispel";
 
 @Injectable({
     providedIn: "root",
@@ -28,15 +24,11 @@ export class RaidMeterService implements OnDestroy {
     private current_selection: number = -1;
 
     constructor(
-        private damageDoneService: DamageDoneService,
-        private damageTakenService: DamageTakenService,
-        private healDoneService: HealDoneService,
-        private healTakenService: HealTakenService,
-        private threatDoneService: ThreatDoneService,
-        private deathService: DeathService,
-        private dispelDoneService: DispelDoneService,
-        private dispelReceivedService: DispelReceivedService,
-        private killService: KillService
+        private meter_damage_service: MeterDamageService,
+        private meter_heal_service: MeterHealService,
+        private meter_threat_service: MeterThreatService,
+        private meter_death_service: MeterDeathService,
+        private meter_dispel_service: MeterDispelService
     ) {
     }
 
@@ -64,55 +56,38 @@ export class RaidMeterService implements OnDestroy {
 
         switch (selection) {
             case 1:
-                this.subscription_data = this.damageDoneService.get_data(this.abilities$.getValue(), this.units$.getValue())
-                    .subscribe(data => this.commit(data));
-                break;
             case 2:
-                this.subscription_data = this.damageTakenService.get_data(this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_damage_service.get_data(selection === 2, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
             case 3:
-                this.subscription_data = this.healDoneService.get_data(HealMode.Total, this.abilities$.getValue(), this.units$.getValue())
-                    .subscribe(data => this.commit(data));
-                break;
             case 4:
-                this.subscription_data = this.healTakenService.get_data(HealMode.Total, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_service.get_data(HealMode.Total, selection === 4, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
             case 5:
-                this.subscription_data = this.healDoneService.get_data(HealMode.Effective, this.abilities$.getValue(), this.units$.getValue())
-                    .subscribe(data => this.commit(data));
-                break;
             case 6:
-                this.subscription_data = this.healTakenService.get_data(HealMode.Effective, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_service.get_data(HealMode.Effective, selection === 6, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
             case 7:
-                this.subscription_data = this.healDoneService.get_data(HealMode.Overheal, this.abilities$.getValue(), this.units$.getValue())
-                    .subscribe(data => this.commit(data));
-                break;
             case 8:
-                this.subscription_data = this.healTakenService.get_data(HealMode.Overheal, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_service.get_data(HealMode.Overheal, selection === 8, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
             case 9:
-                this.subscription_data = this.threatDoneService.get_data(this.abilities$.getValue(), this.units$.getValue())
-                    .subscribe(data => this.commit(data));
-                break;
             case 10:
-                this.subscription_data = this.deathService.get_data(this.units$.getValue())
+                this.subscription_data = this.meter_threat_service.get_data(selection === 10, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
             case 11:
-                this.subscription_data = this.killService.get_data(this.units$.getValue())
-                    .subscribe(data => this.commit(data));
-                break;
             case 12:
-                this.subscription_data = this.dispelDoneService.get_data(this.units$.getValue())
+                this.subscription_data = this.meter_death_service.get_data(selection === 12, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
             case 13:
-                this.subscription_data = this.dispelReceivedService.get_data(this.units$.getValue())
+            case 14:
+                this.subscription_data = this.meter_dispel_service.get_data(selection === 14, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
         }

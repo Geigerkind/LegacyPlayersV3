@@ -2,11 +2,12 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {ChartDataSets, ChartOptions, ChartPoint} from 'chart.js';
 import {Color} from 'ng2-charts';
 import {GraphDataService} from "../../service/graph_data";
-import {DataSet, get_point_style, is_event_data_set} from "../../domain_value/data_set";
+import {DataSet, is_event_data_set} from "../../domain_value/data_set";
 import {DateService} from "../../../../../../service/date";
 import {SettingsService} from "src/app/service/settings";
 import {Subscription} from "rxjs";
 import {number_to_chart_type} from "../../domain_value/chart_type";
+import {get_point_style} from "../../stdlib/data_set_helper";
 
 @Component({
     selector: "RaidGraph",
@@ -82,6 +83,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         {id: DataSet.OverhealingDone, label: "Overhealing done"},
         {id: DataSet.OverhealingTaken, label: "Overhealing taken"},
         {id: DataSet.ThreatDone, label: "Threat done"},
+        {id: DataSet.ThreatTaken, label: "Threat taken"},
     ];
     dataSetsSelected = [];
     selectedDataSets: Set<DataSet> = new Set();

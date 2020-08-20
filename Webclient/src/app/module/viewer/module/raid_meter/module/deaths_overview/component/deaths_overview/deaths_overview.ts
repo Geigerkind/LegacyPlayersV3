@@ -3,8 +3,6 @@ import {DeathOverviewRow} from "../../domain_value/death_overview_row";
 import {UnitService} from "../../../../../../service/unit";
 import {SpellService} from "../../../../../../service/spell";
 import {DateService} from "../../../../../../../../service/date";
-import {EventLogService} from "../../../../../raid_event_log/service/event_log";
-import {map} from "rxjs/operators";
 
 @Component({
     selector: "DeathsOverview",
@@ -13,9 +11,7 @@ import {map} from "rxjs/operators";
     providers: [
         SpellService,
         UnitService,
-        DateService,
-        // Tooltip
-        EventLogService
+        DateService
     ]
 })
 export class DeathsOverviewComponent implements OnChanges {
@@ -23,27 +19,24 @@ export class DeathsOverviewComponent implements OnChanges {
     @Input() death_overview_rows: Array<DeathOverviewRow> = [];
     @Input() server_id: number;
     @Input() to_actor: boolean = true;
+    @Input() bar_tooltips: Map<number, any>;
 
     constructor(
         public unitService: UnitService,
         public spellService: SpellService,
-        public dateService: DateService,
-        private eventLogService: EventLogService
+        public dateService: DateService
     ) {
     }
 
     ngOnChanges(): void {
         this.unitService.set_server_id(this.server_id);
         this.spellService.set_server_id(this.server_id);
-        this.eventLogService.set_actor(this.to_actor);
     }
 
-    get_tooltip(row: DeathOverviewRow): any {
-        return {
-            type: 8,
-            payload: this.eventLogService.event_log_entries
-                .pipe(map(events => events.filter(event => event.timestamp <= row.timestamp).slice(0, 10)))
-        };
+    get_tooltip(row_index: number): any {
+        if (!this.bar_tooltips)
+            return {};
+        return this.bar_tooltips.get(row_index);
     }
 
     get routerLink(): string {
