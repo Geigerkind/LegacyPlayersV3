@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {APIService} from "./api";
-import {BehaviorSubject, Observable, of} from "rxjs";
+import {BehaviorSubject, Observable, of, Subject} from "rxjs";
 import {Localized} from "../domain_value/localized";
 import {InstanceMap} from "../domain_value/instance_map";
 import {map} from "rxjs/operators";
@@ -34,10 +34,6 @@ export class DataService {
     private races$: BehaviorSubject<Array<Localized<Race>>>;
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
     private difficulties$: BehaviorSubject<Array<Localized<Difficulty>>>;
-
-    private npcs$: Map<number, Map<number, BehaviorSubject<Localized<NPC>>>> = new Map();
-    private basic_items$: Map<number, Map<number, BehaviorSubject<Localized<BasicItem>>>> = new Map();
-    private basic_spells$: Map<number, Map<number, BehaviorSubject<Localized<BasicSpell>>>> = new Map();
 
     constructor(
         private apiService: APIService,
@@ -82,88 +78,49 @@ export class DataService {
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
-        // if (!this.npcs$) this.npcs$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_npcs", [], 7));
-
-        if (!this.npcs$.has(expansion_id))
-            this.npcs$.set(expansion_id, new Map());
-        const expansion = this.npcs$.get(expansion_id);
-        if (expansion.has(npc_id))
-            return expansion.get(npc_id).asObservable();
-
-        const subject = new BehaviorSubject<Localized<NPC>>({
-            localization: "Unknown",
-            base: {
-                id: npc_id,
-                expansion_id,
-                localization_id: 0,
-                is_boss: false,
-                friend: 0,
-                family: 0
-            }
-        });
-        expansion.set(npc_id, subject);
-
+        const subject = new Subject<Localized<NPC>>();
         this.apiService.get(DataService.URL_DATA_NPC_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":npc_id", npc_id.toString()),
-            npc => {
-                subject.next(npc);
-                // this.settingsService.set_with_expiration("data_service_npcs", create_array_from_nested_behavior_subject_map(this.npcs$), 7);
-            });
-
+            npc => subject.next(npc), () => subject.next({
+                localization: "Unknown",
+                base: {
+                    id: npc_id,
+                    expansion_id,
+                    localization_id: 0,
+                    is_boss: false,
+                    friend: 0,
+                    family: 0
+                }
+            }));
         return subject;
     }
 
     get_localized_basic_item(expansion_id: number, item_id: number): Observable<Localized<BasicItem>> {
-        // if (!this.basic_items$) this.basic_items$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_items", [], 7));
-
-        if (!this.basic_items$.has(expansion_id))
-            this.basic_items$.set(expansion_id, new Map());
-        const expansion = this.basic_items$.get(expansion_id);
-        if (expansion.has(item_id))
-            return expansion.get(item_id).asObservable();
-
-        const subject = new BehaviorSubject<Localized<BasicItem>>({
-            localization: "Unknown",
-            base: {
-                icon: "inv_misc_questionmark",
-                id: item_id,
-                quality: 0
-            }
-        });
-        expansion.set(item_id, subject);
+        const subject = new Subject<Localized<BasicItem>>();
 
         this.apiService.get(DataService.URL_DATA_BASIC_ITEM_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":item_id", item_id.toString()),
-            item => {
-                subject.next(item);
-                // this.settingsService.set_with_expiration("data_service_basic_items", create_array_from_nested_behavior_subject_map(this.basic_items$), 7);
-            });
+            item => subject.next(item), () => subject.next({
+                localization: "Unknown",
+                base: {
+                    icon: "inv_misc_questionmark",
+                    id: item_id,
+                    quality: 0
+                }
+            }));
 
         return subject;
     }
 
     get_localized_basic_spell(expansion_id: number, spell_id: number): Observable<Localized<BasicSpell>> {
-        // if (!this.basic_spells$)
-        // this.basic_spells$ = get_behavior_subject_map_from_nested_array(this.settingsService.get_or_set_with_expiration("data_service_basic_spells", [], 7));
-
-        if (!this.basic_spells$.has(expansion_id))
-            this.basic_spells$.set(expansion_id, new Map());
-        const expansion = this.basic_spells$.get(expansion_id);
-        if (expansion.has(spell_id))
-            return expansion.get(spell_id).asObservable();
-
-        const subject = new BehaviorSubject<Localized<BasicSpell>>(this.unknown_basic_spell);
-        expansion.set(spell_id, subject);
+        const subject = new Subject<Localized<BasicSpell>>();
 
         this.apiService.get(DataService.URL_DATA_BASIC_SPELL_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":spell_id", spell_id.toString()),
-            item => {
-                subject.next(item);
-                // this.settingsService.set_with_expiration("data_service_basic_spells", create_array_from_nested_behavior_subject_map(this.basic_spells$), 7);
-            });
+            item => subject.next(item), () => subject.next(this.unknown_basic_spell));
 
         return subject;
     }

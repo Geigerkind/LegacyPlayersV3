@@ -1,15 +1,14 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
-import {BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, zip} from "rxjs";
+import {BehaviorSubject, combineLatest, Observable, Subject, Subscription, zip} from "rxjs";
 import {Category} from "../domain_value/category";
 import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attempt";
 import {Segment} from "../domain_value/segment";
 import {EventSource} from "../domain_value/event_source";
 import {RaidOption} from "../domain_value/raid_option";
-import {combineAll, concatAll, map, take, takeUntil} from "rxjs/operators";
+import {map, take, takeUntil} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
-import {DelayedLabel} from "../../../../../stdlib/delayed_label";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {EventAbility} from "../domain_value/event_ability";
 import {SpellService} from "../../../service/spell";
@@ -39,8 +38,11 @@ export class RaidConfigurationService implements OnDestroy {
     private category_filter: Set<number> = new Set();
     private segment_filter: Set<number> = new Set();
 
-    private nextTargets: Subject<void> = new Subject();
+    private nextCategories: Subject<void> = new Subject();
+    private nextSegments: Subject<void> = new Subject();
     private nextSources: Subject<void> = new Subject();
+    private nextTargets: Subject<void> = new Subject();
+    private nextAbilities: Subject<void> = new Subject();
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -70,10 +72,16 @@ export class RaidConfigurationService implements OnDestroy {
         this.subscription_targets?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_meta?.unsubscribe();
-        this.nextTargets.next();
+        this.nextCategories.next();
+        this.nextSegments.next();
         this.nextSources.next();
-        this.nextTargets.complete();
+        this.nextTargets.next();
+        this.nextAbilities.next();
+        this.nextCategories.complete();
+        this.nextSegments.complete();
         this.nextSources.complete();
+        this.nextTargets.complete();
+        this.nextAbilities.complete();
     }
 
     get categories(): Observable<Array<Category>> {
@@ -140,12 +148,13 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_categories(attempts: Array<InstanceViewerAttempt>): void {
+        this.nextCategories.next();
         const categories: Map<number, Category> = new Map();
         const non_boss_intervals = this.calculate_non_boss_attempts(attempts);
         categories.set(0, {
             segments: new Set(non_boss_intervals.map((value, index) => -index)),
             id: 0,
-            label: new DelayedLabel(of("Trash & OOC segments")),
+            label: "Trash & OOC segments",
             time: non_boss_intervals.reduce((acc, [start, end]) => acc + end - start, 0)
         });
 
@@ -159,32 +168,45 @@ export class RaidConfigurationService implements OnDestroy {
             categories.set(attempt.encounter_id, {
                 segments: new Set([attempt.id]),
                 id: attempt.encounter_id,
-                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? CONST_UNKNOWN_LABEL : encounter.localization))),
+                label: undefined,
                 time: (attempt.end_ts - attempt.start_ts)
             });
         }
-        this.categories$.next([...categories.values()]);
+        zip(...[...categories.values()].map(category => this.dataService.get_encounter(category.id)
+            .pipe(map(encounter => {
+                if (!category.label)
+                    category.label = !encounter ? CONST_UNKNOWN_LABEL : encounter.localization;
+                return category;
+            })))).pipe(takeUntil(this.nextCategories.asObservable())).subscribe(update => this.categories$.next(update));
     }
 
     private update_segments(attempts: Array<InstanceViewerAttempt>): void {
+        this.nextSegments.next();
         const segments: Array<Segment> = [];
         for (const [index, start, end] of this.calculate_non_boss_attempts(attempts).map(([i_start, i_end], i_index) => [i_index, i_start, i_end]))
             segments.push({
                 duration: (end - start),
                 id: -index,
+                encounter_id: 0,
                 is_kill: false,
-                label: new DelayedLabel(of("Non-Boss Segment " + (index + 1).toString())),
+                label: "Non-Boss Segment " + (index + 1).toString(),
                 start_ts: start
             });
         for (const attempt of attempts)
             segments.push({
                 duration: (attempt.end_ts - attempt.start_ts),
                 id: attempt.id,
+                encounter_id: attempt.encounter_id,
                 is_kill: attempt.is_kill,
-                label: new DelayedLabel(this.dataService.get_encounter(attempt.encounter_id).pipe(map(encounter => !encounter ? CONST_UNKNOWN_LABEL : encounter.localization))),
+                label: undefined,
                 start_ts: attempt.start_ts
             });
-        this.segments$.next(segments);
+        zip(...[...segments.values()].map(segment => this.dataService.get_encounter(segment.encounter_id)
+            .pipe(map(encounter => {
+                if (!segment.label)
+                    segment.label = !encounter ? CONST_UNKNOWN_LABEL : encounter.localization;
+                return segment;
+            })))).pipe(takeUntil(this.nextSegments.asObservable())).subscribe(update => this.segments$.next(update));
     }
 
     private update_sources(sources: Array<Unit>): void {
@@ -220,13 +242,17 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_abilities(abilities: Set<number>): void {
-        const result: Array<EventAbility> = [];
+        this.nextAbilities.next();
+        const result: Array<Observable<EventAbility>> = [];
         for (const spell_id of abilities)
-            result.push({
-                id: spell_id,
-                label: new DelayedLabel(this.spellService.get_localized_basic_spell(spell_id).pipe(map(spell => spell?.localization))),
-            });
-        this.abilities$.next(result);
+            result.push(this.spellService.get_localized_basic_spell(spell_id)
+                .pipe(map(spell => {
+                    return {
+                        id: spell_id,
+                        label: spell?.localization
+                    };
+                })));
+        zip(...result).pipe(takeUntil(this.nextAbilities.asObservable())).subscribe(update => this.abilities$.next(update));
     }
 
     private calculate_non_boss_attempts(attempts: Array<InstanceViewerAttempt>): Array<[number, number]> {

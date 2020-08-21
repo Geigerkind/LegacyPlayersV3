@@ -60,24 +60,11 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         },
     ];
 
-    private readonly updater: any;
-    private update_categories: () => void;
-    private update_segments: () => void;
-    private update_abilities: () => void;
-
     constructor(
         private raidConfigurationService: RaidConfigurationService,
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         private dateService: DateService
     ) {
-        this.updater = setInterval(() => {
-            if (!!this.update_categories) this.update_categories();
-            if (!!this.update_segments) this.update_segments();
-            if (!!this.update_abilities) this.update_abilities();
-            this.update_categories = undefined;
-            this.update_segments = undefined;
-            this.update_abilities = undefined;
-        }, 1000);
         this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories, true));
         this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments, true));
         this.subscription_sources = this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources, true));
@@ -94,7 +81,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_targets?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_source_selection?.unsubscribe();
-        clearInterval(this.updater);
     }
 
     on_category_selection_updated(): void {
@@ -124,16 +110,12 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private async handle_categories(categories: Array<Category>, update_filter: boolean) {
         const new_list_items = [];
-        let any_unknown: boolean = false;
         for (const category of categories) {
-            any_unknown = any_unknown || category.label.toString() === CONST_UNKNOWN_LABEL;
             new_list_items.push({
                 id: category.id,
                 label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
             });
         }
-        if (any_unknown) this.update_categories = () => this.handle_categories(categories, false);
-        else this.update_categories = undefined;
 
         const new_selected_items = [];
         if (this.use_default_filter_categories) {
@@ -154,17 +136,13 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private async handle_segments(segments: Array<Segment>, update_filter: boolean) {
         const new_list_items = [];
-        let any_unknown: boolean = false;
         for (const segment of segments) {
-            any_unknown = any_unknown || segment.label.toString() === CONST_UNKNOWN_LABEL;
             new_list_items.push({
                 id: segment.id,
                 label: segment.label.toString() + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts)
             });
         }
-        if (any_unknown) this.update_segments = () => this.handle_segments(segments, false);
-        else this.update_segments = undefined;
 
         const new_selected_items = [];
         if (this.use_default_filter_segments) {
@@ -244,9 +222,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_abilities(abilities: Array<EventAbility>, update_filter: boolean) {
         const new_list_items = [];
         const new_selected_items = [];
-        let any_unknown: boolean = false;
         for (const ability of abilities) {
-            any_unknown = any_unknown || ability.label.toString() === CONST_UNKNOWN_LABEL;
             const list_item = {
                 id: ability.id,
                 label: ability.label.toString() + " (Id: " + ability.id.toString() + ")"
@@ -257,8 +233,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 new_selected_items.push(list_item);
 
         }
-        if (any_unknown) this.update_abilities = () => this.handle_abilities(abilities, false);
-        else this.update_abilities = undefined;
 
         if (!this.use_default_filter_abilities) {
             for (const selected_item of this.selected_items_abilities) {

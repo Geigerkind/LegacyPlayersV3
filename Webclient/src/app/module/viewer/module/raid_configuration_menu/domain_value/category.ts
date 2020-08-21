@@ -1,7 +1,5 @@
-import {DelayedLabel} from "../../../../../stdlib/delayed_label";
-
 export interface Category {
-    label: DelayedLabel;
+    label: string;
     id: number;
     time: number;
     segments: Set<number>;

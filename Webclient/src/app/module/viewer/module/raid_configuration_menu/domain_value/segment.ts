@@ -1,8 +1,7 @@
-import {DelayedLabel} from "../../../../../stdlib/delayed_label";
-
 export interface Segment {
     id: number;
-    label: DelayedLabel;
+    encounter_id: number;
+    label: string;
     duration: number;
     is_kill: boolean;
     start_ts: number;
