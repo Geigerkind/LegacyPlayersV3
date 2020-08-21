@@ -23,7 +23,7 @@ import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
-    private static readonly BATCH_SIZE: number = 5000;
+    private static readonly BATCH_SIZE: number = 10000;
     private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/:instance_meta_id/:event_type/:last_event_id";
 
     public event_map: Map<number, Event> = new Map();
@@ -72,7 +72,7 @@ export class InstanceDataLoader {
     ]);
 
     constructor(private instance_meta_id: number, event_types: Array<number>) {
-        this.newData$.asObservable().pipe(debounceTime(1000))
+        this.newData$.asObservable().pipe(debounceTime(50))
             .subscribe(() => (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData]));
         this.load_data(event_types)
             .finally(() =>

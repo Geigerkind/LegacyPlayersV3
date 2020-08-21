@@ -12,7 +12,7 @@ use rocket_contrib::json::Json;
 #[get("/export/<instance_meta_id>/<event_type>/<last_event_id>")]
 pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8, last_event_id: u32) -> Result<Json<Vec<Event>>, InstanceFailure> {
     me.export_instance_event_type(instance_meta_id, event_type)
-        .map(|events| events.into_iter().filter(|event| event.id > last_event_id).take(5000).collect())
+        .map(|events| events.into_iter().filter(|event| event.id > last_event_id).take(10000).collect())
         .map(Json)
 }
 
