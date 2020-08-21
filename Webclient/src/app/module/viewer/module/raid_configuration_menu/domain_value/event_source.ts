@@ -1,7 +1,6 @@
-import {DelayedLabel} from "../../../../../stdlib/delayed_label";
-
 export interface EventSource {
     id: number;
-    label: DelayedLabel;
+    label: string;
     is_player: boolean;
+    is_boss: boolean;
 }

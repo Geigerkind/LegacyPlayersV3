@@ -63,6 +63,14 @@ export class UnitService {
         return of(CONST_UNKNOWN_LABEL);
     }
 
+    is_unit_boss(unit: Unit): Observable<boolean> {
+        if (!!unit && is_creature(unit)) {
+            return this.get_npc(((unit as any).Creature as Creature).entry)
+                .pipe(map(npc => !!npc?.base.is_boss));
+        }
+        return of(false);
+    }
+
     get_npc_name(npc_id: number): Observable<string | undefined> {
         return this.get_npc(npc_id)
             .pipe(map(npc => !npc ? CONST_UNKNOWN_LABEL : npc.localization));

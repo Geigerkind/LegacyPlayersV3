@@ -8,6 +8,7 @@ import {EventSource} from "../../domain_value/event_source";
 import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
 import {EventAbility} from "../../domain_value/event_ability";
 import {CONST_UNKNOWN_LABEL} from "../../../../constant/viewer";
+import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
 
 @Component({
     selector: "RaidConfigurationMenu",
@@ -44,11 +45,24 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     use_default_filter_targets: boolean = true;
     use_default_filter_abilities: boolean = true;
 
+    additional_button: Array<AdditionalButton> = [
+        {
+            id: 1, label: "All Players", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_player)
+        },
+        {
+            id: 2, label: "All Creatures", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => !item.is_player)
+        },
+        {
+            id: 3, label: "All Bosses", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_boss)
+        },
+    ];
+
     private readonly updater: any;
     private update_categories: () => void;
     private update_segments: () => void;
-    private update_sources: () => void;
-    private update_targets: () => void;
     private update_abilities: () => void;
 
     constructor(
@@ -59,13 +73,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.updater = setInterval(() => {
             if (!!this.update_categories) this.update_categories();
             if (!!this.update_segments) this.update_segments();
-            if (!!this.update_sources) this.update_sources();
-            if (!!this.update_targets) this.update_targets();
             if (!!this.update_abilities) this.update_abilities();
             this.update_categories = undefined;
             this.update_segments = undefined;
-            this.update_sources = undefined;
-            this.update_targets = undefined;
             this.update_abilities = undefined;
         }, 1000);
         this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories, true));
@@ -176,19 +186,17 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_sources(sources: Array<EventSource>, update_filter: boolean) {
         const new_list_items = [];
         const new_selected_items = [];
-        let any_unknown: boolean = false;
         for (const source of sources) {
-            any_unknown = any_unknown || source.label.toString() === CONST_UNKNOWN_LABEL;
             const list_item = {
                 id: source.id,
-                label: source.label.toString()
+                label: source.label.toString(),
+                is_player: source.is_player,
+                is_boss: source.is_boss,
             };
             new_list_items.push(list_item);
             if (this.use_default_filter_sources && source.is_player)
                 new_selected_items.push(list_item);
         }
-        if (any_unknown) this.update_sources = () => this.handle_sources(sources, false);
-        else this.update_sources = undefined;
 
         if (!this.use_default_filter_sources) {
             for (const selected_item of this.selected_items_sources) {
@@ -206,12 +214,12 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_targets(targets: Array<EventSource>, update_filter: boolean) {
         const new_list_items = [];
         const new_selected_items = [];
-        let any_unknown: boolean = false;
         for (const target of targets) {
-            any_unknown = any_unknown || target.label.toString() === CONST_UNKNOWN_LABEL;
             const list_item = {
                 id: target.id,
-                label: target.label.toString()
+                label: target.label.toString(),
+                is_player: target.is_player,
+                is_boss: target.is_boss,
             };
             new_list_items.push(list_item);
 
@@ -219,8 +227,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 new_selected_items.push(list_item);
 
         }
-        if (any_unknown) this.update_targets = () => this.handle_targets(targets, false);
-        else this.update_targets = undefined;
 
         if (!this.use_default_filter_targets) {
             for (const selected_item of this.selected_items_targets) {
@@ -265,5 +271,25 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
         if (this.use_default_filter_abilities && update_filter)
             this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id));
+    }
+
+    private additional_button_collection_if(button: AdditionalButton, selected_list: Array<any>,
+                                            current_list: Array<any>, checked: boolean, toggle_condition: (data_item: any) => boolean): Array<any> {
+        if (checked) {
+            const result = [...selected_list];
+            for (const item of current_list) {
+                if (toggle_condition(item) && selected_list.find(s_item => s_item.id === item.id) === undefined)
+                    result.push(item);
+            }
+            return result;
+        } else {
+            const result = [];
+            for (const item of selected_list) {
+                const data_item = current_list.find(d_item => d_item.id === item.id);
+                if (!toggle_condition(data_item))
+                    result.push(item);
+            }
+            return result;
+        }
     }
 }

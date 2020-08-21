@@ -1,12 +1,12 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
-import {BehaviorSubject, Observable, of, Subscription} from "rxjs";
+import {BehaviorSubject, combineLatest, forkJoin, Observable, of, Subject, Subscription, zip} from "rxjs";
 import {Category} from "../domain_value/category";
 import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attempt";
 import {Segment} from "../domain_value/segment";
 import {EventSource} from "../domain_value/event_source";
 import {RaidOption} from "../domain_value/raid_option";
-import {map, take} from "rxjs/operators";
+import {combineAll, concatAll, map, take, takeUntil} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
 import {DelayedLabel} from "../../../../../stdlib/delayed_label";
@@ -39,6 +39,9 @@ export class RaidConfigurationService implements OnDestroy {
     private category_filter: Set<number> = new Set();
     private segment_filter: Set<number> = new Set();
 
+    private nextTargets: Subject<void> = new Subject();
+    private nextSources: Subject<void> = new Subject();
+
     constructor(
         private instanceDataService: InstanceDataService,
         private unitService: UnitService,
@@ -67,6 +70,10 @@ export class RaidConfigurationService implements OnDestroy {
         this.subscription_targets?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_meta?.unsubscribe();
+        this.nextTargets.next();
+        this.nextSources.next();
+        this.nextTargets.complete();
+        this.nextSources.complete();
     }
 
     get categories(): Observable<Array<Category>> {
@@ -181,25 +188,35 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_sources(sources: Array<Unit>): void {
-        const result: Array<EventSource> = [];
+        this.nextSources.next();
+        const result: Array<Observable<EventSource>> = [];
         for (const source of sources)
-            result.push({
-                id: get_unit_id(source),
-                label: new DelayedLabel(this.unitService.get_unit_name(source)),
-                is_player: is_player(source)
-            });
-        this.sources$.next(result);
+            result.push(combineLatest([this.unitService.get_unit_name(source), this.unitService.is_unit_boss(source)])
+                .pipe(map(([label, is_boss]) => {
+                    return {
+                        id: get_unit_id(source),
+                        label,
+                        is_player: is_player(source),
+                        is_boss
+                    };
+                })));
+        zip(...result).pipe(takeUntil(this.nextSources.asObservable())).subscribe(update => this.sources$.next(update));
     }
 
     private update_targets(targets: Array<Unit>): void {
-        const result: Array<EventSource> = [];
+        this.nextTargets.next();
+        const result: Array<Observable<EventSource>> = [];
         for (const target of targets)
-            result.push({
-                id: get_unit_id(target),
-                label: new DelayedLabel(this.unitService.get_unit_name(target)),
-                is_player: is_player(target)
-            });
-        this.targets$.next(result);
+            result.push(combineLatest([this.unitService.get_unit_name(target), this.unitService.is_unit_boss(target)])
+                .pipe(map(([label, is_boss]) => {
+                    return {
+                        id: get_unit_id(target),
+                        label,
+                        is_player: is_player(target),
+                        is_boss
+                    };
+                })));
+        zip(...result).pipe(takeUntil(this.nextTargets.asObservable())).subscribe(update => this.targets$.next(update));
     }
 
     private update_abilities(abilities: Set<number>): void {
