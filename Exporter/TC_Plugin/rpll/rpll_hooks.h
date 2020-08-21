@@ -142,7 +142,7 @@ class RPLLHooks
     static float UPDATE_POSITION_LEEWAY_NPC;
     static float UPDATE_POSITION_LEEWAY_ARENA;
 
-    static uint64_t RAID_IN_BOSS_FIGHT_UPDATE_TIMEOUT;
+    static uint64_t OUT_OF_COMBAT_UPDATE_TIMEOUT;
     static uint64_t RAID_UPDATE_TIMEOUT;
     static uint64_t ARENA_UPDATE_TIMEOUT;
     static uint64_t BATTLEGROUND_UPDATE_TIMEOUT;

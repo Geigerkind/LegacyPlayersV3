@@ -8,6 +8,7 @@
 uint8_t RPLLHooks::API_VERSION = 0;
 
 // This is in MS
+uint64_t RPLLHooks::OUT_OF_COMBAT_UPDATE_TIMEOUT = 10000;
 uint64_t RPLLHooks::RAID_UPDATE_TIMEOUT = 1500;
 uint64_t RPLLHooks::ARENA_UPDATE_TIMEOUT = 250;
 uint64_t RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT = 1000;
@@ -145,10 +146,13 @@ inline void RPLLHooks::AppendRPLLDamage(ByteBuffer &msg, const RPLL_Damage &dama
  */
 inline bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerType power)
 {
-    const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
-                                            : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
-                                                               : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
-                                                                                         : std::numeric_limits<uint64_t>::max()));
+    uint64_t timeout;
+    if (!unit->IsInCombat()) timeout = RPLLHooks::OUT_OF_COMBAT_UPDATE_TIMEOUT;
+    else if (IsInRaid(unit)) timeout = RPLLHooks::RAID_UPDATE_TIMEOUT;
+    else if (IsInArena(unit)) timeout = RPLLHooks::ARENA_UPDATE_TIMEOUT;
+    else if (IsInBattleground(unit)) timeout = RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT;
+    else timeout = std::numeric_limits<uint64_t>::max();
+
     const auto now = GetCurrentTime();
     const auto guid = unit->GetGUID().GetRawValue();
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
@@ -167,10 +171,13 @@ inline bool RPLLHooks::IsPowerWithinTimeout(const Unit *unit, const RPLL_PowerTy
 
 inline bool RPLLHooks::IsPositionWithinTimeout(const Unit *unit)
 {
-    const uint64_t timeout = IsInRaid(unit) ? RPLLHooks::RAID_UPDATE_TIMEOUT
-                                            : (IsInArena(unit) ? RPLLHooks::ARENA_UPDATE_TIMEOUT
-                                                               : (IsInBattleground(unit) ? RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT
-                                                                                         : std::numeric_limits<uint64_t>::max()));
+    uint64_t timeout;
+    if (!unit->IsInCombat()) timeout = RPLLHooks::OUT_OF_COMBAT_UPDATE_TIMEOUT;
+    else if (IsInRaid(unit)) timeout = RPLLHooks::RAID_UPDATE_TIMEOUT;
+    else if (IsInArena(unit)) timeout = RPLLHooks::ARENA_UPDATE_TIMEOUT;
+    else if (IsInBattleground(unit)) timeout = RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT;
+    else timeout = std::numeric_limits<uint64_t>::max();
+
     const auto now = GetCurrentTime();
     const auto guid = unit->GetGUID().GetRawValue();
     auto res = RPLLHooks::LAST_UPDATE.find(guid);
