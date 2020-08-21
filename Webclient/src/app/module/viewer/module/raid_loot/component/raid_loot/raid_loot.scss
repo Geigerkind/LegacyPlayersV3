@@ -7,7 +7,7 @@
 }
 
 .container {
-    width: 100%;
+    width: calc(100% - 2px);
     border: 1px solid $tdc_accent;
     border-radius: 3px 3px 3px 3px;
     margin-bottom: $spacing;

@@ -19,7 +19,7 @@
         display: flex;
         flex-direction: row;
         height: $titleBarSize;
-        width: calc(100% - #{$spacing});
+        width: calc(100% - #{$spacing} - 2px);
         background: $tdc_darker;
         padding: 0.5 * $spacing 0.5 * $spacing;
         border: 1px solid $tdc_accent;

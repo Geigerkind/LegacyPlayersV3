@@ -7,7 +7,7 @@
 }
 
 .bar_container {
-    width: 100%;
+    width: calc(100% - 2px);
     background: $tdc_darker;
     border: 1px solid $tdc_accent;
     border-radius: 3px 3px 3px 3px;

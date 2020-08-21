@@ -13,7 +13,7 @@
     flex-wrap: wrap;
     border-radius: 0 3px 3px 0;
 
-    width: calc(100% - #{$spacing});
+    width: calc(100% - #{$spacing} - 2px);
     min-height: 50px;
     background: $tdc_darker;
     border: 1px solid $tdc_accent;
@@ -55,7 +55,7 @@
 
 .graph_container{
     position: relative;
-    width: calc(100% - #{$spacing});
+    width: calc(100% - #{$spacing} - 2px);
     border: 1px solid $tdc_accent;
     border-top: none;
     height: 300px;
