@@ -18,14 +18,14 @@ export class TooltipControllerService extends ObserverPattern {
     }
 
     showTooltip(args: any, isMobile: boolean, x: number, y: number): void {
-        this.positionTooltip(isMobile, x, y);
         this.getTooltip().style.display = 'block';
+        this.positionTooltip(isMobile, x, y);
         this.notify(callback => callback.call(callback, args));
     }
 
     hideTooltip(): void {
         this.getTooltip().style.display = 'none';
-        this.notify(callback => callback.call(callback, { type: undefined }));
+        this.notify(callback => callback.call(callback, {type: undefined}));
     }
 
     private getTooltip(): any {
@@ -40,7 +40,12 @@ export class TooltipControllerService extends ObserverPattern {
     private positionDesktop(x: number, y: number): void {
         const tooltip = this.getTooltip();
         tooltip.style.top = y - 70 + "px";
-        tooltip.style.left = x + 20 + "px";
+        const width = tooltip.children[Math.max(tooltip.children.length - 1, 0)]?.clientWidth || 500;
+        if ((window.innerWidth / 2) <= x) {
+            tooltip.style.left = (x - width - 30) + "px";
+        } else {
+            tooltip.style.left = (x + 20) + "px";
+        }
     }
 
     private positionMobile(y: number): void {

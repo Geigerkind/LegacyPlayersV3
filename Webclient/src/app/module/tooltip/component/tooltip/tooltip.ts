@@ -66,6 +66,9 @@ export class TooltipComponent {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
                 this.iconPath = "/assets/wow_icon/spell_holy_dispelmagic.jpg";
+            } else if (args.type === 10) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
             }
         });
     }

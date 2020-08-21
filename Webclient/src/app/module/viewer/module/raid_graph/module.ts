@@ -5,6 +5,7 @@ import {CommonModule} from "@angular/common";
 import {MultiSelectModule} from "../../../../template/input/multi_select/module";
 import {SelectInputModule} from "../../../../template/input/select_input/module";
 import {ChartsModule} from "ng2-charts";
+import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
 
 @NgModule({
     declarations: [RaidGraphComponent],
@@ -13,7 +14,8 @@ import {ChartsModule} from "ng2-charts";
         TranslateModule,
         MultiSelectModule,
         SelectInputModule,
-        ChartsModule
+        ChartsModule,
+        ShowTooltipDirectiveModule
     ],
     exports: [RaidGraphComponent]
 })

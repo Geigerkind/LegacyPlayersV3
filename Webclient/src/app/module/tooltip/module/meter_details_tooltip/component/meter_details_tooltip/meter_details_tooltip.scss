@@ -1,6 +1,11 @@
+:host {
+    display: block;
+}
+
 .header {
     display: flex;
     flex-direction: row;
+    white-space: nowrap;
 
     div {
         min-width: 60px;
@@ -13,6 +18,7 @@
 }
 
 .body {
+    white-space: nowrap;
     div {
         display: flex;
         flex-direction: row;

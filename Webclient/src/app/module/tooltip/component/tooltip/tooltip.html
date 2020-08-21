@@ -11,6 +11,7 @@
 <ViewerEventLogTooltip [payload]="tooltipPayload | async" *ngIf="tooltipType === 8"></ViewerEventLogTooltip>
 <UnAuraOverview [un_aura_overview_rows]="tooltipPayload" *ngIf="tooltipType === 9"
                 [server_id]="tooltipArgs"></UnAuraOverview>
+<ViewerGraphTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 10"></ViewerGraphTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>

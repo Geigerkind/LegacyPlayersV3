@@ -69,12 +69,52 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     };
     chartColors: Array<Color> = [
         {
-            backgroundColor: 'red',
-            borderColor: 'red',
+            backgroundColor: '#ab0000',
+            borderColor: '#ab0000',
         },
         {
-            backgroundColor: 'blue',
-            borderColor: 'blue',
+            backgroundColor: '#b47400',
+            borderColor: '#b47400',
+        },
+        {
+            backgroundColor: '#afb400',
+            borderColor: '#afb400',
+        },
+        {
+            backgroundColor: '#35b400',
+            borderColor: '#35b400',
+        },
+        {
+            backgroundColor: '#009fb4',
+            borderColor: '#009fb4',
+        },
+        {
+            backgroundColor: '#009fb4',
+            borderColor: '#009fb4',
+        },
+        {
+            backgroundColor: '#005fb4',
+            borderColor: '#005fb4',
+        },
+        {
+            backgroundColor: '#8400b4',
+            borderColor: '#8400b4',
+        },
+        {
+            backgroundColor: '#cbd868',
+            borderColor: '#cbd868',
+        },
+        {
+            backgroundColor: '#d8c168',
+            borderColor: '#d8c168',
+        },
+        {
+            backgroundColor: '#7668d8',
+            borderColor: '#7668d8',
+        },
+        {
+            backgroundColor: '#c7735d',
+            borderColor: '#c7735d',
         }
     ];
     chartPlugins = [];
@@ -186,6 +226,14 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     select_chart_type(chart_type: number): void {
         this.selected_chart_type = chart_type;
         this.graphDataService.update();
+    }
+
+    get tooltip(): any {
+        const result = [];
+        for (let i = 0; i < this.chartDataSets.length; ++i)
+            if (!is_event_data_set(this.chartDataSets[i].label as DataSet))
+                result.push([this.chartDataSets[i].label, this.chartColors[i].backgroundColor]);
+        return {type: 10, payload: result};
     }
 
     private save_selected(): void {

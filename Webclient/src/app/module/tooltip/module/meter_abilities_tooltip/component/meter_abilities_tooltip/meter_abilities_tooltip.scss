@@ -1,9 +1,12 @@
 @import "src/styles/global";
 
 :host {
+    display: block;
+
     .split {
         display: flex;
         flex-direction: row;
+        white-space: nowrap;
 
         div:first-child {
             margin-right: $spacing;
@@ -11,6 +14,14 @@
 
         div:last-child {
             margin-left: auto;
+        }
+
+        &:nth-child(2n) {
+            background: $tdc_darker;
+        }
+
+        &:nth-child(2n + 1) {
+            background: lighten($tdc_darker, 3%);
         }
     }
 }

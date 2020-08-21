@@ -1,5 +1,6 @@
 <div class="menu_bar">
-    <SelectInput [options]="chartTypes" [value]="selected_chart_type" (valueChange)="select_chart_type($event)"></SelectInput>
+    <SelectInput [options]="chartTypes" [value]="selected_chart_type"
+                 (valueChange)="select_chart_type($event)"></SelectInput>
     <MultiSelect [placeholder]="'Datasets'" [dropdownList]="dataSets" [selectedItems]="dataSetsSelected"
                  (item_selected)="data_set_selected($event)"
                  (item_deselected)="data_set_deselected($event)" [enableCheckAll]="false"
@@ -7,7 +8,7 @@
     <MultiSelect id="last_multi_select" [placeholder]="'Events'" [dropdownList]="events"
                  [selectedItems]="eventsSelected" [enableCheckAll]="false" [allowSearchFilter]="false"
                  (item_selected)="event_selected($event)" (item_deselected)="event_deselected($event)"></MultiSelect>
-    <div class="question_mark">?</div>
+    <div class="question_mark" [showTooltip]="tooltip">?</div>
 </div>
 <div class="graph_container" *ngIf="this.chartDataSets.length > 0">
     <canvas baseChart
