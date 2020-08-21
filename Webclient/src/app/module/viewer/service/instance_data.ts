@@ -283,7 +283,7 @@ export class InstanceDataService implements OnDestroy {
         ];
         for (const source of sources)
             sources_res.set(get_unit_id(source), source);
-        this.sources$.next([...sources.values()]);
+        this.sources$.next([...sources_res.values()]);
 
         // Targets
         const targets_res = new Map();
@@ -295,7 +295,7 @@ export class InstanceDataService implements OnDestroy {
         ];
         for (const target of targets)
             targets_res.set(get_unit_id(target), target);
-        this.targets$.next([...targets.values()]);
+        this.targets$.next([...targets_res.values()]);
 
         // Abilities
         const abilities_res = new Set<number>();

@@ -114,14 +114,17 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private async handle_categories(categories: Array<Category>, update_filter: boolean) {
         const new_list_items = [];
+        let any_unknown: boolean = false;
         for (const category of categories) {
-            if (category.label.toString() === CONST_UNKNOWN_LABEL)
-                this.update_categories = () => this.handle_categories(categories, false);
+            any_unknown = any_unknown || category.label.toString() === CONST_UNKNOWN_LABEL;
             new_list_items.push({
                 id: category.id,
                 label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
             });
         }
+        if (any_unknown) this.update_categories = () => this.handle_categories(categories, false);
+        else this.update_categories = undefined;
+
         const new_selected_items = [];
         if (this.use_default_filter_categories) {
             for (const list_item of new_list_items)
@@ -141,15 +144,18 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private async handle_segments(segments: Array<Segment>, update_filter: boolean) {
         const new_list_items = [];
+        let any_unknown: boolean = false;
         for (const segment of segments) {
-            if (segment.label.toString() === CONST_UNKNOWN_LABEL)
-                this.update_segments = () => this.handle_segments(segments, false);
+            any_unknown = any_unknown || segment.label.toString() === CONST_UNKNOWN_LABEL;
             new_list_items.push({
                 id: segment.id,
                 label: segment.label.toString() + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts)
             });
         }
+        if (any_unknown) this.update_segments = () => this.handle_segments(segments, false);
+        else this.update_segments = undefined;
+
         const new_selected_items = [];
         if (this.use_default_filter_segments) {
             for (const list_item of new_list_items)
@@ -170,9 +176,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_sources(sources: Array<EventSource>, update_filter: boolean) {
         const new_list_items = [];
         const new_selected_items = [];
+        let any_unknown: boolean = false;
         for (const source of sources) {
-            if (source.label.toString() === CONST_UNKNOWN_LABEL)
-                this.update_sources = () => this.handle_sources(sources, false);
+            any_unknown = any_unknown || source.label.toString() === CONST_UNKNOWN_LABEL;
             const list_item = {
                 id: source.id,
                 label: source.label.toString()
@@ -181,6 +187,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             if (this.use_default_filter_sources && source.is_player)
                 new_selected_items.push(list_item);
         }
+        if (any_unknown) this.update_sources = () => this.handle_sources(sources, false);
+        else this.update_sources = undefined;
+
         if (!this.use_default_filter_sources) {
             for (const selected_item of this.selected_items_sources) {
                 if (new_list_items.find(item => item.id === selected_item.id))
@@ -197,9 +206,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_targets(targets: Array<EventSource>, update_filter: boolean) {
         const new_list_items = [];
         const new_selected_items = [];
+        let any_unknown: boolean = false;
         for (const target of targets) {
-            if (target.label.toString() === CONST_UNKNOWN_LABEL)
-                this.update_targets = () => this.handle_targets(targets, false);
+            any_unknown = any_unknown || target.label.toString() === CONST_UNKNOWN_LABEL;
             const list_item = {
                 id: target.id,
                 label: target.label.toString()
@@ -210,6 +219,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 new_selected_items.push(list_item);
 
         }
+        if (any_unknown) this.update_targets = () => this.handle_targets(targets, false);
+        else this.update_targets = undefined;
+
         if (!this.use_default_filter_targets) {
             for (const selected_item of this.selected_items_targets) {
                 if (new_list_items.find(item => item.id === selected_item.id))
@@ -226,9 +238,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private async handle_abilities(abilities: Array<EventAbility>, update_filter: boolean) {
         const new_list_items = [];
         const new_selected_items = [];
+        let any_unknown: boolean = false;
         for (const ability of abilities) {
-            if (ability.label.toString() === CONST_UNKNOWN_LABEL)
-                this.update_abilities = () => this.handle_abilities(abilities, false);
+            any_unknown = any_unknown || ability.label.toString() === CONST_UNKNOWN_LABEL;
             const list_item = {
                 id: ability.id,
                 label: ability.label.toString() + " (Id: " + ability.id.toString() + ")"
@@ -239,6 +251,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 new_selected_items.push(list_item);
 
         }
+        if (any_unknown) this.update_abilities = () => this.handle_abilities(abilities, false);
+        else this.update_abilities = undefined;
+
         if (!this.use_default_filter_abilities) {
             for (const selected_item of this.selected_items_abilities) {
                 if (new_list_items.find(item => item.id === selected_item.id))
