@@ -62,6 +62,7 @@ export class InstanceDataService implements OnDestroy {
     private changed$: Subject<ChangedSubject> = new Subject();
     private readonly updater: any;
 
+    private worker: Array<Worker> = [];
     knecht_melee: Remote<Rechenknecht>;
     knecht_spell: Remote<Rechenknecht>;
     knecht_misc: Remote<Rechenknecht>;
@@ -97,6 +98,7 @@ export class InstanceDataService implements OnDestroy {
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
         clearInterval(this.updater);
+        this.worker.forEach(worker => worker.terminate());
     }
 
     private load_instance_meta(on_success: any): void {
@@ -178,6 +180,7 @@ export class InstanceDataService implements OnDestroy {
             if (knecht_condition(data))
                 this.knecht_updates$.next(data[1]);
         };
+        this.worker.push(worker);
         this.knecht_melee = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/spell.worker', {type: 'module'});
@@ -186,6 +189,7 @@ export class InstanceDataService implements OnDestroy {
             if (knecht_condition(data))
                 this.knecht_updates$.next(data[1]);
         };
+        this.worker.push(worker);
         this.knecht_spell = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/misc.worker', {type: 'module'});
@@ -194,6 +198,7 @@ export class InstanceDataService implements OnDestroy {
             if (knecht_condition(data))
                 this.knecht_updates$.next(data[1]);
         };
+        this.worker.push(worker);
         this.knecht_misc = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/replay.worker', {type: 'module'});
@@ -202,6 +207,7 @@ export class InstanceDataService implements OnDestroy {
             if (knecht_condition(data))
                 this.knecht_updates$.next(data[1]);
         };
+        this.worker.push(worker);
         this.knecht_replay = Comlink.wrap<Rechenknecht>(worker);
     }
 
