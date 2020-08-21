@@ -36,8 +36,12 @@ export class MultiSelectComponent implements OnInit {
         itemsShowLimit: 1,
     };
 
+    additional_buttonData: Array<AdditionalButton> = [];
     @Input()
-    additional_button: Array<AdditionalButton> = [];
+    set additional_button(buttons: Array<AdditionalButton>) {
+        this.additional_buttonData = buttons;
+        setTimeout(() => this.addCollectionButton(), 1000);
+    }
 
     selectedItemsData: Array<any> = [];
 
@@ -81,7 +85,7 @@ export class MultiSelectComponent implements OnInit {
             collection_button_ul.innerHTML = "";
 
             collection_button_ul.appendChild(first_child);
-            for (const button of this.additional_button) {
+            for (const button of this.additional_buttonData) {
                 const clone = first_child.cloneNode(true);
                 clone.children[1].innerHTML = button.label;
                 clone.children[1].id = "additional_button" + button.id.toString();
@@ -101,7 +105,7 @@ export class MultiSelectComponent implements OnInit {
     }
 
     private check_if_additional_buttons_are_selected(): void {
-        for (const button of this.additional_button) {
+        for (const button of this.additional_buttonData) {
             if (!this.additional_button_checkboxes.has(button.id))
                 continue;
 

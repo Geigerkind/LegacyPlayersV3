@@ -7,7 +7,6 @@ import {Segment} from "../../domain_value/segment";
 import {EventSource} from "../../domain_value/event_source";
 import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
 import {EventAbility} from "../../domain_value/event_ability";
-import {CONST_UNKNOWN_LABEL} from "../../../../constant/viewer";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
 
 @Component({
@@ -45,7 +44,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     use_default_filter_targets: boolean = true;
     use_default_filter_abilities: boolean = true;
 
-    additional_button: Array<AdditionalButton> = [
+    sources_additional_button: Array<AdditionalButton> = [
         {
             id: 1, label: "All Players", list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_player)
@@ -59,6 +58,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_boss)
         },
     ];
+
+    segments_additional_button: Array<AdditionalButton> = [];
 
     constructor(
         private raidConfigurationService: RaidConfigurationService,
@@ -110,12 +111,20 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private async handle_categories(categories: Array<Category>, update_filter: boolean) {
         const new_list_items = [];
+        const additional_button = [];
         for (const category of categories) {
             new_list_items.push({
                 id: category.id,
                 label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
             });
+            additional_button.push({
+                id: category.id,
+                label: category.label,
+                list_selection_callback: (button, selected_list, current_list, checked) =>
+                    this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.encounter_id === category.id)
+            });
         }
+        this.segments_additional_button = additional_button;
 
         const new_selected_items = [];
         if (this.use_default_filter_categories) {
@@ -140,7 +149,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             new_list_items.push({
                 id: segment.id,
                 label: segment.label.toString() + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
-                    + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts)
+                    + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts),
+                encounter_id: segment.encounter_id
             });
         }
 
