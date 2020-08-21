@@ -165,7 +165,11 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public set instance_meta_id(instance_meta_id: number) {
+        if (!!this.instance_meta_id$)
+            return;
+
         this.instance_meta_id$ = instance_meta_id;
+
         // Cant be put into a function because Angular won't recognize paths otherwise
         const knecht_condition = data => !!data && !!data[0] && data[0] === "KNECHT_UPDATES";
         let worker = new Worker('./../worker/melee.worker', {type: 'module'});
