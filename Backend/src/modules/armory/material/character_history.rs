@@ -41,8 +41,8 @@ impl CharacterHistory {
     }
 
     pub fn compare_by_value(&self, other: &CharacterHistoryDto) -> bool {
-        self.character_info.compare_by_value(&other.character_info)
-            && self.character_name == other.character_name
+        self.character_info.compare_by_value(&other.character_info) &&
+            self.character_name == other.character_name
             && ((self.character_guild.is_none() && other.character_guild.is_none())
                 || (self.character_guild.is_some() && other.character_guild.is_some()) && self.character_guild.as_ref().unwrap().compare_by_value(other.character_guild.as_ref().unwrap()))
             && self.character_title == other.character_title

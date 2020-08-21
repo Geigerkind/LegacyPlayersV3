@@ -1,4 +1,5 @@
 use crate::modules::armory::{domain_value::CharacterGear, dto::CharacterInfoDto};
+use crate::modules::armory::tools::strip_talent_specialization;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct CharacterInfo {
@@ -21,13 +22,13 @@ impl PartialEq for CharacterInfo {
 
 impl CharacterInfo {
     pub fn compare_by_value(&self, other: &CharacterInfoDto) -> bool {
-        self.gear.compare_by_value(&other.gear)
-            && self.hero_class_id == other.hero_class_id
+        self.gear.compare_by_value(&other.gear) &&
+            self.hero_class_id == other.hero_class_id
             && self.level == other.level
             && self.gender == other.gender
             && self.profession1 == other.profession1
             && self.profession2 == other.profession2
-            && self.talent_specialization == other.talent_specialization
+            && self.talent_specialization == strip_talent_specialization(&other.talent_specialization)
             && self.race_id == other.race_id
     }
 
