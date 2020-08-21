@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {APIService} from "../../../service/api";
-import {Observable, Subject} from "rxjs";
+import {Observable, of, Subject} from "rxjs";
 import {Character} from "../domain_value/character";
 import {BasicCharacter} from "../domain_value/basic_character";
 
@@ -11,6 +11,8 @@ export class CharacterService {
 
     private static readonly URL_CHARACTER: string = "/armory/character/:character_id";
     private static readonly URL_BASIC_CHARACTER: string = "/armory/character/basic/:character_id";
+
+    private cache_basic_character: Map<number, BasicCharacter> = new Map();
 
     constructor(
         private apiService: APIService
@@ -28,6 +30,9 @@ export class CharacterService {
     }
 
     get_basic_character_by_id(character_id: number): Observable<BasicCharacter> {
+        if (this.cache_basic_character.has(character_id))
+            return of(this.cache_basic_character.get(character_id));
+
         const subject = new Subject<BasicCharacter>();
 
         this.apiService.get(CharacterService.URL_BASIC_CHARACTER
@@ -43,6 +48,7 @@ export class CharacterService {
                 if (!character.spec_id)
                     character.spec_id = 0;
 
+                this.cache_basic_character.set(character_id, character);
                 subject.next(character);
             }, () => subject.next(this.get_default_basic_character(character_id)));
 

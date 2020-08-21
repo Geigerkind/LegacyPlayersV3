@@ -35,10 +35,19 @@ export class DataService {
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
     private difficulties$: BehaviorSubject<Array<Localized<Difficulty>>>;
 
+    private cache_basic_spell: Map<number, Map<number, Localized<BasicSpell>>> = new Map();
+    private cache_basic_item: Map<number, Map<number, Localized<BasicItem>>> = new Map();
+    private cache_npc: Map<number, Map<number, Localized<NPC>>> = new Map();
+
     constructor(
         private apiService: APIService,
         private settingsService: SettingsService
     ) {
+        for (let i = 1; i < 10; ++i) {
+            this.cache_basic_spell.set(i, new Map());
+            this.cache_basic_item.set(i, new Map());
+            this.cache_npc.set(i, new Map());
+        }
     }
 
     get servers(): Observable<Array<AvailableServer>> {
@@ -78,11 +87,17 @@ export class DataService {
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
+        if (this.cache_npc.get(expansion_id).has(npc_id))
+            return of(this.cache_npc.get(expansion_id).get(npc_id));
+
         const subject = new Subject<Localized<NPC>>();
         this.apiService.get(DataService.URL_DATA_NPC_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":npc_id", npc_id.toString()),
-            npc => subject.next(npc), () => subject.next({
+            npc => {
+                this.cache_npc.get(expansion_id).set(npc_id, npc);
+                subject.next(npc);
+            }, () => subject.next({
                 localization: "Unknown",
                 base: {
                     id: npc_id,
@@ -97,12 +112,17 @@ export class DataService {
     }
 
     get_localized_basic_item(expansion_id: number, item_id: number): Observable<Localized<BasicItem>> {
+        if (this.cache_basic_item.get(expansion_id).has(item_id))
+            return of(this.cache_basic_item.get(expansion_id).get(item_id));
         const subject = new Subject<Localized<BasicItem>>();
 
         this.apiService.get(DataService.URL_DATA_BASIC_ITEM_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":item_id", item_id.toString()),
-            item => subject.next(item), () => subject.next({
+            item => {
+                this.cache_basic_item.get(expansion_id).set(item_id, item);
+                subject.next(item);
+            }, () => subject.next({
                 localization: "Unknown",
                 base: {
                     icon: "inv_misc_questionmark",
@@ -115,12 +135,18 @@ export class DataService {
     }
 
     get_localized_basic_spell(expansion_id: number, spell_id: number): Observable<Localized<BasicSpell>> {
+        if (this.cache_basic_spell.get(expansion_id).has(spell_id))
+            return of(this.cache_basic_spell.get(expansion_id).get(spell_id));
+
         const subject = new Subject<Localized<BasicSpell>>();
 
         this.apiService.get(DataService.URL_DATA_BASIC_SPELL_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":spell_id", spell_id.toString()),
-            item => subject.next(item), () => subject.next(this.unknown_basic_spell));
+            spell => {
+                this.cache_basic_spell.get(expansion_id).set(spell_id, spell);
+                subject.next(spell);
+            }, () => subject.next(this.unknown_basic_spell));
 
         return subject;
     }
