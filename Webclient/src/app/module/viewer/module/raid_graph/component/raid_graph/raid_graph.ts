@@ -54,11 +54,17 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             }],
             yAxes: [{
                 // stacked: true
+                ticks: {
+                    beginAtZero: true
+                }
             }]
         },
         hover: {
             intersect: false,
             mode: "point"
+        },
+        animation: {
+            duration: 0
         }
     };
     chartColors: Array<Color> = [

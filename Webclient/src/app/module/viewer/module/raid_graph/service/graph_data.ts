@@ -73,30 +73,35 @@ export class GraphDataService implements OnDestroy {
             y_axis.push(y);
         }
 
-        if (is_event_data_set(data_set)) {
-            let max_value = [...data_points.values()]
-                .map(([x, y]) => y)
-                .reduce((acc, y) => Math.max(acc, ...y), 0);
-            max_value *= 0.75;
-            for (let i = 0; i < y_axis.length; ++i)
-                y_axis[i] = max_value;
-        }
-
         data_points.set(data_set, [x_axis, y_axis]);
+        this.compute_event_y_values(data_points);
+
         this.data_points$.next([this.compute_x_axis(data_points), data_points]);
     }
 
     remove_data_set(data_set: DataSet): void {
         const [old_x_axis, data_points] = this.data_points$.getValue();
         data_points.delete(data_set);
+        this.compute_event_y_values(data_points);
         this.data_points$.next([this.compute_x_axis(data_points), data_points]);
+    }
+
+    private compute_event_y_values(data_points: Map<DataSet, [Array<number>, Array<number>]>): void {
+        const max_value = [...data_points.entries()].filter(([data_set, points]) => !is_event_data_set(data_set))
+            .map(([set, [x, y]]) => y)
+            .reduce((acc, y) => Math.max(acc, ...y), 0) * 0.75;
+        for (const [c_data_set, [c_x_axis, c_yaxis]] of data_points) {
+            if (is_event_data_set(c_data_set)) {
+                for (let i = 0; i < c_yaxis.length; ++i)
+                    c_yaxis[i] = max_value;
+            }
+        }
     }
 
     private compute_x_axis(data_points: Map<DataSet, [Array<number>, Array<number>]>): Array<number> {
         let result = new Set<number>();
-        for (const [timestamps, values] of data_points.values()) {
+        for (const [timestamps, values] of data_points.values())
             result = new Set<number>([...result.values(), ...timestamps.values()]);
-        }
         return [...result.values()].sort((left, right) => left - right);
     }
 }
