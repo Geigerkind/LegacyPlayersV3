@@ -1,4 +1,7 @@
 <div class="container" [class.closed]="closed" (clickOutside)="closed = true">
+    <button class="menu_button base" routerLink="../base" routerLinkActive="active">Base</button>
+    <button class="menu_button ability" routerLink="../ability" routerLinkActive="active">Ability</button>
+    <button class="menu_button detail" routerLink="../detail" routerLinkActive="active">Detail</button>
     <button (click)="closed = !closed" class="toggle_button">
         <svg aria-hidden="true" height="32" version="1.1" viewBox="0 0 12 16" width="24">
             <path
