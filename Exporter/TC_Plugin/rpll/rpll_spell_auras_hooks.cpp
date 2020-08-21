@@ -25,7 +25,7 @@ void RPLLSpellAurasHooks::AuraSetStackAmount(const Aura *aura, const uint32_t ol
         return;
     #endif
 
-    const auto amount = static_cast<uint32_t>(aura->GetStackAmount());
+    const auto amount = static_cast<int32_t>(aura->GetStackAmount());
     if (amount != oldAmount)
-        RPLLHooks::AuraApplication(aura->GetCaster(), owner->ToUnit(), static_cast<uint32_t>(aura->GetId()), static_cast<uint32_t>(aura->GetStackAmount()), amount > oldAmount);
+        RPLLHooks::AuraApplication(aura->GetCaster(), owner->ToUnit(), static_cast<uint32_t>(aura->GetId()), static_cast<uint32_t>(aura->GetStackAmount()), static_cast<int8_t>(amount - static_cast<int32_t>(oldAmount)));
 }

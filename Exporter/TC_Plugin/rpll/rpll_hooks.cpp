@@ -389,7 +389,7 @@ void RPLLHooks::Death(const Unit *cause, const Unit *victim)
 
 // Apllied = True => A stack has been added (Also refresh)
 // Applied = False => A stack has been removed
-void RPLLHooks::AuraApplication(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t stackAmount, const bool applied)
+void RPLLHooks::AuraApplication(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t stackAmount, const int8_t delta)
 {
     if (!IsInInstance(target))
         return;
@@ -400,7 +400,7 @@ void RPLLHooks::AuraApplication(const Unit *caster, const Unit *target, const ui
     msg << static_cast<uint64_t>(target->GetGUID().GetRawValue());
     msg << spellId;
     msg << stackAmount;
-    msg << static_cast<uint8_t>(applied);
+    msg << delta;
     SendZmqMessage(std::move(msg));
 }
 

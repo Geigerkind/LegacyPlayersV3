@@ -6,5 +6,5 @@ pub struct AuraApplication {
     pub target: Unit,
     pub spell_id: u32,
     pub stack_amount: u32,
-    pub applied: bool,
+    pub delta: i8,
 }

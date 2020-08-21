@@ -16,7 +16,7 @@ impl MapAuraApplication for [u8] {
             target: self[9..18].to_unit()?,
             spell_id: byte_reader::read_u32(&self[18..22]).unwrap(),
             stack_amount: byte_reader::read_u32(&self[22..26]).unwrap(),
-            applied: self[26] == 1,
+            delta: self[26] as i8,
         })
     }
 }
