@@ -1,13 +1,13 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {APIService} from "src/app/service/api";
-import {Observable, BehaviorSubject, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, Observable, Subject, Subscription} from "rxjs";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {InstanceViewerParticipants} from "../domain_value/instance_viewer_participants";
 import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
 import {get_unit_id, Unit} from "../domain_value/unit";
 import * as Comlink from "comlink";
-import {Rechenknecht} from "../tool/rechenknecht";
 import {Remote} from "comlink";
+import {Rechenknecht} from "../tool/rechenknecht";
 import {debounceTime} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 

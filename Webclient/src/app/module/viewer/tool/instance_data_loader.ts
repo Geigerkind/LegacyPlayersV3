@@ -19,7 +19,6 @@ import {ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal} from "../extract
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {get_threat} from "../extractor/events";
 import {Subject} from "rxjs";
-import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
@@ -112,7 +111,10 @@ export class InstanceDataLoader {
     private async load_data(event_types: Array<number>): Promise<void> {
         for (const event_type of event_types)
             await this.load_ressource(event_type);
-        this.initialized = true;
+        if (!this.initialized) {
+            this.initialized = true;
+            (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.Initialized]);
+        }
         this.newData$.next();
     }
 
