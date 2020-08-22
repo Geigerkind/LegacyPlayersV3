@@ -132,7 +132,12 @@ export class EventLogService implements OnDestroy {
                     this.create_event_log_entry(14, event, (evt) => this.process_heal(evt, indicator, spell_cause_event))),
             ...(await this.instanceDataService.knecht_melee.event_log_deaths(this.to_actor, this.log_offsets.get(1)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(1, event, (evt) => this.process_death(evt))),
-        ].sort((left, right) => right.timestamp - left.timestamp);
+        ].sort((left, right) => {
+            const cmp = right.timestamp - left.timestamp;
+            if (cmp === 0)
+                return right.id - left.id;
+            return cmp;
+        });
     }
 
     private async update_event_log_entries(): Promise<void> {
