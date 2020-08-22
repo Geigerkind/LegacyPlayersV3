@@ -1,8 +1,8 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, Unit, UnitInstance};
-use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon};
+use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, DamageComponent, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, Unit, UnitInstance};
+use crate::modules::live_data_processor::dto::{get_damage_components_total, CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_steal};
@@ -210,24 +210,34 @@ impl Server {
             MessageType::MeleeDamage(melee_damage) => {
                 let subject = melee_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let victim = melee_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let mut mitigation = Vec::with_capacity(3);
-                if melee_damage.blocked > 0 {
-                    mitigation.push(Mitigation::Block(melee_damage.blocked));
-                }
-                if melee_damage.absorbed > 0 {
-                    mitigation.push(Mitigation::Absorb(melee_damage.absorbed));
-                }
-                if melee_damage.resisted_or_glanced > 0 {
-                    mitigation.push(Mitigation::Glance(melee_damage.resisted_or_glanced));
-                }
+                let total_damage = get_damage_components_total(&melee_damage.damage_components) as f64;
                 Ok(Event::new(
                     first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::MeleeDamage(domain_value::Damage {
-                        school_mask: school_mask_from_u8(melee_damage.school_mask),
-                        damage: melee_damage.damage,
-                        mitigation,
+                        damage_components: melee_damage
+                            .damage_components
+                            .iter()
+                            .map(|dmg_comp| DamageComponent {
+                                school_mask: school_mask_from_u8(dmg_comp.school_mask),
+                                damage: dmg_comp.damage,
+                                mitigation: {
+                                    let mut mitigation = Vec::with_capacity(3);
+                                    let weighted_blocked_amount = ((melee_damage.blocked as f64) * ((dmg_comp.damage as f64) / total_damage)) as u32;
+                                    if weighted_blocked_amount > 0 {
+                                        mitigation.push(Mitigation::Block(weighted_blocked_amount));
+                                    }
+                                    if dmg_comp.absorbed > 0 {
+                                        mitigation.push(Mitigation::Absorb(dmg_comp.absorbed));
+                                    }
+                                    if dmg_comp.resisted_or_glanced > 0 {
+                                        mitigation.push(Mitigation::Glance(dmg_comp.resisted_or_glanced));
+                                    }
+                                    mitigation
+                                },
+                            })
+                            .collect(),
                         victim,
                         hit_mask: hit_mask_from_u32(melee_damage.hit_mask),
                     }),
@@ -237,16 +247,7 @@ impl Server {
                 let subject = spell_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let victim = spell_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let spell_cause_id = self.find_matching_spell_cause(spell_damage.spell_id.unwrap(), spell_damage.attacker.unit_id, &subject, &victim, first_message.message_count, Some(spell_damage.damage_over_time))?;
-                let mut mitigation = Vec::with_capacity(3);
-                if spell_damage.blocked > 0 {
-                    mitigation.push(Mitigation::Block(spell_damage.blocked));
-                }
-                if spell_damage.absorbed > 0 {
-                    mitigation.push(Mitigation::Absorb(spell_damage.absorbed));
-                }
-                if spell_damage.resisted_or_glanced > 0 {
-                    mitigation.push(Mitigation::Resist(spell_damage.resisted_or_glanced));
-                }
+                let total_damage = get_damage_components_total(&spell_damage.damage_components) as f64;
                 Ok(Event::new(
                     first_message.message_count,
                     first_message.timestamp,
@@ -254,9 +255,28 @@ impl Server {
                     EventType::SpellDamage {
                         spell_cause_id,
                         damage: domain_value::Damage {
-                            school_mask: school_mask_from_u8(spell_damage.school_mask),
-                            damage: spell_damage.damage,
-                            mitigation,
+                            damage_components: spell_damage
+                                .damage_components
+                                .iter()
+                                .map(|dmg_comp| DamageComponent {
+                                    school_mask: school_mask_from_u8(dmg_comp.school_mask),
+                                    damage: dmg_comp.damage,
+                                    mitigation: {
+                                        let mut mitigation = Vec::with_capacity(3);
+                                        let weighted_blocked_amount = ((spell_damage.blocked as f64) * ((dmg_comp.damage as f64) / total_damage)) as u32;
+                                        if weighted_blocked_amount > 0 {
+                                            mitigation.push(Mitigation::Block(weighted_blocked_amount));
+                                        }
+                                        if dmg_comp.absorbed > 0 {
+                                            mitigation.push(Mitigation::Absorb(dmg_comp.absorbed));
+                                        }
+                                        if dmg_comp.resisted_or_glanced > 0 {
+                                            mitigation.push(Mitigation::Resist(dmg_comp.resisted_or_glanced));
+                                        }
+                                        mitigation
+                                    },
+                                })
+                                .collect(),
                             victim,
                             hit_mask: hit_mask_from_u32(spell_damage.hit_mask),
                         },

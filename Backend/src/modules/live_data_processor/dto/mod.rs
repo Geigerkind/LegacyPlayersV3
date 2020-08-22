@@ -1,6 +1,7 @@
 pub use self::aura_application::AuraApplication;
 pub use self::combat_state::CombatState;
-pub use self::damage_done::DamageDone;
+pub use self::damage_component::DamageComponent;
+pub use self::damage_done::*;
 pub use self::death::Death;
 pub use self::event::Event;
 pub use self::heal_done::HealDone;
@@ -26,6 +27,7 @@ pub use self::unit::Unit;
 
 mod aura_application;
 mod combat_state;
+mod damage_component;
 mod damage_done;
 mod death;
 mod event;

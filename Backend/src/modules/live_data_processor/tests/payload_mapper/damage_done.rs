@@ -27,10 +27,11 @@ fn map_damage_done_from_melee_damage_positive() {
     assert_eq!(damage_done.spell_id, None);
     assert_eq!(damage_done.blocked, 32);
     assert_eq!(damage_done.hit_mask, 4);
-    assert_eq!(damage_done.school_mask, 0); // Currently 0 hardcoded
-    assert_eq!(damage_done.damage, 42);
-    assert_eq!(damage_done.resisted_or_glanced, 10);
-    assert_eq!(damage_done.absorbed, 12);
+    assert_eq!(damage_done.damage_components.len(), 1);
+    assert_eq!(damage_done.damage_components[0].school_mask, 4);
+    assert_eq!(damage_done.damage_components[0].damage, 42);
+    assert_eq!(damage_done.damage_components[0].resisted_or_glanced, 10);
+    assert_eq!(damage_done.damage_components[0].absorbed, 12);
 }
 
 #[test]
@@ -62,10 +63,11 @@ fn map_damage_done_from_spell_damage_positive() {
     assert_eq!(damage_done.spell_id, Some(111));
     assert_eq!(damage_done.blocked, 32);
     assert_eq!(damage_done.hit_mask, 4);
-    assert_eq!(damage_done.school_mask, 4);
-    assert_eq!(damage_done.damage, 42);
-    assert_eq!(damage_done.resisted_or_glanced, 10);
-    assert_eq!(damage_done.absorbed, 12);
+    assert_eq!(damage_done.damage_components.len(), 1);
+    assert_eq!(damage_done.damage_components[0].school_mask, 4);
+    assert_eq!(damage_done.damage_components[0].damage, 42);
+    assert_eq!(damage_done.damage_components[0].resisted_or_glanced, 10);
+    assert_eq!(damage_done.damage_components[0].absorbed, 12);
     assert_eq!(damage_done.damage_over_time, true);
     assert_eq!(damage_done.hit_mask, 4);
 }

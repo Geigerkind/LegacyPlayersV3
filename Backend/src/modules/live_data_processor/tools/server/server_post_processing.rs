@@ -1,5 +1,6 @@
 use crate::modules::data::tools::{RetrieveEncounterNpc, RetrieveItem};
 use crate::modules::data::Data;
+use crate::modules::live_data_processor::domain_value::get_damage_components_total;
 use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Power, PowerType, Unit, UnitInstance};
 use crate::modules::live_data_processor::material::{Attempt, Server};
 use crate::params;
@@ -141,9 +142,9 @@ impl Server {
                                         if let Some(encounter_npc) = data.get_encounter_npc(entry) {
                                             if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                                 if let Some(player_damage) = attempt.ranking_damage.get_mut(character_id) {
-                                                    *player_damage += damage.damage;
+                                                    *player_damage += get_damage_components_total(&damage.damage_components);
                                                 } else {
-                                                    attempt.ranking_damage.insert(*character_id, damage.damage);
+                                                    attempt.ranking_damage.insert(*character_id, get_damage_components_total(&damage.damage_components));
                                                 }
                                             }
                                         }

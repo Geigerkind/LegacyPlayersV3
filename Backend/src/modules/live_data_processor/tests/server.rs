@@ -1,6 +1,6 @@
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::{DamageDone, InstanceMap, Message, MessageType, Position, SpellCast, Unit};
+use crate::modules::live_data_processor::dto::{DamageComponent, DamageDone, InstanceMap, Message, MessageType, Position, SpellCast, Unit};
 use crate::modules::live_data_processor::material::Server;
 use crate::tests::TestContainer;
 
@@ -84,10 +84,12 @@ fn parse_spell_damage() {
             spell_id: Some(26),
             hit_mask: 1,
             blocked: 1,
-            school_mask: 2,
-            damage: 10,
-            resisted_or_glanced: 1,
-            absorbed: 1,
+            damage_components: vec![DamageComponent {
+                school_mask: 2,
+                damage: 10,
+                resisted_or_glanced: 1,
+                absorbed: 1,
+            }],
             damage_over_time: false,
         }),
     });
