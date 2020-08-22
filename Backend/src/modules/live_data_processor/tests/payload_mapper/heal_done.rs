@@ -10,6 +10,7 @@ fn map_heal_done_positive() {
         255, 0, 0, 0, // Total heal
         100, 0, 0, 0, // Effective Heal
         55, 0, 0, 0, // Absorbed
+        4, 0, 0, 0, // HitMask
     ];
 
     // Act
@@ -26,6 +27,7 @@ fn map_heal_done_positive() {
     assert_eq!(heal_done.total_heal, 255);
     assert_eq!(heal_done.effective_heal, 100);
     assert_eq!(heal_done.absorb, 55);
+    assert_eq!(heal_done.hit_mask, 4);
 }
 
 #[test]

@@ -207,107 +207,107 @@ inline bool RPLLHooks::HasSignificantPositionChange(const Unit *unit, const floa
 /*
  * Mapper
  */
-RPLL_DamageHitMask RPLLHooks::mapMeleeHitMaskToRPLLHitMask(const uint32_t hitMask, const uint8 victimState, const uint8 meleeHitOutcome, const uint32_t amount)
+RPLL_HitMask RPLLHooks::mapMeleeHitMaskToRPLLHitMask(const uint32_t hitMask, const uint8 victimState, const uint8 meleeHitOutcome, const uint32_t amount)
 {
-    RPLL_DamageHitMask damageHitMask = RPLL_DamageHitMask::NONE;
+    RPLL_HitMask reshitMask = RPLL_HitMask::NONE;
     if (hitMask & HitInfo::HITINFO_OFFHAND)
-        damageHitMask |= RPLL_DamageHitMask::OFF_HAND;
+        reshitMask |= RPLL_HitMask::OFF_HAND;
     if (meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_NORMAL)
-        damageHitMask |= RPLL_DamageHitMask::HIT;
+        reshitMask |= RPLL_HitMask::HIT;
     if (hitMask & HitInfo::HITINFO_CRITICALHIT || meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_CRIT)
-        damageHitMask |= RPLL_DamageHitMask::CRIT;
+        reshitMask |= RPLL_HitMask::CRIT;
     if (hitMask & HitInfo::HITINFO_RESIST) {
-        if (amount > 0) damageHitMask |= RPLL_DamageHitMask::PARTIAL_RESIST;
-        else damageHitMask |= RPLL_DamageHitMask::FULL_RESIST;
+        if (amount > 0) reshitMask |= RPLL_HitMask::PARTIAL_RESIST;
+        else reshitMask |= RPLL_HitMask::FULL_RESIST;
     }
     if (hitMask & HitInfo::HITINFO_MISS || meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_MISS)
-        damageHitMask |= RPLL_DamageHitMask::MISS;
+        reshitMask |= RPLL_HitMask::MISS;
     if (hitMask & HitInfo::HITINFO_ABSORB) {
-        if (amount > 0) damageHitMask |= RPLL_DamageHitMask::PARTIAL_ABSORB;
-        else damageHitMask |= RPLL_DamageHitMask::FULL_ABSORB;
+        if (amount > 0) reshitMask |= RPLL_HitMask::PARTIAL_ABSORB;
+        else reshitMask |= RPLL_HitMask::FULL_ABSORB;
     }
     if (meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_BLOCK || meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_BLOCK_CRIT || victimState == VictimState::VICTIMSTATE_BLOCKS) {
-        if (amount > 0) damageHitMask |= RPLL_DamageHitMask::PARTIAL_BLOCK;
-        else damageHitMask |= RPLL_DamageHitMask::FULL_BLOCK;
+        if (amount > 0) reshitMask |= RPLL_HitMask::PARTIAL_BLOCK;
+        else reshitMask |= RPLL_HitMask::FULL_BLOCK;
     }
     if (hitMask & HitInfo::HITINFO_GLANCING || meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_GLANCING)
-        damageHitMask |= RPLL_DamageHitMask::GLANCING;
+        reshitMask |= RPLL_HitMask::GLANCING;
     if (hitMask & HitInfo::HITINFO_CRUSHING || meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_CRUSHING)
-        damageHitMask |= RPLL_DamageHitMask::CRUSHING;
+        reshitMask |= RPLL_HitMask::CRUSHING;
     if (meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_EVADE || victimState == VictimState::VICTIMSTATE_EVADES)
-        damageHitMask |= RPLL_DamageHitMask::EVADE;
+        reshitMask |= RPLL_HitMask::EVADE;
     if (meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_DODGE || victimState == VictimState::VICTIMSTATE_DODGE)
-        damageHitMask |= RPLL_DamageHitMask::DODGE;
+        reshitMask |= RPLL_HitMask::DODGE;
     if (meleeHitOutcome == MeleeHitOutcome::MELEE_HIT_PARRY || victimState == VictimState::VICTIMSTATE_PARRY)
-        damageHitMask |= RPLL_DamageHitMask::PARRY;
+        reshitMask |= RPLL_HitMask::PARRY;
     if (victimState == VictimState::VICTIMSTATE_IS_IMMUNE)
-        damageHitMask |= RPLL_DamageHitMask::IMMUNE;
+        reshitMask |= RPLL_HitMask::IMMUNE;
     if (victimState == VictimState::VICTIMSTATE_DEFLECTS)
-        damageHitMask |= RPLL_DamageHitMask::DEFLECT;
+        reshitMask |= RPLL_HitMask::DEFLECT;
     if (victimState == VictimState::VICTIMSTATE_INTERRUPT)
-        damageHitMask |= RPLL_DamageHitMask::INTERRUPT;
-    return damageHitMask;
+        reshitMask |= RPLL_HitMask::INTERRUPT;
+    return reshitMask;
 }
 
-RPLL_DamageHitMask RPLLHooks::mapSpellHitMaskToRPLLHitMask(const uint32_t hitMask, const uint32_t resist, const uint32_t absorb, const uint32_t block, const uint32_t amount) {
-    RPLL_DamageHitMask damageHitMask = RPLL_DamageHitMask::NONE;
+RPLL_HitMask RPLLHooks::mapSpellHitMaskToRPLLHitMask(const uint32_t hitMask, const uint32_t resist, const uint32_t absorb, const uint32_t block, const uint32_t amount) {
+    RPLL_HitMask reshitMask = RPLL_HitMask::NONE;
     if (hitMask & SpellHitType::SPELL_HIT_TYPE_CRIT || hitMask & SpellHitType::SPELL_HIT_TYPE_CRIT_DEBUG)
-        damageHitMask |= RPLL_DamageHitMask::CRIT;
+        reshitMask |= RPLL_HitMask::CRIT;
     else if (hitMask & SpellHitType::SPELL_HIT_TYPE_HIT_DEBUG)
-        damageHitMask |= RPLL_DamageHitMask::HIT;
+        reshitMask |= RPLL_HitMask::HIT;
     if (hitMask & SpellHitType::SPELL_HIT_TYPE_SPLIT)
-        damageHitMask |= RPLL_DamageHitMask::SPLIT;
+        reshitMask |= RPLL_HitMask::SPLIT;
     if (amount > 0) {
         if (resist > 0)
-            damageHitMask |= RPLL_DamageHitMask::PARTIAL_RESIST;
+            reshitMask |= RPLL_HitMask::PARTIAL_RESIST;
         if (absorb > 0)
-            damageHitMask |= RPLL_DamageHitMask::PARTIAL_ABSORB;
+            reshitMask |= RPLL_HitMask::PARTIAL_ABSORB;
         if (block > 0)
-            damageHitMask |= RPLL_DamageHitMask::PARTIAL_BLOCK;
-        if ((damageHitMask & RPLL_DamageHitMask::CRIT) == RPLL_DamageHitMask::NONE)
-            damageHitMask |= RPLL_DamageHitMask::HIT;
+            reshitMask |= RPLL_HitMask::PARTIAL_BLOCK;
+        if ((reshitMask & RPLL_HitMask::CRIT) == RPLL_HitMask::NONE)
+            reshitMask |= RPLL_HitMask::HIT;
     } else {
         if (resist > 0)
-            damageHitMask |= RPLL_DamageHitMask::FULL_RESIST;
+            reshitMask |= RPLL_HitMask::FULL_RESIST;
         if (absorb > 0)
-            damageHitMask |= RPLL_DamageHitMask::FULL_RESIST;
+            reshitMask |= RPLL_HitMask::FULL_RESIST;
         if (block > 0)
-            damageHitMask |= RPLL_DamageHitMask::FULL_RESIST;
+            reshitMask |= RPLL_HitMask::FULL_RESIST;
     }
-    return damageHitMask;
+    return reshitMask;
 }
 
-RPLL_DamageHitMask RPLLHooks::mapSpellCastHitMaskToRPLLHitMask(const uint32_t hitMask) {
-    RPLL_DamageHitMask damageHitMask = RPLL_DamageHitMask::NONE;
+RPLL_HitMask RPLLHooks::mapSpellCastHitMaskToRPLLHitMask(const uint32_t hitMask) {
+    RPLL_HitMask reshitMask = RPLL_HitMask::NONE;
     if (hitMask & ProcFlagsHit::PROC_HIT_NONE || hitMask & ProcFlagsHit::PROC_HIT_NORMAL)
-        damageHitMask |= RPLL_DamageHitMask::HIT;
+        reshitMask |= RPLL_HitMask::HIT;
     else if (hitMask & ProcFlagsHit::PROC_HIT_CRITICAL)
-        damageHitMask |= RPLL_DamageHitMask::CRIT;
+        reshitMask |= RPLL_HitMask::CRIT;
     else if (hitMask & ProcFlagsHit::PROC_HIT_MISS)
-        damageHitMask |= RPLL_DamageHitMask::MISS;
+        reshitMask |= RPLL_HitMask::MISS;
     if (hitMask & ProcFlagsHit::PROC_HIT_FULL_RESIST)
-        damageHitMask |= RPLL_DamageHitMask::FULL_RESIST;
+        reshitMask |= RPLL_HitMask::FULL_RESIST;
     if (hitMask & ProcFlagsHit::PROC_HIT_DODGE)
-        damageHitMask |= RPLL_DamageHitMask::DODGE;
+        reshitMask |= RPLL_HitMask::DODGE;
     if (hitMask & ProcFlagsHit::PROC_HIT_PARRY)
-        damageHitMask |= RPLL_DamageHitMask::PARRY;
+        reshitMask |= RPLL_HitMask::PARRY;
     if (hitMask & ProcFlagsHit::PROC_HIT_BLOCK)
-        damageHitMask |= RPLL_DamageHitMask::PARTIAL_BLOCK;
+        reshitMask |= RPLL_HitMask::PARTIAL_BLOCK;
     if (hitMask & ProcFlagsHit::PROC_HIT_EVADE)
-        damageHitMask |= RPLL_DamageHitMask::EVADE;
+        reshitMask |= RPLL_HitMask::EVADE;
     if (hitMask & ProcFlagsHit::PROC_HIT_IMMUNE)
-        damageHitMask |= RPLL_DamageHitMask::IMMUNE;
+        reshitMask |= RPLL_HitMask::IMMUNE;
     if (hitMask & ProcFlagsHit::PROC_HIT_DEFLECT)
-        damageHitMask |= RPLL_DamageHitMask::DEFLECT;
+        reshitMask |= RPLL_HitMask::DEFLECT;
     if (hitMask & ProcFlagsHit::PROC_HIT_ABSORB)
-        damageHitMask |= RPLL_DamageHitMask::PARTIAL_ABSORB;
+        reshitMask |= RPLL_HitMask::PARTIAL_ABSORB;
     if (hitMask & ProcFlagsHit::PROC_HIT_REFLECT)
-        damageHitMask |= RPLL_DamageHitMask::REFLECT;
+        reshitMask |= RPLL_HitMask::REFLECT;
     if (hitMask & ProcFlagsHit::PROC_HIT_INTERRUPT)
-        damageHitMask |= RPLL_DamageHitMask::INTERRUPT;
+        reshitMask |= RPLL_HitMask::INTERRUPT;
     if (hitMask & ProcFlagsHit::PROC_HIT_FULL_BLOCK)
-        damageHitMask |= RPLL_DamageHitMask::FULL_BLOCK;
-    return damageHitMask;
+        reshitMask |= RPLL_HitMask::FULL_BLOCK;
+    return reshitMask;
 }
 
 RPLL_PowerType RPLLHooks::mapPowersToRPLLPowerType(const Powers power)
@@ -351,7 +351,7 @@ RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(const uint8_t winner)
 /*
  * Pack information and send messages
  */
-void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage, const bool overTime, const RPLL_DamageHitMask damageHitMask)
+void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage, const bool overTime, const RPLL_HitMask hitMask)
 {
     if (!IsInInstance(victim))
         return;
@@ -364,11 +364,11 @@ void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const 
     msg << blocked;
     AppendRPLLDamage(msg, damage);
     msg << static_cast<uint8_t>(overTime);
-    msg << static_cast<uint32_t>(damageHitMask);
+    msg << static_cast<uint32_t>(hitMask);
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitMask damageHitMask, const uint32_t blocked, const std::vector<RPLL_Damage> damages)
+void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_HitMask hitMask, const uint32_t blocked, const std::vector<RPLL_Damage> damages)
 {
     if (!IsInInstance(victim))
         return;
@@ -378,13 +378,13 @@ void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const 
     msg << static_cast<uint64_t>(attacker->GetGUID().GetRawValue());
     msg << static_cast<uint64_t>(victim->GetGUID().GetRawValue());
     msg << blocked;
-    msg << static_cast<uint32_t>(damageHitMask);
+    msg << static_cast<uint32_t>(hitMask);
     for (auto dmg : damages)
         AppendRPLLDamage(msg, dmg);
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitMask damageHitMask, const uint32_t blocked, const RPLL_Damage damage)
+void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_HitMask hitMask, const uint32_t blocked, const RPLL_Damage damage)
 {
     if (!IsInInstance(victim))
         return;
@@ -394,16 +394,16 @@ void RPLLHooks::DealMeleeDamage(const Unit *attacker, const Unit *victim, const 
     msg << static_cast<uint64_t>(attacker->GetGUID().GetRawValue());
     msg << static_cast<uint64_t>(victim->GetGUID().GetRawValue());
     msg << blocked;
-    msg << static_cast<uint32_t>(damageHitMask);
+    msg << static_cast<uint32_t>(hitMask);
     AppendRPLLDamage(msg, damage);
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::Heal(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t totalHeal, const uint32_t effectiveHeal, const uint32_t absorb)
+void RPLLHooks::Heal(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t totalHeal, const uint32_t effectiveHeal, const uint32_t absorb, const RPLL_HitMask hitMask)
 {
     if (!IsInInstance(target))
         return;
-    const uint8_t msgLength = 32 + GetMessageMetaDataSize();
+    const uint8_t msgLength = 36 + GetMessageMetaDataSize();
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_HEAL, msgLength);
     msg << static_cast<uint64_t>(caster->GetGUID().GetRawValue());
@@ -412,6 +412,7 @@ void RPLLHooks::Heal(const Unit *caster, const Unit *target, const uint32_t spel
     msg << totalHeal;
     msg << effectiveHeal;
     msg << absorb; // ?
+    msg << static_cast<uint32_t>(hitMask);
     SendZmqMessage(std::move(msg));
 }
 
@@ -625,7 +626,7 @@ void RPLLHooks::Loot(const Unit *unit, const uint32_t itemId, const uint32_t cou
     SendZmqMessage(std::move(msg));
 }
 
-void RPLLHooks::SpellCast(const Unit *caster, const uint64_t targetGUID, const uint32_t spellId, const RPLL_DamageHitMask hitMask)
+void RPLLHooks::SpellCast(const Unit *caster, const uint64_t targetGUID, const uint32_t spellId, const RPLL_HitMask hitMask)
 {
     if (!IsInInstance(caster))
         return;

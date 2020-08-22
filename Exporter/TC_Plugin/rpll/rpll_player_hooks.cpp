@@ -42,7 +42,7 @@ void RPLLPlayerHooks::EnvironmentalDamage(Unit *unit, const EnviromentalDamage t
         damageSchoolMask = RPLL_DamageSchoolMask::RPLL_PHYSICAL;
         break;
     }
-    RPLLHooks::DealMeleeDamage(unit, unit, RPLL_DamageHitMask::ENVIRONMENT, 0,
+    RPLLHooks::DealMeleeDamage(unit, unit, RPLL_HitMask::ENVIRONMENT, 0,
                                std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, result, resist, absorb)));
 }
 

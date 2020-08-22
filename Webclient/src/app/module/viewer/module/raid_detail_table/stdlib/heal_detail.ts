@@ -15,7 +15,7 @@ function commit_heal_detail(current_mode: HealMode, heal: Array<Event>, event_ma
         const [indicator, spell_cause_event] = get_spell_cause(heal_event.spell_cause_id, event_map);
         if (!spell_cause_event)
             return;
-        const hit_type = indicator ? get_spell_cast(spell_cause_event).hit_mask[0] : HitType.Hit;
+        const hit_type = indicator ? get_spell_cast(spell_cause_event).hit_mask[0] : heal_event.heal.hit_mask[0];
         const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
 
         if (!ability_details.has(spell_id))

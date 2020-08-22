@@ -278,6 +278,7 @@ impl Server {
                             effective: heal_done.effective_heal,
                             mitigation: if heal_done.absorb > 0 { vec![Mitigation::Absorb(heal_done.absorb)] } else { Vec::new() },
                             target,
+                            hit_mask: hit_mask_from_u32(heal_done.hit_mask),
                         },
                     },
                 ))

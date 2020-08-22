@@ -8,4 +8,5 @@ pub struct HealDone {
     pub total_heal: u32,
     pub effective_heal: u32,
     pub absorb: u32,
+    pub hit_mask: u32,
 }

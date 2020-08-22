@@ -18,8 +18,8 @@ void RPLLUnitHooks::SendAttackStateUpdate(const CalcDamageInfo *damageInfo)
         damages.push_back(std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(dmg.Damage), static_cast<uint32_t>(dmg.Resist), static_cast<uint32_t>(dmg.Absorb))));
         total_damage += dmg.Damage;
     }
-    const RPLL_DamageHitMask damageHitMask = RPLLHooks::mapMeleeHitMaskToRPLLHitMask(damageInfo->HitInfo, damageInfo->TargetState, damageInfo->HitOutCome, total_damage);
-    RPLLHooks::DealMeleeDamage(damageInfo->Attacker, damageInfo->Target, damageHitMask, static_cast<uint32_t>(damageInfo->Blocked), std::move(damages));
+    const RPLL_HitMask hitMask = RPLLHooks::mapMeleeHitMaskToRPLLHitMask(damageInfo->HitInfo, damageInfo->TargetState, damageInfo->HitOutCome, total_damage);
+    RPLLHooks::DealMeleeDamage(damageInfo->Attacker, damageInfo->Target, hitMask, static_cast<uint32_t>(damageInfo->Blocked), std::move(damages));
 }
 
 void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damageInfo)
@@ -30,15 +30,16 @@ void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damage
     #endif
 
     const RPLL_DamageSchoolMask damageSchoolMask = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchoolMask(damageInfo->schoolMask);
-    const RPLL_DamageHitMask damageHitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(damageInfo->HitInfo, damageInfo->resist, damageInfo->absorb, damageInfo->blocked, damageInfo->damage);
+    const RPLL_HitMask hitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(damageInfo->HitInfo, damageInfo->resist, damageInfo->absorb, damageInfo->blocked, damageInfo->damage);
     RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target, static_cast<uint32_t>(damageInfo->SpellID),
                                static_cast<uint32_t>(damageInfo->blocked),
-                               std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(damageInfo->damage), static_cast<uint32_t>(damageInfo->absorb), static_cast<uint32_t>(damageInfo->resist))), false, damageHitMask);
+                               std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(damageInfo->damage), static_cast<uint32_t>(damageInfo->absorb), static_cast<uint32_t>(damageInfo->resist))), false, hitMask);
 }
 
 void RPLLUnitHooks::DealHeal(const HealInfo &healInfo)
 {
-    RPLLHooks::Heal(healInfo.GetHealer(), healInfo.GetTarget(), healInfo.GetSpellInfo()->Id, healInfo.GetHeal(), healInfo.GetEffectiveHeal(), healInfo.GetAbsorb());
+    const RPLL_HitMask hitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(healInfo.GetHitMask(), 0, healInfo.GetAbsorb(), 0, healInfo.GetHeal());
+    RPLLHooks::Heal(healInfo.GetHealer(), healInfo.GetTarget(), healInfo.GetSpellInfo()->Id, healInfo.GetHeal(), healInfo.GetEffectiveHeal(), healInfo.GetAbsorb(), hitMask);
 }
 
 void RPLLUnitHooks::SendPeriodicAuraLog(const SpellPeriodicAuraLogInfo *pInfo)
@@ -59,9 +60,9 @@ void RPLLUnitHooks::SendPeriodicAuraLog(const SpellPeriodicAuraLogInfo *pInfo)
         for (Unit *target : targets)
         {
             const RPLL_DamageSchoolMask damageSchoolMask = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchoolMask(static_cast<uint32_t>(aura->GetSpellInfo()->SchoolMask));
-            const RPLL_DamageHitMask damageHitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(0, pInfo->resist, pInfo->absorb, 0, pInfo->damage);
+            const RPLL_HitMask hitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(0, pInfo->resist, pInfo->absorb, 0, pInfo->damage);
             RPLLHooks::DealSpellDamage(caster, target, aura->GetId(), 0,
-                                       std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(pInfo->damage), static_cast<uint32_t>(pInfo->absorb), static_cast<uint32_t>(pInfo->resist))), true, damageHitMask);
+                                       std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(pInfo->damage), static_cast<uint32_t>(pInfo->absorb), static_cast<uint32_t>(pInfo->resist))), true, hitMask);
         }
         return;
     /*
