@@ -70,6 +70,11 @@ $menuSize: 500px;
         top: $offset + 165px + $spacing;
     }
 
+    &.event_log {
+        height: 55px;
+        top: 2.5 * $spacing + 250px;
+    }
+
     &:hover {
         @extend .active;
     }
@@ -78,7 +83,7 @@ $menuSize: 500px;
 .toggle_button {
     position: absolute;
     // top: calc(50% - 50px);
-    top: 2.5 * $spacing + 250px;
+    top: 3 * $spacing + 305px;
     right: -41px;
 
     height: 100px;
