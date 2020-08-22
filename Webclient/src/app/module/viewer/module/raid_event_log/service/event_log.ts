@@ -16,6 +16,7 @@ import {
 import {HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
+import {get_damage_components_total_damage} from "../../../domain_value/damage";
 
 @Injectable({
     providedIn: "root",
@@ -144,6 +145,8 @@ export class EventLogService implements OnDestroy {
         this.event_log_entries$.next(await this.get_event_log_entries(0));
     }
 
+    // TODO: Generally handle damage components better
+
     // TODO: Mitigations!
     private process_melee_damage(event: Event): Observable<string> {
         const melee_damage_event = get_melee_damage(event);
@@ -180,9 +183,10 @@ export class EventLogService implements OnDestroy {
                     case HitType.Immune:
                         return subject_name + " attempts to hit, but " + victim_name + " is immune.";
                 }
-                if (melee_damage_event.damage === 0)
+                const damage_done = get_damage_components_total_damage(melee_damage_event.damage_components);
+                if (damage_done === 0)
                     return subject_name + " " + hit_type_str + " " + victim_name + ".";
-                return subject_name + " " + hit_type_str + " " + victim_name + " for " + melee_damage_event.damage + ".";
+                return subject_name + " " + hit_type_str + " " + victim_name + " for " + damage_done + ".";
             })));
     }
 
@@ -213,9 +217,10 @@ export class EventLogService implements OnDestroy {
                     case HitType.Immune:
                         return subject_name + "'s " + ability_name + " attempts to hit, but " + victim_name + " is immune.";
                 }
-                if (spell_damage_event.damage.damage === 0)
+                const damage_done = get_damage_components_total_damage(spell_damage_event.damage.damage_components);
+                if (damage_done === 0)
                     return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
-                return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " + spell_damage_event.damage.damage + ".";
+                return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " + damage_done + ".";
             })));
     }
 

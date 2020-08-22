@@ -2,6 +2,7 @@ import {InstanceDataFilter} from "../../../tool/instance_data_filter";
 import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {Event} from "../../../domain_value/event";
 import {get_heal, get_melee_damage, get_spell_damage, get_threat} from "../../../extractor/events";
+import {get_damage_components_total_damage} from "../../../domain_value/damage";
 
 export class RaidGraphKnecht {
     private static readonly MAX_DATA_POINTS: number = 500;
@@ -55,8 +56,8 @@ export class RaidGraphKnecht {
             switch (data_set) {
                 case DataSet.DamageDone:
                 case DataSet.DamageTaken:
-                    return [...RaidGraphKnecht.feed_points(this.data_filter.get_melee_damage(data_set === DataSet.DamageTaken), (event) => get_melee_damage(event).damage),
-                        ...RaidGraphKnecht.feed_points(this.data_filter.get_spell_damage(data_set === DataSet.DamageTaken), (event) => get_spell_damage(event).damage.damage)];
+                    return [...RaidGraphKnecht.feed_points(this.data_filter.get_melee_damage(data_set === DataSet.DamageTaken), (event) => get_damage_components_total_damage(get_melee_damage(event).damage_components)),
+                        ...RaidGraphKnecht.feed_points(this.data_filter.get_spell_damage(data_set === DataSet.DamageTaken), (event) => get_damage_components_total_damage(get_spell_damage(event).damage.damage_components))];
                 case DataSet.TotalHealingDone:
                 case DataSet.TotalHealingTaken:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.TotalHealingTaken), (event) => get_heal(event).heal.total);

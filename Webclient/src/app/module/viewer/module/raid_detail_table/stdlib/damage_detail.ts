@@ -1,9 +1,8 @@
 import {HitType} from "../../../domain_value/hit_type";
 import {DetailRow} from "../domain_value/detail_row";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
-import {Damage} from "../../../domain_value/damage";
+import {Damage, extract_mitigation_amount, get_damage_components_total_damage} from "../../../domain_value/damage";
 import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
-import {Mitigation} from "../../../domain_value/mitigation";
 import {Event} from "../../../domain_value/event";
 import {
     get_aura_application,
@@ -38,9 +37,8 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
                 ability_details.set(spell_id, new Map());
             const details_map = ability_details.get(spell_id);
             fill_details(details_map, {
-                damage: damage.damage,
+                damage_components: damage.damage_components,
                 hit_mask,
-                mitigation: damage.mitigation,
                 victim: undefined
             });
         }
@@ -55,9 +53,8 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
                 ability_details.set(spell_cast.spell_id, new Map());
             const details_map = ability_details.get(spell_cast.spell_id);
             fill_details(details_map, {
-                damage: 0,
+                damage_components: [],
                 hit_mask: spell_cast.hit_mask,
-                mitigation: [],
                 victim: undefined
             });
         }
@@ -69,40 +66,33 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
 
 function fill_details(details_map: Map<HitType, DetailRow>, damage: Damage): void {
     const hit_type = damage.hit_mask.length === 0 ? HitType.None : damage.hit_mask[0];
+    const damage_amount = get_damage_components_total_damage(damage.damage_components);
     if (details_map.has(hit_type)) {
         const details = details_map.get(hit_type);
         ++details.count;
-        details.amount += damage.damage;
-        details.min = Math.min(details.min, damage.damage);
-        details.max = Math.max(details.max, damage.damage);
-        details.absorb += extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Absorb);
-        details.block += extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Block);
-        details.glance_or_resist += extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Resist)
-            + extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Glance);
+        details.amount += damage_amount;
+        details.min = Math.min(details.min, damage_amount);
+        details.max = Math.max(details.max, damage_amount);
+        details.absorb += extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Absorb);
+        details.block += extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Block);
+        details.glance_or_resist += extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Resist)
+            + extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Glance);
     } else {
         details_map.set(hit_type, {
-            amount: damage.damage,
+            amount: damage_amount,
             amount_percent: 0,
             average: 0,
             count: 1,
             count_percent: 0,
             hit_type,
-            max: damage.damage,
-            min: damage.damage,
-            glance_or_resist: extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Resist)
-                + extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Glance),
-            block: extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Block),
-            absorb: extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Absorb)
+            max: damage_amount,
+            min: damage_amount,
+            glance_or_resist: extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Resist)
+                + extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Glance),
+            block: extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Block),
+            absorb: extract_mitigation_amount(damage.damage_components, (mitigation) => mitigation.Absorb)
         });
     }
-}
-
-function extract_mitigation_amount(mitigations: Array<Mitigation>, extract_function: (Mitigation) => number | undefined): number {
-    for (const mitigation of mitigations) {
-        if (extract_function(mitigation) !== undefined)
-            return extract_function(mitigation) as number;
-    }
-    return 0;
 }
 
 export {commit_damage_detail};
