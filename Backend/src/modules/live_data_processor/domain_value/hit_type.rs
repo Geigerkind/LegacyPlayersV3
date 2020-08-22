@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
 pub enum HitType {
     Evade = 0,
     Miss = 1,

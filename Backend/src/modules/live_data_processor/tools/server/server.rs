@@ -60,24 +60,32 @@ impl Server {
                         *committed_event_count += 1;
 
                         match &committable_event.event {
-                            EventType::SpellCast(_) | EventType::AuraApplication(_) => self
+                            EventType::SpellCast(spell_cast) => {
+                                if spell_cast.hit_type != domain_value::HitType::Miss {
+                                    self.recently_committed_spell_cast_and_aura_applications
+                                        .entry(*unit_instance_id)
+                                        .or_insert_with(|| VecDeque::with_capacity(1))
+                                        .push_back(committable_event.clone())
+                                }
+                            },
+                            EventType::AuraApplication(_) => self
                                 .recently_committed_spell_cast_and_aura_applications
                                 .entry(*unit_instance_id)
                                 .or_insert_with(|| VecDeque::with_capacity(1))
                                 .push_back(committable_event.clone()),
-                            _ => {}
+                            _ => {},
                         };
 
                         self.committed_events.entry(*unit_instance_id).or_insert_with(|| VecDeque::with_capacity(1)).push_back(committable_event);
                     }
-                }
+                },
                 Err(EventParseFailureAction::DiscardFirst) => {
                     remove_first_non_committed_event.push(*subject_id);
-                }
+                },
                 Err(EventParseFailureAction::PrependNext) => {
                     self.subject_prepend_mode_set.insert(*subject_id);
-                }
-                Err(EventParseFailureAction::Wait) => {}
+                },
+                Err(EventParseFailureAction::Wait) => {},
             };
         }
 
@@ -126,7 +134,7 @@ impl Server {
             MessageType::CombatState(CombatState { unit: unit_dto, in_combat }) => {
                 let subject = unit_dto.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst);
                 Ok(Event::new(first_message.message_count, first_message.timestamp, subject?, EventType::CombatState { in_combat: *in_combat }))
-            }
+            },
             MessageType::Loot(Loot { unit: unit_dto, item_id, count }) => Ok(Event::new(
                 first_message.message_count,
                 first_message.timestamp,
@@ -180,12 +188,12 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::DiscardFirst)
-            }
+            },
             MessageType::Summon(summon) => {
                 let summoner = summon.owner.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let summoned = summon.unit.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(first_message.message_count, first_message.timestamp, summoner, EventType::Summon { summoned }))
-            }
+            },
             MessageType::SpellCast(spell_cast) => {
                 let subject = spell_cast.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(
@@ -198,7 +206,7 @@ impl Server {
                         spell_id: spell_cast.spell_id,
                     }),
                 ))
-            }
+            },
             MessageType::MeleeDamage(melee_damage) => {
                 let subject = melee_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let victim = melee_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
@@ -224,7 +232,7 @@ impl Server {
                         hit_type: HitType::from_u8(melee_damage.hit_type.expect("Can melee damage be None?")),
                     }),
                 ))
-            }
+            },
             MessageType::SpellDamage(spell_damage) => {
                 let subject = spell_damage.attacker.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let victim = spell_damage.victim.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
@@ -255,7 +263,7 @@ impl Server {
                         },
                     },
                 ))
-            }
+            },
             MessageType::Heal(heal_done) => {
                 let subject = heal_done.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let target = heal_done.target.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
@@ -274,7 +282,7 @@ impl Server {
                         },
                     },
                 ))
-            }
+            },
             // A SpellCast, Damage done and heal done can cause threat
             // Note: That the threatened unit can be a third unit in the case of a beneficial spell
             MessageType::Threat(threat) => {
@@ -290,7 +298,7 @@ impl Server {
                         threat: domain_value::Threat { threatened, amount: threat.amount },
                     },
                 ))
-            }
+            },
             // Find Event that caused this interrupt, else wait or discard
             MessageType::Interrupt(interrupt) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -304,7 +312,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::PrependNext)
-            }
+            },
             // Find Event that caused this dispel, else wait or discard
             MessageType::Dispel(dispel) => {
                 println!("Dispel Event {:?}", first_message);
@@ -319,7 +327,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::PrependNext)
-            }
+            },
             // Find Event that caused this spell steal, else wait or discard
             MessageType::SpellSteal(spell_steal) => {
                 // If we dont find any committable events for this interrupt, we need to discard
@@ -333,7 +341,7 @@ impl Server {
                     }
                 }
                 Err(EventParseFailureAction::PrependNext)
-            }
+            },
             _ => Err(EventParseFailureAction::DiscardFirst),
         }
     }
@@ -342,7 +350,7 @@ impl Server {
         match &message.message_type {
             MessageType::Summon(Summon { owner, unit }) => {
                 self.summons.insert(owner.unit_id, unit.unit_id);
-            }
+            },
             MessageType::InstanceMap(dto::InstanceMap { map_id, instance_id, map_difficulty, unit }) => {
                 // TODO: How to handle Worldbosses in Vanilla / TBC
                 // These are raids
@@ -361,7 +369,7 @@ impl Server {
                                 } else {
                                     9
                                 }
-                            } // Naxx
+                            }, // Naxx
                             _ => *map_difficulty,
                         };
 
@@ -382,20 +390,20 @@ impl Server {
                         let participants = self.instance_participants.get_mut(instance_meta_id).unwrap();
                         if !participants.contains(&player.character_id)
                             && db_main.execute_wparams(
-                            "INSERT INTO instance_participants (`instance_meta_id`, `character_id`) VALUES (:instance_meta_id, :character_id)",
-                            params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id),
-                        )
+                                "INSERT INTO instance_participants (`instance_meta_id`, `character_id`) VALUES (:instance_meta_id, :character_id)",
+                                params!("instance_meta_id" => instance_meta_id, "character_id" => player.character_id),
+                            )
                         {
                             participants.insert(player.character_id);
                         }
                     }
                 }
-            }
+            },
             MessageType::InstancePvPStartUnratedArena(dto::InstanceStart { map_id, instance_id }) => {
                 if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
                     db_main.execute_wparams("INSERT INTO instance_skirmish (`instance_meta_id`) VALUES (:instance_meta_id)", params!("instance_meta_id" => instance_meta_id));
                 }
-            }
+            },
             MessageType::InstancePvPStartRatedArena(dto::InstanceStartRatedArena { map_id, instance_id, team_id1, team_id2 }) => {
                 if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
                     if let Some(team1) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id1) {
@@ -411,19 +419,19 @@ impl Server {
                         }
                     }
                 }
-            }
+            },
             MessageType::InstancePvPStartBattleground(dto::InstanceStart { map_id, instance_id }) => {
                 if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id) {
                     db_main.execute_wparams("INSERT INTO instance_battleground (`instance_meta_id`) VALUES (:instance_meta_id)", params!("instance_meta_id" => instance_meta_id));
                 }
-            }
+            },
             MessageType::InstancePvPEndBattleground(dto::InstanceBattleground {
-                                                        instance_id,
-                                                        winner,
-                                                        score_alliance,
-                                                        score_horde,
-                                                        ..
-                                                    }) => {
+                instance_id,
+                winner,
+                score_alliance,
+                score_horde,
+                ..
+            }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
                     db_main.execute_wparams(
@@ -439,14 +447,14 @@ impl Server {
                     self.active_instances.remove(instance_id);
                     self.active_attempts.remove(instance_id);
                 }
-            }
+            },
             MessageType::InstancePvPEndRatedArena(dto::InstanceArena {
-                                                      instance_id,
-                                                      winner,
-                                                      team_change1,
-                                                      team_change2,
-                                                      ..
-                                                  }) => {
+                instance_id,
+                winner,
+                team_change1,
+                team_change2,
+                ..
+            }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
                     db_main.execute_wparams(
@@ -462,7 +470,7 @@ impl Server {
                     self.active_instances.remove(instance_id);
                     self.active_attempts.remove(instance_id);
                 }
-            }
+            },
             MessageType::InstancePvPEndUnratedArena(dto::InstanceUnratedArena { instance_id, winner, .. }) => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
@@ -477,7 +485,7 @@ impl Server {
                     self.active_instances.remove(instance_id);
                     self.active_attempts.remove(instance_id);
                 }
-            }
+            },
             MessageType::InstanceDelete { instance_id } => {
                 if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(instance_id) {
                     if self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id) {
@@ -486,8 +494,8 @@ impl Server {
                         self.active_attempts.remove(instance_id);
                     }
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -572,10 +580,15 @@ impl Server {
             if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(unit_instance_id) {
                 if let Some(event_index) = committed_events.iter().rposition(|event| match &event.event {
                     EventType::SpellCast(spell_cast) => {
-                        (is_dot.is_none() || is_dot.contains(&false)) && message_count < event.message_count && spell_cast.spell_id == spell_id && event.subject == *subject && (spell_cast.victim.is_none() || spell_cast.victim.contains(subject) || spell_cast.victim.contains(victim))
-                    }
-                    EventType::AuraApplication(aura_application) =>
-                        (is_dot.is_none() || is_dot.contains(&true)) && message_count > event.message_count && aura_application.spell_id == spell_id && event.subject == *victim && aura_application.caster == *subject,
+                        (is_dot.is_none() || is_dot.contains(&false))
+                            && message_count < event.message_count
+                            && spell_cast.spell_id == spell_id
+                            && event.subject == *subject
+                            && (spell_cast.victim.is_none() || spell_cast.victim.contains(subject) || spell_cast.victim.contains(victim))
+                    },
+                    EventType::AuraApplication(aura_application) => {
+                        (is_dot.is_none() || is_dot.contains(&true)) && message_count > event.message_count && aura_application.spell_id == spell_id && event.subject == *victim && aura_application.caster == *subject
+                    },
                     _ => false,
                 }) {
                     return Ok(committed_events.get(event_index).unwrap().id);
@@ -594,16 +607,16 @@ impl Server {
                     if let Some(threatening_spell_id) = spell_id {
                         return event.subject == *subject
                             && match &event.event {
-                            EventType::SpellCast(domain_value::SpellCast { spell_id, .. }) => *spell_id == threatening_spell_id,
-                            EventType::SpellDamage { spell_cause_id, .. } | EventType::Heal { spell_cause_id, .. } => {
-                                if let Some(Event { event: EventType::SpellCast(spell_cast), .. }) = committed_events.iter().find(|inner_event| inner_event.id == *spell_cause_id) {
-                                    spell_cast.spell_id == threatening_spell_id
-                                } else {
-                                    false
-                                }
-                            }
-                            _ => false,
-                        };
+                                EventType::SpellCast(domain_value::SpellCast { spell_id, .. }) => *spell_id == threatening_spell_id,
+                                EventType::SpellDamage { spell_cause_id, .. } | EventType::Heal { spell_cause_id, .. } => {
+                                    if let Some(Event { event: EventType::SpellCast(spell_cast), .. }) = committed_events.iter().find(|inner_event| inner_event.id == *spell_cause_id) {
+                                        spell_cast.spell_id == threatening_spell_id
+                                    } else {
+                                        false
+                                    }
+                                },
+                                _ => false,
+                            };
                     } else if let EventType::MeleeDamage(melee_damage) = &event.event {
                         return melee_damage.victim == *threatened && event.subject == *subject;
                     }

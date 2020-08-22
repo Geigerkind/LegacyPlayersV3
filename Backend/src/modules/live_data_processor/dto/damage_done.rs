@@ -11,5 +11,5 @@ pub struct DamageDone {
     pub damage: u32,
     pub resisted_or_glanced: u32,
     pub absorbed: u32,
-    pub damage_over_time: bool
+    pub damage_over_time: bool,
 }

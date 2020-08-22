@@ -45,7 +45,7 @@ fn test_map_aura_application_applied_negative() {
         1, 1, 0, 0, 0, 0, 0, 0, 0, // Caster
         1, 42, 0, 0, 0, 0, 0, 0, 0, // Target
         23, 0, 0, 0, // SpellId
-        3, 0, 0, 0, // StackAmount
+        3, 0, 0, 0,   // StackAmount
         255, // Delta
     ];
 

@@ -45,7 +45,7 @@ fn map_damage_done_from_spell_damage_positive() {
         42, 0, 0, 0, // Damage
         10, 0, 0, 0, // Resisted or glanced
         12, 0, 0, 0, // Absorbed
-        1 // Damage over time
+        1, // Damage over time
     ];
 
     // Act
