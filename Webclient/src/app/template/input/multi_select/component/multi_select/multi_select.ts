@@ -1,14 +1,16 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {IDropdownSettings} from "ng-multiselect-dropdown/multiselect.model";
 import {AdditionalButton} from "../../domain_value/additional_button";
 import set = Reflect.set;
+import {Subscription} from "rxjs";
+import {delay} from "rxjs/operators";
 
 @Component({
     selector: "MultiSelect",
     templateUrl: "./multi_select.html",
     styleUrls: ["./multi_select.scss"]
 })
-export class MultiSelectComponent implements OnInit {
+export class MultiSelectComponent implements OnInit, OnDestroy {
 
     @ViewChild("child", {static: true}) element: any;
 
@@ -57,6 +59,9 @@ export class MultiSelectComponent implements OnInit {
     }
 
     @Output()
+    items_changed_by_action: EventEmitter<void> = new EventEmitter();
+
+    @Output()
     item_selected: EventEmitter<any> = new EventEmitter<any>();
     @Output()
     item_deselected: EventEmitter<any> = new EventEmitter<any>();
@@ -68,10 +73,19 @@ export class MultiSelectComponent implements OnInit {
     selectedItemsChange: EventEmitter<Array<any>> = new EventEmitter();
 
     private additional_button_checkboxes: Map<number, any> = new Map();
+    private subscription: Subscription = new Subscription();
 
     ngOnInit(): void {
         this.dropdownSettings.enableCheckAll = this.enableCheckAll;
         this.dropdownSettings.allowSearchFilter = this.allowSearchFilter;
+        this.subscription.add(this.item_selected.subscribe(() => this.items_changed_by_action.next()));
+        this.subscription.add(this.item_deselected.subscribe(() => this.items_changed_by_action.next()));
+        this.subscription.add(this.select_all.pipe(delay(500)).subscribe(() => this.items_changed_by_action.next()));
+        this.subscription.add(this.deselect_all.pipe(delay(500)).subscribe(() => this.items_changed_by_action.next()));
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 
     private addCollectionButton(): void {
@@ -93,6 +107,7 @@ export class MultiSelectComponent implements OnInit {
                 clone.addEventListener("click", () => {
                     clone.children[0].checked = !clone.children[0].checked;
                     this.selectedItems = button.list_selection_callback(button, this.selectedItemsData, this.dropdownListData, clone.children[0].checked);
+                    this.items_changed_by_action.next();
                 });
                 this.additional_button_checkboxes.set(button.id, clone.children[0]);
                 collection_button_ul.appendChild(clone);
