@@ -15,7 +15,7 @@ uint64_t RPLLHooks::BATTLEGROUND_UPDATE_TIMEOUT = 1000;
 
 float RPLLHooks::UPDATE_POSITION_LEEWAY = 15.0f;
 float RPLLHooks::UPDATE_POSITION_LEEWAY_ARENA = 8.0f;
-float RPLLHooks::UPDATE_POSITION_LEEWAY_NPC = 4.0f;
+float RPLLHooks::UPDATE_POSITION_LEEWAY_NPC = 20.0f;
 std::unordered_map<uint64_t, double> RPLLHooks::LAST_UNIT_POSITION = {};
 std::unordered_map<uint64_t, RPLL_LastUpdate> RPLLHooks::LAST_UPDATE = {};
 

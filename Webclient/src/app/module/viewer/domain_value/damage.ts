@@ -8,5 +8,5 @@ export interface Damage {
     damage: number;
     mitigation: Array<Mitigation>;
     victim: Unit;
-    hit_type: HitType;
+    hit_mask: Array<HitType>;
 }

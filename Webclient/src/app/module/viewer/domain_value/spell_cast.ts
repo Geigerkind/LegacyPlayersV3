@@ -3,6 +3,6 @@ import {HitType} from "./hit_type";
 
 export interface SpellCast {
     victim: Unit;
-    hit_type: HitType;
+    hit_mask: Array<HitType>;
     spell_id: number;
 }

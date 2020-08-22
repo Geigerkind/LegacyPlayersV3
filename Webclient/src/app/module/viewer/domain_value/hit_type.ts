@@ -1,16 +1,24 @@
 export enum HitType {
+    None = "None",
+    OffHand = "OffHand",
     Evade = "Evade",
     Miss = "Miss",
     Dodge = "Dodge",
-    Block = "Block",
+    PartialBlock = "PartialBlock",
+    FullBlock = "FullBlock",
     Parry = "Parry",
     Glancing = "Glancing",
     Crit = "Crit",
     Crushing = "Crushing",
     Hit = "Hit",
-    Resist = "Resist",
+    PartialResist = "PartialResist",
+    FullResist = "FullResist",
     Immune = "Immune",
     Environment = "Environment",
-    Absorb = "Absorb",
-    Interrupted = "Interrupted"
+    PartialAbsorb = "PartialAbsorb",
+    FullAbsorb = "FullAbsorb",
+    Interrupt = "Interrupt",
+    Deflect = "Deflect",
+    Split = "Split",
+    Reflect = "Reflect"
 }

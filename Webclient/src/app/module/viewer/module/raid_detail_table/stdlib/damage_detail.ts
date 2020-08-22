@@ -31,7 +31,7 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
             const [indicator, spell_cause_event] = get_spell_cause(spell_damage_event.spell_cause_id, event_map);
             if (!spell_cause_event)
                 return;
-            const hit_type = indicator ? get_spell_cast(spell_cause_event).hit_type : HitType.Hit;
+            const hit_mask = indicator ? get_spell_cast(spell_cause_event).hit_mask : spell_damage_event.damage.hit_mask;
             const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
             const damage = spell_damage_event.damage as Damage;
             if (!ability_details.has(spell_id))
@@ -39,7 +39,7 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
             const details_map = ability_details.get(spell_id);
             fill_details(details_map, {
                 damage: damage.damage,
-                hit_type,
+                hit_mask,
                 mitigation: damage.mitigation,
                 victim: undefined
             });
@@ -49,14 +49,14 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
     if (spell_casts.length > 0) {
         for (const event of spell_casts) {
             const spell_cast = get_spell_cast(event);
-            if ([HitType.Hit, HitType.Crit].includes(spell_cast.hit_type))
+            if (spell_cast.hit_mask.includes(HitType.Crit) || spell_cast.hit_mask.includes(HitType.Hit))
                 continue;
             if (!ability_details.has(spell_cast.spell_id))
                 ability_details.set(spell_cast.spell_id, new Map());
             const details_map = ability_details.get(spell_cast.spell_id);
             fill_details(details_map, {
                 damage: 0,
-                hit_type: spell_cast.hit_type,
+                hit_mask: spell_cast.hit_mask,
                 mitigation: [],
                 victim: undefined
             });
@@ -68,8 +68,9 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
 }
 
 function fill_details(details_map: Map<HitType, DetailRow>, damage: Damage): void {
-    if (details_map.has(damage.hit_type)) {
-        const details = details_map.get(damage.hit_type);
+    const hit_type = damage.hit_mask.length === 0 ? HitType.None : damage.hit_mask[0];
+    if (details_map.has(hit_type)) {
+        const details = details_map.get(hit_type);
         ++details.count;
         details.amount += damage.damage;
         details.min = Math.min(details.min, damage.damage);
@@ -79,13 +80,13 @@ function fill_details(details_map: Map<HitType, DetailRow>, damage: Damage): voi
         details.glance_or_resist += extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Resist)
             + extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Glance);
     } else {
-        details_map.set(damage.hit_type, {
+        details_map.set(hit_type, {
             amount: damage.damage,
             amount_percent: 0,
             average: 0,
             count: 1,
             count_percent: 0,
-            hit_type: damage.hit_type,
+            hit_type,
             max: damage.damage,
             min: damage.damage,
             glance_or_resist: extract_mitigation_amount(damage.mitigation, (mitigation) => mitigation.Resist)

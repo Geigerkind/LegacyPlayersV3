@@ -1,6 +1,7 @@
 use crate::modules::live_data_processor::dto::{DamageDone, LiveDataProcessorFailure};
 use crate::modules::live_data_processor::tools::byte_reader;
 use crate::modules::live_data_processor::tools::payload_mapper::unit::MapUnit;
+use std::ops::Div;
 
 pub trait MapDamageDone {
     fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure>;
@@ -9,19 +10,31 @@ pub trait MapDamageDone {
 
 impl MapDamageDone for [u8] {
     fn from_melee_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
-        if self.len() != 39 {
+        let msg_len = self.len();
+        if msg_len < 26 || (msg_len - 26) % 13 != 0 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
+
+        let mut total_damage = 0;
+        let mut total_glanced = 0;
+        let mut total_absorbed = 0;
+        for i in 0..(msg_len - 26).div(13) {
+            let offset = i * 13;
+            total_damage = byte_reader::read_u32(&self[(27 + offset)..(31 + offset)])?;
+            total_glanced = byte_reader::read_u32(&self[(31 + offset)..(35 + offset)])?;
+            total_absorbed = byte_reader::read_u32(&self[(35 + offset)..(39 + offset)])?;
+        }
+
         Ok(DamageDone {
             attacker: self[0..9].to_unit()?,
             victim: self[9..18].to_unit()?,
             spell_id: None,
             blocked: byte_reader::read_u32(&self[18..22])?,
             hit_mask: byte_reader::read_u32(&self[22..26])?,
-            school_mask: self[26],
-            damage: byte_reader::read_u32(&self[27..31])?,
-            resisted_or_glanced: byte_reader::read_u32(&self[31..35])?,
-            absorbed: byte_reader::read_u32(&self[35..39])?,
+            school_mask: 0, //self[26],
+            damage: total_damage,
+            resisted_or_glanced: total_glanced,
+            absorbed: total_absorbed,
             damage_over_time: false,
         })
     }

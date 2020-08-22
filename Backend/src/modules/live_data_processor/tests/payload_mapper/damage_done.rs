@@ -27,7 +27,7 @@ fn map_damage_done_from_melee_damage_positive() {
     assert_eq!(damage_done.spell_id, None);
     assert_eq!(damage_done.blocked, 32);
     assert_eq!(damage_done.hit_mask, 4);
-    assert_eq!(damage_done.school_mask, 4);
+    assert_eq!(damage_done.school_mask, 0); // Currently 0 hardcoded
     assert_eq!(damage_done.damage, 42);
     assert_eq!(damage_done.resisted_or_glanced, 10);
     assert_eq!(damage_done.absorbed, 12);

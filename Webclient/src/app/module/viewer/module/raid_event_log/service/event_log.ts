@@ -147,7 +147,7 @@ export class EventLogService implements OnDestroy {
         return combineLatest([subject, victim])
             .pipe(map((([subject_name, victim_name]) => {
                 let hit_type_str = "hits";
-                switch (melee_damage_event.hit_type) {
+                switch (melee_damage_event.hit_mask[0]) {
                     case HitType.Crit:
                         hit_type_str = "crits";
                         break;
@@ -157,7 +157,7 @@ export class EventLogService implements OnDestroy {
                     case HitType.Parry:
                         hit_type_str = "is parried by";
                         break;
-                    case HitType.Block:
+                    case HitType.FullBlock:
                         hit_type_str = "is blocked by";
                         break;
                     case HitType.Crushing:
@@ -194,11 +194,11 @@ export class EventLogService implements OnDestroy {
         return combineLatest([subject$, victim$, ability$])
             .pipe(map((([subject_name, victim_name, ability_name]) => {
                 let hit_type_str = "hits";
-                switch (spell_damage_event.damage.hit_type) {
+                switch (spell_damage_event.damage.hit_mask[0]) {
                     case HitType.Crit:
                         hit_type_str = "crits";
                         break;
-                    case HitType.Resist:
+                    case HitType.FullResist:
                     case HitType.Miss:
                         hit_type_str = "is resisted by";
                         break;
@@ -221,7 +221,7 @@ export class EventLogService implements OnDestroy {
             return of(CONST_UNKNOWN_LABEL);
         const cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
 
-        const hit_type = !!(cause as any).hit_type ? (cause as any).hit_type : HitType.Hit;
+        const hit_type = !!(cause as any).hit_mask ? (cause as any).hit_mask[0] : HitType.Hit;
         const spell_id = cause.spell_id;
         const subject$ = this.unitService.get_unit_name(event.subject);
         const victim$ = this.unitService.get_unit_name(heal_event.heal.target);
@@ -233,7 +233,7 @@ export class EventLogService implements OnDestroy {
                     case HitType.Crit:
                         hit_type_str = "critically heals";
                         break;
-                    case HitType.Absorb:
+                    case HitType.FullAbsorb:
                         hit_type_str = "is absorbed by";
                         break;
                     case HitType.Evade:

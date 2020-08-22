@@ -25,10 +25,10 @@ function commit_threat_detail(threat: Array<Event>, event_map: Map<number, Event
             if (!melee_damage_event)
                 return;
 
-            hit_type = get_melee_damage(melee_damage_event).hit_type;
+            hit_type = get_melee_damage(melee_damage_event).hit_mask[0];
             spell_id = 0;
         } else {
-            hit_type = indicator ? get_spell_cast(spell_cause_event).hit_type : HitType.Hit;
+            hit_type = indicator ? get_spell_cast(spell_cause_event).hit_mask[0] : HitType.Hit;
             spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
         }
 
