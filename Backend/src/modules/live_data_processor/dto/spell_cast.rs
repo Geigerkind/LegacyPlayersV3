@@ -5,5 +5,5 @@ pub struct SpellCast {
     pub caster: Unit,
     pub target: Option<Unit>,
     pub spell_id: u32,
-    pub hit_type: u8,
+    pub hit_mask: u32,
 }

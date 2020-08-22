@@ -39,35 +39,56 @@ enum class RPLL_Event : uint8_t
     RPLL_THREAT_WIPE // Does not work :(
 };
 
-enum class RPLL_DamageHitType : uint8_t
+enum class RPLL_DamageHitMask : uint32_t
 {
-    RPLL_EVADE = 0,
-    RPLL_MISS = 1,
-    RPLL_DODGE = 2,
-    RPLL_BLOCK = 3,
-    RPLL_PARRY = 4,
-    RPLL_GLANCING = 5,
-    RPLL_CRIT = 6,
-    RPLL_CRUSHING = 7,
-    RPLL_HIT = 8,
-    RPLL_RESIST = 9,
-    RPLL_IMMUNE = 10,
-    RPLL_ENVIRONMENT = 11,
-    RPLL_ABSORB = 12,
-    RPLL_INTERRUPT = 13,
-    RPLL_DHT_UNDEFINED = 255
+    NONE                = 0x00000000,
+    OFF_HAND            = 0x00000001,
+    HIT                 = 0x00000002,
+    CRIT                = 0x00000004,
+    PARTIAL_RESIST      = 0x00000008,
+    FULL_RESIST         = 0x00000010,
+    MISS                = 0x00000020,
+    PARTIAL_ABSORB      = 0x00000040,
+    FULL_ABSORB         = 0x00000080,
+    GLANCING            = 0x00000100,
+    CRUSHING            = 0x00000200,
+    EVADE               = 0x00000400,
+    DODGE               = 0x00000800,
+    PARRY               = 0x00001000,
+    IMMUNE              = 0x00002000,
+    ENVIRONMENT         = 0x00004000,
+    DEFLECT             = 0x00008000,
+    INTERRUPT           = 0x00010000,
+    PARTIAL_BLOCK       = 0x00020000,
+    FULL_BLOCK          = 0x00040000,
+    SPLIT               = 0x00080000,
+    REFLECT             = 0x00100000,
 };
 
-enum class RPLL_DamageSchool : uint8_t
+inline RPLL_DamageHitMask operator |(RPLL_DamageHitMask a, RPLL_DamageHitMask b)
 {
-    RPLL_PHYSICAL = 0,
-    RPLL_HOLY = 1,
-    RPLL_FIRE = 2,
-    RPLL_NATURE = 3,
-    RPLL_FROST = 4,
-    RPLL_SHADOW = 5,
-    RPLL_ARCANE = 6,
-    RPLL_DS_UNDEFINED = 255
+    return static_cast<RPLL_DamageHitMask>(static_cast<uint32>(a) | static_cast<uint32>(b));
+}
+
+inline RPLL_DamageHitMask operator &(RPLL_DamageHitMask a, RPLL_DamageHitMask b)
+{
+    return static_cast<RPLL_DamageHitMask>(static_cast<uint32>(a) & static_cast<uint32>(b));
+}
+
+inline RPLL_DamageHitMask& operator |=(RPLL_DamageHitMask& a, RPLL_DamageHitMask b)
+{
+    return a = a | b;
+}
+
+enum class RPLL_DamageSchoolMask : uint8_t
+{
+    RPLL_PHYSICAL   = 0x00,
+    RPLL_HOLY       = 0x01,
+    RPLL_FIRE       = 0x02,
+    RPLL_NATURE     = 0x04,
+    RPLL_FROST      = 0x08,
+    RPLL_SHADOW     = 0x10,
+    RPLL_ARCANE     = 0x20
 };
 
 enum class RPLL_PowerType : uint8_t
@@ -90,7 +111,7 @@ enum class RPLL_PvP_Winner : uint8_t
 
 struct RPLL_Damage
 {
-    RPLL_DamageSchool damageSchool;
+    RPLL_DamageSchoolMask damageSchoolMask;
     uint32_t damage;
     uint32_t resisted_or_glanced;
     uint32_t absorbed;
@@ -187,22 +208,23 @@ class RPLLHooks
 
 public:
     // Helper
-    static RPLL_Damage BuildRPLLDamage(const RPLL_DamageSchool damageSchool, const uint32_t damage, const uint32_t resisted_or_glanced, const uint32_t absorbed);
+    static RPLL_Damage BuildRPLLDamage(const RPLL_DamageSchoolMask damageSchoolMask, const uint32_t damage, const uint32_t resisted_or_glanced, const uint32_t absorbed);
 
     // Mapper
-    static RPLL_DamageHitType mapHitMaskToRPLLHitType(const uint32_t hitMask);
+    static RPLL_DamageHitMask mapMeleeHitMaskToRPLLHitMask(const uint32_t hitMask, const uint8 victimState, const uint8 meleeHitOutcome, const uint32_t amount);
+    static RPLL_DamageHitMask mapSpellHitMaskToRPLLHitMask(const uint32_t hitMask, const uint32_t resist, const uint32_t absorb, const uint32_t block, const uint32_t amount);
+    static RPLL_DamageHitMask mapSpellCastHitMaskToRPLLHitMask(const uint32_t hitMask);
     static RPLL_PowerType mapPowersToRPLLPowerType(const Powers power);
-    static RPLL_DamageSchool mapSpellSchoolToRPLLDamageSchool(const SpellSchools school);
-    static RPLL_DamageSchool mapSpellSchoolMaskToRPLLDamageSchool(const uint32_t schoolMask);
+    static RPLL_DamageSchoolMask mapSpellSchoolMaskToRPLLDamageSchoolMask(const uint32_t schoolMask);
     static RPLL_PvP_Winner mapPvPWinnerToRPLLPvPWinner(const uint8_t winner);
 
     /* Actual Methods to pack the messages */
     // These are used from the hooks
     // But if you want to include additional information,
     // then you can use these as well
-    static void DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitType damageHitType, const uint32_t blocked, const std::vector<RPLL_Damage> damages);
-    static void DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitType damageHitType, const uint32_t blocked, const RPLL_Damage damages);
-    static void DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage, const bool overTime);
+    static void DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitMask damageHitMask, const uint32_t blocked, const std::vector<RPLL_Damage> damages);
+    static void DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitMask damageHitMask, const uint32_t blocked, const RPLL_Damage damages);
+    static void DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage, const bool overTime, const RPLL_DamageHitMask damageHitMask);
     static void Heal(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t totalHeal, const uint32_t effectiveHeal, const uint32_t absorb);
     static void Death(const Unit *cause, const Unit *victim);
     static void AuraApplication(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t stackAmount, const int8_t delta);
@@ -221,7 +243,7 @@ public:
     static void EndBattleground(const uint32_t mapId, const uint32_t instanceId, const RPLL_PvP_Winner winner, const uint32_t scoreAlliance, const uint32_t scoreHorde);
     static void EndRatedArena(const uint32_t mapId, const uint32_t instanceId, const RPLL_PvP_Winner winner, const uint32_t teamId1, const uint32_t teamId2, const int32_t teamChange1, const int32_t teamChange2);
     static void Loot(const Unit *unit, const uint32_t itemId, const uint32_t count);
-    static void SpellCast(const Unit *caster, const uint64_t targetGUID, const uint32_t spellId, const RPLL_DamageHitType hitType);
+    static void SpellCast(const Unit *caster, const uint64_t targetGUID, const uint32_t spellId, const RPLL_DamageHitMask damageHitMask);
     // Amount is an integer which represents the decimal amount of threat.
     // The precision factor is 10
     // E.g. If you did 10.52 threat to a target the amount transmitted is 105

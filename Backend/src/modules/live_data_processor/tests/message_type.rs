@@ -13,6 +13,8 @@ fn test_map_message_type_positive() {
         42, 0, 0, 0, // Damage
         10, 0, 0, 0, // Resisted or glanced
         12, 0, 0, 0, // Absorbed
+        1, // Dot
+        4, 0, 0, 0, // HitMask
     ];
     let message_type_number: u8 = 1;
 

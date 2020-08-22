@@ -7,8 +7,8 @@ fn map_damage_done_from_melee_damage_positive() {
         1, 234, 0, 0, 0, 0, 0, 0, 0, // Attacker
         1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
         32, 0, 0, 0, // Blocked
-        4, // Hit Type for melee attacks
-        4, // School
+        4, 0, 0, 0, // Hit Mask for melee attacks
+        4, // SchoolMask
         42, 0, 0, 0, // Damage
         10, 0, 0, 0, // Resisted or glanced
         12, 0, 0, 0, // Absorbed
@@ -26,8 +26,8 @@ fn map_damage_done_from_melee_damage_positive() {
     assert_eq!(damage_done.victim.unit_id, 255);
     assert_eq!(damage_done.spell_id, None);
     assert_eq!(damage_done.blocked, 32);
-    assert_eq!(damage_done.hit_type, Some(4));
-    assert_eq!(damage_done.school, 4);
+    assert_eq!(damage_done.hit_mask, 4);
+    assert_eq!(damage_done.school_mask, 4);
     assert_eq!(damage_done.damage, 42);
     assert_eq!(damage_done.resisted_or_glanced, 10);
     assert_eq!(damage_done.absorbed, 12);
@@ -41,11 +41,12 @@ fn map_damage_done_from_spell_damage_positive() {
         1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
         111, 0, 0, 0, // SpellId
         32, 0, 0, 0, // Blocked
-        4, // School
+        4, // SchoolMask
         42, 0, 0, 0, // Damage
         10, 0, 0, 0, // Resisted or glanced
         12, 0, 0, 0, // Absorbed
-        1, // Damage over time
+        1, // Damage over time,
+        4, 0, 0, 0,
     ];
 
     // Act
@@ -60,12 +61,13 @@ fn map_damage_done_from_spell_damage_positive() {
     assert_eq!(damage_done.victim.unit_id, 255);
     assert_eq!(damage_done.spell_id, Some(111));
     assert_eq!(damage_done.blocked, 32);
-    assert_eq!(damage_done.hit_type, None);
-    assert_eq!(damage_done.school, 4);
+    assert_eq!(damage_done.hit_mask, 4);
+    assert_eq!(damage_done.school_mask, 4);
     assert_eq!(damage_done.damage, 42);
     assert_eq!(damage_done.resisted_or_glanced, 10);
     assert_eq!(damage_done.absorbed, 12);
     assert_eq!(damage_done.damage_over_time, true);
+    assert_eq!(damage_done.hit_mask, 4);
 }
 
 #[test]

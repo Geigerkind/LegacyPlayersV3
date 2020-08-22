@@ -15,10 +15,12 @@ fn parse_message_positive() {
         1, 255, 0, 0, 0, 0, 0, 0, 0, // Victim
         111, 0, 0, 0, // SpellId
         32, 0, 0, 0, // Blocked
-        4, // School
+        4, // SchoolMask
         42, 0, 0, 0, // Damage
         10, 0, 0, 0, // Resisted or glanced
         12, 0, 0, 0, // Absorbed
+        1, // Dot
+        4, 0, 0, 0, // HitMask
     ];
 
     // Act

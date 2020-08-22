@@ -8,7 +8,7 @@ fn map_spell_cast_positive_with_target() {
         1, 78, 0, 0, 0, 0, 0, 0, 0, // caster
         1, 22, 0, 0, 0, 0, 0, 0, 0, // target
         77, 0, 0, 0, // SpellId
-        8, // HitType
+        8, 0, 0, 0, // HitMask
     ];
 
     // Act
@@ -21,7 +21,7 @@ fn map_spell_cast_positive_with_target() {
     assert_eq!(spell_cast.caster.unit_id, 78);
     assert_eq!(spell_cast.target, Some(Unit { is_player: true, unit_id: 22 }));
     assert_eq!(spell_cast.spell_id, 77);
-    assert_eq!(spell_cast.hit_type, 8);
+    assert_eq!(spell_cast.hit_mask, 8);
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn map_spell_cast_positive_without_target() {
         1, 78, 0, 0, 0, 0, 0, 0, 0, // caster
         1, 0, 0, 0, 0, 0, 0, 0, 0, // target
         77, 0, 0, 0, // SpellId
-        8, // HitType
+        8, 0, 0, 0, // HitMask
     ];
 
     // Act
@@ -44,7 +44,7 @@ fn map_spell_cast_positive_without_target() {
     assert_eq!(spell_cast.caster.unit_id, 78);
     assert_eq!(spell_cast.target, None);
     assert_eq!(spell_cast.spell_id, 77);
-    assert_eq!(spell_cast.hit_type, 8);
+    assert_eq!(spell_cast.hit_mask, 8);
 }
 
 #[test]

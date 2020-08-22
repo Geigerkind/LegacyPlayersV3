@@ -7,17 +7,19 @@ void RPLLUnitHooks::SendAttackStateUpdate(const CalcDamageInfo *damageInfo)
     if (damageInfo == nullptr || damageInfo->Attacker == nullptr || damageInfo->Target == nullptr)
         return;
     #endif
-    const RPLL_DamageHitType damageHitType = RPLLHooks::mapHitMaskToRPLLHitType(damageInfo->HitInfo);
     std::vector<RPLL_Damage> damages;
     damages.reserve(1);
+    uint32_t total_damage = 0;
     for (auto dmg : damageInfo->Damages)
     {
         if (dmg.Damage == 0 && dmg.Absorb == 0 && dmg.Resist == 0)
             continue;
-        const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(dmg.DamageSchoolMask);
-        damages.push_back(std::move(RPLLHooks::BuildRPLLDamage(damageSchool, static_cast<uint32_t>(dmg.Damage), static_cast<uint32_t>(dmg.Resist), static_cast<uint32_t>(dmg.Absorb))));
+        const RPLL_DamageSchoolMask damageSchoolMask = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchoolMask(dmg.DamageSchoolMask);
+        damages.push_back(std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(dmg.Damage), static_cast<uint32_t>(dmg.Resist), static_cast<uint32_t>(dmg.Absorb))));
+        total_damage += dmg.Damage;
     }
-    RPLLHooks::DealMeleeDamage(damageInfo->Attacker, damageInfo->Target, damageHitType, static_cast<uint32_t>(damageInfo->Blocked), std::move(damages));
+    const RPLL_DamageHitMask damageHitMask = RPLLHooks::mapMeleeHitMaskToRPLLHitMask(damageInfo->HitInfo, damageInfo->TargetState, damageInfo->HitOutCome, total_damage);
+    RPLLHooks::DealMeleeDamage(damageInfo->Attacker, damageInfo->Target, damageHitMask, static_cast<uint32_t>(damageInfo->Blocked), std::move(damages));
 }
 
 void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damageInfo)
@@ -27,10 +29,11 @@ void RPLLUnitHooks::SendSpellNonMeleeDamageLog(const SpellNonMeleeDamage *damage
         return;
     #endif
 
-    const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(damageInfo->schoolMask);
+    const RPLL_DamageSchoolMask damageSchoolMask = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchoolMask(damageInfo->schoolMask);
+    const RPLL_DamageHitMask damageHitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(damageInfo->HitInfo, damageInfo->resist, damageInfo->absorb, damageInfo->blocked, damageInfo->damage);
     RPLLHooks::DealSpellDamage(damageInfo->attacker, damageInfo->target, static_cast<uint32_t>(damageInfo->SpellID),
                                static_cast<uint32_t>(damageInfo->blocked),
-                               std::move(RPLLHooks::BuildRPLLDamage(damageSchool, static_cast<uint32_t>(damageInfo->damage), static_cast<uint32_t>(damageInfo->absorb), static_cast<uint32_t>(damageInfo->resist))), false);
+                               std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(damageInfo->damage), static_cast<uint32_t>(damageInfo->absorb), static_cast<uint32_t>(damageInfo->resist))), false, damageHitMask);
 }
 
 void RPLLUnitHooks::DealHeal(const HealInfo &healInfo)
@@ -55,9 +58,10 @@ void RPLLUnitHooks::SendPeriodicAuraLog(const SpellPeriodicAuraLogInfo *pInfo)
     case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
         for (Unit *target : targets)
         {
-            const RPLL_DamageSchool damageSchool = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchool(static_cast<uint32_t>(aura->GetSpellInfo()->SchoolMask));
+            const RPLL_DamageSchoolMask damageSchoolMask = RPLLHooks::mapSpellSchoolMaskToRPLLDamageSchoolMask(static_cast<uint32_t>(aura->GetSpellInfo()->SchoolMask));
+            const RPLL_DamageHitMask damageHitMask = RPLLHooks::mapSpellHitMaskToRPLLHitMask(0, pInfo->resist, pInfo->absorb, 0, pInfo->damage);
             RPLLHooks::DealSpellDamage(caster, target, aura->GetId(), 0,
-                                       std::move(RPLLHooks::BuildRPLLDamage(damageSchool, static_cast<uint32_t>(pInfo->damage), static_cast<uint32_t>(pInfo->absorb), static_cast<uint32_t>(pInfo->resist))), true);
+                                       std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, static_cast<uint32_t>(pInfo->damage), static_cast<uint32_t>(pInfo->absorb), static_cast<uint32_t>(pInfo->resist))), true, damageHitMask);
         }
         return;
     /*

@@ -28,22 +28,22 @@ void RPLLPlayerHooks::EnvironmentalDamage(Unit *unit, const EnviromentalDamage t
         absorb = damage - result - resist;
     }
 
-    RPLL_DamageSchool damageSchool;
+    RPLL_DamageSchoolMask damageSchoolMask;
     switch (type)
     {
     case DAMAGE_LAVA:
     case DAMAGE_FIRE:
-        damageSchool = RPLL_DamageSchool::RPLL_FIRE;
+        damageSchoolMask = RPLL_DamageSchoolMask::RPLL_FIRE;
         break;
     case DAMAGE_SLIME:
-        damageSchool = RPLL_DamageSchool::RPLL_NATURE;
+        damageSchoolMask = RPLL_DamageSchoolMask::RPLL_NATURE;
         break;
     default:
-        damageSchool = RPLL_DamageSchool::RPLL_PHYSICAL;
+        damageSchoolMask = RPLL_DamageSchoolMask::RPLL_PHYSICAL;
         break;
     }
-    RPLLHooks::DealMeleeDamage(unit, unit, RPLL_DamageHitType::RPLL_ENVIRONMENT, 0,
-                               std::move(RPLLHooks::BuildRPLLDamage(damageSchool, result, resist, absorb)));
+    RPLLHooks::DealMeleeDamage(unit, unit, RPLL_DamageHitMask::ENVIRONMENT, 0,
+                               std::move(RPLLHooks::BuildRPLLDamage(damageSchoolMask, result, resist, absorb)));
 }
 
 void RPLLPlayerHooks::SetMap(const Unit *unit)

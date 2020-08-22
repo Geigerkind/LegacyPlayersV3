@@ -25,7 +25,7 @@ fn test_timestamp() {
     };
     let spell_cast = SpellCast {
         victim: None,
-        hit_type: HitType::Crit,
+        hit_mask: vec![HitType::Crit],
         spell_id: 0,
     };
     let event_type = EventType::SpellCast(spell_cast);
@@ -46,7 +46,7 @@ fn test_spellcast_no_spell_id() {
     };
     let spell_cast = SpellCast {
         victim: None,
-        hit_type: HitType::Crit,
+        hit_mask: vec![HitType::Crit],
         spell_id: 0,
     };
     let event_type = EventType::SpellCast(spell_cast);
@@ -68,7 +68,7 @@ fn test_spellcast_different_victim_no_direct_interrupt() {
     };
     let spell_cast = SpellCast {
         victim: Some(victim),
-        hit_type: HitType::Crit,
+        hit_mask: vec![HitType::Crit],
         spell_id: 73,
     };
     let event_type = EventType::SpellCast(spell_cast);
@@ -90,7 +90,7 @@ fn test_spellcast_hit_victim_no_direct_interrupt() {
     };
     let spell_cast = SpellCast {
         victim: Some(victim),
-        hit_type: HitType::Crit,
+        hit_mask: vec![HitType::Crit],
         spell_id: 73,
     };
     let event_type = EventType::SpellCast(spell_cast);
@@ -112,7 +112,7 @@ fn test_spellcast_different_victim_direct_interrupt() {
     };
     let spell_cast = SpellCast {
         victim: Some(victim),
-        hit_type: HitType::Crit,
+        hit_mask: vec![HitType::Crit],
         spell_id: 72,
     };
     let event_type = EventType::SpellCast(spell_cast);
@@ -134,7 +134,7 @@ fn test_spellcast_hit_victim_direct_interrupt() {
     };
     let spell_cast = SpellCast {
         victim: Some(victim),
-        hit_type: HitType::Crit,
+        hit_mask: vec![HitType::Crit],
         spell_id: 72,
     };
     let event_type = EventType::SpellCast(spell_cast);

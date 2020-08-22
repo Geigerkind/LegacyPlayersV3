@@ -1,7 +1,7 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{AuraApplication, Event, EventParseFailureAction, EventType, HitType, Mitigation, Position, Power, PowerType, School, Unit, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, Unit, UnitInstance};
 use crate::modules::live_data_processor::dto::{CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
@@ -61,7 +61,7 @@ impl Server {
 
                         match &committable_event.event {
                             EventType::SpellCast(spell_cast) => {
-                                if spell_cast.hit_type != domain_value::HitType::Miss {
+                                if !spell_cast.hit_mask.contains(&domain_value::HitType::Miss) && !spell_cast.hit_mask.contains(&domain_value::HitType::FullResist) {
                                     self.recently_committed_spell_cast_and_aura_applications
                                         .entry(*unit_instance_id)
                                         .or_insert_with(|| VecDeque::with_capacity(1))
@@ -202,7 +202,7 @@ impl Server {
                     subject,
                     EventType::SpellCast(domain_value::SpellCast {
                         victim: spell_cast.target.as_ref().and_then(|victim| victim.to_unit(db_main, armory, self.server_id, &self.summons).ok()),
-                        hit_type: HitType::from_u8(spell_cast.hit_type),
+                        hit_mask: hit_mask_from_u32(spell_cast.hit_mask),
                         spell_id: spell_cast.spell_id,
                     }),
                 ))
@@ -225,11 +225,11 @@ impl Server {
                     first_message.timestamp,
                     subject,
                     EventType::MeleeDamage(domain_value::Damage {
-                        school: School::from_u8(melee_damage.school),
+                        school_mask: school_mask_from_u8(melee_damage.school_mask),
                         damage: melee_damage.damage,
                         mitigation,
                         victim,
-                        hit_type: HitType::from_u8(melee_damage.hit_type.expect("Can melee damage be None?")),
+                        hit_mask: hit_mask_from_u32(melee_damage.hit_mask),
                     }),
                 ))
             },
@@ -254,12 +254,11 @@ impl Server {
                     EventType::SpellDamage {
                         spell_cause_id,
                         damage: domain_value::Damage {
-                            school: School::from_u8(spell_damage.school),
+                            school_mask: school_mask_from_u8(spell_damage.school_mask),
                             damage: spell_damage.damage,
                             mitigation,
                             victim,
-                            // TODO: How to tell its a crit?
-                            hit_type: spell_damage.hit_type.map_or(HitType::Hit, HitType::from_u8),
+                            hit_mask: hit_mask_from_u32(spell_damage.hit_mask),
                         },
                     },
                 ))

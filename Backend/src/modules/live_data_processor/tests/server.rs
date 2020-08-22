@@ -82,12 +82,13 @@ fn parse_spell_damage() {
             attacker: Unit { is_player: false, unit_id: caster_unit_id },
             victim: Unit { is_player: false, unit_id: target_unit_id },
             spell_id: Some(26),
-            hit_type: None,
+            hit_mask: 1,
             blocked: 1,
-            school: 2,
+            school_mask: 2,
             damage: 10,
             resisted_or_glanced: 1,
             absorbed: 1,
+            damage_over_time: false,
         }),
     });
 
@@ -107,7 +108,7 @@ fn parse_spell_damage() {
             caster: Unit { is_player: false, unit_id: caster_unit_id },
             target: Some(Unit { is_player: false, unit_id: target_unit_id }),
             spell_id: 26,
-            hit_type: 7,
+            hit_mask: 7,
         }),
     });
 
@@ -128,7 +129,7 @@ fn parse_spell_damage() {
                 unit_id: 0xF140000000000000 + 22,
             }),
             spell_id: 22,
-            hit_type: 1,
+            hit_mask: 1,
         }),
     });
 
@@ -148,12 +149,12 @@ fn parse_spell_damage() {
                 unit_id: 0xF140000000000000 + 22,
             }),
             spell_id: 22,
-            hit_type: 1,
+            hit_mask: 1,
         }),
     });
 
     let parse_result4 = server.parse_events(&mut conn, &armory, &data, messages);
     assert!(parse_result4.is_ok());
-    assert!(!server.non_committed_events.contains_key(&caster_unit_id));
     assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 5);
+    assert!(!server.non_committed_events.contains_key(&caster_unit_id));
 }
