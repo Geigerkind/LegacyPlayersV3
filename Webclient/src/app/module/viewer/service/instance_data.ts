@@ -249,7 +249,7 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public get knecht_updates(): Observable<KnechtUpdates> {
-        return this.knecht_updates$.asObservable().pipe(debounceTime(1000));
+        return this.knecht_updates$.asObservable().pipe(debounceTime(10));
     }
 
     public get changed(): Observable<ChangedSubject> {

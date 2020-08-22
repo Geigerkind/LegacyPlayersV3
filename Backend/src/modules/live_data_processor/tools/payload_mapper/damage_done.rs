@@ -22,11 +22,12 @@ impl MapDamageDone for [u8] {
             damage: byte_reader::read_u32(&self[24..28])?,
             resisted_or_glanced: byte_reader::read_u32(&self[28..32])?,
             absorbed: byte_reader::read_u32(&self[32..36])?,
+            damage_over_time: false
         })
     }
 
     fn from_spell_damage(&self) -> Result<DamageDone, LiveDataProcessorFailure> {
-        if self.len() != 39 {
+        if self.len() != 40 {
             return Err(LiveDataProcessorFailure::InvalidInput);
         }
         Ok(DamageDone {
@@ -39,6 +40,7 @@ impl MapDamageDone for [u8] {
             damage: byte_reader::read_u32(&self[27..31])?,
             resisted_or_glanced: byte_reader::read_u32(&self[31..35])?,
             absorbed: byte_reader::read_u32(&self[35..39])?,
+            damage_over_time: self[39] == 1
         })
     }
 }

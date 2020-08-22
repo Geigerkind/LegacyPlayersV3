@@ -313,11 +313,11 @@ RPLL_PvP_Winner RPLLHooks::mapPvPWinnerToRPLLPvPWinner(const uint8_t winner)
 /*
  * Pack information and send messages
  */
-void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage)
+void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage, const bool overTime)
 {
     if (!IsInInstance(victim))
         return;
-    const uint8_t msgLength = 24 + GetMessageMetaDataSize() + 13;
+    const uint8_t msgLength = 25 + GetMessageMetaDataSize() + 13;
     ByteBuffer msg(msgLength);
     AppendMessageMetaData(msg, RPLL_MessageType::RPLL_MSG_SPELL_DAMAGE, msgLength);
     msg << static_cast<uint64_t>(attacker->GetGUID().GetRawValue());
@@ -325,6 +325,7 @@ void RPLLHooks::DealSpellDamage(const Unit *attacker, const Unit *victim, const 
     msg << spellId;
     msg << blocked;
     AppendRPLLDamage(msg, damage);
+    msg << static_cast<uint8_t>(overTime);
     SendZmqMessage(std::move(msg));
 }
 

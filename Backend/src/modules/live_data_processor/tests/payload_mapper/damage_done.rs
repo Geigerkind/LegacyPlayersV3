@@ -45,6 +45,7 @@ fn map_damage_done_from_spell_damage_positive() {
         42, 0, 0, 0, // Damage
         10, 0, 0, 0, // Resisted or glanced
         12, 0, 0, 0, // Absorbed
+        1 // Damage over time
     ];
 
     // Act
@@ -64,6 +65,7 @@ fn map_damage_done_from_spell_damage_positive() {
     assert_eq!(damage_done.damage, 42);
     assert_eq!(damage_done.resisted_or_glanced, 10);
     assert_eq!(damage_done.absorbed, 12);
+    assert_eq!(damage_done.damage_over_time, true);
 }
 
 #[test]

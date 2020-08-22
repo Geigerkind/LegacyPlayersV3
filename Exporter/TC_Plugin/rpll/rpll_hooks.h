@@ -202,7 +202,7 @@ public:
     // then you can use these as well
     static void DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitType damageHitType, const uint32_t blocked, const std::vector<RPLL_Damage> damages);
     static void DealMeleeDamage(const Unit *attacker, const Unit *victim, const RPLL_DamageHitType damageHitType, const uint32_t blocked, const RPLL_Damage damages);
-    static void DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage);
+    static void DealSpellDamage(const Unit *attacker, const Unit *victim, const uint32_t spellId, const uint32_t blocked, const RPLL_Damage damage, const bool overTime);
     static void Heal(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t totalHeal, const uint32_t effectiveHeal, const uint32_t absorb);
     static void Death(const Unit *cause, const Unit *victim);
     static void AuraApplication(const Unit *caster, const Unit *target, const uint32_t spellId, const uint32_t stackAmount, const int8_t delta);

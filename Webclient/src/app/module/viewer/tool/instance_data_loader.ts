@@ -72,7 +72,7 @@ export class InstanceDataLoader {
     ]);
 
     constructor(private instance_meta_id: number, event_types: Array<number>) {
-        this.newData$.asObservable().pipe(debounceTime(50))
+        this.newData$.asObservable()
             .subscribe(() => (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData]));
         this.load_data(event_types)
             .finally(() =>
@@ -113,6 +113,7 @@ export class InstanceDataLoader {
         for (const event_type of event_types)
             await this.load_ressource(event_type);
         this.initialized = true;
+        this.newData$.next();
     }
 
     private async load_ressource(event_type: number): Promise<void> {
