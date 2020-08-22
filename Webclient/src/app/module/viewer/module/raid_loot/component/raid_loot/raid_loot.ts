@@ -1,4 +1,4 @@
-import {Component, OnDestroy} from "@angular/core";
+import {Component, EventEmitter, OnDestroy, Output} from "@angular/core";
 import {LootService} from "../../service/loot";
 import {Observable, Subscription} from "rxjs";
 import {Loot} from "../../domain_value/loot";
@@ -24,12 +24,17 @@ export class RaidLootComponent implements OnDestroy {
     show_insignificant: boolean = false;
     toggle_decisions = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
 
+    @Output() lootEmpty: EventEmitter<boolean> = new EventEmitter<boolean>();
+
     constructor(
         private instanceDataService: InstanceDataService,
         private dataService: DataService,
         private lootService: LootService
     ) {
-        this.subscription = this.lootService.loot.subscribe(loot => this.loot = loot);
+        this.subscription = this.lootService.loot.subscribe(loot => {
+            this.loot = loot;
+            this.lootEmpty.next(this.loot.length === 0);
+        });
         this.expansion_id = this.instanceDataService.meta
             .pipe(concatMap(meta => !meta ? undefined : this.dataService.get_server_by_id(meta.server_id)),
                 map(server => server?.expansion_id));

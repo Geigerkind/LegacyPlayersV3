@@ -28,6 +28,8 @@ export class ViewerComponent implements OnDestroy {
     private instance_meta_id: number;
     private current_mode: ViewerMode = ViewerMode.Base;
 
+    empty_loot: boolean = true;
+
     constructor(
         private instanceDataService: InstanceDataService,
         private activatedRouteService: ActivatedRoute,

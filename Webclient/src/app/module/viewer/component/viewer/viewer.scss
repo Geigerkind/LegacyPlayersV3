@@ -38,3 +38,12 @@ RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidDetailTable {
         margin-right: $spacing;
     }
 }
+
+.hide_loot {
+    width: 0 !important;
+    margin: 0 !important;
+}
+
+.full_width {
+    width: 100% !important;
+}
