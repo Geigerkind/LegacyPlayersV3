@@ -82,13 +82,13 @@ inline RPLL_HitMask& operator |=(RPLL_HitMask& a, RPLL_HitMask b)
 
 enum class RPLL_DamageSchoolMask : uint8_t
 {
-    RPLL_PHYSICAL   = 0x00,
-    RPLL_HOLY       = 0x01,
-    RPLL_FIRE       = 0x02,
-    RPLL_NATURE     = 0x04,
-    RPLL_FROST      = 0x08,
-    RPLL_SHADOW     = 0x10,
-    RPLL_ARCANE     = 0x20
+    RPLL_PHYSICAL   = 0x01,
+    RPLL_HOLY       = 0x02,
+    RPLL_FIRE       = 0x04,
+    RPLL_NATURE     = 0x08,
+    RPLL_FROST      = 0x10,
+    RPLL_SHADOW     = 0x20,
+    RPLL_ARCANE     = 0x40
 };
 
 enum class RPLL_PowerType : uint8_t
