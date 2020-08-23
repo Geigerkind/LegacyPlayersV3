@@ -19,4 +19,8 @@ select.themed {
     background: $tdc_darker;
     color: $font_default;
     border: 1px solid $tdc_accent;
+
+    option {
+        background: #ffffff;
+    }
 }
