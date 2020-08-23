@@ -5,7 +5,7 @@
     <Icon iconPath="/assets/wow_hero_classes/c{{ character.hero_class_id }}.png" [size]="32"></Icon>
     <span>{{ character.name + ' ' + character.level }} </span>
 
-    <SelectInput [value]="selectedHistoryId" [options]="selectedHistoryEntries" (valueChange)="emitHistory($event)"></SelectInput>
+    <SelectInput [value]="selectedHistoryId" [options]="selectedHistoryEntries" (valueChange)="emitHistory($event)" [themed]="true"></SelectInput>
 </div>
 <div class="cr_guild" *ngIf="character.guild">
     <a [routerLink]="'/armory/guild/'+character.server_name+'/'+character.guild.name">

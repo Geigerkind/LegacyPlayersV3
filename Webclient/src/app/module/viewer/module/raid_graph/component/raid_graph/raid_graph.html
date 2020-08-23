@@ -1,5 +1,5 @@
 <div class="menu_bar">
-    <SelectInput [options]="chartTypes" [value]="selected_chart_type"
+    <SelectInput [options]="chartTypes" [value]="selected_chart_type" [themed]="true"
                  (valueChange)="select_chart_type($event)"></SelectInput>
     <MultiSelect [placeholder]="'Datasets'" [dropdownList]="dataSets" [selectedItems]="dataSetsSelected"
                  (item_selected)="data_set_selected($event)"

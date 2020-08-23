@@ -1,3 +1,6 @@
+@import "src/styles/colors";
+@import "src/styles/units";
+
 input, select {
     background: #ffffff;
     display: block;
@@ -10,4 +13,10 @@ input, select {
 
 select option {
     color: #000 !important;
+}
+
+select.themed {
+    background: $tdc_darker;
+    color: $font_default;
+    border: 1px solid $tdc_accent;
 }

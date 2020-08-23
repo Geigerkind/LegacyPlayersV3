@@ -9,6 +9,7 @@ import {SelectOption} from "./../../domain_value/select_option";
 export class SelectInputComponent implements AfterViewInit {
 
     @ViewChild("selectInput", {static: true}) inputRef: ElementRef;
+    @Input() themed: boolean = false;
     @Input() options: Array<SelectOption>;
     @Input() autoFocus: boolean = false;
 

@@ -1,7 +1,7 @@
 <div class="container">
     <div class="title_bar">
         <SelectInput [value]="current_selection" (valueChange)="selection_changed($event)"
-                     [options]="options"></SelectInput>
+                     [options]="options" [themed]="true"></SelectInput>
         <div class="total_and_dps">
             {{total}}
             <ng-container *ngIf="show_per_second">

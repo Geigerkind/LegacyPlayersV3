@@ -1,6 +1,6 @@
 <div class="title_bar">
-    <SelectInput [(value)]="modes_current_selection" (valueChange)="select()" [options]="modes"></SelectInput>
-    <SelectInput [(value)]="selections_current_selection" (valueChange)="select()" [options]="selections"></SelectInput>
+    <SelectInput [(value)]="modes_current_selection" (valueChange)="select()" [options]="modes" [themed]="true"></SelectInput>
+    <SelectInput [(value)]="selections_current_selection" (valueChange)="select()" [options]="selections" [themed]="true"></SelectInput>
     <MultiSelect [(selectedItems)]="encounters_selected_items" [dropdownList]="encounters" (select_all)="select()"
                  (item_deselected)="select()" (item_selected)="select()"
                  (deselect_all)="select()"></MultiSelect>
