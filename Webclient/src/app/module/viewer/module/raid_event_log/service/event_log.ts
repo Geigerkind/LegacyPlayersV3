@@ -16,7 +16,7 @@ import {
 import {HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
-import {get_damage_components_total_damage} from "../../../domain_value/damage";
+import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
 
 @Injectable({
     providedIn: "root",
@@ -183,7 +183,7 @@ export class EventLogService implements OnDestroy {
                     case HitType.Immune:
                         return subject_name + " attempts to hit, but " + victim_name + " is immune.";
                 }
-                const damage_done = get_damage_components_total_damage(melee_damage_event.damage_components);
+                const damage_done = get_spell_components_total_amount(melee_damage_event.components);
                 if (damage_done === 0)
                     return subject_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + " " + hit_type_str + " " + victim_name + " for " + damage_done + ".";
@@ -217,7 +217,7 @@ export class EventLogService implements OnDestroy {
                     case HitType.Immune:
                         return subject_name + "'s " + ability_name + " attempts to hit, but " + victim_name + " is immune.";
                 }
-                const damage_done = get_damage_components_total_damage(spell_damage_event.damage.damage_components);
+                const damage_done = get_spell_components_total_amount(spell_damage_event.damage.components);
                 if (damage_done === 0)
                     return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " + damage_done + ".";

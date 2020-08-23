@@ -8,7 +8,7 @@ import {
     get_spell_damage
 } from "../../../extractor/events";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
-import {get_damage_components_total_damage} from "../../../domain_value/damage";
+import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
 
 function commit_death(deaths: Array<Event>, event_map: Map<number, Event>, melee_damage: Array<Event>,
                       spell_damage: Array<Event>, melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit,
@@ -31,7 +31,7 @@ function commit_death(deaths: Array<Event>, event_map: Map<number, Event>, melee
                 if (difference >= 1000)
                     continue;
                 if (get_unit_id(melee_unit_extraction(md_event)) === event_subject_id && difference < found_spell_min_ts) {
-                    const kb_amount = get_damage_components_total_damage(get_melee_damage(md_event).damage_components);
+                    const kb_amount = get_spell_components_total_amount(get_melee_damage(md_event).components);
                     if (kb_amount > 0) {
                         spell_id = 0;
                         found_spell_min_ts = difference;
@@ -47,7 +47,7 @@ function commit_death(deaths: Array<Event>, event_map: Map<number, Event>, melee
                     continue;
                 if (get_unit_id(spell_unit_extraction(sd_event)) === event_subject_id && difference < found_spell_min_ts) {
                     const [indicator, cause_event] = get_spell_cause(get_spell_damage(sd_event).spell_cause_id, event_map);
-                    const kb_amount = get_damage_components_total_damage(get_spell_damage(sd_event).damage.damage_components);
+                    const kb_amount = get_spell_components_total_amount(get_spell_damage(sd_event).damage.components);
                     if (kb_amount > 0) {
                         spell_id = indicator ? get_spell_cast(cause_event).spell_id : get_aura_application(cause_event).spell_id;
                         found_spell_min_ts = difference;

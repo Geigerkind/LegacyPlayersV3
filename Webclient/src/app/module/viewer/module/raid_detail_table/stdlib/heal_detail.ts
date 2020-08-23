@@ -58,12 +58,4 @@ function commit_heal_detail(current_mode: HealMode, heal: Array<Event>, event_ma
      */
 }
 
-function extract_mitigation_amount(mitigations: Array<Mitigation>, extract_function: (Mitigation) => number | undefined): number {
-    for (const mitigation of mitigations) {
-        if (extract_function(mitigation) !== undefined)
-            return extract_function(mitigation) as number;
-    }
-    return 0;
-}
-
 export {commit_heal_detail};

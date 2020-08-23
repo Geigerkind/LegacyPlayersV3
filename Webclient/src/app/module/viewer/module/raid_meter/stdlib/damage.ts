@@ -5,7 +5,7 @@ import {Event} from "../../../domain_value/event";
 import {ae_spell_cast_or_aura_application} from "../../../extractor/abilities";
 import {get_melee_damage, get_spell_damage} from "../../../extractor/events";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
-import {get_damage_components_total_damage} from "../../../domain_value/damage";
+import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
 
 function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, event_map: Map<number, Event>,
                        melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number]>]]> {
@@ -18,7 +18,7 @@ function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, e
     // tslint:disable-next-line:forin
     for (const unit_id: number in grouping) {
         const subject_id = Number(unit_id);
-        const total_damage = grouping[unit_id].reduce((acc, event) => acc + get_damage_components_total_damage(get_melee_damage(event).damage_components), 0);
+        const total_damage = grouping[unit_id].reduce((acc, event) => acc + get_spell_components_total_amount(get_melee_damage(event).components), 0);
         if (!newData.has(subject_id))
             newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), new Map([[CONST_AUTO_ATTACK_ID, total_damage]])]);
         else newData.get(subject_id)[1].set(CONST_AUTO_ATTACK_ID, total_damage);
@@ -37,7 +37,7 @@ function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, e
             const spell_id = ae_spell_cast_or_aura_application(ce_spell_damage, event_map)(event)[0];
             if (!spell_id)
                 return;
-            const damage = get_damage_components_total_damage(get_spell_damage(event).damage.damage_components);
+            const damage = get_spell_components_total_amount(get_spell_damage(event).damage.components);
 
             if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
             else abilities_data.set(spell_id, damage);
