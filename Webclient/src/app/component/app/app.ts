@@ -12,7 +12,7 @@ declare var gtag;
     styleUrls: ["./app.scss"]
 })
 export class AppComponent implements OnInit {
-    private static readonly PWA_PROMPT_TIME = 30000;
+    private static readonly PWA_PROMPT_TIME = 5000;
     public show_cookie_banner = false;
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription;
@@ -58,20 +58,7 @@ export class AppComponent implements OnInit {
     private prompt_for_pwa(e: any): void {
         if (this.settingsService.check("PWA_PROMPT"))
             return;
-        e.preventDefault();
         e.prompt();
-        const installBtn = document.querySelector(".install-btn");
-        installBtn.addEventListener("click", () => {
-            e.prompt();  // Wait for the user to respond to the prompt
-            e.userChoice
-                .then(choice => {
-                    if (choice.outcome === 'accepted') {
-                        console.log('User accepted');
-                    } else {
-                        console.log('User dismissed');
-                    }
-                });
-        });
         this.settingsService.set("PWA_PROMPT", true);
     }
 }
