@@ -1,5 +1,5 @@
 import {HitType} from "../../../domain_value/hit_type";
-import {DetailRow, DetailRowContent, ResistSummary, ResistSummaryRow} from "../domain_value/detail_row";
+import {DetailRow, DetailRowContent} from "../domain_value/detail_row";
 import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_ID_MH, CONST_AUTO_ATTACK_ID_OH} from "../../../constant/viewer";
 import {Event} from "../../../domain_value/event";
 import {

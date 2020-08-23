@@ -1,7 +1,7 @@
 pub use self::aura_application::AuraApplication;
 pub use self::creature::Creature;
 pub use self::damage::*;
-pub use self::damage_component::*;
+pub use self::spell_component::*;
 pub use self::event::Event;
 pub use self::event_parse_failure_action::EventParseFailureAction;
 pub use self::event_type::EventType;
@@ -24,7 +24,7 @@ pub use self::unit_instance::UnitInstance;
 mod aura_application;
 mod creature;
 mod damage;
-mod damage_component;
+mod spell_component;
 mod event;
 mod event_parse_failure_action;
 mod event_type;

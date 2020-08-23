@@ -1,7 +1,7 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, DamageComponent, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, Unit, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, SpellComponent, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, Unit, UnitInstance};
 use crate::modules::live_data_processor::dto::{get_damage_components_total, CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
@@ -216,12 +216,12 @@ impl Server {
                     first_message.timestamp,
                     subject,
                     EventType::MeleeDamage(domain_value::Damage {
-                        damage_components: melee_damage
+                        components: melee_damage
                             .damage_components
                             .iter()
-                            .map(|dmg_comp| DamageComponent {
+                            .map(|dmg_comp| SpellComponent {
                                 school_mask: school_mask_from_u8(dmg_comp.school_mask),
-                                damage: dmg_comp.damage,
+                                amount: dmg_comp.damage,
                                 mitigation: {
                                     let mut mitigation = Vec::with_capacity(3);
                                     let weighted_blocked_amount = ((melee_damage.blocked as f64) * ((dmg_comp.damage as f64) / total_damage)) as u32;
@@ -255,12 +255,12 @@ impl Server {
                     EventType::SpellDamage {
                         spell_cause_id,
                         damage: domain_value::Damage {
-                            damage_components: spell_damage
+                            components: spell_damage
                                 .damage_components
                                 .iter()
-                                .map(|dmg_comp| DamageComponent {
+                                .map(|dmg_comp| SpellComponent {
                                     school_mask: school_mask_from_u8(dmg_comp.school_mask),
-                                    damage: dmg_comp.damage,
+                                    amount: dmg_comp.damage,
                                     mitigation: {
                                         let mut mitigation = Vec::with_capacity(3);
                                         let weighted_blocked_amount = ((spell_damage.blocked as f64) * ((dmg_comp.damage as f64) / total_damage)) as u32;
