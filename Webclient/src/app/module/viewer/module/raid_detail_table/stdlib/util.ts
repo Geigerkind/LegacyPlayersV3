@@ -88,13 +88,14 @@ export const DETAIL_CATEGORIES = [
     HitType.Miss,
     HitType.Environment,
     HitType.Evade,
-    HitType.Immune
+    HitType.Immune,
+    HitType.FullBlock,
+    HitType.FullAbsorb,
+    HitType.FullResist
 ];
 
 export function find_category(hit_mask: Array<HitType>): HitType {
     for (const hit_type of hit_mask) {
-        if (hit_type === HitType.FullResist)
-            return HitType.Miss;
         if (DETAIL_CATEGORIES.includes(hit_type))
             return hit_type;
     }
