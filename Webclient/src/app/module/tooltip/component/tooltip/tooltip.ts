@@ -76,6 +76,10 @@ export class TooltipComponent {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
                 this.iconPath = "/assets/wow_icon/ability_kick.jpg";
+            } else if (args.type === 13) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.iconPath = "/assets/wow_icon/spell_arcane_arcane02.jpg";
             }
         });
     }

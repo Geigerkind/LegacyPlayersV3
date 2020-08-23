@@ -1,11 +1,11 @@
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt} from "../extractor/sources";
+import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt, se_spell_steal} from "../extractor/sources";
 import {
     te_aura_application, te_dispel, te_heal, te_melee_damage,
     te_spell_cast,
     te_spell_cast_by_cause,
-    te_spell_cast_or_aura_app, te_spell_damage, te_summon, te_threat
+    te_spell_cast_or_aura_app, te_spell_damage, te_spell_steal, te_summon, te_threat
 } from "../extractor/targets";
 import {
     ae_aura_application,
@@ -61,7 +61,7 @@ export class InstanceDataLoader {
         [5, [() => this.powers, se_identity, undefined, undefined]],
         [6, [() => this.aura_applications, se_identity, te_aura_application, ae_aura_application]],
         [7, [() => this.interrupts, se_interrupt(this.event_map), se_identity, ae_interrupt(this.event_map)]],
-        [8, [() => this.spell_steals, se_identity, te_spell_cast_by_cause(ce_spell_steal, this.event_map), ae_spell_steal(this.event_map)]],
+        [8, [() => this.spell_steals, se_spell_steal(this.event_map), te_spell_steal(this.event_map), ae_spell_steal(this.event_map)]],
         [9, [() => this.dispels, se_dispel(this.event_map), te_dispel(this.event_map), ae_dispel(this.event_map)]],
         [10, [() => this.threat_wipes, se_identity, undefined, undefined]],
         [11, [() => this.summons, se_identity, te_summon, undefined]],

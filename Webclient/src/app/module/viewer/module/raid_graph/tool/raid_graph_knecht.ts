@@ -81,6 +81,9 @@ export class RaidGraphKnecht {
                 case DataSet.InterruptDone:
                 case DataSet.InterruptReceived:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_interrupts(data_set === DataSet.InterruptReceived), (event) => 1);
+                case DataSet.SpellStealDone:
+                case DataSet.SpellStealReceived:
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_spell_steals(data_set === DataSet.SpellStealReceived), (event) => 1);
             }
             return [];
         })().sort((left, right) => left[0] - right[0]);

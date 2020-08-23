@@ -27,6 +27,7 @@ import {DetailThreatService} from "../../../raid_detail_table/service/detail_thr
 import {EventLogService} from "../../../raid_event_log/service/event_log";
 import {map} from "rxjs/operators";
 import {MeterInterruptService} from "../../service/meter_interrupt";
+import {MeterSpellStealService} from "../../service/meter_spell_steal";
 
 @Component({
     selector: "RaidMeter",
@@ -40,6 +41,7 @@ import {MeterInterruptService} from "../../service/meter_interrupt";
         MeterDeathService,
         MeterDispelService,
         MeterInterruptService,
+        MeterSpellStealService,
         RaidMeterService,
         // Raid Detail Service
         DetailDamageService,
@@ -95,6 +97,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 14, label_key: 'Dispels received'},
         {value: 15, label_key: 'Interrupt done'},
         {value: 16, label_key: 'Interrupt received'},
+        {value: 17, label_key: 'Spell steal done'},
+        {value: 18, label_key: 'Spell steal received'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -155,7 +159,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get total(): number {
-        if ([11, 12, 13, 14, 15, 16].includes(this.current_selection) && this.in_ability_mode)
+        if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection) && this.in_ability_mode)
             return this.bars.length;
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);
     }
@@ -190,9 +194,9 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private get_bar_tooltip(subject_id: number): any {
         if (!this.in_ability_mode) {
             // TODO: Refactor condition
-            if ([13, 14, 15, 16].includes(this.current_selection)) {
+            if ([13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
                 return {
-                    type: [13, 14].includes(this.current_selection) ? 9 : ([15, 16].includes(this.current_selection) ? 12 : 7),
+                    type: [13, 14].includes(this.current_selection) ? 9 : ([15, 16].includes(this.current_selection) ? 12 : ([17, 18].includes(this.current_selection) ? 13 : 7)),
                     payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
                     abilities: this.abilities,
                     units: this.units
@@ -205,7 +209,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
                 };
             }
-        } else if ([11, 12, 13, 14, 15, 16].includes(this.current_selection)) {
+        } else if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
             return {
                 type: 8,
                 payload: from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp)).pipe(map(entries => entries.slice(0, 10)))
@@ -241,10 +245,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.current_data = rows;
         let result;
         if (this.in_ability_mode) {
-            if ([11, 12, 13, 14, 15, 16].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
+            if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
             else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
-            if ([11, 12, 13, 14, 15, 16].includes(this.current_selection)) {
+            if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
             } else {
                 result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
@@ -253,12 +257,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             }
         }
 
-        if ([11, 12, 13, 14, 15, 16].includes(this.current_selection))
+        if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection))
             this.bars = result.sort((left, right) => right.timestamp - left.timestamp);
         else this.bars = result.sort((left, right) => right[1] - left[1]);
 
         // Bar tooltips
-        if ([11, 12, 13, 14, 15, 16].includes(this.current_selection) && this.in_ability_mode) {
+        if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection) && this.in_ability_mode) {
             for (const [row_index, row] of this.bars.entries())
                 this.bar_tooltips.set(row_index, this.get_bar_tooltip(row_index));
         } else {
@@ -269,7 +273,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get show_per_second(): boolean {
-        return ![11, 12, 13, 14, 15, 16].includes(this.current_selection);
+        return ![11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection);
     }
 
 }

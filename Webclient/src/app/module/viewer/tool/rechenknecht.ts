@@ -90,6 +90,10 @@ export class Rechenknecht {
         return this.raid_meter_knecht.interrupt.calculate(inverse);
     }
 
+    async meter_spell_steal(inverse: boolean): Promise<Array<[number, [Unit, Array<UnAuraOverviewRow>]]>> {
+        return this.raid_meter_knecht.spell_steal.calculate(inverse);
+    }
+
     /*
      * DATA FILTER
      */

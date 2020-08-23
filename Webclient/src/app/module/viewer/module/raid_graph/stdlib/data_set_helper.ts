@@ -31,6 +31,14 @@ function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
             interrupt_icon.height = 20;
             return interrupt_icon;
         }
+        case DataSet.SpellStealDone:
+        case DataSet.SpellStealReceived: {
+            const spell_Steal_icon = new Image();
+            spell_Steal_icon.src = "/assets/viewer/spell_steal_icon.jpg";
+            spell_Steal_icon.width = 20;
+            spell_Steal_icon.height = 20;
+            return spell_Steal_icon;
+        }
     }
     return "circle";
 }

@@ -1,13 +1,13 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt} from "../extractor/sources";
+import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt, se_spell_steal} from "../extractor/sources";
 import {
     te_aura_application,
     te_death, te_dispel, te_heal, te_melee_damage,
     te_spell_cast,
     te_spell_cast_by_cause,
-    te_spell_cast_or_aura_app, te_spell_damage, te_summon, te_threat
+    te_spell_cast_or_aura_app, te_spell_damage, te_spell_steal, te_summon, te_threat
 } from "../extractor/targets";
 import {
     ae_aura_application,
@@ -130,7 +130,7 @@ export class InstanceDataFilter {
     }
 
     get_spell_steals(inverse_filter: boolean = false): Array<Event> {
-        return this.apply_filter(this.data_loader.spell_steals, se_identity, te_spell_cast_by_cause(ce_spell_steal, this.data_loader.event_map),
+        return this.apply_filter(this.data_loader.spell_steals, se_spell_steal(this.data_loader.event_map), te_spell_steal(this.data_loader.event_map),
             ae_spell_steal(this.data_loader.event_map), inverse_filter);
     }
 

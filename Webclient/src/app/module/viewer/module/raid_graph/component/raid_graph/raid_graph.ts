@@ -141,6 +141,8 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         {id: DataSet.DispelsReceived, label: "Dispels received"},
         {id: DataSet.InterruptDone, label: "Interrupt done"},
         {id: DataSet.InterruptReceived, label: "Interrupt received"},
+        {id: DataSet.SpellStealDone, label: "Spell steal done"},
+        {id: DataSet.SpellStealReceived, label: "Spell steal received"},
     ];
     eventsSelected = [];
     selectedEvents: Set<DataSet> = new Set();
