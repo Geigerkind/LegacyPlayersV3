@@ -12,7 +12,18 @@ ng-multiselect-dropdown {
         color: $font_default !important;
         .multiselect-dropdown {
             .dropdown-btn {
+                display: flex !important;
+                flex-direction: row !important;
                 width: calc(100% - 26px) !important;
+
+                .selected-item {
+                    height: 20px;
+                    overflow: hidden !important;
+                }
+
+                span:last-child {
+                    margin-left: auto;
+                }
             }
 
             .filter-textbox input {
