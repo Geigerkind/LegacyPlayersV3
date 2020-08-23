@@ -14,7 +14,7 @@ declare var gtag;
 export class AppComponent implements OnInit {
     private static readonly PWA_PROMPT_TIME = 30000;
     public show_cookie_banner = false;
-    title = "Webclient";
+    title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription;
 
     constructor(
@@ -58,7 +58,20 @@ export class AppComponent implements OnInit {
     private prompt_for_pwa(e: any): void {
         if (this.settingsService.check("PWA_PROMPT"))
             return;
+        e.preventDefault();
         e.prompt();
+        const installBtn = document.querySelector(".install-btn");
+        installBtn.addEventListener("click", () => {
+            e.prompt();  // Wait for the user to respond to the prompt
+            e.userChoice
+                .then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('User accepted');
+                    } else {
+                        console.log('User dismissed');
+                    }
+                });
+        });
         this.settingsService.set("PWA_PROMPT", true);
     }
 }
