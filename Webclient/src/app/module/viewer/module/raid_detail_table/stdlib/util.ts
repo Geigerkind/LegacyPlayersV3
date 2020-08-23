@@ -93,6 +93,8 @@ export const DETAIL_CATEGORIES = [
 
 export function find_category(hit_mask: Array<HitType>): HitType {
     for (const hit_type of hit_mask) {
+        if (hit_type === HitType.FullResist)
+            return HitType.Miss;
         if (DETAIL_CATEGORIES.includes(hit_type))
             return hit_type;
     }
@@ -116,9 +118,6 @@ export function fill_details(spell_components: Array<SpellComponent>, hit_mask: 
     let total_percent_0 = 0;
     let total_percent_0_min = detail_row_content.resist_summary.percent_0.min;
     let total_percent_0_max = detail_row_content.resist_summary.percent_0.max;
-    let total_percent_100 = 0;
-    let total_percent_100_min = detail_row_content.resist_summary.percent_100.min;
-    let total_percent_100_max = detail_row_content.resist_summary.percent_100.max;
     for (const component of spell_components) {
         if (!components.has(component.school_mask[0])) {
             components.set(component.school_mask[0], [create_detail_row_content(), []]);
@@ -131,58 +130,48 @@ export function fill_details(spell_components: Array<SpellComponent>, hit_mask: 
         total_resist += resist;
         total_block += block;
         total_absorb += absorb;
-        const percent_0 = hit_mask.includes(HitType.PartialResist) || hit_mask.includes(HitType.FullResist) ? 0 : component.amount;
+        const percent_0 = hit_mask.includes(HitType.PartialResist) ? 0 : component.amount;
         total_percent_0 += percent_0;
         if (hit_mask.includes(HitType.PartialResist))
             resists.push(resist);
-        const percent_100 = hit_mask.includes(HitType.FullResist) ? resist : 0;
-        total_percent_100 += percent_100;
 
         if (percent_0 > 0) {
             total_percent_0_min = Math.min(total_percent_0_min, percent_0);
             total_percent_0_max = Math.min(total_percent_0_max, percent_0);
         }
-        if (percent_100 > 0) {
-            total_percent_100_min = Math.min(total_percent_100_min, percent_100);
-            total_percent_100_max = Math.min(total_percent_100_max, percent_100);
-        }
 
-        update_detail_row_content(comp_content, component.amount, resist, block, absorb, percent_0, percent_0, percent_0, percent_100, percent_100, percent_100);
+        update_detail_row_content(comp_content, component.amount, resist, block, absorb, percent_0, percent_0, percent_0);
     }
 
     update_detail_row_content(detail_row_content, total_amount, total_resist, total_block, total_absorb, total_percent_0,
-        total_percent_0_min, total_percent_0_max, total_percent_100, total_percent_100_min, total_percent_100_max);
+        total_percent_0_min, total_percent_0_max);
 }
 
 export function post_process_resist_summary(resist_summary: ResistSummary): void {
     const total_count = resist_summary.percent_0.count + resist_summary.percent_25.count + resist_summary.percent_50.count
-        + resist_summary.percent_75.count + resist_summary.percent_100.count;
+        + resist_summary.percent_75.count;
     const total_amount = resist_summary.percent_0.amount + resist_summary.percent_25.amount + resist_summary.percent_50.amount
-        + resist_summary.percent_75.amount + resist_summary.percent_100.amount;
+        + resist_summary.percent_75.amount;
 
     resist_summary.percent_0.average = resist_summary.percent_0.count === 0 ? 0 : resist_summary.percent_0.amount / resist_summary.percent_0.count;
     resist_summary.percent_25.average = resist_summary.percent_25.count === 0 ? 0 : resist_summary.percent_25.amount / resist_summary.percent_25.count;
     resist_summary.percent_50.average = resist_summary.percent_50.count === 0 ? 0 : resist_summary.percent_50.amount / resist_summary.percent_50.count;
     resist_summary.percent_75.average = resist_summary.percent_75.count === 0 ? 0 : resist_summary.percent_75.amount / resist_summary.percent_75.count;
-    resist_summary.percent_100.average = resist_summary.percent_100.count === 0 ? 0 : resist_summary.percent_100.amount / resist_summary.percent_100.count;
 
     resist_summary.percent_0.count_percent = total_count === 0 ? 0 : (100 * resist_summary.percent_0.count) / total_count;
     resist_summary.percent_25.count_percent = total_count === 0 ? 0 : (100 * resist_summary.percent_25.count) / total_count;
     resist_summary.percent_50.count_percent = total_count === 0 ? 0 : (100 * resist_summary.percent_50.count) / total_count;
     resist_summary.percent_75.count_percent = total_count === 0 ? 0 : (100 * resist_summary.percent_75.count) / total_count;
-    resist_summary.percent_100.count_percent = total_count === 0 ? 0 : (100 * resist_summary.percent_100.count) / total_count;
 
     resist_summary.percent_0.amount_percent = total_amount === 0 ? 0 : (100 * resist_summary.percent_0.amount) / total_amount;
     resist_summary.percent_25.amount_percent = total_amount === 0 ? 0 : (100 * resist_summary.percent_25.amount) / total_amount;
     resist_summary.percent_50.amount_percent = total_amount === 0 ? 0 : (100 * resist_summary.percent_50.amount) / total_amount;
     resist_summary.percent_75.amount_percent = total_amount === 0 ? 0 : (100 * resist_summary.percent_75.amount) / total_amount;
-    resist_summary.percent_100.amount_percent = total_amount === 0 ? 0 : (100 * resist_summary.percent_100.amount) / total_amount;
 
     if (resist_summary.percent_0.count === 0) resist_summary.percent_0.min = 0;
     if (resist_summary.percent_25.count === 0) resist_summary.percent_25.min = 0;
     if (resist_summary.percent_50.count === 0) resist_summary.percent_50.min = 0;
     if (resist_summary.percent_75.count === 0) resist_summary.percent_75.min = 0;
-    if (resist_summary.percent_100.count === 0) resist_summary.percent_100.min = 0;
 }
 
 export function update_resist_summary_row(resist_summary_row: ResistSummaryRow, count: number, amount: number, min: number, max: number): void {
@@ -193,7 +182,7 @@ export function update_resist_summary_row(resist_summary_row: ResistSummaryRow, 
 }
 
 export function update_detail_row_content(comp_content: DetailRowContent, amount: number, resist: number, block: number, absorb: number, percent_0: number, percent_0_min: number,
-                                          percent_0_max: number, percent_100: number, percent_100_min: number, percent_100_max: number): void {
+                                          percent_0_max: number): void {
     ++comp_content.count;
     comp_content.amount += amount;
     comp_content.resist += resist;
@@ -206,12 +195,6 @@ export function update_detail_row_content(comp_content: DetailRowContent, amount
         comp_content.resist_summary.percent_0.amount += percent_0;
         comp_content.resist_summary.percent_0.min = Math.min(percent_0_min, comp_content.resist_summary.percent_0.min);
         comp_content.resist_summary.percent_0.max = Math.max(percent_0_max, comp_content.resist_summary.percent_0.max);
-    }
-    if (percent_100) {
-        ++comp_content.resist_summary.percent_100.count;
-        comp_content.resist_summary.percent_100.amount += percent_100;
-        comp_content.resist_summary.percent_100.min = Math.min(percent_100_min, comp_content.resist_summary.percent_100.min);
-        comp_content.resist_summary.percent_100.max = Math.max(percent_100_max, comp_content.resist_summary.percent_100.max);
     }
 }
 

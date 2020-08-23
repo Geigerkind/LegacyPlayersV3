@@ -29,7 +29,6 @@ export interface ResistSummary {
     percent_25: ResistSummaryRow;
     percent_50: ResistSummaryRow;
     percent_75: ResistSummaryRow;
-    percent_100: ResistSummaryRow;
 }
 
 export interface ResistSummaryRow {
