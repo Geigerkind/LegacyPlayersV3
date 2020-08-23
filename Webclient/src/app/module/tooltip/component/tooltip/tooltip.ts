@@ -22,6 +22,7 @@ export class TooltipComponent {
             this.tooltipType = undefined;
             this.tooltipPayload = undefined;
             this.iconPath = undefined;
+            this.tooltipArgs = args;
 
             if (args.type === 1) {
                 this.tooltipService.loadCharacterTooltip(args.character_id, result => {
@@ -56,7 +57,6 @@ export class TooltipComponent {
             } else if (args.type === 7) {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
-                this.tooltipArgs = args.server_id;
                 this.iconPath = "/assets/wow_icon/inv_misc_bone_skull_02.jpg";
             } else if (args.type === 8) {
                 this.tooltipType = args.type;
@@ -72,6 +72,10 @@ export class TooltipComponent {
             } else if (args.type === 11) {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
+            } else if (args.type === 12) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.iconPath = "/assets/wow_icon/ability_kick.jpg";
             }
         });
     }

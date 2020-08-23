@@ -23,6 +23,14 @@ function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
             dispel_icon.height = 20;
             return dispel_icon;
         }
+        case DataSet.InterruptDone:
+        case DataSet.InterruptReceived: {
+            const interrupt_icon = new Image();
+            interrupt_icon.src = "/assets/viewer/interrupt_icon.jpg";
+            interrupt_icon.width = 20;
+            interrupt_icon.height = 20;
+            return interrupt_icon;
+        }
     }
     return "circle";
 }

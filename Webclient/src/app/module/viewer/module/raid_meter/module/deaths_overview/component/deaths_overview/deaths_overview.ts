@@ -1,36 +1,39 @@
-import {Component, Input, OnChanges} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {DeathOverviewRow} from "../../domain_value/death_overview_row";
-import {UnitService} from "../../../../../../service/unit";
-import {SpellService} from "../../../../../../service/spell";
 import {DateService} from "../../../../../../../../service/date";
+import {get_unit_id, Unit} from "../../../../../../domain_value/unit";
+import {Observable, of} from "rxjs";
+import {CONST_UNKNOWN_LABEL} from "../../../../../../constant/viewer";
+import {RaidMeterSubject} from "../../../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 
 @Component({
     selector: "DeathsOverview",
     templateUrl: "./deaths_overview.html",
-    styleUrls: ["./deaths_overview.scss"],
-    providers: [
-        SpellService,
-        UnitService,
-        DateService
-    ]
+    styleUrls: ["./deaths_overview.scss"]
 })
-export class DeathsOverviewComponent implements OnChanges {
+export class DeathsOverviewComponent {
 
     @Input() death_overview_rows: Array<DeathOverviewRow> = [];
-    @Input() server_id: number;
+    @Input() abilities: Map<number, RaidMeterSubject>;
+    @Input() units: Map<number, RaidMeterSubject>;
     @Input() to_actor: boolean = true;
     @Input() bar_tooltips: Map<number, any>;
 
     constructor(
-        public unitService: UnitService,
-        public spellService: SpellService,
         public dateService: DateService
     ) {
     }
 
-    ngOnChanges(): void {
-        this.unitService.set_server_id(this.server_id);
-        this.spellService.set_server_id(this.server_id);
+    get_unit_name(unit: Unit): Observable<string> {
+        if (!this.units)
+            return of(CONST_UNKNOWN_LABEL);
+        return this.units.get(get_unit_id(unit))?.name;
+    }
+
+    get_ability_name(spell_id: number): Observable<string> {
+        if (!this.abilities)
+            return of(CONST_UNKNOWN_LABEL);
+        return this.abilities.get(spell_id)?.name;
     }
 
     get_tooltip(row_index: number): any {

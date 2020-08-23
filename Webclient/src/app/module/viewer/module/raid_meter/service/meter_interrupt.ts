@@ -1,15 +1,15 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {UnAuraOverviewRow} from "../module/un_aura_overview/domain_value/un_aura_overview_row";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {InstanceDataService} from "../../../service/instance_data";
 import {UtilService} from "./util";
-import {UnAuraOverviewRow} from "../module/un_aura_overview/domain_value/un_aura_overview_row";
 import {get_unit_id} from "../../../domain_value/unit";
 
 @Injectable({
     providedIn: "root",
 })
-export class MeterDispelService implements OnDestroy {
+export class MeterInterruptService implements OnDestroy {
 
     private subscription: Subscription;
 
@@ -52,7 +52,7 @@ export class MeterDispelService implements OnDestroy {
     private async merge_data(): Promise<void> {
         const result = new Map<number, Array<UnAuraOverviewRow>>();
 
-        const result1 = await this.instanceDataService.knecht_spell.meter_dispel(this.current_mode);
+        const result1 = await this.instanceDataService.knecht_spell.meter_interrupt(this.current_mode);
         for (const [subject_id, [subject, un_aura_overview_rows]] of result1) {
             if (!result.has(subject_id))
                 result.set(subject_id, un_aura_overview_rows);
@@ -71,6 +71,7 @@ export class MeterDispelService implements OnDestroy {
             }
         }
 
+        // @ts-ignore
         this.data$.next([...result.entries()]);
     }
 }

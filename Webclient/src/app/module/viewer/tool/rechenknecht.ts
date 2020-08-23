@@ -86,6 +86,10 @@ export class Rechenknecht {
         return this.raid_meter_knecht.dispel.calculate(inverse);
     }
 
+    async meter_interrupt(inverse: boolean): Promise<Array<[number, [Unit, Array<UnAuraOverviewRow>]]>> {
+        return this.raid_meter_knecht.interrupt.calculate(inverse);
+    }
+
     /*
      * DATA FILTER
      */

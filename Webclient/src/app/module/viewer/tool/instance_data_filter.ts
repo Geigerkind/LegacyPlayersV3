@@ -1,7 +1,7 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {se_aura_app_or_own, se_dispel, se_identity} from "../extractor/sources";
+import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt} from "../extractor/sources";
 import {
     te_aura_application,
     te_death, te_dispel, te_heal, te_melee_damage,
@@ -125,7 +125,7 @@ export class InstanceDataFilter {
     }
 
     get_interrupts(inverse_filter: boolean = false): Array<Event> {
-        return this.apply_filter(this.data_loader.interrupts, se_identity, te_spell_cast_or_aura_app(ce_interrupt, this.data_loader.event_map),
+        return this.apply_filter(this.data_loader.interrupts, se_interrupt(this.get_event_map()), se_identity,
             ae_interrupt(this.data_loader.event_map), inverse_filter);
     }
 

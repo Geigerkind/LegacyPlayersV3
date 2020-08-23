@@ -37,7 +37,9 @@ $menuSize: 500px;
 
 .active {
     background: lighten($tdc_darker, 3%);
-    color: $highlight;
+    span {
+        color: $highlight;
+    }
 }
 
 .menu_button {

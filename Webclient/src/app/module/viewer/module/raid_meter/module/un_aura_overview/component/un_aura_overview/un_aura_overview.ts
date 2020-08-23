@@ -1,47 +1,36 @@
-import {Component, Input, OnChanges} from "@angular/core";
-import {UnitService} from "../../../../../../service/unit";
-import {SpellService} from "../../../../../../service/spell";
+import {Component, Input} from "@angular/core";
 import {DateService} from "../../../../../../../../service/date";
 import {UnAuraOverviewRow} from "../../domain_value/un_aura_overview_row";
+import {RaidMeterSubject} from "../../../../../../../../template/meter_graph/domain_value/raid_meter_subject";
+import {get_unit_id, Unit} from "../../../../../../domain_value/unit";
+import {Observable, of} from "rxjs";
+import {CONST_UNKNOWN_LABEL} from "../../../../../../constant/viewer";
 
 @Component({
     selector: "UnAuraOverview",
     templateUrl: "./un_aura_overview.html",
-    styleUrls: ["./un_aura_overview.scss"],
-    providers: [
-        SpellService,
-        UnitService,
-        DateService
-    ]
+    styleUrls: ["./un_aura_overview.scss"]
 })
-export class UnAuraOverviewComponent implements OnChanges {
+export class UnAuraOverviewComponent {
 
     @Input() un_aura_overview_rows: Array<UnAuraOverviewRow> = [];
-    @Input() server_id: number;
-    @Input() to_actor: boolean = true;
-    @Input() bar_tooltips: Map<number, any>;
+    @Input() abilities: Map<number, RaidMeterSubject>;
+    @Input() units: Map<number, RaidMeterSubject>;
 
     constructor(
-        public unitService: UnitService,
-        public spellService: SpellService,
         public dateService: DateService
     ) {
     }
 
-    ngOnChanges(): void {
-        this.unitService.set_server_id(this.server_id);
-        this.spellService.set_server_id(this.server_id);
+    get_unit_name(unit: Unit): Observable<string> {
+        if (!this.units)
+            return of(CONST_UNKNOWN_LABEL);
+        return this.units.get(get_unit_id(unit))?.name;
     }
 
-    get_tooltip(row_index: number): any {
-        if (!this.bar_tooltips)
-            return {};
-        return this.bar_tooltips.get(row_index);
-    }
-
-    get routerLink(): string {
-        if (this.to_actor)
-            return "../event_log/to_actor";
-        return "../event_log/by_actor";
+    get_ability_name(spell_id: number): Observable<string> {
+        if (!this.abilities)
+            return of(CONST_UNKNOWN_LABEL);
+        return this.abilities.get(spell_id)?.name;
     }
 }

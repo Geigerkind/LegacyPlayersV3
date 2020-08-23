@@ -4,6 +4,7 @@ import {RaidMeterDamage} from "./raid_meter_damage";
 import {RaidMeterThreat} from "./raid_meter_threat";
 import {RaidMeterDeath} from "./raid_meter_death";
 import {RaidMeterDispel} from "./raid_meter_dispel";
+import {RaidMeterInterrupt} from "./raid_meter_interrupt";
 
 export class RaidMeterKnecht {
 
@@ -12,6 +13,7 @@ export class RaidMeterKnecht {
     public threat: RaidMeterThreat;
     public death: RaidMeterDeath;
     public dispel: RaidMeterDispel;
+    public interrupt: RaidMeterInterrupt;
 
     constructor(
         private data_filter: InstanceDataFilter
@@ -21,5 +23,6 @@ export class RaidMeterKnecht {
         this.threat = new RaidMeterThreat(data_filter);
         this.death = new RaidMeterDeath(data_filter);
         this.dispel = new RaidMeterDispel(data_filter);
+        this.interrupt = new RaidMeterInterrupt(data_filter);
     }
 }

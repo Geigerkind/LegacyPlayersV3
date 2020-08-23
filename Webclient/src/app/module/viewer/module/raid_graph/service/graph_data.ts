@@ -59,6 +59,8 @@ export class GraphDataService implements OnDestroy {
             case DataSet.OverhealingTaken:
             case DataSet.DispelsDone:
             case DataSet.DispelsReceived:
+            case DataSet.InterruptDone:
+            case DataSet.InterruptReceived:
                 this.commit_data_set(data_set, await this.instanceDataService.knecht_spell.graph_data_set(data_set));
                 break;
         }

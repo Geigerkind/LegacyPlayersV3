@@ -56,8 +56,10 @@ export class RaidGraphKnecht {
             switch (data_set) {
                 case DataSet.DamageDone:
                 case DataSet.DamageTaken:
-                    return [...RaidGraphKnecht.feed_points(this.data_filter.get_melee_damage(data_set === DataSet.DamageTaken), (event) => get_spell_components_total_amount(get_melee_damage(event).components)),
-                        ...RaidGraphKnecht.feed_points(this.data_filter.get_spell_damage(data_set === DataSet.DamageTaken), (event) => get_spell_components_total_amount(get_spell_damage(event).damage.components))];
+                    return [...RaidGraphKnecht.feed_points(this.data_filter.get_melee_damage(data_set === DataSet.DamageTaken),
+                        (event) => get_spell_components_total_amount(get_melee_damage(event).components)),
+                        ...RaidGraphKnecht.feed_points(this.data_filter.get_spell_damage(data_set === DataSet.DamageTaken),
+                            (event) => get_spell_components_total_amount(get_spell_damage(event).damage.components))];
                 case DataSet.TotalHealingDone:
                 case DataSet.TotalHealingTaken:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.TotalHealingTaken), (event) => get_heal(event).heal.total);
@@ -76,6 +78,9 @@ export class RaidGraphKnecht {
                 case DataSet.DispelsDone:
                 case DataSet.DispelsReceived:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_dispels(data_set === DataSet.DispelsReceived), (event) => 1);
+                case DataSet.InterruptDone:
+                case DataSet.InterruptReceived:
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_interrupts(data_set === DataSet.InterruptReceived), (event) => 1);
             }
             return [];
         })().sort((left, right) => left[0] - right[0]);

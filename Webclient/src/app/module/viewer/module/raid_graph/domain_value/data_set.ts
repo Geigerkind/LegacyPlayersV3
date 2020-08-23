@@ -15,10 +15,10 @@ export enum DataSet {
     Kills = "Kills",
     DispelsDone = "Dispels done",
     DispelsReceived = "Dispels received",
+    InterruptDone = "Interrupt done",
+    InterruptReceived = "Interrupt received",
 }
 
-function is_event_data_set(data_set: DataSet): boolean {
-    return [DataSet.Deaths, DataSet.Kills, DataSet.DispelsDone, DataSet.DispelsReceived].includes(data_set);
+export function is_event_data_set(data_set: DataSet): boolean {
+    return [DataSet.Deaths, DataSet.Kills, DataSet.DispelsDone, DataSet.DispelsReceived, DataSet.InterruptDone, DataSet.InterruptReceived].includes(data_set);
 }
-
-export {is_event_data_set};

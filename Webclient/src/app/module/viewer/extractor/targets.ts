@@ -15,7 +15,7 @@ function te_spell_cast(event: Event): Unit {
 }
 
 function te_aura_application(event: Event): Unit {
-    return get_aura_application(event).caster;
+    return event.subject;
 }
 
 function te_summon(event: Event): Unit {

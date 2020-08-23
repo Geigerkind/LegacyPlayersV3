@@ -1,5 +1,4 @@
 import {InstanceDataFilter} from "../../../tool/instance_data_filter";
-import {HealMode} from "../../../domain_value/heal_mode";
 import {Unit} from "../../../domain_value/unit";
 import {te_dispel} from "../../../extractor/targets";
 import {se_dispel} from "../../../extractor/sources";

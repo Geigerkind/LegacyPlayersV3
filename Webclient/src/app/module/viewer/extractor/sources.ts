@@ -1,13 +1,14 @@
 import {Event} from "../domain_value/event";
 import {Unit} from "../domain_value/unit";
 import {AuraApplication} from "../domain_value/aura_application";
-import {get_aura_application, get_dispel, get_spell_cast, get_spell_cause} from "./events";
+import {get_aura_application, get_dispel, get_interrupt, get_spell_cast, get_spell_cause} from "./events";
+import {te_aura_application, te_spell_cast} from "./targets";
 
-function se_identity(event: Event): Unit {
+export function se_identity(event: Event): Unit {
     return event.subject;
 }
 
-function se_aura_app_or_own(cause_extraction: (Event) => number, event_map: Map<number, Event>): (Event) => Unit {
+export function se_aura_app_or_own(cause_extraction: (Event) => number, event_map: Map<number, Event>): (Event) => Unit {
     return (event: Event) => {
         const aura_application_event = event_map?.get(cause_extraction(event));
         if (!!aura_application_event) {
@@ -19,7 +20,7 @@ function se_aura_app_or_own(cause_extraction: (Event) => number, event_map: Map<
     };
 }
 
-function se_dispel(event_map: Map<number, Event>): (Event) => Unit {
+export function se_dispel(event_map: Map<number, Event>): (Event) => Unit {
     return (event: Event) => {
         const dispel_event = get_dispel(event);
         const [indicator, spell_cause_event] = get_spell_cause(dispel_event.cause_event_id, event_map);
@@ -29,4 +30,13 @@ function se_dispel(event_map: Map<number, Event>): (Event) => Unit {
     };
 }
 
-export {se_aura_app_or_own, se_identity, se_dispel};
+export function se_interrupt(event_map: Map<number, Event>): (Event) => Unit {
+    return (event: Event) => {
+        const interrupt_event = get_interrupt(event);
+        const [indicator, spell_cause_event] = get_spell_cause(interrupt_event.cause_event_id, event_map);
+        if (!!spell_cause_event) {
+            return indicator ? se_identity(spell_cause_event) : get_aura_application(spell_cause_event).caster;
+        }
+        return undefined;
+    };
+}
