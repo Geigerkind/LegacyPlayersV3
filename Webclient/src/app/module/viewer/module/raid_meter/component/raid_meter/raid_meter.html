@@ -18,8 +18,7 @@
                 (bar_clicked)="bar_clicked($event)">
     </MeterGraph>
     <DeathsOverview *ngIf="[11, 12].includes(current_selection) && in_ability_mode" [death_overview_rows]="bars"
-                    [server_id]="this.current_meta?.server_id" [to_actor]="this.current_selection === 11"
-                    [bar_tooltips]="bar_tooltips">
+                    [abilities]="abilities" [units]="units" [bar_tooltips]="bar_tooltips">
     </DeathsOverview>
     <UnAuraOverview *ngIf="[13, 14, 15, 16].includes(current_selection) && in_ability_mode"
                     [un_aura_overview_rows]="bars" [abilities]="abilities" [units]="units">
