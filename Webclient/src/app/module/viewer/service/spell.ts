@@ -10,6 +10,7 @@ import {
     CONST_AUTO_ATTACK_LABEL, CONST_AUTO_ATTACK_LABEL_MH,
     CONST_AUTO_ATTACK_LABEL_OH
 } from "../constant/viewer";
+import {School} from "../domain_value/school";
 
 @Injectable({
     providedIn: "root",
@@ -21,6 +22,41 @@ export class SpellService {
     constructor(
         private dataService: DataService
     ) {
+    }
+
+    private static parse_school_mask(school_mask: number): Array<School> {
+        const result = [];
+        let school = 1;
+        while (school <= 0x40) {
+            if ((school & school_mask) > 0) {
+                switch (school) {
+                    case 1:
+                        result.push(School.Physical);
+                        break;
+                    case 2:
+                        result.push(School.Holy);
+                        break;
+                    case 4:
+                        result.push(School.Fire);
+                        break;
+                    case 8:
+                        result.push(School.Nature);
+                        break;
+                    case 16:
+                        result.push(School.Frost);
+                        break;
+                    case 32:
+                        result.push(School.Shadow);
+                        break;
+                    case 64:
+                        result.push(School.Arcane);
+                        break;
+                }
+            }
+            school *= 2;
+        }
+
+        return result;
     }
 
     set_server_id(server_id: number): void {
@@ -65,5 +101,10 @@ export class SpellService {
     get_spell_name(spell_id: number): Observable<string> {
         return this.get_localized_basic_spell(spell_id)
             .pipe(map(spell => spell.localization));
+    }
+
+    get_spell_school_mask(spell_id: number): Observable<Array<School>> {
+        return this.get_localized_basic_spell(spell_id)
+            .pipe(map(spell => SpellService.parse_school_mask(spell.base.school)));
     }
 }

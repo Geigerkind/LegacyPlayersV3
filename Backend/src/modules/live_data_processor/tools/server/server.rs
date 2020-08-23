@@ -1,7 +1,8 @@
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
+use crate::modules::data::tools::RetrieveSpell;
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, SpellComponent, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, Unit, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{hit_mask_from_u32, school_mask_from_u8, AuraApplication, Event, EventParseFailureAction, EventType, Mitigation, Position, Power, PowerType, School, SpellComponent, Unit, UnitInstance};
 use crate::modules::live_data_processor::dto::{get_damage_components_total, CombatState, Death, Loot, Summon};
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
@@ -20,7 +21,7 @@ impl Server {
 
         for msg in messages {
             self.extract_meta_information(db_main, armory, &msg);
-            self.test_for_committable_events(db_main, armory);
+            self.test_for_committable_events(db_main, data, armory);
             self.cleanup(msg.timestamp);
             if next_reset < msg.timestamp || next_reset == u64::MAX {
                 next_reset = self.reset_instances(db_main, msg.timestamp);
@@ -46,10 +47,10 @@ impl Server {
         }
     }
 
-    fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory) {
+    fn test_for_committable_events(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory) {
         let mut remove_first_non_committed_event = Vec::new();
         for (subject_id, non_committed_event) in self.non_committed_events.iter() {
-            match self.commit_event(db_main, armory, non_committed_event) {
+            match self.commit_event(db_main, data, armory, non_committed_event) {
                 Ok(mut committable_event) => {
                     // For all except Spell we want to only remove the first event
                     remove_first_non_committed_event.push(*subject_id);
@@ -127,7 +128,7 @@ impl Server {
 
     // So based on the next event for the current users in the system
     // we are going to decide whether or not to commit it.
-    fn commit_event(&self, db_main: &mut (impl Select + Execute), armory: &Armory, non_committed_event: &VecDeque<Message>) -> Result<Event, EventParseFailureAction> {
+    fn commit_event(&self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, non_committed_event: &VecDeque<Message>) -> Result<Event, EventParseFailureAction> {
         let first_message = non_committed_event.front().expect("non_committed_event contains at least one entry");
         match &first_message.message_type {
             // Events that are just of size 1
@@ -170,6 +171,10 @@ impl Server {
                     caster: aura_application.caster.to_unit(db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
                     stack_amount: aura_application.stack_amount,
                     spell_id: aura_application.spell_id,
+                    school_mask: data
+                        .get_spell(self.expansion_id, aura_application.spell_id)
+                        .map(|spell| school_mask_from_u8(spell.school_mask as u8))
+                        .unwrap_or_else(|| vec![School::Physical]),
                 }),
             )),
             MessageType::Death(Death { cause, victim }) => Ok(Event::new(
@@ -204,6 +209,10 @@ impl Server {
                         victim: spell_cast.target.as_ref().and_then(|victim| victim.to_unit(db_main, armory, self.server_id, &self.summons).ok()),
                         hit_mask: hit_mask_from_u32(spell_cast.hit_mask),
                         spell_id: spell_cast.spell_id,
+                        school_mask: data
+                            .get_spell(self.expansion_id, spell_cast.spell_id)
+                            .map(|spell| school_mask_from_u8(spell.school_mask as u8))
+                            .unwrap_or_else(|| vec![School::Physical]),
                     }),
                 ))
             },

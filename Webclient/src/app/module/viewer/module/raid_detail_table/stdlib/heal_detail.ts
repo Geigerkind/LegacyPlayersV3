@@ -16,6 +16,7 @@ function commit_heal_detail(current_mode: HealMode, heal: Array<Event>, event_ma
             return;
         const hit_mask = indicator ? get_spell_cast(spell_cause_event).hit_mask : heal_event.heal.hit_mask;
         const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
+        const school_mask = indicator ? get_spell_cast(spell_cause_event).school_mask : get_aura_application(spell_cause_event).school_mask;
 
         if (!ability_details.has(spell_id))
             ability_details.set(spell_id, new Map());
@@ -27,7 +28,7 @@ function commit_heal_detail(current_mode: HealMode, heal: Array<Event>, event_ma
         if (current_mode !== HealMode.Overheal || healing > 0)
             fill_details([{
                 amount: healing,
-                school_mask: [School.Holy], // TODO
+                school_mask,
                 mitigation: heal_event.heal.mitigation
             }], hit_mask, details_map);
     }

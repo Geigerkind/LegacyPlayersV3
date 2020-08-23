@@ -178,7 +178,7 @@ export class DataService {
         return {
             localization: "Unknown",
             base: {
-                school: 0,
+                school: 1,
                 icon: "inv_misc_questionmark",
                 id: 0
             }

@@ -27,6 +27,7 @@ fn test_timestamp() {
         victim: None,
         hit_mask: vec![HitType::Crit],
         spell_id: 0,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::SpellCast(spell_cast);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -48,6 +49,7 @@ fn test_spellcast_no_spell_id() {
         victim: None,
         hit_mask: vec![HitType::Crit],
         spell_id: 0,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::SpellCast(spell_cast);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -70,6 +72,7 @@ fn test_spellcast_different_victim_no_direct_interrupt() {
         victim: Some(victim),
         hit_mask: vec![HitType::Crit],
         spell_id: 73,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::SpellCast(spell_cast);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -92,6 +95,7 @@ fn test_spellcast_hit_victim_no_direct_interrupt() {
         victim: Some(victim),
         hit_mask: vec![HitType::Crit],
         spell_id: 73,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::SpellCast(spell_cast);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -114,6 +118,7 @@ fn test_spellcast_different_victim_direct_interrupt() {
         victim: Some(victim),
         hit_mask: vec![HitType::Crit],
         spell_id: 72,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::SpellCast(spell_cast);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -136,6 +141,7 @@ fn test_spellcast_hit_victim_direct_interrupt() {
         victim: Some(victim),
         hit_mask: vec![HitType::Crit],
         spell_id: 72,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::SpellCast(spell_cast);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -158,6 +164,7 @@ fn test_aura_app_wrong_subject_no_indirect_interrupt() {
         caster: aura_caster,
         stack_amount: 0,
         spell_id: 407,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::AuraApplication(aura_application);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -180,6 +187,7 @@ fn test_aura_app_correct_subject_no_indirect_interrupt() {
         caster: aura_caster,
         stack_amount: 0,
         spell_id: 407,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::AuraApplication(aura_application);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -202,6 +210,7 @@ fn test_aura_app_wrong_subject_indirect_interrupt() {
         caster: aura_caster,
         stack_amount: 0,
         spell_id: 408,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::AuraApplication(aura_application);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
@@ -224,6 +233,7 @@ fn test_aura_app_correct_subject_indirect_interrupt() {
         caster: aura_caster,
         stack_amount: 0,
         spell_id: 408,
+        school_mask: Vec::new(),
     };
     let event_type = EventType::AuraApplication(aura_application);
     let committed_event = Event::new(0, 123456, event_subject, event_type);
