@@ -18,13 +18,3 @@ export interface DamageComponent {
 export function get_damage_components_total_damage(components: Array<DamageComponent>): number {
     return components.reduce((acc, comp) => acc + comp.damage, 0);
 }
-
-export function extract_mitigation_amount(components: Array<DamageComponent>, extract_function: (Mitigation) => number | undefined): number {
-    for (const comp of components) {
-        for (const mitigation of comp.mitigation) {
-            if (extract_function(mitigation) !== undefined)
-                return extract_function(mitigation) as number;
-        }
-    }
-    return 0;
-}

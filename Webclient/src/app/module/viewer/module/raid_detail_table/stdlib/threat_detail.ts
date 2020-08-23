@@ -12,6 +12,8 @@ import {detail_row_post_processing} from "./util";
 import {create_array_from_nested_map} from "../../../../../stdlib/map_persistance";
 
 function commit_threat_detail(threat: Array<Event>, event_map: Map<number, Event>): Array<[number, Array<[HitType, DetailRow]>]> {
+    return [];
+    /*
     const ability_details = new Map<number, Map<HitType, DetailRow>>();
 
     for (const event of threat) {
@@ -63,6 +65,8 @@ function commit_threat_detail(threat: Array<Event>, event_map: Map<number, Event
 
     detail_row_post_processing(ability_details);
     return create_array_from_nested_map(ability_details);
+
+     */
 }
 
 export {commit_threat_detail};

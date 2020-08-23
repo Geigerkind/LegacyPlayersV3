@@ -3,34 +3,5 @@
         <SelectInput [options]="options" (valueChange)="change_meter_selection($event)" [value]="current_meter_selection"></SelectInput>
         <SelectInput [options]="abilities" [(value)]="current_ability_selection"></SelectInput>
     </div>
-    <div class="table_container">
-        <div class="header">
-            <div class="td">Type</div>
-            <div class="td">Count</div>
-            <div class="td">%</div>
-            <div class="td">Amount</div>
-            <div class="td">%</div>
-            <div class="td">Min</div>
-            <div class="td">Max</div>
-            <div class="td">Average</div>
-            <div class="td">Resist/Glance</div>
-            <div class="td">Block</div>
-            <div class="td">Absorb</div>
-        </div>
-        <div class="body">
-            <div class="row" *ngFor="let row of current_ability_details">
-                <div class="td">{{row[1].hit_type}}</div>
-                <div class="td">{{row[1].count}}</div>
-                <div class="td">{{row[1].count_percent.toFixed(1)}}%</div>
-                <div class="td">{{row[1].amount}}</div>
-                <div class="td">{{row[1].amount_percent.toFixed(1)}}%</div>
-                <div class="td">{{row[1].min}}</div>
-                <div class="td">{{row[1].max}}</div>
-                <div class="td">{{row[1].average.toFixed(1)}}</div>
-                <div class="td">{{row[1].glance_or_resist}}</div>
-                <div class="td">{{row[1].block}}</div>
-                <div class="td">{{row[1].absorb}}</div>
-            </div>
-        </div>
-    </div>
+    <DetailTable [current_ability_details]="current_ability_details"></DetailTable>
 </div>

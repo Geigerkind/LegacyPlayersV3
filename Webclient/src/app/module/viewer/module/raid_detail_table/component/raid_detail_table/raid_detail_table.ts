@@ -64,11 +64,11 @@ export class RaidDetailTableComponent implements OnDestroy {
         this.subscription_ability_details?.unsubscribe();
     }
 
-    get current_ability_details(): Array<[HitType, DetailRow]> {
+    get current_ability_details(): Array<DetailRow> {
         const details = this.ability_details.find(([ability, i_details]) => ability === this.current_ability_selection);
         if (details === undefined)
             return [];
-        return details[1];
+        return details[1].map(([hit_type, detail_row]) => detail_row);
     }
 
     change_meter_selection(selection: number): void {

@@ -21,65 +21,11 @@
 
         SelectInput {
             float: left;
-            max-width: 300px;
+            width: min(300px, calc(50% - 0.25 * #{$spacing}));
 
             &:first-child {
                 margin-right: 0.5 * $spacing;
             }
-        }
-    }
-
-    .table_container {
-        width: 100%;
-
-        .td {
-            $tdHeight: 25px;
-            height: $tdHeight;
-            min-width: $tdHeight;
-            border-right: 1px solid $tdc_accent;
-            line-height: $tdHeight;
-            flex: 1;
-            font-size: 16px;
-            text-align: center;
-
-            @media (max-width: 600px) {
-                font-size: 14px;
-            }
-
-            @media (max-width: 400px) {
-                font-size: 11px;
-            }
-
-            &:last-child {
-                border: none;
-            }
-        }
-
-        .header {
-            display: flex;
-            flex-direction: row;
-            $size: 25px;
-            background: $tdc_darker;
-            width: 100%;
-            height: $size;
-            border-bottom: 1px solid $tdc_accent;
-            flex: 1;
-        }
-
-        .body {
-            width: 100%;
-
-            .row {
-                display: flex;
-                flex-direction: row;
-                width: 100%;
-                border-bottom: 1px solid $tdc_accent;
-
-                &:last-child {
-                    border: none;
-                }
-            }
-
         }
     }
 }

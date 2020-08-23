@@ -8,6 +8,8 @@ import {HealMode} from "../../../domain_value/heal_mode";
 import {detail_row_post_processing} from "./util";
 
 function commit_heal_detail(current_mode: HealMode, heal: Array<Event>, event_map: Map<number, Event>): Array<[number, Array<[HitType, DetailRow]>]> {
+    return [];
+    /*
     const ability_details = new Map<number, Map<HitType, DetailRow>>();
 
     for (const event of heal) {
@@ -53,6 +55,7 @@ function commit_heal_detail(current_mode: HealMode, heal: Array<Event>, event_ma
 
     detail_row_post_processing(ability_details);
     return create_array_from_nested_map(ability_details);
+     */
 }
 
 function extract_mitigation_amount(mitigations: Array<Mitigation>, extract_function: (Mitigation) => number | undefined): number {

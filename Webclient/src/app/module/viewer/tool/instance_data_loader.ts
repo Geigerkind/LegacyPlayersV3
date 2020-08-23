@@ -19,6 +19,7 @@ import {ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal} from "../extract
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {get_threat} from "../extractor/events";
 import {Subject} from "rxjs";
+import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
@@ -71,7 +72,7 @@ export class InstanceDataLoader {
     ]);
 
     constructor(private instance_meta_id: number, event_types: Array<number>) {
-        this.newData$.asObservable()
+        this.newData$.asObservable().pipe(debounceTime(5))
             .subscribe(() => (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData]));
         this.load_data(event_types)
             .finally(() =>
@@ -115,7 +116,6 @@ export class InstanceDataLoader {
             this.initialized = true;
             (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.Initialized]);
         }
-        this.newData$.next();
     }
 
     private async load_ressource(event_type: number): Promise<void> {
@@ -133,12 +133,11 @@ export class InstanceDataLoader {
                 this.extract_subjects(event_type, event);
                 this.event_map.set(event.id, event);
             }
-            if (prev_result_length < InstanceDataLoader.BATCH_SIZE) {
-                resolve();
-            } else {
+            if (result.length > 0)
                 this.newData$.next();
-                setTimeout(() => load_non_blocking(resolve), 100);
-            }
+            if (prev_result_length < InstanceDataLoader.BATCH_SIZE)
+                resolve();
+            else setTimeout(() => load_non_blocking(resolve), 100);
         };
         return new Promise<void>((resolve, reject) => load_non_blocking(resolve));
     }

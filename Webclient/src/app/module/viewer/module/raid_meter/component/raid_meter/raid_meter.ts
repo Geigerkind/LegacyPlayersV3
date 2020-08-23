@@ -24,7 +24,6 @@ import {MeterDispelService} from "../../service/meter_dispel";
 import {DetailDamageService} from "../../../raid_detail_table/service/detail_damage";
 import {DetailHealService} from "../../../raid_detail_table/service/detail_heal";
 import {DetailThreatService} from "../../../raid_detail_table/service/detail_threat";
-import {DateService} from "../../../../../../service/date";
 import {EventLogService} from "../../../raid_event_log/service/event_log";
 import {map} from "rxjs/operators";
 
@@ -216,8 +215,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
         return {
             type: 6,
-            payload: !payload ? undefined : payload[1],
-            icon: new DelayedLabel(this.abilities.get(subject_id).icon)
+            payload: !payload ? undefined : payload[1].map(([hit_type, detail_row]) => detail_row),
+            icon: new DelayedLabel(this.abilities.get(subject_id).icon) // TODO: Change to observable
         };
     }
 

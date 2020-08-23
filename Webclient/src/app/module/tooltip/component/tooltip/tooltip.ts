@@ -69,6 +69,9 @@ export class TooltipComponent {
             } else if (args.type === 10) {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
+            } else if (args.type === 11) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
             }
         });
     }
