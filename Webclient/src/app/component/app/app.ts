@@ -12,7 +12,6 @@ declare var gtag;
     styleUrls: ["./app.scss"]
 })
 export class AppComponent implements OnInit {
-    private static readonly PWA_PROMPT_TIME = 5000;
     public show_cookie_banner = false;
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription;
@@ -23,7 +22,7 @@ export class AppComponent implements OnInit {
         private router: Router
     ) {
         // this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
-        (window as any).addEventListener("beforeinstallprompt", (e) => setTimeout((evnt) => this.prompt_for_pwa(evnt), AppComponent.PWA_PROMPT_TIME, e));
+        (window as any).addEventListener("beforeinstallprompt", (e) => () => this.prompt_for_pwa(e));
     }
 
     ngOnInit(): void {
