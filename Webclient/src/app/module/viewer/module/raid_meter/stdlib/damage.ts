@@ -19,9 +19,11 @@ function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, e
     for (const unit_id: number in grouping) {
         const subject_id = Number(unit_id);
         const total_damage = grouping[unit_id].reduce((acc, event) => acc + get_spell_components_total_amount(get_melee_damage(event).components), 0);
-        if (!newData.has(subject_id))
-            newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), new Map([[CONST_AUTO_ATTACK_ID, total_damage]])]);
-        else newData.get(subject_id)[1].set(CONST_AUTO_ATTACK_ID, total_damage);
+        if (total_damage > 0) {
+            if (!newData.has(subject_id))
+                newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), new Map([[CONST_AUTO_ATTACK_ID, total_damage]])]);
+            else newData.get(subject_id)[1].set(CONST_AUTO_ATTACK_ID, total_damage);
+        }
     }
 
     // Spell Damage

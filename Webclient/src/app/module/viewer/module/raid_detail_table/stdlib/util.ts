@@ -54,8 +54,8 @@ export function detail_row_post_processing(ability_details: any): Array<[number,
 
             // Set content avg, percent
             content.average = content.amount / content.count;
-            content.amount_percent = (100 * content.amount) / total_amount;
-            content.count_percent = (100 * content.count) / total_count;
+            content.amount_percent = total_amount === 0 ? 0 : (100 * content.amount) / total_amount;
+            content.count_percent = total_count === 0 ? 0 : (100 * content.count) / total_count;
 
             detail_rows.push([hit_type, {
                 hit_type,
