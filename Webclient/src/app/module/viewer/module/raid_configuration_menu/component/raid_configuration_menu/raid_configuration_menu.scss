@@ -44,8 +44,13 @@ $menuSize: 500px;
     position: absolute;
     right: -41px;
 
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
+    span {
+        letter-spacing: 2px;
+        font-size: 16px;
+        font-weight: 900;
+        text-orientation: mixed;
+        writing-mode: vertical-rl;
+    }
 
     width: 40px;
     background: $tdc_darker;
