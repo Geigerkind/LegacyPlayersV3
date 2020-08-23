@@ -35,4 +35,4 @@ WEBCLIENT_ICON_PATH="\\/assets\\/icon"
 WEBCLIENT_ICON_NAME="logo"
 WEBCLIENT_ICON_TYPE="png"
 
-_WEBCLIENT_TEMPLATE_FILES=("src/environments/environment_template.ts" "src/index_template.html" "src/manifest_template.json")
+_WEBCLIENT_TEMPLATE_FILES=("src/environments/environment_template.ts" "src/index_template.html")

@@ -51,6 +51,9 @@ workbox.routing.registerRoute(
             new workbox.expiration.ExpirationPlugin({
                 maxAgeSeconds: 31 * 7 * 24 * 60 * 60
             }),
+            new workbox.cacheableResponse.CacheableResponsePlugin({
+                statuses: [0, 200],
+            })
         ]
     })
 );
@@ -63,6 +66,9 @@ workbox.routing.registerRoute(
             new workbox.expiration.ExpirationPlugin({
                 maxAgeSeconds: 60 * 60
             }),
+            new workbox.cacheableResponse.CacheableResponsePlugin({
+                statuses: [0, 200],
+            })
         ]
     })
 );
@@ -77,7 +83,7 @@ workbox.routing.registerRoute(
 );
 
 workbox.routing.registerRoute(
-    ({request}) => {
+    ({request, url}) => {
         if (url.origin.includes("localhost"))
             return false;
         return stale_while_revalidate_destinations.some(destination => request.destination === destination);
