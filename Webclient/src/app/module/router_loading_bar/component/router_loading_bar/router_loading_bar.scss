@@ -10,10 +10,15 @@
     opacity: 0.5;
 
     div {
+        opacity: 0;
         height: 100%;
         width: 50%;
         animation: movingBar 1.5s infinite;
         background-color: $highlight;
+
+        &.show_bar {
+            opacity: 1;
+        }
     }
 }
 
