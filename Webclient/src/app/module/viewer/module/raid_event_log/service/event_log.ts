@@ -17,6 +17,7 @@ import {HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -98,7 +99,8 @@ export class EventLogService implements OnDestroy {
         if (!this.initialized) {
             this.update_event_log_entries();
             this.subscription.add(this.instanceDataService.knecht_updates.subscribe(knecht_update => {
-                this.update_event_log_entries();
+                if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
+                    this.update_event_log_entries();
             }));
             this.initialized = true;
         }

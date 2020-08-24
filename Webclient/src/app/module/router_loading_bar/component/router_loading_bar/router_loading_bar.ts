@@ -1,15 +1,25 @@
-import {Component} from "@angular/core";
+import {Component, OnDestroy} from "@angular/core";
 import {LoadingBarService} from "../../../../service/loading_bar";
+import {Subscription} from "rxjs";
+import {auditTime} from "rxjs/operators";
 
 @Component({
     selector: "RouterLoadingBar",
     templateUrl: "./router_loading_bar.html",
     styleUrls: ["./router_loading_bar.scss"]
 })
-export class RouterLoadingBarComponent {
+export class RouterLoadingBarComponent implements OnDestroy {
+
+    private subscription: Subscription;
+
     displayBar = false;
 
     constructor(private loadingBarService: LoadingBarService) {
-        this.loadingBarService.subscribe(state => this.displayBar = state);
+        this.subscription = this.loadingBarService.loading
+            .pipe(auditTime(50)).subscribe(state => this.displayBar = state);
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 }

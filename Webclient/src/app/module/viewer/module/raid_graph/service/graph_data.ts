@@ -3,6 +3,7 @@ import {InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {RaidGraphKnecht} from "../tool/raid_graph_knecht";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -16,8 +17,9 @@ export class GraphDataService implements OnDestroy {
         private instanceDataService: InstanceDataService
     ) {
         this.subscription = this.instanceDataService.knecht_updates.subscribe(knecht_updates => {
-            for (const data_set of [...this.data_points$.getValue()[1].keys()])
-                this.add_data_set(data_set);
+            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
+                for (const data_set of [...this.data_points$.getValue()[1].keys()])
+                    this.add_data_set(data_set);
         });
     }
 
