@@ -10,32 +10,7 @@ import {Remote} from "comlink";
 import {Rechenknecht} from "../tool/rechenknecht";
 import {debounceTime} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
-
-export enum ChangedSubject {
-    SpellCast = 1,
-    Death = 2,
-    CombatState,
-    Loot,
-    Position,
-    Power,
-    AuraApplication,
-    Interrupt,
-    SpellSteal,
-    Dispel,
-    ThreatWipe,
-    Summon,
-    MeleeDamage,
-    SpellDamage,
-    Heal,
-    Threat,
-    InstanceMeta,
-    Participants,
-    Attempts,
-    Sources,
-    Targets,
-    Abilities,
-    AttemptTotalDuration
-}
+import {LoadingBarService} from "../../../service/loading_bar";
 
 @Injectable({
     providedIn: "root",
@@ -59,7 +34,6 @@ export class InstanceDataService implements OnDestroy {
 
     private attempt_total_duration$: BehaviorSubject<number> = new BehaviorSubject(1);
 
-    private changed$: Subject<ChangedSubject> = new Subject();
     private readonly updater: any;
 
     private worker: Array<Worker> = [];
@@ -71,20 +45,19 @@ export class InstanceDataService implements OnDestroy {
     private knecht_updates$: Subject<KnechtUpdates> = new Subject();
 
     constructor(
-        private apiService: APIService
+        private apiService: APIService,
+        private loading_bar_service: LoadingBarService
     ) {
         this.updater = setInterval(() => {
             this.load_instance_meta(meta => {
                 const current_meta = this.instance_meta$.getValue();
                 if (current_meta.end_ts !== meta.end_ts) {
                     this.instance_meta$.next(meta);
-                    this.changed$.next(ChangedSubject.InstanceMeta);
                 }
             });
             this.load_attempts(attempts => {
                 if (attempts.length > this.attempts$.getValue().length) {
                     this.attempts$.next(attempts);
-                    this.changed$.next(ChangedSubject.Attempts);
                 }
             });
         }, 60000);
@@ -174,11 +147,20 @@ export class InstanceDataService implements OnDestroy {
 
         // Cant be put into a function because Angular won't recognize paths otherwise
         const knecht_condition = data => !!data && !!data[0] && data[0] === "KNECHT_UPDATES";
+        const handle_loading_bar = data => {
+            if (data[1] === KnechtUpdates.WorkStart)
+                this.loading_bar_service.incrementCounter();
+            else if (data[1] === KnechtUpdates.WorkEnd)
+                this.loading_bar_service.decrementCounter();
+        };
+
         let worker = new Worker('./../worker/melee.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
         worker.onmessage = ({data}) => {
-            if (knecht_condition(data))
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
                 this.knecht_updates$.next(data[1]);
+            }
         };
         this.worker.push(worker);
         this.knecht_melee = Comlink.wrap<Rechenknecht>(worker);
@@ -186,8 +168,10 @@ export class InstanceDataService implements OnDestroy {
         worker = new Worker('./../worker/spell.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
         worker.onmessage = ({data}) => {
-            if (knecht_condition(data))
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
                 this.knecht_updates$.next(data[1]);
+            }
         };
         this.worker.push(worker);
         this.knecht_spell = Comlink.wrap<Rechenknecht>(worker);
@@ -195,8 +179,10 @@ export class InstanceDataService implements OnDestroy {
         worker = new Worker('./../worker/misc.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
         worker.onmessage = ({data}) => {
-            if (knecht_condition(data))
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
                 this.knecht_updates$.next(data[1]);
+            }
         };
         this.worker.push(worker);
         this.knecht_misc = Comlink.wrap<Rechenknecht>(worker);
@@ -204,8 +190,10 @@ export class InstanceDataService implements OnDestroy {
         worker = new Worker('./../worker/replay.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
         worker.onmessage = ({data}) => {
-            if (knecht_condition(data))
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
                 this.knecht_updates$.next(data[1]);
+            }
         };
         this.worker.push(worker);
         this.knecht_replay = Comlink.wrap<Rechenknecht>(worker);
@@ -216,7 +204,6 @@ export class InstanceDataService implements OnDestroy {
             this.instance_meta$ = new BehaviorSubject(undefined);
             this.load_instance_meta(meta => {
                 this.instance_meta$.next(meta);
-                this.changed$.next(ChangedSubject.InstanceMeta);
             });
             this.subscription.add(this.instance_meta$.subscribe(meta => {
                 if (!!meta && !!meta.expired)
@@ -231,7 +218,6 @@ export class InstanceDataService implements OnDestroy {
             this.participants$ = new BehaviorSubject([]);
             this.load_participants(participants => {
                 this.participants$.next(participants);
-                this.changed$.next(ChangedSubject.Participants);
             });
         }
         return this.participants$.asObservable();
@@ -242,7 +228,6 @@ export class InstanceDataService implements OnDestroy {
             this.attempts$ = new BehaviorSubject([]);
             this.load_attempts(attempts => {
                 this.attempts$.next(attempts);
-                this.changed$.next(ChangedSubject.Attempts);
             });
         }
         return this.attempts$.asObservable();
@@ -250,10 +235,6 @@ export class InstanceDataService implements OnDestroy {
 
     public get knecht_updates(): Observable<KnechtUpdates> {
         return this.knecht_updates$.asObservable().pipe(debounceTime(10));
-    }
-
-    public get changed(): Observable<ChangedSubject> {
-        return this.changed$.asObservable();
     }
 
     public get sources(): Observable<Array<Unit>> {

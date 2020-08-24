@@ -6,6 +6,7 @@ import {DetailRow} from "../domain_value/detail_row";
 import {InstanceDataService} from "../../../service/instance_data";
 import {SpellService} from "../../../service/spell";
 import {HealMode} from "../../../domain_value/heal_mode";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -46,7 +47,10 @@ export class DetailHealService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(async () => this.commit());
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
+            if ([KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(knecht_update))
+                this.commit();
+        });
         this.commit();
     }
 

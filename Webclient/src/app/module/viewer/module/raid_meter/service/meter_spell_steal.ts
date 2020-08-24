@@ -5,6 +5,7 @@ import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value
 import {InstanceDataService} from "../../../service/instance_data";
 import {UtilService} from "./util";
 import {get_unit_id} from "../../../domain_value/unit";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -46,7 +47,10 @@ export class MeterSpellStealService implements OnDestroy {
     private initialize(): void {
         this.initialized = true;
         this.merge_data();
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(async () => this.merge_data());
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
+            if ([KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(knecht_update))
+                this.merge_data();
+        });
     }
 
     private async merge_data(): Promise<void> {

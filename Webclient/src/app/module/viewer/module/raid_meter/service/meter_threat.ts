@@ -3,6 +3,7 @@ import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {InstanceDataService} from "../../../service/instance_data";
 import {UtilService} from "./util";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -44,7 +45,10 @@ export class MeterThreatService implements OnDestroy {
     private initialize(): void {
         this.initialized = true;
         this.merge_data();
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(async () => this.merge_data());
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
+            if ([KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(knecht_update))
+                this.merge_data();
+        });
     }
 
     private async merge_data(): Promise<void> {

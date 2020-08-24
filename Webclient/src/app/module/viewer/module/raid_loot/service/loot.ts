@@ -1,5 +1,5 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {ChangedSubject, InstanceDataService} from "../../../service/instance_data";
+import {InstanceDataService} from "../../../service/instance_data";
 import {BehaviorSubject, from, Observable, of, Subscription} from "rxjs";
 import {Loot} from "../domain_value/loot";
 import {concatMap, map, take} from "rxjs/operators";
@@ -14,6 +14,7 @@ import {Localized} from "../../../../../domain_value/localized";
 import {BasicItem} from "../../../../../domain_value/data/basic_item";
 import {Loot as ViewerLoot} from "../../../domain_value/loot";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -34,7 +35,10 @@ export class LootService implements OnDestroy {
             this.current_meta = meta;
             this.reload();
         });
-        this.instanceDataService.knecht_updates.subscribe(() => this.reload());
+        this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
+            if ([KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(knecht_update))
+                this.reload();
+        });
     }
 
     ngOnDestroy(): void {

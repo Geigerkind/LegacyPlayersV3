@@ -5,6 +5,7 @@ import {SelectOption} from "../../../../../template/input/select_input/domain_va
 import {DetailRow} from "../domain_value/detail_row";
 import {HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 
 @Injectable({
     providedIn: "root",
@@ -43,7 +44,10 @@ export class DetailDamageService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(async () => this.commit());
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
+            if ([KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(knecht_update))
+                this.commit();
+        });
         this.commit();
     }
 
