@@ -42,6 +42,7 @@ export class InstanceDataService implements OnDestroy {
     knecht_misc: Remote<Rechenknecht>;
     knecht_replay: Remote<Rechenknecht>;
 
+    private public_knecht_updates$: Subject<Array<KnechtUpdates>> = new Subject();
     private knecht_updates$: Subject<KnechtUpdates> = new Subject();
     private recent_knecht_updates$: Set<KnechtUpdates> = new Set();
 
@@ -64,8 +65,11 @@ export class InstanceDataService implements OnDestroy {
         }, 60000);
 
         this.subscription.add(this.knecht_updates$.subscribe(knecht_update => this.recent_knecht_updates$.add(knecht_update)));
-        this.subscription.add(this.knecht_updates$.pipe(auditTime(500))
-            .subscribe(() => this.recent_knecht_updates$.clear()));
+        this.subscription.add(this.knecht_updates$.pipe(auditTime(50))
+            .subscribe(() => {
+                this.public_knecht_updates$.next([...this.recent_knecht_updates$.values()]);
+                this.recent_knecht_updates$.clear();
+            }));
         this.subscription.add(this.knecht_updates.subscribe(knecht_updates => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
                 this.update_subjects();
@@ -238,10 +242,7 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public get knecht_updates(): Observable<Array<KnechtUpdates>> {
-        return this.knecht_updates$.asObservable().pipe(
-            auditTime(250),
-            map(() => [...this.recent_knecht_updates$.values()])
-        );
+        return this.public_knecht_updates$.asObservable();
     }
 
     public get sources(): Observable<Array<Unit>> {
