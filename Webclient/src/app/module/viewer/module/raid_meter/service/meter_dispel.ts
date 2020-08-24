@@ -48,7 +48,7 @@ export class MeterDispelService implements OnDestroy {
         this.initialized = true;
         this.merge_data();
         this.subscription = this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
-            if ([KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(knecht_update))
+            if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
                 this.merge_data();
         });
     }

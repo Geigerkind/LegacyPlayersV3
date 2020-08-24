@@ -8,7 +8,7 @@ import {get_unit_id, Unit} from "../domain_value/unit";
 import * as Comlink from "comlink";
 import {Remote} from "comlink";
 import {Rechenknecht} from "../tool/rechenknecht";
-import {debounceTime} from "rxjs/operators";
+import {auditTime, map} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {LoadingBarService} from "../../../service/loading_bar";
 
@@ -43,6 +43,7 @@ export class InstanceDataService implements OnDestroy {
     knecht_replay: Remote<Rechenknecht>;
 
     private knecht_updates$: Subject<KnechtUpdates> = new Subject();
+    private recent_knecht_updates$: Set<KnechtUpdates> = new Set();
 
     constructor(
         private apiService: APIService,
@@ -62,8 +63,11 @@ export class InstanceDataService implements OnDestroy {
             });
         }, 60000);
 
-        this.subscription.add(this.knecht_updates.subscribe(knecht_update => {
-            if (knecht_update === KnechtUpdates.NewData)
+        this.subscription.add(this.knecht_updates$.subscribe(knecht_update => this.recent_knecht_updates$.add(knecht_update)));
+        this.subscription.add(this.knecht_updates$.pipe(auditTime(500))
+            .subscribe(() => this.recent_knecht_updates$.clear()));
+        this.subscription.add(this.knecht_updates.subscribe(knecht_updates => {
+            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
                 this.update_subjects();
         }));
     }
@@ -233,8 +237,11 @@ export class InstanceDataService implements OnDestroy {
         return this.attempts$.asObservable();
     }
 
-    public get knecht_updates(): Observable<KnechtUpdates> {
-        return this.knecht_updates$.asObservable().pipe(debounceTime(10));
+    public get knecht_updates(): Observable<Array<KnechtUpdates>> {
+        return this.knecht_updates$.asObservable().pipe(
+            auditTime(250),
+            map(() => [...this.recent_knecht_updates$.values()])
+        );
     }
 
     public get sources(): Observable<Array<Unit>> {

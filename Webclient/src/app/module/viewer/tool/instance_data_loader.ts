@@ -4,8 +4,7 @@ import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt, se_spell_steal
 import {
     te_aura_application, te_dispel, te_heal, te_melee_damage,
     te_spell_cast,
-    te_spell_cast_by_cause,
-    te_spell_cast_or_aura_app, te_spell_damage, te_spell_steal, te_summon, te_threat
+    te_spell_damage, te_spell_steal, te_summon, te_threat
 } from "../extractor/targets";
 import {
     ae_aura_application,
@@ -15,11 +14,11 @@ import {
     ae_spell_cast, ae_spell_cast_or_aura_application,
     ae_spell_steal, ae_threat
 } from "../extractor/abilities";
-import {ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal} from "../extractor/causes";
+import {ce_heal, ce_spell_damage} from "../extractor/causes";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {get_threat} from "../extractor/events";
 import {Subject} from "rxjs";
-import {debounceTime} from "rxjs/operators";
+import {auditTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
@@ -72,7 +71,7 @@ export class InstanceDataLoader {
     ]);
 
     constructor(private instance_meta_id: number, event_types: Array<number>) {
-        this.newData$.asObservable().pipe(debounceTime(5))
+        this.newData$.asObservable().pipe(auditTime(100))
             .subscribe(() => (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData]));
         this.load_data(event_types)
             .finally(() =>
