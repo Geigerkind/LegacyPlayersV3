@@ -11,6 +11,7 @@ import {MeterDeathService} from "./meter_death";
 import {MeterDispelService} from "./meter_dispel";
 import {MeterInterruptService} from "./meter_interrupt";
 import {MeterSpellStealService} from "./meter_spell_steal";
+import {MeterAuraUptimeService} from "./meter_aura_uptime";
 
 @Injectable({
     providedIn: "root",
@@ -19,7 +20,7 @@ export class RaidMeterService implements OnDestroy {
 
     private subscription_data: Subscription;
 
-    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>> = new BehaviorSubject([]);
+    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>> = new BehaviorSubject([]);
     private abilities$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
     private units$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
 
@@ -32,7 +33,8 @@ export class RaidMeterService implements OnDestroy {
         private meter_death_service: MeterDeathService,
         private meter_dispel_service: MeterDispelService,
         private meter_interrupt_service: MeterInterruptService,
-        private meter_spell_steal_service: MeterSpellStealService
+        private meter_spell_steal_service: MeterSpellStealService,
+        private meter_aura_uptime_service: MeterAuraUptimeService
     ) {
     }
 
@@ -40,7 +42,7 @@ export class RaidMeterService implements OnDestroy {
         this.subscription_data?.unsubscribe();
     }
 
-    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>> {
+    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>> {
         return this.data$.asObservable();
     }
 
@@ -104,12 +106,17 @@ export class RaidMeterService implements OnDestroy {
                 this.subscription_data = this.meter_spell_steal_service.get_data(selection === 18, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
+            case 19:
+            case 20:
+                this.subscription_data = this.meter_aura_uptime_service.get_data(selection === 20, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
         }
 
         this.current_selection = selection;
     }
 
-    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>): void {
+    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
         this.abilities$.next(this.abilities$.getValue());
         this.units$.next(this.units$.getValue());
         this.data$.next(data);

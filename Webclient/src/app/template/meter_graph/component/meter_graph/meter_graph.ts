@@ -50,4 +50,10 @@ export class MeterGraphComponent {
             return "calc(240px + max(0px, calc(" + (bar_fraction * 100).toString() + "% - " + bar_fraction.toString() + " * 240px - " + bar_fraction + " * 25px)))";
         return "calc(240px + max(0px, calc(" + (bar_fraction * 100).toString() + "% - " + bar_fraction.toString() + " * 240px - " + bar_fraction + " * 25px - 65px)))";
     }
+
+    get_amount(amount: number): string {
+        if (amount % 1 === 0)
+            return amount.toString();
+        return amount.toFixed(1);
+    }
 }

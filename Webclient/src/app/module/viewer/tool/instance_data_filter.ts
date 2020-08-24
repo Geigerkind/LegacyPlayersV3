@@ -6,8 +6,7 @@ import {
     te_aura_application,
     te_death, te_dispel, te_heal, te_melee_damage,
     te_spell_cast,
-    te_spell_cast_by_cause,
-    te_spell_cast_or_aura_app, te_spell_damage, te_spell_steal, te_summon, te_threat
+    te_spell_damage, te_spell_steal, te_summon, te_threat
 } from "../extractor/targets";
 import {
     ae_aura_application,
@@ -17,10 +16,10 @@ import {
     ae_spell_cast, ae_spell_cast_or_aura_application,
     ae_spell_steal, ae_threat
 } from "../extractor/abilities";
-import {ce_heal, ce_interrupt, ce_spell_damage, ce_spell_steal} from "../extractor/causes";
+import {ce_heal, ce_spell_damage} from "../extractor/causes";
 import {Observable, Subject} from "rxjs";
 import {iterable_filterMap, iterable_some} from "../../../stdlib/iterable_higher_order";
-import {debounceTime} from "rxjs/operators";
+import {auditTime} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 
 export class InstanceDataFilter {
@@ -36,7 +35,7 @@ export class InstanceDataFilter {
 
     constructor(instance_meta_id: number, event_types: Array<number>) {
         this.data_loader = new InstanceDataLoader(instance_meta_id, event_types);
-        this.filter_changed$.asObservable().pipe(debounceTime(500)).subscribe(() => {
+        this.filter_changed$.asObservable().pipe(auditTime(250)).subscribe(() => {
             (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.FilterChanged]);
         });
     }
@@ -168,5 +167,15 @@ export class InstanceDataFilter {
 
     get_event_map(): Map<number, Event> {
         return this.data_loader.event_map;
+    }
+
+    get_non_segmented_aura_applications(inverse_filter: boolean = false): Array<Event> {
+        const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
+        return this.data_loader.aura_applications.filter(event => filter_source.has(get_unit_id(se_identity(event))))
+            .filter(event => ae_aura_application(event).every(ability => this.ability_filter$.has(ability)));
+    }
+
+    get_segment_intervals(): Array<[number, number]> {
+        return this.segment_intervals$;
     }
 }

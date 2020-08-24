@@ -13,6 +13,7 @@ import {UnAuraOverviewModule} from "../viewer/module/raid_meter/module/un_aura_o
 import {ViewerGraphTooltipModule} from "./module/viewer_graph_tooltip/module";
 import {ResistSummaryModule} from "../viewer/module/raid_detail_table/module/resist_summary/module";
 import {DetailTableModule} from "../viewer/module/raid_detail_table/module/detail_table/module";
+import {SpellTooltipModule} from "./module/spell_tooltip/module";
 
 @NgModule({
     declarations: [TooltipComponent],
@@ -28,7 +29,8 @@ import {DetailTableModule} from "../viewer/module/raid_detail_table/module/detai
         UnAuraOverviewModule,
         ViewerGraphTooltipModule,
         ResistSummaryModule,
-        DetailTableModule
+        DetailTableModule,
+        SpellTooltipModule
     ],
     exports: [TooltipComponent],
     providers: [TooltipService]

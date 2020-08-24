@@ -50,7 +50,11 @@ export class CharacterService {
 
                 this.cache_basic_character.set(character_id, character);
                 subject.next(character);
-            }, () => subject.next(this.get_default_basic_character(character_id)));
+            }, reason => {
+                if (reason.status === 404)
+                    this.cache_basic_character.set(character_id, this.get_default_basic_character(character_id));
+                subject.next(this.get_default_basic_character(character_id));
+            });
 
         return subject;
     }

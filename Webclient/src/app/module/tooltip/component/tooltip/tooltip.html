@@ -13,6 +13,7 @@
                 [abilities]="tooltipArgs.abilities" [units]="tooltipArgs.units"></UnAuraOverview>
 <ViewerGraphTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 10"></ViewerGraphTooltip>
 <ResistSummary [resist_summary]="tooltipPayload" *ngIf="tooltipType === 11"></ResistSummary>
+<SpellTooltip [spell_tooltip]="tooltipPayload" *ngIf="tooltipType === 14"></SpellTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>

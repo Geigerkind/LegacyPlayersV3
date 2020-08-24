@@ -148,6 +148,13 @@ export class Rechenknecht {
         return meter_spell_steal;
     }
 
+    async meter_aura_uptime(inverse: boolean): Promise<Array<[number, [Unit, Array<[number, Array<[number | undefined, number | undefined]>]>]]>> {
+        Rechenknecht.send_work_start();
+        const meter_aura_uptime = this.raid_meter_knecht.aura_uptime.calculate(inverse);
+        Rechenknecht.send_work_end();
+        return meter_aura_uptime;
+    }
+
     /*
      * DATA FILTER
      */

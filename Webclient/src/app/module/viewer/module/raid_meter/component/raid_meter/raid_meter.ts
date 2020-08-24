@@ -28,6 +28,8 @@ import {EventLogService} from "../../../raid_event_log/service/event_log";
 import {map} from "rxjs/operators";
 import {MeterInterruptService} from "../../service/meter_interrupt";
 import {MeterSpellStealService} from "../../service/meter_spell_steal";
+import {MeterAuraUptimeService} from "../../service/meter_aura_uptime";
+import {flatten_aura_uptime_to_spell_map, flatten_aura_uptime_to_subject_map} from "../../stdlib/aura_uptime";
 
 @Component({
     selector: "RaidMeter",
@@ -42,6 +44,7 @@ import {MeterSpellStealService} from "../../service/meter_spell_steal";
         MeterDispelService,
         MeterInterruptService,
         MeterSpellStealService,
+        MeterAuraUptimeService,
         RaidMeterService,
         // Raid Detail Service
         DetailDamageService,
@@ -67,7 +70,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private subscription_ability_details: Subscription;
 
     private cookie_id: string;
-    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]> = [];
+    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]> = [];
     private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     abilities: Map<number, RaidMeterSubject> = new Map();
     units: Map<number, RaidMeterSubject> = new Map();
@@ -99,6 +102,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 16, label_key: 'Interrupt received'},
         {value: 17, label_key: 'Spell steal done'},
         {value: 18, label_key: 'Spell steal received'},
+        {value: 19, label_key: 'Source aura uptime'},
+        {value: 20, label_key: 'Target aura uptime'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -186,6 +191,9 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     bar_clicked(bar: [number, number]): void {
+        if ([19, 20].includes(this.current_selection) && this.in_ability_mode)
+            return;
+
         if (!this.in_ability_mode)
             this.raidConfigurationSelectionService.select_sources([bar[0]]);
         this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)]);
@@ -201,10 +209,24 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     abilities: this.abilities,
                     units: this.units
                 };
+            } else if ([19, 20].includes(this.current_selection)) {
+                const result = [];
+                // @ts-ignore
+                for (const [spell_id, intervals] of flatten_aura_uptime_to_spell_map(this.current_data
+                    .filter(([unit_id, abilities]) => unit_id === subject_id))) {
+                    const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
+                    result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
+                }
+                return {
+                    type: 5,
+                    payload: result.sort((left, right) => right[1] - left[1])
+                        .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"])
+                };
             } else {
                 return {
                     type: 5,
-                    payload: this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>).filter(([unit_id, abilities]) => unit_id === subject_id))
+                    payload: this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
+                        .filter(([unit_id, abilities]) => unit_id === subject_id))
                         .sort((left, right) => right[1] - left[1])
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
                 };
@@ -213,6 +235,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             return {
                 type: 8,
                 payload: from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp)).pipe(map(entries => entries.slice(0, 10)))
+            };
+        } else if ([19, 20].includes(this.current_selection)) {
+            return {
+                type: 14,
+                expansion_id: 2,
+                spell_id: subject_id
             };
         }
         const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
@@ -230,6 +258,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     private ability_rows(data: Array<[number, Array<[number, number]>]>): Array<[number, number]> {
+        // @ts-ignore
         return [...data.reduce((acc, [unit_id, abilities]) => {
             const ability_amount = acc;
             for (const [ability_id, amount] of abilities) {
@@ -240,16 +269,30 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }, new Map())];
     }
 
-    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow>]>): void {
-        // Bars
+    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
+        // TODO: Refactor this mess
         this.current_data = rows;
         let result;
         if (this.in_ability_mode) {
             if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) result = rows.reduce((acc, [unit_id, secondary]) => [...acc, ...secondary], []);
-            else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
+            else if ([19, 20].includes(this.current_selection)) {
+                result = [];
+                // @ts-ignore
+                for (const [spell_id, intervals] of flatten_aura_uptime_to_spell_map(rows)) {
+                    const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
+                    result.push([spell_id, Math.min(100, frac_duration)]);
+                }
+            } else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
             if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
+            } else if ([19, 20].includes(this.current_selection)) {
+                result = [];
+                // @ts-ignore
+                for (const [spell_id, intervals] of flatten_aura_uptime_to_subject_map(rows)) {
+                    const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
+                    result.push([spell_id, Math.min(100, frac_duration)]);
+                }
             } else {
                 result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
                     [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)])
@@ -263,6 +306,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
         // Bar tooltips
         if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection) && this.in_ability_mode) {
+            // @ts-ignore
             for (const [row_index, row] of this.bars.entries())
                 this.bar_tooltips.set(row_index, this.get_bar_tooltip(row_index));
         } else {
@@ -273,7 +317,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get show_per_second(): boolean {
-        return ![11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection);
+        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20].includes(this.current_selection);
     }
 
 }

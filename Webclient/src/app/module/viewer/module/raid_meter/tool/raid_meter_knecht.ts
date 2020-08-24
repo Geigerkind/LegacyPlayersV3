@@ -6,6 +6,7 @@ import {RaidMeterDeath} from "./raid_meter_death";
 import {RaidMeterDispel} from "./raid_meter_dispel";
 import {RaidMeterInterrupt} from "./raid_meter_interrupt";
 import {RaidMeterSpellSteal} from "./raid_meter_spell_steal";
+import {RaidMeterAuraUptime} from "./raid_meter_aura_uptime";
 
 export class RaidMeterKnecht {
 
@@ -16,6 +17,7 @@ export class RaidMeterKnecht {
     public dispel: RaidMeterDispel;
     public interrupt: RaidMeterInterrupt;
     public spell_steal: RaidMeterSpellSteal;
+    public aura_uptime: RaidMeterAuraUptime;
 
     constructor(
         private data_filter: InstanceDataFilter
@@ -27,5 +29,6 @@ export class RaidMeterKnecht {
         this.dispel = new RaidMeterDispel(data_filter);
         this.interrupt = new RaidMeterInterrupt(data_filter);
         this.spell_steal = new RaidMeterSpellSteal(data_filter);
+        this.aura_uptime = new RaidMeterAuraUptime(data_filter);
     }
 }

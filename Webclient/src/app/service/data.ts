@@ -13,6 +13,7 @@ import {Difficulty} from "../domain_value/difficulty";
 import {BasicItem} from "../domain_value/data/basic_item";
 import {BasicSpell} from "../domain_value/data/basic_spell";
 import {Encounter} from "../domain_value/data/encounter";
+import {CONST_UNKNOWN_LABEL} from "../module/viewer/constant/viewer";
 
 @Injectable({
     providedIn: "root",
@@ -97,17 +98,11 @@ export class DataService {
             npc => {
                 this.cache_npc.get(expansion_id).set(npc_id, npc);
                 subject.next(npc);
-            }, () => subject.next({
-                localization: "Unknown",
-                base: {
-                    id: npc_id,
-                    expansion_id,
-                    localization_id: 0,
-                    is_boss: false,
-                    friend: 0,
-                    family: 0
-                }
-            }));
+            }, reason => {
+                if (reason.status === 404)
+                    this.cache_npc.get(expansion_id).set(npc_id, this.get_unknown_npc(expansion_id, npc_id));
+                subject.next(this.get_unknown_npc(expansion_id, npc_id));
+            });
         return subject;
     }
 
@@ -122,14 +117,11 @@ export class DataService {
             item => {
                 this.cache_basic_item.get(expansion_id).set(item_id, item);
                 subject.next(item);
-            }, () => subject.next({
-                localization: "Unknown",
-                base: {
-                    icon: "inv_misc_questionmark",
-                    id: item_id,
-                    quality: 0
-                }
-            }));
+            }, reason => {
+                if (reason.status === 404)
+                    this.cache_basic_item.get(expansion_id).set(item_id, this.get_unknown_basic_item(item_id));
+                subject.next(this.get_unknown_basic_item(item_id));
+            });
 
         return subject;
     }
@@ -146,7 +138,11 @@ export class DataService {
             spell => {
                 this.cache_basic_spell.get(expansion_id).set(spell_id, spell);
                 subject.next(spell);
-            }, () => subject.next(this.unknown_basic_spell));
+            }, reason => {
+                if (reason.status === 404)
+                    this.cache_basic_spell.get(expansion_id).set(spell_id, this.unknown_basic_spell);
+                subject.next(this.unknown_basic_spell);
+            });
 
         return subject;
     }
@@ -176,7 +172,7 @@ export class DataService {
 
     get unknown_basic_spell(): Localized<BasicSpell> {
         return {
-            localization: "Unknown",
+            localization: CONST_UNKNOWN_LABEL,
             base: {
                 school: 1,
                 icon: "inv_misc_questionmark",
@@ -185,4 +181,28 @@ export class DataService {
         };
     }
 
+    get_unknown_basic_item(item_id: number): Localized<BasicItem> {
+        return {
+            localization: CONST_UNKNOWN_LABEL,
+            base: {
+                icon: "inv_misc_questionmark",
+                id: item_id,
+                quality: 0
+            }
+        };
+    }
+
+    get_unknown_npc(expansion_id: number, npc_id: number): Localized<NPC> {
+        return {
+            localization: CONST_UNKNOWN_LABEL,
+            base: {
+                id: npc_id,
+                expansion_id,
+                localization_id: 0,
+                is_boss: false,
+                friend: 0,
+                family: 0
+            }
+        };
+    }
 }

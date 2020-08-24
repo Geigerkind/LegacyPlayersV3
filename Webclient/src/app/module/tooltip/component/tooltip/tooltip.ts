@@ -80,6 +80,13 @@ export class TooltipComponent {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
                 this.iconPath = "/assets/wow_icon/spell_arcane_arcane02.jpg";
+            } else if (args.type === 14) {
+                this.tooltipService.loadSpellTooltip(args.expansion_id, args.spell_id, result => {
+                    this.tooltipType = args.type;
+                    this.tooltipPayload = result;
+                    this.tooltipPayload.spell_id = args.spell_id;
+                    this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
+                });
             }
         });
     }
