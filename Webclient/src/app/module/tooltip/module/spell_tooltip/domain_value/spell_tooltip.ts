@@ -3,7 +3,7 @@ export interface SpellTooltip {
     name: string;
     icon: string;
     subtext: string;
-    spell_const: {
+    spell_cost: {
         cost: number;
         cost_in_percent: boolean;
         power_type: string;

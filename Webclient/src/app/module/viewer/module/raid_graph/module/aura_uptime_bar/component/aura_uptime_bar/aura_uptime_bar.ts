@@ -16,7 +16,7 @@ export class AuraUptimeBarComponent implements OnInit {
     @Input() min: number;
     @Input() max: number;
 
-    private spell: Observable<Localized<BasicSpell>>;
+    spell: Observable<Localized<BasicSpell>>;
 
     constructor(private spell_service: SpellService) {
     }
