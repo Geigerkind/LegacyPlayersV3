@@ -2,26 +2,38 @@
 
 :host {
     display: block;
+    border: 1px solid $tdc_accent;
+    border-radius: 3px 3px 3px 3px;
 
-    .split {
-        display: flex;
-        flex-direction: row;
-        white-space: nowrap;
-
-        div:first-child {
-            margin-right: $spacing;
-        }
-
-        div:last-child {
-            margin-left: auto;
-        }
-
-        &:nth-child(2n) {
+    thead {
+        tr {
             background: $tdc_darker;
-        }
 
-        &:nth-child(2n + 1) {
-            background: lighten($tdc_darker, 3%);
+            td {
+                font-weight: 900;
+                font-size: 16px;
+                padding: 0.25 * $spacing 0.25 * $spacing;
+            }
+        }
+    }
+
+    tbody {
+        tr {
+            td {
+                padding: 0.25 * $spacing 0.25 * $spacing;
+            }
+
+            &:nth-child(2n) {
+                background: $tdc_darker;
+            }
+
+            &:nth-child(2n + 1) {
+                background: lighten($tdc_darker, 3%);
+            }
+
+            td:last-child{
+                text-align: right;
+            }
         }
     }
 }

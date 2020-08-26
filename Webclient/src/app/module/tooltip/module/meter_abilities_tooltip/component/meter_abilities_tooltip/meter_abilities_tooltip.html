@@ -1,4 +1,14 @@
-<div class="split" *ngFor="let row of payload">
-    <div>{{row[0] | async}}</div>
-    <div>{{row[1]}}</div>
-</div>
+<table>
+    <thead>
+        <tr>
+            <td>Ability</td>
+            <td>Amount</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let row of payload">
+            <td>{{row[0] | async}}</td>
+            <td>{{row[1]}}</td>
+        </tr>
+    </tbody>
+</table>
