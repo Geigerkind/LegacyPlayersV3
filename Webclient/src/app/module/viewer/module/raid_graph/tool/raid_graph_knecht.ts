@@ -34,7 +34,13 @@ export class RaidGraphKnecht {
             squash_time *= this.SQUASH_TIME_MULTIPLIER;
             data_points = [...result.entries()];
         }
-        return [...result.entries()];
+
+        // Normalize amount
+        squash_time *= 0.5;
+        const final_res = [];
+        for (const [timestamp, amount] of data_points)
+            final_res.push([timestamp, Math.round(amount / squash_time)]);
+        return final_res;
     }
 
     private static feed_points(events: Array<Event>, extract_amount: (Event) => number): Array<[number, number]> {
