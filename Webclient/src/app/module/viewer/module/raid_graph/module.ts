@@ -6,6 +6,7 @@ import {MultiSelectModule} from "../../../../template/input/multi_select/module"
 import {SelectInputModule} from "../../../../template/input/select_input/module";
 import {ChartsModule} from "ng2-charts";
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
+import {AuraUptimeBarModule} from "./module/aura_uptime_bar/module";
 
 @NgModule({
     declarations: [RaidGraphComponent],
@@ -15,7 +16,8 @@ import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/mod
         MultiSelectModule,
         SelectInputModule,
         ChartsModule,
-        ShowTooltipDirectiveModule
+        ShowTooltipDirectiveModule,
+        AuraUptimeBarModule
     ],
     exports: [RaidGraphComponent]
 })

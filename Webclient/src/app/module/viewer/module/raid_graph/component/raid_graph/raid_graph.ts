@@ -49,7 +49,10 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                     autoSkipPadding: 25,
                     callback: (value, index, values) => {
                         return this.dateService.toRPLLTime(value);
-                    }
+                    },
+                    min: 0,
+                    max: 400,
+                    stepSize: 10
                 }
             }],
             yAxes: [{
@@ -154,8 +157,17 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     ];
     selected_chart_type: number = 0;
 
+    sourceAbilities = [];
+    selectedSourceAbilities: Array<any> = [];
+
+    targetAbilities = [];
+    selectedTargetAbilities: Array<any> = [];
+
+    graph_min: number = 0;
+    graph_max: number = 1;
+
     constructor(
-        private graphDataService: GraphDataService,
+        public graphDataService: GraphDataService,
         private dateService: DateService,
         private settingsService: SettingsService
     ) {
@@ -173,7 +185,12 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                     pointStyle: get_point_style(data_set)
                 });
             }
+
+            this.graph_min = Math.min(...x_axis);
+            this.graph_max = Math.max(...x_axis);
         });
+        this.subscription.add(this.graphDataService.source_abilities.subscribe(abilities => this.sourceAbilities = abilities));
+        this.subscription.add(this.graphDataService.target_abilities.subscribe(abilities => this.targetAbilities = abilities));
     }
 
     ngOnInit(): void {

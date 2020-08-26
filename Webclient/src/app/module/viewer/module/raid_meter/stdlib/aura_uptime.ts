@@ -38,7 +38,9 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
                 else if (current_interval[1] !== undefined) ability_intervals.push([event.timestamp, undefined]);
             } else {
                 if (current_interval[1] === undefined) current_interval[1] = event.timestamp;
-                else if (current_interval[0] !== undefined) ability_intervals.push([current_interval[0], event.timestamp]);
+                else if (current_interval[0] !== undefined
+                    && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event.timestamp) === undefined)
+                    ability_intervals.push([current_interval[0], event.timestamp]);
             }
         });
     }
@@ -54,13 +56,18 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
                     res_intervals.push([segment_start, segment_end]);
                     break;
                 }
+
+                const int_end = end === undefined ? segment_end : end;
                 for (const [ci_start, ci_end] of current_segment_intervals) {
                     if (ci_start > end)
                         break;
                     if (start === undefined || start <= ci_start) {
-                        if (ci_end <= end) res_intervals.push([ci_start, ci_end]);
-                        else res_intervals.push([ci_start, end]);
-                    } else if (start < ci_end) res_intervals.push([start, ci_end]);
+                        if (ci_end <= int_end) res_intervals.push([ci_start, ci_end]);
+                        else res_intervals.push([ci_start, int_end]);
+                    } else if (start < ci_end) {
+                        if (ci_end <= int_end) res_intervals.push([start, ci_end]);
+                        else res_intervals.push([start, int_end]);
+                    }
                 }
             }
             if (res_intervals.length > 0)

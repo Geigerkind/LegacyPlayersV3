@@ -1,34 +1,109 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {InstanceDataService} from "../../../service/instance_data";
-import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {BehaviorSubject, Observable, Subject, Subscription, zip} from "rxjs";
 import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {RaidGraphKnecht} from "../tool/raid_graph_knecht";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
+import {MeterAuraUptimeService} from "../../raid_meter/service/meter_aura_uptime";
+import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
+import {flatten_aura_uptime_to_spell_map} from "../../raid_meter/stdlib/aura_uptime";
+import {SpellService} from "../../../service/spell";
+import {map} from "rxjs/operators";
+import {UtilService} from "../../raid_meter/service/util";
+import {DateService} from "../../../../../service/date";
 
 @Injectable({
     providedIn: "root",
 })
 export class GraphDataService implements OnDestroy {
+    private static readonly X_AXIS_RESOLUTION: number = 1000;
+
 
     private subscription: Subscription;
-    private data_points$: BehaviorSubject<[Array<number>, Map<DataSet, [Array<number>, Array<number>]>]> = new BehaviorSubject([[], new Map()]);
+    private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>]]>]> = new BehaviorSubject([[], []]);
+    private current_data: Map<DataSet, [Array<number>, Array<number>]> = new Map();
+
+    private UNUSED_abilities$: Map<number, RaidMeterSubject> = new Map();
+    private UNUSED_units$: Map<number, RaidMeterSubject> = new Map();
+
+    private source_ability_intervals: Array<[number, Array<[number, number]>]> = [];
+    private target_ability_intervals: Array<[number, Array<[number, number]>]> = [];
+
+    private source_abilities$: Subject<Array<{ id: number, label: string }>> = new Subject();
+    private target_abilities$: Subject<Array<{ id: number, label: string }>> = new Subject();
+
+    private source_meter_aura_uptime_service: MeterAuraUptimeService;
+    private target_meter_aura_uptime_service: MeterAuraUptimeService;
 
     constructor(
-        private instanceDataService: InstanceDataService
+        private instanceDataService: InstanceDataService,
+        private spell_service: SpellService,
+        private util_service: UtilService,
+        private date_service: DateService
     ) {
         this.subscription = this.instanceDataService.knecht_updates.subscribe(knecht_updates => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
-                for (const data_set of [...this.data_points$.getValue()[1].keys()])
+                for (const [data_set, data] of this.data_points$.getValue()[1])
                     this.add_data_set(data_set);
         });
+
+        this.source_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, util_service);
+        this.target_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, util_service);
+
+        this.subscription.add(this.source_meter_aura_uptime_service.get_data(false, this.UNUSED_abilities$, this.UNUSED_units$).subscribe(data => {
+            this.source_ability_intervals = flatten_aura_uptime_to_spell_map(data);
+            const observables = this.source_ability_intervals
+                .map(([spell_id, intervals]) => this.spell_service.get_localized_basic_spell(spell_id)
+                    .pipe(map(spell => {
+                        return {
+                            id: spell_id,
+                            label: spell?.localization
+                        };
+                    })));
+            zip(...observables).subscribe(abilities => this.source_abilities$.next(abilities));
+        }));
+
+        this.subscription.add(this.target_meter_aura_uptime_service.get_data(true, this.UNUSED_abilities$, this.UNUSED_units$).subscribe(data => {
+            this.target_ability_intervals = flatten_aura_uptime_to_spell_map(data);
+            const observables = this.target_ability_intervals
+                .map(([spell_id, intervals]) => this.spell_service.get_localized_basic_spell(spell_id)
+                    .pipe(map(spell => {
+                        return {
+                            id: spell_id,
+                            label: spell?.localization
+                        };
+                    })));
+            zip(...observables).subscribe(abilities => this.target_abilities$.next(abilities));
+        }));
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
     }
 
-    get data_points(): Observable<[Array<number>, Map<DataSet, [Array<number>, Array<number>]>]> {
+    get data_points(): Observable<[Array<number>, Array<[DataSet, [Array<number>, Array<number>]]>]> {
         return this.data_points$.asObservable();
+    }
+
+    get source_abilities(): Observable<Array<{ id: number, label: string }>> {
+        return this.source_abilities$.asObservable();
+    }
+
+    get target_abilities(): Observable<Array<{ id: number, label: string }>> {
+        return this.target_abilities$.asObservable();
+    }
+
+    // TODO: This causes many updates
+    get_source_aura_uptime_interval(ability_id: number): Array<[number, number]> {
+        const result = this.source_ability_intervals
+            .find(([spell_id, interval]) => spell_id === ability_id);
+        return !!result ? result[1] : undefined;
+    }
+
+    get_target_aura_uptime_interval(ability_id: number): Array<[number, number]> {
+        const result = this.target_ability_intervals
+            .find(([spell_id, interval]) => spell_id === ability_id);
+        return !!result ? result[1] : undefined;
     }
 
     update(): void {
@@ -71,7 +146,7 @@ export class GraphDataService implements OnDestroy {
     }
 
     commit_data_set(data_set: DataSet, data_set_points: Array<[number, number]>): void {
-        const [old_total_x_axis, data_points] = this.data_points$.getValue();
+        const data_points = this.current_data;
         const x_axis = new Array<number>();
         const y_axis = [];
         for (const [x, y] of data_set_points) {
@@ -80,16 +155,55 @@ export class GraphDataService implements OnDestroy {
         }
 
         data_points.set(data_set, [x_axis, y_axis]);
-        this.compute_event_y_values(data_points);
-
-        this.data_points$.next([this.compute_x_axis(data_points), data_points]);
+        const res_x_axis = this.compute_x_axis();
+        const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
+        this.data_points$.next([res_x_axis, res_xy_data_sets]);
     }
 
     remove_data_set(data_set: DataSet): void {
-        const [old_x_axis, data_points] = this.data_points$.getValue();
-        data_points.delete(data_set);
-        this.compute_event_y_values(data_points);
-        this.data_points$.next([this.compute_x_axis(data_points), data_points]);
+        this.current_data.delete(data_set);
+        const res_x_axis = this.compute_x_axis();
+        const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
+        this.data_points$.next([res_x_axis, res_xy_data_sets]);
+    }
+
+    private compute_dataset_xy_axis(normalized_x_axis: Array<number>): Array<[DataSet, [Array<number>, Array<number>]]> {
+        const data_points = this.current_data;
+        const max_value = [...data_points.entries()].filter(([data_set, points]) => !is_event_data_set(data_set))
+            .map(([set, [x, y]]) => y)
+            .reduce((acc, y) => Math.max(acc, ...y), 0) * 0.75;
+
+        if (normalized_x_axis.length < 10)
+            return [...data_points.entries()];
+
+        const result = [];
+        for (const [data_set, [timestamps, values]] of data_points.entries()) {
+            const last_ts = normalized_x_axis[0];
+            let current_timestamps_index = 0;
+            let current_timstamps_ts = timestamps[0];
+            const data_set_res = [];
+            for (let i = 1; i < normalized_x_axis.length; ++i) {
+                const current_ts = normalized_x_axis[i];
+                while (current_timestamps_index < timestamps.length) {
+                    if (current_ts < current_timstamps_ts)
+                        break;
+                    if (Math.abs(current_timstamps_ts - current_ts) < Math.abs(current_timstamps_ts - last_ts))
+                        data_set_res.push(current_ts);
+                    else data_set_res.push(last_ts);
+                    ++current_timestamps_index;
+                    current_timstamps_ts = timestamps[current_timestamps_index];
+                }
+                if (current_timestamps_index === timestamps.length)
+                    break;
+            }
+            const res_values = [...values];
+            if (is_event_data_set(data_set)) {
+                for (let i = 0; i < res_values.length; ++i)
+                    res_values[i] = max_value;
+            }
+            result.push([data_set, [data_set_res, res_values]]);
+        }
+        return result;
     }
 
     private compute_event_y_values(data_points: Map<DataSet, [Array<number>, Array<number>]>): void {
@@ -104,10 +218,22 @@ export class GraphDataService implements OnDestroy {
         }
     }
 
-    private compute_x_axis(data_points: Map<DataSet, [Array<number>, Array<number>]>): Array<number> {
+    private compute_x_axis(): Array<number> {
+        const data_points = this.current_data;
         let result = new Set<number>();
         for (const [timestamps, values] of data_points.values())
-            result = new Set<number>([...result.values(), ...timestamps.values()]);
-        return [...result.values()].sort((left, right) => left - right);
+            result = new Set<number>([...result.values(), ...timestamps]);
+
+        const intermediate_result = [...result.values()].sort((left, right) => left - right);
+        if (intermediate_result.length < 10)
+            return intermediate_result;
+
+        const min = Math.min(...intermediate_result);
+        const max = Math.max(...intermediate_result);
+        const final_result = [];
+        const tick_size = Math.ceil((max - min) / GraphDataService.X_AXIS_RESOLUTION);
+        for (let ts = min; ts < max; ts += tick_size)
+            final_result.push(ts);
+        return final_result;
     }
 }

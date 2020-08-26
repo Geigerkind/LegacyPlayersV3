@@ -21,9 +21,21 @@
 
     $questionmarkSize: calc(50px - 0.5 * #{$spacing});
     MultiSelect, SelectInput {
-        width: calc(33.3% - 0.5 * #{$spacing} - 16px);
+        width: calc(20% - 0.5 * #{$spacing} - 16px);
         max-width: 300px;
         margin-right: 0.5 * $spacing;
+    }
+
+    @media (max-width: 1100px) {
+        MultiSelect, SelectInput {
+            margin-right: 0.5 * $spacing;
+            margin-bottom: 0.5 * $spacing;
+            width: 100%;
+        }
+
+        #last_multi_select {
+            width: calc(100% - #{$questionmarkSize});
+        }
     }
 
     @media (max-width: 400px) {
@@ -62,4 +74,17 @@
     background: $tdc_darker;
     border-radius: 3px 0 0 3px;
     padding: 0.5 * $spacing 0.5 * $spacing;
+}
+
+.aura_uptime_container {
+    width: calc(100% - #{$spacing} - 2px);
+    border: 1px solid $tdc_accent;
+    border-top: none;
+    background: $tdc_darker;
+    border-radius: 3px 0 0 3px;
+    padding: 0.5 * $spacing 0.5 * $spacing;
+
+    AuraUptimeBar:not(:last-child) {
+        margin-bottom: 0.5 * $spacing;
+    }
 }

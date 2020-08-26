@@ -65,7 +65,7 @@ export class InstanceDataService implements OnDestroy {
         }, 60000);
 
         this.subscription.add(this.knecht_updates$.subscribe(knecht_update => this.recent_knecht_updates$.add(knecht_update)));
-        this.subscription.add(this.knecht_updates$.pipe(auditTime(50))
+        this.subscription.add(this.knecht_updates$.pipe(auditTime(250))
             .subscribe(() => {
                 this.public_knecht_updates$.next([...this.recent_knecht_updates$.values()]);
                 this.recent_knecht_updates$.clear();

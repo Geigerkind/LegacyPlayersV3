@@ -5,9 +5,15 @@
                  (item_selected)="data_set_selected($event)"
                  (item_deselected)="data_set_deselected($event)" [enableCheckAll]="false"
                  [allowSearchFilter]="false"></MultiSelect>
-    <MultiSelect id="last_multi_select" [placeholder]="'Events'" [dropdownList]="events"
+    <MultiSelect [placeholder]="'Events'" [dropdownList]="events"
                  [selectedItems]="eventsSelected" [enableCheckAll]="false" [allowSearchFilter]="false"
                  (item_selected)="event_selected($event)" (item_deselected)="event_deselected($event)"></MultiSelect>
+    <MultiSelect placeholder="Source aura uptime" [dropdownList]="sourceAbilities"
+                 [(selectedItems)]="selectedSourceAbilities" [enableCheckAll]="false"
+                 [allowSearchFilter]="false"></MultiSelect>
+    <MultiSelect id="last_multi_select" placeholder="Target aura uptime" [dropdownList]="targetAbilities"
+                 [(selectedItems)]="selectedTargetAbilities" [enableCheckAll]="false"
+                 [allowSearchFilter]="false"></MultiSelect>
     <div class="question_mark" [showTooltip]="tooltip">?</div>
 </div>
 <div class="graph_container" *ngIf="this.chartDataSets.length > 0">
@@ -21,4 +27,12 @@
             (chartHover)="chartHovered($event)"
             (chartClick)="chartClicked($event)">
     </canvas>
+</div>
+<div class="aura_uptime_container" *ngIf="selectedSourceAbilities.length > 0">
+    <AuraUptimeBar [min]="graph_min" [max]="graph_max" *ngFor="let selection of selectedSourceAbilities" [details]="selection"
+                   [intervals]="graphDataService.get_source_aura_uptime_interval(selection.id)"></AuraUptimeBar>
+</div>
+<div class="aura_uptime_container" *ngIf="selectedTargetAbilities.length > 0">
+    <AuraUptimeBar [min]="graph_min" [max]="graph_max" *ngFor="let selection of selectedTargetAbilities" [details]="selection"
+                   [intervals]="graphDataService.get_target_aura_uptime_interval(selection.id)"></AuraUptimeBar>
 </div>
