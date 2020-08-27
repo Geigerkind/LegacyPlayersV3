@@ -7,10 +7,11 @@ import {ae_spell_cast_or_aura_application} from "../../../extractor/abilities";
 import {ce_spell_damage} from "../../../extractor/causes";
 import {HitType} from "../../../domain_value/hit_type";
 import {extract_mitigation_amount} from "../../raid_detail_table/stdlib/util";
+import {School} from "../../../domain_value/school";
 
 export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: Array<Event>, event_map: Map<number, Event>,
-                                      melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number, number]>]]> {
-    const newData = new Map<number, [Unit, Array<[number, number, number]>]>();
+                                      melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number, number, Array<School>]>]]> {
+    const newData = new Map<number, [Unit, Array<[number, number, number, Array<School>]>]>();
 
     // Melee Damage
     // @ts-ignore
@@ -24,8 +25,12 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
             const melee_damage_event = get_melee_damage(event);
             if (!melee_damage_event.hit_mask.includes(HitType.FullAbsorb) && !melee_damage_event.hit_mask.includes(HitType.PartialAbsorb))
                 continue;
-            result.push([CONST_AUTO_ATTACK_ID, event.timestamp, melee_damage_event.components.reduce((acc, component) =>
-                acc + extract_mitigation_amount(component.mitigation, (mitigation) => mitigation.Absorb), 0)]);
+            for (const component of melee_damage_event.components) {
+                const absorb = extract_mitigation_amount(component.mitigation, (mitigation) => mitigation.Absorb);
+                if (absorb === 0)
+                    continue;
+                result.push([CONST_AUTO_ATTACK_ID, event.timestamp, absorb, component.school_mask]);
+            }
         }
         if (result.length > 0)
             newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), result]);
@@ -45,10 +50,12 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
             const spell_id = ae_spell_cast_or_aura_application(ce_spell_damage, event_map)(event)[0];
             if (!spell_damage_event.damage.hit_mask.includes(HitType.FullAbsorb) && !spell_damage_event.damage.hit_mask.includes(HitType.PartialAbsorb))
                 continue;
-            const absorb = spell_damage_event.damage.components.reduce((acc, component) =>
-                acc + extract_mitigation_amount(component.mitigation, (mitigation) => mitigation.Absorb), 0);
-
-            absorbs.push([spell_id, event.timestamp, absorb]);
+            for (const component of spell_damage_event.damage.components) {
+                const absorb = extract_mitigation_amount(component.mitigation, (mitigation) => mitigation.Absorb);
+                if (absorb === 0)
+                    continue;
+                absorbs.push([spell_id, event.timestamp, absorb, component.school_mask]);
+            }
         }
 
         if (absorbs.length === 0)

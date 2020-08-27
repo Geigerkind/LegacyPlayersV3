@@ -148,9 +148,9 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
             if (!aura_uptime_map.has(subject_id))
                 continue;
             const subject_intervals = new Map(aura_uptime_map.get(subject_id)[1]);
-            for (const [spell_id, timestamp, amount] of absorbs) {
-                for (const absorb_spell_id of ABSORBING_SPELL_IDS.keys()) {
-                    if (!subject_intervals.has(absorb_spell_id))
+            for (const [spell_id, timestamp, amount, schools] of absorbs) {
+                for (const [absorb_spell_id, [school_mask, absorbing_schools]] of ABSORBING_SPELL_IDS.entries()) {
+                    if (!subject_intervals.has(absorb_spell_id) || !absorbing_schools.some(school => schools.includes(school)))
                         continue;
                     const uptime_intervals = subject_intervals.get(absorb_spell_id);
                     for (const [start, end] of uptime_intervals) {

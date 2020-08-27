@@ -12,6 +12,7 @@ import {DetailRow} from "../module/raid_detail_table/domain_value/detail_row";
 import {RaidEventLogKnecht} from "../module/raid_event_log/tool/raid_event_log_knecht";
 import {Event} from "../domain_value/event";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
+import {School} from "../domain_value/school";
 
 export class Rechenknecht {
     constructor(
@@ -197,7 +198,7 @@ export class Rechenknecht {
         return meter_aura_uptime;
     }
 
-    async meter_absorbed_damage(): Promise<Array<[number, [Unit, Array<[number, number, number]>]]>> {
+    async meter_absorbed_damage(): Promise<Array<[number, [Unit, Array<[number, number, number, Array<School>]>]]>> {
         Rechenknecht.send_work_start();
         const meter_absorbed_damage = this.raid_meter_knecht.absorb.calculate();
         Rechenknecht.send_work_end();
