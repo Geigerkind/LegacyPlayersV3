@@ -19,7 +19,7 @@ function commit_death(deaths: Array<Event>, event_map: Map<number, Event>, melee
     // tslint:disable-next-line:forin
     for (const unit_id in grouping) {
         const subject_id = Number(unit_id);
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             // For each death find the ability that executed this death
             let spell_id;
             let found_spell_min_ts = Number.MAX_VALUE;
@@ -72,7 +72,7 @@ function commit_death(deaths: Array<Event>, event_map: Map<number, Event>, melee
                     }
                 });
             }
-        });
+        }
     }
 
     // @ts-ignore

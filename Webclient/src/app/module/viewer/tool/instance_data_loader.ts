@@ -132,8 +132,7 @@ export class InstanceDataLoader {
                 this.extract_subjects(event_type, event);
                 this.event_map.set(event.id, event);
             }
-            if (result.length > 0)
-                this.newData$.next();
+            if (result.length > 0) this.newData$.next();
             if (prev_result_length < InstanceDataLoader.BATCH_SIZE)
                 resolve();
             else setTimeout(() => load_non_blocking(resolve), 100);

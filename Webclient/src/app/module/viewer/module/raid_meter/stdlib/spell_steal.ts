@@ -22,7 +22,7 @@ export function commit_spell_steal(spell_steals: Array<Event>, event_map: Map<nu
         if (!newData.has(subject_id))
             newData.set(subject_id, [spell_steal_unit_extraction(grouping[unit_id][0]), []]);
         const un_aura_overview_row = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             const spell_steal_event = get_spell_steal(event);
             const [indicator, spell_cause_event] = get_spell_cause(spell_steal_event.cause_event_id, event_map);
             const spell_cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
@@ -36,7 +36,7 @@ export function commit_spell_steal(spell_steals: Array<Event>, event_map: Map<nu
                     target_spell_id: get_aura_application(stolen_event).spell_id
                 });
             }
-        });
+        }
     }
 
     // @ts-ignore

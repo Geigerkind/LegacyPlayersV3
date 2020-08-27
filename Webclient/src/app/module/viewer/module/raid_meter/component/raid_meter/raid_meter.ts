@@ -30,6 +30,8 @@ import {MeterInterruptService} from "../../service/meter_interrupt";
 import {MeterSpellStealService} from "../../service/meter_spell_steal";
 import {MeterAuraUptimeService} from "../../service/meter_aura_uptime";
 import {flatten_aura_uptime_to_spell_map, flatten_aura_uptime_to_subject_map} from "../../stdlib/aura_uptime";
+import {MeterAbsorbService} from "../../service/meter_absorb";
+import {MeterHealAndAbsorbService} from "../../service/meter_heal_and_absorb";
 
 @Component({
     selector: "RaidMeter",
@@ -37,6 +39,7 @@ import {flatten_aura_uptime_to_spell_map, flatten_aura_uptime_to_subject_map} fr
     styleUrls: ["./raid_meter.scss"],
     providers: [
         UtilService,
+        MeterHealAndAbsorbService,
         MeterDamageService,
         MeterHealService,
         MeterThreatService,
@@ -45,6 +48,7 @@ import {flatten_aura_uptime_to_spell_map, flatten_aura_uptime_to_subject_map} fr
         MeterInterruptService,
         MeterSpellStealService,
         MeterAuraUptimeService,
+        MeterAbsorbService,
         RaidMeterService,
         // Raid Detail Service
         DetailDamageService,
@@ -104,6 +108,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 18, label_key: 'Spell steal received'},
         {value: 19, label_key: 'Source aura uptime'},
         {value: 20, label_key: 'Target aura uptime'},
+        {value: 21, label_key: 'Absorb done'},
+        {value: 22, label_key: 'Absorb taken'},
+        {value: 23, label_key: 'Effective heal and absorb done'},
+        {value: 24, label_key: 'Effective heal and absorb taken'},
         {value: 99, label_key: 'Event Log'},
     ];
 

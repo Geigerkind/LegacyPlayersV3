@@ -17,14 +17,14 @@ function commit_threat(threats: Array<Event>, event_map: Map<number, Event>, thr
             newData.set(subject_id, [threat_unit_extraction(grouping[unit_id][0]), new Map()]);
 
         const abilities_data = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             let spell_id = ae_spell_cast_or_aura_application(ce_threat, event_map)(event)[0];
             if (!spell_id)
                 spell_id = CONST_AUTO_ATTACK_ID;
             const threat = get_threat(event).threat.amount;
             if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + threat);
             else abilities_data.set(spell_id, threat);
-        });
+        }
     }
 
     // @ts-ignore

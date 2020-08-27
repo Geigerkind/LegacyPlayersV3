@@ -7,8 +7,8 @@ import {get_melee_damage, get_spell_damage} from "../../../extractor/events";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
 import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
 
-function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, event_map: Map<number, Event>,
-                       melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number]>]]> {
+export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, event_map: Map<number, Event>,
+                              melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number]>]]> {
     const newData = new Map<number, [Unit, Map<number, number>]>();
 
     // Melee Damage
@@ -35,19 +35,15 @@ function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, e
             newData.set(subject_id, [spell_unit_extraction(grouping[unit_id][0]), new Map()]);
 
         const abilities_data = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             const spell_id = ae_spell_cast_or_aura_application(ce_spell_damage, event_map)(event)[0];
-            if (!spell_id)
-                return;
             const damage = get_spell_components_total_amount(get_spell_damage(event).damage.components);
 
             if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
             else abilities_data.set(spell_id, damage);
-        });
+        };
     }
 
     // @ts-ignore
     return [...newData.entries()].map(([unit_id, [unit, abilities]]) => [unit_id, [unit, [...abilities.entries()]]]);
 }
-
-export {commit_damage};

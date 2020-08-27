@@ -10,7 +10,7 @@ import {flatten_aura_uptime_to_spell_map} from "../../raid_meter/stdlib/aura_upt
 import {SpellService} from "../../../service/spell";
 import {map} from "rxjs/operators";
 import {UtilService} from "../../raid_meter/service/util";
-import {DateService} from "../../../../../service/date";
+import {get_absorb_data_points} from "../../../stdlib/absorb";
 
 @Injectable({
     providedIn: "root",
@@ -18,6 +18,7 @@ import {DateService} from "../../../../../service/date";
 export class GraphDataService implements OnDestroy {
     private static readonly X_AXIS_RESOLUTION: number = 1000;
 
+    private subscription_absorb_done: Subscription;
 
     private subscription: Subscription;
     private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>]]>]> = new BehaviorSubject([[], []]);
@@ -38,8 +39,7 @@ export class GraphDataService implements OnDestroy {
     constructor(
         private instanceDataService: InstanceDataService,
         private spell_service: SpellService,
-        private util_service: UtilService,
-        private date_service: DateService
+        private util_service: UtilService
     ) {
         this.subscription = this.instanceDataService.knecht_updates.subscribe(knecht_updates => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
@@ -142,6 +142,19 @@ export class GraphDataService implements OnDestroy {
             case DataSet.SpellStealReceived:
                 this.commit_data_set(data_set, await this.instanceDataService.knecht_spell.graph_data_set(data_set));
                 break;
+            case DataSet.AbsorbDone:
+            case DataSet.AbsorbTaken:
+                this.commit_data_set(data_set, RaidGraphKnecht.squash((await get_absorb_data_points(data_set === DataSet.AbsorbTaken, this.instanceDataService))
+                    .reduce((acc, [subject_id, [subject, points]]) => [...acc, ...points.map(([spell_id, ts, amount]) => [ts, amount])], [])
+                    .sort((left, right) => left[0] - right[0])));
+                break;
+            case DataSet.HealAndAbsorbDone:
+            case DataSet.HealAndAbsorbTaken:
+                this.commit_data_set(data_set, RaidGraphKnecht.squash([...(await get_absorb_data_points(data_set === DataSet.HealAndAbsorbTaken, this.instanceDataService))
+                    .reduce((acc, [subject_id, [subject, points]]) => [...acc, ...points.map(([spell_id, ts, amount]) => [ts, amount])], []),
+                    ...await this.instanceDataService.knecht_spell.graph_data_set(data_set === DataSet.HealAndAbsorbDone ? DataSet.EffectiveHealingDone : DataSet.EffectiveHealingTaken)]
+                    .sort((left, right) => left[0] - right[0])));
+                break;
         }
     }
 
@@ -165,6 +178,12 @@ export class GraphDataService implements OnDestroy {
         const res_x_axis = this.compute_x_axis();
         const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
         this.data_points$.next([res_x_axis, res_xy_data_sets]);
+
+        switch (data_set) {
+            case DataSet.AbsorbDone:
+                this.subscription_absorb_done?.unsubscribe();
+                break;
+        }
     }
 
     private compute_dataset_xy_axis(normalized_x_axis: Array<number>): Array<[DataSet, [Array<number>, Array<number>]]> {
@@ -173,25 +192,25 @@ export class GraphDataService implements OnDestroy {
             .map(([set, [x, y]]) => y)
             .reduce((acc, y) => Math.max(acc, ...y), 0) * 0.75;
 
-        if (normalized_x_axis.length < 10)
+        if (normalized_x_axis.length < 2)
             return [...data_points.entries()];
 
         const result = [];
         for (const [data_set, [timestamps, values]] of data_points.entries()) {
             const last_ts = normalized_x_axis[0];
             let current_timestamps_index = 0;
-            let current_timstamps_ts = timestamps[0];
+            let current_timestamps_ts = timestamps[0];
             const data_set_res = [];
             for (let i = 1; i < normalized_x_axis.length; ++i) {
                 const current_ts = normalized_x_axis[i];
                 while (current_timestamps_index < timestamps.length) {
-                    if (current_ts < current_timstamps_ts)
+                    if (current_ts < current_timestamps_ts)
                         break;
-                    if (Math.abs(current_timstamps_ts - current_ts) < Math.abs(current_timstamps_ts - last_ts))
+                    if (Math.abs(current_timestamps_ts - current_ts) < Math.abs(current_timestamps_ts - last_ts))
                         data_set_res.push(current_ts);
                     else data_set_res.push(last_ts);
                     ++current_timestamps_index;
-                    current_timstamps_ts = timestamps[current_timestamps_index];
+                    current_timestamps_ts = timestamps[current_timestamps_index];
                 }
                 if (current_timestamps_index === timestamps.length)
                     break;
@@ -206,18 +225,6 @@ export class GraphDataService implements OnDestroy {
         return result;
     }
 
-    private compute_event_y_values(data_points: Map<DataSet, [Array<number>, Array<number>]>): void {
-        const max_value = [...data_points.entries()].filter(([data_set, points]) => !is_event_data_set(data_set))
-            .map(([set, [x, y]]) => y)
-            .reduce((acc, y) => Math.max(acc, ...y), 0) * 0.75;
-        for (const [c_data_set, [c_x_axis, c_yaxis]] of data_points) {
-            if (is_event_data_set(c_data_set)) {
-                for (let i = 0; i < c_yaxis.length; ++i)
-                    c_yaxis[i] = max_value;
-            }
-        }
-    }
-
     private compute_x_axis(): Array<number> {
         const data_points = this.current_data;
         let result = new Set<number>();
@@ -225,14 +232,15 @@ export class GraphDataService implements OnDestroy {
             result = new Set<number>([...result.values(), ...timestamps]);
 
         const intermediate_result = [...result.values()].sort((left, right) => left - right);
-        if (intermediate_result.length < 10)
+        if (intermediate_result.length < 2)
             return intermediate_result;
 
+        const graph_resolution = Math.min(GraphDataService.X_AXIS_RESOLUTION, intermediate_result.length) + 1;
         const min = Math.min(...intermediate_result);
         const max = Math.max(...intermediate_result);
         const final_result = [];
-        const tick_size = Math.ceil((max - min) / GraphDataService.X_AXIS_RESOLUTION);
-        for (let ts = min; ts < max; ts += tick_size)
+        const tick_size = (max - min) / graph_resolution;
+        for (let ts = min; ts <= max; ts += tick_size)
             final_result.push(ts);
         return final_result;
     }

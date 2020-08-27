@@ -20,7 +20,7 @@ export function commit_interrupt(interrupts: Array<Event>, event_map: Map<number
         if (!newData.has(subject_id))
             newData.set(subject_id, [interrupt_unit_extraction(grouping[unit_id][0]), []]);
         const un_aura_overview_row = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             const interrupt_event = get_interrupt(event);
             const [indicator, spell_cause_event] = get_spell_cause(interrupt_event.cause_event_id, event_map);
             const spell_cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
@@ -33,7 +33,7 @@ export function commit_interrupt(interrupts: Array<Event>, event_map: Map<number
                     target_spell_id: interrupt_event.interrupted_spell_id
                 });
             }
-        });
+        }
     }
 
     // @ts-ignore

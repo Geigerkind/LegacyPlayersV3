@@ -12,6 +12,8 @@ import {MeterDispelService} from "./meter_dispel";
 import {MeterInterruptService} from "./meter_interrupt";
 import {MeterSpellStealService} from "./meter_spell_steal";
 import {MeterAuraUptimeService} from "./meter_aura_uptime";
+import {MeterAbsorbService} from "./meter_absorb";
+import {MeterHealAndAbsorbService} from "./meter_heal_and_absorb";
 
 @Injectable({
     providedIn: "root",
@@ -34,7 +36,9 @@ export class RaidMeterService implements OnDestroy {
         private meter_dispel_service: MeterDispelService,
         private meter_interrupt_service: MeterInterruptService,
         private meter_spell_steal_service: MeterSpellStealService,
-        private meter_aura_uptime_service: MeterAuraUptimeService
+        private meter_aura_uptime_service: MeterAuraUptimeService,
+        private meter_absorb_service: MeterAbsorbService,
+        private meter_heal_and_absorb_service: MeterHealAndAbsorbService
     ) {
     }
 
@@ -109,6 +113,16 @@ export class RaidMeterService implements OnDestroy {
             case 19:
             case 20:
                 this.subscription_data = this.meter_aura_uptime_service.get_data(selection === 20, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 21:
+            case 22:
+                this.subscription_data = this.meter_absorb_service.get_data(selection === 22, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
+                break;
+            case 23:
+            case 24:
+                this.subscription_data = this.meter_heal_and_absorb_service.get_data(selection === 24, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
         }

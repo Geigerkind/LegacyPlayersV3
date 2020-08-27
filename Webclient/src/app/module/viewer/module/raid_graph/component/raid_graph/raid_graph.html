@@ -10,10 +10,10 @@
                  (item_selected)="event_selected($event)" (item_deselected)="event_deselected($event)"></MultiSelect>
     <MultiSelect placeholder="Source aura uptime" [dropdownList]="sourceAbilities"
                  [(selectedItems)]="selectedSourceAbilities" [enableCheckAll]="false"
-                 [allowSearchFilter]="false"></MultiSelect>
+                 [allowSearchFilter]="true"></MultiSelect>
     <MultiSelect id="last_multi_select" placeholder="Target aura uptime" [dropdownList]="targetAbilities"
                  [(selectedItems)]="selectedTargetAbilities" [enableCheckAll]="false"
-                 [allowSearchFilter]="false"></MultiSelect>
+                 [allowSearchFilter]="true"></MultiSelect>
     <div class="question_mark" [showTooltip]="tooltip">?</div>
 </div>
 <div class="graph_container" *ngIf="this.chartDataSets.length > 0">

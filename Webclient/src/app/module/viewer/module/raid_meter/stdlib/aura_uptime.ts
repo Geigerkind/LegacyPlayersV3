@@ -9,7 +9,7 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
     if (current_segment_intervals.length === 0)
         return [];
 
-    const newData = new Map<number, [Unit, Map<number, Array<[number | undefined, number | undefined]>>]>();
+    const newData = new Map<number, [Unit, Map<number, Array<[number | undefined, number | undefined, number | undefined, number | undefined]>>]>();
 
     const grouping = group_by(aura_applications, (event) => get_unit_id(aura_application_unit_extraction(event)));
     // tslint:disable-next-line:forin
@@ -29,18 +29,29 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
             let current_interval;
             if (ability_intervals.length > 0) current_interval = ability_intervals[ability_intervals.length - 1];
             else {
-                current_interval = [undefined, undefined];
+                current_interval = [undefined, undefined, undefined, undefined];
                 ability_intervals.push(current_interval);
             }
             if (aura_application.stack_amount > 0) {
                 // If we get an non 0 event twice, it is probably a refresh
-                if (current_interval[0] === undefined) current_interval[0] = event.timestamp;
-                else if (current_interval[1] !== undefined) ability_intervals.push([event.timestamp, undefined]);
+                if (current_interval[0] === undefined) {
+                    current_interval[0] = event.timestamp;
+                    current_interval[2] = event.id;
+                } else if (current_interval[1] !== undefined) {
+                    ability_intervals.push([event.timestamp, undefined, event.id, undefined]);
+                } else if (event.timestamp > current_interval[0]) {
+                    current_interval[1] = event.timestamp;
+                    current_interval[3] = event.id;
+                    ability_intervals.push([event.timestamp, undefined, event.id, undefined]);
+                }
             } else {
-                if (current_interval[1] === undefined) current_interval[1] = event.timestamp;
-                else if (current_interval[0] !== undefined
-                    && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event.timestamp) === undefined)
-                    ability_intervals.push([current_interval[0], event.timestamp]);
+                if (current_interval[1] === undefined) {
+                    current_interval[1] = event.timestamp;
+                    current_interval[3] = event.id;
+                } else if (current_interval[0] !== undefined
+                    && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event.timestamp) === undefined) {
+                    ability_intervals.push([current_interval[0], event.timestamp, current_interval[2], event.id]);
+                }
             }
         });
     }
@@ -51,22 +62,25 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
         const result = [];
         for (const [spell_id, intervals] of abilities) {
             const res_intervals = [];
-            for (const [start, end] of intervals) {
+            for (const [start, end, start_id, end_id] of intervals) {
+                /*
+                 * Should not be possible?
                 if (start === undefined && end === undefined) {
                     res_intervals.push([segment_start, segment_end]);
                     break;
                 }
+                 */
 
                 const int_end = end === undefined ? segment_end : end;
                 for (const [ci_start, ci_end] of current_segment_intervals) {
                     if (ci_start > end)
                         break;
                     if (start === undefined || start <= ci_start) {
-                        if (ci_end <= int_end) res_intervals.push([ci_start, ci_end]);
-                        else res_intervals.push([ci_start, int_end]);
+                        if (ci_end <= int_end) res_intervals.push([ci_start, ci_end, start_id, end_id]);
+                        else res_intervals.push([ci_start, int_end, start_id, end_id]);
                     } else if (start < ci_end) {
-                        if (ci_end <= int_end) res_intervals.push([start, ci_end]);
-                        else res_intervals.push([start, int_end]);
+                        if (ci_end <= int_end) res_intervals.push([start, ci_end, start_id, end_id]);
+                        else res_intervals.push([start, int_end, start_id, end_id]);
                     }
                 }
             }

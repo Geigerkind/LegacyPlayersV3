@@ -36,16 +36,7 @@ function commit_threat_detail(threat: Array<Event>, event_map: Map<number, Event
                 components.push({
                     amount: Math.round(threat_amount * (comp.amount / total_comp_amount)),
                     school_mask: comp.school_mask,
-                    // @ts-ignore
-                    mitigation: comp.mitigation.map(mitigation => {
-                        if (!!(mitigation as any).Glance)
-                            return {Glance: Math.round(scaling_factor * (mitigation as any).Glance)};
-                        if (!!(mitigation as any).Resist)
-                            return {Resist: Math.round(scaling_factor * (mitigation as any).Resist)};
-                        if (!!(mitigation as any).Absorb)
-                            return {Absorb: Math.round(scaling_factor * (mitigation as any).Absorb)};
-                        return {Block: Math.round(scaling_factor * (mitigation as any).Block)};
-                    })
+                    mitigation: []
                 });
             }
 
@@ -57,7 +48,7 @@ function commit_threat_detail(threat: Array<Event>, event_map: Map<number, Event
             components.push({
                 school_mask,
                 amount: threat_amount,
-                mitigation: [] // TODO: If we would reference to the spell damage or heal we could also add mitigations here
+                mitigation: []
             });
         }
 

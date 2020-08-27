@@ -15,7 +15,7 @@ function commit_dispel(dispels: Array<Event>, event_map: Map<number, Event>, dis
         if (!newData.has(subject_id))
             newData.set(subject_id, [dispel_unit_extraction(grouping[unit_id][0]), []]);
         const un_aura_overview_row = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             const dispel_event = get_dispel(event);
             const [indicator, spell_cause_event] = get_spell_cause(dispel_event.cause_event_id, event_map);
             const spell_cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
@@ -29,7 +29,7 @@ function commit_dispel(dispels: Array<Event>, event_map: Map<number, Event>, dis
                     target_spell_id: get_aura_application(dispelled_aura_event).spell_id
                 });
             }
-        });
+        }
     }
 
     // @ts-ignore

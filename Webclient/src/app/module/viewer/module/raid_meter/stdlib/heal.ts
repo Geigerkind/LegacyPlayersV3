@@ -18,10 +18,8 @@ function commit_heal(current_mode: HealMode, heal: Array<Event>, event_map: Map<
             newData.set(subject_id, [heal_unit_extraction(grouping[unit_id][0]), new Map()]);
 
         const abilities_data = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        for (const event of grouping[unit_id]) {
             const spell_id = ae_spell_cast_or_aura_application(ce_heal, event_map)(event)[0];
-            if (!spell_id)
-                return;
             let healing;
             if (current_mode === HealMode.Total) healing = get_heal(event).heal.total;
             else if (current_mode === HealMode.Effective) healing = get_heal(event).heal.effective;
@@ -30,7 +28,7 @@ function commit_heal(current_mode: HealMode, heal: Array<Event>, event_map: Map<
                 if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + healing);
                 else abilities_data.set(spell_id, healing);
             }
-        });
+        }
     }
 
     // @ts-ignore

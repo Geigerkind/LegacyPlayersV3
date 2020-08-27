@@ -197,6 +197,13 @@ export class Rechenknecht {
         return meter_aura_uptime;
     }
 
+    async meter_absorbed_damage(): Promise<Array<[number, [Unit, Array<[number, number, number]>]]>> {
+        Rechenknecht.send_work_start();
+        const meter_absorbed_damage = this.raid_meter_knecht.absorb.calculate();
+        Rechenknecht.send_work_end();
+        return meter_absorbed_damage;
+    }
+
     /*
      * DATA FILTER
      */

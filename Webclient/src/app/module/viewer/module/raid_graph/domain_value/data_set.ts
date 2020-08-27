@@ -9,6 +9,10 @@ export enum DataSet {
     OverhealingTaken = "Overhealing taken",
     ThreatDone = "Threat done",
     ThreatTaken = "Threat taken",
+    AbsorbDone = "Absorb done",
+    AbsorbTaken = "Absorb taken",
+    HealAndAbsorbDone = "Effective heal and absorb done",
+    HealAndAbsorbTaken = "Effective heal and absorb taken",
 
     // Events
     Deaths = "Deaths",
