@@ -41,7 +41,7 @@ export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Ev
 
             if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
             else abilities_data.set(spell_id, damage);
-        };
+        }
     }
 
     // @ts-ignore
