@@ -1,7 +1,10 @@
 import {InstanceDataService} from "../service/instance_data";
 import {Unit} from "../domain_value/unit";
+import {get_all_schools, School} from "../domain_value/school";
 
-export const ABSORBING_SPELL_IDS: Array<number> = [25218];
+export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = new Map([
+    [25218, [[School.Holy], get_all_schools()]]
+]);
 
 export async function get_absorb_data_points(current_mode: boolean, instance_data_service: InstanceDataService): Promise<Array<[number, [Unit, Array<[number, number, number]>]]>> {
     const aura_uptime = await instance_data_service.knecht_spell.meter_aura_uptime(current_mode);
@@ -17,7 +20,7 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                 continue;
             const subject_intervals = new Map(aura_uptime_map.get(subject_id)[1]);
             for (const [spell_id, timestamp, amount] of absorbs) {
-                for (const absorb_spell_id of ABSORBING_SPELL_IDS) {
+                for (const absorb_spell_id of ABSORBING_SPELL_IDS.keys()) {
                     if (!subject_intervals.has(absorb_spell_id))
                         continue;
                     const uptime_intervals = subject_intervals.get(absorb_spell_id);

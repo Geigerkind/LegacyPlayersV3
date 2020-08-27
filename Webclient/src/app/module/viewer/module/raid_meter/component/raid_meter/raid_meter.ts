@@ -32,6 +32,8 @@ import {MeterAuraUptimeService} from "../../service/meter_aura_uptime";
 import {flatten_aura_uptime_to_spell_map, flatten_aura_uptime_to_subject_map} from "../../stdlib/aura_uptime";
 import {MeterAbsorbService} from "../../service/meter_absorb";
 import {MeterHealAndAbsorbService} from "../../service/meter_heal_and_absorb";
+import {DetailAbsorbService} from "../../../raid_detail_table/service/detail_absorb";
+import {DetailHealAndAbsorbService} from "../../../raid_detail_table/service/detail_heal_and_absorb";
 
 @Component({
     selector: "RaidMeter",
@@ -54,6 +56,8 @@ import {MeterHealAndAbsorbService} from "../../service/meter_heal_and_absorb";
         DetailDamageService,
         DetailHealService,
         DetailThreatService,
+        DetailAbsorbService,
+        DetailHealAndAbsorbService,
         RaidDetailService,
         // Tooltip
         EventLogService

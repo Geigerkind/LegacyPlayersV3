@@ -7,6 +7,8 @@ import {HealMode} from "../../../domain_value/heal_mode";
 import {DetailDamageService} from "./detail_damage";
 import {DetailHealService} from "./detail_heal";
 import {DetailThreatService} from "./detail_threat";
+import {DetailAbsorbService} from "./detail_absorb";
+import {DetailHealAndAbsorbService} from "./detail_heal_and_absorb";
 
 @Injectable({
     providedIn: "root",
@@ -24,7 +26,9 @@ export class RaidDetailService implements OnDestroy {
     constructor(
         private detail_damage_service: DetailDamageService,
         private detail_heal_service: DetailHealService,
-        private detail_threat_service: DetailThreatService
+        private detail_threat_service: DetailThreatService,
+        private detail_absorb_service: DetailAbsorbService,
+        private detail_heal_and_absorb_service: DetailHealAndAbsorbService
     ) {
     }
 
@@ -80,6 +84,20 @@ export class RaidDetailService implements OnDestroy {
             case 9:
             case 10: {
                 const [abilities, ability_details] = this.detail_threat_service.get_ability_and_details(selection === 10);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 21:
+            case 22: {
+                const [abilities, ability_details] = this.detail_absorb_service.get_ability_and_details(selection === 22);
+                this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
+                this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
+                break;
+            }
+            case 23:
+            case 24: {
+                const [abilities, ability_details] = this.detail_heal_and_absorb_service.get_ability_and_details(selection === 24);
                 this.subscription_ability = abilities.subscribe(i_abilities => this.abilities$.next(i_abilities));
                 this.subscription_ability_details = ability_details.subscribe(i_ability_details => this.ability_details$.next(i_ability_details));
                 break;

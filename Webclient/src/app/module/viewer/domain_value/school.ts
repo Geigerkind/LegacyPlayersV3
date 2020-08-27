@@ -7,3 +7,8 @@ export enum School {
     Shadow = "Shadow",
     Arcane = "Arcane"
 }
+
+export function get_all_schools(): Array<School> {
+    return [School.Physical, School.Holy, School.Fire, School.Nature,
+        School.Frost, School.Shadow, School.Arcane];
+}
