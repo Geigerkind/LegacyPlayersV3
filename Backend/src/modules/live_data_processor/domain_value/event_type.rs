@@ -1,4 +1,5 @@
 use crate::modules::live_data_processor::domain_value::{AuraApplication, Damage, Heal, Position, Power, SpellCast, Threat, Unit};
+use crate::modules::live_data_processor::Event;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum EventType {
@@ -15,7 +16,7 @@ pub enum EventType {
     ThreatWipe,
     Summon { summoned: Unit },
     MeleeDamage(Damage),
-    SpellDamage { spell_cause_id: u32, damage: Damage },
+    SpellDamage { spell_cause: Box<Event>, damage: Damage },
     Heal { spell_cause_id: u32, heal: Heal },
     Threat { cause_event_id: u32, threat: Threat },
 

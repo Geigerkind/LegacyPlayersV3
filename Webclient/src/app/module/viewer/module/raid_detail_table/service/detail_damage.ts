@@ -55,7 +55,7 @@ export class DetailDamageService implements OnDestroy {
         const abilities = new Map<number, SelectOption>();
 
         const result1 = await this.instanceDataService.knecht_melee.detail_damage(this.current_mode);
-        const result2 = await this.instanceDataService.knecht_spell.detail_damage(this.current_mode);
+        const result2 = await this.instanceDataService.knecht_spell_damage.detail_damage(this.current_mode);
         for (const data_set of [result1, result2]) {
             for (const [ability_id, detail_rows] of data_set) {
                 if (!abilities.has(ability_id))

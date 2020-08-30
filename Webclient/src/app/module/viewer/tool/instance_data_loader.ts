@@ -1,6 +1,13 @@
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt, se_spell_steal} from "../extractor/sources";
+import {
+    se_aura_app_or_own,
+    se_dispel,
+    se_identity,
+    se_interrupt,
+    se_spell_damage,
+    se_spell_steal
+} from "../extractor/sources";
 import {
     te_aura_application, te_dispel, te_heal, te_melee_damage,
     te_spell_cast,
@@ -11,7 +18,7 @@ import {
     ae_dispel,
     ae_interrupt,
     ae_melee_damage,
-    ae_spell_cast, ae_spell_cast_or_aura_application,
+    ae_spell_cast, ae_spell_cast_or_aura_application, ae_spell_damage,
     ae_spell_steal, ae_threat
 } from "../extractor/abilities";
 import {ce_heal, ce_spell_damage} from "../extractor/causes";
@@ -24,6 +31,7 @@ export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
     private static readonly BATCH_SIZE: number = 100000;
     private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/:instance_meta_id/:event_type/:last_event_id";
+    private static readonly INSTANCE_EXPORT_RAW_URL: string = "/API/instance/export_raw/:instance_meta_id/:event_type/:last_event_id";
 
     public event_map: Map<number, Event> = new Map();
     public spell_casts: Array<Event> = [];
@@ -39,7 +47,7 @@ export class InstanceDataLoader {
     public dispels: Array<Event> = [];
     public threat_wipes: Array<Event> = [];
     public summons: Array<Event> = [];
-    public spell_damage: Array<Event> = [];
+    public spell_damage: Array<any> = [];
     public heal: Array<Event> = [];
     public threat: Array<Event> = [];
 
@@ -65,7 +73,7 @@ export class InstanceDataLoader {
         [10, [() => this.threat_wipes, se_identity, undefined, undefined]],
         [11, [() => this.summons, se_identity, te_summon, undefined]],
         [12, [() => this.melee_damage, se_identity, te_melee_damage, ae_melee_damage]],
-        [13, [() => this.spell_damage, se_aura_app_or_own(ce_spell_damage, this.event_map), te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.event_map)]],
+        [13, [() => this.spell_damage, se_spell_damage, te_spell_damage, ae_spell_damage]],
         [14, [() => this.heal, se_aura_app_or_own(ce_heal, this.event_map), te_heal, ae_spell_cast_or_aura_application(ce_heal, this.event_map)]],
         [15, [() => this.threat, se_identity, te_threat, ae_threat(this.event_map)]],
     ]);
@@ -83,15 +91,17 @@ export class InstanceDataLoader {
         const getter = this.container_getter.get(event_type);
         const source = getter[1](event);
         const source_id = get_unit_id(source);
-        if (this.sources.has(source_id)) this.sources.get(source_id)[1].add(event.timestamp);
-        else this.sources.set(source_id, [source, new Set([event.timestamp])]);
+        const ts = !!(event as any).length ? event[1] : event.timestamp;
+
+        if (this.sources.has(source_id)) this.sources.get(source_id)[1].add(ts);
+        else this.sources.set(source_id, [source, new Set([ts])]);
 
         if (!!getter[2]) {
             const target = getter[2](event);
             if (!!target) {
                 const target_id = get_unit_id(target);
-                if (this.targets.has(target_id)) this.targets.get(target_id)[1].add(event.timestamp);
-                else this.targets.set(target_id, [target, new Set([event.timestamp])]);
+                if (this.targets.has(target_id)) this.targets.get(target_id)[1].add(ts);
+                else this.targets.set(target_id, [target, new Set([ts])]);
             }
         }
 
@@ -100,8 +110,8 @@ export class InstanceDataLoader {
             if (!!abilities) {
                 for (const ability_id of abilities) {
                     if (ability_id >= 0) {
-                        if (this.abilities.has(ability_id)) this.abilities.get(ability_id).add(event.timestamp);
-                        else this.abilities.set(ability_id, new Set([event.timestamp]));
+                        if (this.abilities.has(ability_id)) this.abilities.get(ability_id).add(ts);
+                        else this.abilities.set(ability_id, new Set([ts]));
                     }
                 }
             }
@@ -118,7 +128,7 @@ export class InstanceDataLoader {
     }
 
     private async load_ressource(event_type: number): Promise<void> {
-        const container = this.container_getter.get(event_type)[0]();
+        let container = this.container_getter.get(event_type)[0]();
         const load_non_blocking = async (resolve) => {
             const container_length = container.length;
             const last_event_id = container_length === 0 ? 0 : container[container_length - 1].id;
@@ -126,21 +136,32 @@ export class InstanceDataLoader {
             const prev_result_length = result.length;
             if (event_type === 15)
                 result = result.filter(event => this.event_map.has(get_threat(event).cause_event_id));
-            container.push(...result);
+            if (event_type === 13) {
+                this.spell_damage = result;
+                container = this.spell_damage;
+            } else container.push(...result);
+
             for (let i = container_length; i < container_length + result.length; ++i) {
                 const event = container[i];
                 this.extract_subjects(event_type, event);
                 this.event_map.set(event.id, event);
             }
             if (result.length > 0) this.newData$.next();
-            if (prev_result_length < InstanceDataLoader.BATCH_SIZE)
+            if (prev_result_length < InstanceDataLoader.BATCH_SIZE || event_type === 13)
                 resolve();
             else setTimeout(() => load_non_blocking(resolve), 100);
         };
         return new Promise<void>((resolve, reject) => load_non_blocking(resolve));
     }
 
-    private async load_instance_data(event_type: number, last_event_id: number): Promise<Array<Event>> {
+    private async load_instance_data(event_type: number, last_event_id: number): Promise<Array<any>> {
+        if (event_type === 13) {
+            return await (await fetch(InstanceDataLoader.INSTANCE_EXPORT_RAW_URL
+                .replace(":instance_meta_id", this.instance_meta_id.toString())
+                .replace(":event_type", event_type.toString())
+                .replace(":last_event_id", last_event_id.toString()))).json();
+        }
+
         return await (await fetch(InstanceDataLoader.INSTANCE_EXPORT_URL
             .replace(":instance_meta_id", this.instance_meta_id.toString())
             .replace(":event_type", event_type.toString())

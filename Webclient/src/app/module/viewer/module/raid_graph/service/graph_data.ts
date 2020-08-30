@@ -45,7 +45,6 @@ export class GraphDataService implements OnDestroy {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem))) {
                 for (const [data_set, data] of this.data_points$.getValue()[1])
                     this.add_data_set(data_set);
-                console.log("CHANGED");
             }
         });
 
@@ -116,12 +115,14 @@ export class GraphDataService implements OnDestroy {
         switch (data_set) {
             case DataSet.DamageDone:
             case DataSet.DamageTaken:
-            case DataSet.ThreatDone:
-            case DataSet.ThreatTaken:
                 this.commit_data_set(data_set, RaidGraphKnecht.squash([
                     ...await this.instanceDataService.knecht_melee.graph_data_set(data_set),
-                    ...await this.instanceDataService.knecht_spell.graph_data_set(data_set)
+                    ...await this.instanceDataService.knecht_spell_damage.graph_data_set(data_set)
                 ].sort((left, right) => left[0] - right[0])));
+                break;
+            case DataSet.ThreatDone:
+            case DataSet.ThreatTaken:
+                // TODO
                 break;
             case DataSet.Deaths:
             case DataSet.Kills:

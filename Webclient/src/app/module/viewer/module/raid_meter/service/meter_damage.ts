@@ -55,7 +55,7 @@ export class MeterDamageService implements OnDestroy {
         const result = new Map<number, Map<number, number>>();
 
         const result1 = await this.instanceDataService.knecht_melee.meter_damage(this.current_mode);
-        const result2 = await this.instanceDataService.knecht_spell.meter_damage(this.current_mode);
+        const result2 = await this.instanceDataService.knecht_spell_damage.meter_damage(this.current_mode);
         for (const data_set of [result1, result2]) {
             for (const [subject_id, [subject, abilities]] of data_set) {
                 if (!this.units$.has(subject_id))

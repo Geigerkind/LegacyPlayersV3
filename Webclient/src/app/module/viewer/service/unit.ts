@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {is_creature, is_player, Unit} from "../domain_value/unit";
+import {get_creature_entry, get_unit_id, is_creature, is_player, Unit} from "../domain_value/unit";
 import {Observable, of} from "rxjs";
 import {CharacterService} from "../../armory/service/character";
 import {Player} from "../domain_value/player";
@@ -32,7 +32,7 @@ export class UnitService {
             // TODO: Use method to get character at the time of the raid
             if (is_player(unit)) {
                 return this.characterService
-                    .get_basic_character_by_id(((unit as any).Player as Player).character_id)
+                    .get_basic_character_by_id(get_unit_id(unit))
                     .pipe(map(character => "hero_class_bg_" + character.hero_class_id.toString()));
             }
         }
@@ -43,7 +43,7 @@ export class UnitService {
         if (!!unit) {
             if (is_player(unit)) {
                 return this.characterService
-                    .get_basic_character_by_id(((unit as any).Player as Player).character_id)
+                    .get_basic_character_by_id(get_unit_id(unit))
                     .pipe(map(character => "/assets/wow_hero_classes/c" + character.hero_class_id.toString() + "-" + character.spec_id + ".png"));
             }
         }
@@ -54,18 +54,18 @@ export class UnitService {
         if (!!unit) {
             if (is_player(unit))
                 return this.characterService
-                    .get_basic_character_by_id(((unit as any).Player as Player).character_id)
+                    .get_basic_character_by_id(get_unit_id(unit))
                     .pipe(map(character => character.name));
 
             if (is_creature(unit))
-                return this.get_npc_name(((unit as any).Creature as Creature).entry);
+                return this.get_npc_name(get_creature_entry(unit));
         }
         return of(CONST_UNKNOWN_LABEL);
     }
 
     is_unit_boss(unit: Unit): Observable<boolean> {
         if (!!unit && is_creature(unit)) {
-            return this.get_npc(((unit as any).Creature as Creature).entry)
+            return this.get_npc(get_creature_entry(unit))
                 .pipe(map(npc => !!npc?.base.is_boss));
         }
         return of(false);

@@ -1,13 +1,11 @@
 import {group_by} from "../../../../../stdlib/group_by";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
-import {ce_spell_damage} from "../../../extractor/causes";
 import {Event} from "../../../domain_value/event";
-import {ae_spell_cast_or_aura_application} from "../../../extractor/abilities";
-import {get_melee_damage, get_spell_damage} from "../../../extractor/events";
+import {get_melee_damage} from "../../../extractor/events";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
 import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
 
-export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Event>, event_map: Map<number, Event>,
+export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<any>, event_map: Map<number, Event>,
                               melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number]>]]> {
     const newData = new Map<number, [Unit, Map<number, number>]>();
 
@@ -36,8 +34,8 @@ export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<Ev
 
         const abilities_data = newData.get(subject_id)[1];
         for (const event of grouping[unit_id]) {
-            const spell_id = ae_spell_cast_or_aura_application(ce_spell_damage, event_map)(event)[0];
-            const damage = get_spell_components_total_amount(get_spell_damage(event).damage.components);
+            const spell_id = event[5];
+            const damage = event[7].length === 0 ? 0 : event[7][0][0];
 
             if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
             else abilities_data.set(spell_id, damage);

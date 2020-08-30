@@ -13,3 +13,11 @@ pub fn school_mask_from_u8(school_mask: u8) -> SchoolMask {
     }
     result
 }
+
+pub fn school_mask_to_u8(school_mask: Vec<School>) -> u8 {
+    let mut result = 0;
+    for school in school_mask {
+        result |= school as u8;
+    }
+    return result;
+}

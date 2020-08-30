@@ -41,6 +41,7 @@ export class InstanceDataService implements OnDestroy {
     knecht_spell: Remote<Rechenknecht>;
     knecht_misc: Remote<Rechenknecht>;
     knecht_replay: Remote<Rechenknecht>;
+    knecht_spell_damage: Remote<Rechenknecht>;
 
     private public_knecht_updates$: Subject<Array<KnechtUpdates>> = new Subject();
     private knecht_updates$: Subject<KnechtUpdates> = new Subject();
@@ -132,6 +133,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_spell.set_segment_intervals(intervals);
         this.knecht_misc.set_segment_intervals(intervals);
         this.knecht_replay.set_segment_intervals(intervals);
+        this.knecht_spell_damage.set_segment_intervals(intervals);
     }
 
     public set source_filter(sources: Array<number>) {
@@ -139,6 +141,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_spell.set_source_filter(sources);
         this.knecht_misc.set_source_filter(sources);
         this.knecht_replay.set_source_filter(sources);
+        this.knecht_spell_damage.set_source_filter(sources);
     }
 
     public set target_filter(targets: Array<number>) {
@@ -146,6 +149,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_spell.set_target_filter(targets);
         this.knecht_misc.set_target_filter(targets);
         this.knecht_replay.set_target_filter(targets);
+        this.knecht_spell_damage.set_target_filter(targets);
     }
 
     public set ability_filter(abilities: Array<number>) {
@@ -153,6 +157,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_spell.set_ability_filter(abilities);
         this.knecht_misc.set_ability_filter(abilities);
         this.knecht_replay.set_ability_filter(abilities);
+        this.knecht_spell_damage.set_ability_filter(abilities);
     }
 
     public set instance_meta_id(instance_meta_id: number) {
@@ -174,6 +179,7 @@ export class InstanceDataService implements OnDestroy {
         this.loading_bar_service.incrementCounter();
         this.loading_bar_service.incrementCounter();
         this.loading_bar_service.incrementCounter();
+        this.loading_bar_service.incrementCounter();
 
         let worker = new Worker('./../worker/melee.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
@@ -185,6 +191,17 @@ export class InstanceDataService implements OnDestroy {
         };
         this.worker.push(worker);
         this.knecht_melee = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/spell_damage.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_spell_damage = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/spell.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
@@ -281,7 +298,8 @@ export class InstanceDataService implements OnDestroy {
             ...await this.knecht_melee.get_sources(),
             ...await this.knecht_spell.get_sources(),
             ...await this.knecht_misc.get_sources(),
-            ...await this.knecht_replay.get_sources()
+            ...await this.knecht_replay.get_sources(),
+            ...await this.knecht_spell_damage.get_sources(),
         ];
         for (const source of sources)
             sources_res.set(get_unit_id(source), source);
@@ -294,6 +312,7 @@ export class InstanceDataService implements OnDestroy {
             ...await this.knecht_spell.get_targets(),
             ...await this.knecht_misc.get_targets(),
             ...await this.knecht_replay.get_targets(),
+            ...await this.knecht_spell_damage.get_targets(),
         ];
         for (const target of targets)
             targets_res.set(get_unit_id(target), target);
@@ -306,6 +325,7 @@ export class InstanceDataService implements OnDestroy {
             ...await this.knecht_spell.get_abilities(),
             ...await this.knecht_misc.get_abilities(),
             ...await this.knecht_replay.get_abilities(),
+            ...await this.knecht_spell_damage.get_abilities(),
         ];
         for (const ability of abilities)
             abilities_res.add(ability);

@@ -45,3 +45,7 @@ export function se_interrupt(event_map: Map<number, Event>): (Event) => Unit {
 export function se_spell_steal(event_map: Map<number, Event>): (Event) => Unit {
     return se_un_aura(get_spell_steal, event_map);
 }
+
+export function se_spell_damage(event: any): Unit {
+    return event[3];
+}

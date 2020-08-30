@@ -30,8 +30,9 @@ impl LogParser for WoWCBTLParser {
                     let message_args = meta[1].trim_end_matches('\r').split(',').collect::<Vec<&str>>();
                     let event_timestamp = timestamp.timestamp_millis() as u64;
                     if let Ok(message_types) = parse_log_message(self, data, event_timestamp, message_args) {
-                        let mut message_count = (messages.len() + message_types.len() - 1) as u64;
+                        let mut message_count = (messages.len() + message_types.len()) as u64;
                         for message_type in message_types {
+                            message_count -= 1;
                             messages.push(Message {
                                 api_version: 0,
                                 message_length: 0,
@@ -39,7 +40,6 @@ impl LogParser for WoWCBTLParser {
                                 message_count,
                                 message_type,
                             });
-                            message_count -= 1;
                         }
                     }
                 }
@@ -184,7 +184,7 @@ impl LogParser for WoWCBTLParser {
                 MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.attacker);
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.victim);
-                },
+                }
                 /*
                 MessageType::SpellCast(cast) => {
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &cast.caster);
@@ -218,8 +218,8 @@ impl LogParser for WoWCBTLParser {
                             }
                         }
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             };
         }
 
@@ -299,8 +299,8 @@ fn get_current_map(me: &WoWCBTLParser, current_timestamp: u64) -> Option<(u16, O
                     } else {
                         difficulty_id = Some(3);
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             };
         }
 
@@ -323,7 +323,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: vec![damage_component],
             })]
-        },
+        }
         "SWING_MISSED" => {
             let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -337,7 +337,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
             })]
-        },
+        }
         "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
             let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -360,31 +360,30 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: vec![damage_component],
                 }),
             ]
-        },
+        }
         "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
             let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (hit_mask, _blocked, _damage_component) = parse_miss(&message_args[10..])?;
+            let (hit_mask, blocked, damage_component) = parse_miss(&message_args[10..])?;
             vec![
                 MessageType::SpellCast(SpellCast {
-                    caster: attacker,
-                    target: Some(victim),
+                    caster: attacker.clone(),
+                    target: Some(victim.clone()),
                     spell_id,
                     hit_mask,
-                }), /*
-                    , MessageType::SpellDamage(DamageDone {
-                        attacker,
-                        victim,
-                        spell_id: Some(spell_id),
-                        hit_mask,
-                        blocked,
-                        damage_over_time: false, // message_args[0] == "SPELL_PERIODIC_MISSED",
-                        damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(|| Vec::new()),
-                    })
-                     */
+                }),
+                MessageType::SpellDamage(DamageDone {
+                    attacker,
+                    victim,
+                    spell_id: Some(spell_id),
+                    hit_mask,
+                    blocked,
+                    damage_over_time: false, // message_args[0] == "SPELL_PERIODIC_MISSED",
+                    damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(|| Vec::new()),
+                })
             ]
-        },
+        }
         "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
             let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -407,7 +406,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                 }),
             ]
-        },
+        }
         // TODO: Do we do sth with stacks atm?
         // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
         "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
@@ -427,7 +426,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 stack_amount: if is_removed { 0 } else { 1 }, // TODO
                 delta: if is_removed { -1 } else { 1 },
             })]
-        },
+        }
         "SPELL_CAST_SUCCESS" => {
             let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -441,18 +440,18 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 spell_id,
                 hit_mask: HitType::Hit as u32,
             })]
-        },
+        }
         "SPELL_SUMMON" => {
             let owner = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let unit = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             // TODO: Is that of interest?
             // let (spell_id, _school_mask) = parse_spell_args(m, event_timestamp, &message_args[7..10])?;
             vec![MessageType::Summon(Summon { owner, unit })]
-        },
+        }
         "UNIT_DIED" | "UNIT_DESTROYED" => {
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             vec![MessageType::Death(Death { cause: None, victim })]
-        },
+        }
         "SPELL_DISPEL" => {
             let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -474,7 +473,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        },
+        }
         "SPELL_INTERRUPT" => {
             let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -489,7 +488,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 }),
                 MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
             ]
-        },
+        }
         "SPELL_STOLEN" => {
             let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
@@ -511,7 +510,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        },
+        }
         // TODO: A lot more events could be parsed and used
         // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
         _ => return Err(LiveDataProcessorFailure::InvalidInput),

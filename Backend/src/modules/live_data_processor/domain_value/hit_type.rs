@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Hash, Eq)]
 #[repr(u32)]
 pub enum HitType {
     None = 0x00000000,

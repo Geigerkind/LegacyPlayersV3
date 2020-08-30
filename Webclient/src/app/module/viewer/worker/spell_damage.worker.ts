@@ -1,4 +1,4 @@
-import {expose} from 'comlink';
+import { expose } from 'comlink';
 import {Rechenknecht} from "../tool/rechenknecht";
 import {InstanceDataFilter} from "../tool/instance_data_filter";
 import {RaidMeterKnecht} from "../module/raid_meter/tool/raid_meter_knecht";
@@ -8,8 +8,7 @@ import {RaidEventLogKnecht} from "../module/raid_event_log/tool/raid_event_log_k
 
 addEventListener('message', ({ data }) => {
     if (!!data && !!data[1] && data[0] === "INIT") {
-        // 0, 6, 7, 8, 9, 14, 1, 15
-        const filter = new InstanceDataFilter(data[1], []);
+        const filter = new InstanceDataFilter(data[1], [13]);
         const raid_meter_knecht = new RaidMeterKnecht(filter);
         const raid_graph_knecht = new RaidGraphKnecht(filter);
         const raid_detail_knecht = new RaidDetailKnecht(filter);

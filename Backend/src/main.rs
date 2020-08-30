@@ -6,6 +6,7 @@
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
 #![feature(with_options)]
+#![feature(box_patterns)]
 extern crate language;
 extern crate mail;
 extern crate okapi;
@@ -257,6 +258,7 @@ fn main() {
             "/API/instance",
             routes_with_openapi![
                 instance::transfer::export::get_instance_event_type,
+                instance::transfer::export::get_instance_event_type_raw,
                 instance::transfer::export::get_instance_meta,
                 instance::transfer::export::get_instance_participants,
                 instance::transfer::export::get_instance_attempts,

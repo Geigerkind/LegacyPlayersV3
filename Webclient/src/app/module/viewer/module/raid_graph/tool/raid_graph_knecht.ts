@@ -47,8 +47,10 @@ export class RaidGraphKnecht {
 
     private static feed_points(events: Array<Event>, extract_amount: (Event) => number): Array<[number, number]> {
         const result = [];
-        for (const event of events)
-            result.push([event.timestamp, extract_amount(event)]);
+        for (const event of events) {
+            const ts = !!(event as any).length ? event[1] : event.timestamp;
+            result.push([ts, extract_amount(event)]);
+        }
         return result;
     }
 
@@ -67,7 +69,7 @@ export class RaidGraphKnecht {
                     return [...RaidGraphKnecht.feed_points(this.data_filter.get_melee_damage(data_set === DataSet.DamageTaken),
                         (event) => get_spell_components_total_amount(get_melee_damage(event).components)),
                         ...RaidGraphKnecht.feed_points(this.data_filter.get_spell_damage(data_set === DataSet.DamageTaken),
-                            (event) => get_spell_components_total_amount(get_spell_damage(event).damage.components))];
+                            (event) => event[7].reduce((acc, comp) => comp[0] + acc, 0))];
                 case DataSet.TotalHealingDone:
                 case DataSet.TotalHealingTaken:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.TotalHealingTaken), (event) => get_heal(event).heal.total);

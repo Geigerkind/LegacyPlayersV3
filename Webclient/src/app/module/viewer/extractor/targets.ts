@@ -26,8 +26,8 @@ export function te_melee_damage(event: Event): Unit {
     return get_melee_damage(event).victim;
 }
 
-export function te_spell_damage(event: Event): Unit {
-    return get_spell_damage(event).damage.victim;
+export function te_spell_damage(event: any): Unit {
+    return event[4];
 }
 
 export function te_heal(event: Event): Unit {

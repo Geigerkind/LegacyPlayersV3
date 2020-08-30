@@ -65,5 +65,9 @@ function ae_spell_cast_or_aura_application(cause_extraction: (Event) => number, 
     };
 }
 
+export function ae_spell_damage(event: any): Array<number> {
+    return [event[5]];
+}
+
 export {ae_spell_cast, ae_aura_application, ae_interrupt, ae_spell_steal, ae_dispel, ae_melee_damage, ae_threat};
 export {ae_spell_cast_or_aura_application};

@@ -1,7 +1,14 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {se_aura_app_or_own, se_dispel, se_identity, se_interrupt, se_spell_steal} from "../extractor/sources";
+import {
+    se_aura_app_or_own,
+    se_dispel,
+    se_identity,
+    se_interrupt,
+    se_spell_damage,
+    se_spell_steal
+} from "../extractor/sources";
 import {
     te_aura_application,
     te_death, te_dispel, te_heal, te_melee_damage,
@@ -13,10 +20,10 @@ import {
     ae_dispel,
     ae_interrupt,
     ae_melee_damage,
-    ae_spell_cast, ae_spell_cast_or_aura_application,
+    ae_spell_cast, ae_spell_cast_or_aura_application, ae_spell_damage,
     ae_spell_steal, ae_threat
 } from "../extractor/abilities";
-import {ce_heal, ce_spell_damage} from "../extractor/causes";
+import {ce_heal} from "../extractor/causes";
 import {Observable, Subject} from "rxjs";
 import {iterable_filterMap, iterable_some} from "../../../stdlib/iterable_higher_order";
 import {auditTime} from "rxjs/operators";
@@ -44,8 +51,10 @@ export class InstanceDataFilter {
                          ability_extraction: (Event) => Array<number>, inverse_filter: boolean = false): Array<Event> {
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
-        let result = container.filter(event => this.segment_intervals$.find(interval => interval[0] <= event.timestamp && interval[1] >= event.timestamp) !== undefined)
-            .filter(event => filter_source.has(get_unit_id(source_extraction(event))));
+        let result = container.filter(event => this.segment_intervals$.find(interval => {
+            const ts = !!(event as any).length ? event[1] : event.timestamp;
+            return interval[0] <= ts && interval[1] >= ts;
+        }) !== undefined).filter(event => filter_source.has(get_unit_id(source_extraction(event))));
         if (!!target_extraction)
             result = result.filter(event => filter_target.has(get_unit_id(target_extraction(event))));
         if (!!ability_extraction)
@@ -165,8 +174,7 @@ export class InstanceDataFilter {
 
     get_spell_damage(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(this.data_loader.spell_damage, se_aura_app_or_own(ce_spell_damage, this.data_loader.event_map),
-            te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.data_loader.event_map), inverse_filter);
+        return this.apply_filter(this.data_loader.spell_damage, se_spell_damage, te_spell_damage, ae_spell_damage, inverse_filter);
     }
 
     get_heal(inverse_filter: boolean = false): Array<Event> {
