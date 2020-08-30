@@ -96,71 +96,87 @@ export class InstanceDataFilter {
     }
 
     get_spell_casts(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.spell_casts, se_identity, te_spell_cast, ae_spell_cast, inverse_filter);
     }
 
     get_deaths(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.deaths, se_identity, te_death, undefined, inverse_filter);
     }
 
     get_combat_states(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.combat_states, se_identity, undefined, undefined, inverse_filter);
     }
 
     get_loot(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.loot, se_identity, undefined, undefined, inverse_filter);
     }
 
     get_positions(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.positions, se_identity, undefined, undefined, inverse_filter);
     }
 
     get_powers(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.powers, se_identity, undefined, undefined, inverse_filter);
     }
 
     get_aura_applications(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.aura_applications, se_identity, te_aura_application, ae_aura_application, inverse_filter);
     }
 
     get_interrupts(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.interrupts, se_interrupt(this.get_event_map()), se_identity,
             ae_interrupt(this.data_loader.event_map), inverse_filter);
     }
 
     get_spell_steals(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.spell_steals, se_spell_steal(this.data_loader.event_map), te_spell_steal(this.data_loader.event_map),
             ae_spell_steal(this.data_loader.event_map), inverse_filter);
     }
 
     get_dispels(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.dispels, se_dispel(this.data_loader.event_map),
             te_dispel(this.data_loader.event_map), ae_dispel(this.data_loader.event_map), inverse_filter);
     }
 
     get_threat_wipes(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.threat_wipes, se_identity, undefined, undefined, inverse_filter);
     }
 
     get_summons(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.summons, se_identity, te_summon, undefined, inverse_filter);
     }
 
     get_melee_damage(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.melee_damage, se_identity, te_melee_damage, ae_melee_damage, inverse_filter);
     }
 
     get_spell_damage(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.spell_damage, se_aura_app_or_own(ce_spell_damage, this.data_loader.event_map),
             te_spell_damage, ae_spell_cast_or_aura_application(ce_spell_damage, this.data_loader.event_map), inverse_filter);
     }
 
     get_heal(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.heal, se_aura_app_or_own(ce_heal, this.data_loader.event_map),
             te_heal, ae_spell_cast_or_aura_application(ce_heal, this.data_loader.event_map), inverse_filter);
     }
 
     get_threat(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         return this.apply_filter(this.data_loader.threat, se_identity,
             te_threat, ae_threat(this.data_loader.event_map), inverse_filter);
     }
@@ -170,6 +186,7 @@ export class InstanceDataFilter {
     }
 
     get_non_segmented_aura_applications(inverse_filter: boolean = false): Array<Event> {
+        if (!this.data_loader.initialized) return [];
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
         return this.data_loader.aura_applications.filter(event => filter_source.has(get_unit_id(se_identity(event))))
             .filter(event => ae_aura_application(event).every(ability => this.ability_filter$.has(ability)));
