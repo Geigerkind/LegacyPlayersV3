@@ -131,7 +131,27 @@ export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = 
     [28538, [[School.Holy], [School.Holy]]],
     // Val'Anyr
     [64411, [[School.Physical], ALL_SCHOOLS]],
-
+    // Sacrifice
+    [7812, [[School.Shadow], ALL_SCHOOLS]],
+    [19438, [[School.Shadow], ALL_SCHOOLS]],
+    [19440, [[School.Shadow], ALL_SCHOOLS]],
+    [19441, [[School.Shadow], ALL_SCHOOLS]],
+    [19442, [[School.Shadow], ALL_SCHOOLS]],
+    [19443, [[School.Shadow], ALL_SCHOOLS]],
+    [27273, [[School.Shadow], ALL_SCHOOLS]],
+    [47985, [[School.Shadow], ALL_SCHOOLS]],
+    [47986, [[School.Shadow], ALL_SCHOOLS]],
+    // Ice Barrier
+    [11426, [[School.Frost], ALL_SCHOOLS]],
+    [13031, [[School.Frost], ALL_SCHOOLS]],
+    [13032, [[School.Frost], ALL_SCHOOLS]],
+    [13033, [[School.Frost], ALL_SCHOOLS]],
+    [27134, [[School.Frost], ALL_SCHOOLS]],
+    [33405, [[School.Frost], ALL_SCHOOLS]],
+    [43038, [[School.Frost], ALL_SCHOOLS]],
+    [43039, [[School.Frost], ALL_SCHOOLS]],
+    // Glyph: PoW
+    [56160, [[School.Holy], ALL_SCHOOLS]],
 ]);
 
 // TODO: How to deal with several active absorb spells?

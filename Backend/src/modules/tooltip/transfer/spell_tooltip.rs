@@ -2,10 +2,7 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 use crate::modules::{
-    data::{
-        guard::{Language},
-        Data,
-    },
+    data::{guard::Language, Data},
     tooltip::{dto::TooltipFailure, material::SpellTooltip, tools::RetrieveSpellTooltip, Tooltip},
 };
 

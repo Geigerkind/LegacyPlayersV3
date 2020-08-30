@@ -14,7 +14,7 @@ impl MapUnAura for [u8] {
         Ok(UnAura {
             un_aura_caster: self[0..9].to_unit()?,
             target: self[9..18].to_unit()?,
-            aura_caster: self[18..27].to_unit()?,
+            aura_caster: Some(self[18..27].to_unit()?), // Here we expect a unit
             un_aura_spell_id: byte_reader::read_u32(&self[27..31])?,
             target_spell_id: byte_reader::read_u32(&self[31..35])?,
             un_aura_amount: self[35],

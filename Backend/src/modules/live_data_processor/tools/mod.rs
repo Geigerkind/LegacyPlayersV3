@@ -5,6 +5,7 @@ pub use self::unit::*;
 
 pub mod byte_reader;
 mod guid;
+pub mod log_parser;
 mod message;
 pub mod payload_mapper;
 mod process;

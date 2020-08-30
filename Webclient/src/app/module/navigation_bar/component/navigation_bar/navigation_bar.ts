@@ -47,7 +47,8 @@ export class NavigationBarComponent implements OnInit {
     */
 
     itemsContribute = [
-        ["/contribute/", "NavigationBar.contribute.title"]
+        ["/contribute/", "NavigationBar.contribute.title"],
+        ["/contribute/upload", "NavigationBar.contribute.upload"]
     ];
     /*
         itemsQueue = [

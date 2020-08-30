@@ -101,7 +101,7 @@ impl Server {
                                             if attempt.pivot_creature.contains(creature_id) {
                                                 attempt.creatures_required_to_die.clear();
                                             }
-                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
+                                            is_committable = attempt.creatures_required_to_die.is_empty();
                                         }
 
                                         if is_committable {
@@ -120,7 +120,7 @@ impl Server {
                                             if let Some(treshold) = encounter_npc.health_treshold {
                                                 if (100 * *max_power).div(current_power) <= treshold as u32 {
                                                     attempt.creatures_required_to_die.clear();
-                                                    is_committable = attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.is_empty();
+                                                    is_committable = attempt.creatures_required_to_die.is_empty();
                                                 }
                                             }
                                         }
@@ -244,6 +244,11 @@ impl Server {
 }
 
 fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, mut attempt: Attempt) {
+    // Likely a false positive
+    if attempt.end_ts - attempt.start_ts <= 1000 {
+        return;
+    }
+
     let is_kill = attempt.creatures_required_to_die.is_empty();
     let params = params!("instance_meta_id" => instance_meta_id, "encounter_id" => attempt.encounter_id,
         "start_ts" => attempt.start_ts, "end_ts" => attempt.end_ts, "is_kill" => is_kill);

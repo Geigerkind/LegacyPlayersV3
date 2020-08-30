@@ -3,12 +3,7 @@ import {RouterModule, Routes} from "@angular/router";
 import {ContributeComponent} from "./component/contribute/contribute";
 
 const routes: Routes = [
-    {
-        path: "", component: ContributeComponent, children: [
-            { path: "", loadChildren: () => import("./module/contribute/module").then(m => m.ContributeModule) },
-            { path: "upload", loadChildren: () => import("./module/upload/module").then(m => m.UploadModule) }
-        ]
-    }
+    {path: "", component: ContributeComponent}
 ];
 
 @NgModule({

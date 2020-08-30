@@ -12,7 +12,7 @@ pub fn try_parse_interrupt(interrupt: &Interrupt, recently_committed_spell_cast_
         let event: &Event = recently_committed_spell_cast_and_aura_applications.get(i).unwrap();
         match &event.event {
             EventType::SpellCast(spell_cast) => {
-                if spell_cast.victim.contains(subject) && spell_is_direct_interrupt(spell_cast.spell_id) {
+                if spell_cast.victim.contains(subject) && (spell_is_direct_interrupt(spell_cast.spell_id) || spell_is_indirect_interrupt(spell_cast.spell_id)) {
                     return Ok((event.id, interrupt.interrupted_spell_id));
                 }
             },
@@ -27,14 +27,15 @@ pub fn try_parse_interrupt(interrupt: &Interrupt, recently_committed_spell_cast_
     Err(EventParseFailureAction::PrependNext)
 }
 
-// "Kick", "Pummel", "Shield Bash", "Counterspell", "Earth Shock",  "Silence"
+// "Kick", "Pummel", "Shield Bash", "Counterspell", "Earth Shock",  "Silence", "Spell Lock", "Wind Shear", "Mind Freeze"
 fn spell_is_direct_interrupt(spell_id: u32) -> bool {
     lazy_static! {
         static ref DIRECT_INTERRUPTS: BTreeSet<u32> = [
             72, 1053, 1671, 1672, 1675, 1676, 1677, 1766, 1767, 1768, 1769, 1770, 1771, 1772, 1773, 1774, 1775, 2139, 3466, 3467, 3576, 6552, 6553, 6554, 6555, 6556, 6726, 8042, 8043, 8044, 8045, 8046, 8047, 8048, 8049, 8988, 10412, 10413, 10414,
             10415, 10416, 10417, 11972, 11978, 12528, 12555, 13281, 13491, 13728, 15122, 15487, 15501, 15610, 15614, 15615, 18278, 18327, 19639, 19640, 19715, 20537, 20788, 22666, 22885, 23114, 23207, 24685, 25025, 25454, 26069, 26090, 26194, 27559,
             27613, 27814, 29443, 29560, 29586, 29704, 29943, 29961, 30225, 30460, 31402, 31596, 31999, 32105, 33424, 33871, 34802, 35178, 36033, 36470, 36988, 37160, 37470, 38233, 38313, 38491, 38625, 38768, 38913, 41180, 41197, 41395, 43305, 43518,
-            45356, 47071, 47081, 49230, 49231, 51610, 53394, 54093, 54511, 56506, 56777, 57783, 58953, 59344, 60011, 61668, 65542, 65790, 65973, 67235, 68100, 68101, 68102, 70964, 72194, 72196
+            45356, 47071, 47081, 49230, 49231, 51610, 53394, 54093, 54511, 56506, 56777, 57783, 58953, 59344, 60011, 61668, 65542, 65790, 65973, 67235, 68100, 68101, 68102, 70964, 72194, 72196, 19244, 19647, 19648, 19650, 20433, 20434, 24259, 30849,
+            67519, 57994, 47528, 53550
         ]
         .iter()
         .cloned()

@@ -195,7 +195,8 @@
             "char_design": "Character designer"
         },
         "contribute": {
-            "title": "Contribute"
+            "title": "Contribute",
+            "upload": "Upload"
         },
         "queue": {
             "title": "Queue"

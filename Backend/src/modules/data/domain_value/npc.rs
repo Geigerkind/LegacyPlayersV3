@@ -6,4 +6,5 @@ pub struct NPC {
     pub is_boss: bool,
     pub friend: u8,
     pub family: u8,
+    pub map_id: Option<u16>,
 }

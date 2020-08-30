@@ -396,6 +396,7 @@ impl Init for Vec<HashMap<u32, NPC>> {
                 is_boss: row.take(3).unwrap(),
                 friend: row.take(4).unwrap(),
                 family: row.take(5).unwrap(),
+                map_id: row.take_opt(6).unwrap().ok(),
             })
             .into_iter()
             .for_each(|result| {

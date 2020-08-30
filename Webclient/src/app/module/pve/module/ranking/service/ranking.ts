@@ -4,7 +4,6 @@ import {BehaviorSubject, Observable} from "rxjs";
 import {RankingResult} from "../domain_value/ranking_result";
 import {RankingCharacterMeta} from "../domain_value/ranking_character_meta";
 import {RankingRow} from "../domain_value/ranking_row";
-import {reduce} from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",
@@ -64,8 +63,8 @@ export class RankingService {
         }
         this.rankings$.next([...new_rankings.entries()].map(([character_id, [character_meta, amounts]]) => {
             const result = amounts.reduce(([count, acc], amount) => [++count, acc + amount], [0, 0]);
-            return {character_id, character_meta, amount: Number((result[1] / result[0]).toFixed(1))};
-        }));
+            return {character_id, character_meta, amount: Number((result[1] / result[0]))};
+        }).sort((left, right) => right.amount - left.amount));
     }
 
     private get current_mode_data(): Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> {

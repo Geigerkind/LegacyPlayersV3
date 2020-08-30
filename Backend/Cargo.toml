@@ -25,6 +25,7 @@ byteorder="*"
 rocket-multipart-form-data="*"
 grouping_by="*"
 chrono="*"
+rand = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

@@ -42,9 +42,11 @@ export class GraphDataService implements OnDestroy {
         private util_service: UtilService
     ) {
         this.subscription = this.instanceDataService.knecht_updates.subscribe(knecht_updates => {
-            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
+            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem))) {
                 for (const [data_set, data] of this.data_points$.getValue()[1])
                     this.add_data_set(data_set);
+                console.log("CHANGED");
+            }
         });
 
         this.source_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, util_service);

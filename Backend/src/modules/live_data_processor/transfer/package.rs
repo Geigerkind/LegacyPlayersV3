@@ -34,7 +34,7 @@ pub fn get_package(mut db_main: MainDb, me: State<LiveDataProcessor>, armory: St
                 }
                 messages.push(raw.drain(..(raw[2] as usize)).collect());
             }
-            return me.process_messages(&mut *db_main, owner.0, &armory, &domain_data, messages);
+            return me.parse_messages(&mut *db_main, owner.0, &armory, &domain_data, messages);
         }
     }
     Err(LiveDataProcessorFailure::InvalidInput)

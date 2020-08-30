@@ -8,28 +8,36 @@ use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
 
 pub trait MapUnit {
-    fn to_unit(&self, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure>;
+    fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure>;
 }
 
 impl MapUnit for dto::Unit {
-    fn to_unit(&self, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure> {
+    fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure> {
+        if cache_unit.contains_key(&self.unit_id) {
+            return Ok(cache_unit.get(&self.unit_id).unwrap().clone());
+        }
+
         if self.is_player {
             let mut character = armory.get_character_by_uid(server_id, self.unit_id);
             if character.is_none() {
                 character = armory.create_character(db_main, server_id, self.unit_id).ok().and_then(|character_id| armory.get_character(character_id));
             }
             let character = character.ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?;
-            Ok(domain_value::Unit::Player(domain_value::Player {
+            let unit = domain_value::Unit::Player(domain_value::Player {
                 character_id: character.id,
-                server_uid: self.unit_id,
-                character: Some(character),
-            }))
+                /* server_uid: self.unit_id,
+                 * character: Some(character), */
+            });
+            cache_unit.insert(self.unit_id, unit.clone());
+            Ok(unit)
         } else {
-            Ok(domain_value::Unit::Creature(domain_value::Creature {
+            let unit = domain_value::Unit::Creature(domain_value::Creature {
                 creature_id: self.unit_id,
                 entry: self.unit_id.get_entry().ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?,
                 owner: summons.get(&self.unit_id).cloned(),
-            }))
+            });
+            cache_unit.insert(self.unit_id, unit.clone());
+            Ok(unit)
         }
     }
 }

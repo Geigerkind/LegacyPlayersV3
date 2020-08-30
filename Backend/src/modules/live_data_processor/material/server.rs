@@ -1,4 +1,4 @@
-use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent, UnitInstance};
+use crate::modules::live_data_processor::domain_value::{Event, NonCommittedEvent, Unit, UnitInstance};
 use crate::modules::live_data_processor::dto::InstanceResetDto;
 use crate::modules::live_data_processor::material::Attempt;
 use crate::params;
@@ -33,6 +33,9 @@ pub struct Server {
     pub committed_events: HashMap<u32, VecDeque<Event>>,
     pub committed_events_count: HashMap<u32, u32>,
     pub recently_committed_spell_cast_and_aura_applications: HashMap<u32, VecDeque<Event>>,
+
+    // PERFORMANCE TEST
+    pub cache_unit: HashMap<u64, Unit>,
 }
 
 impl Server {
@@ -53,6 +56,7 @@ impl Server {
             active_attempts: HashMap::new(),
             post_processing_last_precessed_event_id: HashMap::new(),
             recently_committed_spell_cast_and_aura_applications: HashMap::new(),
+            cache_unit: HashMap::new(),
         }
     }
 

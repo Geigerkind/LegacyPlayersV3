@@ -14,6 +14,7 @@ fn get_npc() {
         is_boss: false,
         friend: 1,
         family: 2,
+        map_id: None,
     };
     let mut hashmap = HashMap::new();
     hashmap.insert(npc_id, npc.clone());
