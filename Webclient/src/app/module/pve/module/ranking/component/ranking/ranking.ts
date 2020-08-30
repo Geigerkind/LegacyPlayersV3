@@ -27,7 +27,7 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     bar_subjects: Map<number, RaidMeterSubject> = new Map();
     bar_tooltips: Map<number, any> = new Map();
-    bars: Array<[number, number]> = [];
+    bars: Array<[number, number | string]> = [];
 
     modes_current_selection: number = 1;
     modes: Array<SelectOption> = [
