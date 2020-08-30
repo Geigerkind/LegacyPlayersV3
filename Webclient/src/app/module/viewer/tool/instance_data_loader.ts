@@ -22,7 +22,7 @@ import {auditTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
-    private static readonly BATCH_SIZE: number = 10000;
+    private static readonly BATCH_SIZE: number = 15000;
     private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/:instance_meta_id/:event_type/:last_event_id";
 
     public event_map: Map<number, Event> = new Map();

@@ -45,6 +45,7 @@ export class InstanceDataService implements OnDestroy {
     private public_knecht_updates$: Subject<Array<KnechtUpdates>> = new Subject();
     private knecht_updates$: Subject<KnechtUpdates> = new Subject();
     private recent_knecht_updates$: Set<KnechtUpdates> = new Set();
+    private last_knecht_update$: number = 0;
 
     constructor(
         private apiService: APIService,
@@ -64,11 +65,18 @@ export class InstanceDataService implements OnDestroy {
             });
         }, 60000);
 
-        this.subscription.add(this.knecht_updates$.subscribe(knecht_update => this.recent_knecht_updates$.add(knecht_update)));
-        this.subscription.add(this.knecht_updates$.pipe(auditTime(10000))
+        this.subscription.add(this.knecht_updates$.subscribe(knecht_update => {
+            this.recent_knecht_updates$.add(knecht_update);
+            this.last_knecht_update$ = Date.now();
+        }));
+        this.subscription.add(this.knecht_updates$.pipe(auditTime(250))
             .subscribe(() => {
-                this.public_knecht_updates$.next([...this.recent_knecht_updates$.values()]);
-                this.recent_knecht_updates$.clear();
+                if (Date.now() - this.last_knecht_update$ >= 200) {
+                    this.public_knecht_updates$.next([...this.recent_knecht_updates$.values()]);
+                    this.recent_knecht_updates$.clear();
+                } else {
+                    setTimeout(() => this.knecht_updates$.next(this.recent_knecht_updates$[0]), 200);
+                }
             }));
         this.subscription.add(this.knecht_updates.subscribe(knecht_updates => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
@@ -158,9 +166,14 @@ export class InstanceDataService implements OnDestroy {
         const handle_loading_bar = data => {
             if (data[1] === KnechtUpdates.WorkStart)
                 this.loading_bar_service.incrementCounter();
-            else if (data[1] === KnechtUpdates.WorkEnd)
+            else if ([KnechtUpdates.WorkEnd, KnechtUpdates.Initialized].includes(data[1]))
                 this.loading_bar_service.decrementCounter();
         };
+
+        this.loading_bar_service.incrementCounter();
+        this.loading_bar_service.incrementCounter();
+        this.loading_bar_service.incrementCounter();
+        this.loading_bar_service.incrementCounter();
 
         let worker = new Worker('./../worker/melee.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
