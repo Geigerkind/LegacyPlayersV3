@@ -3,7 +3,6 @@ use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
 use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult};
-use crate::modules::live_data_processor::Event;
 use crate::params;
 use crate::util::database::Select;
 use std::collections::HashMap;
@@ -11,7 +10,7 @@ use std::sync::{Arc, RwLock};
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
-    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>,
+    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>,
     pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
     // encounter_id => character_id => Vec<Ranking>
     pub instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
@@ -167,7 +166,7 @@ fn evict_attempts_cache(instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<
     }
 }
 
-fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<Event>>>>>) {
+fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>) {
     let now = time_util::now();
     let mut instance_exports = instance_exports.write().unwrap();
     for instance_meta_id in instance_exports

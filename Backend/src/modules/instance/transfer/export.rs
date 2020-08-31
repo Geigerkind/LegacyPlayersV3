@@ -1,5 +1,3 @@
-use crate::modules::live_data_processor::Event;
-
 use crate::modules::armory::Armory;
 use crate::modules::instance::dto::{InstanceFailure, InstanceViewerAttempt, InstanceViewerMeta, InstanceViewerParticipant, RawJson};
 use crate::modules::instance::tools::ExportInstance;
@@ -8,18 +6,15 @@ use crate::MainDb;
 use rocket::State;
 use rocket_contrib::json::Json;
 
-#[openapi]
-#[get("/export/<instance_meta_id>/<event_type>/<last_event_id>")]
-pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8, last_event_id: u32) -> Result<Json<Vec<Event>>, InstanceFailure> {
-    me.export_instance_event_type(instance_meta_id, event_type)
-        .map(|events| events.into_iter().filter(|event| event.id > last_event_id).take(100000).collect())
-        .map(Json)
-}
-
 #[openapi(skip)]
-#[get("/export_raw/<instance_meta_id>/<event_type>/<last_event_id>")]
-pub fn get_instance_event_type_raw(me: State<Instance>, instance_meta_id: u32, event_type: u8, last_event_id: u32) -> Result<RawJson, InstanceFailure> {
-    me.export_instance_event_type_raw(instance_meta_id, event_type)
+#[get("/export/<instance_meta_id>/<event_type>/<last_event_id>")]
+pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8, last_event_id: u32) -> Result<RawJson, InstanceFailure> {
+    me.export_instance_event_type(instance_meta_id, event_type)
+        .map(|events| events.into_iter()
+            .filter(|(id, _)| *id > last_event_id)
+            .take(100000)
+            .map(|(_, data)| data)
+            .collect::<Vec<String>>().join(",")).map(|res| RawJson(res))
 }
 
 #[openapi]

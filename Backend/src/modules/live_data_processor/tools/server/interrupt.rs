@@ -1,5 +1,4 @@
 use crate::modules::live_data_processor::domain_value::{Event, EventParseFailureAction, EventType, Unit};
-use crate::modules::live_data_processor::dto::Interrupt;
 use std::collections::{BTreeSet, VecDeque};
 
 /// There are indirect interrupts, e.g. stuns. These are parsed via AuraApplication
@@ -7,18 +6,18 @@ use std::collections::{BTreeSet, VecDeque};
 ///
 /// There are indirect interrupts due to moving, but for this we need to reorder events. We don't consider this an interrupt for now, maybe later
 /// Generally these are also out of order
-pub fn try_parse_interrupt(interrupt: &Interrupt, recently_committed_spell_cast_and_aura_applications: &VecDeque<Event>, subject: &Unit) -> Result<(u32, u32), EventParseFailureAction> {
+pub fn try_parse_interrupt(recently_committed_spell_cast_and_aura_applications: &VecDeque<Event>, subject: &Unit) -> Result<Event, EventParseFailureAction> {
     for i in (0..recently_committed_spell_cast_and_aura_applications.len()).rev() {
         let event: &Event = recently_committed_spell_cast_and_aura_applications.get(i).unwrap();
         match &event.event {
             EventType::SpellCast(spell_cast) => {
                 if spell_cast.victim.contains(subject) && (spell_is_direct_interrupt(spell_cast.spell_id) || spell_is_indirect_interrupt(spell_cast.spell_id)) {
-                    return Ok((event.id, interrupt.interrupted_spell_id));
+                    return Ok(event.clone());
                 }
             },
             EventType::AuraApplication(aura_application) => {
                 if event.subject == *subject && spell_is_indirect_interrupt(aura_application.spell_id) {
-                    return Ok((event.id, interrupt.interrupted_spell_id));
+                    return Ok(event.clone());
                 }
             },
             _ => continue,

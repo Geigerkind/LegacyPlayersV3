@@ -316,7 +316,7 @@ impl Server {
                     first_message.timestamp,
                     subject,
                     EventType::Heal {
-                        spell_cause_id: spell_cause.id,
+                        spell_cause: Box::new(spell_cause),
                         heal: domain_value::Heal {
                             total: heal_done.total_heal,
                             effective: heal_done.effective_heal,
@@ -332,13 +332,13 @@ impl Server {
             MessageType::Threat(threat) => {
                 let subject = threat.threater.to_unit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let threatened = threat.threatened.to_unit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let cause_event_id = self.find_matching_threat_cause(threat.spell_id, threat.threater.unit_id, &subject, &threatened)?;
+                let cause_event = self.find_matching_threat_cause(threat.spell_id, threat.threater.unit_id, &subject, &threatened)?;
                 Ok(Event::new(
                     first_message.message_count,
                     first_message.timestamp,
                     subject,
                     EventType::Threat {
-                        cause_event_id,
+                        cause_event: Box::new(cause_event),
                         threat: domain_value::Threat { threatened, amount: threat.amount },
                     },
                 ))
@@ -349,12 +349,12 @@ impl Server {
                 if let Some(unit_instance_id) = self.unit_instance_id.get(&interrupt.target.unit_id) {
                     if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(unit_instance_id) {
                         let subject = interrupt.target.to_unit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                        return match try_parse_interrupt(&interrupt, committed_events, &subject) {
-                            Ok((cause_event_id, interrupted_spell_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::Interrupt { cause_event_id, interrupted_spell_id })),
-                            Err(err) => {
-                                println!("{:?}", interrupt);
-                                Err(err)
-                            }
+                        return match try_parse_interrupt(committed_events, &subject) {
+                            Ok(cause_event) => {
+                                Ok(Event::new(first_message.message_count, first_message.timestamp, subject,
+                                              EventType::Interrupt { cause_event: Box::new(cause_event), interrupted_spell_id: interrupt.interrupted_spell_id }))
+                            },
+                            Err(err) => Err(err)
                         };
                     }
                 }
@@ -370,7 +370,10 @@ impl Server {
                             .to_unit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
                             .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_dispel(db_main, &dispel, committed_events, armory, self.server_id, &self.summons, &mut self.cache_unit) {
-                            Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::Dispel { cause_event_id, target_event_id })),
+                            Ok((cause_event, target_event)) => {
+                                Ok(Event::new(first_message.message_count, first_message.timestamp, subject,
+                                              EventType::Dispel { cause_event: Box::new(cause_event), target_event: Box::new(target_event) }))
+                            },
                             Err(err) => Err(err),
                         };
                     }
@@ -387,7 +390,10 @@ impl Server {
                             .to_unit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
                             .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_spell_steal(db_main, &spell_steal, committed_events, first_message.timestamp, armory, self.server_id, &self.summons, &mut self.cache_unit) {
-                            Ok((cause_event_id, target_event_id)) => Ok(Event::new(first_message.message_count, first_message.timestamp, subject, EventType::SpellSteal { cause_event_id, target_event_id })),
+                            Ok((cause_event, target_event)) => {
+                                Ok(Event::new(first_message.message_count, first_message.timestamp, subject,
+                                              EventType::SpellSteal { cause_event: Box::new(cause_event), target_event: Box::new(target_event) }))
+                            },
                             Err(err) => Err(err),
                         };
                     }
@@ -655,7 +661,7 @@ impl Server {
 
     // If the spell_id is some, then it must be a SpellCast, SpellDamage or Heal Done
     // Else its a melee_damage event and the threatened must be the victim
-    fn find_matching_threat_cause(&self, spell_id: Option<u32>, subject_unit_id: u64, subject: &Unit, threatened: &Unit) -> Result<u32, EventParseFailureAction> {
+    fn find_matching_threat_cause(&self, spell_id: Option<u32>, subject_unit_id: u64, subject: &Unit, threatened: &Unit) -> Result<Event, EventParseFailureAction> {
         if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
             if let Some(committed_events) = self.committed_events.get(unit_instance_id) {
                 if let Some(event_index) = committed_events.iter().rposition(|event| {
@@ -663,7 +669,8 @@ impl Server {
                         return event.subject == *subject
                             && match &event.event {
                             EventType::SpellCast(domain_value::SpellCast { spell_id, .. }) => *spell_id == threatening_spell_id,
-                            EventType::SpellDamage { spell_cause: box Event { id: spell_cause_id, .. }, .. } | EventType::Heal { spell_cause_id, .. } => {
+                            EventType::SpellDamage { spell_cause: box Event { id: spell_cause_id, .. }, .. } |
+                            EventType::Heal { spell_cause: box Event { id: spell_cause_id, .. }, .. } => {
                                 if let Some(Event { event: EventType::SpellCast(spell_cast), .. }) = committed_events.iter().find(|inner_event| inner_event.id == *spell_cause_id) {
                                     spell_cast.spell_id == threatening_spell_id
                                 } else {
@@ -677,7 +684,7 @@ impl Server {
                     }
                     false
                 }) {
-                    return Ok(committed_events.get(event_index).unwrap().id);
+                    return Ok(committed_events.get(event_index).unwrap().clone());
                 }
             }
         }

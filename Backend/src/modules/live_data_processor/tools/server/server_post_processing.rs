@@ -1,14 +1,14 @@
 use crate::modules::data::tools::{RetrieveEncounterNpc, RetrieveItem};
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{get_spell_components_total, HitType, hit_mask_to_u32, SpellComponent, school_mask_to_u8, Mitigation, hit_mask_to_u32_vec};
+use crate::modules::live_data_processor::domain_value::{get_spell_components_total};
 use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Power, PowerType, Unit, UnitInstance};
 use crate::modules::live_data_processor::material::{Attempt, Server};
 use crate::params;
 use crate::util::database::{Execute, Select};
-use std::collections::{HashMap, VecDeque, HashSet};
+use std::collections::{HashMap, VecDeque};
 use std::io::Write;
 use std::ops::Div;
-use crate::modules::live_data_processor::tools::GUID;
+use crate::modules::live_data_processor::tools::LiveDataDeserializer;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
@@ -232,13 +232,7 @@ impl Server {
                             })
                         }
                         if let Ok(file) = &mut opened_file {
-                            if last_opened_event_type_index == 13 {
-                                let _ = file.write(temp_spell_damage_deserialize(event).as_bytes());
-                            } else {
-                                if let Ok(json) = serde_json::to_string(&event) {
-                                    let _ = file.write(json.as_bytes());
-                                }
-                            }
+                            let _ = file.write(event.deserialize().as_bytes());
                             let _ = file.write(&[10]);
                         }
                     }
@@ -246,57 +240,6 @@ impl Server {
             }
         }
     }
-}
-
-fn temp_spell_damage_deserialize(event: Event) -> String {
-    if let EventType::SpellDamage { spell_cause, damage } = event.event {
-        match &spell_cause.event {
-            EventType::SpellCast(spell_cast) => {
-                let mut hit_mask = HashSet::new();
-                damage.hit_mask.into_iter().for_each(|hit_type| { hit_mask.insert(hit_type); });
-                spell_cast.hit_mask.iter().for_each(|hit_type| { hit_mask.insert(hit_type.clone()); });
-                if hit_mask.contains(&HitType::Hit) && hit_mask.contains(&HitType::Crit) {
-                    hit_mask.remove(&HitType::Hit);
-                }
-
-                return format!("[{},{},{},{},{},{},{},{}]", event.id, event.timestamp, spell_cause.id, temp_unit_deserialize(spell_cause.subject), temp_unit_deserialize(damage.victim),
-                    spell_cast.spell_id, hit_mask_to_u32(hit_mask), temp_spell_components_deserialize(damage.components));
-            },
-            EventType::AuraApplication(aura_app) => {
-                return format!("[{},{},{},{},{},{},{},{}]", event.id, event.timestamp, spell_cause.id, temp_unit_deserialize(spell_cause.subject), temp_unit_deserialize(damage.victim),
-                               aura_app.spell_id, hit_mask_to_u32_vec(damage.hit_mask), temp_spell_components_deserialize(damage.components));
-            },
-            _ => {}
-        };
-    }
-    return String::from("");
-}
-
-fn temp_unit_deserialize(unit: Unit) -> String {
-    match unit {
-        Unit::Player(player) => format!("[1,{}]", player.character_id),
-        Unit::Creature(creature) => format!("[0,{},{},{}]", creature.creature_id, creature.creature_id.get_entry().unwrap(), if creature.owner.is_none() { "null".to_string() } else { creature.owner.unwrap().to_string() })
-    }
-}
-
-fn temp_damage_component_deserialize(spell_component: SpellComponent) -> String {
-    let mut absorb = 0;
-    let mut resist = 0;
-    let mut block = 0;
-    for mitigation in spell_component.mitigation {
-        match mitigation {
-            Mitigation::Absorb(amount) => absorb = amount,
-            Mitigation::Resist(amount) => resist = amount,
-            Mitigation::Block(amount) => block = amount,
-            _ => {}
-        };
-    }
-
-    format!("[{},{},{},{},{}]", spell_component.amount, school_mask_to_u8(spell_component.school_mask),absorb,resist,block)
-}
-
-fn temp_spell_components_deserialize(spell_components: Vec<SpellComponent>) -> String {
-    "[".to_owned() + &spell_components.into_iter().map(|component| temp_damage_component_deserialize(component)).collect::<Vec<String>>().join(",") + "]"
 }
 
 fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, mut attempt: Attempt) {

@@ -1,4 +1,5 @@
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[repr(u8)]
 pub enum PowerType {
     Mana = 0,
     Rage = 1,

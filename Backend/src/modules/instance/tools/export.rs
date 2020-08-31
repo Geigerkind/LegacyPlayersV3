@@ -2,24 +2,23 @@ use crate::material::Cachable;
 use crate::modules::armory::tools::GetCharacter;
 use crate::modules::armory::Armory;
 use crate::modules::instance::domain_value::MetaType;
-use crate::modules::instance::dto::{InstanceFailure, InstanceViewerAttempt, InstanceViewerGuild, InstanceViewerMeta, InstanceViewerParticipant, RawJson};
+use crate::modules::instance::dto::{InstanceFailure, InstanceViewerAttempt, InstanceViewerGuild, InstanceViewerMeta, InstanceViewerParticipant};
 use crate::modules::instance::material::Role;
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
-use crate::modules::live_data_processor::Event;
 use crate::params;
 use crate::util::database::Select;
+use std::str::FromStr;
 
 pub trait ExportInstance {
-    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure>;
-    fn export_instance_event_type_raw(&self, instance_meta_id: u32, event_type: u8) -> Result<RawJson, InstanceFailure>;
+    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure>;
     fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
     fn get_instance_participants(&self, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure>;
     fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure>;
 }
 
 impl ExportInstance for Instance {
-    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<Event>, InstanceFailure> {
+    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure> {
         let (server_id, expired) = {
             let instance_metas = self.instance_metas.read().unwrap();
             let instance_meta = instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
@@ -40,12 +39,12 @@ impl ExportInstance for Instance {
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
         let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);
         if let Ok(file_content) = std::fs::read_to_string(event_path) {
-            let segments = file_content.split('\n').collect::<Vec<&str>>();
-            let mut events = Vec::with_capacity(segments.len());
-            for segment in segments {
-                if segment.len() > 1 {
-                    events.push(serde_json::from_str(segment).map_err(|_| InstanceFailure::InvalidInput)?);
-                }
+            let lines = file_content.lines().collect::<Vec<&str>>();
+            let mut events = Vec::with_capacity(lines.len());
+            for segment in lines {
+                let id = u32::from_str(&segment[1..segment.find(',').expect("Must exist if data is not broken")])
+                    .expect("First element is the id");
+                events.push((id, segment.to_owned()));
             }
 
             let mut instance_exports = self.instance_exports.write().unwrap();
@@ -54,23 +53,6 @@ impl ExportInstance for Instance {
             return Ok(events);
         }
         Ok(vec![])
-    }
-
-    fn export_instance_event_type_raw(&self, instance_meta_id: u32, event_type: u8) -> Result<RawJson, InstanceFailure> {
-        let (server_id, _expired) = {
-            let instance_metas = self.instance_metas.read().unwrap();
-            let instance_meta = instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
-            (instance_meta.server_id, instance_meta.expired)
-        };
-
-        let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
-        let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);
-        if let Ok(file_content) = std::fs::read_to_string(event_path) {
-            // let mut instance_exports = self.instance_exports.write().unwrap();
-            // instance_exports.insert((instance_meta_id, event_type), Cachable::new(events.clone()));
-            return Ok(RawJson("[".to_string() + &file_content.trim_end_matches('\n').replace("\n", ",\n") + "]"));
-        }
-        Ok(RawJson("".to_owned()))
     }
 
     fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
