@@ -15,9 +15,9 @@ impl EventTypeDeserializer for EventType {
         match self {
             EventType::SpellCast(spell_cast) => {
                 if let Some(victim) = &spell_cast.victim {
-                    return format!("{},{},{},{}", subject.deserialize(), victim.deserialize(), hit_mask_to_u32_vec(spell_cast.hit_mask.clone()), school_mask_to_u8(spell_cast.school_mask.clone()));
+                    return format!("{},{},{},{},{}", subject.deserialize(), victim.deserialize(), spell_cast.spell_id, hit_mask_to_u32_vec(spell_cast.hit_mask.clone()), school_mask_to_u8(spell_cast.school_mask.clone()));
                 }
-                format!("{},null,{},{}", subject.deserialize(), hit_mask_to_u32_vec(spell_cast.hit_mask.clone()), school_mask_to_u8(spell_cast.school_mask.clone()))
+                format!("{},null,{},{},{}", subject.deserialize(), spell_cast.spell_id, hit_mask_to_u32_vec(spell_cast.hit_mask.clone()), school_mask_to_u8(spell_cast.school_mask.clone()))
             },
             EventType::Death { murder } => {
                 if let Some(murder) = murder {
@@ -106,6 +106,7 @@ impl EventTypeDeserializer for EventType {
                     _ => unreachable!()
                 }
             },
+            // TODO: Only emit absorb
             EventType::Heal { spell_cause, heal } => {
                 match &spell_cause.event {
                     EventType::SpellCast(spell_cast) => {
@@ -116,12 +117,12 @@ impl EventTypeDeserializer for EventType {
                             hit_mask.remove(&HitType::Hit);
                         }
 
-                        format!("{},{},{},{},{},{},{},{}", spell_cause.id, spell_cause.subject.deserialize(), heal.target.deserialize(),
-                                spell_cast.spell_id, hit_mask_to_u32(hit_mask), heal.total, heal.effective, heal.mitigation.deserialize())
+                        format!("{},{},{},{},{},{},{},{},{}", spell_cause.id, spell_cause.subject.deserialize(), heal.target.deserialize(),
+                                spell_cast.spell_id, hit_mask_to_u32(hit_mask), school_mask_to_u8(spell_cast.school_mask.clone()), heal.total, heal.effective, heal.mitigation.deserialize())
                     }
                     EventType::AuraApplication(aura_app) => {
-                        format!("{},{},{},{},{},{},{},{}", spell_cause.id, aura_app.caster.deserialize(), heal.target.deserialize(),
-                                aura_app.spell_id, hit_mask_to_u32_vec(heal.hit_mask.clone()), heal.total, heal.effective, heal.mitigation.deserialize())
+                        format!("{},{},{},{},{},{},{},{},{}", spell_cause.id, aura_app.caster.deserialize(), heal.target.deserialize(),
+                                aura_app.spell_id, hit_mask_to_u32_vec(heal.hit_mask.clone()), school_mask_to_u8(aura_app.school_mask.clone()), heal.total, heal.effective, heal.mitigation.deserialize())
                     }
                     _ => unreachable!()
                 }

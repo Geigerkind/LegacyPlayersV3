@@ -3,22 +3,35 @@ import {BehaviorSubject, combineLatest, Observable, of, Subject, Subscription} f
 import {EventLogEntry} from "../domain_value/event_log_entry";
 import {InstanceDataService} from "../../../service/instance_data";
 import {debounceTime, map} from "rxjs/operators";
-import {Event} from "../../../domain_value/event";
+import {Event, MeleeDamage, SpellCast, SpellDamage} from "../../../domain_value/event";
 import {UnitService} from "../../../service/unit";
-import {
-    get_aura_application, get_combat_state,
-    get_death,
-    get_heal, get_interrupt,
-    get_melee_damage,
-    get_spell_cast,
-    get_spell_damage
-} from "../../../extractor/events";
-import {HitType} from "../../../domain_value/hit_type";
+import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
-import {get_spell_components_total_amount, SpellComponent} from "../../../domain_value/spell_component";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
-import {Mitigation} from "../../../domain_value/mitigation";
+import {
+    se_aura_application,
+    se_combat_state, se_death, se_heal,
+    se_interrupt, se_melee_damage,
+    se_spell_cast, se_spell_damage,
+    se_un_aura
+} from "../../../extractor/sources";
+import {
+    te_aura_application, te_death, te_heal,
+    te_interrupt,
+    te_melee_damage,
+    te_spell_cast, te_spell_damage,
+    te_un_aura
+} from "../../../extractor/targets";
+import {
+    ae_aura_application, ae_heal,
+    ae_interrupt,
+    ae_spell_cast,
+    ae_spell_damage,
+    ae_un_aura
+} from "../../../extractor/abilities";
+import {get_spell_components_total_amount, SpellComponent} from "../../../domain_value/damage";
+import {school_mask_to_school_array} from "../../../domain_value/school";
 
 @Injectable({
     providedIn: "root",
@@ -117,40 +130,35 @@ export class EventLogService implements OnDestroy {
 
     private create_event_log_entry(type: number, event: Event, processor: (Event) => Observable<string>): EventLogEntry {
         return {
-            id: event.id,
+            id: event[0],
             type,
-            timestamp: event.timestamp,
+            timestamp: event[1],
             event_message: processor(event)
         };
     }
 
     async get_event_log_entries(up_to_timestamp: number): Promise<Array<EventLogEntry>> {
         return [
-            ...(await this.instanceDataService.knecht_spell.event_log_spell_cast(this.to_actor, this.log_offsets.get(0)[0], up_to_timestamp))
+            ...(await this.instanceDataService.knecht_spell_cast.event_log_spell_cast(this.to_actor, this.log_offsets.get(0)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(0, event, (evt) => this.process_spell_cast(evt))),
             ...(await this.instanceDataService.knecht_melee.event_log_deaths(this.to_actor, this.log_offsets.get(1)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(1, event, (evt) => this.process_death(evt))),
             ...(await this.instanceDataService.knecht_replay.event_log_combat_state(this.to_actor, this.log_offsets.get(2)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(2, event, (evt) => this.process_combat_state(evt))),
-            ...(await this.instanceDataService.knecht_spell.event_log_aura_application(this.to_actor, this.log_offsets.get(6)[0], up_to_timestamp))
+            ...(await this.instanceDataService.knecht_aura.event_log_aura_application(this.to_actor, this.log_offsets.get(6)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(6, event, (evt) => this.process_aura_application(evt))),
-            ...(await this.instanceDataService.knecht_spell.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp))
-                .map(([event, [indicator, spell_cause_event]]) =>
-                    this.create_event_log_entry(7, event, (evt) => this.process_interrupt(evt, indicator, spell_cause_event))),
-            ...(await this.instanceDataService.knecht_spell.event_log_spell_steal(this.to_actor, this.log_offsets.get(8)[0], up_to_timestamp))
-                .map(([event, [indicator, spell_cause_event], aura_app_event]) =>
-                    this.create_event_log_entry(8, event, (evt) => this.process_spell_steal(evt, indicator, spell_cause_event, aura_app_event))),
-            ...(await this.instanceDataService.knecht_spell.event_log_dispel(this.to_actor, this.log_offsets.get(9)[0], up_to_timestamp))
-                .map(([event, [indicator, spell_cause_event], aura_app_event]) =>
-                    this.create_event_log_entry(9, event, (evt) => this.process_dispel(evt, indicator, spell_cause_event, aura_app_event))),
+            ...(await this.instanceDataService.knecht_interrupt.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(7, event, (evt) => this.process_interrupt(evt))),
+            ...(await this.instanceDataService.knecht_spell_steal.event_log_spell_steal(this.to_actor, this.log_offsets.get(8)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(8, event, (evt) => this.process_spell_steal(evt))),
+            ...(await this.instanceDataService.knecht_dispel.event_log_dispel(this.to_actor, this.log_offsets.get(9)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(9, event, (evt) => this.process_dispel(evt))),
             ...(await this.instanceDataService.knecht_melee.event_log_melee_damage(this.to_actor, this.log_offsets.get(12)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(12, event, (evt) => this.process_melee_damage(evt))),
-            ...(await this.instanceDataService.knecht_spell.event_log_spell_damage(this.to_actor, this.log_offsets.get(13)[0], up_to_timestamp))
-                .map(([event, [indicator, spell_cause_event]]) =>
-                    this.create_event_log_entry(13, event, (evt) => this.process_spell_damage(evt, indicator, spell_cause_event))),
-            ...(await this.instanceDataService.knecht_spell.event_log_heal(this.to_actor, this.log_offsets.get(14)[0], up_to_timestamp))
-                .map(([event, [indicator, spell_cause_event]]) =>
-                    this.create_event_log_entry(14, event, (evt) => this.process_heal(evt, indicator, spell_cause_event))),
+            ...(await this.instanceDataService.knecht_spell_damage.event_log_spell_damage(this.to_actor, this.log_offsets.get(13)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(13, event, (evt) => this.process_spell_damage(evt))),
+            ...(await this.instanceDataService.knecht_heal.event_log_heal(this.to_actor, this.log_offsets.get(14)[0], up_to_timestamp))
+                .map(event => this.create_event_log_entry(14, event, (evt) => this.process_heal(evt))),
         ].sort((left, right) => {
             const cmp = right.timestamp - left.timestamp;
             if (cmp === 0)
@@ -164,10 +172,9 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_spell_cast(event: Event): Observable<string> {
-        const spell_cast_event = get_spell_cast(event);
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const victim$ = this.unitService.get_unit_name(spell_cast_event.victim);
-        const spell$ = this.spellService.get_spell_name(spell_cast_event.spell_id);
+        const subject$ = this.unitService.get_unit_name(se_spell_cast(event));
+        const victim$ = this.unitService.get_unit_name(te_spell_cast(event));
+        const spell$ = this.spellService.get_spell_name(ae_spell_cast(event));
         return combineLatest([subject$, victim$, spell$])
             .pipe(map((([subject_name, victim_name, spell_name]) => {
                 return subject_name + " casts " + spell_name + " onto " + victim_name + ".";
@@ -175,139 +182,115 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_combat_state(event: Event): Observable<string> {
-        const combat_state_event = get_combat_state(event);
-        const subject$ = this.unitService.get_unit_name(event.subject);
+        const subject$ = this.unitService.get_unit_name(se_combat_state(event));
         return combineLatest([subject$])
             .pipe(map((([subject_name]) => {
-                if (combat_state_event.in_combat)
+                if (event[3])
                     return subject_name + " enters combat.";
                 return subject_name + " leaves combat.";
             })));
     }
 
     private process_aura_application(event: Event): Observable<string> {
-        const aura_application_event = get_aura_application(event);
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const caster$ = this.unitService.get_unit_name(aura_application_event.caster);
-        const spell$ = this.spellService.get_spell_name(aura_application_event.spell_id);
+        const subject$ = this.unitService.get_unit_name(se_aura_application(event));
+        const caster$ = this.unitService.get_unit_name(te_aura_application(event));
+        const spell$ = this.spellService.get_spell_name(ae_aura_application(event));
         return combineLatest([subject$, caster$, spell$])
             .pipe(map((([subject_name, caster_name, spell_name]) => {
-                if (aura_application_event.stack_amount === 0)
+                if (event[5] === 0)
                     return spell_name + " (by " + caster_name + ") fades from " + subject_name + ".";
                 return subject_name + " gains " + spell_name + " (by " + caster_name + ").";
             })));
     }
 
-    private process_interrupt(event: Event, indicator: boolean, spell_cause_event: Event): Observable<string> {
-        if (!spell_cause_event)
-            return of(CONST_UNKNOWN_LABEL);
-        const interrupt_event = get_interrupt(event);
-        const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
-        const target = indicator ? get_spell_cast(spell_cause_event).victim : spell_cause_event.subject;
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const victim$ = this.unitService.get_unit_name(target);
-        const ability$ = this.spellService.get_spell_name(spell_id);
-        const interrupted_ability$ = this.spellService.get_spell_name(interrupt_event.interrupted_spell_id);
+    private process_interrupt(event: Event): Observable<string> {
+        const spells = ae_interrupt(event);
+        const subject$ = this.unitService.get_unit_name(se_interrupt(event));
+        const victim$ = this.unitService.get_unit_name(te_interrupt(event));
+        const ability$ = this.spellService.get_spell_name(spells[0]);
+        const interrupted_ability$ = this.spellService.get_spell_name(spells[1]);
         return combineLatest([subject$, victim$, ability$, interrupted_ability$])
             .pipe(map((([subject_name, victim_name, ability_name, interrupted_ability_name]) => {
                 return subject_name + " interrupts " + victim_name + "'s " + interrupted_ability_name + " with " + ability_name + ".";
             })));
     }
 
-    private process_spell_steal(event: Event, indicator: boolean, spell_cause_event: Event, aura_app_event: Event): Observable<string> {
-        if (!spell_cause_event)
-            return of(CONST_UNKNOWN_LABEL);
-        const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
-        const target = indicator ? get_spell_cast(spell_cause_event).victim : spell_cause_event.subject;
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const victim$ = this.unitService.get_unit_name(target);
-        const ability$ = this.spellService.get_spell_name(spell_id);
-        const stolen_ability$ = this.spellService.get_spell_name(get_aura_application(aura_app_event).spell_id);
+    private process_spell_steal(event: Event): Observable<string> {
+        const spells = ae_un_aura(event);
+        const subject$ = this.unitService.get_unit_name(se_un_aura(event));
+        const victim$ = this.unitService.get_unit_name(te_un_aura(event));
+        const ability$ = this.spellService.get_spell_name(spells[0]);
+        const stolen_ability$ = this.spellService.get_spell_name(spells[1]);
         return combineLatest([subject$, victim$, ability$, stolen_ability$])
             .pipe(map((([subject_name, victim_name, ability_name, stolen_ability_name]) => {
                 return subject_name + " steals " + victim_name + "'s " + stolen_ability_name + " with " + ability_name + ".";
             })));
     }
 
-    private process_dispel(event: Event, indicator: boolean, spell_cause_event: Event, aura_app_event: Event): Observable<string> {
-        if (!spell_cause_event)
-            return of(CONST_UNKNOWN_LABEL);
-        const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
-        const target = indicator ? get_spell_cast(spell_cause_event).victim : spell_cause_event.subject;
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const victim$ = this.unitService.get_unit_name(target);
-        const ability$ = this.spellService.get_spell_name(spell_id);
-        const dispelled_ability$ = this.spellService.get_spell_name(get_aura_application(aura_app_event).spell_id);
+    private process_dispel(event: Event): Observable<string> {
+        const spells = ae_un_aura(event);
+        const subject$ = this.unitService.get_unit_name(se_un_aura(event));
+        const victim$ = this.unitService.get_unit_name(te_un_aura(event));
+        const ability$ = this.spellService.get_spell_name(spells[0]);
+        const dispelled_ability$ = this.spellService.get_spell_name(spells[1]);
         return combineLatest([subject$, victim$, ability$, dispelled_ability$])
             .pipe(map((([subject_name, victim_name, ability_name, dispelled_ability_name]) => {
                 return subject_name + " dispels " + victim_name + "'s " + dispelled_ability_name + " with " + ability_name + ".";
             })));
     }
 
-    private process_melee_damage(event: Event): Observable<string> {
-        const melee_damage_event = get_melee_damage(event);
-        const subject = this.unitService.get_unit_name(event.subject);
-        const victim = this.unitService.get_unit_name(melee_damage_event.victim);
+    private process_melee_damage(event: MeleeDamage): Observable<string> {
+        const subject = this.unitService.get_unit_name(se_melee_damage(event));
+        const victim = this.unitService.get_unit_name(te_melee_damage(event));
         return combineLatest([subject, victim])
             .pipe(map((([subject_name, victim_name]) => {
-                const hit_type_str = this.get_hit_type_localization(melee_damage_event.hit_mask);
-                const damage_done = get_spell_components_total_amount(melee_damage_event.components);
+                const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[4]));
+                const damage_done = get_spell_components_total_amount(event[5]);
                 if (damage_done === 0)
                     return subject_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + " " + hit_type_str + " " + victim_name + " for " +
-                    melee_damage_event.components.map(component => this.get_spell_component_localization(component)).join(", ") + ".";
+                    event[5].map(component => this.get_spell_component_localization(component)).join(", ") + ".";
             })));
     }
 
-    private process_spell_damage(event: Event, indicator: boolean, spell_cause_event: Event): Observable<string> {
-        const spell_damage_event = get_spell_damage(event);
-        if (!spell_cause_event)
-            return of(CONST_UNKNOWN_LABEL);
-
-        const spell_id = indicator ? get_spell_cast(spell_cause_event).spell_id : get_aura_application(spell_cause_event).spell_id;
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const victim$ = this.unitService.get_unit_name(spell_damage_event.damage.victim);
-        const ability$ = this.spellService.get_spell_name(spell_id);
+    private process_spell_damage(event: SpellDamage): Observable<string> {
+        const subject$ = this.unitService.get_unit_name(se_spell_damage(event));
+        const victim$ = this.unitService.get_unit_name(te_spell_damage(event));
+        const ability$ = this.spellService.get_spell_name(ae_spell_damage(event));
         return combineLatest([subject$, victim$, ability$])
             .pipe(map((([subject_name, victim_name, ability_name]) => {
-                const hit_type_str = this.get_hit_type_localization(spell_damage_event.damage.hit_mask);
-                const damage_done = get_spell_components_total_amount(spell_damage_event.damage.components);
+                const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]));
+                const damage_done = get_spell_components_total_amount(event[7]);
                 if (damage_done === 0)
                     return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " +
-                    spell_damage_event.damage.components.map(component => this.get_spell_component_localization(component)).join(", ") + ".";
+                    event[7].map(component => this.get_spell_component_localization(component)).join(", ") + ".";
             })));
     }
 
-    private process_heal(event: Event, indicator: boolean, spell_cause_event: Event): Observable<string> {
-        const heal_event = get_heal(event);
-        if (!spell_cause_event)
-            return of(CONST_UNKNOWN_LABEL);
-        const cause = indicator ? get_spell_cast(spell_cause_event) : get_aura_application(spell_cause_event);
-
-        const hit_mask = !!(cause as any).hit_mask ? (cause as any).hit_mask : heal_event.heal.hit_mask;
-        const spell_id = cause.spell_id;
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const victim$ = this.unitService.get_unit_name(heal_event.heal.target);
-        const ability$ = this.spellService.get_spell_name(spell_id);
+    private process_heal(event: Event): Observable<string> {
+        const subject$ = this.unitService.get_unit_name(se_heal(event));
+        const victim$ = this.unitService.get_unit_name(te_heal(event));
+        const ability$ = this.spellService.get_spell_name(ae_heal(event));
         return combineLatest([subject$, victim$, ability$])
             .pipe(map((([subject_name, victim_name, ability_name]) => {
-                const hit_type_str = this.get_hit_type_localization(hit_mask, true);
-                const overheal = heal_event.heal.total - heal_event.heal.effective;
-                if (heal_event.heal.total === 0)
+                const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]), true);
+                const overheal = event[8] - event[9];
+                if (event[8] === 0)
                     return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " +
-                    heal_event.heal.effective + this.get_mitigation_localization(heal_event.heal.mitigation) +
+                    event[9] + this.get_mitigation_localization(event[10], 0, 0) +
                     (overheal > 0 ? " (" + overheal + " overheal)." : ".");
             })));
     }
 
     private process_death(event: Event): Observable<string> {
-        const death_event = get_death(event);
-        const subject$ = this.unitService.get_unit_name(event.subject);
-        const murder$ = this.unitService.get_unit_name(death_event.murder);
+        const subject$ = this.unitService.get_unit_name(se_death(event));
+        const murder$ = this.unitService.get_unit_name(te_death(event));
         return combineLatest([subject$, murder$])
             .pipe(map((([subject_name, murder_name]) => {
+                if (murder_name === CONST_UNKNOWN_LABEL)
+                    return subject_name + " died.";
                 return subject_name + " is killed by " + murder_name + ".";
             })));
     }
@@ -349,24 +332,18 @@ export class EventLogService implements OnDestroy {
     }
 
     private get_spell_component_localization(component: SpellComponent): string {
-        return component.amount + " (" + component.school_mask.map(school => school.toLowerCase()).join(", ") + ")" +
-            this.get_mitigation_localization(component.mitigation);
+        return component[0] + " (" + school_mask_to_school_array(component[1]).map(school => school.toLowerCase()).join(", ") + ")" +
+            this.get_mitigation_localization(component[2], component[3], component[4]);
     }
 
-    private get_mitigation_localization(mitigations: Array<Mitigation>): string {
+    private get_mitigation_localization(absorb: number, resist: number, block: number): string {
         const mitigation_str = [];
-        for (const mitigation of mitigations) {
-            if (!mitigation)
-                continue;
-            if ((mitigation as any).Glance)
-                mitigation_str.push("(" + (mitigation as any).Glance + " glanced)");
-            else if ((mitigation as any).Absorb)
-                mitigation_str.push("(" + (mitigation as any).Absorb + " absorbed)");
-            else if ((mitigation as any).Block)
-                mitigation_str.push("(" + (mitigation as any).Block + " blocked)");
-            else if ((mitigation as any).Resist)
-                mitigation_str.push("(" + (mitigation as any).Resist + " resisted)");
-        }
+        if (absorb > 0)
+            mitigation_str.push("(" + absorb + " absorbed)");
+        if (resist > 0)
+            mitigation_str.push("(" + resist + " resisted)");
+        if (block > 0)
+            mitigation_str.push("(" + block + " blocked)");
         return mitigation_str.length > 0 ? " " + mitigation_str.join(" ") : "";
     }
 }

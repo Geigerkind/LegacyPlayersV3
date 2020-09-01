@@ -54,20 +54,17 @@ export class MeterThreatService implements OnDestroy {
     private async merge_data(): Promise<void> {
         const result = new Map<number, Map<number, number>>();
 
-        const result1 = await this.instanceDataService.knecht_melee.meter_threat(this.current_mode);
-        const result2 = await this.instanceDataService.knecht_spell.meter_threat(this.current_mode);
-        for (const data_set of [result1, result2]) {
-            for (const [subject_id, [subject, abilities]] of data_set) {
-                if (!this.units$.has(subject_id))
-                    this.units$.set(subject_id, this.utilService.get_row_unit_subject(subject));
-                if (!result.has(subject_id))
-                    result.set(subject_id, new Map());
-                const ability_map = result.get(subject_id);
-                for (const [ability_id, amount] of abilities) {
-                    if (!this.abilities$.has(ability_id))
-                        this.abilities$.set(ability_id, this.utilService.get_row_ability_subject(ability_id));
-                    ability_map.set(ability_id, amount);
-                }
+        const result1 = await this.instanceDataService.knecht_threat.meter_threat(this.current_mode);
+        for (const [subject_id, [subject, abilities]] of result1) {
+            if (!this.units$.has(subject_id))
+                this.units$.set(subject_id, this.utilService.get_row_unit_subject(subject));
+            if (!result.has(subject_id))
+                result.set(subject_id, new Map());
+            const ability_map = result.get(subject_id);
+            for (const [ability_id, amount] of abilities) {
+                if (!this.abilities$.has(ability_id))
+                    this.abilities$.set(ability_id, this.utilService.get_row_ability_subject(ability_id));
+                ability_map.set(ability_id, amount);
             }
         }
 

@@ -11,6 +11,8 @@ export enum School {
 export const ALL_SCHOOLS: Array<School> = [School.Physical, School.Holy, School.Fire, School.Nature,
     School.Frost, School.Shadow, School.Arcane];
 
+export const ALL_SCHOOLS_MASK = 0x7F;
+
 const translation: Array<[School, number]> = [
     [School.Physical, 0x01],
     [School.Holy, 0x02],
@@ -26,5 +28,13 @@ export function school_mask_to_school_array(school_mask: number): Array<School> 
     for (const [school, mask] of translation)
         if ((school_mask & mask) > 0)
             result.push(school);
+    return result;
+}
+
+export function school_array_to_school_mask(school_array: Array<School>): number {
+    let result = 0;
+    for (const [school, mask] of translation)
+        if (school_array.includes(school))
+            result |= mask;
     return result;
 }

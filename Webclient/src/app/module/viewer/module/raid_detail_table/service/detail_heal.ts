@@ -57,7 +57,7 @@ export class DetailHealService implements OnDestroy {
     private async commit(): Promise<void> {
         const abilities = new Map<number, SelectOption>();
 
-        const result1 = await this.instanceDataService.knecht_spell.detail_heal(this.current_heal_mode, this.current_mode);
+        const result1 = await this.instanceDataService.knecht_heal.detail_heal(this.current_heal_mode, this.current_mode);
         for (const [ability_id, detail_rows] of result1) {
             if (!abilities.has(ability_id))
                 abilities.set(ability_id, {value: ability_id, label_key: this.spellService.get_spell_name(ability_id)});

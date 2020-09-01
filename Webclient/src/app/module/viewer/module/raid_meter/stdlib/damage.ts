@@ -1,11 +1,10 @@
 import {group_by} from "../../../../../stdlib/group_by";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
-import {Event} from "../../../domain_value/event";
-import {get_melee_damage} from "../../../extractor/events";
+import {MeleeDamage, SpellDamage} from "../../../domain_value/event";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
-import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
+import {get_spell_components_total_amount} from "../../../domain_value/damage";
 
-export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<any>, event_map: Map<number, Event>,
+export function commit_damage(melee_damage: Array<MeleeDamage>, spell_damage: Array<SpellDamage>,
                               melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number]>]]> {
     const newData = new Map<number, [Unit, Map<number, number>]>();
 
@@ -16,7 +15,7 @@ export function commit_damage(melee_damage: Array<Event>, spell_damage: Array<an
     // tslint:disable-next-line:forin
     for (const unit_id: number in grouping) {
         const subject_id = Number(unit_id);
-        const total_damage = grouping[unit_id].reduce((acc, event) => acc + get_spell_components_total_amount(get_melee_damage(event).components), 0);
+        const total_damage = grouping[unit_id].reduce((acc, event) => acc + get_spell_components_total_amount(event[5]), 0);
         if (total_damage > 0) {
             if (!newData.has(subject_id))
                 newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), new Map([[CONST_AUTO_ATTACK_ID, total_damage]])]);

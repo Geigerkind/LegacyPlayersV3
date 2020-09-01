@@ -1,9 +1,5 @@
-import {Unit} from "./unit";
-import {HitType} from "./hit_type";
-import {SpellComponent} from "./spell_component";
+export type SpellComponent = [number, number, number, number, number];
 
-export interface Damage {
-    victim: Unit;
-    hit_mask: Array<HitType>;
-    components: Array<SpellComponent>;
+export function get_spell_components_total_amount(components: Array<SpellComponent>): number {
+    return components.reduce((acc, component) => acc + component[0], 0);
 }

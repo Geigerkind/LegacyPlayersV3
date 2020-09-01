@@ -1,10 +1,10 @@
 import {InstanceDataFilter} from "../../../tool/instance_data_filter";
 import {Unit} from "../../../domain_value/unit";
 import {te_heal} from "../../../extractor/targets";
-import {se_aura_app_or_own} from "../../../extractor/sources";
-import {ce_heal} from "../../../extractor/causes";
+import {se_heal} from "../../../extractor/sources";
 import {commit_heal} from "../stdlib/heal";
 import {HealMode} from "../../../domain_value/heal_mode";
+import {Heal} from "../../../domain_value/event";
 
 export class RaidMeterHeal {
 
@@ -15,7 +15,7 @@ export class RaidMeterHeal {
 
     async calculate(heal_mode: HealMode, inverse: boolean): Promise<Array<[number, [Unit, Array<[number, number]>]]>> {
         if (inverse)
-            return commit_heal(heal_mode, this.data_filter.get_heal(true), this.data_filter.get_event_map(), te_heal);
-        return commit_heal(heal_mode, this.data_filter.get_heal(false), this.data_filter.get_event_map(), se_aura_app_or_own(ce_heal, this.data_filter.get_event_map()));
+            return commit_heal(heal_mode, this.data_filter.get_heal(true) as Array<Heal>, te_heal);
+        return commit_heal(heal_mode, this.data_filter.get_heal(false) as Array<Heal>, se_heal);
     }
 }

@@ -9,6 +9,7 @@ import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import {ABSORBING_SPELL_IDS, get_absorb_data_points} from "../../../stdlib/absorb";
 import {detail_row_post_processing, fill_details} from "../stdlib/util";
 import {HealMode} from "../../../domain_value/heal_mode";
+import {school_array_to_school_mask} from "../../../domain_value/school";
 
 @Injectable({
     providedIn: "root",
@@ -59,7 +60,7 @@ export class DetailHealAndAbsorbService implements OnDestroy {
         const result = new Map();
 
         const absorbs = await get_absorb_data_points(this.current_mode, this.instanceDataService);
-        const heal = await this.instanceDataService.knecht_spell.detail_heal(HealMode.Effective, this.current_mode);
+        const heal = await this.instanceDataService.knecht_heal.detail_heal(HealMode.Effective, this.current_mode);
         for (const [subject_id, [subject, points]] of absorbs) {
             for (const [absorbed_spell_id, timestamp, amount] of points) {
                 if (!abilities.has(absorbed_spell_id))
@@ -67,11 +68,7 @@ export class DetailHealAndAbsorbService implements OnDestroy {
                 if (!result.has(absorbed_spell_id))
                     result.set(absorbed_spell_id, new Map());
                 const details_map = result.get(absorbed_spell_id);
-                fill_details([{
-                    school_mask: ABSORBING_SPELL_IDS.get(absorbed_spell_id)[1],
-                    amount,
-                    mitigation: []
-                }], [HitType.Hit], details_map);
+                fill_details([[amount, school_array_to_school_mask(ABSORBING_SPELL_IDS.get(absorbed_spell_id)[1]), 0, 0, 0]], [HitType.Hit], details_map);
             }
         }
 

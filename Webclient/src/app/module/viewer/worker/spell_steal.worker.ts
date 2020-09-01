@@ -8,7 +8,7 @@ import {RaidEventLogKnecht} from "../module/raid_event_log/tool/raid_event_log_k
 
 addEventListener('message', ({ data }) => {
     if (!!data && !!data[1] && data[0] === "INIT") {
-        const filter = new InstanceDataFilter(data[1], [13, 1]);
+        const filter = new InstanceDataFilter(data[1], [8]);
         const raid_meter_knecht = new RaidMeterKnecht(filter);
         const raid_graph_knecht = new RaidGraphKnecht(filter);
         const raid_detail_knecht = new RaidDetailKnecht(filter);

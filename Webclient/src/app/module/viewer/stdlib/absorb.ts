@@ -156,9 +156,9 @@ export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = 
 
 // TODO: How to deal with several active absorb spells?
 export async function get_absorb_data_points(current_mode: boolean, instance_data_service: InstanceDataService): Promise<Array<[number, [Unit, Array<[number, number, number]>]]>> {
-    const aura_uptime = await instance_data_service.knecht_spell.meter_aura_uptime(current_mode);
+    const aura_uptime = await instance_data_service.knecht_aura.meter_aura_uptime(current_mode);
     const absorb_melee = await instance_data_service.knecht_melee.meter_absorbed_damage();
-    const absorb_spell = await instance_data_service.knecht_spell.meter_absorbed_damage();
+    const absorb_spell = await instance_data_service.knecht_spell_damage.meter_absorbed_damage();
 
     const result = new Map();
 

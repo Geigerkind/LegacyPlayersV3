@@ -1,18 +1,11 @@
 import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
 import {DetailRow, DetailRowContent} from "../domain_value/detail_row";
 import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_ID_MH, CONST_AUTO_ATTACK_ID_OH} from "../../../constant/viewer";
-import {Event} from "../../../domain_value/event";
-import {
-    get_aura_application,
-    get_melee_damage,
-    get_spell_cast,
-    get_spell_cause,
-    get_spell_damage
-} from "../../../extractor/events";
+import {MeleeDamage, SpellDamage} from "../../../domain_value/event";
 import {School} from "../../../domain_value/school";
-import {detail_row_post_processing, fill_details, fill_details_raw} from "./util";
+import {detail_row_post_processing, fill_details} from "./util";
 
-function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Event>): Array<[number, Array<[HitType, DetailRow]>]> {
+export function commit_damage_detail(spell_damage: Array<SpellDamage>, melee_damage: Array<MeleeDamage>): Array<[number, Array<[HitType, DetailRow]>]> {
     const ability_details = new Map<number, Map<HitType, [DetailRowContent, Map<School, [DetailRowContent, Array<number>]>]>>();
 
     if (melee_damage.length > 0) {
@@ -20,11 +13,11 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
         const melee_details_mh = new Map<HitType, [DetailRowContent, Map<School, [DetailRowContent, Array<number>]>]>();
         const melee_details_oh = new Map<HitType, [DetailRowContent, Map<School, [DetailRowContent, Array<number>]>]>();
         for (const event of melee_damage) {
-            const target_event = get_melee_damage(event);
-            fill_details(target_event.components, target_event.hit_mask, melee_details);
-            if (target_event.hit_mask.includes(HitType.OffHand))
-                fill_details(target_event.components, target_event.hit_mask, melee_details_oh);
-            else fill_details(target_event.components, target_event.hit_mask, melee_details_mh);
+            const hit_mask = hit_mask_to_hit_type_array(event[4]);
+            fill_details(event[5], hit_mask, melee_details);
+            if (hit_mask.includes(HitType.OffHand))
+                fill_details(event[5], hit_mask, melee_details_oh);
+            else fill_details(event[5], hit_mask, melee_details_mh);
         }
         ability_details.set(CONST_AUTO_ATTACK_ID, melee_details);
         if (melee_details_oh.size > 0 && melee_details_mh.size > 0) {
@@ -39,25 +32,9 @@ function commit_damage_detail(spell_damage: Array<Event>, melee_damage: Array<Ev
             if (!ability_details.has(spell_id))
                 ability_details.set(spell_id, new Map());
             const details_map = ability_details.get(spell_id);
-            fill_details_raw(event[7], hit_mask, details_map);
+            fill_details(event[7], hit_mask, details_map);
         }
     }
-
-    /*
-    if (spell_casts.length > 0) {
-        for (const event of spell_casts) {
-            const spell_cast = get_spell_cast(event);
-            if (spell_cast.hit_mask.includes(HitType.Crit) || spell_cast.hit_mask.includes(HitType.Hit) || spell_cast.hit_mask.includes(HitType.Crushing))
-                continue;
-            if (!ability_details.has(spell_cast.spell_id))
-                ability_details.set(spell_cast.spell_id, new Map());
-            const details_map = ability_details.get(spell_cast.spell_id);
-            fill_details([], spell_cast.hit_mask, details_map);
-        }
-    }
-     */
 
     return detail_row_post_processing(ability_details);
 }
-
-export {commit_damage_detail};

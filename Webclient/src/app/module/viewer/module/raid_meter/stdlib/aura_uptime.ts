@@ -1,7 +1,6 @@
 import {Event} from "../../../domain_value/event";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
 import {group_by} from "../../../../../stdlib/group_by";
-import {get_aura_application} from "../../../extractor/events";
 
 
 export function commit_aura_uptime(aura_applications: Array<Event>, current_segment_intervals: Array<[number, number]>,
@@ -20,8 +19,7 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
 
         const abilities_data = newData.get(subject_id)[1];
         grouping[subject_id].forEach(event => {
-            const aura_application = get_aura_application(event);
-            const spell_id = aura_application.spell_id;
+            const spell_id = event[4];
             if (!abilities_data.has(spell_id)) {
                 abilities_data.set(spell_id, []);
             }
@@ -32,25 +30,25 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
                 current_interval = [undefined, undefined, undefined, undefined];
                 ability_intervals.push(current_interval);
             }
-            if (aura_application.stack_amount > 0) {
+            if (event[5] > 0) {
                 // If we get an non 0 event twice, it is probably a refresh
                 if (current_interval[0] === undefined) {
-                    current_interval[0] = event.timestamp;
-                    current_interval[2] = event.id;
+                    current_interval[0] = event[1];
+                    current_interval[2] = event[0];
                 } else if (current_interval[1] !== undefined) {
-                    ability_intervals.push([event.timestamp, undefined, event.id, undefined]);
-                } else if (event.timestamp > current_interval[0]) {
-                    current_interval[1] = event.timestamp;
-                    current_interval[3] = event.id;
-                    ability_intervals.push([event.timestamp, undefined, event.id, undefined]);
+                    ability_intervals.push([event[1], undefined, event[0], undefined]);
+                } else if (event[1] > current_interval[0]) {
+                    current_interval[1] = event[1];
+                    current_interval[3] = event[0];
+                    ability_intervals.push([event[1], undefined, event[0], undefined]);
                 }
             } else {
                 if (current_interval[1] === undefined) {
-                    current_interval[1] = event.timestamp;
-                    current_interval[3] = event.id;
+                    current_interval[1] = event[1];
+                    current_interval[3] = event[0];
                 } else if (current_interval[0] !== undefined
-                    && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event.timestamp) === undefined) {
-                    ability_intervals.push([current_interval[0], event.timestamp, current_interval[2], event.id]);
+                    && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event[1]) === undefined) {
+                    ability_intervals.push([current_interval[0], event[1], current_interval[2], event[0]]);
                 }
             }
         });

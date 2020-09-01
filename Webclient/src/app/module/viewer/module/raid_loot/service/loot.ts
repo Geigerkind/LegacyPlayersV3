@@ -4,17 +4,16 @@ import {BehaviorSubject, from, Observable, of, Subscription} from "rxjs";
 import {Loot} from "../domain_value/loot";
 import {concatMap, map, take} from "rxjs/operators";
 import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attempt";
-import {Event} from "../../../domain_value/event";
+import {Loot as EventLoot} from "../../../domain_value/event";
 import {LootItem} from "../domain_value/loot_item";
-import {Player} from "../../../domain_value/player";
 import {UnitService} from "../../../service/unit";
 import {DataService} from "../../../../../service/data";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {Localized} from "../../../../../domain_value/localized";
 import {BasicItem} from "../../../../../domain_value/data/basic_item";
-import {Loot as ViewerLoot} from "../../../domain_value/loot";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
+import {se_loot} from "../../../extractor/sources";
 
 @Injectable({
     providedIn: "root",
@@ -57,7 +56,7 @@ export class LootService implements OnDestroy {
             .subscribe(attempts => {
                 from(this.instanceDataService.knecht_misc.get_loot()).pipe(take(1))
                     .subscribe( loot => {
-                        this.loot$.next(this.create_loot(attempts, loot));
+                        this.loot$.next(this.create_loot(attempts, loot as Array<EventLoot>));
                     });
             });
     }
@@ -71,21 +70,21 @@ export class LootService implements OnDestroy {
             }));
     }
 
-    private create_loot(attempts: Array<InstanceViewerAttempt>, loot: Array<Event>): Array<Loot> {
+    private create_loot(attempts: Array<InstanceViewerAttempt>, loot: Array<EventLoot>): Array<Loot> {
         const result = new Map<number, Loot>();
         const sorted_attempts = attempts.sort((left, right) => left.start_ts - right.start_ts);
         for (const item of loot) {
             let last_attempt: InstanceViewerAttempt;
             for (const attempt of sorted_attempts) {
-                if (attempt.start_ts > item.timestamp)
+                if (attempt.start_ts > item[1])
                     break;
                 last_attempt = attempt;
             }
             const loot_item: LootItem = {
-                receiver_id: ((item.subject as any).Player as Player).character_id,
-                receiver: this.unitService.get_unit_name(item.subject),
-                item: this.get_basic_item(((item.event as any).Loot as ViewerLoot).item_id),
-                amount: ((item.event as any).Loot as ViewerLoot).amount
+                receiver_id: se_loot(item)[1],
+                receiver: this.unitService.get_unit_name(se_loot(item)),
+                item: this.get_basic_item(item[3]),
+                amount: item[4]
             };
             if (!last_attempt) {
                 if (result.has(0)) {

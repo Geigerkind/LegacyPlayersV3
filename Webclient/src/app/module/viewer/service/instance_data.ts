@@ -8,7 +8,7 @@ import {get_unit_id, Unit} from "../domain_value/unit";
 import * as Comlink from "comlink";
 import {Remote} from "comlink";
 import {Rechenknecht} from "../tool/rechenknecht";
-import {auditTime, map} from "rxjs/operators";
+import {auditTime} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {LoadingBarService} from "../../../service/loading_bar";
 
@@ -38,10 +38,16 @@ export class InstanceDataService implements OnDestroy {
 
     private worker: Array<Worker> = [];
     knecht_melee: Remote<Rechenknecht>;
-    knecht_spell: Remote<Rechenknecht>;
     knecht_misc: Remote<Rechenknecht>;
     knecht_replay: Remote<Rechenknecht>;
     knecht_spell_damage: Remote<Rechenknecht>;
+    knecht_heal: Remote<Rechenknecht>;
+    knecht_dispel: Remote<Rechenknecht>;
+    knecht_interrupt: Remote<Rechenknecht>;
+    knecht_spell_steal: Remote<Rechenknecht>;
+    knecht_threat: Remote<Rechenknecht>;
+    knecht_spell_cast: Remote<Rechenknecht>;
+    knecht_aura: Remote<Rechenknecht>;
 
     private public_knecht_updates$: Subject<Array<KnechtUpdates>> = new Subject();
     private knecht_updates$: Subject<KnechtUpdates> = new Subject();
@@ -130,34 +136,58 @@ export class InstanceDataService implements OnDestroy {
     public set segment_intervals(intervals: Array<[number, number]>) {
         this.attempt_total_duration$.next(intervals.reduce((acc, interval) => acc + interval[1] - interval[0], 0));
         this.knecht_melee.set_segment_intervals(intervals);
-        this.knecht_spell.set_segment_intervals(intervals);
         this.knecht_misc.set_segment_intervals(intervals);
         this.knecht_replay.set_segment_intervals(intervals);
         this.knecht_spell_damage.set_segment_intervals(intervals);
+        this.knecht_heal.set_segment_intervals(intervals);
+        this.knecht_dispel.set_segment_intervals(intervals);
+        this.knecht_interrupt.set_segment_intervals(intervals);
+        this.knecht_spell_steal.set_segment_intervals(intervals);
+        this.knecht_threat.set_segment_intervals(intervals);
+        this.knecht_spell_cast.set_segment_intervals(intervals);
+        this.knecht_aura.set_segment_intervals(intervals);
     }
 
     public set source_filter(sources: Array<number>) {
         this.knecht_melee.set_source_filter(sources);
-        this.knecht_spell.set_source_filter(sources);
         this.knecht_misc.set_source_filter(sources);
         this.knecht_replay.set_source_filter(sources);
         this.knecht_spell_damage.set_source_filter(sources);
+        this.knecht_heal.set_source_filter(sources);
+        this.knecht_dispel.set_source_filter(sources);
+        this.knecht_interrupt.set_source_filter(sources);
+        this.knecht_spell_steal.set_source_filter(sources);
+        this.knecht_threat.set_source_filter(sources);
+        this.knecht_spell_cast.set_source_filter(sources);
+        this.knecht_aura.set_source_filter(sources);
     }
 
     public set target_filter(targets: Array<number>) {
         this.knecht_melee.set_target_filter(targets);
-        this.knecht_spell.set_target_filter(targets);
         this.knecht_misc.set_target_filter(targets);
         this.knecht_replay.set_target_filter(targets);
         this.knecht_spell_damage.set_target_filter(targets);
+        this.knecht_heal.set_target_filter(targets);
+        this.knecht_dispel.set_target_filter(targets);
+        this.knecht_interrupt.set_target_filter(targets);
+        this.knecht_spell_steal.set_target_filter(targets);
+        this.knecht_threat.set_target_filter(targets);
+        this.knecht_spell_cast.set_target_filter(targets);
+        this.knecht_aura.set_target_filter(targets);
     }
 
     public set ability_filter(abilities: Array<number>) {
         this.knecht_melee.set_ability_filter(abilities);
-        this.knecht_spell.set_ability_filter(abilities);
         this.knecht_misc.set_ability_filter(abilities);
         this.knecht_replay.set_ability_filter(abilities);
         this.knecht_spell_damage.set_ability_filter(abilities);
+        this.knecht_heal.set_ability_filter(abilities);
+        this.knecht_dispel.set_ability_filter(abilities);
+        this.knecht_interrupt.set_ability_filter(abilities);
+        this.knecht_spell_steal.set_ability_filter(abilities);
+        this.knecht_threat.set_ability_filter(abilities);
+        this.knecht_spell_cast.set_ability_filter(abilities);
+        this.knecht_aura.set_ability_filter(abilities);
     }
 
     public set instance_meta_id(instance_meta_id: number) {
@@ -175,11 +205,8 @@ export class InstanceDataService implements OnDestroy {
                 this.loading_bar_service.decrementCounter();
         };
 
-        this.loading_bar_service.incrementCounter();
-        this.loading_bar_service.incrementCounter();
-        this.loading_bar_service.incrementCounter();
-        this.loading_bar_service.incrementCounter();
-        this.loading_bar_service.incrementCounter();
+        for (let i = 0; i < 11; ++i)
+            this.loading_bar_service.incrementCounter();
 
         let worker = new Worker('./../worker/melee.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
@@ -203,17 +230,6 @@ export class InstanceDataService implements OnDestroy {
         this.worker.push(worker);
         this.knecht_spell_damage = Comlink.wrap<Rechenknecht>(worker);
 
-        worker = new Worker('./../worker/spell.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
-        worker.onmessage = ({data}) => {
-            if (knecht_condition(data)) {
-                handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
-            }
-        };
-        this.worker.push(worker);
-        this.knecht_spell = Comlink.wrap<Rechenknecht>(worker);
-
         worker = new Worker('./../worker/misc.worker', {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id]);
         worker.onmessage = ({data}) => {
@@ -235,6 +251,83 @@ export class InstanceDataService implements OnDestroy {
         };
         this.worker.push(worker);
         this.knecht_replay = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/dispel.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_dispel = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/heal.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_heal = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/interrupt.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_interrupt = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/spell_cast.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_spell_cast = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/spell_steal.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_spell_steal = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/threat.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_threat = Comlink.wrap<Rechenknecht>(worker);
+
+        worker = new Worker('./../worker/aura.worker', {type: 'module'});
+        worker.postMessage(["INIT", instance_meta_id]);
+        worker.onmessage = ({data}) => {
+            if (knecht_condition(data)) {
+                handle_loading_bar(data);
+                this.knecht_updates$.next(data[1]);
+            }
+        };
+        this.worker.push(worker);
+        this.knecht_aura = Comlink.wrap<Rechenknecht>(worker);
     }
 
     public get meta(): Observable<InstanceViewerMeta> {
@@ -296,10 +389,16 @@ export class InstanceDataService implements OnDestroy {
         const sources_res = new Map();
         const sources = [
             ...await this.knecht_melee.get_sources(),
-            ...await this.knecht_spell.get_sources(),
             ...await this.knecht_misc.get_sources(),
             ...await this.knecht_replay.get_sources(),
             ...await this.knecht_spell_damage.get_sources(),
+            ...await this.knecht_heal.get_sources(),
+            ...await this.knecht_dispel.get_sources(),
+            ...await this.knecht_interrupt.get_sources(),
+            ...await this.knecht_spell_steal.get_sources(),
+            ...await this.knecht_spell_cast.get_sources(),
+            ...await this.knecht_threat.get_sources(),
+            ...await this.knecht_aura.get_sources(),
         ];
         for (const source of sources)
             sources_res.set(get_unit_id(source), source);
@@ -309,10 +408,16 @@ export class InstanceDataService implements OnDestroy {
         const targets_res = new Map();
         const targets = [
             ...await this.knecht_melee.get_targets(),
-            ...await this.knecht_spell.get_targets(),
             ...await this.knecht_misc.get_targets(),
             ...await this.knecht_replay.get_targets(),
             ...await this.knecht_spell_damage.get_targets(),
+            ...await this.knecht_heal.get_targets(),
+            ...await this.knecht_dispel.get_targets(),
+            ...await this.knecht_interrupt.get_targets(),
+            ...await this.knecht_spell_steal.get_targets(),
+            ...await this.knecht_spell_cast.get_targets(),
+            ...await this.knecht_threat.get_targets(),
+            ...await this.knecht_aura.get_targets(),
         ];
         for (const target of targets)
             targets_res.set(get_unit_id(target), target);
@@ -322,10 +427,16 @@ export class InstanceDataService implements OnDestroy {
         const abilities_res = new Set<number>();
         const abilities = [
             ...await this.knecht_melee.get_abilities(),
-            ...await this.knecht_spell.get_abilities(),
             ...await this.knecht_misc.get_abilities(),
             ...await this.knecht_replay.get_abilities(),
             ...await this.knecht_spell_damage.get_abilities(),
+            ...await this.knecht_heal.get_abilities(),
+            ...await this.knecht_dispel.get_abilities(),
+            ...await this.knecht_interrupt.get_abilities(),
+            ...await this.knecht_spell_steal.get_abilities(),
+            ...await this.knecht_spell_cast.get_abilities(),
+            ...await this.knecht_threat.get_abilities(),
+            ...await this.knecht_aura.get_abilities(),
         ];
         for (const ability of abilities)
             abilities_res.add(ability);

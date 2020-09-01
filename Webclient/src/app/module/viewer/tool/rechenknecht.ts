@@ -63,21 +63,21 @@ export class Rechenknecht {
         return aura_application_entries;
     }
 
-    async event_log_interrupt(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<[Event, [boolean, Event]]>> {
+    async event_log_interrupt(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<Event>> {
         Rechenknecht.send_work_start();
         const interrupt_entries = this.raid_event_log_knecht.get_interrupt_entries(inverse, offset, up_to_timestamp);
         Rechenknecht.send_work_end();
         return interrupt_entries;
     }
 
-    async event_log_spell_steal(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<[Event, [boolean, Event], Event]>> {
+    async event_log_spell_steal(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<Event>> {
         Rechenknecht.send_work_start();
         const spell_steal_entries = this.raid_event_log_knecht.get_spell_steal_entries(inverse, offset, up_to_timestamp);
         Rechenknecht.send_work_end();
         return spell_steal_entries;
     }
 
-    async event_log_dispel(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<[Event, [boolean, Event], Event]>> {
+    async event_log_dispel(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<Event>> {
         Rechenknecht.send_work_start();
         const dispel_entries = this.raid_event_log_knecht.get_dispel_entries(inverse, offset, up_to_timestamp);
         Rechenknecht.send_work_end();
@@ -91,14 +91,14 @@ export class Rechenknecht {
         return meleeDamageEntries;
     }
 
-    async event_log_spell_damage(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<[Event, [boolean, Event]]>> {
+    async event_log_spell_damage(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<Event>> {
         Rechenknecht.send_work_start();
         const spellDamageEntries = this.raid_event_log_knecht.get_spell_damage_entries(inverse, offset, up_to_timestamp);
         Rechenknecht.send_work_end();
         return spellDamageEntries;
     }
 
-    async event_log_heal(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<[Event, [boolean, Event]]>> {
+    async event_log_heal(inverse: boolean, offset: number = 0, up_to_timestamp: number = 0): Promise<Array<Event>> {
         Rechenknecht.send_work_start();
         const healEntries = this.raid_event_log_knecht.get_heal_entries(inverse, offset, up_to_timestamp);
         Rechenknecht.send_work_end();

@@ -54,17 +54,14 @@ export class DetailThreatService implements OnDestroy {
     private async commit(): Promise<void> {
         const abilities = new Map<number, SelectOption>();
 
-        const result1 = await this.instanceDataService.knecht_melee.detail_threat(this.current_mode);
-        const result2 = await this.instanceDataService.knecht_spell.detail_threat(this.current_mode);
-        for (const data_set of [result1, result2]) {
-            for (const [ability_id, detail_rows] of data_set) {
-                if (!abilities.has(ability_id))
-                    abilities.set(ability_id, { value: ability_id, label_key: this.spellService.get_spell_name(ability_id) });
-            }
+        const result1 = await this.instanceDataService.knecht_threat.detail_threat(this.current_mode);
+        for (const [ability_id, detail_rows] of result1) {
+            if (!abilities.has(ability_id))
+                abilities.set(ability_id, { value: ability_id, label_key: this.spellService.get_spell_name(ability_id) });
         }
 
         // @ts-ignore
         this.abilities$.next([...abilities.values()]);
-        this.ability_details$.next([...result1, ...result2]);
+        this.ability_details$.next(result1);
     }
 }

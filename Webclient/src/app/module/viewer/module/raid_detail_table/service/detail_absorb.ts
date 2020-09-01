@@ -8,6 +8,7 @@ import {SpellService} from "../../../service/spell";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import {ABSORBING_SPELL_IDS, get_absorb_data_points} from "../../../stdlib/absorb";
 import {detail_row_post_processing, fill_details} from "../stdlib/util";
+import {school_array_to_school_mask} from "../../../domain_value/school";
 
 @Injectable({
     providedIn: "root",
@@ -65,11 +66,7 @@ export class DetailAbsorbService implements OnDestroy {
                 if (!result.has(absorbed_spell_id))
                     result.set(absorbed_spell_id, new Map());
                 const details_map = result.get(absorbed_spell_id);
-                fill_details([{
-                    school_mask: ABSORBING_SPELL_IDS.get(absorbed_spell_id)[1],
-                    amount,
-                    mitigation: []
-                }], [HitType.Hit], details_map);
+                fill_details([[amount, school_array_to_school_mask(ABSORBING_SPELL_IDS.get(absorbed_spell_id)[1]), 0, 0, 0]], [HitType.Hit], details_map);
             }
         }
 

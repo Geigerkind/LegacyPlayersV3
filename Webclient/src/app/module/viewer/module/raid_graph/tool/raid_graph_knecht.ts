@@ -1,8 +1,7 @@
 import {InstanceDataFilter} from "../../../tool/instance_data_filter";
 import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {Event} from "../../../domain_value/event";
-import {get_heal, get_melee_damage, get_spell_damage, get_threat} from "../../../extractor/events";
-import {get_spell_components_total_amount} from "../../../domain_value/spell_component";
+import {get_spell_components_total_amount} from "../../../domain_value/damage";
 
 export class RaidGraphKnecht {
     private static readonly MAX_DATA_POINTS: number = 500;
@@ -47,10 +46,8 @@ export class RaidGraphKnecht {
 
     private static feed_points(events: Array<Event>, extract_amount: (Event) => number): Array<[number, number]> {
         const result = [];
-        for (const event of events) {
-            const ts = !!(event as any).length ? event[1] : event.timestamp;
-            result.push([ts, extract_amount(event)]);
-        }
+        for (const event of events)
+            result.push([event[1], extract_amount(event)]);
         return result;
     }
 
@@ -67,21 +64,21 @@ export class RaidGraphKnecht {
                 case DataSet.DamageDone:
                 case DataSet.DamageTaken:
                     return [...RaidGraphKnecht.feed_points(this.data_filter.get_melee_damage(data_set === DataSet.DamageTaken),
-                        (event) => get_spell_components_total_amount(get_melee_damage(event).components)),
+                        (event) => get_spell_components_total_amount(event[5])),
                         ...RaidGraphKnecht.feed_points(this.data_filter.get_spell_damage(data_set === DataSet.DamageTaken),
-                            (event) => event[7].reduce((acc, comp) => comp[0] + acc, 0))];
+                            (event) => get_spell_components_total_amount(event[7]))];
                 case DataSet.TotalHealingDone:
                 case DataSet.TotalHealingTaken:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.TotalHealingTaken), (event) => get_heal(event).heal.total);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.TotalHealingTaken), (event) => event[8]);
                 case DataSet.EffectiveHealingDone:
                 case DataSet.EffectiveHealingTaken:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.EffectiveHealingTaken), (event) => get_heal(event).heal.effective);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.EffectiveHealingTaken), (event) => event[9]);
                 case DataSet.OverhealingDone:
                 case DataSet.OverhealingTaken:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.OverhealingTaken), (event) => get_heal(event).heal.total - get_heal(event).heal.effective);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_heal(data_set === DataSet.OverhealingTaken), (event) => event[8] - event[9]);
                 case DataSet.ThreatDone:
                 case DataSet.ThreatTaken:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_threat(data_set === DataSet.ThreatTaken), (event) => get_threat(event).threat.amount);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_threat(data_set === DataSet.ThreatTaken), (event) => event[8]);
                 case DataSet.Deaths:
                 case DataSet.Kills:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_deaths(data_set === DataSet.Kills), (event) => 1);

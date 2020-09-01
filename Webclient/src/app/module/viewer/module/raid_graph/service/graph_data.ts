@@ -126,9 +126,10 @@ export class GraphDataService implements OnDestroy {
                 break;
             case DataSet.Deaths:
             case DataSet.Kills:
+                // TODO: ?
                 this.commit_data_set(data_set, [
                     ...await this.instanceDataService.knecht_melee.graph_data_set(data_set),
-                    ...await this.instanceDataService.knecht_spell.graph_data_set(data_set)
+                    ...await this.instanceDataService.knecht_spell_damage.graph_data_set(data_set)
                 ].sort((left, right) => left[0] - right[0]));
                 break;
             case DataSet.TotalHealingDone:
@@ -137,13 +138,19 @@ export class GraphDataService implements OnDestroy {
             case DataSet.EffectiveHealingTaken:
             case DataSet.OverhealingDone:
             case DataSet.OverhealingTaken:
+                this.commit_data_set(data_set, await this.instanceDataService.knecht_heal.graph_data_set(data_set));
+                break;
             case DataSet.DispelsDone:
             case DataSet.DispelsReceived:
+                this.commit_data_set(data_set, await this.instanceDataService.knecht_dispel.graph_data_set(data_set));
+                break;
             case DataSet.InterruptDone:
             case DataSet.InterruptReceived:
+                this.commit_data_set(data_set, await this.instanceDataService.knecht_interrupt.graph_data_set(data_set));
+                break;
             case DataSet.SpellStealDone:
             case DataSet.SpellStealReceived:
-                this.commit_data_set(data_set, await this.instanceDataService.knecht_spell.graph_data_set(data_set));
+                this.commit_data_set(data_set, await this.instanceDataService.knecht_spell_steal.graph_data_set(data_set));
                 break;
             case DataSet.AbsorbDone:
             case DataSet.AbsorbTaken:
@@ -155,7 +162,7 @@ export class GraphDataService implements OnDestroy {
             case DataSet.HealAndAbsorbTaken:
                 this.commit_data_set(data_set, RaidGraphKnecht.squash([...(await get_absorb_data_points(data_set === DataSet.HealAndAbsorbTaken, this.instanceDataService))
                     .reduce((acc, [subject_id, [subject, points]]) => [...acc, ...points.map(([spell_id, ts, amount]) => [ts, amount])], []),
-                    ...await this.instanceDataService.knecht_spell.graph_data_set(data_set === DataSet.HealAndAbsorbDone ? DataSet.EffectiveHealingDone : DataSet.EffectiveHealingTaken)]
+                    ...await this.instanceDataService.knecht_heal.graph_data_set(data_set === DataSet.HealAndAbsorbDone ? DataSet.EffectiveHealingDone : DataSet.EffectiveHealingTaken)]
                     .sort((left, right) => left[0] - right[0])));
                 break;
         }

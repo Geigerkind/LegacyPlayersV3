@@ -24,7 +24,7 @@ export class SpellService {
     ) {
     }
 
-    private static parse_school_mask(school_mask: number): Array<School> {
+    static parse_school_mask(school_mask: number): Array<School> {
         const result = [];
         let school = 1;
         while (school <= 0x40) {
