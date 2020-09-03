@@ -3,7 +3,7 @@ import {get_unit_id, Unit} from "../../../domain_value/unit";
 import {group_by} from "../../../../../stdlib/group_by";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
 import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
-import {School} from "../../../domain_value/school";
+import {School, school_mask_to_school_array} from "../../../domain_value/school";
 import {ae_spell_damage} from "../../../extractor/abilities";
 
 export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: Array<Event>,
@@ -26,7 +26,7 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
                 const absorb = component[3];
                 if (absorb === 0)
                     continue;
-                result.push([CONST_AUTO_ATTACK_ID, event[1], absorb, component[2]]);
+                result.push([CONST_AUTO_ATTACK_ID, event[1], absorb, school_mask_to_school_array(component[2])]);
             }
         }
         if (result.length > 0)
@@ -51,7 +51,7 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
                 const absorb = component[3];
                 if (absorb === 0)
                     continue;
-                absorbs.push([spell_id, event[1], absorb, component[2]]);
+                absorbs.push([spell_id, event[1], absorb, school_mask_to_school_array(component[2])]);
             }
         }
 

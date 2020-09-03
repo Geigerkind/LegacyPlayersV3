@@ -30,15 +30,12 @@
         MultiSelect, SelectInput {
             margin-right: 0.5 * $spacing;
             margin-bottom: 0.5 * $spacing;
-            width: 100%;
-        }
-
-        #last_multi_select {
-            width: calc(100% - #{$questionmarkSize});
+            width: calc(33.3% - 0.5 * #{$spacing});
+            max-width: calc(33.3% - 0.5 * #{$spacing});
         }
     }
 
-    @media (max-width: 400px) {
+    @media (max-width: 600px) {
         SelectInput {
             margin-top: 0.5 * $spacing;
         }
@@ -47,10 +44,12 @@
             margin-right: 0;
             margin-bottom: 0.5 * $spacing;
             width: 100%;
+            max-width: 100%;
         }
 
         #last_multi_select {
             width: calc(100% - #{$questionmarkSize});
+            max-width: calc(100% - #{$questionmarkSize});
         }
     }
 

@@ -312,7 +312,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             }
         }
 
-        if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection))
+        if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection) && this.in_ability_mode)
             this.bars = result.sort((left, right) => right.timestamp - left.timestamp);
         else this.bars = result.sort((left, right) => right[1] - left[1]);
 

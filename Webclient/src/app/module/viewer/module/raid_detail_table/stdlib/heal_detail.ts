@@ -5,7 +5,7 @@ import {HealMode} from "../../../domain_value/heal_mode";
 import {detail_row_post_processing, fill_details} from "./util";
 import {School} from "../../../domain_value/school";
 
-function commit_heal_detail(current_mode: HealMode, heal: Array<Heal>): Array<[number, Array<[HitType, DetailRow]>]> {
+export function commit_heal_detail(current_mode: HealMode, heal: Array<Heal>): Array<[number, Array<[HitType, DetailRow]>]> {
     const ability_details = new Map<number, Map<HitType, [DetailRowContent, Map<School, [DetailRowContent, Array<number>]>]>>();
 
     for (const event of heal) {
@@ -21,10 +21,8 @@ function commit_heal_detail(current_mode: HealMode, heal: Array<Heal>): Array<[n
         else if (current_mode === HealMode.Effective) healing = event[9];
         else healing = event[8] - event[9];
         if (current_mode !== HealMode.Overheal || healing > 0)
-            fill_details([healing, school_mask, event[10], 0, 0], hit_mask, details_map);
+            fill_details([[healing, school_mask, event[10], 0, 0]], hit_mask, details_map);
     }
 
     return detail_row_post_processing(ability_details);
 }
-
-export {commit_heal_detail};

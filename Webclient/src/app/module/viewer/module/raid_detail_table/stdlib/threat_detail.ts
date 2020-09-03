@@ -4,7 +4,7 @@ import {DetailRow, DetailRowContent} from "../domain_value/detail_row";
 import {detail_row_post_processing, fill_details} from "./util";
 import {School} from "../../../domain_value/school";
 
-function commit_threat_detail(threat: Array<Threat>): Array<[number, Array<[HitType, DetailRow]>]> {
+export function commit_threat_detail(threat: Array<Threat>): Array<[number, Array<[HitType, DetailRow]>]> {
     const ability_details = new Map<number, Map<HitType, [DetailRowContent, Map<School, [DetailRowContent, Array<number>]>]>>();
 
     for (const event of threat) {
@@ -20,5 +20,3 @@ function commit_threat_detail(threat: Array<Threat>): Array<[number, Array<[HitT
 
     return detail_row_post_processing(ability_details);
 }
-
-export {commit_threat_detail};

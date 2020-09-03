@@ -130,7 +130,7 @@ export function fill_details(spell_components: Array<SpellComponent>, hit_mask: 
 
         if (percent_0 > 0) {
             total_percent_0_min = Math.min(total_percent_0_min, percent_0);
-            total_percent_0_max = Math.min(total_percent_0_max, percent_0);
+            total_percent_0_max = Math.max(total_percent_0_max, percent_0);
         }
 
         update_detail_row_content(comp_content, component[0], resist, block, absorb, percent_0, percent_0, percent_0);

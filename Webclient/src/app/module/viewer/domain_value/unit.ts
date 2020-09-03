@@ -1,6 +1,8 @@
 export type Unit = [number, number, number | null, number | null];
 
 export function get_unit_id(unit: Unit): number {
+    if (!unit)
+        return 0;
     return unit[1];
 }
 
