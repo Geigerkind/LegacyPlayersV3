@@ -152,6 +152,10 @@ export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = 
     [43039, [[School.Frost], ALL_SCHOOLS]],
     // Glyph: PoW
     [56160, [[School.Holy], ALL_SCHOOLS]],
+    // TODO: Sacred Shield
+    [58597, [[School.Holy], ALL_SCHOOLS]],
+    // TODO: Divine Aegis
+    [47753, [[School.Holy], ALL_SCHOOLS]],
 ]);
 
 // TODO: How to deal with several active absorb spells?
@@ -173,13 +177,17 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                     if (!subject_intervals.has(absorb_spell_id) || !absorbing_schools.some(school => schools.includes(school)))
                         continue;
                     const uptime_intervals = subject_intervals.get(absorb_spell_id);
+                    let found = false;
                     for (const [start, end] of uptime_intervals) {
                         if ((start === undefined || start <= timestamp) && (end === undefined || end >= timestamp)) {
                             if (!result.has(subject_id))
                                 result.set(subject_id, [subject, []]);
                             result.get(subject_id)[1].push([absorb_spell_id, timestamp, amount]);
+                            found = true;
+                            break;
                         }
                     }
+                    if (found) break;
                 }
             }
         }

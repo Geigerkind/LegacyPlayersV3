@@ -54,7 +54,6 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
         });
     }
 
-    const segment_start = current_segment_intervals.reduce((acc, [start, end]) => Math.min(acc, start), Number.MAX_VALUE);
     const segment_end = current_segment_intervals.reduce((acc, [start, end]) => Math.max(acc, end), 0);
     return [...newData.entries()].map(([unit_id, [unit, abilities]]) => {
         const result = [];

@@ -42,7 +42,7 @@ export class InstanceDataFilter {
     private ability_filter$: Set<number> = new Set();
 
     private data_loader: InstanceDataLoader;
-    private cache: Map<[number, boolean], Array<Event>> = new Map();
+    private cache: Map<string, Array<Event>> = new Map();
 
     constructor(instance_meta_id: number, event_types: Array<number>) {
         this.data_loader = new InstanceDataLoader(instance_meta_id, event_types);
@@ -54,8 +54,9 @@ export class InstanceDataFilter {
     private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => Unit, target_extraction: (Event) => Unit,
                          multi_ability_extraction: (Event) => Array<number>, single_ability_extraction: (Event) => number,
                          inverse_filter: boolean = false): Array<Event> {
-        if (this.cache.has([event_type, inverse_filter]))
-            return this.cache.get([event_type, inverse_filter]);
+        const cache_key = event_type.toString() + (inverse_filter ? "1" : "0");
+        if (this.cache.has(cache_key))
+            return this.cache.get(cache_key);
 
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
@@ -69,7 +70,7 @@ export class InstanceDataFilter {
         if (!!single_ability_extraction)
             result = result.filter(event => this.ability_filter$.has(single_ability_extraction(event)));
 
-        this.cache.set([event_type, inverse_filter], result);
+        this.cache.set(cache_key, result);
         return result;
     }
 
