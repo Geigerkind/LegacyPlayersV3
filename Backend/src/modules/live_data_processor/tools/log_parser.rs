@@ -291,7 +291,7 @@ fn get_current_map(me: &WoWCBTLParser, current_timestamp: u64) -> Option<(u16, O
                         .iter()
                         .filter(|(_unit_id, (_, is_player, intervals))| intervals.iter().any(|(start, end)| *is_player && *start <= current_timestamp && *end >= current_timestamp))
                         .count()
-                        > 10
+                        > 15
                     {
                         difficulty_id = Some(4);
                     } else {
@@ -528,13 +528,20 @@ fn parse_spell_args(me: &mut WoWCBTLParser, event_timestamp: u64, spell_args: &[
     let spell_id = u32::from_str_radix(spell_args[0], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     let school_mask = u8::from_str_radix(spell_args[2].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     if let Some(difficulty_id) = me.get_difficulty_by_spell_id(spell_id) {
+        let mut changed = None;
         if let Some((last_difficulty_id, _, last_end_ts)) = me.active_difficulty.last_mut() {
             if *last_difficulty_id == difficulty_id {
                 *last_end_ts = event_timestamp;
+            } else {
+                changed = Some(*last_end_ts);
             }
         } else {
             // We assume the first entry we see is the truth
             me.active_difficulty.push((difficulty_id, 0, event_timestamp));
+        }
+
+        if let Some(end_ts) = changed {
+            me.active_difficulty.push((difficulty_id, end_ts + 1, event_timestamp));
         }
     }
     Ok((spell_id, school_mask))
