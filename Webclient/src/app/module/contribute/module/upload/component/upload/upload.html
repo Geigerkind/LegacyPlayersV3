@@ -1,3 +1,3 @@
-<SelectInput [options]="server"></SelectInput>
+<SelectInput [options]="server" [(value)]="selected_server_id"></SelectInput>
 <input #upload_file type="file">
 <button class="btn btnHighlight" (click)="upload()">Upload</button>
