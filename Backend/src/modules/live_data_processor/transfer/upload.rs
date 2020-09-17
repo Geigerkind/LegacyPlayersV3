@@ -21,7 +21,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
     let mut multipart_form_data = MultipartFormData::parse(content_type, form_data, options).unwrap();
 
     if let Some(mut server_id_raw_fields) = multipart_form_data.raw.remove("server_id") {
-        let RawField { content_type: _, file_name: _, raw: server_id_raw } = server_id_raw_fields.remove(0)
+        let RawField { content_type: _, file_name: _, raw: server_id_raw } = server_id_raw_fields.remove(0);
         let server_id = u32::from_str_radix(std::str::from_utf8(&server_id_raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?, 10)
             .map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
         if let Some(mut raw_fields) = multipart_form_data.raw.remove("payload") {
