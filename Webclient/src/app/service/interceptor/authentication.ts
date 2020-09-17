@@ -19,7 +19,6 @@ export class AuthenticationInterceptor implements HttpInterceptor {
 
         req = req.clone({
             setHeaders: {
-                "Content-Type": "application/json",
                 "X-Authorization": this.authenticationService.getToken()
             }
         });

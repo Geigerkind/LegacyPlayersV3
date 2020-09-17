@@ -26,6 +26,7 @@ rocket-multipart-form-data="*"
 grouping_by="*"
 chrono="*"
 rand = "*"
+zip = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

@@ -12,35 +12,33 @@ use std::collections::{BTreeSet, HashMap};
 use std::time::SystemTime;
 
 pub trait LogParser {
-    fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, log_path: &str) -> Vec<Message>;
+    fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str) -> Vec<Message>;
 }
 
 impl LogParser for WoWCBTLParser {
-    fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, log_path: &str) -> Vec<Message> {
+    fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str) -> Vec<Message> {
         let mut messages = Vec::with_capacity(1000000);
         // TODO: Handle 31/12 => 01/01 raids
         let current_year = NaiveDateTime::from_timestamp(SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64, 0).year();
-        if let Ok(file_content) = std::fs::read_to_string(log_path) {
-            for line in file_content.split('\n').into_iter() {
-                let meta = line.split("  ").collect::<Vec<&str>>();
-                if meta.len() != 2 {
-                    continue;
-                }
-                if let Ok(timestamp) = NaiveDateTime::parse_from_str(&format!("{}/{}", current_year, meta[0]), "%Y/%m/%d %H:%M:%S%.3f") {
-                    let message_args = meta[1].trim_end_matches('\r').split(',').collect::<Vec<&str>>();
-                    let event_timestamp = timestamp.timestamp_millis() as u64;
-                    if let Ok(message_types) = parse_log_message(self, data, event_timestamp, message_args) {
-                        let mut message_count = (messages.len() + message_types.len()) as u64;
-                        for message_type in message_types {
-                            message_count -= 1;
-                            messages.push(Message {
-                                api_version: 0,
-                                message_length: 0,
-                                timestamp: event_timestamp,
-                                message_count,
-                                message_type,
-                            });
-                        }
+        for line in file_content.split('\n').into_iter() {
+            let meta = line.split("  ").collect::<Vec<&str>>();
+            if meta.len() != 2 {
+                continue;
+            }
+            if let Ok(timestamp) = NaiveDateTime::parse_from_str(&format!("{}/{}", current_year, meta[0]), "%Y/%m/%d %H:%M:%S%.3f") {
+                let message_args = meta[1].trim_end_matches('\r').split(',').collect::<Vec<&str>>();
+                let event_timestamp = timestamp.timestamp_millis() as u64;
+                if let Ok(message_types) = parse_log_message(self, data, event_timestamp, message_args) {
+                    let mut message_count = (messages.len() + message_types.len()) as u64;
+                    for message_type in message_types {
+                        message_count -= 1;
+                        messages.push(Message {
+                            api_version: 0,
+                            message_length: 0,
+                            timestamp: event_timestamp,
+                            message_count,
+                            message_type,
+                        });
                     }
                 }
             }

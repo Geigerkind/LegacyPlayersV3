@@ -12,6 +12,7 @@ export class UploadService {
     ) {
     }
 
-    upload_file(file_name: string): void {
+    upload_file(form_data: FormData): void {
+        this.apiService.post_form_data(UploadService.URL_UPLOAD, form_data, () => console.log("SUCCESS"), () => console.log("FAILURE!"));
     }
 }

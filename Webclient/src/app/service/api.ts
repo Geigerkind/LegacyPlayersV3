@@ -1,9 +1,17 @@
 import {Injectable} from "@angular/core";
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {NotificationService} from "./notification";
 import {Severity} from "../domain_value/severity";
 import {APIFailure} from "../domain_value/api_failure";
 import {Observable} from "rxjs";
+
+const HttpJsonOptions = {
+    headers: new HttpHeaders({ "Content-Type": "application/json" })
+};
+
+const HttpUploadOptions = {
+    headers: new HttpHeaders({ Accept: "application/json" })
+};
 
 @Injectable({
     providedIn: "root",
@@ -16,15 +24,20 @@ export class APIService {
     }
 
     get<T>(url: string, on_success?: (T) => void, on_failure?: (any) => void): void {
-        this.handleRequest(this.httpClient.get<T>(APIService.API_PREFIX + url), on_success, on_failure);
+        this.handleRequest(this.httpClient.get<T>(APIService.API_PREFIX + url, HttpJsonOptions), on_success, on_failure);
     }
 
     post<T1, T2>(url: string, body: T2, on_success?: (T1) => void, on_failure?: any): void {
-        this.handleRequest(this.httpClient.post(APIService.API_PREFIX + url, JSON.stringify(body)), on_success, on_failure);
+        this.handleRequest(this.httpClient.post(APIService.API_PREFIX + url, JSON.stringify(body), HttpJsonOptions), on_success, on_failure);
+    }
+
+    post_form_data(url: string, body: FormData, on_success?: any, on_failure?: any): void {
+        this.handleRequest(this.httpClient.post<any>(APIService.API_PREFIX + url, body, HttpUploadOptions));
     }
 
     delete(url: string, body: any, on_success?: any, on_failure?: any): void {
         this.handleRequest(this.httpClient.request("delete", APIService.API_PREFIX + url, {
+            headers: new HttpHeaders({ Accept: "application/json" }),
             body: JSON.stringify(body)
         }), on_success, on_failure);
     }

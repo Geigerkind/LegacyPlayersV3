@@ -11,7 +11,6 @@ export class LanguageInterceptor implements HttpInterceptor {
 
         req = req.clone({
             setHeaders: {
-                "Content-Type": "application/json",
                 "X-Language": "en"
             }
         });
