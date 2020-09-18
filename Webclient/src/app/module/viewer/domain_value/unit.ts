@@ -10,7 +10,7 @@ export function get_unit_id(unit: Unit, get_owner: boolean = true): number {
     if (!unit)
         return 0;
     if (get_owner)
-        return get_unit_owner(unit)[1];
+        return get_unit_id(get_unit_owner(unit), false);
     return unit[1];
 }
 
@@ -18,11 +18,15 @@ export function get_creature_entry(unit: Unit): number | null {
     return unit[2];
 }
 
-export function is_player(unit: Unit): boolean {
+export function is_player(unit: Unit, get_owner: boolean = true): boolean {
+    if (get_owner)
+        return is_player(get_unit_owner(unit), false);
     return unit[0] === 1;
 }
 
-export function is_creature(unit: Unit): boolean {
+export function is_creature(unit: Unit, get_owner: boolean = true): boolean {
+    if (get_owner)
+        return is_creature(get_unit_owner(unit), false);
     return unit[0] === 0;
 }
 

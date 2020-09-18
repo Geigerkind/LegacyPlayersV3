@@ -83,7 +83,7 @@ export class InstanceDataLoader {
     private extract_subjects(event_type: number, event: Event): void {
         const getter = this.container_getter.get(event_type);
         const source = getter[1](event);
-        const source_id = get_unit_id(source);
+        const source_id = get_unit_id(source, false);
 
         if (this.sources.has(source_id)) this.sources.get(source_id)[1].add(event[1]);
         else this.sources.set(source_id, [source, new Set([event[1]])]);
@@ -91,7 +91,7 @@ export class InstanceDataLoader {
         if (!!getter[2]) {
             const target = getter[2](event);
             if (!!target) {
-                const target_id = get_unit_id(target);
+                const target_id = get_unit_id(target, false);
                 if (this.targets.has(target_id)) this.targets.get(target_id)[1].add(event[1]);
                 else this.targets.set(target_id, [target, new Set([event[1]])]);
             }
@@ -99,8 +99,7 @@ export class InstanceDataLoader {
 
         if (!!getter[3]) {
             const abilities = getter[3](event);
-            if (!!abilities) {
-
+            if (abilities !== undefined && abilities !== null) {
                 if (abilities instanceof Array) {
                     for (const ability_id of abilities) {
                         if (ability_id >= 0) {
@@ -133,12 +132,8 @@ export class InstanceDataLoader {
             const container_length = container.length;
             const last_event_id = container_length === 0 ? 0 : container[container_length - 1][0];
             const result = await this.load_instance_data(event_type, last_event_id);
+            result.forEach(event => this.extract_subjects(event_type, event));
             container.push(...result);
-
-            for (let i = container_length; i < container_length + result.length; ++i) {
-                const event = container[i];
-                this.extract_subjects(event_type, event);
-            }
             if (result.length > 0) this.newData$.next();
             if (result.length < InstanceDataLoader.BATCH_SIZE)
                 resolve();

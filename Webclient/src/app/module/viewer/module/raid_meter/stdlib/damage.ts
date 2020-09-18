@@ -10,7 +10,7 @@ export function commit_damage(melee_damage: Array<MeleeDamage>, spell_damage: Ar
 
     // Melee Damage
     // @ts-ignore
-    let grouping = group_by([...melee_damage.values()], (event) => get_unit_id(melee_unit_extraction(event)));
+    let grouping = group_by(melee_damage, (event) => get_unit_id(melee_unit_extraction(event)));
     // @ts-ignore
     // tslint:disable-next-line:forin
     for (const unit_id: number in grouping) {
