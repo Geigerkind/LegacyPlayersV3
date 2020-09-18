@@ -432,12 +432,22 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             if caster.is_player {
                 me.collect_player(caster.unit_id, message_args[2], spell_id);
             }
-            vec![MessageType::SpellCast(SpellCast {
-                caster,
-                target: Some(target),
+            let mut result = vec![MessageType::SpellCast(SpellCast {
+                caster: caster.clone(),
+                target: Some(target.clone()),
                 spell_id,
                 hit_mask: HitType::Hit as u32,
-            })]
+            })];
+
+            // Mend Pet, assume summon event
+            if spell_id == 48990 {
+                result.push(MessageType::Summon(Summon {
+                    owner: caster,
+                    unit: target
+                }));
+            }
+
+            result
         }
         "SPELL_SUMMON" => {
             let owner = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
