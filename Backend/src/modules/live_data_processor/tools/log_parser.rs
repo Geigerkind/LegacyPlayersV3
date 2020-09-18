@@ -100,7 +100,7 @@ impl LogParser for WoWCBTLParser {
         let mut current_map = None;
         let mut instance_ids = HashMap::new();
         let mut participants = BTreeSet::new();
-        let mut additional_messages = Vec::with_capacity(1000);
+        let mut additional_messages = Vec::with_capacity(50000);
         let mut last_combat_update = HashMap::new();
         for current_message in messages.iter() {
             let current_timestamp = current_message.timestamp;
