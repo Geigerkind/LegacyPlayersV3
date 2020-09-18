@@ -1,14 +1,14 @@
 use crate::modules::data::tools::{RetrieveEncounterNpc, RetrieveItem};
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::domain_value::{get_spell_components_total};
+use crate::modules::live_data_processor::domain_value::get_spell_components_total;
 use crate::modules::live_data_processor::domain_value::{Creature, Event, EventType, Player, Power, PowerType, Unit, UnitInstance};
 use crate::modules::live_data_processor::material::{Attempt, Server};
+use crate::modules::live_data_processor::tools::LiveDataDeserializer;
 use crate::params;
 use crate::util::database::{Execute, Select};
 use std::collections::{HashMap, VecDeque};
 use std::io::Write;
 use std::ops::Div;
-use crate::modules::live_data_processor::tools::LiveDataDeserializer;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
@@ -80,10 +80,7 @@ impl Server {
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                             attempt.creatures_in_combat.remove(creature_id);
                                             is_committable = attempt.creatures_in_combat.is_empty()
-                                                && !(encounter_npc.requires_death
-                                                    && !attempt.creatures_required_to_die.is_empty()
-                                                    && attempt.creatures_required_to_die.contains(creature_id)
-                                                    && look_ahead_death(committed_events, event, *creature_id));
+                                                && !(encounter_npc.requires_death && !attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.contains(creature_id) && look_ahead_death(committed_events, event, *creature_id));
                                         }
 
                                         if is_committable {
@@ -198,7 +195,7 @@ impl Server {
     }
 }
 
-fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mut HashMap<u32, Attempt> ) {
+fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mut HashMap<u32, Attempt>) {
     if let Unit::Player(Player { character_id, .. }) = unit.get_owner_or_self() {
         match &event.event {
             EventType::SpellDamage { damage, .. } | EventType::MeleeDamage(damage) => {

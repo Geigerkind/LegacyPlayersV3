@@ -42,8 +42,7 @@ impl ExportInstance for Instance {
             let lines = file_content.lines().collect::<Vec<&str>>();
             let mut events = Vec::with_capacity(lines.len());
             for segment in lines {
-                let id = u32::from_str(&segment[1..segment.find(',').expect("Must exist if data is not broken")])
-                    .expect("First element is the id");
+                let id = u32::from_str(&segment[1..segment.find(',').expect("Must exist if data is not broken")]).expect("First element is the id");
                 events.push((id, segment.to_owned()));
             }
 

@@ -1,5 +1,5 @@
+use crate::modules::live_data_processor::domain_value::{Creature, Player, Unit};
 use crate::modules::live_data_processor::tools::LiveDataDeserializer;
-use crate::modules::live_data_processor::domain_value::{Player, Creature, Unit};
 
 impl LiveDataDeserializer for Player {
     fn deserialize(&self) -> String {
@@ -20,7 +20,7 @@ impl LiveDataDeserializer for Unit {
     fn deserialize(&self) -> String {
         match self {
             Unit::Player(player) => player.deserialize(),
-            Unit::Creature(creature) => creature.deserialize()
+            Unit::Creature(creature) => creature.deserialize(),
         }
     }
 }

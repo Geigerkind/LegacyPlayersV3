@@ -1,5 +1,5 @@
+use crate::modules::live_data_processor::domain_value::{school_mask_to_u8, Mitigation, SpellComponent};
 use crate::modules::live_data_processor::tools::LiveDataDeserializer;
-use crate::modules::live_data_processor::domain_value::{SpellComponent, Mitigation, school_mask_to_u8};
 
 impl LiveDataDeserializer for SpellComponent {
     fn deserialize(&self) -> String {
@@ -23,7 +23,7 @@ impl LiveDataDeserializer for Vec<Mitigation> {
                 Mitigation::Absorb(amount) => absorb = *amount,
                 Mitigation::Resist(amount) => resist = *amount,
                 Mitigation::Block(amount) => block = *amount,
-                _ => {}
+                _ => {},
             };
         }
         format!("{},{},{}", absorb, resist, block)

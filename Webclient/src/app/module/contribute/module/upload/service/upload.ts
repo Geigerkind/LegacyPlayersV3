@@ -10,17 +10,11 @@ export class UploadService {
     private static readonly URL_UPLOAD: string = "/live_data_processor/upload";
 
     constructor(
-        private apiService: APIService,
-        private notification_service: NotificationService
+        private apiService: APIService
     ) {
     }
 
-    upload_file(form_data: FormData): void {
-        this.notification_service.propagate(Severity.Info, "Uploading...");
-        this.apiService.post_form_data(UploadService.URL_UPLOAD, form_data, () => {
-            this.notification_service.propagate(Severity.Success, "Your log has been uploaded!");
-        }, () => {
-            this.notification_service.propagate(Severity.Error, "Your log failed to upload!");
-        });
+    upload_file(form_data: FormData, on_success: any, on_failure: any): void {
+        this.apiService.post_form_data(UploadService.URL_UPLOAD, form_data, on_success, on_failure);
     }
 }

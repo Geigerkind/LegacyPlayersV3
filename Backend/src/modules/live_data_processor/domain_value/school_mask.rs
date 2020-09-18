@@ -19,5 +19,5 @@ pub fn school_mask_to_u8(school_mask: Vec<School>) -> u8 {
     for school in school_mask {
         result |= school as u8;
     }
-    return result;
+    result
 }

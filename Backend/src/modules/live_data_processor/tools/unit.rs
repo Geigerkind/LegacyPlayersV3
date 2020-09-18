@@ -1,12 +1,12 @@
 use crate::modules::armory::tools::{CreateCharacter, GetCharacter};
 use crate::modules::armory::Armory;
 use crate::modules::live_data_processor::domain_value;
+use crate::modules::live_data_processor::domain_value::Unit;
 use crate::modules::live_data_processor::dto;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
-use crate::modules::live_data_processor::domain_value::Unit;
 
 pub trait MapUnit {
     fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, Unit>) -> Result<domain_value::Unit, LiveDataProcessorFailure>;

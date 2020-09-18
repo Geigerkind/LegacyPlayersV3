@@ -1,3 +1,31 @@
-<SelectInput [options]="server" [(value)]="selected_server_id"></SelectInput>
-<input #upload_file type="file">
-<button class="btn btnHighlight" (click)="upload()">Upload</button>
+<form (ngSubmit)="upload()" formValid ngNativeValidate>
+    <div class="row">
+        <div class="col">
+            <label for="server_id">Server</label>
+            <SelectInput id="server_id" [options]="server" [(value)]="selected_server_id"></SelectInput>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="start_date">Start time</label>
+            <GeneralInput id="start_date" [required]="true" placeholderKey="dd.mm.yy HH:mm AM/PM" [(value)]="selected_start_date"></GeneralInput>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="end_date">End time</label>
+            <GeneralInput id="end_date" [required]="true" placeholderKey="dd.mm.yy HH:mm AM/PM" [(value)]="selected_end_date"></GeneralInput>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="log">WoWCombatLog</label>
+            <input id="log" #upload_file type="file" accept=".zip" required>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button type="submit" class="btn btnHighlight" [disabled]="disableSubmit">Upload</button>
+        </div>
+    </div>
+</form>
