@@ -62,47 +62,28 @@ impl Server {
                         break;
                     }
 
-                    match &event.subject {
-                        Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
-                            if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
-                                match &event.event {
-                                    EventType::CombatState { in_combat } => {
-                                        if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
-                                            let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
-                                            if encounter_npc.requires_death {
-                                                attempt.creatures_required_to_die.insert(*creature_id);
-                                            }
-                                            attempt.creatures_in_combat.insert(*creature_id);
-                                            if encounter_npc.is_pivot {
-                                                attempt.pivot_creature = Some(*creature_id);
-                                            }
-                                        } else if !*in_combat {
-                                            let mut is_committable = false;
-                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                                attempt.creatures_in_combat.remove(creature_id);
-                                                is_committable = attempt.creatures_in_combat.is_empty()
-                                                    && !(encounter_npc.requires_death
-                                                        && !attempt.creatures_required_to_die.is_empty()
-                                                        && attempt.creatures_required_to_die.contains(creature_id)
-                                                        && look_ahead_death(committed_events, event, *creature_id));
-                                            }
-
-                                            if is_committable {
-                                                if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
-                                                    attempt.end_ts = event.timestamp;
-                                                    commit_attempt(db_main, *instance_meta_id, attempt);
-                                                }
-                                            }
+                    if let Unit::Creature(Creature { creature_id, entry, owner: _ }) = &event.subject {
+                        if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
+                            match &event.event {
+                                EventType::CombatState { in_combat } => {
+                                    if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
+                                        let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
+                                        if encounter_npc.requires_death {
+                                            attempt.creatures_required_to_die.insert(*creature_id);
                                         }
-                                    },
-                                    EventType::Death { murder: _ } => {
+                                        attempt.creatures_in_combat.insert(*creature_id);
+                                        if encounter_npc.is_pivot {
+                                            attempt.pivot_creature = Some(*creature_id);
+                                        }
+                                    } else if !*in_combat {
                                         let mut is_committable = false;
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                            attempt.creatures_required_to_die.remove(creature_id);
-                                            if attempt.pivot_creature.contains(creature_id) {
-                                                attempt.creatures_required_to_die.clear();
-                                            }
-                                            is_committable = attempt.creatures_required_to_die.is_empty();
+                                            attempt.creatures_in_combat.remove(creature_id);
+                                            is_committable = attempt.creatures_in_combat.is_empty()
+                                                && !(encounter_npc.requires_death
+                                                    && !attempt.creatures_required_to_die.is_empty()
+                                                    && attempt.creatures_required_to_die.contains(creature_id)
+                                                    && look_ahead_death(committed_events, event, *creature_id));
                                         }
 
                                         if is_committable {
@@ -111,11 +92,27 @@ impl Server {
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
-                                    },
-                                    EventType::Power(Power { power_type, max_power, current_power }) => {
-                                        if *power_type != PowerType::Health || !encounter_npc.is_pivot {
-                                            continue;
+                                    }
+                                },
+                                EventType::Death { murder: _ } => {
+                                    let mut is_committable = false;
+                                    if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                        attempt.creatures_required_to_die.remove(creature_id);
+                                        if attempt.pivot_creature.contains(creature_id) {
+                                            attempt.creatures_required_to_die.clear();
                                         }
+                                        is_committable = attempt.creatures_required_to_die.is_empty();
+                                    }
+
+                                    if is_committable {
+                                        if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
+                                            attempt.end_ts = event.timestamp;
+                                            commit_attempt(db_main, *instance_meta_id, attempt);
+                                        }
+                                    }
+                                },
+                                EventType::Power(Power { power_type, max_power, current_power }) => {
+                                    if *power_type == PowerType::Health && encounter_npc.is_pivot {
                                         let mut is_committable = false;
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                             if let Some(treshold) = encounter_npc.health_treshold {
@@ -131,55 +128,14 @@ impl Server {
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
-                                    },
-                                    _ => continue,
-                                };
-                            }
-                        },
-                        Unit::Player(Player { character_id, .. }) => {
-                            match &event.event {
-                                EventType::SpellDamage { damage, .. } | EventType::MeleeDamage(damage) => {
-                                    if let Unit::Creature(Creature { entry, .. }) = damage.victim {
-                                        if let Some(encounter_npc) = data.get_encounter_npc(entry) {
-                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                                if let Some(player_damage) = attempt.ranking_damage.get_mut(character_id) {
-                                                    *player_damage += get_spell_components_total(&damage.components);
-                                                } else {
-                                                    attempt.ranking_damage.insert(*character_id, get_spell_components_total(&damage.components));
-                                                }
-                                            }
-                                        }
                                     }
                                 },
-                                EventType::Heal { heal, .. } => {
-                                    // TODO: We can't really tell, who this healer is in combat with
-                                    // For now attribute heal to every attempt, though its just one in 99.9% of the cases anyway.
-                                    // And in some cases its not even wrong, e.g. BWL where the dragons are cleaved
-                                    for (_, attempt) in active_attempts.iter_mut() {
-                                        if let Some(player_heal) = attempt.ranking_heal.get_mut(character_id) {
-                                            *player_heal += heal.effective;
-                                        } else {
-                                            attempt.ranking_heal.insert(*character_id, heal.effective);
-                                        }
-                                    }
-                                },
-                                EventType::Threat { threat, .. } => {
-                                    if let Unit::Creature(Creature { entry, .. }) = threat.threatened {
-                                        if let Some(encounter_npc) = data.get_encounter_npc(entry) {
-                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                                if let Some(player_threat) = attempt.ranking_threat.get_mut(character_id) {
-                                                    *player_threat += threat.amount;
-                                                } else {
-                                                    attempt.ranking_threat.insert(*character_id, threat.amount);
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                _ => continue,
-                            }
-                        },
+                                _ => {},
+                            };
+                        }
                     }
+
+                    process_ranking(&event.subject, &event, data, active_attempts);
                 }
             }
         }
@@ -238,6 +194,52 @@ impl Server {
                     }
                 }
             }
+        }
+    }
+}
+
+fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mut HashMap<u32, Attempt> ) {
+    if let Unit::Player(Player { character_id, .. }) = unit.get_owner_or_self() {
+        match &event.event {
+            EventType::SpellDamage { damage, .. } | EventType::MeleeDamage(damage) => {
+                if let Unit::Creature(Creature { entry, .. }) = damage.victim {
+                    if let Some(encounter_npc) = data.get_encounter_npc(entry) {
+                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                            if let Some(player_damage) = attempt.ranking_damage.get_mut(&character_id) {
+                                *player_damage += get_spell_components_total(&damage.components);
+                            } else {
+                                attempt.ranking_damage.insert(character_id, get_spell_components_total(&damage.components));
+                            }
+                        }
+                    }
+                }
+            },
+            EventType::Heal { heal, .. } => {
+                // TODO: We can't really tell, who this healer is in combat with
+                // For now attribute heal to every attempt, though its just one in 99.9% of the cases anyway.
+                // And in some cases its not even wrong, e.g. BWL where the dragons are cleaved
+                for (_, attempt) in active_attempts.iter_mut() {
+                    if let Some(player_heal) = attempt.ranking_heal.get_mut(&character_id) {
+                        *player_heal += heal.effective;
+                    } else {
+                        attempt.ranking_heal.insert(character_id, heal.effective);
+                    }
+                }
+            },
+            EventType::Threat { threat, .. } => {
+                if let Unit::Creature(Creature { entry, .. }) = threat.threatened {
+                    if let Some(encounter_npc) = data.get_encounter_npc(entry) {
+                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                            if let Some(player_threat) = attempt.ranking_threat.get_mut(&character_id) {
+                                *player_threat += threat.amount;
+                            } else {
+                                attempt.ranking_threat.insert(character_id, threat.amount);
+                            }
+                        }
+                    }
+                }
+            },
+            _ => {},
         }
     }
 }
