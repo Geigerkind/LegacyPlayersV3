@@ -79,7 +79,7 @@ impl Server {
                                         let mut is_committable = false;
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                             attempt.creatures_in_combat.remove(creature_id);
-                                            is_committable = attempt.creatures_in_combat.is_empty()
+                                            is_committable = (attempt.creatures_in_combat.is_empty() || attempt.pivot_creature.contains(creature_id))
                                                 && !(encounter_npc.requires_death && !attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.contains(creature_id) && look_ahead_death(committed_events, event, *creature_id));
                                         }
 
