@@ -12,7 +12,7 @@ pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event
     me.export_instance_event_type(instance_meta_id, event_type)
         .map(|events| events.into_iter()
             .filter(|(id, _)| *id > last_event_id)
-            .take(100000)
+            .take(50000)
             .map(|(_, data)| data)
             .collect::<Vec<String>>().join(",")).map(|res| RawJson("[".to_owned() + &res + "]"))
 }
