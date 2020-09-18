@@ -6,18 +6,19 @@ use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use std::collections::HashMap;
+use crate::modules::live_data_processor::domain_value::Unit;
 
 pub trait MapUnit {
-    fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure>;
+    fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, Unit>) -> Result<domain_value::Unit, LiveDataProcessorFailure>;
 }
 
 impl MapUnit for dto::Unit {
-    fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, u64>) -> Result<domain_value::Unit, LiveDataProcessorFailure> {
-        if cache_unit.contains_key(&self.unit_id) {
-            return Ok(cache_unit.get(&self.unit_id).unwrap().clone());
-        }
-
+    fn to_unit(&self, cache_unit: &mut HashMap<u64, domain_value::Unit>, db_main: &mut (impl Execute + Select), armory: &Armory, server_id: u32, summons: &HashMap<u64, Unit>) -> Result<domain_value::Unit, LiveDataProcessorFailure> {
         if self.is_player {
+            if cache_unit.contains_key(&self.unit_id) {
+                return Ok(cache_unit.get(&self.unit_id).unwrap().clone());
+            }
+
             let mut character = armory.get_character_by_uid(server_id, self.unit_id);
             if character.is_none() {
                 character = armory.create_character(db_main, server_id, self.unit_id).ok().and_then(|character_id| armory.get_character(character_id));
@@ -31,10 +32,11 @@ impl MapUnit for dto::Unit {
             cache_unit.insert(self.unit_id, unit.clone());
             Ok(unit)
         } else {
+            // Dont cache, because an owner could be found at a later time
             let unit = domain_value::Unit::Creature(domain_value::Creature {
                 creature_id: self.unit_id,
                 entry: self.unit_id.get_entry().ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?,
-                owner: summons.get(&self.unit_id).cloned(),
+                owner: summons.get(&self.unit_id).cloned().map(Box::new),
             });
             cache_unit.insert(self.unit_id, unit.clone());
             Ok(unit)

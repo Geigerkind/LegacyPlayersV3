@@ -407,7 +407,10 @@ impl Server {
     fn extract_meta_information(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, message: &Message) {
         match &message.message_type {
             MessageType::Summon(Summon { owner, unit }) => {
-                self.summons.insert(owner.unit_id, unit.unit_id);
+                let summoner = owner.to_unit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons);
+                if let Ok(summoner_unit) = summoner {
+                    self.summons.insert(unit.unit_id, summoner_unit);
+                }
             }
             MessageType::InstanceMap(dto::InstanceMap { map_id, instance_id, map_difficulty, unit }) => {
                 // TODO: How to handle Worldbosses in Vanilla / TBC

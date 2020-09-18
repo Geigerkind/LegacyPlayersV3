@@ -19,7 +19,8 @@ impl GUID for u64 {
     }
 
     fn is_pet(&self) -> bool {
-        self.get_high() == 61760
+        let high = self.get_high();
+        high == 61760 || high == 62768
     }
 
     fn is_creature(&self) -> bool {

@@ -1,8 +1,16 @@
-export type Unit = [number, number, number | null, number | null];
+export type Unit = [number, number, number | null, Unit | null];
 
-export function get_unit_id(unit: Unit): number {
+export function get_unit_owner(unit: Unit): Unit {
+    if (!unit || !unit[3])
+        return unit;
+    return get_unit_owner(unit[3]);
+}
+
+export function get_unit_id(unit: Unit, get_owner: boolean = true): number {
     if (!unit)
         return 0;
+    if (get_owner)
+        return get_unit_owner(unit)[1];
     return unit[1];
 }
 

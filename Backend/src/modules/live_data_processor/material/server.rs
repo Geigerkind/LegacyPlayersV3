@@ -10,7 +10,7 @@ pub struct Server {
     pub expansion_id: u8,
 
     // Meta Data
-    pub summons: HashMap<u64, u64>,
+    pub summons: HashMap<u64, Unit>,
     // TODO: This grows uncontrollable
     pub active_instances: HashMap<u32, UnitInstance>,
     // TODO: How to deal with changing difficulties in WOTLK?

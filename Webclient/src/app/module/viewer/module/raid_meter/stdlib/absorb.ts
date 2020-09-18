@@ -1,5 +1,5 @@
 import {Event} from "../../../domain_value/event";
-import {get_unit_id, Unit} from "../../../domain_value/unit";
+import {get_unit_id, get_unit_owner, Unit} from "../../../domain_value/unit";
 import {group_by} from "../../../../../stdlib/group_by";
 import {CONST_AUTO_ATTACK_ID} from "../../../constant/viewer";
 import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
@@ -30,7 +30,7 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
             }
         }
         if (result.length > 0)
-            newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), result]);
+            newData.set(subject_id, [get_unit_owner(melee_unit_extraction(grouping[unit_id][0])), result]);
     }
 
     // Spell Damage
@@ -39,7 +39,7 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
     for (const unit_id in grouping) {
         const subject_id = Number(unit_id);
         if (!newData.has(subject_id))
-            newData.set(subject_id, [spell_unit_extraction(grouping[unit_id][0]), []]);
+            newData.set(subject_id, [get_unit_owner(spell_unit_extraction(grouping[unit_id][0])), []]);
 
         const absorbs = newData.get(subject_id)[1];
         for (const event of grouping[unit_id]) {

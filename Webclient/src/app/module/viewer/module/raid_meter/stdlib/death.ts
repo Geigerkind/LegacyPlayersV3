@@ -1,5 +1,5 @@
 import {group_by} from "../../../../../stdlib/group_by";
-import {get_unit_id, Unit} from "../../../domain_value/unit";
+import {get_unit_id, get_unit_owner, Unit} from "../../../domain_value/unit";
 import {Event, MeleeDamage, SpellDamage} from "../../../domain_value/event";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
 import {se_death} from "../../../extractor/sources";
@@ -54,7 +54,7 @@ function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
 
             if (spell_id >= 0) {
                 if (!newData.has(subject_id))
-                    newData.set(subject_id, [death_unit_extraction(grouping[unit_id][0]), []]);
+                    newData.set(subject_id, [get_unit_owner(death_unit_extraction(grouping[unit_id][0])), []]);
                 const death_overview_rows = newData.get(subject_id)[1];
                 death_overview_rows.push({
                     timestamp: event[1],
