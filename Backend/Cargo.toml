@@ -27,6 +27,7 @@ grouping_by="*"
 chrono="*"
 rand = "*"
 zip = "*"
+rust-lapper = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

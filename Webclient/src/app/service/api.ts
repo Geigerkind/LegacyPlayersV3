@@ -32,7 +32,7 @@ export class APIService {
     }
 
     post_form_data(url: string, body: FormData, on_success?: any, on_failure?: any): void {
-        this.handleRequest(this.httpClient.post<any>(APIService.API_PREFIX + url, body, HttpUploadOptions));
+        this.handleRequest(this.httpClient.post<any>(APIService.API_PREFIX + url, body, HttpUploadOptions), on_success, on_failure);
     }
 
     delete(url: string, body: any, on_success?: any, on_failure?: any): void {

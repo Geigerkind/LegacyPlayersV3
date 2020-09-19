@@ -75,6 +75,20 @@ export class UnitService {
     }
 
     get_npc(npc_id: number): Observable<Localized<NPC> | undefined> {
+        if (npc_id === 65535) {
+            return of({
+                localization: "Pet",
+                base: {
+                    expansion_id: 0,
+                    id: npc_id,
+                    localization_id: 0,
+                    is_boss: false,
+                    friend: 0,
+                    family: 0
+                }
+            });
+        }
+
         if (!this.server_id$)
             return of(undefined);
         return this.dataService
