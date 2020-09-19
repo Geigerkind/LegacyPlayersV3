@@ -174,7 +174,7 @@ export class RaidConfigurationService implements OnDestroy {
         }
         zip(...[...categories.values()].map(category => this.dataService.get_encounter(category.id)
             .pipe(map(encounter => {
-                if (!category.label)
+                if (!category.label || category.label === CONST_UNKNOWN_LABEL)
                     category.label = !encounter ? CONST_UNKNOWN_LABEL : encounter.localization;
                 return category;
             })))).pipe(takeUntil(this.nextCategories.asObservable())).subscribe(update => this.categories$.next(update));
@@ -183,15 +183,6 @@ export class RaidConfigurationService implements OnDestroy {
     private update_segments(attempts: Array<InstanceViewerAttempt>): void {
         this.nextSegments.next();
         const segments: Array<Segment> = [];
-        for (const [index, start, end] of this.calculate_non_boss_attempts(attempts).map(([i_start, i_end], i_index) => [i_index, i_start, i_end]))
-            segments.push({
-                duration: (end - start),
-                id: -index,
-                encounter_id: 0,
-                is_kill: false,
-                label: "Non-Boss Segment " + (index + 1).toString(),
-                start_ts: start
-            });
         for (const attempt of attempts)
             segments.push({
                 duration: (attempt.end_ts - attempt.start_ts),
@@ -201,9 +192,18 @@ export class RaidConfigurationService implements OnDestroy {
                 label: undefined,
                 start_ts: attempt.start_ts
             });
+        for (const [index, start, end] of this.calculate_non_boss_attempts(attempts).map(([i_start, i_end], i_index) => [i_index, i_start, i_end]))
+            segments.push({
+                duration: (end - start),
+                id: -index,
+                encounter_id: 0,
+                is_kill: false,
+                label: "Non-Boss Segment " + (index + 1).toString(),
+                start_ts: start
+            });
         zip(...[...segments.values()].map(segment => this.dataService.get_encounter(segment.encounter_id)
             .pipe(map(encounter => {
-                if (!segment.label)
+                if (!segment.label || segment.label === CONST_UNKNOWN_LABEL)
                     segment.label = !encounter ? CONST_UNKNOWN_LABEL : encounter.localization;
                 return segment;
             })))).pipe(takeUntil(this.nextSegments.asObservable())).subscribe(update => this.segments$.next(update));
