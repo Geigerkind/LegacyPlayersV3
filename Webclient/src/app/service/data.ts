@@ -1,9 +1,9 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnDestroy} from "@angular/core";
 import {APIService} from "./api";
-import {BehaviorSubject, Observable, of, Subject} from "rxjs";
+import {BehaviorSubject, Observable, of, Subject, Subscription} from "rxjs";
 import {Localized} from "../domain_value/localized";
 import {InstanceMap} from "../domain_value/instance_map";
-import {map} from "rxjs/operators";
+import {auditTime, map} from "rxjs/operators";
 import {AvailableServer} from "../domain_value/available_server";
 import {NPC} from "../domain_value/data/npc";
 import {SettingsService} from "./settings";
@@ -18,16 +18,20 @@ import {CONST_UNKNOWN_LABEL} from "../module/viewer/constant/viewer";
 @Injectable({
     providedIn: "root",
 })
-export class DataService {
+export class DataService implements OnDestroy {
     private static readonly URL_DATA_SERVER: string = '/data/server';
     private static readonly URL_DATA_RACE_LOCALIZED: string = '/data/race/localized';
     private static readonly URL_DATA_HERO_CLASS_LOCALIZED: string = '/data/hero_class/localized';
     private static readonly URL_DATA_DIFFICULTY_LOCALIZED: string = '/data/difficulty/localized';
     private static readonly URL_DATA_MAP_LOCALIZED: string = '/data/map/localized';
     private static readonly URL_DATA_NPC_LOCALIZED: string = '/data/npc/localized/:expansion_id/:npc_id';
+    private static readonly URL_DATA_NPCS_LOCALIZED: string = '/data/npcs/localized';
     private static readonly URL_DATA_BASIC_ITEM_LOCALIZED: string = '/data/item/localized/basic_item/:expansion_id/:item_id';
     private static readonly URL_DATA_BASIC_SPELL_LOCALIZED: string = '/data/spell/localized/basic_spell/:expansion_id/:spell_id';
+    private static readonly URL_DATA_BASIC_SPELLS_LOCALIZED: string = '/data/spells/localized/basic_spell';
     private static readonly URL_DATA_ENCOUNTER_LOCALIZED: string = '/data/encounter/localized';
+
+    private subscriptions: Subscription = new Subscription();
 
     private maps$: BehaviorSubject<Array<Localized<InstanceMap>>>;
     private encounters$: BehaviorSubject<Array<Localized<Encounter>>>;
@@ -40,6 +44,12 @@ export class DataService {
     private cache_basic_item: Map<number, Map<number, Localized<BasicItem>>> = new Map();
     private cache_npc: Map<number, Map<number, Localized<NPC>>> = new Map();
 
+    private pending_npcs: Array<[number, Subject<Localized<NPC>>]> = [];
+    private lazy_npcs$: Subject<number> = new Subject();
+
+    private pending_basic_spells: Array<[number, Subject<Localized<BasicSpell>>]> = [];
+    private lazy_basic_spells$: Subject<number> = new Subject();
+
     constructor(
         private apiService: APIService,
         private settingsService: SettingsService
@@ -49,6 +59,40 @@ export class DataService {
             this.cache_basic_item.set(i, new Map());
             this.cache_npc.set(i, new Map());
         }
+
+        this.subscriptions.add(this.lazy_npcs$.pipe(auditTime(250)).subscribe(expansion_id => {
+            const pending_npcs = new Map(this.pending_npcs);
+            this.pending_npcs = [];
+            this.apiService.post(DataService.URL_DATA_NPCS_LOCALIZED, {
+                    expansion_id,
+                    npc_ids: [...pending_npcs.keys()]
+                },
+                npcs => {
+                    for (const npc of npcs) {
+                        this.cache_npc.get(expansion_id).set(npc.base.id, npc);
+                        pending_npcs.get(npc.base.id).next(npc);
+                    }
+                }, reason => {});
+        }));
+
+        this.subscriptions.add(this.lazy_basic_spells$.pipe(auditTime(250)).subscribe(expansion_id => {
+            const pending_basic_spells = new Map(this.pending_basic_spells);
+            this.pending_basic_spells = [];
+            this.apiService.post(DataService.URL_DATA_BASIC_SPELLS_LOCALIZED, {
+                    expansion_id,
+                    spell_ids: [...pending_basic_spells.keys()]
+                },
+                spells => {
+                    for (const spell of spells) {
+                        this.cache_basic_spell.get(expansion_id).set(spell.base.id, spell);
+                        pending_basic_spells.get(spell.base.id).next(spell);
+                    }
+                }, reason => {});
+        }));
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions?.unsubscribe();
     }
 
     get servers(): Observable<Array<AvailableServer>> {
@@ -93,6 +137,10 @@ export class DataService {
         this.cache_npc.get(expansion_id).set(npc_id, this.get_unknown_npc(expansion_id, npc_id));
 
         const subject = new Subject<Localized<NPC>>();
+        this.pending_npcs.push([npc_id, subject]);
+        this.lazy_npcs$.next(expansion_id);
+
+        /*
         this.apiService.get(DataService.URL_DATA_NPC_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":npc_id", npc_id.toString()),
@@ -104,6 +152,7 @@ export class DataService {
                     this.cache_npc.get(expansion_id).set(npc_id, this.get_unknown_npc(expansion_id, npc_id));
                 subject.next(this.get_unknown_npc(expansion_id, npc_id));
             });
+         */
         return subject;
     }
 
@@ -134,7 +183,10 @@ export class DataService {
         this.cache_basic_spell.get(expansion_id).set(spell_id, this.unknown_basic_spell);
 
         const subject = new Subject<Localized<BasicSpell>>();
+        this.pending_basic_spells.push([spell_id, subject]);
+        this.lazy_basic_spells$.next(expansion_id);
 
+        /*
         this.apiService.get(DataService.URL_DATA_BASIC_SPELL_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":spell_id", spell_id.toString()),
@@ -146,6 +198,7 @@ export class DataService {
                     this.cache_basic_spell.get(expansion_id).set(spell_id, this.unknown_basic_spell);
                 subject.next(this.unknown_basic_spell);
             });
+         */
 
         return subject;
     }

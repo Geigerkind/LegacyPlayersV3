@@ -1,22 +1,55 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnDestroy} from "@angular/core";
 import {APIService} from "../../../service/api";
-import {Observable, of, Subject} from "rxjs";
+import {Observable, of, Subject, Subscription} from "rxjs";
 import {Character} from "../domain_value/character";
 import {BasicCharacter} from "../domain_value/basic_character";
+import {auditTime} from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",
 })
-export class CharacterService {
+export class CharacterService implements OnDestroy {
 
     private static readonly URL_CHARACTER: string = "/armory/character/:character_id";
     private static readonly URL_BASIC_CHARACTER: string = "/armory/character/basic/:character_id";
+    private static readonly URL_BASIC_CHARACTERS: string = "/armory/characters/basic";
+
+    private subscriptions: Subscription = new Subscription();
 
     private cache_basic_character: Map<number, BasicCharacter> = new Map();
+
+    private pending_basic_character: Array<[number, Subject<BasicCharacter>]> = [];
+    private lazy_basic_characters$: Subject<void> = new Subject();
 
     constructor(
         private apiService: APIService
     ) {
+        this.subscriptions.add(this.lazy_basic_characters$.pipe(auditTime(250)).subscribe(() => {
+            const pending_basic_character = new Map(this.pending_basic_character);
+            this.pending_basic_character = [];
+            this.apiService.post(CharacterService.URL_BASIC_CHARACTERS, [...pending_basic_character.keys()],
+                characters => {
+                    for (const character of characters) {
+                        if (!character.hero_class_id) {
+                            const def_char = this.get_default_basic_character(character.id);
+                            character.hero_class_id = def_char.hero_class_id;
+                            character.spec_id = def_char.spec_id;
+                            character.name = def_char.name;
+                            character.race_id = def_char.race_id;
+                        }
+                        if (!character.spec_id)
+                            character.spec_id = 0;
+
+                        this.cache_basic_character.set(character.id, character);
+                        pending_basic_character.get(character.id).next(character);
+                    }
+                }, reason => {
+                });
+        }));
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions?.unsubscribe();
     }
 
     get_character_by_id(character_id: number): Observable<Character> {
@@ -35,7 +68,10 @@ export class CharacterService {
         this.cache_basic_character.set(character_id, this.get_default_basic_character(character_id));
 
         const subject = new Subject<BasicCharacter>();
+        this.pending_basic_character.push([character_id, subject]);
+        this.lazy_basic_characters$.next();
 
+        /*
         this.apiService.get(CharacterService.URL_BASIC_CHARACTER
                 .replace(":character_id", character_id.toString()),
             character => {
@@ -56,6 +92,7 @@ export class CharacterService {
                     this.cache_basic_character.set(character_id, this.get_default_basic_character(character_id));
                 subject.next(this.get_default_basic_character(character_id));
             });
+         */
 
         return subject;
     }

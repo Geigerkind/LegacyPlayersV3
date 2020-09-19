@@ -22,3 +22,24 @@ pub fn get_npc_localized(me: State<Data>, language: Language, expansion_id: u8, 
         })
     })
 }
+
+#[derive(Deserialize)]
+pub struct GetNpcs {
+    pub expansion_id: u8,
+    pub npc_ids: Vec<u32>,
+}
+
+#[openapi(skip)]
+#[post("/npcs/localized", format = "application/json", data = "<data>")]
+pub fn get_npcs_localized(me: State<Data>, language: Language, data: Json<GetNpcs>) -> Json<Vec<Localized<NPC>>> {
+    Json(data.npc_ids.iter()
+        .map(|npc_id| me.get_npc(data.expansion_id, *npc_id)
+            .map(|npc| {
+                Localized {
+                    localization: me.get_localization(language.0, npc.localization_id).unwrap().content,
+                    base: npc,
+                }
+            }))
+        .filter(Option::is_some).map(Option::unwrap)
+        .collect::<Vec<Localized<NPC>>>())
+}

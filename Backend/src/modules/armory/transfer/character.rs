@@ -31,6 +31,16 @@ pub fn get_basic_character(me: State<Armory>, id: u32) -> Result<Json<BasicChara
     me.get_basic_character(id).map(Json).ok_or(ArmoryFailure::InvalidInput)
 }
 
+#[openapi(skip)]
+#[post("/characters/basic", format = "application/json", data = "<character_ids>")]
+pub fn get_basic_characters(me: State<Armory>, character_ids: Json<Vec<u32>>) -> Json<Vec<BasicCharacter>> {
+    Json(character_ids.iter()
+        .map(|character_id| me.get_basic_character(*character_id))
+        .filter(Option::is_some)
+        .map(Option::unwrap)
+        .collect())
+}
+
 #[openapi]
 #[get("/character/by_name/<name>")]
 pub fn get_characters_by_name(me: State<Armory>, name: String) -> Json<Vec<Character>> {
