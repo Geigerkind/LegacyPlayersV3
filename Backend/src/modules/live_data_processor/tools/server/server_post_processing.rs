@@ -66,10 +66,6 @@ impl Server {
                         if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
                             match &event.event {
                                 EventType::CombatState { in_combat } => {
-                                    if *entry == 15989 {
-                                        println!("{}", in_combat);
-                                    }
-
                                     if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
                                         let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
                                         if encounter_npc.requires_death {

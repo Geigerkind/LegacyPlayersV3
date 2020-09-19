@@ -38,7 +38,7 @@ export class UploadComponent {
 
     upload(): void {
         if (!this.disableSubmit) {
-            // this.disableSubmit = true;
+            this.disableSubmit = true;
             this.notification_service.propagate(Severity.Info, "Uploading...");
             const formData = new FormData();
             formData.append('server_id', this.selected_server_id.toString());
