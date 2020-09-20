@@ -8,7 +8,7 @@ import {get_unit_id, Unit} from "../domain_value/unit";
 import * as Comlink from "comlink";
 import {Remote} from "comlink";
 import {Rechenknecht} from "../tool/rechenknecht";
-import {auditTime} from "rxjs/operators";
+import {auditTime, debounceTime} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {LoadingBarService} from "../../../service/loading_bar";
 
@@ -49,9 +49,9 @@ export class InstanceDataService implements OnDestroy {
     knecht_spell_cast: Remote<Rechenknecht>;
     knecht_aura: Remote<Rechenknecht>;
 
-    private public_knecht_updates$: Subject<Array<KnechtUpdates>> = new Subject();
-    private knecht_updates$: Subject<KnechtUpdates> = new Subject();
-    private recent_knecht_updates$: Set<KnechtUpdates> = new Set();
+    private public_knecht_updates$: Subject<[Array<KnechtUpdates>, Array<number>]> = new Subject();
+    private knecht_updates$: Subject<[KnechtUpdates, Array<number>]> = new Subject();
+    private recent_knecht_updates$: [Set<KnechtUpdates>, Set<number>] = [new Set(), new Set()];
     private last_knecht_update$: number = 0;
 
     constructor(
@@ -72,20 +72,25 @@ export class InstanceDataService implements OnDestroy {
             });
         }, 60000);
 
-        this.subscription.add(this.knecht_updates$.subscribe(knecht_update => {
-            this.recent_knecht_updates$.add(knecht_update);
+        this.subscription.add(this.knecht_updates$.subscribe(([knecht_update, event_types]) => {
+            this.recent_knecht_updates$[0].add(knecht_update);
+            if (!!event_types) {
+                for (const evt_type of event_types)
+                    this.recent_knecht_updates$[1].add(evt_type);
+            }
             this.last_knecht_update$ = Date.now();
         }));
         this.subscription.add(this.knecht_updates$.pipe(auditTime(250))
             .subscribe(() => {
                 if (Date.now() - this.last_knecht_update$ >= 200) {
-                    this.public_knecht_updates$.next([...this.recent_knecht_updates$.values()]);
-                    this.recent_knecht_updates$.clear();
+                    this.public_knecht_updates$.next([[...this.recent_knecht_updates$[0].values()], [...this.recent_knecht_updates$[1].values()]]);
+                    this.recent_knecht_updates$[0].clear();
+                    this.recent_knecht_updates$[1].clear();
                 } else {
-                    setTimeout(() => this.knecht_updates$.next(this.recent_knecht_updates$[0]), 200);
+                    setTimeout(() => this.knecht_updates$.next([this.recent_knecht_updates$[0][0], []]), 200);
                 }
             }));
-        this.subscription.add(this.knecht_updates.subscribe(knecht_updates => {
+        this.subscription.add(this.knecht_updates.pipe(auditTime(250)).subscribe(([knecht_updates, evt_types]) => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
                 this.update_subjects();
         }));
@@ -213,7 +218,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -224,7 +230,7 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -235,7 +241,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -246,7 +253,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -257,7 +265,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -268,7 +277,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -279,7 +289,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -290,7 +301,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -301,7 +313,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -312,7 +325,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -323,7 +337,8 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-                this.knecht_updates$.next(data[1]);
+
+                this.knecht_updates$.next([data[1], data[2]]);
             }
         };
         this.worker.push(worker);
@@ -364,7 +379,7 @@ export class InstanceDataService implements OnDestroy {
         return this.attempts$.asObservable();
     }
 
-    public get knecht_updates(): Observable<Array<KnechtUpdates>> {
+    public get knecht_updates(): Observable<[Array<KnechtUpdates>, Array<number>]> {
         return this.public_knecht_updates$.asObservable();
     }
 

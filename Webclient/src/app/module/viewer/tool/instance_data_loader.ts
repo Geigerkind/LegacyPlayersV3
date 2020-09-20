@@ -51,6 +51,7 @@ export class InstanceDataLoader {
     public initialized: boolean = false;
 
     private newData$: Subject<void> = new Subject();
+    private new_data_event_types: Set<number> = new Set();
 
     private container_getter: Map<number, [() => Array<Event>, (Event) => Unit, (Event) => Unit, (Event) => number | Array<number>]> = new Map([
         [0, [() => this.spell_casts, se_spell_cast, te_spell_cast, ae_spell_cast]],
@@ -73,7 +74,10 @@ export class InstanceDataLoader {
 
     constructor(private instance_meta_id: number, event_types: Array<number>) {
         this.newData$.asObservable().pipe(auditTime(100))
-            .subscribe(() => (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData]));
+            .subscribe(() => {
+                (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData, [...this.new_data_event_types.values()]]);
+                this.new_data_event_types = new Set();
+            });
         this.load_data(event_types)
             .finally(() =>
                 setInterval(() =>
@@ -134,7 +138,10 @@ export class InstanceDataLoader {
             const result = await this.load_instance_data(event_type, last_event_id);
             result.forEach(event => this.extract_subjects(event_type, event));
             container.push(...result);
-            if (result.length > 0) this.newData$.next();
+            if (result.length > 0) {
+                this.new_data_event_types.add(event_type);
+                this.newData$.next();
+            }
             if (result.length < InstanceDataLoader.BATCH_SIZE)
                 resolve();
             else setTimeout(() => load_non_blocking(resolve), 100);

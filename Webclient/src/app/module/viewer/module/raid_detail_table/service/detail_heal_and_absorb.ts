@@ -48,8 +48,8 @@ export class DetailHealAndAbsorbService implements OnDestroy {
 
     private initialize(): void {
         this.initialized = true;
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
-            if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(async ([knecht_update, evt_types]) => {
+            if (knecht_update.includes(KnechtUpdates.FilterChanged) || (knecht_update.includes(KnechtUpdates.NewData) && [6, 12, 13].some(evt => evt_types.includes(evt))))
                 this.commit();
         });
         this.commit();

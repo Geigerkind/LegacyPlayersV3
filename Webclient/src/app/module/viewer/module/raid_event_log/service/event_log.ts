@@ -112,7 +112,7 @@ export class EventLogService implements OnDestroy {
     get event_log_entries(): Observable<Array<EventLogEntry>> {
         if (!this.initialized) {
             this.update_event_log_entries();
-            this.subscription.add(this.instanceDataService.knecht_updates.subscribe(knecht_update => {
+            this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_update, _]) => {
                 if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
                     this.update_event_log_entries();
             }));

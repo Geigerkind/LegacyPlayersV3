@@ -41,7 +41,7 @@ export class GraphDataService implements OnDestroy {
         private spell_service: SpellService,
         private util_service: UtilService
     ) {
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(knecht_updates => {
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(([knecht_updates, _]) => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem))) {
                 for (const [data_set, data] of this.data_points$.getValue()[1])
                     this.add_data_set(data_set);

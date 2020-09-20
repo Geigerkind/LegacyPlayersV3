@@ -86,21 +86,27 @@ export class InstanceDataFilter {
     }
 
     async set_source_filter(sources: Array<number>): Promise<void> {
-        this.cache = new Map();
-        this.source_filter$ = new Set(sources);
-        this.filter_changed$.next();
+        if (sources.length !== this.source_filter$.size || sources.some(source => !this.source_filter$.has(source))) {
+            this.cache = new Map();
+            this.source_filter$ = new Set(sources);
+            this.filter_changed$.next();
+        }
     }
 
     async set_target_filter(targets: Array<number>): Promise<void> {
-        this.cache = new Map();
-        this.target_filter$ = new Set(targets);
-        this.filter_changed$.next();
+        if (targets.length !== this.target_filter$.size || targets.some(target => !this.target_filter$.has(target))) {
+            this.cache = new Map();
+            this.target_filter$ = new Set(targets);
+            this.filter_changed$.next();
+        }
     }
 
     async set_ability_filter(abilities: Array<number>): Promise<void> {
-        this.cache = new Map();
-        this.ability_filter$ = new Set(abilities);
-        this.filter_changed$.next();
+        if (abilities.length !== this.ability_filter$.size || abilities.some(ability => !this.ability_filter$.has(ability))) {
+            this.cache = new Map();
+            this.ability_filter$ = new Set(abilities);
+            this.filter_changed$.next();
+        }
     }
 
     get filter_changed(): Observable<void> {

@@ -34,8 +34,8 @@ export class LootService implements OnDestroy {
             this.current_meta = meta;
             this.reload();
         });
-        this.instanceDataService.knecht_updates.subscribe(async knecht_update => {
-            if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
+        this.instanceDataService.knecht_updates.subscribe(async ([knecht_update, evt_types]) => {
+            if (knecht_update.includes(KnechtUpdates.FilterChanged) || (knecht_update.includes(KnechtUpdates.NewData) && [3].some(evt => evt_types.includes(evt))))
                 this.reload();
         });
     }
