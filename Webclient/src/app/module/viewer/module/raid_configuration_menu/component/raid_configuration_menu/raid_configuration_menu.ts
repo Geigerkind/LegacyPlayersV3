@@ -24,7 +24,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private subscription_source_selection: Subscription;
 
-    closed: boolean = true;
+    // closed: boolean = true;
 
     selected_items_categories: Array<any> = [];
     selected_items_segments: Array<any> = [];

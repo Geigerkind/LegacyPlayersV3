@@ -1,8 +1,12 @@
-<div class="container" [class.closed]="closed" (clickOutside)="closed = true">
+<div class="left_nav_bar">
     <button class="menu_button base" routerLink="../base" routerLinkActive="active"><span>Base</span></button>
     <button class="menu_button ability" routerLink="../ability" routerLinkActive="active"><span>Ability</span></button>
     <button class="menu_button detail" routerLink="../detail" routerLinkActive="active"><span>Detail</span></button>
     <button class="menu_button event_log" routerLink="../event_log/by_actor" routerLinkActive="active"><span>Log</span></button>
+</div>
+
+<div class="container">
+    <!--
     <button (click)="closed = !closed" class="toggle_button">
         <svg aria-hidden="true" height="32" version="1.1" viewBox="0 0 12 16" width="24">
             <path
@@ -10,6 +14,7 @@
                 fill-rule="evenodd"></path>
         </svg>
     </button>
+    -->
 
     <!-- All actual buttons that are supposed to do something -->
     <MultiSelect placeholder="Categories" [(selectedItems)]="selected_items_categories"
@@ -28,10 +33,11 @@
     <MultiSelect placeholder="Abilities" [(selectedItems)]="selected_items_abilities"
                  [dropdownList]="list_items_abilities"
                  [enableCheckAll]="true" (items_changed_by_action)="on_ability_selection_updated()"></MultiSelect>
+
+    <!--
     <MultiSelect placeholder="Options"></MultiSelect>
 
     <GeneralInput placeholderKey="Export Link..."></GeneralInput>
-    <!--
     <button class="replay_btn btnHighlight" disabled>Replay</button>
     -->
 </div>

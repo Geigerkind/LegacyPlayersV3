@@ -3,35 +3,34 @@
 @import "src/styles/colors";
 
 :host {
-    position: absolute;
-    left: 0;
-    display: block;
-    height: 100%;
+    display: inline-block;
     width: 100%;
-    margin-top: -$spacing;
+    min-height: 0;
 }
 
-$menuSize: 500px;
+.left_nav_bar {
+    position: absolute;
+    left: 0;
+}
+
 .container {
-    position: relative;
-    width: min(#{$menuSize}, calc(100% - 42px - 2 * #{$spacing}));
-    height: calc(100% - 2 * #{$spacing});
+    display: inline-block;
+    width: calc(100% - #{$spacing} - 2px);
+    min-height: 0;
     background: $tdc_darker;
-    border-right: 1px solid $tdc_accent;
-    transition: margin-left 0.1s;
+    border: 1px solid $tdc_accent;
+    border-radius: 3px 3px 3px 3px;
 
-    padding: $spacing $spacing;
-
-    &.closed {
-        margin-left: calc(-1 * min(#{$menuSize} + 2 * #{$spacing}, calc(100% - 42px)));
-    }
-
-    &:not(.closed) {
-        z-index: 4;
-    }
+    padding: 0.5 * $spacing 0.5 * $spacing;
 
     MultiSelect {
-        margin-bottom: $spacing;
+        width: calc(20% - (2/5) * #{$spacing});
+        margin-right: 0.5 * $spacing;
+        float: left;
+
+        &:last-child {
+            margin-right: 0;
+        }
     }
 }
 
@@ -61,7 +60,7 @@ $menuSize: 500px;
     z-index: 5;
     opacity: 0.5;
 
-    $offset: $spacing;
+    $offset: -60px - $spacing;
     &.base {
         height: 70px;
         top: $offset;
@@ -79,38 +78,11 @@ $menuSize: 500px;
 
     &.event_log {
         height: 55px;
-        top: 2.5 * $spacing + 250px;
+        top: $offset + 1.5 * $spacing + 250px;
     }
 
     &:hover {
         @extend .active;
-    }
-}
-
-.toggle_button {
-    position: absolute;
-    // top: calc(50% - 50px);
-    top: 3 * $spacing + 305px;
-    right: -41px;
-
-    height: 100px;
-    width: 40px;
-    background: $tdc_darker;
-    border: 1px solid $tdc_accent;
-    border-left: none;
-    z-index: 5;
-    opacity: 0.5;
-
-    svg {
-        fill: white;
-    }
-
-    &:hover {
-        background: lighten($tdc_darker, 3%);
-
-        svg {
-            fill: $highlight;
-        }
     }
 }
 
