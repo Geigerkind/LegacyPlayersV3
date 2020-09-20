@@ -214,7 +214,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private get_bar_tooltip(subject_id: number): any {
         if (!this.in_ability_mode) {
             // TODO: Refactor condition
-            if ([13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
+            if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
                 return {
                     type: [13, 14].includes(this.current_selection) ? 9 : ([15, 16].includes(this.current_selection) ? 12 : ([17, 18].includes(this.current_selection) ? 13 : 7)),
                     payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),

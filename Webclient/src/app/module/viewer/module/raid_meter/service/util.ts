@@ -20,7 +20,7 @@ export class UtilService {
     }
 
     get_row_unit_subject(unit: Unit): RaidMeterSubject {
-        const unit_id = get_unit_id(unit);
+        const unit_id = get_unit_id(unit, false);
         return {
             id: unit_id,
             name: this.unitService.get_unit_name(unit),

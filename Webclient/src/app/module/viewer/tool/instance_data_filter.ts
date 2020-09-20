@@ -51,7 +51,7 @@ export class InstanceDataFilter {
         });
     }
 
-    private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => Unit, target_extraction: (Event) => Unit,
+    private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => number, target_extraction: (Event) => number,
                          multi_ability_extraction: (Event) => Array<number>, single_ability_extraction: (Event) => number,
                          inverse_filter: boolean = false): Array<Event> {
         const cache_key = event_type.toString() + (inverse_filter ? "1" : "0");
@@ -62,9 +62,14 @@ export class InstanceDataFilter {
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
         let result = container.filter(event => this.segment_intervals$.find(interval => {
             return interval[0] <= event[1] && interval[1] >= event[1];
-        }) !== undefined).filter(event => filter_source.has(get_unit_id(source_extraction(event))));
+        }) !== undefined).filter(event => filter_source.has(source_extraction(event)));
         if (!!target_extraction)
-            result = result.filter(event => filter_target.has(get_unit_id(target_extraction(event))));
+            result = result.filter(event => {
+                const unit_id = target_extraction(event);
+                if (unit_id === 0)
+                    return true;
+                return filter_target.has(unit_id);
+            });
         if (!!multi_ability_extraction)
             result = result.filter(event => multi_ability_extraction(event).every(ability => this.ability_filter$.has(ability)));
         if (!!single_ability_extraction)
@@ -122,88 +127,104 @@ export class InstanceDataFilter {
 
     get_spell_casts(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(0, this.data_loader.spell_casts, se_spell_cast, te_spell_cast, undefined, ae_spell_cast, inverse_filter);
+        return this.apply_filter(0, this.data_loader.spell_casts, (evt) => get_unit_id(se_spell_cast(evt)),
+            (evt) => get_unit_id(te_spell_cast(evt), false), undefined, ae_spell_cast, inverse_filter);
     }
 
     get_deaths(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(1, this.data_loader.deaths, se_death, te_death, undefined, undefined, inverse_filter);
+        return this.apply_filter(1, this.data_loader.deaths, (evt) => get_unit_id(se_death(evt), false),
+            (evt) => get_unit_id(te_death(evt), false), undefined, undefined, inverse_filter);
     }
 
     get_combat_states(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(2, this.data_loader.combat_states, se_combat_state, undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(2, this.data_loader.combat_states, (evt) => get_unit_id(se_combat_state(evt)),
+            undefined, undefined, undefined, inverse_filter);
     }
 
     get_loot(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(3, this.data_loader.loot, se_loot, undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(3, this.data_loader.loot, (evt) => get_unit_id(se_loot(evt), false),
+            undefined, undefined, undefined, inverse_filter);
     }
 
     get_positions(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(4, this.data_loader.positions, se_position, undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(4, this.data_loader.positions, (evt) => get_unit_id(se_position(evt), false),
+            undefined, undefined, undefined, inverse_filter);
     }
 
     get_powers(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(5, this.data_loader.powers, se_power, undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(5, this.data_loader.powers, (evt) => get_unit_id(se_power(evt), false),
+            undefined, undefined, undefined, inverse_filter);
     }
 
     get_aura_applications(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(6, this.data_loader.aura_applications, se_aura_application, te_aura_application, undefined, ae_aura_application, inverse_filter);
+        return this.apply_filter(6, this.data_loader.aura_applications, (evt) => get_unit_id(se_aura_application(evt), false),
+            (evt) => get_unit_id(te_aura_application(evt), false), undefined, ae_aura_application, inverse_filter);
     }
 
     get_interrupts(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(7, this.data_loader.interrupts, se_interrupt, te_interrupt, ae_interrupt, undefined, inverse_filter);
+        return this.apply_filter(7, this.data_loader.interrupts, (evt) => get_unit_id(se_interrupt(evt)),
+            (evt) => get_unit_id(te_interrupt(evt), false), ae_interrupt, undefined, inverse_filter);
     }
 
     get_spell_steals(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(8, this.data_loader.spell_steals, se_un_aura, te_un_aura, ae_un_aura, undefined, inverse_filter);
+        return this.apply_filter(8, this.data_loader.spell_steals, (evt) => get_unit_id(se_un_aura(evt)),
+            (evt) => get_unit_id(te_un_aura(evt), false), ae_un_aura, undefined, inverse_filter);
     }
 
     get_dispels(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(9, this.data_loader.dispels, se_un_aura, te_un_aura, ae_un_aura, undefined, inverse_filter);
+        return this.apply_filter(9, this.data_loader.dispels, (evt) => get_unit_id(se_un_aura(evt)),
+            (evt) => get_unit_id(te_un_aura(evt), false), ae_un_aura, undefined, inverse_filter);
     }
 
     get_threat_wipes(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(10, this.data_loader.threat_wipes, se_threat_wipe, undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(10, this.data_loader.threat_wipes, (evt) => get_unit_id(se_threat_wipe(evt), false),
+            undefined, undefined, undefined, inverse_filter);
     }
 
     get_summons(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(11, this.data_loader.summons, se_summon, te_summon, undefined, undefined, inverse_filter);
+        return this.apply_filter(11, this.data_loader.summons, (evt) => get_unit_id(se_summon(evt), false),
+            (evt) => get_unit_id(te_summon(evt), false), undefined, undefined, inverse_filter);
     }
 
     get_melee_damage(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(12, this.data_loader.melee_damage, se_melee_damage, te_melee_damage, undefined, ae_melee_damage, inverse_filter);
+        return this.apply_filter(12, this.data_loader.melee_damage, (evt) => get_unit_id(se_melee_damage(evt)),
+            (evt) => get_unit_id(te_melee_damage(evt), false), undefined, ae_melee_damage, inverse_filter);
     }
 
     get_spell_damage(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(13, this.data_loader.spell_damage, se_spell_damage, te_spell_damage, undefined, ae_spell_damage, inverse_filter);
+        return this.apply_filter(13, this.data_loader.spell_damage, (evt) => get_unit_id(se_spell_damage(evt)),
+            (evt) => get_unit_id(te_spell_damage(evt), false), undefined, ae_spell_damage, inverse_filter);
     }
 
     get_heal(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(14, this.data_loader.heal, se_heal, te_heal, undefined, ae_heal, inverse_filter);
+        return this.apply_filter(14, this.data_loader.heal, (evt) => get_unit_id(se_heal(evt)),
+            (evt) => get_unit_id(te_heal(evt), false), undefined, ae_heal, inverse_filter);
     }
 
     get_threat(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(15, this.data_loader.threat, se_threat, te_threat, undefined, ae_threat, inverse_filter);
+        return this.apply_filter(15, this.data_loader.threat, (evt) => get_unit_id(se_threat(evt), false),
+            (evt) => get_unit_id(te_threat(evt), false), undefined, ae_threat, inverse_filter);
     }
 
     get_non_segmented_aura_applications(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
-        return this.data_loader.aura_applications.filter(event => filter_source.has(get_unit_id(se_aura_application(event))))
+        return this.data_loader.aura_applications.filter(event => filter_source.has(get_unit_id(se_aura_application(event), false)))
             .filter(event => this.ability_filter$.has(ae_aura_application(event)));
     }
 

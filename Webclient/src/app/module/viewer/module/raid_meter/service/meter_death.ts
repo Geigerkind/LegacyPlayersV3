@@ -5,6 +5,7 @@ import {InstanceDataService} from "../../../service/instance_data";
 import {UtilService} from "./util";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
+import {get_unit_id} from "../../../domain_value/unit";
 
 @Injectable({
     providedIn: "root",
@@ -67,6 +68,14 @@ export class MeterDeathService implements OnDestroy {
                 for (const row of death_overview_rows) {
                     if (!this.abilities$.has(row.killing_blow.ability_id))
                         this.abilities$.set(row.killing_blow.ability_id, this.utilService.get_row_ability_subject(row.killing_blow.ability_id));
+
+                    const murder_subject_id = get_unit_id(row.murder, false);
+                    if (!this.units$.has(murder_subject_id))
+                        this.units$.set(murder_subject_id, this.utilService.get_row_unit_subject(row.murder));
+
+                    const murdered_subject_id = get_unit_id(row.murdered, false);
+                    if (!this.units$.has(murdered_subject_id))
+                        this.units$.set(murdered_subject_id, this.utilService.get_row_unit_subject(row.murdered));
                 }
             }
         }
