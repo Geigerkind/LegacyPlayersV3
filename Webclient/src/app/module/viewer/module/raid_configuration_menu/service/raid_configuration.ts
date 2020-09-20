@@ -216,9 +216,9 @@ export class RaidConfigurationService implements OnDestroy {
             result.push(combineLatest([this.unitService.get_unit_name(source), this.unitService.is_unit_boss(source)])
                 .pipe(map(([label, is_boss]) => {
                     return {
-                        id: get_unit_id(source),
+                        id: get_unit_id(source, false),
                         label,
-                        is_player: is_player(source),
+                        is_player: is_player(source, false),
                         is_boss
                     };
                 })));
@@ -232,9 +232,9 @@ export class RaidConfigurationService implements OnDestroy {
             result.push(combineLatest([this.unitService.get_unit_name(target), this.unitService.is_unit_boss(target)])
                 .pipe(map(([label, is_boss]) => {
                     return {
-                        id: get_unit_id(target),
+                        id: get_unit_id(target, false),
                         label,
-                        is_player: is_player(target),
+                        is_player: is_player(target, false),
                         is_boss
                     };
                 })));
