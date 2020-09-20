@@ -21,6 +21,7 @@ import {
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {Subject} from "rxjs";
 import {auditTime, debounceTime} from "rxjs/operators";
+import IntervalTree from 'node-interval-tree';
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
@@ -44,9 +45,12 @@ export class InstanceDataLoader {
     public heal: Array<Event> = [];
     public threat: Array<Event> = [];
 
-    public sources: Map<number, [Unit, Set<number>]> = new Map();
-    public targets: Map<number, [Unit, Set<number>]> = new Map();
-    public abilities: Map<number, Set<number>> = new Map();
+    public source_map: Map<number, Unit> = new Map();
+    public target_map: Map<number, Unit> = new Map();
+
+    public sources: IntervalTree<number> = new IntervalTree();
+    public targets: IntervalTree<number> = new IntervalTree();
+    public abilities: IntervalTree<number> = new IntervalTree();
 
     public initialized: boolean = false;
 
@@ -89,15 +93,17 @@ export class InstanceDataLoader {
         const source = getter[1](event);
         const source_id = get_unit_id(source, false);
 
-        if (this.sources.has(source_id)) this.sources.get(source_id)[1].add(event[1]);
-        else this.sources.set(source_id, [source, new Set([event[1]])]);
+        if (!this.source_map.has(source_id))
+            this.source_map.set(source_id, source);
+        this.sources.insert(event[1], event[1], source_id);
 
         if (!!getter[2]) {
             const target = getter[2](event);
             if (!!target) {
                 const target_id = get_unit_id(target, false);
-                if (this.targets.has(target_id)) this.targets.get(target_id)[1].add(event[1]);
-                else this.targets.set(target_id, [target, new Set([event[1]])]);
+                if (!this.target_map.has(target_id))
+                    this.target_map.set(target_id, target);
+                this.targets.insert(event[1], event[1], target_id);
             }
         }
 
@@ -106,16 +112,12 @@ export class InstanceDataLoader {
             if (abilities !== undefined && abilities !== null) {
                 if (abilities instanceof Array) {
                     for (const ability_id of abilities) {
-                        if (ability_id >= 0) {
-                            if (this.abilities.has(ability_id)) this.abilities.get(ability_id).add(event[1]);
-                            else this.abilities.set(ability_id, new Set([event[1]]));
-                        }
+                        if (ability_id >= 0)
+                            this.abilities.insert(event[1], event[1], ability_id);
                     }
                 } else {
-                    if (abilities >= 0) {
-                        if (this.abilities.has(abilities)) this.abilities.get(abilities).add(event[1]);
-                        else this.abilities.set(abilities, new Set([event[1]]));
-                    }
+                    if (abilities >= 0)
+                        this.abilities.insert(event[1], event[1], abilities);
                 }
             }
         }

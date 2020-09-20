@@ -86,6 +86,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     on_category_selection_updated(): void {
         this.use_default_filter_categories = false;
+        this.update_additional_segment_buttons();
         this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(category => category.id));
     }
 
@@ -109,35 +110,35 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id));
     }
 
-    private async handle_categories(categories: Array<Category>, update_filter: boolean) {
-        const new_list_items = [];
+    private update_additional_segment_buttons(): void {
         const additional_button = [];
-        for (const category of categories) {
-            new_list_items.push({
-                id: category.id,
-                label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
-            });
+        for (const cat_item of this.selected_items_categories) {
             additional_button.push({
-                id: category.id,
-                label: category.label,
+                id: cat_item.id,
+                label: cat_item.label,
                 list_selection_callback: (button, selected_list, current_list, checked) =>
-                    this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.encounter_id === category.id)
+                    this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.encounter_id === cat_item.id)
             });
         }
         this.segments_additional_button = additional_button;
+    }
 
+    private async handle_categories(categories: Array<Category>, update_filter: boolean) {
+        const new_list_items = [];
         const new_selected_items = [];
-        if (this.use_default_filter_categories) {
-            for (const list_item of new_list_items)
-                new_selected_items.push(list_item);
-        } else {
-            for (const selected_item of this.selected_items_categories) {
-                if (new_list_items.find(item => item.id === selected_item.id))
-                    new_selected_items.push(selected_item);
-            }
+        for (const category of categories) {
+            const cat_item = {
+                id: category.id,
+                label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
+            };
+            new_list_items.push(cat_item);
+
+            if ((this.use_default_filter_categories && cat_item.id > 0) || this.selected_items_categories.find(item => item.id === category.id) !== undefined)
+                new_selected_items.push(cat_item);
         }
         this.list_items_categories = new_list_items;
         this.selected_items_categories = new_selected_items;
+        this.update_additional_segment_buttons();
 
         if (this.use_default_filter_categories && update_filter)
             this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(item => item.id));

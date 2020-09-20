@@ -90,8 +90,8 @@ export class InstanceDataService implements OnDestroy {
                     setTimeout(() => this.knecht_updates$.next([this.recent_knecht_updates$[0][0], []]), 200);
                 }
             }));
-        this.subscription.add(this.knecht_updates.pipe(auditTime(500)).subscribe(([knecht_updates, evt_types]) => {
-            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
+        this.subscription.add(this.knecht_updates.pipe(auditTime(100)).subscribe(([knecht_updates, evt_types]) => {
+            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized, KnechtUpdates.SegmentsChanged].includes(elem)))
                 this.update_subjects();
         }));
     }
