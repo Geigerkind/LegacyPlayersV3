@@ -203,7 +203,6 @@ export class RaidConfigurationService implements OnDestroy {
             });
         zip(...[...segments.values()].map(segment => this.dataService.get_encounter(segment.encounter_id)
             .pipe(map(encounter => {
-                console.log(encounter);
                 if (!segment.label || segment.label === CONST_UNKNOWN_LABEL)
                     segment.label = !encounter ? CONST_UNKNOWN_LABEL : encounter.localization;
                 return segment;
