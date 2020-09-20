@@ -28,12 +28,8 @@ RaidConfigurationMenu {
     z-index: 5;
 }
 
-RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidDetailTable {
+RaidTitleBar, RaidGraph, RaidMeter, RaidComposition, RaidDetailTable, RaidConfigurationMenu {
     margin-bottom: $spacing;
-}
-
-RaidConfigurationMenu {
-    margin-bottom: 0.75 * $spacing;
 }
 
 @media (min-width: 1280px) {

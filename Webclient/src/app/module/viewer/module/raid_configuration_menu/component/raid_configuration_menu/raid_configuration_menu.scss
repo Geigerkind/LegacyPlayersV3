@@ -3,9 +3,8 @@
 @import "src/styles/colors";
 
 :host {
-    display: inline-block;
+    display: block;
     width: 100%;
-    min-height: 0;
 }
 
 .left_nav_bar {
@@ -14,9 +13,9 @@
 }
 
 .container {
-    display: inline-block;
+    display: block;
     width: calc(100% - #{$spacing} - 2px);
-    min-height: 0;
+    height: 36px;
     background: $tdc_darker;
     border: 1px solid $tdc_accent;
     border-radius: 3px 3px 3px 3px;
