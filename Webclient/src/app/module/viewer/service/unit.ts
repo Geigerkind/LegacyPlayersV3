@@ -56,7 +56,7 @@ export class UnitService {
                     .pipe(map(character => character.name));
 
             if (is_creature(unit, false))
-                return this.get_npc_name(get_creature_entry(unit, false));
+                return this.get_npc_name(get_creature_entry(unit));
         }
         return of(CONST_UNKNOWN_LABEL);
     }
