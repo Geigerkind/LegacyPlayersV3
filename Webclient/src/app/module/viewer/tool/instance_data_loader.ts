@@ -20,7 +20,7 @@ import {
 } from "../extractor/abilities";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {Subject} from "rxjs";
-import {auditTime} from "rxjs/operators";
+import {auditTime, debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
@@ -73,7 +73,7 @@ export class InstanceDataLoader {
     ]);
 
     constructor(private instance_meta_id: number, event_types: Array<number>) {
-        this.newData$.asObservable().pipe(auditTime(100))
+        this.newData$.asObservable().pipe(debounceTime(500))
             .subscribe(() => {
                 (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData, [...this.new_data_event_types.values()]]);
                 this.new_data_event_types = new Set();

@@ -90,7 +90,7 @@ export class InstanceDataService implements OnDestroy {
                     setTimeout(() => this.knecht_updates$.next([this.recent_knecht_updates$[0][0], []]), 200);
                 }
             }));
-        this.subscription.add(this.knecht_updates.pipe(auditTime(250)).subscribe(([knecht_updates, evt_types]) => {
+        this.subscription.add(this.knecht_updates.pipe(auditTime(500)).subscribe(([knecht_updates, evt_types]) => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
                 this.update_subjects();
         }));
@@ -416,8 +416,7 @@ export class InstanceDataService implements OnDestroy {
             ...await this.knecht_aura.get_sources(),
         ];
         for (const source of sources)
-            sources_res.set(get_unit_id(source), source);
-        this.sources$.next([...sources_res.values()]);
+            sources_res.set(get_unit_id(source, false), source);
 
         // Targets
         const targets_res = new Map();
@@ -435,8 +434,7 @@ export class InstanceDataService implements OnDestroy {
             ...await this.knecht_aura.get_targets(),
         ];
         for (const target of targets)
-            targets_res.set(get_unit_id(target), target);
-        this.targets$.next([...targets_res.values()]);
+            targets_res.set(get_unit_id(target, false), target);
 
         // Abilities
         const abilities_res = new Set<number>();
@@ -455,7 +453,10 @@ export class InstanceDataService implements OnDestroy {
         ];
         for (const ability of abilities)
             abilities_res.add(ability);
+
         this.abilities$.next(abilities_res);
+        this.targets$.next([...targets_res.values()]);
+        this.sources$.next([...sources_res.values()]);
     }
 
 }
