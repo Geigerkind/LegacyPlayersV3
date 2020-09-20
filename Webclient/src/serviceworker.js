@@ -9,7 +9,6 @@ const cache_first_permanent = [
     "/API/data/npc/localized/bosses",
     "/API/data/item/localized/basic_item/",
     "/API/data/spell/localized/basic_spell/",
-    "/API/data/encounter/localized",
     "/API/armory/character_viewer_model/"
 ];
 
@@ -21,6 +20,7 @@ const cache_first_shortly = [
 
 const stale_while_revalidate = [
     "/assets/",
+    "/API/data/encounter/localized"
 ];
 
 const stale_while_revalidate_destinations = [

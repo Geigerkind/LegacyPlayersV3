@@ -63,6 +63,9 @@ export class CharacterService implements OnDestroy {
     }
 
     get_basic_character_by_id(character_id: number): Observable<BasicCharacter> {
+        const pending = this.pending_basic_character.find(item => item[0] === character_id);
+        if (pending !== undefined)
+            return pending[1];
         if (this.cache_basic_character.has(character_id))
             return of(this.cache_basic_character.get(character_id));
         this.cache_basic_character.set(character_id, this.get_default_basic_character(character_id));

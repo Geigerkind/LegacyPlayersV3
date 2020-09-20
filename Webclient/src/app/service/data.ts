@@ -34,7 +34,6 @@ export class DataService implements OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     private maps$: BehaviorSubject<Array<Localized<InstanceMap>>>;
-    private encounters$: BehaviorSubject<Array<Localized<Encounter>>>;
     private servers$: BehaviorSubject<Array<AvailableServer>>;
     private races$: BehaviorSubject<Array<Localized<Race>>>;
     private hero_classes$: BehaviorSubject<Array<Localized<HeroClass>>>;
@@ -43,6 +42,9 @@ export class DataService implements OnDestroy {
     private cache_basic_spell: Map<number, Map<number, Localized<BasicSpell>>> = new Map();
     private cache_basic_item: Map<number, Map<number, Localized<BasicItem>>> = new Map();
     private cache_npc: Map<number, Map<number, Localized<NPC>>> = new Map();
+
+    private cache_encounters: Array<Localized<Encounter>>;
+    private pending_encounter$: Subject<Array<Localized<Encounter>>>;
 
     private pending_npcs: Array<[number, Subject<Localized<NPC>>]> = [];
     private lazy_npcs$: Subject<number> = new Subject();
@@ -126,12 +128,26 @@ export class DataService implements OnDestroy {
     }
 
     get encounters(): Observable<Array<Localized<Encounter>>> {
-        this.encounters$ = this.settingsService.init_or_load_behavior_subject("data_service_encounters", 7, this.encounters$, [],
-            (callback) => this.apiService.get(DataService.URL_DATA_ENCOUNTER_LOCALIZED, callback));
-        return this.encounters$.asObservable().pipe(map(result => result.sort((left, right) => left.base.id - right.base.id)));
+        if (!!this.pending_encounter$)
+            return this.pending_encounter$.asObservable();
+        if (!!this.cache_encounters) {
+            return of(this.cache_encounters);
+        }
+
+        const subject: Subject<Array<Localized<Encounter>>> = new Subject();
+        this.pending_encounter$ = subject;
+        this.apiService.get(DataService.URL_DATA_ENCOUNTER_LOCALIZED, result => {
+            this.cache_encounters = result.sort((left, right) => left.base.id - right.base.id);
+            subject.next(this.cache_encounters);
+            this.pending_encounter$ = undefined;
+        });
+        return subject.asObservable();
     }
 
     get_npc(expansion_id: number, npc_id: number): Observable<Localized<NPC>> {
+        const pending = this.pending_npcs.find(item => item[0] === npc_id);
+        if (pending !== undefined)
+            return pending[1];
         if (this.cache_npc.get(expansion_id).has(npc_id))
             return of(this.cache_npc.get(expansion_id).get(npc_id));
         this.cache_npc.get(expansion_id).set(npc_id, this.get_unknown_npc(expansion_id, npc_id));
@@ -178,6 +194,9 @@ export class DataService implements OnDestroy {
     }
 
     get_localized_basic_spell(expansion_id: number, spell_id: number): Observable<Localized<BasicSpell>> {
+        const pending = this.pending_basic_spells.find(item => item[0] === spell_id);
+        if (pending !== undefined)
+            return pending[1];
         if (this.cache_basic_spell.get(expansion_id).has(spell_id))
             return of(this.cache_basic_spell.get(expansion_id).get(spell_id));
         this.cache_basic_spell.get(expansion_id).set(spell_id, this.unknown_basic_spell);
