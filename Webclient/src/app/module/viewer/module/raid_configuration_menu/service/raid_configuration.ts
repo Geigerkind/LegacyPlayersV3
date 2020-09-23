@@ -6,7 +6,7 @@ import {InstanceViewerAttempt} from "../../../domain_value/instance_viewer_attem
 import {Segment} from "../domain_value/segment";
 import {EventSource} from "../domain_value/event_source";
 import {RaidOption} from "../domain_value/raid_option";
-import {map, take, takeUntil} from "rxjs/operators";
+import {debounceTime, map, take, takeUntil} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
 import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
@@ -14,17 +14,25 @@ import {EventAbility} from "../domain_value/event_ability";
 import {SpellService} from "../../../service/spell";
 import {DataService} from "../../../../../service/data";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
+import {ViewerMode} from "../../../domain_value/viewer_mode";
+import {ActivatedRoute} from "@angular/router";
+import {iterable_some} from "../../../../../stdlib/iterable_higher_order";
+
+export interface FilterStackItem {
+    viewer_mode: ViewerMode;
+    categories: Set<number>;
+    segments: Set<number>;
+    sources: Set<number>;
+    targets: Set<number>;
+    abilities: Set<number>;
+}
 
 @Injectable({
     providedIn: "root",
 })
 export class RaidConfigurationService implements OnDestroy {
 
-    private subscription_attempts: Subscription;
-    private subscription_sources: Subscription;
-    private subscription_targets: Subscription;
-    private subscription_abilities: Subscription;
-    private subscription_meta: Subscription;
+    private subscription: Subscription = new Subscription();
 
     private current_meta: InstanceViewerMeta;
 
@@ -37,6 +45,10 @@ export class RaidConfigurationService implements OnDestroy {
 
     private category_filter: Set<number> = new Set();
     private segment_filter: Set<number> = new Set();
+    private source_filter: Array<number> = [];
+    private target_filter: Array<number> = [];
+    private ability_filter: Array<number> = [];
+    private current_mode: ViewerMode = ViewerMode.Base;
 
     private nextCategories: Subject<void> = new Subject();
     private nextSegments: Subject<void> = new Subject();
@@ -44,34 +56,59 @@ export class RaidConfigurationService implements OnDestroy {
     private nextTargets: Subject<void> = new Subject();
     private nextAbilities: Subject<void> = new Subject();
 
+    private filter_stack: Array<FilterStackItem> = [];
+    private filter_updated$: Subject<void> = new Subject();
+
     constructor(
         private instanceDataService: InstanceDataService,
         private unitService: UnitService,
         private spellService: SpellService,
-        private dataService: DataService
+        private dataService: DataService,
+        private activated_route_service: ActivatedRoute
     ) {
-        this.subscription_meta = this.instanceDataService.meta.subscribe(meta => {
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => {
             this.current_meta = meta;
             this.instanceDataService.attempts.pipe(take(1)).subscribe(attempts => {
                 this.update_categories(attempts);
                 this.update_segments(attempts);
             });
-        });
-        this.subscription_attempts = this.instanceDataService.attempts.subscribe(attempts => {
+        }));
+        this.subscription.add(this.instanceDataService.attempts.subscribe(attempts => {
             this.update_categories(attempts);
             this.update_segments(attempts);
-        });
-        this.subscription_sources = this.instanceDataService.sources.subscribe(sources => this.update_sources(sources));
-        this.subscription_targets = this.instanceDataService.targets.subscribe(targets => this.update_targets(targets));
-        this.subscription_abilities = this.instanceDataService.abilities.subscribe(abilities => this.update_abilities(abilities));
+        }));
+        this.subscription.add(this.instanceDataService.sources.subscribe(sources => this.update_sources(sources)));
+        this.subscription.add(this.instanceDataService.targets.subscribe(targets => this.update_targets(targets)));
+        this.subscription.add(this.instanceDataService.abilities.subscribe(abilities => this.update_abilities(abilities)));
+
+        this.subscription.add(this.activated_route_service.paramMap.subscribe(params => this.current_mode = params.get("mode") as ViewerMode));
+        this.subscription.add(this.filter_updated$.pipe(debounceTime(500)).subscribe(() => {
+            if (this.category_filter.size <= 0 || this.segment_filter.size <= 0 || this.source_filter.length <= 0 || this.target_filter.length <= 0 || this.ability_filter.length <= 0)
+                return;
+            if (this.filter_stack.length > 0) {
+                const last_elem = this.filter_stack[this.filter_stack.length - 1];
+                if (
+                    (last_elem.categories.size === this.category_filter.size && iterable_some(this.category_filter.values(), (elem) => !last_elem.categories.has(elem))) &&
+                    (last_elem.segments.size === this.segment_filter.size && iterable_some(this.segment_filter.values(), (elem) => !last_elem.segments.has(elem))) &&
+                    (last_elem.sources.size === this.source_filter.length && this.source_filter.some(elem => !last_elem.sources.has(elem))) &&
+                    (last_elem.targets.size === this.target_filter.length && this.target_filter.some(elem => !last_elem.targets.has(elem))) &&
+                    (last_elem.abilities.size === this.ability_filter.length && this.ability_filter.some(elem => !last_elem.abilities.has(elem)))
+                ) return;
+            }
+
+            this.filter_stack.push({
+                viewer_mode: this.current_mode,
+                categories: new Set([...this.category_filter.values()]),
+                segments: new Set([...this.segment_filter.values()]),
+                sources: new Set(this.source_filter),
+                targets: new Set(this.target_filter),
+                abilities: new Set(this.ability_filter)
+            });
+        }));
     }
 
     ngOnDestroy(): void {
-        this.subscription_attempts?.unsubscribe();
-        this.subscription_sources?.unsubscribe();
-        this.subscription_targets?.unsubscribe();
-        this.subscription_abilities?.unsubscribe();
-        this.subscription_meta?.unsubscribe();
+        this.subscription?.unsubscribe();
         this.nextCategories.next();
         this.nextSegments.next();
         this.nextSources.next();
@@ -128,23 +165,31 @@ export class RaidConfigurationService implements OnDestroy {
             if (filtered_categories.find(category => category.segments.has(segment)) !== undefined)
                 new_segment_filter.push(segment);
         this.update_segment_filter(new_segment_filter);
+        this.filter_updated$.next();
     }
 
     update_segment_filter(selected_segments: Array<number>): void {
         this.segment_filter = new Set(selected_segments);
         this.set_segment_intervals();
+        this.filter_updated$.next();
     }
 
     update_source_filter(selected_sources: Array<number>): void {
+        this.source_filter = selected_sources;
         this.instanceDataService.source_filter = selected_sources;
+        this.filter_updated$.next();
     }
 
     update_target_filter(selected_targets: Array<number>): void {
+        this.target_filter = selected_targets;
         this.instanceDataService.target_filter = selected_targets;
+        this.filter_updated$.next();
     }
 
     update_ability_filter(selected_abilities: Array<number>): void {
+        this.ability_filter = selected_abilities;
         this.instanceDataService.ability_filter = selected_abilities;
+        this.filter_updated$.next();
     }
 
     private update_categories(attempts: Array<InstanceViewerAttempt>): void {
