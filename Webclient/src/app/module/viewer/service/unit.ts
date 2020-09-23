@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {get_creature_entry, get_unit_id, is_creature, is_player, Unit} from "../domain_value/unit";
+import {get_creature_entry, get_unit_id, get_unit_owner, is_creature, is_player, Unit} from "../domain_value/unit";
 import {Observable, of} from "rxjs";
 import {CharacterService} from "../../armory/service/character";
 import {concatMap, map} from "rxjs/operators";
@@ -55,8 +55,15 @@ export class UnitService {
                     .get_basic_character_by_id(get_unit_id(unit, false))
                     .pipe(map(character => character.name));
 
-            if (is_creature(unit, false))
-                return this.get_npc_name(get_creature_entry(unit));
+            if (is_creature(unit, false)) {
+                const creatureEntry = get_creature_entry(unit);
+                const npcName = this.get_npc_name(creatureEntry);
+                if (!!unit[3]) {
+                    return this.get_unit_name(get_unit_owner(unit)).pipe(concatMap(unit_name =>
+                        npcName.pipe(map(npc_name => npc_name + "(" + unit_name + ")"))));
+                }
+                return npcName;
+            }
         }
         return of(CONST_UNKNOWN_LABEL);
     }
