@@ -12,8 +12,8 @@ pub fn try_parse_spell_steal(
     cache_unit: &mut HashMap<u64, Unit>,
 ) -> Result<(Event, Event), EventParseFailureAction>
 {
-    let un_aura_caster = spell_steal.un_aura_caster.to_unit(cache_unit, db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-    let target = spell_steal.target.to_unit(&mut HashMap::new(), db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let un_aura_caster = spell_steal.un_aura_caster.to_unit_add_implicit(cache_unit, db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let target = spell_steal.target.to_unit_add_implicit(&mut HashMap::new(), db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut spell_cast_event = None;
     let mut aura_application_event = None;

@@ -8,8 +8,8 @@ use std::collections::{HashMap, VecDeque};
 pub fn try_parse_dispel(
     db_main: &mut (impl Select + Execute), dispel: &UnAura, recently_committed_spell_cast_and_aura_applications: &VecDeque<Event>, armory: &Armory, server_id: u32, summons: &HashMap<u64, Unit>, cache_unit: &mut HashMap<u64, Unit>,
 ) -> Result<(Event, Event), EventParseFailureAction> {
-    let un_aura_caster = dispel.un_aura_caster.to_unit(cache_unit, db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-    let target = dispel.target.to_unit(&mut HashMap::new(), db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let un_aura_caster = dispel.un_aura_caster.to_unit_add_implicit(cache_unit, db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+    let target = dispel.target.to_unit_add_implicit(&mut HashMap::new(), db_main, armory, server_id, summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
 
     let mut un_aura_event = None;
     let mut aura_application_event = None;

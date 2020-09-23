@@ -10,6 +10,7 @@ use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use std::collections::HashMap;
 use rust_lapper::{Interval, Lapper};
+use proptest::std_facade::BTreeSet;
 
 pub trait LogParser {
     fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str) -> Vec<Message>;
@@ -50,8 +51,15 @@ impl LogParser for WoWCBTLParser {
 
         // Post processing step
         // Insert new participants
+        let mut remove_unit = BTreeSet::new();
         for (unit_id, (unit_name, hero_class_id)) in self.found_player.iter() {
-            if armory.get_character_by_uid(self.server_id, *unit_id).is_none() {
+            if armory.get_character_by_name(self.server_id, unit_name.clone()).is_none() {
+                // Netherwing and Karazhan provide armory data directly
+                if self.server_id != 4 && self.server_id != 5 {
+                    remove_unit.insert(*unit_id);
+                    continue;
+                }
+
                 let _ = armory.set_character(
                     db_main,
                     self.server_id,
@@ -225,8 +233,28 @@ impl LogParser for WoWCBTLParser {
         }
 
         messages.append(&mut additional_messages);
+        messages = messages.into_iter().filter(|msg| !is_in_remove_list(&remove_unit, &msg.message_type)).collect();
         messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
         messages
+    }
+}
+
+fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) -> bool {
+    match &message_type {
+        MessageType::SpellDamage(dmg) |
+        MessageType::MeleeDamage(dmg) => remove_unit.contains(&dmg.attacker.unit_id) || remove_unit.contains(&dmg.victim.unit_id),
+        MessageType::Heal(heal) => remove_unit.contains(&heal.caster.unit_id) || remove_unit.contains(&heal.target.unit_id),
+        MessageType::Death(death) => remove_unit.contains(&death.victim.unit_id),
+        MessageType::AuraApplication(aura) => remove_unit.contains(&aura.caster.unit_id) || remove_unit.contains(&aura.target.unit_id),
+        // Aura Cast always None
+        MessageType::SpellSteal(_) |
+        MessageType::Dispel(un_aura) => remove_unit.contains(&un_aura.un_aura_caster.unit_id) || remove_unit.contains(&un_aura.target.unit_id),
+        MessageType::Interrupt(interrupt) => remove_unit.contains(&interrupt.target.unit_id),
+        MessageType::SpellCast(cast) => remove_unit.contains(&cast.caster.unit_id) || remove_unit.contains(&cast.target.unit_id),
+        MessageType::Summon(summon) => remove_unit.contains(&summon.unit.unit_id) || remove_unit.contains(&summon.owner.unit_id),
+        MessageType::CombatState(cbt) => remove_unit.contains(&cbt.unit.unit_id),
+        MessageType::InstanceMap(map) => remove_unit.contains(&map.unit.unit_id),
+        _ => false
     }
 }
 
