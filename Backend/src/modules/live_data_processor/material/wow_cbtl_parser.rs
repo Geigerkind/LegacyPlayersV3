@@ -112,7 +112,9 @@ impl WoWCBTLParser {
                 // Divine Storm
                 53385,54171,54172,58127,66006,
                 // Holy Shield
-                9800,20925,20927,20928,27179,31904,32777,48951,48952
+                9800,20925,20927,20928,27179,31904,32777,48951,48952,
+                // Crusader Strike
+                35395
             ].iter().cloned().collect();
             static ref ROGUE_SPELLS: BTreeSet<u32> = [
                 // Sinister Strike
@@ -234,12 +236,8 @@ impl WoWCBTLParser {
             } else if DRUID_SPELLS.contains(&spell_id) {
                 11
             } else {
-                99
+                12
             };
-
-            if hero_class_id == 99 {
-                return;
-            }
 
             self.found_player.insert(unit_id, (unit_name.replace("\"", ""), hero_class_id));
         }

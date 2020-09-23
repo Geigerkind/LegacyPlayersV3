@@ -8,9 +8,8 @@ use crate::modules::live_data_processor::material::WoWCBTLParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeSet};
 use rust_lapper::{Interval, Lapper};
-use proptest::std_facade::BTreeSet;
 
 pub trait LogParser {
     fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str) -> Vec<Message>;
@@ -55,7 +54,7 @@ impl LogParser for WoWCBTLParser {
         for (unit_id, (unit_name, hero_class_id)) in self.found_player.iter() {
             if armory.get_character_by_name(self.server_id, unit_name.clone()).is_none() {
                 // Netherwing and Karazhan provide armory data directly
-                if self.server_id != 4 && self.server_id != 5 {
+                if self.server_id == 4 || self.server_id == 5 {
                     remove_unit.insert(*unit_id);
                     continue;
                 }
@@ -247,10 +246,10 @@ fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) ->
         MessageType::Death(death) => remove_unit.contains(&death.victim.unit_id),
         MessageType::AuraApplication(aura) => remove_unit.contains(&aura.caster.unit_id) || remove_unit.contains(&aura.target.unit_id),
         // Aura Cast always None
-        MessageType::SpellSteal(_) |
+        MessageType::SpellSteal(un_aura) |
         MessageType::Dispel(un_aura) => remove_unit.contains(&un_aura.un_aura_caster.unit_id) || remove_unit.contains(&un_aura.target.unit_id),
         MessageType::Interrupt(interrupt) => remove_unit.contains(&interrupt.target.unit_id),
-        MessageType::SpellCast(cast) => remove_unit.contains(&cast.caster.unit_id) || remove_unit.contains(&cast.target.unit_id),
+        MessageType::SpellCast(cast) => remove_unit.contains(&cast.caster.unit_id) || (cast.target.is_some() && remove_unit.contains(&cast.target.as_ref().unwrap().unit_id)),
         MessageType::Summon(summon) => remove_unit.contains(&summon.unit.unit_id) || remove_unit.contains(&summon.owner.unit_id),
         MessageType::CombatState(cbt) => remove_unit.contains(&cbt.unit.unit_id),
         MessageType::InstanceMap(map) => remove_unit.contains(&map.unit.unit_id),
@@ -342,7 +341,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
         "SWING_DAMAGE" => {
             let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (hit_mask, blocked, damage_component) = parse_damage(&message_args[7..])?;
+            let (hit_mask, blocked, damage_component) = parse_damage(me.expansion_id, &message_args[7..])?;
             vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
                 victim,
@@ -371,7 +370,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (hit_mask, blocked, damage_component) = parse_damage(&message_args[10..])?;
+            let (hit_mask, blocked, damage_component) = parse_damage(me.expansion_id, &message_args[10..])?;
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: attacker.clone(),
@@ -417,7 +416,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (amount, overhealing, absorbtion, is_crit) = parse_heal(&message_args[10..])?;
+            let (amount, overhealing, absorbtion, is_crit) = parse_heal(me.expansion_id, &message_args[10..])?;
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: caster.clone(),
@@ -495,7 +494,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             vec![MessageType::Death(Death { cause: None, victim })]
         }
-        "SPELL_DISPEL" => {
+        "SPELL_DISPEL" | "SPELL_AURA_DISPELLED" => {
             let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
@@ -532,7 +531,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
             ]
         }
-        "SPELL_STOLEN" => {
+        "SPELL_STOLEN" | "SPELL_AURA_STOLEN" => {
             let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
@@ -560,13 +559,18 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
     })
 }
 
-fn parse_heal(heal_args: &[&str]) -> Result<(u32, u32, u32, bool), LiveDataProcessorFailure> {
+fn parse_heal(expansion_id: u8, heal_args: &[&str]) -> Result<(u32, u32, u32, bool), LiveDataProcessorFailure> {
     let amount = u32::from_str_radix(heal_args[0], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let overhealing = u32::from_str_radix(heal_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    // TODO: Use as absorbed hint
-    let absorbed = u32::from_str_radix(heal_args[2], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let critical = heal_args[2].starts_with('1');
-    Ok((amount, overhealing, absorbed, critical))
+    if expansion_id == 2 {
+        let critical = heal_args[1].starts_with('1');
+        Ok((amount, 0, 0, critical))
+    } else {
+        let overhealing = u32::from_str_radix(heal_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+        // TODO: Use as absorbed hint
+        let absorbed = u32::from_str_radix(heal_args[2], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+        let critical = heal_args[3].starts_with('1');
+        Ok((amount, overhealing, absorbed, critical))
+    }
 }
 
 fn parse_spell_args(me: &mut WoWCBTLParser, event_timestamp: u64, spell_args: &[&str]) -> Result<(u32, u8), LiveDataProcessorFailure> {
@@ -631,15 +635,17 @@ fn parse_miss(miss_args: &[&str]) -> Result<(u32, u32, Option<DamageComponent>),
     })
 }
 
-fn parse_damage(damage_args: &[&str]) -> Result<(u32, u32, DamageComponent), LiveDataProcessorFailure> {
+fn parse_damage(expansion_id: u8, damage_args: &[&str]) -> Result<(u32, u32, DamageComponent), LiveDataProcessorFailure> {
+    let tbc_shift = if expansion_id == 2 { 1 } else { 0 };
+
     let amount = u32::from_str_radix(damage_args[0], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let school_mask = u8::from_str_radix(damage_args[2], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let resisted = u32::from_str_radix(damage_args[3], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let blocked = u32::from_str_radix(damage_args[4], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let absorbed = u32::from_str_radix(damage_args[5], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let critical = damage_args[6].starts_with('1');
-    let glancing = damage_args[7].starts_with('1');
-    let crushing = damage_args[8].starts_with('1');
+    let school_mask = u8::from_str_radix(damage_args[2 - tbc_shift], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let resisted = u32::from_str_radix(damage_args[3 - tbc_shift], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let blocked = u32::from_str_radix(damage_args[4 - tbc_shift], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let absorbed = u32::from_str_radix(damage_args[5 - tbc_shift], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let critical = damage_args[6 - tbc_shift].starts_with('1');
+    let glancing = damage_args[7 - tbc_shift].starts_with('1');
+    let crushing = damage_args[8 - tbc_shift].starts_with('1');
     let mut hit_mask = 0;
     if critical {
         hit_mask |= HitType::Crit as u32;

@@ -1,7 +1,6 @@
 import {Component, ElementRef, ViewChild} from "@angular/core";
 import {UploadService} from "../../service/upload";
 import {Severity} from "../../../../../../domain_value/severity";
-import {APIService} from "../../../../../../service/api";
 import {NotificationService} from "../../../../../../service/notification";
 import {DateService} from "../../../../../../service/date";
 
@@ -16,6 +15,8 @@ export class UploadComponent {
     disableSubmit = false;
 
     server = [
+        {value: 4, label_key: "Netherwing"},
+        {value: 5, label_key: "Karazhan"},
         {value: 6, label_key: "Crystalsong"}
     ];
     selected_server_id: number = this.server[0].value;
