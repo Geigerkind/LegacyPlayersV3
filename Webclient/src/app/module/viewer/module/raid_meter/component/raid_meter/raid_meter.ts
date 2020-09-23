@@ -25,7 +25,7 @@ import {DetailDamageService} from "../../../raid_detail_table/service/detail_dam
 import {DetailHealService} from "../../../raid_detail_table/service/detail_heal";
 import {DetailThreatService} from "../../../raid_detail_table/service/detail_threat";
 import {EventLogService} from "../../../raid_event_log/service/event_log";
-import {map} from "rxjs/operators";
+import {debounceTime, map} from "rxjs/operators";
 import {MeterInterruptService} from "../../service/meter_interrupt";
 import {MeterSpellStealService} from "../../service/meter_spell_steal";
 import {MeterAuraUptimeService} from "../../service/meter_aura_uptime";
@@ -141,8 +141,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         this.subscription_meta = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
         this.subscription_abilities = this.raidMeterService.abilities.subscribe(abilities => this.abilities = abilities);
         this.subscription_units = this.raidMeterService.units.subscribe(units => this.units = units);
-        this.subscription = this.raidMeterService.data.subscribe(rows => this.update_bars(rows));
-        this.subscription_ability_details = this.raidDetailService.ability_details.subscribe(details => {
+        this.subscription = this.raidMeterService.data.pipe(debounceTime(25)).subscribe(rows => this.update_bars(rows));
+        this.subscription_ability_details = this.raidDetailService.ability_details.pipe(debounceTime(25)).subscribe(details => {
             this.ability_details = details;
             this.update_bars(this.current_data);
         });
