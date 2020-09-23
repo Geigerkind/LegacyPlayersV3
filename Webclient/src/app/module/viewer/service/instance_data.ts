@@ -8,14 +8,17 @@ import {get_unit_id, Unit} from "../domain_value/unit";
 import * as Comlink from "comlink";
 import {Remote} from "comlink";
 import {Rechenknecht} from "../tool/rechenknecht";
-import {auditTime, debounceTime} from "rxjs/operators";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {LoadingBarService} from "../../../service/loading_bar";
+import {debounceTime} from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",
 })
 export class InstanceDataService implements OnDestroy {
+
+    private static readonly NUMBER_OF_WORKER: number = 11;
+
     private static INSTANCE_EXPORT_META_URL: string = "/instance/export/:instance_meta_id";
     private static INSTANCE_EXPORT_PARTICIPANTS_URL: string = "/instance/export/participants/:instance_meta_id";
     private static INSTANCE_EXPORT_ATTEMPTS_URL: string = "/instance/export/attempts/:instance_meta_id";
@@ -52,7 +55,7 @@ export class InstanceDataService implements OnDestroy {
     private public_knecht_updates$: Subject<[Array<KnechtUpdates>, Array<number>]> = new Subject();
     private knecht_updates$: Subject<[KnechtUpdates, Array<number>]> = new Subject();
     private recent_knecht_updates$: [Set<KnechtUpdates>, Set<number>] = [new Set(), new Set()];
-    private last_knecht_update$: number = 0;
+    private worker_initialized: number = 0;
 
     constructor(
         private apiService: APIService,
@@ -72,25 +75,27 @@ export class InstanceDataService implements OnDestroy {
             });
         }, 60000);
 
-        this.subscription.add(this.knecht_updates$.subscribe(([knecht_update, event_types]) => {
-            this.recent_knecht_updates$[0].add(knecht_update);
-            if (!!event_types) {
-                for (const evt_type of event_types)
-                    this.recent_knecht_updates$[1].add(evt_type);
-            }
-            this.last_knecht_update$ = Date.now();
-        }));
-        this.subscription.add(this.knecht_updates$.pipe(auditTime(250))
-            .subscribe(() => {
-                if (Date.now() - this.last_knecht_update$ >= 200) {
-                    this.public_knecht_updates$.next([[...this.recent_knecht_updates$[0].values()], [...this.recent_knecht_updates$[1].values()]]);
-                    this.recent_knecht_updates$[0].clear();
-                    this.recent_knecht_updates$[1].clear();
-                } else {
-                    setTimeout(() => this.knecht_updates$.next([this.recent_knecht_updates$[0][0], []]), 200);
+        this.subscription.add(this.knecht_updates$
+            .subscribe(([knecht_update, event_types]) => {
+                if (knecht_update === KnechtUpdates.Initialized) {
+                    ++this.worker_initialized;
+                }
+
+                this.recent_knecht_updates$[0].add(knecht_update);
+                if (!!event_types) {
+                    for (const evt_type of event_types)
+                        this.recent_knecht_updates$[1].add(evt_type);
                 }
             }));
-        this.subscription.add(this.knecht_updates.pipe(auditTime(100)).subscribe(([knecht_updates, evt_types]) => {
+        this.subscription.add(this.knecht_updates$.pipe(debounceTime(50)).subscribe(() => {
+            if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER)
+                return;
+
+            this.public_knecht_updates$.next([[...this.recent_knecht_updates$[0].values()], [...this.recent_knecht_updates$[1].values()]]);
+            this.recent_knecht_updates$[0].clear();
+            this.recent_knecht_updates$[1].clear();
+        }));
+        this.subscription.add(this.knecht_updates.subscribe(([knecht_updates, evt_types]) => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized, KnechtUpdates.SegmentsChanged].includes(elem)))
                 this.update_subjects();
         }));

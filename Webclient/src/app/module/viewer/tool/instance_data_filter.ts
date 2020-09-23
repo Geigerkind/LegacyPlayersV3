@@ -47,10 +47,10 @@ export class InstanceDataFilter {
 
     constructor(instance_meta_id: number, event_types: Array<number>) {
         this.data_loader = new InstanceDataLoader(instance_meta_id, event_types);
-        this.filter_changed$.asObservable().pipe(auditTime(250)).subscribe(() => {
+        this.filter_changed$.asObservable().pipe(auditTime(10)).subscribe(() => {
             (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.FilterChanged]);
         });
-        this.segments_changed$.asObservable().pipe(auditTime(50)).subscribe(() => {
+        this.segments_changed$.asObservable().pipe(auditTime(10)).subscribe(() => {
             (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.SegmentsChanged]);
         });
     }
