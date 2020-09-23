@@ -51,8 +51,10 @@ impl LogParser for WoWCBTLParser {
         // Post processing step
         // Insert new participants
         let mut remove_unit = BTreeSet::new();
+        let mut replace_unit_id = HashMap::new();
         for (unit_id, (unit_name, hero_class_id)) in self.found_player.iter() {
-            if armory.get_character_by_name(self.server_id, unit_name.clone()).is_none() {
+            let character = armory.get_character_by_name(self.server_id, unit_name.clone());
+            if character.is_none() {
                 // Netherwing and Karazhan provide armory data directly
                 if self.server_id == 4 || self.server_id == 5 {
                     remove_unit.insert(*unit_id);
@@ -105,6 +107,8 @@ impl LogParser for WoWCBTLParser {
                         }),
                     },
                 );
+            } else {
+                replace_unit_id.insert(*unit_id, character.unwrap().server_uid);
             }
         }
 
@@ -232,9 +236,74 @@ impl LogParser for WoWCBTLParser {
         }
 
         messages.append(&mut additional_messages);
-        messages = messages.into_iter().filter(|msg| !is_in_remove_list(&remove_unit, &msg.message_type)).collect();
+        if self.server_id == 4 || self.server_id == 5 {
+            messages = messages.into_iter()
+                .filter(|msg| !is_in_remove_list(&remove_unit, &msg.message_type))
+                .map(|mut msg| {
+                    replace_ids(&replace_unit_id, &mut msg.message_type);
+                    msg
+                })
+                .collect();
+        }
         messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
         messages
+    }
+}
+
+fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageType) {
+    match message_type {
+        MessageType::SpellDamage(dmg) |
+        MessageType::MeleeDamage(dmg) => {
+            replace_id(replace_unit_id, &mut dmg.attacker);
+            replace_id(replace_unit_id, &mut dmg.victim);
+        },
+        MessageType::Heal(heal) => {
+            replace_id(replace_unit_id, &mut heal.caster);
+            replace_id(replace_unit_id, &mut heal.target);
+        },
+        MessageType::Death(death) => {
+            replace_id(replace_unit_id, &mut death.victim);
+        },
+        MessageType::AuraApplication(aura) => {
+            replace_id(replace_unit_id, &mut aura.caster);
+            replace_id(replace_unit_id, &mut aura.target);
+        },
+        // Aura Cast always None
+        MessageType::SpellSteal(un_aura) |
+        MessageType::Dispel(un_aura) => {
+            replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
+            replace_id(replace_unit_id, &mut un_aura.target);
+        },
+        MessageType::Interrupt(interrupt) => {
+            replace_id(replace_unit_id, &mut interrupt.target);
+        },
+        MessageType::SpellCast(cast) => {
+            replace_id(replace_unit_id, &mut cast.caster);
+            if let Some(target) = &mut cast.target {
+                replace_id(replace_unit_id, target);
+            }
+        },
+        MessageType::Summon(summon) => {
+            replace_id(replace_unit_id, &mut summon.unit);
+            replace_id(replace_unit_id, &mut summon.owner);
+        },
+        MessageType::CombatState(cbt) => {
+            replace_id(replace_unit_id, &mut cbt.unit);
+        },
+        MessageType::InstanceMap(map) => {
+            replace_id(replace_unit_id, &mut map.unit);
+        },
+        _ => {}
+    };
+}
+
+fn replace_id(replace_unit_id: &HashMap<u64, u64>, unit: &mut Unit) {
+    if unit.is_player {
+        if let Some(char_id) = replace_unit_id.get(&unit.unit_id) {
+            unit.unit_id = *char_id;
+        } else {
+            unit.unit_id = 0;
+        }
     }
 }
 
@@ -371,6 +440,9 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
             let (hit_mask, blocked, damage_component) = parse_damage(me.expansion_id, &message_args[10..])?;
+            if attacker.is_player {
+                me.collect_player(attacker.unit_id, message_args[2], spell_id);
+            }
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: attacker.clone(),
@@ -394,6 +466,9 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
             let (hit_mask, blocked, damage_component) = parse_miss(&message_args[10..])?;
+            if attacker.is_player {
+                me.collect_player(attacker.unit_id, message_args[2], spell_id);
+            }
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: attacker.clone(),
@@ -417,6 +492,9 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
             let (amount, overhealing, absorbtion, is_crit) = parse_heal(me.expansion_id, &message_args[10..])?;
+            if caster.is_player {
+                me.collect_player(caster.unit_id, message_args[2], spell_id);
+            }
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: caster.clone(),
@@ -441,6 +519,9 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
+            if caster.is_player {
+                me.collect_player(caster.unit_id, message_args[2], spell_id);
+            }
             /*
             let amount = if message_args.len() == 12 {
                 i8::from_str_radix(message_args[11], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?
@@ -499,6 +580,12 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
             let (target_spell_id, _target_school_mask) = parse_spell_args(me, event_timestamp, &message_args[10..13])?;
+            if un_aura_caster.is_player {
+                me.collect_player(un_aura_caster.unit_id, message_args[2], un_aura_spell_id);
+            } else if target.is_player {
+                me.collect_player(target.unit_id, message_args[5], target_spell_id);
+            }
+
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: un_aura_caster.clone(),
@@ -521,6 +608,11 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
             let (interrupted_spell_id, _target_school_mask) = parse_spell_args(me, event_timestamp, &message_args[10..13])?;
+            if un_aura_caster.is_player {
+                me.collect_player(un_aura_caster.unit_id, message_args[2], un_aura_spell_id);
+            } else if target.is_player {
+                me.collect_player(target.unit_id, message_args[5], interrupted_spell_id);
+            }
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: un_aura_caster,
@@ -536,6 +628,11 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
             let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
             let (target_spell_id, _target_school_mask) = parse_spell_args(me, event_timestamp, &message_args[10..13])?;
+            if un_aura_caster.is_player {
+                me.collect_player(un_aura_caster.unit_id, message_args[2], un_aura_spell_id);
+            } else if target.is_player {
+                me.collect_player(target.unit_id, message_args[5], target_spell_id);
+            }
             vec![
                 MessageType::SpellCast(SpellCast {
                     caster: un_aura_caster.clone(),
