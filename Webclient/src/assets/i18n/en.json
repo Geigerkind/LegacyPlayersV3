@@ -305,8 +305,8 @@
         },
         "Individual": {
             "title": "Contribute as individual",
-            "description": "Currently it is not possible to upload logs as individual. This feature is planned for mid/end of september.",
-            "description2": "Please contact your server's admins and urge them to contribute directly instead."
+            "description": "You can currently only upload for TBC logs and for Crystalsong (WOTLK). If you want to upload to a non listed server, please contact Shino!",
+            "description2": "Please select the correct server, start time, end time in the formula and upload a zip of your WoWCombatLog.txt."
         }
     },
     "PvE": {
