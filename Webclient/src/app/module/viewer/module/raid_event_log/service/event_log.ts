@@ -139,12 +139,12 @@ export class EventLogService implements OnDestroy {
 
     async get_event_log_entries(up_to_timestamp: number): Promise<Array<EventLogEntry>> {
         return [
-            ...(await this.instanceDataService.knecht_spell_cast.event_log_spell_cast(this.to_actor, this.log_offsets.get(0)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(0, event, (evt) => this.process_spell_cast(evt))),
+            // ...(await this.instanceDataService.knecht_spell_cast.event_log_spell_cast(this.to_actor, this.log_offsets.get(0)[0], up_to_timestamp))
+            // .map(event => this.create_event_log_entry(0, event, (evt) => this.process_spell_cast(evt))),
             ...(await this.instanceDataService.knecht_melee.event_log_deaths(this.to_actor, this.log_offsets.get(1)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(1, event, (evt) => this.process_death(evt))),
-            ...(await this.instanceDataService.knecht_replay.event_log_combat_state(this.to_actor, this.log_offsets.get(2)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(2, event, (evt) => this.process_combat_state(evt))),
+            // ...(await this.instanceDataService.knecht_replay.event_log_combat_state(this.to_actor, this.log_offsets.get(2)[0], up_to_timestamp))
+            // .map(event => this.create_event_log_entry(2, event, (evt) => this.process_combat_state(evt))),
             ...(await this.instanceDataService.knecht_aura.event_log_aura_application(this.to_actor, this.log_offsets.get(6)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(6, event, (evt) => this.process_aura_application(evt))),
             ...(await this.instanceDataService.knecht_interrupt.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp))
