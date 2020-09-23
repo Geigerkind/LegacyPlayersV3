@@ -15,7 +15,7 @@ import {SpellService} from "../../../service/spell";
 import {DataService} from "../../../../../service/data";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {ViewerMode} from "../../../domain_value/viewer_mode";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
 import {iterable_some} from "../../../../../stdlib/iterable_higher_order";
 
 export interface FilterStackItem {
@@ -64,7 +64,8 @@ export class RaidConfigurationService implements OnDestroy {
         private unitService: UnitService,
         private spellService: SpellService,
         private dataService: DataService,
-        private activated_route_service: ActivatedRoute
+        private activated_route_service: ActivatedRoute,
+        private router_service: Router
     ) {
         this.subscription.add(this.instanceDataService.meta.subscribe(meta => {
             this.current_meta = meta;
@@ -88,6 +89,7 @@ export class RaidConfigurationService implements OnDestroy {
             if (this.filter_stack.length > 0) {
                 const last_elem = this.filter_stack[this.filter_stack.length - 1];
                 if (
+                    (last_elem.viewer_mode === this.current_mode) &&
                     (last_elem.categories.size === this.category_filter.size && iterable_some(this.category_filter.values(), (elem) => !last_elem.categories.has(elem))) &&
                     (last_elem.segments.size === this.segment_filter.size && iterable_some(this.segment_filter.values(), (elem) => !last_elem.segments.has(elem))) &&
                     (last_elem.sources.size === this.source_filter.length && this.source_filter.some(elem => !last_elem.sources.has(elem))) &&
@@ -104,6 +106,19 @@ export class RaidConfigurationService implements OnDestroy {
                 targets: new Set(this.target_filter),
                 abilities: new Set(this.ability_filter)
             });
+        }));
+
+        this.subscription.add(this.router_service.events.subscribe((event: NavigationStart) => {
+            if (event.navigationTrigger === "popstate") {
+                const last_stack_entry = this.filter_stack.pop();
+                if (last_stack_entry !== undefined) {
+                    this.update_category_filter([...last_stack_entry.categories.values()]);
+                    this.update_segment_filter([...last_stack_entry.segments.values()]);
+                    this.update_source_filter([...last_stack_entry.sources.values()]);
+                    this.update_target_filter([...last_stack_entry.targets.values()]);
+                    this.update_ability_filter([...last_stack_entry.abilities.values()]);
+                }
+            }
         }));
     }
 
