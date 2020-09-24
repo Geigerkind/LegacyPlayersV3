@@ -1,7 +1,8 @@
 import {Directive, HostListener, Input, OnDestroy} from '@angular/core';
 import {TooltipControllerService} from "../../service/tooltip_controller";
 import {Router} from "@angular/router";
-import {Subscription} from "rxjs";
+import {Subject, Subscription} from "rxjs";
+import {debounceTime} from "rxjs/operators";
 
 @Directive({
     selector: '[showTooltip]'
@@ -10,6 +11,8 @@ export class ShowTooltipDirective implements OnDestroy {
 
     private subscription: Subscription;
     private clicked: boolean = false;
+    private visibility$: Subject<[boolean, any]> = new Subject();
+
     @Input('showTooltip') tooltipArgs: any;
 
     constructor(
@@ -20,6 +23,10 @@ export class ShowTooltipDirective implements OnDestroy {
             this.clicked = false;
             this.tooltipControllerService.hideTooltip();
         });
+        this.subscription.add(this.visibility$.pipe(debounceTime(50)).subscribe(([show_tooltip, args]) => {
+            if (show_tooltip) this.tooltipControllerService.showTooltip(this.tooltipArgs, false, args[0], args[1])
+            else this.tooltipControllerService.hideTooltip();
+        }));
     }
 
     ngOnDestroy(): void {
@@ -39,12 +46,12 @@ export class ShowTooltipDirective implements OnDestroy {
 
     @HostListener('mouseenter', ["$event"])
     onEnter(event: any): void {
-        this.tooltipControllerService.showTooltip(this.tooltipArgs, false, event.clientX, event.clientY);
+        this.visibility$.next([true, [event.clientX, event.clientY]]);
     }
 
     @HostListener('mouseleave')
     onLeave(): void {
-        this.tooltipControllerService.hideTooltip();
+        this.visibility$.next([false, undefined]);
     }
 
     @HostListener('mousemove', ["$event"])

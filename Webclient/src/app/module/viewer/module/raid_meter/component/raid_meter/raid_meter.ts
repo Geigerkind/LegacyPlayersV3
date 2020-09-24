@@ -246,7 +246,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         } else if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
             return {
                 type: 8,
-                payload: from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp)).pipe(map(entries => entries.slice(0, 10)))
+                payload: () => from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp)).pipe(map(entries => entries.slice(0, 10)))
             };
         } else if ([19, 20].includes(this.current_selection)) {
             return {

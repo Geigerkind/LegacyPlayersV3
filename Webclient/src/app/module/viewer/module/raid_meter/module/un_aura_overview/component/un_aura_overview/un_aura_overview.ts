@@ -25,7 +25,7 @@ export class UnAuraOverviewComponent {
     get_unit_name(unit: Unit): Observable<string> {
         if (!this.units)
             return of(CONST_UNKNOWN_LABEL);
-        return this.units.get(get_unit_id(unit))?.name;
+        return this.units.get(get_unit_id(unit, false))?.name;
     }
 
     get_ability_name(spell_id: number): Observable<string> {
