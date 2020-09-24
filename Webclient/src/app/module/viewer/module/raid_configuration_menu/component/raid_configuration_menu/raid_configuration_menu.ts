@@ -151,14 +151,18 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 id: segment.id,
                 label: segment.label.toString() + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts),
-                encounter_id: segment.encounter_id
+                encounter_id: segment.encounter_id,
+                is_kill: segment.is_kill
             });
         }
 
         const new_selected_items = [];
         if (this.use_default_filter_segments) {
-            for (const list_item of new_list_items)
-                new_selected_items.push(list_item);
+            for (const list_item of new_list_items) {
+                if (list_item.is_kill) {
+                    new_selected_items.push(list_item);
+                }
+            }
         } else {
             for (const selected_item of this.selected_items_segments) {
                 if (new_list_items.find(item => item.id === selected_item.id))
