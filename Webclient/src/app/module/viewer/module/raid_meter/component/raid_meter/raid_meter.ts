@@ -134,7 +134,6 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             if (this.in_ability_mode !== new_mode) {
                 this.in_ability_mode = new_mode;
                 this.update_bars(this.current_data);
-                this.selection_changed(this.current_selection);
             }
         });
         this.subscription_total_duration = this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000);
@@ -194,6 +193,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             return;
         }
 
+        this.current_data = [];
+        this.bars = [];
         this.current_selection = selection;
         this.raidMeterService.select(selection);
         this.raidDetailService.select(selection);
