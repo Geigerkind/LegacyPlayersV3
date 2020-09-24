@@ -554,7 +554,8 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             })];
 
             // Mend Pet, assume summon event
-            if spell_id == 48990 || spell_id == 27046 || spell_id == 25228 {
+            // Pet Buff food as well
+            if spell_id == 48990 || spell_id == 27046 || spell_id == 25228 || spell_id == 43771 {
                 result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
             }
 
