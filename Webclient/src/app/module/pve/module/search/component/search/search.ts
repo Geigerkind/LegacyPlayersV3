@@ -51,11 +51,14 @@ export class SearchComponent implements OnInit {
         {index: 4, filter_name: 'start_ts', labelKey: "PvE.Search.start", type: 2, type_range: null, col_type: 1},
         {index: 5, filter_name: 'end_ts', labelKey: "PvE.Search.end", type: 2, type_range: null, col_type: 1}
     ];
+
     body_columns: Array<Array<BodyColumn>> = [];
     clientSide: boolean = false;
     responsiveHeadColumns: Array<number> = [0, 2];
     responsiveModeWidthInPx: number = 1280;
     num_characters: number = 0;
+
+    private available_servers: Array<AvailableServer> = [];
 
     constructor(
         private dataService: DataService,
@@ -77,6 +80,7 @@ export class SearchComponent implements OnInit {
             }));
         });
         this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
+            this.available_servers = servers;
             servers.forEach(server => this.header_columns[3].type_range.push({
                 value: server.id,
                 label_key: server.name + " (" + server.patch + ")"
@@ -117,7 +121,10 @@ export class SearchComponent implements OnInit {
                 body_columns.push({
                     type: 0,
                     content: item.guild ? item.guild.name : 'Pug Raid',
-                    args: null
+                    args: item.guild ? {
+                        server_name: this.available_servers.find(server => server.id === item.server_id)?.name,
+                        guild_name: item.guild.name
+                    } : null
                 });
                 body_columns.push({
                     type: 3,
