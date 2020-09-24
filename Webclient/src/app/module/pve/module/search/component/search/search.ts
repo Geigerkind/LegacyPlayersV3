@@ -116,7 +116,7 @@ export class SearchComponent implements OnInit {
                 });
                 body_columns.push({
                     type: 0,
-                    content: item.guild ? item.guild : 'Pug Raid',
+                    content: item.guild ? item.guild.name : 'Pug Raid',
                     args: null
                 });
                 body_columns.push({
