@@ -15,7 +15,7 @@ export class UploadComponent {
     disableSubmit = false;
 
     server = [
-        {value: 4, label_key: "Netherwing"},
+        // {value: 4, label_key: "Netherwing"},
         {value: 5, label_key: "Karazhan"},
         {value: 6, label_key: "Crystalsong"},
         {value: 7, label_key: "Stormspire"},
