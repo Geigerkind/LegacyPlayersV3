@@ -27,9 +27,9 @@ pub trait CharacterViewer {
 
 impl CharacterViewer for Armory {
     fn get_character_viewer_by_date(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32, history_date: String) -> Result<CharacterViewerDto, ArmoryFailure> {
-        let date_time = NaiveDateTime::parse_from_str(&history_date, "%d.%m.%y %I:%M %p").ok().ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        let date_time = NaiveDateTime::parse_from_str(&history_date, "%d.%m.%y %I:%M %p").ok().ok_or(ArmoryFailure::InvalidInput)?;
         let ts_in_seconds = date_time.timestamp();
-        let character = self.get_character(character_id).ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        let character = self.get_character(character_id).ok_or(ArmoryFailure::InvalidInput)?;
         if let Some(closest_history_moment) = character
             .history_moments
             .into_iter()

@@ -23,7 +23,7 @@ impl MapUnit for dto::Unit {
             if character.is_none() {
                 character = armory.create_character(db_main, server_id, self.unit_id).ok().and_then(|character_id| armory.get_character(character_id));
             }
-            let character = character.ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?;
+            let character = character.ok_or(LiveDataProcessorFailure::InvalidInput)?;
             let unit = domain_value::Unit::Player(domain_value::Player {
                 character_id: character.id,
                 /* server_uid: self.unit_id,
@@ -35,7 +35,7 @@ impl MapUnit for dto::Unit {
             // Dont cache, because an owner could be found at a later time
             let unit = domain_value::Unit::Creature(domain_value::Creature {
                 creature_id: self.unit_id,
-                entry: self.unit_id.get_entry().ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?,
+                entry: self.unit_id.get_entry().ok_or(LiveDataProcessorFailure::InvalidInput)?,
                 owner: summons.get(&self.unit_id).cloned().map(Box::new),
             });
             cache_unit.insert(self.unit_id, unit.clone());

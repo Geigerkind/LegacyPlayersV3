@@ -26,11 +26,11 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
     if let Some(mut start_time_raw_fields) = multipart_form_data.raw.remove("start_time") {
         let start_time_raw_field = start_time_raw_fields.remove(0);
         let start_time_raw = std::str::from_utf8(&start_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-        let start_time = NaiveDateTime::parse_from_str(&start_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?;
+        let start_time = NaiveDateTime::parse_from_str(&start_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
         if let Some(mut end_time_raw_fields) = multipart_form_data.raw.remove("end_time") {
             let end_time_raw_field = end_time_raw_fields.remove(0);
             let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-            let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or_else(|| LiveDataProcessorFailure::InvalidInput)?;
+            let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
             if let Some(mut server_id_raw_fields) = multipart_form_data.raw.remove("server_id") {
                 let RawField {
                     content_type: _,

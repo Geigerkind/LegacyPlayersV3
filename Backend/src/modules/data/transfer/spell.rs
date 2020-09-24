@@ -37,18 +37,21 @@ pub struct GetSpells {
 #[openapi(skip)]
 #[post("/spells/localized/basic_spell", format = "application/json", data = "<data>")]
 pub fn get_localized_basic_spells(me: State<Data>, language: Language, data: Json<GetSpells>) -> Json<Vec<Localized<BasicSpell>>> {
-    Json(data.spell_ids.iter()
-        .map(|spell_id| me.get_spell(data.expansion_id, *spell_id)
-            .map(|spell| {
-                Localized {
+    Json(
+        data.spell_ids
+            .iter()
+            .map(|spell_id| {
+                me.get_spell(data.expansion_id, *spell_id).map(|spell| Localized {
                     base: BasicSpell {
                         id: *spell_id,
                         icon: me.get_icon(spell.icon).unwrap().name,
                         school: spell.school_mask,
                     },
                     localization: me.get_localization(language.0, spell.localization_id).map(|localization| localization.content).unwrap_or_else(|| String::from("NOT LOCALIZED")),
-                }
-            }))
-        .filter(Option::is_some).map(Option::unwrap)
-        .collect::<Vec<Localized<BasicSpell>>>())
+                })
+            })
+            .filter(Option::is_some)
+            .map(Option::unwrap)
+            .collect::<Vec<Localized<BasicSpell>>>(),
+    )
 }

@@ -21,7 +21,7 @@ impl ExportInstance for Instance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure> {
         let (server_id, expired) = {
             let instance_metas = self.instance_metas.read().unwrap();
-            let instance_meta = instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
+            let instance_meta = instance_metas.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
             (instance_meta.server_id, instance_meta.expired)
         };
 
@@ -106,7 +106,7 @@ impl ExportInstance for Instance {
     fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure> {
         let expired = {
             let instance_metas = self.instance_metas.read().unwrap();
-            let instance_meta = instance_metas.get(&instance_meta_id).ok_or_else(|| InstanceFailure::InvalidInput)?;
+            let instance_meta = instance_metas.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
             instance_meta.expired
         };
 

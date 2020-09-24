@@ -142,13 +142,18 @@ impl Server {
             MessageType::Loot(Loot { unit: unit_dto, item_id, count }) => Ok(Event::new(
                 first_message.message_count,
                 first_message.timestamp,
-                unit_dto.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
+                unit_dto
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Loot { item_id, amount: count },
             )),
             MessageType::Position(position) => Ok(Event::new(
                 first_message.message_count,
                 first_message.timestamp,
-                position.unit.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
+                position
+                    .unit
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Position(Position {
                     x: position.x,
                     y: position.y,
@@ -159,9 +164,12 @@ impl Server {
             MessageType::Power(power) => Ok(Event::new(
                 first_message.message_count,
                 first_message.timestamp,
-                power.unit.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?,
+                power
+                    .unit
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?,
                 EventType::Power(Power {
-                    power_type: PowerType::from_u8(power.power_type).ok_or_else(|| EventParseFailureAction::DiscardFirst)?,
+                    power_type: PowerType::from_u8(power.power_type).ok_or(EventParseFailureAction::DiscardFirst)?,
                     max_power: power.max_power,
                     current_power: power.current_power,
                 }),
@@ -204,12 +212,21 @@ impl Server {
                 Err(EventParseFailureAction::DiscardFirst)
             },
             MessageType::Summon(summon) => {
-                let summoner = summon.owner.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let summoned = summon.unit.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let summoner = summon
+                    .owner
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let summoned = summon
+                    .unit
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(first_message.message_count, first_message.timestamp, summoner, EventType::Summon { summoned }))
             },
             MessageType::SpellCast(spell_cast) => {
-                let subject = spell_cast.caster.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let subject = spell_cast
+                    .caster
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 Ok(Event::new(
                     first_message.message_count,
                     first_message.timestamp,
@@ -230,7 +247,10 @@ impl Server {
                     .attacker
                     .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
                     .map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let victim = melee_damage.victim.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let victim = melee_damage
+                    .victim
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let total_damage = get_damage_components_total(&melee_damage.damage_components) as f64;
                 Ok(Event::new(
                     first_message.message_count,
@@ -269,7 +289,10 @@ impl Server {
                     .attacker
                     .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
                     .map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let victim = spell_damage.victim.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let victim = spell_damage
+                    .victim
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let spell_cause = self.find_matching_spell_cause(spell_damage.spell_id.unwrap(), spell_damage.attacker.unit_id, &subject, &victim, first_message.message_count, Some(spell_damage.damage_over_time))?;
                 let total_damage = get_damage_components_total(&spell_damage.damage_components) as f64;
                 Ok(Event::new(
@@ -308,8 +331,14 @@ impl Server {
                 ))
             },
             MessageType::Heal(heal_done) => {
-                let subject = heal_done.caster.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let target = heal_done.target.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let subject = heal_done
+                    .caster
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let target = heal_done
+                    .target
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let spell_cause = self.find_matching_spell_cause(heal_done.spell_id, heal_done.caster.unit_id, &subject, &target, first_message.message_count, None)?;
                 Ok(Event::new(
                     first_message.message_count,
@@ -330,8 +359,14 @@ impl Server {
             // A SpellCast, Damage done and heal done can cause threat
             // Note: That the threatened unit can be a third unit in the case of a beneficial spell
             MessageType::Threat(threat) => {
-                let subject = threat.threater.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
-                let threatened = threat.threatened.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let subject = threat
+                    .threater
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                let threatened = threat
+                    .threatened
+                    .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                    .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                 let cause_event = self.find_matching_threat_cause(threat.spell_id, threat.threater.unit_id, &subject, &threatened)?;
                 Ok(Event::new(
                     first_message.message_count,
@@ -348,7 +383,10 @@ impl Server {
                 // If we dont find any committable events for this interrupt, we need to discard
                 if let Some(unit_instance_id) = self.unit_instance_id.get(&interrupt.target.unit_id) {
                     if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(unit_instance_id) {
-                        let subject = interrupt.target.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons).map_err(|_| EventParseFailureAction::DiscardFirst)?;
+                        let subject = interrupt
+                            .target
+                            .to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons)
+                            .map_err(|_| EventParseFailureAction::DiscardFirst)?;
                         return match try_parse_interrupt(committed_events, &subject) {
                             Ok(cause_event) => Ok(Event::new(
                                 first_message.message_count,
