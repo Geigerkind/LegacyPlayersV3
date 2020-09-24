@@ -785,7 +785,11 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
     // Each non npc pet gets the id 0xFFFF (Has flags 0xF140)
     // Is this a Crystalsong thing?
     if unit_id.get_high() == 0xF140 {
-        unit_id |= 0x000000FFFF000000;
+        let mut new_unit_id = unit_id.clone();
+        new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
+        new_unit_id |= 0x000000FFFF000000;
+        new_unit_id |= 0xF140000000000000;
+        unit_id = new_unit_id;
     }
 
     let is_player = unit_id.is_player();
