@@ -10,7 +10,7 @@ export class RaidMeterAuraUptime {
     ) {
     }
 
-    async calculate(inverse: boolean): Promise<Array<[number, [Unit, Array<[number, Array<[number | undefined, number | undefined]>]>]]>> {
-        return commit_aura_uptime(this.data_filter.get_non_segmented_aura_applications(inverse), this.data_filter.get_segment_intervals(), se_aura_application);
+    async calculate(inverse: boolean): Promise<Array<[number, [Unit, Array<[number, Array<[number | undefined, number | undefined, Unit | undefined, Unit | undefined]>]>]]>> {
+        return commit_aura_uptime(this.data_filter.get_non_segmented_aura_applications(inverse), this.data_filter.get_segment_intervals());
     }
 }

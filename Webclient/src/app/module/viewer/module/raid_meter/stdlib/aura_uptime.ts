@@ -1,21 +1,23 @@
 import {Event} from "../../../domain_value/event";
 import {get_unit_id, get_unit_owner, Unit} from "../../../domain_value/unit";
 import {group_by} from "../../../../../stdlib/group_by";
+import {se_aura_application} from "../../../extractor/sources";
+import {te_aura_application} from "../../../extractor/targets";
 
 
-export function commit_aura_uptime(aura_applications: Array<Event>, current_segment_intervals: Array<[number, number]>,
-                                   aura_application_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, Array<[number | undefined, number | undefined]>]>]]> {
+export function commit_aura_uptime(aura_applications: Array<Event>, current_segment_intervals: Array<[number, number]>):
+    Array<[number, [Unit, Array<[number, Array<[number | undefined, number | undefined, Unit | undefined, Unit | undefined]>]>]]> {
     if (current_segment_intervals.length === 0)
         return [];
 
-    const newData = new Map<number, [Unit, Map<number, Array<[number | undefined, number | undefined, number | undefined, number | undefined]>>]>();
+    const newData = new Map<number, [Unit, Map<number, Array<[number | undefined, number | undefined, Unit | undefined, Unit | undefined]>>]>();
 
-    const grouping = group_by(aura_applications, (event) => get_unit_id(aura_application_unit_extraction(event)));
+    const grouping = group_by(aura_applications, (event) => get_unit_id(se_aura_application(event), false));
     // tslint:disable-next-line:forin
     for (const unit_id in grouping) {
         const subject_id = Number(unit_id);
         if (!newData.has(subject_id))
-            newData.set(subject_id, [get_unit_owner(aura_application_unit_extraction(grouping[unit_id][0])), new Map()]);
+            newData.set(subject_id, [se_aura_application(grouping[unit_id][0]), new Map()]);
 
         const abilities_data = newData.get(subject_id)[1];
         grouping[subject_id].forEach(event => {
@@ -34,21 +36,21 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
                 // If we get an non 0 event twice, it is probably a refresh
                 if (current_interval[0] === undefined) {
                     current_interval[0] = event[1];
-                    current_interval[2] = event[0];
+                    current_interval[2] = te_aura_application(event);
                 } else if (current_interval[1] !== undefined) {
-                    ability_intervals.push([event[1], undefined, event[0], undefined]);
+                    ability_intervals.push([event[1], undefined, te_aura_application(event), undefined]);
                 } else if (event[1] > current_interval[0]) {
                     current_interval[1] = event[1];
-                    current_interval[3] = event[0];
-                    ability_intervals.push([event[1], undefined, event[0], undefined]);
+                    current_interval[3] = te_aura_application(event);
+                    ability_intervals.push([event[1], undefined, te_aura_application(event), undefined]);
                 }
             } else {
                 if (current_interval[1] === undefined) {
                     current_interval[1] = event[1];
-                    current_interval[3] = event[0];
+                    current_interval[3] = te_aura_application(event);
                 } else if (current_interval[0] !== undefined
                     && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event[1]) === undefined) {
-                    ability_intervals.push([current_interval[0], event[1], current_interval[2], event[0]]);
+                    ability_intervals.push([current_interval[0], event[1], current_interval[2], te_aura_application(event)]);
                 }
             }
         });

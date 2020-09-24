@@ -1,5 +1,5 @@
 import {InstanceDataService} from "../service/instance_data";
-import {Unit} from "../domain_value/unit";
+import {get_unit_id, Unit} from "../domain_value/unit";
 import {ALL_SCHOOLS, School, school_mask_to_school_array} from "../domain_value/school";
 
 export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = new Map([
@@ -178,11 +178,18 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                         continue;
                     const uptime_intervals = subject_intervals.get(absorb_spell_id);
                     let found = false;
-                    for (const [start, end] of uptime_intervals) {
+                    for (const [start, end, start_aura_app_unit, end_aura_app_unit] of uptime_intervals) {
                         if ((start === undefined || start <= timestamp) && (end === undefined || end >= timestamp)) {
-                            if (!result.has(subject_id))
-                                result.set(subject_id, [subject, []]);
-                            result.get(subject_id)[1].push([absorb_spell_id, timestamp, amount]);
+                            if (current_mode) {
+                                if (!result.has(subject_id))
+                                    result.set(subject_id, [subject, []]);
+                                result.get(subject_id)[1].push([absorb_spell_id, timestamp, amount]);
+                            } else {
+                                const start_unit_id = get_unit_id(start_aura_app_unit, false);
+                                if (!result.has(start_unit_id))
+                                    result.set(start_unit_id, [start_aura_app_unit, []]);
+                                result.get(start_unit_id)[1].push([absorb_spell_id, timestamp, amount]);
+                            }
                             found = true;
                             break;
                         }

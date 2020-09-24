@@ -64,6 +64,7 @@ export class MeterAuraUptimeService implements OnDestroy {
             for (const [ability_id, intervals] of abilities) {
                 if (!this.abilities$.has(ability_id))
                     this.abilities$.set(ability_id, this.utilService.get_row_ability_subject(ability_id));
+                // @ts-ignore
                 ability_map.set(ability_id, intervals);
             }
         }

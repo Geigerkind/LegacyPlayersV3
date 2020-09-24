@@ -12,7 +12,7 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
 
     // Melee Damage
     // @ts-ignore
-    let grouping = group_by(melee_damage, (event) => get_unit_id(melee_unit_extraction(event)));
+    let grouping = group_by(melee_damage, (event) => get_unit_id(melee_unit_extraction(event), false));
     // @ts-ignore
     // tslint:disable-next-line:forin
     for (const unit_id in grouping) {
@@ -23,23 +23,23 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
             if (!hit_mask.includes(HitType.FullAbsorb) && !hit_mask.includes(HitType.PartialAbsorb))
                 continue;
             for (const component of event[5]) {
-                const absorb = component[3];
+                const absorb = component[2];
                 if (absorb === 0)
                     continue;
                 result.push([CONST_AUTO_ATTACK_ID, event[1], absorb, school_mask_to_school_array(component[2])]);
             }
         }
         if (result.length > 0)
-            newData.set(subject_id, [get_unit_owner(melee_unit_extraction(grouping[unit_id][0])), result]);
+            newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), result]);
     }
 
     // Spell Damage
-    grouping = group_by(spell_damage, (event) => get_unit_id(spell_unit_extraction(event)));
+    grouping = group_by(spell_damage, (event) => get_unit_id(spell_unit_extraction(event), false));
     // tslint:disable-next-line:forin
     for (const unit_id in grouping) {
         const subject_id = Number(unit_id);
         if (!newData.has(subject_id))
-            newData.set(subject_id, [get_unit_owner(spell_unit_extraction(grouping[unit_id][0])), []]);
+            newData.set(subject_id, [spell_unit_extraction(grouping[unit_id][0]), []]);
 
         const absorbs = newData.get(subject_id)[1];
         for (const event of grouping[unit_id]) {
@@ -48,7 +48,7 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
             if (!hit_mask.includes(HitType.FullAbsorb) && !hit_mask.includes(HitType.PartialAbsorb))
                 continue;
             for (const component of event[7]) {
-                const absorb = component[3];
+                const absorb = component[2];
                 if (absorb === 0)
                     continue;
                 absorbs.push([spell_id, event[1], absorb, school_mask_to_school_array(component[2])]);
