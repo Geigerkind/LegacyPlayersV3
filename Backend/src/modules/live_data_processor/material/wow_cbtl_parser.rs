@@ -214,7 +214,7 @@ impl WoWCBTLParser {
             ].iter().cloned().collect();
         }
 
-        if !self.found_player.contains_key(&unit_id) {
+        if !self.found_player.contains_key(&unit_id) || self.found_player.get(&unit_id).unwrap().1 == 12 {
             let hero_class_id = if WARRIOR_SPELLS.contains(&spell_id) {
                 1
             } else if PALADIN_SPELLS.contains(&spell_id) {
