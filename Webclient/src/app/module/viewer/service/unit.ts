@@ -60,7 +60,7 @@ export class UnitService {
                 const npcName = this.get_npc_name(creatureEntry);
                 if (!!unit[3]) {
                     return this.get_unit_name(get_unit_owner(unit)).pipe(concatMap(unit_name =>
-                        npcName.pipe(map(npc_name => npc_name + "(" + unit_name + ")"))));
+                        npcName.pipe(map(npc_name => npc_name + " (" + unit_name + ")"))));
                 }
                 return npcName;
             }

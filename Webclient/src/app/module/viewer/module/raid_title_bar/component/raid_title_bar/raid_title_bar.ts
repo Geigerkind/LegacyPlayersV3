@@ -15,6 +15,7 @@ export class RaidTitleBarComponent {
     instance_meta: InstanceViewerMeta;
     instance_name: Observable<string>;
     server_name: Observable<string>;
+    server_patch: Observable<string>;
     expansion: Observable<number>;
     duration: Observable<string>;
     instance_start: Observable<string>;
@@ -33,7 +34,8 @@ export class RaidTitleBarComponent {
             this.dataService.get_server_by_id(this.instance_meta.server_id)
                 .subscribe(server => {
                     this.expansion = of(server?.expansion_id);
-                    this.server_name = of(server?.name + " (" + server?.patch + ")");
+                    this.server_name = of(server?.name);
+                    this.server_patch = of(server?.patch);
                 });
             this.duration = this.get_duration();
             this.instance_start = of(this.dateService.toRPLLLongDate(this.instance_meta.start_ts));
