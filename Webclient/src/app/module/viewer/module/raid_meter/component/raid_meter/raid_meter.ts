@@ -217,27 +217,29 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
                 return {
                     type: [13, 14].includes(this.current_selection) ? 9 : ([15, 16].includes(this.current_selection) ? 12 : ([17, 18].includes(this.current_selection) ? 13 : 7)),
-                    payload: this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
+                    payload: () => this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
                     abilities: this.abilities,
                     units: this.units
                 };
             } else if ([19, 20].includes(this.current_selection)) {
-                const result = [];
-                // @ts-ignore
-                for (const [spell_id, intervals] of flatten_aura_uptime_to_spell_map(this.current_data
-                    .filter(([unit_id, abilities]) => unit_id === subject_id))) {
-                    const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
-                    result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
-                }
                 return {
                     type: 5,
-                    payload: result.sort((left, right) => right[1] - left[1])
-                        .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"])
+                    payload: () => {
+                        const result = [];
+                        // @ts-ignore
+                        for (const [spell_id, intervals] of flatten_aura_uptime_to_spell_map(this.current_data
+                            .filter(([unit_id, abilities]) => unit_id === subject_id))) {
+                            const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
+                            result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
+                        }
+                        return result.sort((left, right) => right[1] - left[1])
+                            .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"]);
+                    }
                 };
             } else {
                 return {
                     type: 5,
-                    payload: this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
+                    payload: () => this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
                         .filter(([unit_id, abilities]) => unit_id === subject_id))
                         .sort((left, right) => right[1] - left[1])
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
@@ -251,14 +253,16 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         } else if ([19, 20].includes(this.current_selection)) {
             return {
                 type: 14,
-                expansion_id: 2,
+                expansion_id: 2, // TODO!
                 spell_id: subject_id
             };
         }
-        const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
         return {
             type: 6,
-            payload: !payload ? undefined : payload[1].map(([hit_type, detail_row]) => detail_row),
+            payload: () => {
+                const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
+                return !payload ? undefined : payload[1].map(([hit_type, detail_row]) => detail_row);
+            },
             icon: new DelayedLabel(this.abilities.get(subject_id).icon) // TODO: Change to observable
         };
     }

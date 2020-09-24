@@ -4,12 +4,12 @@
 <CharacterTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 1"></CharacterTooltip>
 <ItemTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 2 || tooltipType === 4"></ItemTooltip>
 <GuildTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 3"></GuildTooltip>
-<MeterAbilitiesTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 5"></MeterAbilitiesTooltip>
-<DetailTable [current_ability_details]="tooltipPayload" *ngIf="tooltipType === 6"></DetailTable>
-<DeathsOverview [death_overview_rows]="tooltipPayload" *ngIf="tooltipType === 7"
+<MeterAbilitiesTooltip [payload]="tooltipPayload()" *ngIf="tooltipType === 5"></MeterAbilitiesTooltip>
+<DetailTable [current_ability_details]="tooltipPayload()" *ngIf="tooltipType === 6"></DetailTable>
+<DeathsOverview [death_overview_rows]="tooltipPayload()" *ngIf="tooltipType === 7"
                 [abilities]="tooltipArgs.abilities" [units]="tooltipArgs.units"></DeathsOverview>
 <ViewerEventLogTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 8"></ViewerEventLogTooltip>
-<UnAuraOverview [un_aura_overview_rows]="tooltipPayload" *ngIf="tooltipType === 9 || tooltipType === 12"
+<UnAuraOverview [un_aura_overview_rows]="tooltipPayload()" *ngIf="tooltipType === 9 || tooltipType === 12 || tooltipType === 13"
                 [abilities]="tooltipArgs.abilities" [units]="tooltipArgs.units"></UnAuraOverview>
 <ViewerGraphTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 10"></ViewerGraphTooltip>
 <ResistSummary [resist_summary]="tooltipPayload" *ngIf="tooltipType === 11"></ResistSummary>
