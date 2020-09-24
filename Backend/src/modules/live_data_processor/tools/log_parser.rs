@@ -553,9 +553,9 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 hit_mask: HitType::Hit as u32,
             })];
 
-            // Mend Pet, assume summon event
+            // Mend Pet, Feed Pet, assume summon event
             // Pet Buff food as well
-            if spell_id == 48990 || spell_id == 27046 || spell_id == 25228 || spell_id == 43771 {
+            if spell_id == 48990 || spell_id == 27046 || spell_id == 25228 || spell_id == 43771 || spell_id == 6991 {
                 result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
             }
 
