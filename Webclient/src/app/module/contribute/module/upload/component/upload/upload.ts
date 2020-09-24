@@ -18,7 +18,8 @@ export class UploadComponent {
         {value: 4, label_key: "Netherwing"},
         {value: 5, label_key: "Karazhan"},
         {value: 6, label_key: "Crystalsong"},
-        {value: 7, label_key: "Stormspire"}
+        {value: 7, label_key: "Stormspire"},
+        {value: 8, label_key: "Sunstrider"},
     ];
     selected_server_id: number = this.server[0].value;
     selected_start_date: string;
