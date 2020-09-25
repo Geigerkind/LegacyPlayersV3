@@ -1,34 +1,33 @@
-import {Component, ElementRef, ViewChild} from "@angular/core";
+import {Component, ElementRef, OnDestroy, ViewChild} from "@angular/core";
 import {UploadService} from "../../service/upload";
 import {Severity} from "../../../../../../domain_value/severity";
 import {NotificationService} from "../../../../../../service/notification";
 import {DateService} from "../../../../../../service/date";
+import {DataService} from "../../../../../../service/data";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: "Upload",
     templateUrl: "./upload.html",
     styleUrls: ["./upload.scss"]
 })
-export class UploadComponent {
+export class UploadComponent implements OnDestroy {
+
+    private subscription: Subscription;
 
     @ViewChild("upload_file", {static: true}) upload_file: ElementRef;
     disableSubmit = false;
 
-    server = [
-        // {value: 4, label_key: "Netherwing"},
-        {value: 5, label_key: "Karazhan"},
-        {value: 6, label_key: "Crystalsong"},
-        {value: 7, label_key: "Stormspire"},
-        {value: 8, label_key: "Sunstrider"},
-    ];
-    selected_server_id: number = this.server[0].value;
+    server = [];
+    selected_server_id: number;
     selected_start_date: string;
     selected_end_date: string;
 
     constructor(
         private uploadService: UploadService,
         private notification_service: NotificationService,
-        private date_service: DateService
+        private date_service: DateService,
+        private data_service: DataService
     ) {
         const start = new Date();
         start.setUTCHours(1, 0, 0, 0);
@@ -37,6 +36,20 @@ export class UploadComponent {
 
         this.selected_start_date = this.date_service.toRPLLLongDate(start);
         this.selected_end_date = this.date_service.toRPLLLongDate(end);
+
+        this.subscription = this.data_service.servers.subscribe(available_servers => {
+            this.server = available_servers
+                .filter(server => server.id > 4)
+                .sort((left, right) => left.expansion_id - right.expansion_id)
+                .map(server => {
+                    return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
+                });
+            this.selected_server_id = this.server[0]?.value;
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 
     upload(): void {
