@@ -305,7 +305,7 @@
         },
         "Individual": {
             "title": "Contribute as individual",
-            "description": "You can currently only upload for TBC logs and for Crystalsong (WOTLK). If you want to upload to a non listed server, please contact Shino!",
+            "description": "You can currently only upload for TBC logs and for WOTLK. If you want to upload to a non listed server, please contact Shino!",
             "description2": "Please select the correct server, start time, end time in the formula and upload a zip of your WoWCombatLog.txt.",
             "description3": "IMPORTANT: Classes with named pets should consider casting spell like Mend Pet, Feed Pet, Soul Link, Pet Buff food onto the pet, to aid the parser finding the pet, as many servers dont implement the SPELL_SUMMON event correctly."
         }
