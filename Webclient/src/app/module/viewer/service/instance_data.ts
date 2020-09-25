@@ -4,7 +4,6 @@ import {BehaviorSubject, Observable, Subject, Subscription} from "rxjs";
 import {InstanceViewerMeta} from "../domain_value/instance_viewer_meta";
 import {InstanceViewerParticipants} from "../domain_value/instance_viewer_participants";
 import {InstanceViewerAttempt} from "../domain_value/instance_viewer_attempt";
-import {get_unit_id, Unit} from "../domain_value/unit";
 import * as Comlink from "comlink";
 import {Remote} from "comlink";
 import {Rechenknecht} from "../tool/rechenknecht";
@@ -30,10 +29,6 @@ export class InstanceDataService implements OnDestroy {
     private instance_meta$: BehaviorSubject<InstanceViewerMeta>;
     private participants$: BehaviorSubject<Array<InstanceViewerParticipants>>;
     private attempts$: BehaviorSubject<Array<InstanceViewerAttempt>>;
-
-    private sources$: BehaviorSubject<Array<Unit>> = new BehaviorSubject([]);
-    private targets$: BehaviorSubject<Array<Unit>> = new BehaviorSubject([]);
-    private abilities$: BehaviorSubject<Set<number>> = new BehaviorSubject(new Set());
 
     private attempt_total_duration$: BehaviorSubject<number> = new BehaviorSubject(1);
 
@@ -95,10 +90,6 @@ export class InstanceDataService implements OnDestroy {
             this.recent_knecht_updates$[0].clear();
             this.recent_knecht_updates$[1].clear();
         }));
-        this.subscription.add(this.knecht_updates.subscribe(([knecht_updates, evt_types]) => {
-            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized, KnechtUpdates.SegmentsChanged].includes(elem)))
-                this.update_subjects();
-        }));
     }
 
     ngOnDestroy(): void {
@@ -143,61 +134,82 @@ export class InstanceDataService implements OnDestroy {
         );
     }
 
-    public set segment_intervals(intervals: Array<[number, number]>) {
+    public async set_segment_intervals(intervals: Array<[number, number]>) {
         this.attempt_total_duration$.next(intervals.reduce((acc, interval) => acc + interval[1] - interval[0], 0));
-        this.knecht_melee.set_segment_intervals(intervals);
-        this.knecht_misc.set_segment_intervals(intervals);
-        // this.knecht_replay.set_segment_intervals(intervals);
-        this.knecht_spell_damage.set_segment_intervals(intervals);
-        this.knecht_heal.set_segment_intervals(intervals);
-        this.knecht_dispel.set_segment_intervals(intervals);
-        this.knecht_interrupt.set_segment_intervals(intervals);
-        this.knecht_spell_steal.set_segment_intervals(intervals);
-        this.knecht_threat.set_segment_intervals(intervals);
-        // this.knecht_spell_cast.set_segment_intervals(intervals);
-        this.knecht_aura.set_segment_intervals(intervals);
+
+        const promisses = [];
+        promisses.push(this.knecht_melee.set_segment_intervals(intervals));
+        promisses.push(this.knecht_misc.set_segment_intervals(intervals));
+        // promisses.push(this.knecht_replay.set_segment_intervals(intervals));
+        promisses.push(this.knecht_spell_damage.set_segment_intervals(intervals));
+        promisses.push(this.knecht_heal.set_segment_intervals(intervals));
+        promisses.push(this.knecht_dispel.set_segment_intervals(intervals));
+        promisses.push(this.knecht_interrupt.set_segment_intervals(intervals));
+        promisses.push(this.knecht_spell_steal.set_segment_intervals(intervals));
+        promisses.push(this.knecht_threat.set_segment_intervals(intervals));
+        // promisses.push(this.knecht_spell_cast.set_segment_intervals(intervals));
+        promisses.push(this.knecht_aura.set_segment_intervals(intervals));
+
+        for (const prom of promisses)
+            await prom;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
-    public set source_filter(sources: Array<number>) {
-        this.knecht_melee.set_source_filter(sources);
-        this.knecht_misc.set_source_filter(sources);
-        // this.knecht_replay.set_source_filter(sources);
-        this.knecht_spell_damage.set_source_filter(sources);
-        this.knecht_heal.set_source_filter(sources);
-        this.knecht_dispel.set_source_filter(sources);
-        this.knecht_interrupt.set_source_filter(sources);
-        this.knecht_spell_steal.set_source_filter(sources);
-        this.knecht_threat.set_source_filter(sources);
-        // this.knecht_spell_cast.set_source_filter(sources);
-        this.knecht_aura.set_source_filter(sources);
+    public async set_source_filter(sources: Array<number>) {
+        const promisses = [];
+        promisses.push(this.knecht_melee.set_source_filter(sources));
+        promisses.push(this.knecht_misc.set_source_filter(sources));
+        // promisses.push(this.knecht_replay.set_source_filter(sources));
+        promisses.push(this.knecht_spell_damage.set_source_filter(sources));
+        promisses.push(this.knecht_heal.set_source_filter(sources));
+        promisses.push(this.knecht_dispel.set_source_filter(sources));
+        promisses.push(this.knecht_interrupt.set_source_filter(sources));
+        promisses.push(this.knecht_spell_steal.set_source_filter(sources));
+        promisses.push(this.knecht_threat.set_source_filter(sources));
+        // promisses.push(this.knecht_spell_cast.set_source_filter(sources));
+        promisses.push(this.knecht_aura.set_source_filter(sources));
+
+        for (const prom of promisses)
+            await prom;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
-    public set target_filter(targets: Array<number>) {
-        this.knecht_melee.set_target_filter(targets);
-        this.knecht_misc.set_target_filter(targets);
-        // this.knecht_replay.set_target_filter(targets);
-        this.knecht_spell_damage.set_target_filter(targets);
-        this.knecht_heal.set_target_filter(targets);
-        this.knecht_dispel.set_target_filter(targets);
-        this.knecht_interrupt.set_target_filter(targets);
-        this.knecht_spell_steal.set_target_filter(targets);
-        this.knecht_threat.set_target_filter(targets);
-        // this.knecht_spell_cast.set_target_filter(targets);
-        this.knecht_aura.set_target_filter(targets);
+    public async set_target_filter(targets: Array<number>) {
+        const promisses = [];
+        promisses.push(this.knecht_melee.set_target_filter(targets));
+        promisses.push(this.knecht_misc.set_target_filter(targets));
+        // promisses.push(this.knecht_replay.set_target_filter(targets));
+        promisses.push(this.knecht_spell_damage.set_target_filter(targets));
+        promisses.push(this.knecht_heal.set_target_filter(targets));
+        promisses.push(this.knecht_dispel.set_target_filter(targets));
+        promisses.push(this.knecht_interrupt.set_target_filter(targets));
+        promisses.push(this.knecht_spell_steal.set_target_filter(targets));
+        promisses.push(this.knecht_threat.set_target_filter(targets));
+        // promisses.push(this.knecht_spell_cast.set_target_filter(targets));
+        promisses.push(this.knecht_aura.set_target_filter(targets));
+
+        for (const prom of promisses)
+            await prom;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
-    public set ability_filter(abilities: Array<number>) {
-        this.knecht_melee.set_ability_filter(abilities);
-        this.knecht_misc.set_ability_filter(abilities);
-        // this.knecht_replay.set_ability_filter(abilities);
-        this.knecht_spell_damage.set_ability_filter(abilities);
-        this.knecht_heal.set_ability_filter(abilities);
-        this.knecht_dispel.set_ability_filter(abilities);
-        this.knecht_interrupt.set_ability_filter(abilities);
-        this.knecht_spell_steal.set_ability_filter(abilities);
-        this.knecht_threat.set_ability_filter(abilities);
-        // this.knecht_spell_cast.set_ability_filter(abilities);
-        this.knecht_aura.set_ability_filter(abilities);
+    public async set_ability_filter(abilities: Array<number>) {
+        const promisses = [];
+        promisses.push(this.knecht_melee.set_ability_filter(abilities));
+        promisses.push(this.knecht_misc.set_ability_filter(abilities));
+        // promisses.push(this.knecht_replay.set_ability_filter(abilities));
+        promisses.push(this.knecht_spell_damage.set_ability_filter(abilities));
+        promisses.push(this.knecht_heal.set_ability_filter(abilities));
+        promisses.push(this.knecht_dispel.set_ability_filter(abilities));
+        promisses.push(this.knecht_interrupt.set_ability_filter(abilities));
+        promisses.push(this.knecht_spell_steal.set_ability_filter(abilities));
+        promisses.push(this.knecht_threat.set_ability_filter(abilities));
+        // promisses.push(this.knecht_spell_cast.set_ability_filter(abilities));
+        promisses.push(this.knecht_aura.set_ability_filter(abilities));
+
+        for (const prom of promisses)
+            await prom;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
     public set instance_meta_id(instance_meta_id: number) {
@@ -392,80 +404,8 @@ export class InstanceDataService implements OnDestroy {
         return this.public_knecht_updates$.asObservable();
     }
 
-    public get sources(): Observable<Array<Unit>> {
-        return this.sources$.asObservable();
-    }
-
-    public get targets(): Observable<Array<Unit>> {
-        return this.targets$.asObservable();
-    }
-
-    public get abilities(): Observable<Set<number>> {
-        return this.abilities$.asObservable();
-    }
-
     public get attempt_total_duration(): Observable<number> {
         return this.attempt_total_duration$.asObservable();
-    }
-
-    private async update_subjects(): Promise<void> {
-        // Sources
-        const sources_res = new Map();
-        const sources = [
-            ...await this.knecht_melee.get_sources(),
-            ...await this.knecht_misc.get_sources(),
-            // ...await this.knecht_replay.get_sources(),
-            ...await this.knecht_spell_damage.get_sources(),
-            ...await this.knecht_heal.get_sources(),
-            ...await this.knecht_dispel.get_sources(),
-            ...await this.knecht_interrupt.get_sources(),
-            ...await this.knecht_spell_steal.get_sources(),
-            // ...await this.knecht_spell_cast.get_sources(),
-            ...await this.knecht_threat.get_sources(),
-            ...await this.knecht_aura.get_sources(),
-        ];
-        for (const source of sources)
-            sources_res.set(get_unit_id(source, false), source);
-
-        // Targets
-        const targets_res = new Map();
-        const targets = [
-            ...await this.knecht_melee.get_targets(),
-            ...await this.knecht_misc.get_targets(),
-            // ...await this.knecht_replay.get_targets(),
-            ...await this.knecht_spell_damage.get_targets(),
-            ...await this.knecht_heal.get_targets(),
-            ...await this.knecht_dispel.get_targets(),
-            ...await this.knecht_interrupt.get_targets(),
-            ...await this.knecht_spell_steal.get_targets(),
-            // ...await this.knecht_spell_cast.get_targets(),
-            ...await this.knecht_threat.get_targets(),
-            ...await this.knecht_aura.get_targets(),
-        ];
-        for (const target of targets)
-            targets_res.set(get_unit_id(target, false), target);
-
-        // Abilities
-        const abilities_res = new Set<number>();
-        const abilities = [
-            ...await this.knecht_melee.get_abilities(),
-            ...await this.knecht_misc.get_abilities(),
-            // ...await this.knecht_replay.get_abilities(),
-            ...await this.knecht_spell_damage.get_abilities(),
-            ...await this.knecht_heal.get_abilities(),
-            ...await this.knecht_dispel.get_abilities(),
-            ...await this.knecht_interrupt.get_abilities(),
-            ...await this.knecht_spell_steal.get_abilities(),
-            // ...await this.knecht_spell_cast.get_abilities(),
-            ...await this.knecht_threat.get_abilities(),
-            ...await this.knecht_aura.get_abilities(),
-        ];
-        for (const ability of abilities)
-            abilities_res.add(ability);
-
-        this.abilities$.next(abilities_res);
-        this.targets$.next([...targets_res.values()]);
-        this.sources$.next([...sources_res.values()]);
     }
 
 }

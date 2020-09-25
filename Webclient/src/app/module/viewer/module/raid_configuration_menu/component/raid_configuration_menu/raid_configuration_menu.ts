@@ -87,27 +87,27 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     on_category_selection_updated(): void {
         this.use_default_filter_categories = false;
         this.update_additional_segment_buttons();
-        this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(category => category.id));
+        this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(category => category.id), true);
     }
 
     on_segment_selection_updated(): void {
         this.use_default_filter_segments = false;
-        this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(segment => segment.id));
+        this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(segment => segment.id), true);
     }
 
     on_source_selection_updated(): void {
         this.use_default_filter_sources = false;
-        this.raidConfigurationService.update_source_filter(this.selected_items_sources.map(source => source.id));
+        this.raidConfigurationService.update_source_filter(this.selected_items_sources.map(source => source.id), true);
     }
 
     on_target_selection_updated(): void {
         this.use_default_filter_targets = false;
-        this.raidConfigurationService.update_target_filter(this.selected_items_targets.map(target => target.id));
+        this.raidConfigurationService.update_target_filter(this.selected_items_targets.map(target => target.id), true);
     }
 
     on_ability_selection_updated(): void {
         this.use_default_filter_targets = false;
-        this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id));
+        this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id), true);
     }
 
     private update_additional_segment_buttons(): void {

@@ -236,23 +236,23 @@ export class Rechenknecht {
         await abilityFilter;
     }
 
-    async get_sources(): Promise<Array<Unit>> {
+    async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         Rechenknecht.send_work_start();
-        const sources = await this.data_filter.get_sources();
+        const sources = this.data_filter.get_sources();
         Rechenknecht.send_work_end();
         return sources;
     }
 
-    async get_targets(): Promise<Array<Unit>> {
+    async get_targets(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         Rechenknecht.send_work_start();
-        const targets = await this.data_filter.get_targets();
+        const targets = this.data_filter.get_targets();
         Rechenknecht.send_work_end();
         return targets;
     }
 
-    async get_abilities(): Promise<Array<number>> {
+    async get_abilities(): Promise<Map<number, [number, Array<[number, number]>]>> {
         Rechenknecht.send_work_start();
-        const abilities = await this.data_filter.get_abilities();
+        const abilities = this.data_filter.get_abilities();
         Rechenknecht.send_work_end();
         return abilities;
     }

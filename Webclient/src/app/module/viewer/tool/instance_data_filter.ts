@@ -1,10 +1,7 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {Observable, Subject} from "rxjs";
-import {iterable_filterMap, iterable_map, iterable_some} from "../../../stdlib/iterable_higher_order";
-import {auditTime} from "rxjs/operators";
-import {KnechtUpdates} from "../domain_value/knecht_updates";
+import {iterable_map} from "../../../stdlib/iterable_higher_order";
 import {
     se_aura_application,
     se_combat_state,
@@ -34,9 +31,6 @@ import {
 
 export class InstanceDataFilter {
 
-    private filter_changed$: Subject<void> = new Subject();
-    private segments_changed$: Subject<void> = new Subject();
-
     private segment_intervals$: Array<[number, number]> = [];
     private source_filter$: Set<number> = new Set();
     private target_filter$: Set<number> = new Set();
@@ -47,12 +41,6 @@ export class InstanceDataFilter {
 
     constructor(instance_meta_id: number, event_types: Array<number>) {
         this.data_loader = new InstanceDataLoader(instance_meta_id, event_types);
-        this.filter_changed$.asObservable().pipe(auditTime(10)).subscribe(() => {
-            (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.FilterChanged]);
-        });
-        this.segments_changed$.asObservable().pipe(auditTime(10)).subscribe(() => {
-            (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.SegmentsChanged]);
-        });
     }
 
     private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => number, target_extraction: (Event) => number,
@@ -86,15 +74,12 @@ export class InstanceDataFilter {
     async set_segment_intervals(intervals: Array<[number, number]>): Promise<void> {
         this.cache = new Map();
         this.segment_intervals$ = intervals;
-        this.filter_changed$.next();
-        this.segments_changed$.next();
     }
 
     async set_source_filter(sources: Array<number>): Promise<void> {
         if (sources.length !== this.source_filter$.size || sources.some(source => !this.source_filter$.has(source))) {
             this.cache = new Map();
             this.source_filter$ = new Set(sources);
-            this.filter_changed$.next();
         }
     }
 
@@ -102,7 +87,6 @@ export class InstanceDataFilter {
         if (targets.length !== this.target_filter$.size || targets.some(target => !this.target_filter$.has(target))) {
             this.cache = new Map();
             this.target_filter$ = new Set(targets);
-            this.filter_changed$.next();
         }
     }
 
@@ -110,39 +94,19 @@ export class InstanceDataFilter {
         if (abilities.length !== this.ability_filter$.size || abilities.some(ability => !this.ability_filter$.has(ability))) {
             this.cache = new Map();
             this.ability_filter$ = new Set(abilities);
-            this.filter_changed$.next();
         }
     }
 
-    get filter_changed(): Observable<void> {
-        return this.filter_changed$.asObservable();
+    async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
+        return this.data_loader.sources;
     }
 
-    async get_sources(): Promise<Array<Unit>> {
-        const sources = new Set();
-        for (const [start, end] of this.segment_intervals$) {
-            for (const source_id of this.data_loader.sources.search(start, end))
-                sources.add(source_id);
-        }
-        return iterable_map(sources.values(), (id) => this.data_loader.source_map.get(id));
+    async get_targets(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
+        return this.data_loader.targets;
     }
 
-    async get_targets(): Promise<Array<Unit>> {
-        const targets = new Set();
-        for (const [start, end] of this.segment_intervals$) {
-            for (const target_id of this.data_loader.targets.search(start, end))
-                targets.add(target_id);
-        }
-        return iterable_map(targets.values(), (id) => this.data_loader.target_map.get(id));
-    }
-
-    async get_abilities(): Promise<Array<number>> {
-        const abilities: Set<number> = new Set();
-        for (const [start, end] of this.segment_intervals$) {
-            for (const ability_id of this.data_loader.abilities.search(start, end))
-                abilities.add(ability_id);
-        }
-        return [...abilities.values()];
+    async get_abilities(): Promise<Map<number, [number, Array<[number, number]>]>> {
+        return this.data_loader.abilities;
     }
 
     get_spell_casts(inverse_filter: boolean = false): Array<Event> {

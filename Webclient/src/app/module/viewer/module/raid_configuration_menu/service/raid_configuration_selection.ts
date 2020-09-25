@@ -19,6 +19,6 @@ export class RaidConfigurationSelectionService {
 
     select_sources(sources: Array<number>): void {
         this.source_selection$.next(sources);
-        this.raidConfigurationService.update_source_filter(sources);
+        this.raidConfigurationService.update_source_filter(sources, true);
     }
 }

@@ -16,7 +16,9 @@ import {DataService} from "../../../../../service/data";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {ViewerMode} from "../../../domain_value/viewer_mode";
 import {ActivatedRoute, NavigationStart, Router} from "@angular/router";
-import {iterable_some} from "../../../../../stdlib/iterable_higher_order";
+import {iterable_map, iterable_some} from "../../../../../stdlib/iterable_higher_order";
+import {KnechtUpdates} from "../../../domain_value/knecht_updates";
+import DataIntervalTree from "node-interval-tree";
 
 export interface FilterStackItem {
     viewer_mode: ViewerMode;
@@ -36,6 +38,15 @@ export class RaidConfigurationService implements OnDestroy {
 
     private current_meta: InstanceViewerMeta;
 
+    private current_source_intervals: DataIntervalTree<number> = new DataIntervalTree();
+    private current_target_intervals: DataIntervalTree<number> = new DataIntervalTree();
+    private current_ability_intervals: DataIntervalTree<number> = new DataIntervalTree();
+
+    private current_source_map: Map<number, Unit> = new Map();
+    private current_target_map: Map<number, Unit> = new Map();
+
+    private current_filtered_intervals: Array<[number, number]> = [];
+
     private categories$: BehaviorSubject<Array<Category>> = new BehaviorSubject([]);
     private segments$: BehaviorSubject<Array<Segment>> = new BehaviorSubject([]);
     private sources$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
@@ -45,10 +56,16 @@ export class RaidConfigurationService implements OnDestroy {
 
     private category_filter: Set<number> = new Set();
     private segment_filter: Set<number> = new Set();
-    private source_filter: Array<number> = [];
-    private target_filter: Array<number> = [];
-    private ability_filter: Array<number> = [];
+    private source_filter: Set<number> = new Set();
+    private target_filter: Set<number> = new Set();
+    private ability_filter: Set<number> = new Set();
+
     private current_mode: ViewerMode = ViewerMode.Base;
+    private prev_category_filter: Set<number> = new Set();
+    private prev_segment_filter: Set<number> = new Set();
+    private prev_source_filter: Set<number> = new Set();
+    private prev_target_filter: Set<number> = new Set();
+    private prev_ability_filter: Set<number> = new Set();
 
     private nextCategories: Subject<void> = new Subject();
     private nextSegments: Subject<void> = new Subject();
@@ -78,33 +95,21 @@ export class RaidConfigurationService implements OnDestroy {
             this.update_categories(attempts);
             this.update_segments(attempts);
         }));
-        this.subscription.add(this.instanceDataService.sources.subscribe(sources => this.update_sources(sources)));
-        this.subscription.add(this.instanceDataService.targets.subscribe(targets => this.update_targets(targets)));
-        this.subscription.add(this.instanceDataService.abilities.subscribe(abilities => this.update_abilities(abilities)));
+
+        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_updates, evt_types]) => {
+            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem)))
+                this.update_subjects();
+        }));
 
         this.subscription.add(this.activated_route_service.paramMap.subscribe(params => this.current_mode = params.get("mode") as ViewerMode));
-        this.subscription.add(this.filter_updated$.pipe(debounceTime(500)).subscribe(() => {
-            if (this.category_filter.size <= 0 || this.segment_filter.size <= 0 || this.source_filter.length <= 0 || this.target_filter.length <= 0 || this.ability_filter.length <= 0)
-                return;
-            if (this.filter_stack.length > 0) {
-                const last_elem = this.filter_stack[this.filter_stack.length - 1];
-                if (
-                    (last_elem.viewer_mode === this.current_mode) &&
-                    (last_elem.categories.size === this.category_filter.size && iterable_some(this.category_filter.values(), (elem) => !last_elem.categories.has(elem))) &&
-                    (last_elem.segments.size === this.segment_filter.size && iterable_some(this.segment_filter.values(), (elem) => !last_elem.segments.has(elem))) &&
-                    (last_elem.sources.size === this.source_filter.length && this.source_filter.some(elem => !last_elem.sources.has(elem))) &&
-                    (last_elem.targets.size === this.target_filter.length && this.target_filter.some(elem => !last_elem.targets.has(elem))) &&
-                    (last_elem.abilities.size === this.ability_filter.length && this.ability_filter.some(elem => !last_elem.abilities.has(elem)))
-                ) return;
-            }
-
+        this.subscription.add(this.filter_updated$.pipe(debounceTime(100)).subscribe(() => {
             this.filter_stack.push({
                 viewer_mode: this.current_mode,
-                categories: new Set([...this.category_filter.values()]),
-                segments: new Set([...this.segment_filter.values()]),
-                sources: new Set(this.source_filter),
-                targets: new Set(this.target_filter),
-                abilities: new Set(this.ability_filter)
+                categories: new Set([...this.prev_category_filter.values()]),
+                segments: new Set([...this.prev_segment_filter.values()]),
+                sources: new Set(this.prev_source_filter),
+                targets: new Set(this.prev_target_filter),
+                abilities: new Set(this.prev_ability_filter)
             });
         }));
 
@@ -164,13 +169,11 @@ export class RaidConfigurationService implements OnDestroy {
         return this.options$.asObservable();
     }
 
-    private set_segment_intervals(): void {
-        this.instanceDataService.segment_intervals = this.segments$.getValue()
-            .filter(segment => this.segment_filter.has(segment.id))
-            .map(segment => [segment.start_ts, segment.start_ts + segment.duration]);
-    }
-
-    update_category_filter(selected_categories: Array<number>): void {
+    update_category_filter(selected_categories: Array<number>, update_stack: boolean = false): void {
+        if (this.category_filter.size === selected_categories.length && selected_categories.every(elem => this.category_filter.has(elem)))
+            return;
+        if (update_stack) this.prev_category_filter = this.category_filter;
+        else this.prev_category_filter = new Set(selected_categories);
         this.category_filter = new Set(selected_categories);
         this.segments$.next(this.segments$.getValue());
 
@@ -180,31 +183,51 @@ export class RaidConfigurationService implements OnDestroy {
             if (filtered_categories.find(category => category.segments.has(segment)) !== undefined)
                 new_segment_filter.push(segment);
         this.update_segment_filter(new_segment_filter);
-        this.filter_updated$.next();
+        if (update_stack) this.filter_updated$.next();
     }
 
-    update_segment_filter(selected_segments: Array<number>): void {
+    update_segment_filter(selected_segments: Array<number>, update_stack: boolean = false): void {
+        if (this.segment_filter.size === selected_segments.length && selected_segments.every(elem => this.segment_filter.has(elem)))
+            return;
+        if (update_stack) this.prev_segment_filter = this.segment_filter;
+        else this.prev_segment_filter = new Set(selected_segments);
         this.segment_filter = new Set(selected_segments);
-        this.set_segment_intervals();
-        this.filter_updated$.next();
+        this.current_filtered_intervals = this.segments$.getValue()
+            .filter(segment => this.segment_filter.has(segment.id))
+            .map(segment => [segment.start_ts, segment.start_ts + segment.duration]);
+        this.instanceDataService.set_segment_intervals(this.current_filtered_intervals);
+        this.update_filter();
+        if (update_stack) this.filter_updated$.next();
     }
 
-    update_source_filter(selected_sources: Array<number>): void {
-        this.source_filter = selected_sources;
-        this.instanceDataService.source_filter = selected_sources;
-        this.filter_updated$.next();
+    update_source_filter(selected_sources: Array<number>, update_stack: boolean = false): void {
+        if (this.source_filter.size === selected_sources.length && selected_sources.every(elem => this.source_filter.has(elem)))
+            return;
+        if (update_stack) this.prev_source_filter = this.source_filter;
+        else this.prev_source_filter = new Set(selected_sources);
+        this.source_filter = new Set(selected_sources);
+        this.instanceDataService.set_source_filter(selected_sources);
+        if (update_stack) this.filter_updated$.next();
     }
 
-    update_target_filter(selected_targets: Array<number>): void {
-        this.target_filter = selected_targets;
-        this.instanceDataService.target_filter = selected_targets;
-        this.filter_updated$.next();
+    update_target_filter(selected_targets: Array<number>, update_stack: boolean = false): void {
+        if (this.target_filter.size === selected_targets.length && selected_targets.every(elem => this.target_filter.has(elem)))
+            return;
+        if (update_stack) this.prev_target_filter = this.target_filter;
+        else this.prev_target_filter = new Set(selected_targets);
+        this.target_filter = new Set(selected_targets);
+        this.instanceDataService.set_target_filter(selected_targets);
+        if (update_stack) this.filter_updated$.next();
     }
 
-    update_ability_filter(selected_abilities: Array<number>): void {
-        this.ability_filter = selected_abilities;
-        this.instanceDataService.ability_filter = selected_abilities;
-        this.filter_updated$.next();
+    update_ability_filter(selected_abilities: Array<number>, update_stack: boolean = false): void {
+        if (this.ability_filter.size === selected_abilities.length && selected_abilities.every(elem => this.ability_filter.has(elem)))
+            return;
+        if (update_stack) this.prev_ability_filter = this.ability_filter;
+        else this.prev_ability_filter = new Set(selected_abilities);
+        this.ability_filter = new Set(selected_abilities);
+        this.instanceDataService.set_ability_filter(selected_abilities);
+        if (update_stack) this.filter_updated$.next();
     }
 
     private update_categories(attempts: Array<InstanceViewerAttempt>): void {
@@ -272,6 +295,7 @@ export class RaidConfigurationService implements OnDestroy {
     private update_sources(sources: Array<Unit>): void {
         this.nextSources.next();
         const result: Array<Observable<EventSource>> = [];
+        // TODO: Optimize!
         for (const source of sources)
             result.push(combineLatest([this.unitService.get_unit_name(source), this.unitService.is_unit_boss(source)])
                 .pipe(map(([label, is_boss]) => {
@@ -288,6 +312,7 @@ export class RaidConfigurationService implements OnDestroy {
     private update_targets(targets: Array<Unit>): void {
         this.nextTargets.next();
         const result: Array<Observable<EventSource>> = [];
+        // TODO: Optimize!
         for (const target of targets)
             result.push(combineLatest([this.unitService.get_unit_name(target), this.unitService.is_unit_boss(target)])
                 .pipe(map(([label, is_boss]) => {
@@ -301,9 +326,10 @@ export class RaidConfigurationService implements OnDestroy {
         zip(...result).pipe(takeUntil(this.nextTargets.asObservable())).subscribe(update => this.targets$.next(update));
     }
 
-    private update_abilities(abilities: Set<number>): void {
+    private update_abilities(abilities: Array<number>): void {
         this.nextAbilities.next();
         const result: Array<Observable<EventAbility>> = [];
+        // TODO: Optimize!
         for (const spell_id of abilities)
             result.push(this.spellService.get_localized_basic_spell(spell_id)
                 .pipe(map(spell => {
@@ -332,5 +358,99 @@ export class RaidConfigurationService implements OnDestroy {
         if (current_start_ts < this.current_meta.end_ts)
             intervals.push([current_start_ts, this.current_meta.end_ts]);
         return intervals;
+    }
+
+    private update_filter(): void {
+        const sources = new Set();
+        for (const [start, end] of this.current_filtered_intervals) {
+            for (const source_id of this.current_source_intervals.search(start, end))
+                sources.add(source_id);
+        }
+
+        const targets = new Set();
+        for (const [start, end] of this.current_filtered_intervals) {
+            for (const target_id of this.current_target_intervals.search(start, end))
+                targets.add(target_id);
+        }
+
+        const abilities: Set<number> = new Set();
+        for (const [start, end] of this.current_filtered_intervals) {
+            for (const ability_id of this.current_ability_intervals.search(start, end))
+                abilities.add(ability_id);
+        }
+
+        this.update_sources(iterable_map(sources.values(), (id) => this.current_source_map.get(id)));
+        this.update_targets(iterable_map(targets.values(), (id) => this.current_target_map.get(id)));
+        this.update_abilities([...abilities.values()]);
+    }
+
+    private async update_subjects(): Promise<void> {
+        const source_prom = [];
+        source_prom.push(this.instanceDataService.knecht_melee.get_sources());
+        source_prom.push(this.instanceDataService.knecht_misc.get_sources());
+        source_prom.push(this.instanceDataService.knecht_spell_damage.get_sources());
+        source_prom.push(this.instanceDataService.knecht_heal.get_sources());
+        source_prom.push(this.instanceDataService.knecht_dispel.get_sources());
+        source_prom.push(this.instanceDataService.knecht_interrupt.get_sources());
+        source_prom.push(this.instanceDataService.knecht_spell_steal.get_sources());
+        source_prom.push(this.instanceDataService.knecht_threat.get_sources());
+        source_prom.push(this.instanceDataService.knecht_aura.get_sources());
+
+        const target_prom = [];
+        target_prom.push(this.instanceDataService.knecht_melee.get_targets());
+        target_prom.push(this.instanceDataService.knecht_misc.get_targets());
+        target_prom.push(this.instanceDataService.knecht_spell_damage.get_targets());
+        target_prom.push(this.instanceDataService.knecht_heal.get_targets());
+        target_prom.push(this.instanceDataService.knecht_dispel.get_targets());
+        target_prom.push(this.instanceDataService.knecht_interrupt.get_targets());
+        target_prom.push(this.instanceDataService.knecht_spell_steal.get_targets());
+        target_prom.push(this.instanceDataService.knecht_threat.get_targets());
+        target_prom.push(this.instanceDataService.knecht_aura.get_targets());
+
+        const ability_prom = [];
+        ability_prom.push(this.instanceDataService.knecht_melee.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_misc.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_spell_damage.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_heal.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_dispel.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_interrupt.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_spell_steal.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_threat.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_aura.get_abilities());
+
+        const source_intervals = new DataIntervalTree<number>();
+        for (const prom of source_prom) {
+            const subjects = await prom;
+            for (const [subject_id, [subject, intervals]] of subjects) {
+                if (!this.current_source_map.has(subject_id))
+                    this.current_source_map.set(subject_id, subject);
+                for (const [start, end] of intervals)
+                    source_intervals.insert(start, end, subject_id);
+            }
+        }
+        this.current_source_intervals = source_intervals;
+
+        const target_intervals = new DataIntervalTree<number>();
+        for (const prom of target_prom) {
+            const subjects = await prom;
+            for (const [subject_id, [subject, intervals]] of subjects) {
+                if (!this.current_target_map.has(subject_id))
+                    this.current_target_map.set(subject_id, subject);
+                for (const [start, end] of intervals)
+                    target_intervals.insert(start, end, subject_id);
+            }
+        }
+        this.current_target_intervals = target_intervals;
+
+        const ability_intervals = new DataIntervalTree<number>();
+        for (const prom of ability_prom) {
+            const subjects = await prom;
+            for (const [subject_id, [_, intervals]] of subjects) {
+                for (const [start, end] of intervals)
+                    ability_intervals.insert(start, end, subject_id);
+            }
+        }
+        this.current_ability_intervals = ability_intervals;
+        this.update_filter();
     }
 }

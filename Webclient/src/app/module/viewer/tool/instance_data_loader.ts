@@ -20,8 +20,7 @@ import {
 } from "../extractor/abilities";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {Subject} from "rxjs";
-import {auditTime, debounceTime} from "rxjs/operators";
-import IntervalTree from 'node-interval-tree';
+import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
@@ -45,12 +44,9 @@ export class InstanceDataLoader {
     public heal: Array<Event> = [];
     public threat: Array<Event> = [];
 
-    public source_map: Map<number, Unit> = new Map();
-    public target_map: Map<number, Unit> = new Map();
-
-    public sources: IntervalTree<number> = new IntervalTree();
-    public targets: IntervalTree<number> = new IntervalTree();
-    public abilities: IntervalTree<number> = new IntervalTree();
+    public sources: Map<number, [Unit, Array<[number, number]>]> = new Map();
+    public targets: Map<number, [Unit, Array<[number, number]>]> = new Map();
+    public abilities: Map<number, [number, Array<[number, number]>]> = new Map();
 
     public initialized: boolean = false;
 
@@ -93,17 +89,17 @@ export class InstanceDataLoader {
         const source = getter[1](event);
         const source_id = get_unit_id(source, false);
 
-        if (!this.source_map.has(source_id))
-            this.source_map.set(source_id, source);
-        this.sources.insert(event[1], event[1], source_id);
+        if (!this.sources.has(source_id))
+            this.sources.set(source_id, [source, []]);
+        this.append_subject_interval(this.sources.get(source_id), event[1]);
 
         if (!!getter[2]) {
             const target = getter[2](event);
             if (!!target) {
                 const target_id = get_unit_id(target, false);
-                if (!this.target_map.has(target_id))
-                    this.target_map.set(target_id, target);
-                this.targets.insert(event[1], event[1], target_id);
+                if (!this.targets.has(target_id))
+                    this.targets.set(target_id, [target, []]);
+                this.append_subject_interval(this.targets.get(target_id), event[1]);
             }
         }
 
@@ -112,13 +108,59 @@ export class InstanceDataLoader {
             if (abilities !== undefined && abilities !== null) {
                 if (abilities instanceof Array) {
                     for (const ability_id of abilities) {
-                        if (ability_id >= 0)
-                            this.abilities.insert(event[1], event[1], ability_id);
+                        if (ability_id >= 0) {
+                            if (!this.abilities.has(ability_id))
+                                this.abilities.set(ability_id, [ability_id, []]);
+                            this.append_subject_interval(this.abilities.get(ability_id), event[1]);
+                        }
                     }
                 } else {
-                    if (abilities >= 0)
-                        this.abilities.insert(event[1], event[1], abilities);
+                    if (abilities >= 0) {
+                        if (!this.abilities.has(abilities))
+                            this.abilities.set(abilities, [abilities, []]);
+                        this.append_subject_interval(this.abilities.get(abilities), event[1]);
+                    }
                 }
+            }
+        }
+    }
+
+    private append_subject_interval(interval_holder: [any, Array<[number, number]>], timestamp: number): void {
+        const intervals = interval_holder[1];
+        if (intervals.length === 0) {
+            intervals.push([timestamp, timestamp]);
+            return;
+        }
+
+        let prev_interval_index = -1;
+        for (let i = intervals.length - 1; i >= 0; --i) {
+            if (intervals[i][1] <= timestamp) {
+                prev_interval_index = i;
+                break;
+            }
+        }
+
+        if (prev_interval_index === -1) { // We lower than all
+            const first_interval = intervals[0];
+            if (first_interval[0] > timestamp && first_interval[0] - timestamp <= 1000) first_interval[0] = timestamp;
+            else interval_holder[1] = [[timestamp, timestamp], ...intervals];
+        } else if (prev_interval_index + 1 === intervals.length) { // We are greater than all
+            const last_interval = intervals[prev_interval_index];
+            if (timestamp - last_interval[1] <= 1000) last_interval[1] = timestamp;
+            else intervals.push([timestamp, timestamp]);
+        } else { // We are between two intervals
+            const prev_interval = intervals[prev_interval_index];
+            const next_interval = intervals[prev_interval_index + 1];
+            if (timestamp - prev_interval[1] <= 1000) {
+                if (next_interval[0] - timestamp <= 1000) {
+                    prev_interval[1] = next_interval[1];
+                    interval_holder[1] = [...intervals.slice(0, prev_interval_index + 1), ...intervals.slice(prev_interval_index + 2)];
+                } else {
+                    prev_interval[1] = timestamp;
+                }
+            } else {
+                if (next_interval[0] - timestamp <= 1000) next_interval[0] = timestamp;
+                else intervals.push([timestamp, timestamp]);
             }
         }
     }
