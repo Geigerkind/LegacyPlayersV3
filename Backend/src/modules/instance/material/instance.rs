@@ -53,7 +53,7 @@ impl Instance {
                 update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main);
                 update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main);
                 update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
-                std::thread::sleep(std::time::Duration::from_secs(30));
+                std::thread::sleep(std::time::Duration::from_secs(5));
             }
         });
         self

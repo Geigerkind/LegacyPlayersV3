@@ -155,7 +155,9 @@ impl LogParser for WoWCBTLParser {
                     if !is_player {
                         let entry = unit_id.get_entry();
                         if entry.contains(&15928) || entry.contains(&32535) {
-                            ts_offset = -30000;
+                            ts_offset = -31000;
+                        } else if entry.contains(&15990) {
+                            ts_offset = -229000;
                         }
                     }
 
@@ -329,14 +331,24 @@ fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) ->
 fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: &mut HashMap<u64, u64>, current_timestamp: u64, current_message_count: u64, unit: &Unit) {
     let mut ts_offset: i64 = -1;
     // Wyrmrest Skytalon
-    if !unit.is_player && unit.unit_id.get_entry().contains(&32535) {
-        ts_offset = -30000;
+    if !unit.is_player {
+        let entry = unit.unit_id.get_entry();
+        if entry.contains(&32535) {
+            ts_offset = -30000;
+        } else if entry.contains(&15990) {
+            ts_offset = -228000;
+        }
     }
 
     let mut timeout = 60000;
     // Malygos has a bigger timeout
-    if !unit.is_player && unit.unit_id.get_entry().contains(&28859) {
-        timeout = 180000;
+    if !unit.is_player {
+        let entry = unit.unit_id.get_entry();
+        if entry.contains(&28859) {
+            timeout = 180000;
+        } else if entry.contains(&15990) {
+            timeout = 228000;
+        }
     }
 
     if let Some(last_update) = last_combat_update.get_mut(&unit.unit_id) {

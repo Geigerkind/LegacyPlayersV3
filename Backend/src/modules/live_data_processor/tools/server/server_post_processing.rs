@@ -155,7 +155,7 @@ impl Server {
                                     for (_encounter_id, attempt) in active_attempts.iter_mut() {
                                         attempt.infight_player.remove(&player.character_id);
                                     }
-                                    // If enough player are OOC and Kill requirements are fullfilled
+                                    // If enough player are OOC and Kill requirements are fulfilled
                                     // Commit As Kill
                                     for (encounter_id, attempt) in active_attempts.clone() {
                                         if attempt.infight_player.len() <= 5 {
@@ -167,7 +167,7 @@ impl Server {
                                                 }
                                             }
                                         }
-                                        // If only a few survivers left and kill requirements are not fullfilled
+                                        // If only a few survivors left and kill requirements are not fulfilled
                                         // Commit as Attempt
                                         else if attempt.infight_player.len() <= 2 && attempt.infight_vehicle.len() <= 2 {
                                             let is_committable = attempt.creatures_in_combat.is_empty();
