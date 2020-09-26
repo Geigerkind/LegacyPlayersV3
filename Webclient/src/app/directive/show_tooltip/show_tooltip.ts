@@ -56,7 +56,7 @@ export class ShowTooltipDirective implements OnDestroy {
 
     @HostListener('mousemove', ["$event"])
     onMove(event: any): void {
-        this.tooltipControllerService.positionTooltip(this.isMobile(), event.clientX, event.clientY);
+        this.tooltipControllerService.positionTooltip(this.isMobile(), event.clientX, event.clientY + document.getElementsByTagName("body")[0].scrollTop);
     }
 
     private isMobile(): boolean {
