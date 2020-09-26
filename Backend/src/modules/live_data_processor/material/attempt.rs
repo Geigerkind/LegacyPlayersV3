@@ -8,6 +8,8 @@ pub struct Attempt {
     pub pivot_creature: Option<u64>, // (CreatureId, died)
     pub creatures_required_to_die: BTreeSet<u64>,
     pub creatures_in_combat: BTreeSet<u64>,
+    pub infight_player: BTreeSet<u32>,
+    pub infight_vehicle: BTreeSet<u64>,
     pub ranking_damage: HashMap<u32, u32>,
     pub ranking_heal: HashMap<u32, u32>,
     pub ranking_threat: HashMap<u32, i32>,
@@ -22,6 +24,8 @@ impl Attempt {
             pivot_creature: None,
             creatures_required_to_die: BTreeSet::new(),
             creatures_in_combat: BTreeSet::new(),
+            infight_player: BTreeSet::new(),
+            infight_vehicle: BTreeSet::new(),
             ranking_damage: HashMap::new(),
             ranking_heal: HashMap::new(),
             ranking_threat: HashMap::new(),

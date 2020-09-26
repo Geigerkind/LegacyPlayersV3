@@ -152,8 +152,11 @@ impl LogParser for WoWCBTLParser {
                 for (unit_id, is_player) in new_participants {
                     // Thaddius is a special snowflake
                     let mut ts_offset: i64 = -1;
-                    if !is_player && unit_id.get_entry().contains(&15928) {
-                        ts_offset = -30000;
+                    if !is_player {
+                        let entry = unit_id.get_entry();
+                        if entry.contains(&15928) || entry.contains(&32535) {
+                            ts_offset = -30000;
+                        }
                     }
 
                     additional_messages.push(Message {
@@ -324,8 +327,20 @@ fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) ->
 }
 
 fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: &mut HashMap<u64, u64>, current_timestamp: u64, current_message_count: u64, unit: &Unit) {
+    let mut ts_offset: i64 = -1;
+    // Wyrmrest Skytalon
+    if !unit.is_player && unit.unit_id.get_entry().contains(&32535) {
+        ts_offset = -30000;
+    }
+
+    let mut timeout = 60000;
+    // Malygos has a bigger timeout
+    if !unit.is_player && unit.unit_id.get_entry().contains(&28859) {
+        timeout = 180000;
+    }
+
     if let Some(last_update) = last_combat_update.get_mut(&unit.unit_id) {
-        if current_timestamp - *last_update >= 60000 {
+        if current_timestamp - *last_update >= timeout {
             additional_messages.push(Message {
                 api_version: 0,
                 message_length: 0,
@@ -336,7 +351,7 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
             additional_messages.push(Message {
                 api_version: 0,
                 message_length: 0,
-                timestamp: current_timestamp - 1,
+                timestamp: (current_timestamp as i64 + ts_offset) as u64,
                 message_count: current_message_count,
                 message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: true }),
             });
@@ -346,7 +361,7 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
         additional_messages.push(Message {
             api_version: 0,
             message_length: 0,
-            timestamp: current_timestamp - 1,
+            timestamp: (current_timestamp as i64 + ts_offset) as u64,
             message_count: current_message_count,
             message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: true }),
         });

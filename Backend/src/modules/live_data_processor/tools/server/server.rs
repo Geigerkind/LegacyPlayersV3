@@ -16,8 +16,6 @@ use std::collections::{BTreeSet, VecDeque};
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, data: &Data, messages: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
         let mut next_reset = 0;
-        let post_processing_interval = 15 * 1000;
-        let mut next_post_processing = 0;
 
         println!("Start");
         for msg in messages {
@@ -27,12 +25,9 @@ impl Server {
             if next_reset < msg.timestamp || next_reset == u64::MAX {
                 next_reset = self.reset_instances(db_main, msg.timestamp);
             }
-            if next_post_processing < msg.timestamp {
-                self.perform_post_processing(db_main, msg.timestamp, data);
-                next_post_processing = msg.timestamp + post_processing_interval;
-            }
             self.push_non_committed_event(msg);
         }
+        self.perform_post_processing(db_main, u64::MAX, data);
         println!("Done");
         Ok(())
     }
