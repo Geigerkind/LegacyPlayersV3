@@ -6,7 +6,7 @@ use crate::modules::live_data_processor::material::{Attempt, Server};
 use crate::modules::live_data_processor::tools::LiveDataDeserializer;
 use crate::params;
 use crate::util::database::{Execute, Select};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, VecDeque, BTreeSet};
 use std::io::Write;
 use std::ops::Div;
 
@@ -57,78 +57,116 @@ impl Server {
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 let active_attempts = self.active_attempts.entry(*instance_id).or_insert_with(|| HashMap::with_capacity(1));
+                let mut infight_player = BTreeSet::new();
                 for event in committed_events.iter() {
                     if event.timestamp + 2000 > now {
                         break;
                     }
 
-                    if let Unit::Creature(Creature { creature_id, entry, owner: _ }) = &event.subject {
-                        if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
-                            match &event.event {
-                                EventType::CombatState { in_combat } => {
-                                    if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
-                                        let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
-                                        if encounter_npc.requires_death {
-                                            attempt.creatures_required_to_die.insert(*creature_id);
-                                        }
-                                        attempt.creatures_in_combat.insert(*creature_id);
-                                        if encounter_npc.is_pivot {
-                                            attempt.pivot_creature = Some(*creature_id);
-                                        }
-                                    } else if !*in_combat {
-                                        let mut is_committable = false;
-                                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                            attempt.creatures_in_combat.remove(creature_id);
-                                            is_committable = (attempt.creatures_in_combat.is_empty() || attempt.pivot_creature.contains(creature_id))
-                                                && !(encounter_npc.requires_death && !attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.contains(creature_id) && look_ahead_death(committed_events, event, *creature_id));
-                                        }
-
-                                        if is_committable {
-                                            if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
-                                                attempt.end_ts = event.timestamp;
-                                                commit_attempt(db_main, *instance_meta_id, attempt);
+                    match &event.subject {
+                        Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
+                            if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
+                                match &event.event {
+                                    EventType::CombatState { in_combat } => {
+                                        if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
+                                            let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
+                                            if encounter_npc.requires_death {
+                                                attempt.creatures_required_to_die.insert(*creature_id);
                                             }
-                                        }
-                                    }
-                                },
-                                EventType::Death { murder: _ } => {
-                                    let mut is_committable = false;
-                                    if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                        attempt.creatures_required_to_die.remove(creature_id);
-                                        if attempt.pivot_creature.contains(creature_id) {
-                                            attempt.creatures_required_to_die.clear();
-                                        }
-                                        is_committable = attempt.creatures_required_to_die.is_empty();
-                                    }
+                                            attempt.creatures_in_combat.insert(*creature_id);
+                                            if encounter_npc.is_pivot {
+                                                attempt.pivot_creature = Some(*creature_id);
+                                            }
+                                        } else if !*in_combat {
+                                            let mut is_committable = false;
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                attempt.creatures_in_combat.remove(creature_id);
+                                                is_committable = ((attempt.creatures_in_combat.is_empty() && infight_player.len() <= 5) || attempt.pivot_creature.contains(creature_id))
+                                                    && !(encounter_npc.requires_death && !attempt.creatures_required_to_die.is_empty() && attempt.creatures_required_to_die.contains(creature_id) && look_ahead_death(committed_events, event, *creature_id));
+                                            }
 
-                                    if is_committable {
-                                        if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
-                                            attempt.end_ts = event.timestamp;
-                                            commit_attempt(db_main, *instance_meta_id, attempt);
-                                        }
-                                    }
-                                },
-                                EventType::Power(Power { power_type, max_power, current_power }) => {
-                                    if *power_type == PowerType::Health && encounter_npc.is_pivot {
-                                        let mut is_committable = false;
-                                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
-                                            if let Some(treshold) = encounter_npc.health_treshold {
-                                                if (100 * *max_power).div(current_power) <= treshold as u32 {
-                                                    attempt.creatures_required_to_die.clear();
-                                                    is_committable = attempt.creatures_required_to_die.is_empty();
+                                            if is_committable {
+                                                if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
+                                                    attempt.end_ts = event.timestamp;
+                                                    commit_attempt(db_main, *instance_meta_id, attempt);
                                                 }
                                             }
                                         }
+                                    },
+                                    EventType::Death { murder: _ } => {
+                                        let mut is_committable = false;
+                                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                            attempt.creatures_required_to_die.remove(creature_id);
+                                            if attempt.pivot_creature.contains(creature_id) {
+                                                attempt.creatures_required_to_die.clear();
+                                            }
+                                            is_committable = attempt.creatures_required_to_die.is_empty() && infight_player.len() <= 5;
+                                        }
+
                                         if is_committable {
                                             if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
                                                 attempt.end_ts = event.timestamp;
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
+                                    },
+                                    EventType::Power(Power { power_type, max_power, current_power }) => {
+                                        if *power_type == PowerType::Health && encounter_npc.is_pivot {
+                                            let mut is_committable = false;
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                if let Some(treshold) = encounter_npc.health_treshold {
+                                                    if (100 * *max_power).div(current_power) <= treshold as u32 {
+                                                        attempt.creatures_required_to_die.clear();
+                                                        is_committable = attempt.creatures_required_to_die.is_empty();
+                                                    }
+                                                }
+                                            }
+                                            if is_committable {
+                                                if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
+                                                    attempt.end_ts = event.timestamp;
+                                                    commit_attempt(db_main, *instance_meta_id, attempt);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    _ => {},
+                                };
+                            }
+                        },
+                        Unit::Player(player) => {
+                            if let EventType::CombatState { in_combat } = &event.event {
+                                if *in_combat {
+                                    infight_player.insert(player.character_id);
+                                } else {
+                                    infight_player.remove(&player.character_id);
+                                    // If enough player are OOC and Kill requirements are fullfilled
+                                    // Commit As Kill
+                                    if infight_player.len() <= 5 {
+                                        for (encounter_id, attempt) in active_attempts.clone() {
+                                            let is_committable = attempt.creatures_required_to_die.is_empty();
+                                            if is_committable {
+                                                if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
+                                                    attempt.end_ts = event.timestamp;
+                                                    commit_attempt(db_main, *instance_meta_id, attempt);
+                                                }
+                                            }
+                                        }
                                     }
-                                },
-                                _ => {},
-                            };
+                                    // If only a few survivers left and kill requirements are not fullfilled
+                                    // Commit as Attempt
+                                    else if infight_player.len() <= 2 {
+                                        for (encounter_id, attempt) in active_attempts.clone() {
+                                            let is_committable = attempt.creatures_in_combat.is_empty();
+                                            if is_committable {
+                                                if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
+                                                    attempt.end_ts = event.timestamp;
+                                                    commit_attempt(db_main, *instance_meta_id, attempt);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
 
