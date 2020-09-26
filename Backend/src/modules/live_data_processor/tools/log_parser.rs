@@ -138,6 +138,7 @@ impl LogParser for WoWCBTLParser {
             if let Some((map_id, difficulty)) = get_current_map(self, current_timestamp) {
                 if !current_map.contains(&(map_id, difficulty)) {
                     current_map = Some((map_id, difficulty));
+                    participants.clear();
                 };
                 let current_ts_in_s = (current_timestamp / 1000) as u32;
                 let mut new_participants: HashMap<u64, bool> = HashMap::new();
@@ -370,31 +371,25 @@ fn get_current_map(me: &WoWCBTLParser, current_timestamp: u64) -> Option<(u16, O
         }
 
         let mut difficulty_id = None;
-        let last_index = me.active_difficulty.len() - 1;
-        for (index, (pot_diff_id, start, end)) in me.active_difficulty.iter().enumerate() {
-            if *start <= current_timestamp && (index == last_index || *end >= current_timestamp) {
+        for (pot_diff_id, start, end) in me.active_difficulty.iter() {
+            if *start <= current_timestamp && *end >= current_timestamp {
                 difficulty_id = Some(*pot_diff_id);
                 break;
             }
         }
 
         if difficulty_id.is_none() {
-            match map_id {
-                533 | 603 | 615 | 616 | 624 => {
-                    if me
-                        .participation
-                        .iter()
-                        .filter(|(_unit_id, (_, is_player, intervals))| intervals.iter().any(|(start, end)| *is_player && *start <= current_timestamp && *end >= current_timestamp))
-                        .count()
-                        > 15
-                    {
-                        difficulty_id = Some(4);
-                    } else {
-                        difficulty_id = Some(3);
-                    }
-                },
-                _ => {},
-            };
+            if me
+                .participation
+                .iter()
+                .filter(|(_unit_id, (_, is_player, intervals))| intervals.iter().any(|(start, end)| *is_player && *start <= current_timestamp && *end >= current_timestamp))
+                .count()
+                > 15
+            {
+                difficulty_id = Some(4);
+            } else {
+                difficulty_id = Some(3);
+            }
         }
 
         difficulty_id.map(|difficulty_id| (map_id, Some(difficulty_id)))
@@ -778,11 +773,11 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
     // let is_player = (u32::from_str_radix(unit_args[2].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)? & 0x400) != 0;
     let mut unit_id = u64::from_str_radix(unit_args[0].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     if me.server_id == 6 && unit_id.get_high() & 0x0FF0 == 0x0110 {
-        unit_id &= 0x000000000000FFFF;
+        unit_id &= 0x0000000000FFFFFF;
     }
 
     // Each non npc pet gets the id 0xFFFF (Has flags 0xF140)
-    if unit_id.get_high() == 0xF140 {
+    if unit_id.is_pet() {
         let mut new_unit_id = unit_id.clone();
         new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
         new_unit_id |= 0x000000FFFF000000;
