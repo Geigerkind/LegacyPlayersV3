@@ -390,9 +390,7 @@ export class RaidConfigurationService implements OnDestroy {
         source_prom.push(this.instanceDataService.knecht_misc.get_sources());
         source_prom.push(this.instanceDataService.knecht_spell_damage.get_sources());
         source_prom.push(this.instanceDataService.knecht_heal.get_sources());
-        source_prom.push(this.instanceDataService.knecht_dispel.get_sources());
-        source_prom.push(this.instanceDataService.knecht_interrupt.get_sources());
-        source_prom.push(this.instanceDataService.knecht_spell_steal.get_sources());
+        source_prom.push(this.instanceDataService.knecht_un_aura.get_sources());
         source_prom.push(this.instanceDataService.knecht_threat.get_sources());
         source_prom.push(this.instanceDataService.knecht_aura.get_sources());
 
@@ -401,9 +399,7 @@ export class RaidConfigurationService implements OnDestroy {
         target_prom.push(this.instanceDataService.knecht_misc.get_targets());
         target_prom.push(this.instanceDataService.knecht_spell_damage.get_targets());
         target_prom.push(this.instanceDataService.knecht_heal.get_targets());
-        target_prom.push(this.instanceDataService.knecht_dispel.get_targets());
-        target_prom.push(this.instanceDataService.knecht_interrupt.get_targets());
-        target_prom.push(this.instanceDataService.knecht_spell_steal.get_targets());
+        target_prom.push(this.instanceDataService.knecht_un_aura.get_targets());
         target_prom.push(this.instanceDataService.knecht_threat.get_targets());
         target_prom.push(this.instanceDataService.knecht_aura.get_targets());
 
@@ -412,9 +408,7 @@ export class RaidConfigurationService implements OnDestroy {
         ability_prom.push(this.instanceDataService.knecht_misc.get_abilities());
         ability_prom.push(this.instanceDataService.knecht_spell_damage.get_abilities());
         ability_prom.push(this.instanceDataService.knecht_heal.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_dispel.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_interrupt.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_spell_steal.get_abilities());
+        ability_prom.push(this.instanceDataService.knecht_un_aura.get_abilities());
         ability_prom.push(this.instanceDataService.knecht_threat.get_abilities());
         ability_prom.push(this.instanceDataService.knecht_aura.get_abilities());
 

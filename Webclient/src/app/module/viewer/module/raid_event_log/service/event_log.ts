@@ -147,11 +147,11 @@ export class EventLogService implements OnDestroy {
             // .map(event => this.create_event_log_entry(2, event, (evt) => this.process_combat_state(evt))),
             ...(await this.instanceDataService.knecht_aura.event_log_aura_application(this.to_actor, this.log_offsets.get(6)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(6, event, (evt) => this.process_aura_application(evt))),
-            ...(await this.instanceDataService.knecht_interrupt.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp))
+            ...(await this.instanceDataService.knecht_un_aura.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(7, event, (evt) => this.process_interrupt(evt))),
-            ...(await this.instanceDataService.knecht_spell_steal.event_log_spell_steal(this.to_actor, this.log_offsets.get(8)[0], up_to_timestamp))
+            ...(await this.instanceDataService.knecht_un_aura.event_log_spell_steal(this.to_actor, this.log_offsets.get(8)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(8, event, (evt) => this.process_spell_steal(evt))),
-            ...(await this.instanceDataService.knecht_dispel.event_log_dispel(this.to_actor, this.log_offsets.get(9)[0], up_to_timestamp))
+            ...(await this.instanceDataService.knecht_un_aura.event_log_dispel(this.to_actor, this.log_offsets.get(9)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(9, event, (evt) => this.process_dispel(evt))),
             ...(await this.instanceDataService.knecht_melee.event_log_melee_damage(this.to_actor, this.log_offsets.get(12)[0], up_to_timestamp))
                 .map(event => this.create_event_log_entry(12, event, (evt) => this.process_melee_damage(evt))),

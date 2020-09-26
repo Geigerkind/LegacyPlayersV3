@@ -142,15 +142,11 @@ export class GraphDataService implements OnDestroy {
                 break;
             case DataSet.DispelsDone:
             case DataSet.DispelsReceived:
-                this.commit_data_set(data_set, await this.instanceDataService.knecht_dispel.graph_data_set(data_set));
-                break;
-            case DataSet.InterruptDone:
-            case DataSet.InterruptReceived:
-                this.commit_data_set(data_set, await this.instanceDataService.knecht_interrupt.graph_data_set(data_set));
-                break;
             case DataSet.SpellStealDone:
             case DataSet.SpellStealReceived:
-                this.commit_data_set(data_set, await this.instanceDataService.knecht_spell_steal.graph_data_set(data_set));
+            case DataSet.InterruptDone:
+            case DataSet.InterruptReceived:
+                this.commit_data_set(data_set, await this.instanceDataService.knecht_un_aura.graph_data_set(data_set));
                 break;
             case DataSet.AbsorbDone:
             case DataSet.AbsorbTaken:
