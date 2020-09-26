@@ -13,3 +13,4 @@ pub mod payload_mapper;
 mod process;
 pub mod server;
 mod unit;
+// pub mod log_parser_vanilla;
