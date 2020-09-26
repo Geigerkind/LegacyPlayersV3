@@ -15,21 +15,19 @@ impl GUID for u64 {
     }
 
     fn is_player(&self) -> bool {
-        self.get_high() == 0
+        self.get_high() & 0x00F0 == 0
     }
 
     fn is_pet(&self) -> bool {
-        let high = self.get_high();
-        high == 61760 || high == 62768
+        self.get_high() & 0x00F0 == 4
     }
 
     fn is_creature(&self) -> bool {
-        let high = self.get_high();
-        high == 61744 || high == 61696 // Dynamic object o.o?
+        self.get_high() &  & 0x00F0 == 3
     }
 
     fn is_vehicle(&self) -> bool {
-        self.get_high() == 61776
+        self.get_high() &  & 0x00F0 == 5
     }
 
     fn is_any_creature(&self) -> bool {
