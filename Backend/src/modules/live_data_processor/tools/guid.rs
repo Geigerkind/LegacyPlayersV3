@@ -15,19 +15,19 @@ impl GUID for u64 {
     }
 
     fn is_player(&self) -> bool {
-        self.get_high() & 0x00F0 == 0
+        self.get_high() & 0x00F0 == 0x0000
     }
 
     fn is_pet(&self) -> bool {
-        self.get_high() & 0x00F0 == 4
+        self.get_high() & 0x00F0 == 0x0040
     }
 
     fn is_creature(&self) -> bool {
-        self.get_high() &  & 0x00F0 == 3
+        self.get_high() & 0x00F0 == 0x0030
     }
 
     fn is_vehicle(&self) -> bool {
-        self.get_high() &  & 0x00F0 == 5
+        self.get_high() & 0x00F0 == 0x0050
     }
 
     fn is_any_creature(&self) -> bool {

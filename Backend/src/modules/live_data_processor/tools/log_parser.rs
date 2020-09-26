@@ -777,6 +777,10 @@ fn parse_damage(expansion_id: u8, damage_args: &[&str]) -> Result<(u32, u32, Dam
 fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_args: &[&str]) -> Result<Unit, LiveDataProcessorFailure> {
     // let is_player = (u32::from_str_radix(unit_args[2].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)? & 0x400) != 0;
     let mut unit_id = u64::from_str_radix(unit_args[0].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    if me.server_id == 6 && unit_id.get_high() & 0x0FF0 == 0x0110 {
+        unit_id &= 0x000000000000FFFF;
+    }
+
     // Each non npc pet gets the id 0xFFFF (Has flags 0xF140)
     if unit_id.get_high() == 0xF140 {
         let mut new_unit_id = unit_id.clone();
