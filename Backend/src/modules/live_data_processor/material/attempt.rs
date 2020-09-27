@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 
 #[derive(Debug, Clone)]
 pub struct Attempt {
@@ -10,6 +10,7 @@ pub struct Attempt {
     pub creatures_in_combat: BTreeSet<u64>,
     pub infight_player: BTreeSet<u32>,
     pub infight_vehicle: BTreeSet<u64>,
+    pub pivot_instant_debuff_removes: VecDeque<u64>,
     pub ranking_damage: HashMap<u32, u32>,
     pub ranking_heal: HashMap<u32, u32>,
     pub ranking_threat: HashMap<u32, i32>,
@@ -26,6 +27,7 @@ impl Attempt {
             creatures_in_combat: BTreeSet::new(),
             infight_player: BTreeSet::new(),
             infight_vehicle: BTreeSet::new(),
+            pivot_instant_debuff_removes: VecDeque::new(),
             ranking_damage: HashMap::new(),
             ranking_heal: HashMap::new(),
             ranking_threat: HashMap::new(),

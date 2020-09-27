@@ -128,6 +128,41 @@ impl Server {
                                             }
                                         }
                                     }
+                                    EventType::AuraApplication(aura_app) => {
+                                        if encounter_npc.health_treshold.is_none() {
+                                            continue;
+                                        }
+
+                                        let mut is_committable = false;
+                                        if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                            loop {
+                                                {
+                                                    let first_elem = attempt.pivot_instant_debuff_removes.front();
+                                                    if first_elem.is_none() || event.timestamp - first_elem.unwrap() < 100 {
+                                                        break;
+                                                    }
+                                                }
+                                                attempt.pivot_instant_debuff_removes.pop_front();
+                                            }
+
+                                            if aura_app.stack_amount == 0 {
+                                                if attempt.pivot_creature.contains(creature_id) {
+                                                    attempt.pivot_instant_debuff_removes.push_back(event.timestamp);
+
+                                                    // Assume evade kill, e.g. Algalon, Freya, Hodir, Thorim
+                                                    is_committable = attempt.pivot_instant_debuff_removes.len() >= 15;
+                                                }
+                                            }
+                                        }
+
+                                        if is_committable {
+                                            if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
+                                                attempt.end_ts = event.timestamp;
+                                                attempt.creatures_required_to_die.clear(); // We assume death if it evades!
+                                                commit_attempt(db_main, *instance_meta_id, attempt);
+                                            }
+                                        }
+                                    }
                                     _ => {}
                                 };
                             } else {
