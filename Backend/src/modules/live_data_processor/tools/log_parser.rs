@@ -161,6 +161,10 @@ impl LogParser for WoWCBTLParser {
                         } else if entry.contains(&15990) {
                             ts_offset = -229000;
                         }
+                        // Yogg-Saron npcs
+                        else if entry.contains(&33966) || entry.contains(&33983) || entry.contains(&33985) || entry.contains(&33988) || entry.contains(&33990) {
+                            ts_offset = -56000;
+                        }
                     }
 
                     additional_messages.push(Message {
@@ -344,6 +348,15 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
         } else if entry.contains(&15990) {
             ts_offset = -228000;
         }
+        // Yogg-Saron npcs
+        else if entry.contains(&33966) || entry.contains(&33983) || entry.contains(&33985) || entry.contains(&33988) || entry.contains(&33990) {
+            ts_offset = -55000;
+            for (unit_id, _) in last_combat_update.clone() {
+                if unit_id.get_entry().contains(&33288) {
+                    add_combat_event(additional_messages, last_combat_update, current_timestamp, current_message_count, &Unit { is_player: false, unit_id });
+                }
+            }
+        }
     }
 
     let mut timeout = 60000;
@@ -355,6 +368,8 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
         } else if entry.contains(&15990) {
             timeout = 228000;
         }
+    } else {
+        timeout = 30000;
     }
 
     if let Some(last_update) = last_combat_update.get_mut(&unit.unit_id) {
