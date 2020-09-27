@@ -64,7 +64,7 @@ impl WoWCBTLParser {
                 // Eye of Eternity
                 // 60072,
                 // Vault of Archavon
-                60883, 58692, 64390, 65279, 67331, 67333, 68160, 68161, 67328, 67329, 71993, 72004, 72096, 72104
+                60883, 58692, 65279, 67331, 67333, 68160, 68161, 67328, 67329, 71993, 72004, 72096, 72104
             ].iter().cloned().collect();
             static ref DIFFICULTY_25_HC: BTreeSet<u32> = [
             ].iter().cloned().collect();
