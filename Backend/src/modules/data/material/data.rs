@@ -238,6 +238,7 @@ impl Init for HashMap<u32, Server> {
                 name: row.take(2).unwrap(),
                 owner: row.take_opt(3).unwrap().ok(),
                 patch: row.take(4).unwrap(),
+                retail_id: row.take_opt(5).unwrap().ok()
             })
             .into_iter()
             .for_each(|result| {
@@ -899,6 +900,7 @@ impl Init for HashMap<u32, Encounter> {
                 id: row.take(0).unwrap(),
                 localization_id: row.take(1).unwrap(),
                 map_id: row.take(2).unwrap(),
+                retail_id: row.take_opt(3).unwrap().ok()
             })
             .into_iter()
             .for_each(|result| {

@@ -9,6 +9,7 @@ fn get_encounter() {
         id: encounter_id,
         localization_id: 422,
         map_id: 32,
+        retail_id: None
     };
     data.encounters.insert(encounter_id, encounter.clone());
 

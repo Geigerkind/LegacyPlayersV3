@@ -11,6 +11,7 @@ fn get_server() {
         name: "sdfs".to_string(),
         owner: None,
         patch: "1.12.1".to_string(),
+        retail_id: None
     };
     {
         let mut servers = data.servers.write().unwrap();

@@ -6,6 +6,7 @@ pub struct AvailableServer {
     pub expansion_id: u8,
     pub name: String,
     pub patch: String,
+    pub is_retail: bool
 }
 
 impl AvailableServer {
@@ -15,6 +16,7 @@ impl AvailableServer {
             expansion_id: server.expansion_id,
             name: server.name.clone(),
             patch: server.patch.clone(),
+            is_retail: server.retail_id.is_some()
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto};
+use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto};
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
@@ -10,6 +10,8 @@ use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use rust_lapper::{Interval, Lapper};
 use std::collections::{BTreeSet, HashMap};
+use regex::Regex;
+use crate::modules::data::tools::{RetrieveServer, RetrieveEncounter};
 
 pub trait LogParser {
     fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str) -> Vec<Message>;
@@ -52,64 +54,131 @@ impl LogParser for WoWCBTLParser {
         // Insert new participants
         let mut remove_unit = BTreeSet::new();
         let mut replace_unit_id = HashMap::new();
-        for (unit_id, (unit_name, hero_class_id)) in self.found_player.iter() {
-            let character = armory.get_character_by_name(self.server_id, unit_name.clone());
-
-            if let Some(character) = character {
-                replace_unit_id.insert(*unit_id, character.server_uid);
-            } else {
-                // Netherwing and Karazhan provide armory data directly
-                if self.server_id == 4 || self.server_id == 5 {
-                    remove_unit.insert(*unit_id);
-                    continue;
+        if self.server_id < 0 {
+            for (unit_id, (retail_server_id, unit_name_with_server, gear_setups)) in self.retail_player_server.iter() {
+                let unit_name_with_server = unit_name_with_server.replace("\"", "");
+                let names = unit_name_with_server.split("-").collect::<Vec<&str>>();
+                // Create Server or get server
+                let mut server = data.get_internal_server_by_retail_id(*retail_server_id);
+                if server.is_none() {
+                    // TODO: Create patch tag from expansion_id
+                    server = Some(data.set_internal_retail_server(db_main, names[1].to_string(), self.expansion_id, "1.13".to_string(), *retail_server_id));
                 }
-
-                let _ = armory.set_character(
-                    db_main,
-                    self.server_id,
-                    CharacterDto {
-                        server_uid: *unit_id,
-                        character_history: Some(CharacterHistoryDto {
-                            character_info: CharacterInfoDto {
-                                gear: CharacterGearDto {
-                                    head: None,
-                                    neck: None,
-                                    shoulder: None,
-                                    back: None,
-                                    chest: None,
-                                    shirt: None,
-                                    tabard: None,
-                                    wrist: None,
-                                    main_hand: None,
-                                    off_hand: None,
-                                    ternary_hand: None,
-                                    glove: None,
-                                    belt: None,
-                                    leg: None,
-                                    boot: None,
-                                    ring1: None,
-                                    ring2: None,
-                                    trinket1: None,
-                                    trinket2: None,
-                                },
-                                hero_class_id: *hero_class_id,
-                                level: if self.expansion_id == 3 { 80 } else { 70 },
-                                gender: false,
-                                profession1: None,
-                                profession2: None,
-                                talent_specialization: None,
-                                race_id: 1, // TODO: Some unknown race?
+                let server = server.unwrap();
+                self.server_id = server.id as i32; // TODO: Better way to determine server id
+                if let Some((_, hero_class_id)) = self.found_player.get(&unit_id) {
+                    // Insert player gear
+                    for (_timestamp, gear) in gear_setups.iter() {
+                        // TODO: Use timestamp
+                        let _ = armory.set_character(
+                            db_main,
+                            self.server_id as u32,
+                            CharacterDto {
+                                server_uid: *unit_id,
+                                character_history: Some(CharacterHistoryDto {
+                                    character_info: CharacterInfoDto {
+                                        gear: CharacterGearDto {
+                                            head: create_character_item_dto(gear[0].0, gear[0].1),
+                                            neck: create_character_item_dto(gear[1].0, gear[1].1),
+                                            shoulder: create_character_item_dto(gear[2].0, gear[2].1),
+                                            back: create_character_item_dto(gear[14].0, gear[14].1),
+                                            chest: create_character_item_dto(gear[4].0, gear[4].1),
+                                            shirt: create_character_item_dto(gear[3].0, gear[3].1),
+                                            tabard: create_character_item_dto(gear[18].0, gear[18].1),
+                                            wrist: create_character_item_dto(gear[8].0, gear[8].1),
+                                            main_hand: create_character_item_dto(gear[15].0, gear[15].1),
+                                            off_hand: create_character_item_dto(gear[16].0, gear[16].1),
+                                            ternary_hand: create_character_item_dto(gear[17].0, gear[17].1),
+                                            glove: create_character_item_dto(gear[9].0, gear[9].1),
+                                            belt: create_character_item_dto(gear[5].0, gear[5].1),
+                                            leg: create_character_item_dto(gear[6].0, gear[6].1),
+                                            boot: create_character_item_dto(gear[7].0, gear[7].1),
+                                            ring1: create_character_item_dto(gear[10].0, gear[10].1),
+                                            ring2: create_character_item_dto(gear[11].0, gear[11].1),
+                                            trinket1: create_character_item_dto(gear[12].0, gear[12].1),
+                                            trinket2: create_character_item_dto(gear[13].0, gear[13].1),
+                                        },
+                                        hero_class_id: *hero_class_id,
+                                        level: 60, // TODO: FIXME FOR RETAIL TBC
+                                        gender: false,
+                                        profession1: None,
+                                        profession2: None,
+                                        talent_specialization: None,
+                                        race_id: 1, // TODO: Some unknown race?
+                                    },
+                                    character_name: names[0].to_string(),
+                                    character_guild: None,
+                                    character_title: None,
+                                    profession_skill_points1: None,
+                                    profession_skill_points2: None,
+                                    facial: None,
+                                    arena_teams: vec![],
+                                }),
                             },
-                            character_name: unit_name.clone(),
-                            character_guild: None,
-                            character_title: None,
-                            profession_skill_points1: None,
-                            profession_skill_points2: None,
-                            facial: None,
-                            arena_teams: vec![],
-                        }),
-                    },
-                );
+                        );
+                    }
+                }
+            }
+        } else {
+            for (unit_id, (unit_name, hero_class_id)) in self.found_player.iter() {
+                let character = armory.get_character_by_name(self.server_id as u32, unit_name.clone());
+
+                if let Some(character) = character {
+                    replace_unit_id.insert(*unit_id, character.server_uid);
+                } else {
+                    // Netherwing and Karazhan provide armory data directly
+                    if self.server_id == 4 || self.server_id == 5 {
+                        remove_unit.insert(*unit_id);
+                        continue;
+                    }
+
+                    let _ = armory.set_character(
+                        db_main,
+                        self.server_id as u32,
+                        CharacterDto {
+                            server_uid: *unit_id,
+                            character_history: Some(CharacterHistoryDto {
+                                character_info: CharacterInfoDto {
+                                    gear: CharacterGearDto {
+                                        head: None,
+                                        neck: None,
+                                        shoulder: None,
+                                        back: None,
+                                        chest: None,
+                                        shirt: None,
+                                        tabard: None,
+                                        wrist: None,
+                                        main_hand: None,
+                                        off_hand: None,
+                                        ternary_hand: None,
+                                        glove: None,
+                                        belt: None,
+                                        leg: None,
+                                        boot: None,
+                                        ring1: None,
+                                        ring2: None,
+                                        trinket1: None,
+                                        trinket2: None,
+                                    },
+                                    hero_class_id: *hero_class_id,
+                                    level: if self.expansion_id == 3 { 80 } else { 70 },
+                                    gender: false,
+                                    profession1: None,
+                                    profession2: None,
+                                    talent_specialization: None,
+                                    race_id: 1, // TODO: Some unknown race?
+                                },
+                                character_name: unit_name.clone(),
+                                character_guild: None,
+                                character_title: None,
+                                profession_skill_points1: None,
+                                profession_skill_points2: None,
+                                facial: None,
+                                arena_teams: vec![],
+                            }),
+                        },
+                    );
+                }
             }
         }
 
@@ -121,7 +190,7 @@ impl LogParser for WoWCBTLParser {
             intervals.iter().for_each(|(start, end)| {
                 temp_intervals.push(Interval {
                     start: ((*start - 1000) / 1000) as u32,
-                    stop: ((*end + 1000) / 1000) as u32,
+                    stop: ((*end + 1000) / 1000) as u32, // TODO: Update fixed this, we can use u64
                     val: (*unit_id, *is_player),
                 });
             });
@@ -207,15 +276,15 @@ impl LogParser for WoWCBTLParser {
                 MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.attacker);
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.victim);
-                },
-                /*
-                MessageType::SpellCast(cast) => {
-                    add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &cast.caster);
-                    if let Some(target) = &cast.target {
-                        add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, target);
-                    }
                 }
-                 */
+                /*
+            MessageType::SpellCast(cast) => {
+                add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &cast.caster);
+                if let Some(target) = &cast.target {
+                    add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, target);
+                }
+            }
+             */
                 MessageType::Death(death) => {
                     additional_messages.push(Message {
                         api_version: 0,
@@ -241,8 +310,8 @@ impl LogParser for WoWCBTLParser {
                             }
                         }
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             };
         }
 
@@ -262,48 +331,61 @@ impl LogParser for WoWCBTLParser {
     }
 }
 
+fn create_character_item_dto(item_id: u32, enchant_id: Option<u32>) -> Option<CharacterItemDto> {
+    if item_id == 0 {
+        return None;
+    }
+
+    Some(CharacterItemDto {
+        item_id,
+        random_property_id: None,
+        enchant_id,
+        gem_ids: vec![]
+    })
+}
+
 fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageType) {
     match message_type {
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        },
+        }
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        },
+        }
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        },
+        }
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        },
+        }
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        },
+        }
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        },
+        }
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        },
+        }
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        },
+        }
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        },
+        }
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        },
-        _ => {},
+        }
+        _ => {}
     };
 }
 
@@ -341,10 +423,10 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
         // Wyrmrest Skytalon
         if entry.contains(&32535) {
             ts_offset = -30000;
-        // VX-001
+            // VX-001
         } else if entry.contains(&33651) {
             ts_offset = -50000;
-        // Kel'Thuzad
+            // Kel'Thuzad
         } else if entry.contains(&15990) {
             ts_offset = -228000;
         }
@@ -446,10 +528,64 @@ fn get_current_map(me: &WoWCBTLParser, current_timestamp: u64) -> Option<(u16, O
 
 fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, message_args: Vec<&str>) -> Result<Vec<MessageType>, LiveDataProcessorFailure> {
     Ok(match message_args[0] {
-        "SWING_DAMAGE" => {
-            let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (hit_mask, blocked, damage_component) = parse_damage(me.expansion_id, &message_args[7..])?;
+        // TODO: Retail _ABSORBED suffix (https://wow.gamepedia.com/COMBAT_LOG_EVENT)
+        "COMBATANT_INFO" => {
+            lazy_static! {
+                static ref ITEM_REGEX: Regex = Regex::new(r"(\((\d+),(\d+),(\(\d+,\d+,\d+\)|\(\)),\(\),\(\)\))+").unwrap();
+            }
+
+            let unit_params = message_args[1].split("-").collect::<Vec<&str>>();
+            let unit_id = u64::from_str_radix(unit_params[2], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+            // TODO: Is that hex or dec?
+            let server_id = u32::from_str_radix(unit_params[1], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+            let mut gear = Vec::with_capacity(20);
+            let character_gear = message_args.join(",");
+            for cap in ITEM_REGEX.captures_iter(&character_gear) {
+                let item_id = u32::from_str_radix(&cap[2], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                let enchant_id = if cap.len() > 2 { u32::from_str_radix(&cap[4], 10).ok() } else { None };
+                gear.push((item_id, enchant_id));
+            }
+
+            if let Some(args) = me.retail_player_server.get_mut(&unit_id) {
+                args.2.push((event_timestamp, gear));
+            } else {
+                me.retail_player_server.insert(unit_id, (server_id, "Unknown".to_string(), vec![(event_timestamp, gear)]));
+            }
+
+
+            // Return error for meta infos
+            return Err(LiveDataProcessorFailure::InvalidInput);
+        },
+        "ENCOUNTER_START" => {
+            let retail_encounter_id = u32::from_str_radix(message_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+            let encounter = data.get_encounter_by_retail_id(retail_encounter_id).expect("I hope I dont forgot to update the table as I add expansions");
+            vec![MessageType::EncounterStart(encounter.id)]
+        },
+        "ENCOUNTER_END" => {
+            let retail_encounter_id = u32::from_str_radix(message_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+            let encounter = data.get_encounter_by_retail_id(retail_encounter_id).expect("I hope I dont forgot to update the table as I add expansions");
+            vec![MessageType::EncounterEnd(encounter.id)]
+        },
+        "SWING_DAMAGE" | "SWING_DAMAGE_LANDED" => {
+            if me.server_id < 0 && me.expansion_id == 1 && message_args[0] == "SWING_DAMAGE" {
+                return Err(LiveDataProcessorFailure::InvalidInput);
+            }
+
+            let attacker = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let victim = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
+                parse_damage(me, &message_args[7..])?
+            } else {
+                parse_damage(me, &message_args[(9+17)..])?
+            };
             vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
                 victim,
@@ -459,11 +595,23 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: vec![damage_component],
             })]
-        },
+        }
         "SWING_MISSED" => {
-            let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (hit_mask, blocked, damage_component) = parse_miss(&message_args[7..])?;
+            let attacker = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let victim = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
+                parse_miss(&message_args[7..])?
+            } else {
+                parse_miss(&message_args[9..])?
+            };
             vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
                 victim,
@@ -473,12 +621,28 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
             })]
-        },
+        }
         "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
-            let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (hit_mask, blocked, damage_component) = parse_damage(me.expansion_id, &message_args[10..])?;
+            let attacker = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let victim = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
+                parse_damage(me, &message_args[10..])?
+            } else {
+                parse_damage(me, &message_args[(12+17)..])?
+            };
             if attacker.is_player {
                 me.collect_player(attacker.unit_id, message_args[2], spell_id);
             }
@@ -499,12 +663,28 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: vec![damage_component],
                 }),
             ]
-        },
+        }
         "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
-            let attacker = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (hit_mask, blocked, damage_component) = parse_miss(&message_args[10..])?;
+            let attacker = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let victim = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
+                parse_miss(&message_args[10..])?
+            } else {
+                parse_miss(&message_args[12..])?
+            };
             if attacker.is_player {
                 me.collect_player(attacker.unit_id, message_args[2], spell_id);
             }
@@ -525,12 +705,28 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                 }),
             ]
-        },
+        }
         "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
-            let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (amount, overhealing, absorbtion, is_crit) = parse_heal(me.expansion_id, &message_args[10..])?;
+            let caster = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let target = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
+            let (amount, overhealing, absorbtion, is_crit) = if me.server_id > 0 {
+                parse_heal(me, &message_args[10..])?
+            } else {
+                parse_heal(me, &message_args[(12+17)..])?
+            };
             if caster.is_player {
                 me.collect_player(caster.unit_id, message_args[2], spell_id);
             }
@@ -551,13 +747,26 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                 }),
             ]
-        },
+        }
         // TODO: Do we do sth with stacks atm?
+        // TODO 2: Retail provides stacks, other versions it needs to be estimated
         // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
         "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
-            let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
+            let caster = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let target = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
             if caster.is_player {
                 me.collect_player(caster.unit_id, message_args[2], spell_id);
             }
@@ -581,11 +790,23 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             }
 
             result
-        },
+        }
         "SPELL_CAST_SUCCESS" => {
-            let caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
+            let caster = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let target = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
             if caster.is_player {
                 me.collect_player(caster.unit_id, message_args[2], spell_id);
             }
@@ -603,23 +824,51 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             }
 
             result
-        },
+        }
         "SPELL_SUMMON" => {
-            let owner = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let unit = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
+            let owner = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let unit = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
             // TODO: Is that of interest?
             // let (spell_id, _school_mask) = parse_spell_args(m, event_timestamp, &message_args[7..10])?;
             vec![MessageType::Summon(Summon { owner, unit })]
-        },
+        }
         "UNIT_DIED" | "UNIT_DESTROYED" => {
-            let victim = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
+            let victim = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
             vec![MessageType::Death(Death { cause: None, victim })]
-        },
+        }
         "SPELL_DISPEL" | "SPELL_AURA_DISPELLED" => {
-            let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (target_spell_id, _target_school_mask) = parse_spell_args(me, event_timestamp, &message_args[10..13])?;
+            let un_aura_caster = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let target = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (un_aura_spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
+            let (target_spell_id, _target_school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[10..13])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[12..15])?
+            };
             if un_aura_caster.is_player {
                 me.collect_player(un_aura_caster.unit_id, message_args[2], un_aura_spell_id);
             } else if target.is_player {
@@ -642,12 +891,28 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        },
+        }
         "SPELL_INTERRUPT" => {
-            let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (interrupted_spell_id, _target_school_mask) = parse_spell_args(me, event_timestamp, &message_args[10..13])?;
+            let un_aura_caster = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let target = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (un_aura_spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
+            let (interrupted_spell_id, _target_school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[10..13])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[12..15])?
+            };
             if un_aura_caster.is_player {
                 me.collect_player(un_aura_caster.unit_id, message_args[2], un_aura_spell_id);
             } else if target.is_player {
@@ -662,12 +927,28 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 }),
                 MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
             ]
-        },
+        }
         "SPELL_STOLEN" | "SPELL_AURA_STOLEN" => {
-            let un_aura_caster = parse_unit(me, data, event_timestamp, &message_args[1..4])?;
-            let target = parse_unit(me, data, event_timestamp, &message_args[4..7])?;
-            let (un_aura_spell_id, _school_mask) = parse_spell_args(me, event_timestamp, &message_args[7..10])?;
-            let (target_spell_id, _target_school_mask) = parse_spell_args(me, event_timestamp, &message_args[10..13])?;
+            let un_aura_caster = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[1..4])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[1..5])?
+            };
+            let target = if me.server_id > 0 {
+                parse_unit(me, data, event_timestamp, &message_args[4..7])?
+            } else {
+                parse_unit(me, data, event_timestamp, &message_args[5..9])?
+            };
+            let (un_aura_spell_id, _school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[7..10])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[9..12])?
+            };
+            let (target_spell_id, _target_school_mask) = if me.server_id > 0 {
+                parse_spell_args(me, event_timestamp, &message_args[10..13])?
+            } else {
+                parse_spell_args(me, event_timestamp, &message_args[12..15])?
+            };
             if un_aura_caster.is_player {
                 me.collect_player(un_aura_caster.unit_id, message_args[2], un_aura_spell_id);
             } else if target.is_player {
@@ -689,16 +970,16 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        },
+        }
         // TODO: A lot more events could be parsed and used
         // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
         _ => return Err(LiveDataProcessorFailure::InvalidInput),
     })
 }
 
-fn parse_heal(expansion_id: u8, heal_args: &[&str]) -> Result<(u32, u32, u32, bool), LiveDataProcessorFailure> {
+fn parse_heal(me: &mut WoWCBTLParser, heal_args: &[&str]) -> Result<(u32, u32, u32, bool), LiveDataProcessorFailure> {
     let amount = u32::from_str_radix(heal_args[0], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    if expansion_id == 2 {
+    if me.expansion_id == 2 && me.server_id > 0 {
         let critical = heal_args[1].starts_with('1');
         Ok((amount, 0, 0, critical))
     } else {
@@ -734,14 +1015,24 @@ fn parse_spell_args(me: &mut WoWCBTLParser, event_timestamp: u64, spell_args: &[
 }
 
 fn parse_miss(miss_args: &[&str]) -> Result<(u32, u32, Option<DamageComponent>), LiveDataProcessorFailure> {
+    let mut extra_hit_mask: u32 = 0;
     let amount_missed = if miss_args.len() == 2 {
         u32::from_str_radix(miss_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?
+    } else if miss_args.len() == 4 {
+        // Retail
+        if miss_args[1].starts_with('1') {
+            extra_hit_mask |= HitType::OffHand as u32;
+        }
+        if miss_args[3].starts_with('1') {
+            extra_hit_mask |= HitType::Crit as u32;
+        }
+        u32::from_str_radix(miss_args[2], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?
     } else {
         0
     };
     Ok(match miss_args[0] {
         "ABSORB" => (
-            HitType::FullAbsorb as u32,
+            HitType::FullAbsorb as u32 | extra_hit_mask,
             0,
             Some(DamageComponent {
                 school_mask: School::Physical as u8,
@@ -751,7 +1042,7 @@ fn parse_miss(miss_args: &[&str]) -> Result<(u32, u32, Option<DamageComponent>),
             }),
         ),
         "RESIST" => (
-            HitType::FullResist as u32,
+            HitType::FullResist as u32 | extra_hit_mask,
             0,
             Some(DamageComponent {
                 school_mask: School::Physical as u8,
@@ -760,20 +1051,20 @@ fn parse_miss(miss_args: &[&str]) -> Result<(u32, u32, Option<DamageComponent>),
                 absorbed: 0,
             }),
         ),
-        "BLOCK" => (HitType::FullBlock as u32, amount_missed, None),
-        "DEFLECT" => (HitType::Deflect as u32, 0, None),
-        "DODGE" => (HitType::Dodge as u32, 0, None),
-        "EVADE" => (HitType::Evade as u32, 0, None),
-        "IMMUNE" => (HitType::Immune as u32, 0, None),
-        "MISS" => (HitType::Miss as u32, 0, None),
-        "PARRY" => (HitType::Parry as u32, 0, None),
-        "REFLECT" => (HitType::Reflect as u32, 0, None),
+        "BLOCK" => (HitType::FullBlock as u32 | extra_hit_mask, amount_missed, None),
+        "DEFLECT" => (HitType::Deflect as u32 | extra_hit_mask, 0, None),
+        "DODGE" => (HitType::Dodge as u32 | extra_hit_mask, 0, None),
+        "EVADE" => (HitType::Evade as u32 | extra_hit_mask, 0, None),
+        "IMMUNE" => (HitType::Immune as u32 | extra_hit_mask, 0, None),
+        "MISS" => (HitType::Miss as u32 | extra_hit_mask, 0, None),
+        "PARRY" => (HitType::Parry as u32 | extra_hit_mask, 0, None),
+        "REFLECT" => (HitType::Reflect as u32 | extra_hit_mask, 0, None),
         _ => return Err(LiveDataProcessorFailure::InvalidInput),
     })
 }
 
-fn parse_damage(expansion_id: u8, damage_args: &[&str]) -> Result<(u32, u32, DamageComponent), LiveDataProcessorFailure> {
-    let tbc_shift = if expansion_id == 2 { 1 } else { 0 };
+fn parse_damage(me: &mut WoWCBTLParser, damage_args: &[&str]) -> Result<(u32, u32, DamageComponent), LiveDataProcessorFailure> {
+    let tbc_shift = if me.expansion_id == 2 && me.server_id > 0 { 1 } else { 0 };
 
     let amount = u32::from_str_radix(damage_args[0], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     let school_mask = u8::from_str_radix(damage_args[2 - tbc_shift], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
@@ -783,6 +1074,7 @@ fn parse_damage(expansion_id: u8, damage_args: &[&str]) -> Result<(u32, u32, Dam
     let critical = damage_args[6 - tbc_shift].starts_with('1');
     let glancing = damage_args[7 - tbc_shift].starts_with('1');
     let crushing = damage_args[8 - tbc_shift].starts_with('1');
+    let is_off_hand = if damage_args.len() == 10 { damage_args[9].starts_with('1') } else { false };
     let mut hit_mask = 0;
     if critical {
         hit_mask |= HitType::Crit as u32;
@@ -794,6 +1086,9 @@ fn parse_damage(expansion_id: u8, damage_args: &[&str]) -> Result<(u32, u32, Dam
     }
     if crushing {
         hit_mask |= HitType::Crushing as u32;
+    }
+    if is_off_hand {
+        hit_mask |= HitType::OffHand as u32;
     }
     if resisted > 0 {
         hit_mask |= HitType::PartialResist as u32;
@@ -818,19 +1113,56 @@ fn parse_damage(expansion_id: u8, damage_args: &[&str]) -> Result<(u32, u32, Dam
 }
 
 fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_args: &[&str]) -> Result<Unit, LiveDataProcessorFailure> {
-    // let is_player = (u32::from_str_radix(unit_args[2].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)? & 0x400) != 0;
-    let mut unit_id = u64::from_str_radix(unit_args[0].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    if me.server_id == 6 && unit_id.get_high() & 0x0FF0 == 0x0110 {
-        unit_id &= 0x0000000000FFFFFF;
-    }
+    let mut unit_id: u64;
+    if me.server_id < 0 {
+        let unit_params = unit_args[0].split("-").collect::<Vec<&str>>();
+        match unit_params[0] {
+            "Player" => {
+                unit_id = u64::from_str_radix(unit_params[2], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                if !me.retail_player_server.contains_key(&unit_id) {
+                    // TODO: Is that in hex or decimal ?!
+                    let server_id = u32::from_str_radix(unit_params[1], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                    me.retail_player_server.insert(unit_id, (server_id, unit_args[1].to_string(), Vec::new()));
+                } else {
+                    if let Some(args) = me.retail_player_server.get_mut(&unit_id) {
+                        args.1 = unit_args[1].to_string();
+                    }
+                }
+            }
+            // Ignore GameObject and Vignette
+            "Pet" | "Vehicle" => {
+                let spawn_uid = u64::from_str_radix(unit_params[6], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                let npc_id = u64::from_str_radix(unit_params[5], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                unit_id = 0;
+                unit_id |= 0xF140000000000000;
+                unit_id |= npc_id.rotate_left(24);
+                unit_id |= spawn_uid;
+            }
+            "Creature" => {
+                let spawn_uid = u64::from_str_radix(unit_params[6], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                let npc_id = u64::from_str_radix(unit_params[5], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                unit_id = 0;
+                unit_id |= 0xF130000000000000;
+                unit_id |= npc_id.rotate_left(24);
+                unit_id |= spawn_uid;
+            }
+            _ => return Err(LiveDataProcessorFailure::InvalidInput)
+        };
+    } else {
+        // let is_player = (u32::from_str_radix(unit_args[2].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)? & 0x400) != 0;
+        unit_id = u64::from_str_radix(unit_args[0].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+        if me.server_id == 6 && unit_id.get_high() & 0x0FF0 == 0x0110 {
+            unit_id &= 0x0000000000FFFFFF;
+        }
 
-    // Each non npc pet gets the id 0xFFFF (Has flags 0xF140)
-    if unit_id.is_pet() {
-        let mut new_unit_id = unit_id.clone();
-        new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
-        new_unit_id |= 0x000000FFFF000000;
-        new_unit_id |= 0xF140000000000000;
-        unit_id = new_unit_id;
+        // Each non npc pet gets the id 0xFFFF (Has flags 0xF140)
+        if unit_id.is_pet() {
+            let mut new_unit_id = unit_id.clone();
+            new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
+            new_unit_id |= 0x000000FFFF000000;
+            new_unit_id |= 0xF140000000000000;
+            unit_id = new_unit_id;
+        }
     }
 
     let is_player = unit_id.is_player();

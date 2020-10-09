@@ -18,7 +18,9 @@ impl ProcessMessages for LiveDataProcessor {
 
     fn process_messages(&self, db_main: &mut (impl Select + Execute), server_id: u32, armory: &Armory, data: &Data, msg_vec: Vec<Message>) -> Result<(), LiveDataProcessorFailure> {
         if !msg_vec.is_empty() {
-            let mut server = self.servers.get(&server_id).expect("Server Id must exist!").write().unwrap();
+            self.create_server_if_not_exist(db_main, server_id);
+            let servers = self.servers.read().unwrap();
+            let mut server = servers.get(&server_id).expect("Server Id must exist!").write().unwrap();
             return server.parse_events(db_main, armory, data, msg_vec);
         }
 

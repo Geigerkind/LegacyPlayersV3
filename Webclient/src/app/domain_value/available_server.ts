@@ -3,4 +3,5 @@ export interface AvailableServer {
     expansion_id: number;
     name: string;
     patch: string;
+    is_retail: boolean;
 }

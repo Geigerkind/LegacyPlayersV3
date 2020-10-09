@@ -37,7 +37,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
                     file_name: _,
                     raw: server_id_raw,
                 } = server_id_raw_fields.remove(0);
-                let server_id = u32::from_str_radix(std::str::from_utf8(&server_id_raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?, 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+                let server_id = i32::from_str_radix(std::str::from_utf8(&server_id_raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?, 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
                 if let Some(mut raw_fields) = multipart_form_data.raw.remove("payload") {
                     let RawField { content_type: _, file_name: _, raw } = raw_fields.remove(0);
                     if raw.is_empty() {
@@ -51,9 +51,14 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
                     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
                     let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
 
-                    let messages = WoWCBTLParser::new(&data, server_id, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, 0).parse(&mut *db_main, &data, &armory, content);
+                    let mut parser = WoWCBTLParser::new(&data, server_id, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, 0);
+                    let messages = parser.parse(&mut *db_main, &data, &armory, content);
 
-                    return me.process_messages(&mut *db_main, server_id, &armory, &data, messages);
+                    if parser.server_id < 0 {
+                        return Err(LiveDataProcessorFailure::InvalidInput);
+                    }
+
+                    return me.process_messages(&mut *db_main, parser.server_id as u32, &armory, &data, messages);
                 }
             }
         }

@@ -5,7 +5,7 @@ use crate::modules::data::Data;
 use std::collections::{BTreeSet, HashMap};
 
 pub struct WoWCBTLParser {
-    pub server_id: u32,
+    pub server_id: i32,
     pub expansion_id: u8,
     pub start_parse: u64,
     pub end_parse: u64,
@@ -15,11 +15,18 @@ pub struct WoWCBTLParser {
     pub active_map: HashMap<u16, (u64, Vec<(u64, u64)>)>,
     pub participation: HashMap<u64, (u64, bool, Vec<(u64, u64)>)>,
     pub found_player: HashMap<u64, (String, u8)>,
+    pub retail_player_server: HashMap<u64, (u32, String, Vec<(u64, Vec<(u32, Option<u32>)>)>)>
 }
 
 impl WoWCBTLParser {
-    pub fn new(data: &Data, server_id: u32, start_parse: u64, end_parse: u64, timezone: i8) -> Self {
-        let expansion_id = data.get_server(server_id).unwrap().expansion_id;
+    pub fn new(data: &Data, server_id: i32, start_parse: u64, end_parse: u64, timezone: i8) -> Self {
+        let expansion_id;
+        // Retail Classic
+        if server_id == -1 {
+            expansion_id = 1;
+        } else {
+            expansion_id = data.get_server(server_id as u32).unwrap().expansion_id;
+        }
         WoWCBTLParser {
             server_id,
             expansion_id,
@@ -30,6 +37,7 @@ impl WoWCBTLParser {
             active_map: HashMap::new(),
             participation: HashMap::new(),
             found_player: HashMap::new(),
+            retail_player_server: HashMap::new(),
         }
     }
 
