@@ -1,8 +1,8 @@
+use crate::modules::data::domain_value::Server;
 use crate::modules::data::material::Init;
 use crate::modules::data::{dto::AvailableServer, Data};
-use crate::util::database::{Select, Execute};
-use crate::modules::data::domain_value::Server;
 use crate::params;
+use crate::util::database::{Execute, Select};
 
 pub trait RetrieveServer {
     fn get_server(&self, id: u32) -> Option<AvailableServer>;
@@ -40,12 +40,15 @@ impl RetrieveServer for Data {
     }
 
     fn set_internal_retail_server(&self, db_main: &mut (impl Execute + Select), server_name: String, expansion_id: u8, patch: String, retail_id: u32) -> Server {
-        db_main.execute_wparams("INSERT INTO data_server (`expansion_id`, `server_name`, `patch`, `retail_id`) VALUES (:expansion_id, :server_name, :patch, :retail_id)", params!(
+        db_main.execute_wparams(
+            "INSERT INTO data_server (`expansion_id`, `server_name`, `patch`, `retail_id`) VALUES (:expansion_id, :server_name, :patch, :retail_id)",
+            params!(
                 "expansion_id" => expansion_id,
                 "server_name" => server_name,
                 "patch" => patch,
                 "retail_id" => Some(retail_id)
-            ));
+            ),
+        );
         self.reload_server(db_main);
         self.get_internal_server_by_retail_id(retail_id).unwrap()
     }

@@ -30,7 +30,7 @@ pub enum MessageType {
     InstanceDelete { instance_id: u32 },
     InstanceMap(InstanceMap),
     EncounterStart(u32),
-    EncounterEnd(u32)
+    EncounterEnd(u32),
 }
 
 impl MessageType {

@@ -1,4 +1,5 @@
 #![allow(clippy::map_entry)]
+#![allow(clippy::type_complexity)]
 
 use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
 use crate::modules::data::Data;
@@ -15,7 +16,7 @@ pub struct WoWCBTLParser {
     pub active_map: HashMap<u16, (u64, Vec<(u64, u64)>)>,
     pub participation: HashMap<u64, (u64, bool, Vec<(u64, u64)>)>,
     pub found_player: HashMap<u64, (String, u8)>,
-    pub retail_player_server: HashMap<u64, (u32, String, Vec<(u64, Vec<(u32, Option<u32>)>)>)>
+    pub retail_player_server: HashMap<u64, (u32, String, Vec<(u64, Vec<(u32, Option<u32>)>)>)>,
 }
 
 impl WoWCBTLParser {

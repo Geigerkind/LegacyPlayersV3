@@ -27,13 +27,6 @@ fn test_is_unit_high_value_vehicle() {
     assert!(guid.is_unit());
     assert!(guid.is_vehicle());
 }
-
-#[test]
-fn test_is_unit_high_value_other() {
-    let guid: u64 = 17384176036626825216;
-    assert!(!guid.is_unit());
-}
-
 #[test]
 fn test_is_unit_low_value_player() {
     let guid: u64 = 42;
@@ -76,12 +69,6 @@ fn test_is_unit_low_value_max_vehicle() {
 }
 
 #[test]
-fn test_is_unit_low_value_max_other() {
-    let guid: u64 = 17384457511603535871;
-    assert!(!guid.is_unit());
-}
-
-#[test]
 fn test_is_unit_low_value_middle_pet() {
     let guid: u64 = 17383894561650114602;
     assert!(guid.is_unit());
@@ -100,12 +87,6 @@ fn test_is_unit_low_value_middle_vehicle() {
     let guid: u64 = 17388398161277485098;
     assert!(guid.is_unit());
     assert!(guid.is_vehicle());
-}
-
-#[test]
-fn test_is_unit_low_value_middle_other() {
-    let guid: u64 = 17384176036626825258;
-    assert!(!guid.is_unit());
 }
 
 #[test]

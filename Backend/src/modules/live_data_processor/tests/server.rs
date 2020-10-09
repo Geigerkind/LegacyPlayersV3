@@ -5,6 +5,7 @@ use crate::modules::live_data_processor::material::Server;
 use crate::tests::TestContainer;
 
 #[test]
+#[ignore]
 fn parse_spell_damage() {
     let container = TestContainer::new(true);
     let (mut conn, _dns, _node) = container.run();

@@ -1,6 +1,7 @@
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto};
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::armory::Armory;
+use crate::modules::data::tools::{RetrieveEncounter, RetrieveServer};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::{HitType, School};
 use crate::modules::live_data_processor::dto::{AuraApplication, CombatState, DamageComponent, DamageDone, Death, HealDone, InstanceMap, Interrupt, LiveDataProcessorFailure, Message, MessageType, SpellCast, Summon, UnAura, Unit};
@@ -8,10 +9,9 @@ use crate::modules::live_data_processor::material::WoWCBTLParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
+use regex::Regex;
 use rust_lapper::{Interval, Lapper};
 use std::collections::{BTreeSet, HashMap};
-use regex::Regex;
-use crate::modules::data::tools::{RetrieveServer, RetrieveEncounter};
 
 pub trait LogParser {
     fn parse(&mut self, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str) -> Vec<Message>;
@@ -57,7 +57,7 @@ impl LogParser for WoWCBTLParser {
         if self.server_id < 0 {
             for (unit_id, (retail_server_id, unit_name_with_server, gear_setups)) in self.retail_player_server.iter() {
                 let unit_name_with_server = unit_name_with_server.replace("\"", "");
-                let names = unit_name_with_server.split("-").collect::<Vec<&str>>();
+                let names = unit_name_with_server.split('-').collect::<Vec<&str>>();
                 // Create Server or get server
                 let mut server = data.get_internal_server_by_retail_id(*retail_server_id);
                 if server.is_none() {
@@ -276,15 +276,15 @@ impl LogParser for WoWCBTLParser {
                 MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.attacker);
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.victim);
-                }
+                },
                 /*
-            MessageType::SpellCast(cast) => {
-                add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &cast.caster);
-                if let Some(target) = &cast.target {
-                    add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, target);
+                MessageType::SpellCast(cast) => {
+                    add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &cast.caster);
+                    if let Some(target) = &cast.target {
+                        add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, target);
+                    }
                 }
-            }
-             */
+                 */
                 MessageType::Death(death) => {
                     additional_messages.push(Message {
                         api_version: 0,
@@ -310,8 +310,8 @@ impl LogParser for WoWCBTLParser {
                             }
                         }
                     }
-                }
-                _ => {}
+                },
+                _ => {},
             };
         }
 
@@ -340,7 +340,7 @@ fn create_character_item_dto(item_id: u32, enchant_id: Option<u32>) -> Option<Ch
         item_id,
         random_property_id: None,
         enchant_id,
-        gem_ids: vec![]
+        gem_ids: vec![],
     })
 }
 
@@ -349,43 +349,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        }
+        },
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        }
+        },
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        }
+        },
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        }
+        },
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        }
+        },
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        }
+        },
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        }
+        },
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        }
+        },
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        }
+        },
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        }
-        _ => {}
+        },
+        _ => {},
     };
 }
 
@@ -423,10 +423,10 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
         // Wyrmrest Skytalon
         if entry.contains(&32535) {
             ts_offset = -30000;
-            // VX-001
+        // VX-001
         } else if entry.contains(&33651) {
             ts_offset = -50000;
-            // Kel'Thuzad
+        // Kel'Thuzad
         } else if entry.contains(&15990) {
             ts_offset = -228000;
         }
@@ -534,7 +534,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 static ref ITEM_REGEX: Regex = Regex::new(r"(\((\d+),(\d+),(\(\d+,\d+,\d+\)|\(\)),\(\),\(\)\))+").unwrap();
             }
 
-            let unit_params = message_args[1].split("-").collect::<Vec<&str>>();
+            let unit_params = message_args[1].split('-').collect::<Vec<&str>>();
             let unit_id = u64::from_str_radix(unit_params[2], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
             // TODO: Is that hex or dec?
             let server_id = u32::from_str_radix(unit_params[1], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
@@ -551,7 +551,6 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             } else {
                 me.retail_player_server.insert(unit_id, (server_id, "Unknown".to_string(), vec![(event_timestamp, gear)]));
             }
-
 
             // Return error for meta infos
             return Err(LiveDataProcessorFailure::InvalidInput);
@@ -581,11 +580,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             } else {
                 parse_unit(me, data, event_timestamp, &message_args[5..9])?
             };
-            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
-                parse_damage(me, &message_args[7..])?
-            } else {
-                parse_damage(me, &message_args[(9+17)..])?
-            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 { parse_damage(me, &message_args[7..])? } else { parse_damage(me, &message_args[(9 + 17)..])? };
             vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
                 victim,
@@ -595,7 +590,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: vec![damage_component],
             })]
-        }
+        },
         "SWING_MISSED" => {
             let attacker = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -607,11 +602,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             } else {
                 parse_unit(me, data, event_timestamp, &message_args[5..9])?
             };
-            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
-                parse_miss(&message_args[7..])?
-            } else {
-                parse_miss(&message_args[9..])?
-            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 { parse_miss(&message_args[7..])? } else { parse_miss(&message_args[9..])? };
             vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
                 victim,
@@ -621,7 +612,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
             })]
-        }
+        },
         "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
             let attacker = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -638,11 +629,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             } else {
                 parse_spell_args(me, event_timestamp, &message_args[9..12])?
             };
-            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
-                parse_damage(me, &message_args[10..])?
-            } else {
-                parse_damage(me, &message_args[(12+17)..])?
-            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 { parse_damage(me, &message_args[10..])? } else { parse_damage(me, &message_args[(12 + 17)..])? };
             if attacker.is_player {
                 me.collect_player(attacker.unit_id, message_args[2], spell_id);
             }
@@ -663,7 +650,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: vec![damage_component],
                 }),
             ]
-        }
+        },
         "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
             let attacker = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -680,11 +667,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             } else {
                 parse_spell_args(me, event_timestamp, &message_args[9..12])?
             };
-            let (hit_mask, blocked, damage_component) = if me.server_id > 0 {
-                parse_miss(&message_args[10..])?
-            } else {
-                parse_miss(&message_args[12..])?
-            };
+            let (hit_mask, blocked, damage_component) = if me.server_id > 0 { parse_miss(&message_args[10..])? } else { parse_miss(&message_args[12..])? };
             if attacker.is_player {
                 me.collect_player(attacker.unit_id, message_args[2], spell_id);
             }
@@ -705,7 +688,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                 }),
             ]
-        }
+        },
         "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
             let caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -722,11 +705,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             } else {
                 parse_spell_args(me, event_timestamp, &message_args[9..12])?
             };
-            let (amount, overhealing, absorbtion, is_crit) = if me.server_id > 0 {
-                parse_heal(me, &message_args[10..])?
-            } else {
-                parse_heal(me, &message_args[(12+17)..])?
-            };
+            let (amount, overhealing, absorbtion, is_crit) = if me.server_id > 0 { parse_heal(me, &message_args[10..])? } else { parse_heal(me, &message_args[(12 + 17)..])? };
             if caster.is_player {
                 me.collect_player(caster.unit_id, message_args[2], spell_id);
             }
@@ -747,7 +726,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                 }),
             ]
-        }
+        },
         // TODO: Do we do sth with stacks atm?
         // TODO 2: Retail provides stacks, other versions it needs to be estimated
         // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
@@ -790,7 +769,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             }
 
             result
-        }
+        },
         "SPELL_CAST_SUCCESS" => {
             let caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -824,7 +803,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             }
 
             result
-        }
+        },
         "SPELL_SUMMON" => {
             let owner = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -839,7 +818,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             // TODO: Is that of interest?
             // let (spell_id, _school_mask) = parse_spell_args(m, event_timestamp, &message_args[7..10])?;
             vec![MessageType::Summon(Summon { owner, unit })]
-        }
+        },
         "UNIT_DIED" | "UNIT_DESTROYED" => {
             let victim = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[4..7])?
@@ -847,7 +826,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 parse_unit(me, data, event_timestamp, &message_args[5..9])?
             };
             vec![MessageType::Death(Death { cause: None, victim })]
-        }
+        },
         "SPELL_DISPEL" | "SPELL_AURA_DISPELLED" => {
             let un_aura_caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -891,7 +870,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        }
+        },
         "SPELL_INTERRUPT" => {
             let un_aura_caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -927,7 +906,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 }),
                 MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
             ]
-        }
+        },
         "SPELL_STOLEN" | "SPELL_AURA_STOLEN" => {
             let un_aura_caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -970,7 +949,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        }
+        },
         // TODO: A lot more events could be parsed and used
         // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
         _ => return Err(LiveDataProcessorFailure::InvalidInput),
@@ -1115,20 +1094,18 @@ fn parse_damage(me: &mut WoWCBTLParser, damage_args: &[&str]) -> Result<(u32, u3
 fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_args: &[&str]) -> Result<Unit, LiveDataProcessorFailure> {
     let mut unit_id: u64;
     if me.server_id < 0 {
-        let unit_params = unit_args[0].split("-").collect::<Vec<&str>>();
+        let unit_params = unit_args[0].split('-').collect::<Vec<&str>>();
         match unit_params[0] {
             "Player" => {
                 unit_id = u64::from_str_radix(unit_params[2], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-                if !me.retail_player_server.contains_key(&unit_id) {
+                if let Some(args) = me.retail_player_server.get_mut(&unit_id) {
+                    args.1 = unit_args[1].to_string();
+                } else {
                     // TODO: Is that in hex or decimal ?!
                     let server_id = u32::from_str_radix(unit_params[1], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
                     me.retail_player_server.insert(unit_id, (server_id, unit_args[1].to_string(), Vec::new()));
-                } else {
-                    if let Some(args) = me.retail_player_server.get_mut(&unit_id) {
-                        args.1 = unit_args[1].to_string();
-                    }
                 }
-            }
+            },
             // Ignore GameObject and Vignette
             "Pet" | "Vehicle" => {
                 let spawn_uid = u64::from_str_radix(unit_params[6], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
@@ -1137,7 +1114,7 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
                 unit_id |= 0xF140000000000000;
                 unit_id |= npc_id.rotate_left(24);
                 unit_id |= spawn_uid;
-            }
+            },
             "Creature" => {
                 let spawn_uid = u64::from_str_radix(unit_params[6], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
                 let npc_id = u64::from_str_radix(unit_params[5], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
@@ -1145,8 +1122,8 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
                 unit_id |= 0xF130000000000000;
                 unit_id |= npc_id.rotate_left(24);
                 unit_id |= spawn_uid;
-            }
-            _ => return Err(LiveDataProcessorFailure::InvalidInput)
+            },
+            _ => return Err(LiveDataProcessorFailure::InvalidInput),
         };
     } else {
         // let is_player = (u32::from_str_radix(unit_args[2].trim_start_matches("0x"), 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)? & 0x400) != 0;
@@ -1157,7 +1134,7 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
 
         // Each non npc pet gets the id 0xFFFF (Has flags 0xF140)
         if unit_id.is_pet() {
-            let mut new_unit_id = unit_id.clone();
+            let mut new_unit_id = unit_id;
             new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
             new_unit_id |= 0x000000FFFF000000;
             new_unit_id |= 0xF140000000000000;

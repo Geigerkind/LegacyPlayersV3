@@ -5,5 +5,5 @@ pub struct Server {
     pub name: String,
     pub owner: Option<u32>,
     pub patch: String,
-    pub retail_id: Option<u32>
+    pub retail_id: Option<u32>,
 }
