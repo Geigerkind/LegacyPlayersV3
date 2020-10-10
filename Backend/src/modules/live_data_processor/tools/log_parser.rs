@@ -65,8 +65,10 @@ impl LogParser for WoWCBTLParser {
                     server = Some(data.set_internal_retail_server(db_main, names[1].to_string(), self.expansion_id, "1.13".to_string(), *retail_server_id));
                 }
                 let server = server.unwrap();
+                println!("Found: {:?} => for {} => {}", server, unit_id, unit_name_with_server);
                 self.server_id = server.id as i32; // TODO: Better way to determine server id
                 if let Some((_, hero_class_id)) = self.found_player.get(&unit_id) {
+                    println!("FOUND PLAYER!");
                     // Insert player gear
                     for (_timestamp, gear) in gear_setups.iter() {
                         // TODO: Use timestamp
