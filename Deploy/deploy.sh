@@ -143,7 +143,7 @@ function deployWebclient {
 
 function buildBackend {
   echo "Building backend"
-  cd /root/${REPOSITORY_NAME}/Backend
+  cd /root/${REPOSITORY_NAME}
   # rustup update
   # cargo clean
   # cargo update
@@ -153,7 +153,7 @@ function buildBackend {
 
 function deployBackend {
   echo "Deploying Backend"
-  cd /root/${REPOSITORY_NAME}/Backend
+  cd /root/${REPOSITORY_NAME}
   cargo install --path ./ --force
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
   cp ./../.env_prod /home/${BACKEND_USER}/.env
