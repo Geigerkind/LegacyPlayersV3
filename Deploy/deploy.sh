@@ -156,7 +156,7 @@ function deployBackend {
   cd /root/${REPOSITORY_NAME}
   cargo install --path ./ --force
   cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
-  cp ./../.env_prod /home/${BACKEND_USER}/.env
+  cp ./.env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
   echo "" >> /home/${BACKEND_USER}/.env
   echo "ROCKET_DATABASES='{main={url=\""mysql://rpll:${DB_PASSWORD}@127.0.0.1/main\""}}'" >> /home/${BACKEND_USER}/.env
