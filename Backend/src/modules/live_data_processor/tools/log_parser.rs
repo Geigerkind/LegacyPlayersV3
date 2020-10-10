@@ -1,7 +1,7 @@
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto};
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::armory::Armory;
-use crate::modules::data::tools::{RetrieveEncounter, RetrieveServer};
+use crate::modules::data::tools::{RetrieveEncounter, RetrieveServer, RetrieveNPC};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::{HitType, School};
 use crate::modules::live_data_processor::dto::{AuraApplication, CombatState, DamageComponent, DamageDone, Death, HealDone, InstanceMap, Interrupt, LiveDataProcessorFailure, Message, MessageType, SpellCast, Summon, UnAura, Unit};
@@ -274,9 +274,9 @@ impl LogParser for WoWCBTLParser {
             // We assume end if it dies or after a timeout
             match &current_message.message_type {
                 MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
-                    add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.attacker);
-                    add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.victim);
-                },
+                    add_combat_event(data, self.expansion_id, &mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.attacker);
+                    add_combat_event(data, self.expansion_id, &mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &dmg.victim);
+                }
                 /*
                 MessageType::SpellCast(cast) => {
                     add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &cast.caster);
@@ -306,12 +306,12 @@ impl LogParser for WoWCBTLParser {
                                 }
                                 None
                             }) {
-                                add_combat_event(&mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &Unit { is_player: false, unit_id: *unit_id });
+                                add_combat_event(data, self.expansion_id, &mut additional_messages, &mut last_combat_update, current_timestamp, current_message_count, &Unit { is_player: false, unit_id: *unit_id });
                             }
                         }
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             };
         }
 
@@ -349,43 +349,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        },
+        }
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        },
+        }
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        },
+        }
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        },
+        }
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        },
+        }
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        },
+        }
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        },
+        }
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        },
+        }
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        },
+        }
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        },
-        _ => {},
+        }
+        _ => {}
     };
 }
 
@@ -416,17 +416,17 @@ fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) ->
     }
 }
 
-fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: &mut HashMap<u64, u64>, current_timestamp: u64, current_message_count: u64, unit: &Unit) {
+fn add_combat_event(data: &Data, expansion_id: u8, additional_messages: &mut Vec<Message>, last_combat_update: &mut HashMap<u64, u64>, current_timestamp: u64, current_message_count: u64, unit: &Unit) {
     let mut ts_offset: i64 = -1;
     if !unit.is_player {
         let entry = unit.unit_id.get_entry();
         // Wyrmrest Skytalon
         if entry.contains(&32535) {
             ts_offset = -30000;
-        // VX-001
+            // VX-001
         } else if entry.contains(&33651) {
             ts_offset = -50000;
-        // Kel'Thuzad
+            // Kel'Thuzad
         } else if entry.contains(&15990) {
             ts_offset = -228000;
         }
@@ -435,7 +435,7 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
             ts_offset = -55000;
             for (unit_id, _) in last_combat_update.clone() {
                 if unit_id.get_entry().contains(&33288) {
-                    add_combat_event(additional_messages, last_combat_update, current_timestamp, current_message_count, &Unit { is_player: false, unit_id });
+                    add_combat_event(data, expansion_id, additional_messages, last_combat_update, current_timestamp, current_message_count, &Unit { is_player: false, unit_id });
                 }
             }
         }
@@ -454,15 +454,40 @@ fn add_combat_event(additional_messages: &mut Vec<Message>, last_combat_update: 
         timeout = 30000;
     }
 
+    // For bosses consider timeout of same entry not unit id
+    let mut current_unit_is_boss = false;
+    if !unit.is_player {
+        let entry = unit.unit_id.get_entry().unwrap();
+        current_unit_is_boss = data.get_npc(expansion_id, entry).map(|npc| npc.is_boss).contains(&true);
+        if current_unit_is_boss {
+            for (unit_id, last_update) in last_combat_update.clone() {
+                if unit_id.get_entry().contains(&entry) {
+                    if current_timestamp - last_update >= timeout {
+                        additional_messages.push(Message {
+                            api_version: 0,
+                            message_length: 0,
+                            timestamp: current_timestamp - (current_timestamp - last_update),
+                            message_count: current_message_count,
+                            message_type: MessageType::CombatState(CombatState { unit: Unit { is_player: false, unit_id }, in_combat: false }),
+                        });
+                        last_combat_update.remove(&unit_id);
+                    }
+                }
+            }
+        }
+    }
+
     if let Some(last_update) = last_combat_update.get_mut(&unit.unit_id) {
         if current_timestamp - *last_update >= timeout {
-            additional_messages.push(Message {
-                api_version: 0,
-                message_length: 0,
-                timestamp: current_timestamp - (current_timestamp - *last_update),
-                message_count: current_message_count,
-                message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: false }),
-            });
+            if !current_unit_is_boss {
+                additional_messages.push(Message {
+                    api_version: 0,
+                    message_length: 0,
+                    timestamp: current_timestamp - (current_timestamp - *last_update),
+                    message_count: current_message_count,
+                    message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: false }),
+                });
+            }
             additional_messages.push(Message {
                 api_version: 0,
                 message_length: 0,
@@ -554,17 +579,17 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
 
             // Return error for meta infos
             return Err(LiveDataProcessorFailure::InvalidInput);
-        },
+        }
         "ENCOUNTER_START" => {
             let retail_encounter_id = u32::from_str_radix(message_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
             let encounter = data.get_encounter_by_retail_id(retail_encounter_id).expect("I hope I dont forgot to update the table as I add expansions");
             vec![MessageType::EncounterStart(encounter.id)]
-        },
+        }
         "ENCOUNTER_END" => {
             let retail_encounter_id = u32::from_str_radix(message_args[1], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
             let encounter = data.get_encounter_by_retail_id(retail_encounter_id).expect("I hope I dont forgot to update the table as I add expansions");
             vec![MessageType::EncounterEnd(encounter.id)]
-        },
+        }
         "SWING_DAMAGE" | "SWING_DAMAGE_LANDED" => {
             if me.server_id < 0 && me.expansion_id == 1 && message_args[0] == "SWING_DAMAGE" {
                 return Err(LiveDataProcessorFailure::InvalidInput);
@@ -590,7 +615,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: vec![damage_component],
             })]
-        },
+        }
         "SWING_MISSED" => {
             let attacker = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -612,7 +637,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 damage_over_time: false,
                 damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
             })]
-        },
+        }
         "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
             let attacker = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -650,7 +675,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: vec![damage_component],
                 }),
             ]
-        },
+        }
         "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
             let attacker = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -688,7 +713,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                 }),
             ]
-        },
+        }
         "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
             let caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -726,7 +751,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                 }),
             ]
-        },
+        }
         // TODO: Do we do sth with stacks atm?
         // TODO 2: Retail provides stacks, other versions it needs to be estimated
         // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
@@ -769,7 +794,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             }
 
             result
-        },
+        }
         "SPELL_CAST_SUCCESS" => {
             let caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -803,7 +828,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             }
 
             result
-        },
+        }
         "SPELL_SUMMON" => {
             let owner = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -818,7 +843,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
             // TODO: Is that of interest?
             // let (spell_id, _school_mask) = parse_spell_args(m, event_timestamp, &message_args[7..10])?;
             vec![MessageType::Summon(Summon { owner, unit })]
-        },
+        }
         "UNIT_DIED" | "UNIT_DESTROYED" => {
             let victim = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[4..7])?
@@ -826,7 +851,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 parse_unit(me, data, event_timestamp, &message_args[5..9])?
             };
             vec![MessageType::Death(Death { cause: None, victim })]
-        },
+        }
         "SPELL_DISPEL" | "SPELL_AURA_DISPELLED" => {
             let un_aura_caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -870,7 +895,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        },
+        }
         "SPELL_INTERRUPT" => {
             let un_aura_caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -906,7 +931,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                 }),
                 MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
             ]
-        },
+        }
         "SPELL_STOLEN" | "SPELL_AURA_STOLEN" => {
             let un_aura_caster = if me.server_id > 0 {
                 parse_unit(me, data, event_timestamp, &message_args[1..4])?
@@ -949,7 +974,7 @@ fn parse_log_message(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, 
                     un_aura_amount: 1,
                 }),
             ]
-        },
+        }
         // TODO: A lot more events could be parsed and used
         // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
         _ => return Err(LiveDataProcessorFailure::InvalidInput),
@@ -1105,7 +1130,7 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
                     let server_id = u32::from_str_radix(unit_params[1], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
                     me.retail_player_server.insert(unit_id, (server_id, unit_args[1].to_string(), Vec::new()));
                 }
-            },
+            }
             // Ignore GameObject and Vignette
             "Pet" | "Vehicle" => {
                 let spawn_uid = u64::from_str_radix(unit_params[6], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
@@ -1114,7 +1139,7 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
                 unit_id |= 0xF140000000000000;
                 unit_id |= npc_id.rotate_left(24);
                 unit_id |= spawn_uid;
-            },
+            }
             "Creature" => {
                 let spawn_uid = u64::from_str_radix(unit_params[6], 16).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
                 let npc_id = u64::from_str_radix(unit_params[5], 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
@@ -1122,7 +1147,7 @@ fn parse_unit(me: &mut WoWCBTLParser, data: &Data, event_timestamp: u64, unit_ar
                 unit_id |= 0xF130000000000000;
                 unit_id |= npc_id.rotate_left(24);
                 unit_id |= spawn_uid;
-            },
+            }
             _ => return Err(LiveDataProcessorFailure::InvalidInput),
         };
     } else {

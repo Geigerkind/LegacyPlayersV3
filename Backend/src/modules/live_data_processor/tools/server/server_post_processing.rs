@@ -54,6 +54,7 @@ impl Server {
      *    3. Or if pivot NPC goes below a certain threshold
      */
     fn extract_attempts_and_collect_ranking(&mut self, db_main: &mut (impl Execute + Select), data: &Data, now: u64) {
+        static KILL_MIN_INFIGHT_UNITS: usize = 5;
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 let active_attempts = self.active_attempts.entry(*instance_id).or_insert_with(|| HashMap::with_capacity(1));
@@ -80,7 +81,7 @@ impl Server {
                                             let mut is_committable = false;
                                             if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                                 attempt.creatures_in_combat.remove(creature_id);
-                                                is_committable = ((attempt.creatures_in_combat.is_empty() && attempt.infight_player.len() <= 5 && attempt.infight_vehicle.len() <= 5) || attempt.pivot_creature.contains(creature_id))
+                                                is_committable = ((attempt.creatures_in_combat.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS) || attempt.pivot_creature.contains(creature_id))
                                                     && !(encounter_npc.requires_death
                                                         && !attempt.creatures_required_to_die.is_empty()
                                                         && attempt.creatures_required_to_die.contains(creature_id)
@@ -102,7 +103,7 @@ impl Server {
                                             if attempt.pivot_creature.contains(creature_id) {
                                                 attempt.creatures_required_to_die.clear();
                                             }
-                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.infight_player.len() <= 5 && attempt.infight_vehicle.len() <= 5;
+                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS;
                                         }
 
                                         if is_committable {
@@ -190,22 +191,17 @@ impl Server {
                                         attempt.infight_player.remove(&player.character_id);
                                     }
                                     // If enough player are OOC and Kill requirements are fulfilled
-                                    // Commit As Kill
                                     for (encounter_id, attempt) in active_attempts.clone() {
-                                        if attempt.infight_player.len() <= 5 {
-                                            let is_committable = attempt.creatures_required_to_die.is_empty();
-                                            if is_committable {
+                                        if attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS {
+                                            // Commit As Kill
+                                            if attempt.creatures_required_to_die.is_empty() {
                                                 if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
                                                     attempt.end_ts = event.timestamp;
                                                     commit_attempt(db_main, *instance_meta_id, attempt);
                                                 }
                                             }
-                                        }
-                                        // If only a few survivors left and kill requirements are not fulfilled
-                                        // Commit as Attempt
-                                        else if attempt.infight_player.len() <= 2 && attempt.infight_vehicle.len() <= 2 {
-                                            let is_committable = attempt.creatures_in_combat.is_empty();
-                                            if is_committable {
+                                            // Commit As Attempt
+                                            else if attempt.creatures_in_combat.is_empty() {
                                                 if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
                                                     attempt.end_ts = event.timestamp;
                                                     commit_attempt(db_main, *instance_meta_id, attempt);
