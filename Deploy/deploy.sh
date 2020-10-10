@@ -154,8 +154,7 @@ function buildBackend {
 function deployBackend {
   echo "Deploying Backend"
   cd /root/${REPOSITORY_NAME}
-  cargo install --path ./ --force
-  cp /root/.cargo/bin/backend /home/${BACKEND_USER}/
+  cp /root/${REPOSITORY_NAME}/target/release/backend /home/${BACKEND_USER}/
   cp ./.env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
   echo "" >> /home/${BACKEND_USER}/.env
