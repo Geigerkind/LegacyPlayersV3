@@ -23,45 +23,39 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
 
     let mut multipart_form_data = MultipartFormData::parse(content_type, form_data, options).unwrap();
 
-    if let Some(mut start_time_raw_fields) = multipart_form_data.raw.remove("start_time") {
-        let start_time_raw_field = start_time_raw_fields.remove(0);
-        let start_time_raw = std::str::from_utf8(&start_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-        let start_time = NaiveDateTime::parse_from_str(&start_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
-        if let Some(mut end_time_raw_fields) = multipart_form_data.raw.remove("end_time") {
-            let end_time_raw_field = end_time_raw_fields.remove(0);
-            let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-            let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
-            if let Some(mut server_id_raw_fields) = multipart_form_data.raw.remove("server_id") {
-                let RawField {
-                    content_type: _,
-                    file_name: _,
-                    raw: server_id_raw,
-                } = server_id_raw_fields.remove(0);
-                let server_id = i32::from_str_radix(std::str::from_utf8(&server_id_raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?, 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-                if let Some(mut raw_fields) = multipart_form_data.raw.remove("payload") {
-                    let RawField { content_type: _, file_name: _, raw } = raw_fields.remove(0);
-                    if raw.is_empty() {
-                        return Err(LiveDataProcessorFailure::InvalidInput);
-                    }
-                    let reader = std::io::Cursor::new(raw.as_slice());
-                    let mut zip = zip::ZipArchive::new(reader).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let mut start_time_raw_fields = multipart_form_data.raw.remove("start_time").ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let start_time_raw_field = start_time_raw_fields.remove(0);
+    let start_time_raw = std::str::from_utf8(&start_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let start_time = NaiveDateTime::parse_from_str(&start_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
 
-                    // There should only be the combat log in there
-                    let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-                    let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
-                    let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let mut end_time_raw_fields = multipart_form_data.raw.remove("end_time").ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let end_time_raw_field = end_time_raw_fields.remove(0);
+    let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
 
-                    let mut parser = WoWCBTLParser::new(&data, server_id, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, 0);
-                    let messages = parser.parse(&mut *db_main, &data, &armory, content);
+    let mut server_id_raw_fields = multipart_form_data.raw.remove("server_id").ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let RawField { raw: server_id_raw, .. } = server_id_raw_fields.remove(0);
+    let server_id = i32::from_str_radix(std::str::from_utf8(&server_id_raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?, 10).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
 
-                    if parser.server_id < 0 {
-                        return Err(LiveDataProcessorFailure::InvalidInput);
-                    }
-
-                    return me.process_messages(&mut *db_main, parser.server_id as u32, &armory, &data, messages);
-                }
-            }
-        }
+    let mut raw_fields = multipart_form_data.raw.remove("payload").ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let RawField { content_type: _, file_name: _, raw } = raw_fields.remove(0);
+    if raw.is_empty() {
+        return Err(LiveDataProcessorFailure::InvalidInput);
     }
-    Err(LiveDataProcessorFailure::InvalidInput)
+    let reader = std::io::Cursor::new(raw.as_slice());
+    let mut zip = zip::ZipArchive::new(reader).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+
+    // There should only be the combat log in there
+    let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
+    let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+
+    let mut parser = WoWCBTLParser::new(&data, server_id, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, 0);
+    let messages = parser.parse(&mut *db_main, &data, &armory, content);
+
+    if parser.server_id < 0 {
+        return Err(LiveDataProcessorFailure::InvalidInput);
+    }
+
+    me.process_messages(&mut *db_main, parser.server_id as u32, &armory, &data, messages)
 }
