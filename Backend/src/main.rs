@@ -71,7 +71,7 @@ fn main() {
     let prometheus = PrometheusMetrics::new();
 
     let mut swagger_ui_config = SwaggerUIConfig::default();
-    swagger_ui_config.urls = vec![
+    swagger_ui_config.urls = Some(vec![
         UrlObject {
             name: "Account".to_string(),
             url: "/API/account/openapi.json".to_string(),
@@ -96,7 +96,7 @@ fn main() {
             name: "Utility".to_string(),
             url: "/API/utility/openapi.json".to_string(),
         },
-    ];
+    ]);
 
     rocket::ignite()
         .manage(account)

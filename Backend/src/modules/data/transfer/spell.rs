@@ -1,3 +1,5 @@
+#![allow(unused_parens)]
+
 use rocket::State;
 use rocket_contrib::json::Json;
 

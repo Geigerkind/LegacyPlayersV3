@@ -8,3 +8,15 @@ pub struct Message {
     pub message_count: u64,
     pub message_type: MessageType,
 }
+
+impl Message {
+    pub fn new_parsed(timestamp: u64, message_count: u64, message_type: MessageType) -> Self {
+        Message {
+            api_version: 0,
+            message_length: 0,
+            timestamp,
+            message_count,
+            message_type
+        }
+    }
+}

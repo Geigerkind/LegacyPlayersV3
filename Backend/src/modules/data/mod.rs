@@ -3,7 +3,7 @@ pub use self::{domain_value::Stat, material::Data};
 #[cfg(test)]
 mod tests;
 
-mod domain_value;
+pub(crate) mod domain_value;
 mod dto;
 mod language;
 mod material;

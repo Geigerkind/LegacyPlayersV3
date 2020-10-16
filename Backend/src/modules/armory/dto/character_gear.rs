@@ -52,3 +52,29 @@ impl CheckPlausability for Option<CharacterItemDto> {
         self.is_none() || self.as_ref().unwrap().is_plausible()
     }
 }
+
+impl Default for CharacterGearDto {
+    fn default() -> Self {
+        CharacterGearDto {
+            head: None,
+            neck: None,
+            shoulder: None,
+            back: None,
+            chest: None,
+            shirt: None,
+            tabard: None,
+            wrist: None,
+            main_hand: None,
+            off_hand: None,
+            ternary_hand: None,
+            glove: None,
+            belt: None,
+            leg: None,
+            boot: None,
+            ring1: None,
+            ring2: None,
+            trinket1: None,
+            trinket2: None,
+        }
+    }
+}

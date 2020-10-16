@@ -1,8 +1,6 @@
 use crate::modules::armory::Armory;
 use crate::modules::data::Data as DataMaterial;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
-use crate::modules::live_data_processor::material::WoWCBTLParser;
-use crate::modules::live_data_processor::tools::log_parser::LogParser;
 use crate::modules::live_data_processor::tools::ProcessMessages;
 use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::MainDb;
@@ -11,6 +9,11 @@ use rocket::http::ContentType;
 use rocket::{Data, State};
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 use std::io::Read;
+use crate::modules::live_data_processor::material::{WoWRetailClassicParser, WoWTBCParser, WoWWOTLKParser};
+use crate::modules::data::tools::RetrieveServer;
+use crate::modules::live_data_processor::tools::log_parser::parse_cbl;
+use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
+use crate::util::database::{Select, Execute};
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -50,12 +53,23 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
     let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
 
-    let mut parser = WoWCBTLParser::new(&data, server_id, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, 0);
-    let messages = parser.parse(&mut *db_main, &data, &armory, content);
-
-    if parser.server_id < 0 {
-        return Err(LiveDataProcessorFailure::InvalidInput);
+    if server_id == -1 {
+        return parse(&me, WoWRetailClassicParser::new(), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
+    } else {
+        let server = data.get_server(server_id as u32).unwrap();
+        if server.expansion_id == 2 {
+            return parse(&me, WoWTBCParser::new(server_id as u32), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
+        } else if server.expansion_id == 3 {
+            return parse(&me, WoWWOTLKParser::new(server_id as u32), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
+        }
     }
 
-    me.process_messages(&mut *db_main, parser.server_id as u32, &armory, &data, messages)
+    Err(LiveDataProcessorFailure::InvalidInput)
+}
+
+fn parse(me: &LiveDataProcessor, mut parser: impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &DataMaterial, armory: &Armory, content: &str, start_time: u64, end_time: u64) -> Result<(), LiveDataProcessorFailure> {
+    if let Some((server_id, messages)) = parse_cbl(&mut parser, &mut *db_main, data, armory, content, start_time, end_time) {
+        return me.process_messages(&mut *db_main, server_id as u32, &armory, &data, messages);
+    }
+    Err(LiveDataProcessorFailure::InvalidInput)
 }
