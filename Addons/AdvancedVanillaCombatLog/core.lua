@@ -1,6 +1,9 @@
 local RPLL = RPLL
 RPLL.VERSION = 1
 RPLL.PlayerInformation = {}
+RPLL.PlayerRotation = {}
+RPLL.RotationIndex = 1
+RPLL.RotationLength = 0
 
 RPLL:RegisterEvent("PLAYER_TARGET_CHANGED")
 RPLL:RegisterEvent("RAID_ROSTER_UPDATE")
@@ -11,10 +14,14 @@ RPLL:RegisterEvent("UPDATE_INSTANCE_INFO")
 
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL:RegisterEvent("PLAYER_ENTERING_WORLD")
+RPLL:RegisterEvent("VARIABLES_LOADED")
 
 RPLL:RegisterEvent("UNIT_PET")
 RPLL:RegisterEvent("PLAYER_PET_CHANGED")
 RPLL:RegisterEvent("PET_STABLE_CLOSED")
+
+RPLL:RegisterEvent("UI_ERROR_MESSAGE")
+RPLL:RegisterEvent("UI_INFO_MESSAGE")
 
 local tinsert = table.insert
 local strformat = string.format
@@ -45,14 +52,26 @@ local LoggingCombat = LoggingCombat
 
 RPLL.ZONE_CHANGED_NEW_AREA = function()
     LoggingCombat(IsInInstance("player"))
+    this:grab_unit_information("player")
+    this:RAID_ROSTER_UPDATE()
+    this:PARTY_MEMBERS_CHANGED()
 end
 
 RPLL.UPDATE_INSTANCE_INFO = function()
     LoggingCombat(IsInInstance("player"))
+    this:grab_unit_information("player")
+    this:RAID_ROSTER_UPDATE()
+    this:PARTY_MEMBERS_CHANGED()
 end
 
 RPLL.PLAYER_ENTERING_WORLD = function()
     this:grab_unit_information("player")
+end
+
+RPLL.VARIABLES_LOADED = function()
+    this:grab_unit_information("player")
+    this:RAID_ROSTER_UPDATE()
+    this:PARTY_MEMBERS_CHANGED()
 end
 
 RPLL.PLAYER_TARGET_CHANGED = function()
@@ -94,11 +113,21 @@ RPLL.PET_STABLE_CLOSED = function()
     this:grab_unit_information("player")
 end
 
+RPLL.UI_INFO_MESSAGE = function()
+    this:rotate_combat_log_global_string()
+end
+
+RPLL.UI_ERROR_MESSAGE = function()
+    this:rotate_combat_log_global_string()
+end
+
 function RPLL:grab_unit_information(unit)
     local unit_name = UnitName(unit)
     if UnitIsPlayer(unit) and unit_name ~= nil and unit_name ~= Unknown then
         if this.PlayerInformation[unit_name] == nil then
             this.PlayerInformation[unit_name] = {}
+            tinsert(this.PlayerRotation, unit_name)
+            this.RotationLength = this.RotationLength + 1
         end
         local info = this.PlayerInformation[unit_name]
         info["name"] = unit_name
@@ -145,22 +174,26 @@ function RPLL:grab_unit_information(unit)
                 end
             end
         end
-
-        this:update_combat_log_global_string()
     end
 end
 
-function RPLL:update_combat_log_global_string()
-    local result = "COMBATANT_INFO: "
-    for _, character in this.PlayerInformation do
+function RPLL:rotate_combat_log_global_string()
+    if this.RotationLength ~= 0 then
+        local character = this.PlayerInformation[this.PlayerRotation[this.RotationIndex]]
+        local result = "COMBATANT_INFO: "
         local gear_str = prep_value(character["gear"][1])
         for i=2, 19 do
             gear_str = gear_str..","..prep_value(character["gear"][i])
         end
-        result = result.."("..prep_value(character["name"])..","..prep_value(character["hero_class"])..","..prep_value(character["race"])..","..prep_value(character["sex"])..","..prep_value(character["pet"])..","..prep_value(character["guild_name"])..","..prep_value(character["guild_rank_name"])..","..prep_value(character["guild_rank_index"])..","..gear_str..")&"
+        result = result..prep_value(character["name"])..","..prep_value(character["hero_class"])..","..prep_value(character["race"])..","..prep_value(character["sex"])..","..prep_value(character["pet"])..","..prep_value(character["guild_name"])..","..prep_value(character["guild_rank_name"])..","..prep_value(character["guild_rank_index"])..","..gear_str
+        SPELLFAILCASTSELF = result
+        SPELLFAILPERFORMSELF = result
+        if this.RotationIndex + 1 > this.RotationLength then
+            this.RotationIndex = 1
+        else
+            this.RotationIndex = this.RotationIndex + 1
+        end
     end
-    SPELLFAILCASTSELF = result
-    SPELLFAILPERFORMSELF = result
 end
 
 function prep_value(val)
