@@ -226,6 +226,7 @@ function RPLL:fix_combat_log_strings()
     ITEMENCHANTMENTADDSELFSELF = player_name.." casts %s on "..player_name.."'s %s."
     ITEMENCHANTMENTREMOVESELF = "%s has faded from "..player_name.."'s %s."
     LOOT_ITEM_CREATED_SELF = player_name.." creates: %s."
+    TRADESKILL_LOG_FIRSTPERSON = player_name.." creates %s."
     LOOT_ITEM_CREATED_SELF_MULTIPLE = player_name.." creates: %sx%d."
     LOOT_ITEM_PUSHED_SELF = player_name.." receives item: %s."
     LOOT_ITEM_PUSHED_SELF_MULTIPLE = player_name.." receives item: %sx%d."
@@ -348,6 +349,12 @@ function RPLL:fix_combat_log_strings()
     VSPARRYSELFOTHER = player_name.." attacks. %s parries."
     VSRESISTOTHERSELF = "%s attacks. "..player_name.." resists all the damage."
     VSRESISTSELFOTHER = player_name.." attacks. %s resists all the damage."
+    DURABILITYDAMAGE_DEATH = player_name.."'s equipped items suffer a 10% durability loss."
+
+    if klhtm ~= nil then
+        klhtm.combatparser.parserset = {}
+        klhtm.combatparser.onload()
+    end
 end
 
 function RPLL:grab_unit_information(unit)
@@ -412,6 +419,8 @@ function RPLL:rotate_combat_log_global_string()
         SPELLFAILPERFORMSELF = this.ExtraMessageQueue[this.ExtraMessageQueueIndex]
         this.ExtraMessageQueueIndex = this.ExtraMessageQueueIndex + 1
     elseif this.RotationLength ~= 0 then
+        -- TODO: This seems to be never executed
+        -- TODO: Provide a KTM version that is not messed up by this
         local character = this.PlayerInformation[this.PlayerRotation[this.RotationIndex]]
         local result = "COMBATANT_INFO: "
         local gear_str = prep_value(character["gear"][1])
@@ -426,6 +435,9 @@ function RPLL:rotate_combat_log_global_string()
         else
             this.RotationIndex = this.RotationIndex + 1
         end
+    else
+        SPELLFAILCASTSELF = "NONE"
+        SPELLFAILPERFORMSELF = "NONE"
     end
 end
 
