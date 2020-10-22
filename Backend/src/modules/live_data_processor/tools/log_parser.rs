@@ -77,8 +77,12 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         } else {
             // Only set char if gear is not empty or char does not exist
             if let Some(character_info) = &character_dto.character_history {
-                if character_info.character_info.gear.is_naked() && armory.get_character_by_name(server_id, character_info.character_name.clone()).is_some() {
-                    continue;
+                if character_info.character_info.gear.is_naked() {
+                    if let Some(character) = armory.get_character_by_uid(server_id, character_dto.server_uid) {
+                        if character.last_update.is_some() {
+                            continue;
+                        }
+                    }
                 }
             }
             let _ = armory.set_character(db_main, server_id, character_dto);

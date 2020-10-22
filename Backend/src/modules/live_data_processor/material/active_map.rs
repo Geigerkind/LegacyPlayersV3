@@ -25,7 +25,7 @@ impl ActiveMap {
     }
 
     pub fn add_point(&mut self, now: u64) {
-        static ACTIVE_MAP_TIMEOUT: u64 = 30000;
+        static ACTIVE_MAP_TIMEOUT: u64 = 120000;
         let last_entry = self.intervals.last_mut().unwrap();
         if now - last_entry.1 <= ACTIVE_MAP_TIMEOUT {
             last_entry.1 = now;
@@ -61,7 +61,7 @@ impl RetrieveActiveMap for ActiveMapVec {
         let mut chosen_map = None;
         for active_map in self.iter() {
             for (start, end) in active_map.intervals.iter() {
-                if *start <= current_timestamp && *end >= current_timestamp {
+                if *start - 1000 <= current_timestamp && *end + 1000 >= current_timestamp {
                     chosen_map = Some(active_map);
                     break;
                 }
@@ -76,7 +76,7 @@ impl RetrieveActiveMap for ActiveMapVec {
             let mut difficulty_id = None;
             for (pot_diff_id, intervals) in map.active_difficulty.iter() {
                 for (start, end) in intervals.iter() {
-                    if *start <= current_timestamp && *end >= current_timestamp {
+                    if *start - 1000 <= current_timestamp && *end + 1000 >= current_timestamp {
                         difficulty_id = Some(*pot_diff_id);
                         break;
                     }
@@ -85,13 +85,13 @@ impl RetrieveActiveMap for ActiveMapVec {
 
             if difficulty_id.is_none() {
                 if player_participants
-                    .find(current_timestamp - 100, current_timestamp + 100)
+                    .find(current_timestamp - 30000, current_timestamp + 30000)
                     .fold(BTreeSet::new(), |mut acc, Interval { val: unit_id, .. }| {
                         acc.insert(*unit_id);
                         acc
                     })
                     .len()
-                    > 15
+                    >= 18
                 {
                     difficulty_id = Some(4);
                 } else {
