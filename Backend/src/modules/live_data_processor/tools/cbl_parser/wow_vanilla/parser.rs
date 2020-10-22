@@ -146,6 +146,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
@@ -183,6 +184,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![MessageType::MeleeDamage(DamageDone {
                 attacker,
@@ -304,6 +306,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -350,6 +353,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -397,6 +401,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -435,6 +440,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -683,6 +689,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -711,7 +718,7 @@ impl CombatLogParser for WoWVanillaParser {
         /*
          * Heal
          */
-        if let Some(captures) = RE_DAMAGE_SPELL_HIT_OR_CRIT.captures(&content) {
+        if let Some(captures) = RE_HEAL_HIT_OR_CRIT.captures(&content) {
             let caster = parse_unit(data, captures.get(1)?.as_str());
             let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
             let hit_mask = if captures.get(3)?.as_str() == "critically heals" { HitType::Crit as u32 } else { HitType::Hit as u32 };
@@ -721,6 +728,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
             self.collect_active_map(data, &target, event_ts);
+            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -734,7 +742,7 @@ impl CombatLogParser for WoWVanillaParser {
                     target,
                     spell_id,
                     total_heal: amount,
-                    effective_heal: amount,
+                    effective_heal,
                     absorb: 0,
                     hit_mask,
                 }),
@@ -750,6 +758,7 @@ impl CombatLogParser for WoWVanillaParser {
             self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
             self.collect_active_map(data, &target, event_ts);
+            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
 
             return Some(vec![
                 MessageType::SpellCast(SpellCast {
@@ -763,7 +772,7 @@ impl CombatLogParser for WoWVanillaParser {
                     target,
                     spell_id,
                     total_heal: amount,
-                    effective_heal: amount,
+                    effective_heal,
                     absorb: 0,
                     hit_mask: HitType::Hit as u32,
                 }),

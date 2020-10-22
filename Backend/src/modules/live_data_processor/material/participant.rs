@@ -10,6 +10,7 @@ pub struct Participant {
     pub server: Option<(u32, String)>,
     pub gear_setups: Option<Vec<(u64, Vec<Option<(u32, Option<u32>)>>)>>,
     pub active_intervals: Vec<(u64, u64)>,
+    available_effective_heal: u32,
 
     // Technical
     pub last_seen: u64,
@@ -29,6 +30,7 @@ impl Participant {
             active_intervals: vec![(last_seen, last_seen)],
             last_seen,
             guild_args: None,
+            available_effective_heal: 0
         }
     }
 
@@ -41,5 +43,21 @@ impl Participant {
             self.active_intervals.push((now, now));
         }
         self.last_seen = now;
+    }
+
+    pub fn attribute_damage(&mut self, damage: u32) {
+        self.available_effective_heal += damage;
+    }
+
+    pub fn attribute_heal(&mut self, heal: u32) -> u32 {
+        let effective_heal;
+        if heal > self.available_effective_heal {
+            effective_heal = self.available_effective_heal;
+            self.available_effective_heal = 0;
+        } else {
+            self.available_effective_heal -= heal;
+            effective_heal = heal;
+        }
+        effective_heal
     }
 }

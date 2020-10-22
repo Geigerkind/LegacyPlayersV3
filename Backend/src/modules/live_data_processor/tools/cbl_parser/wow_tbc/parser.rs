@@ -22,6 +22,7 @@ impl CombatLogParser for WoWTBCParser {
                 self.collect_participant(&victim, message_args[5], event_ts);
                 self.collect_active_map(data, &attacker, event_ts);
                 self.collect_active_map(data, &victim, event_ts);
+                self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage_component.damage);
                 vec![MessageType::MeleeDamage(DamageDone {
                     attacker,
                     victim,
@@ -60,6 +61,7 @@ impl CombatLogParser for WoWTBCParser {
                 self.collect_participant_class(&attacker, spell_id);
                 self.collect_active_map(data, &attacker, event_ts);
                 self.collect_active_map(data, &victim, event_ts);
+                self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage_component.damage);
                 vec![
                     MessageType::SpellCast(SpellCast {
                         caster: attacker.clone(),
@@ -114,6 +116,7 @@ impl CombatLogParser for WoWTBCParser {
                 self.collect_participant(&caster, message_args[2], event_ts);
                 self.collect_participant(&target, message_args[5], event_ts);
                 self.collect_participant_class(&caster, spell_id);
+                let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
                 vec![
                     MessageType::SpellCast(SpellCast {
                         caster: caster.clone(),
@@ -126,7 +129,7 @@ impl CombatLogParser for WoWTBCParser {
                         target,
                         spell_id,
                         total_heal: amount,
-                        effective_heal: amount,
+                        effective_heal,
                         absorb: 0,
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
