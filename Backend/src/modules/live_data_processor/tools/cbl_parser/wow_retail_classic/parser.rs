@@ -1,15 +1,15 @@
+use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto};
+use crate::modules::data::tools::RetrieveEncounter;
+use crate::modules::data::Data;
+use crate::modules::live_data_processor::domain_value::HitType;
+use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit};
+use crate::modules::live_data_processor::material::{ActiveMapVec, Participant, WoWRetailClassicParser};
 use crate::modules::live_data_processor::tools::cbl_parser::combat_log_parser::CombatLogParser;
-use crate::modules::live_data_processor::material::{Participant, WoWRetailClassicParser, ActiveMapVec};
-use crate::modules::armory::dto::{CharacterDto, CharacterHistoryDto, CharacterInfoDto, CharacterGearDto, CharacterItemDto};
-use crate::modules::live_data_processor::dto::{MessageType, Unit, DamageDone, SpellCast, HealDone, AuraApplication, Summon, Death, UnAura, Interrupt};
-use crate::modules::live_data_processor::tools::cbl_parser::wow_retail_classic::parse_unit;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_retail_classic::parse_damage;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_retail_classic::parse_miss;
+use crate::modules::live_data_processor::tools::cbl_parser::wow_retail_classic::parse_unit;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_spell_args;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_heal;
-use crate::modules::live_data_processor::domain_value::HitType;
-use crate::modules::data::Data;
-use crate::modules::data::tools::RetrieveEncounter;
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -36,7 +36,6 @@ impl CombatLogParser for WoWRetailClassicParser {
                     }
                 }
 
-
                 if let Some(participant) = self.participants.get_mut(&unit_id) {
                     let gear_entries = participant.gear_setups.get_or_insert_with(Vec::new);
                     gear_entries.push((event_ts, gear));
@@ -44,17 +43,17 @@ impl CombatLogParser for WoWRetailClassicParser {
 
                 // Return none for meta infos
                 return None;
-            }
+            },
             "ENCOUNTER_START" => {
                 let retail_encounter_id = u32::from_str_radix(message_args[1], 10).ok()?;
                 let encounter = data.get_encounter_by_retail_id(retail_encounter_id).expect("I hope I didnt forget to update the table as I add expansions");
                 vec![MessageType::EncounterStart(encounter.id)]
-            }
+            },
             "ENCOUNTER_END" => {
                 let retail_encounter_id = u32::from_str_radix(message_args[1], 10).ok()?;
                 let encounter = data.get_encounter_by_retail_id(retail_encounter_id).expect("I hope I didnt forget to update the table as I add expansions");
                 vec![MessageType::EncounterEnd(encounter.id)]
-            }
+            },
             "SWING_DAMAGE_LANDED" => {
                 let attacker = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -72,7 +71,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                     damage_over_time: false,
                     damage_components: vec![damage_component],
                 })]
-            }
+            },
             "SWING_MISSED" => {
                 let attacker = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -90,7 +89,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                     damage_over_time: false,
                     damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                 })]
-            }
+            },
             "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
                 let attacker = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -118,7 +117,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                         damage_components: vec![damage_component],
                     }),
                 ]
-            }
+            },
             "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
                 let attacker = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -146,7 +145,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                         damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                     }),
                 ]
-            }
+            },
             "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
                 let caster = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -172,7 +171,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                 ]
-            }
+            },
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
                 let caster = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
@@ -184,13 +183,13 @@ impl CombatLogParser for WoWRetailClassicParser {
                 self.collect_active_map(data, &caster, event_ts);
                 self.collect_active_map(data, &target, event_ts);
                 vec![MessageType::AuraApplication(AuraApplication {
-                    caster: caster.clone(),
-                    target: target.clone(),
+                    caster,
+                    target,
                     spell_id,
                     stack_amount: if is_removed { 0 } else { 1 }, // TODO: Amount estimation
                     delta: if is_removed { -1 } else { 1 },
                 })]
-            }
+            },
             "SPELL_CAST_SUCCESS" => {
                 let caster = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -201,21 +200,21 @@ impl CombatLogParser for WoWRetailClassicParser {
                 self.collect_active_map(data, &target, event_ts);
 
                 vec![MessageType::SpellCast(SpellCast {
-                    caster: caster.clone(),
-                    target: Some(target.clone()),
+                    caster,
+                    target: Some(target),
                     spell_id,
                     hit_mask: HitType::Hit as u32,
                 })]
-            }
+            },
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
                 vec![MessageType::Summon(Summon { owner, unit })]
-            }
+            },
             "UNIT_DIED" | "UNIT_DESTROYED" => {
                 let victim = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
                 vec![MessageType::Death(Death { cause: None, victim })]
-            }
+            },
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -237,7 +236,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            }
+            },
             "SPELL_INTERRUPT" => {
                 let un_aura_caster = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -252,7 +251,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                     }),
                     MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
                 ]
-            }
+            },
             "SPELL_STOLEN" => {
                 let un_aura_caster = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
@@ -274,33 +273,42 @@ impl CombatLogParser for WoWRetailClassicParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            }
+            },
             // TODO: Use more events
             // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
-            _ => return None
+            _ => return None,
         })
     }
 
+    fn do_message_post_processing(&mut self, _data: &Data, _messages: &mut Vec<Message>) {
+        // Do nothing
+    }
+
     fn get_involved_server(&self) -> Option<Vec<(u32, String, String)>> {
-        Some(self.participants.iter()
-            .filter(|(_, participant)| participant.is_player)
-            .fold(HashMap::new(), |mut acc, (_, participant)| {
-                if let Some((server_id, server_name)) = &participant.server {
-                    acc.insert(server_id, server_name);
-                }
-                acc
-            }).iter()
-            .map(|(server_id, server_name)| (**server_id, server_name.to_string(), "1.13".to_string())).collect())
+        Some(
+            self.participants
+                .iter()
+                .filter(|(_, participant)| participant.is_player)
+                .fold(HashMap::new(), |mut acc, (_, participant)| {
+                    if let Some((server_id, server_name)) = &participant.server {
+                        acc.insert(server_id, server_name);
+                    }
+                    acc
+                })
+                .iter()
+                .map(|(server_id, server_name)| (**server_id, server_name.to_string(), "1.13".to_string()))
+                .collect(),
+        )
     }
 
     fn get_involved_character_builds(&self) -> Vec<(Option<u32>, CharacterDto)> {
-        self.participants.iter()
-            .filter(|(_, participant)| participant.is_player)
-            .fold(Vec::new(), |mut acc, (_, participant)| {
-                if let Some(gear_setups) = &participant.gear_setups {
-                    for (_ts, gear) in gear_setups.iter() {
-                        // TODO: Use TS
-                        acc.push((participant.server.as_ref().map(|(server_id, _)| *server_id), CharacterDto {
+        self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
+            if let Some(gear_setups) = &participant.gear_setups {
+                for (_ts, gear) in gear_setups.iter() {
+                    // TODO: Use TS
+                    acc.push((
+                        participant.server.as_ref().map(|(server_id, _)| *server_id),
+                        CharacterDto {
                             server_uid: participant.id,
                             character_history: Some(CharacterHistoryDto {
                                 character_info: CharacterInfoDto {
@@ -325,7 +333,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                                         trinket1: create_character_item_dto(&gear[12]),
                                         trinket2: create_character_item_dto(&gear[13]),
                                     },
-                                    hero_class_id: participant.hero_class_id.unwrap_or(0),
+                                    hero_class_id: participant.hero_class_id.unwrap_or(1),
                                     level: 60,
                                     gender: false,
                                     profession1: None,
@@ -341,11 +349,12 @@ impl CombatLogParser for WoWRetailClassicParser {
                                 facial: None,
                                 arena_teams: vec![],
                             }),
-                        }));
-                    }
+                        },
+                    ));
                 }
-                acc
-            })
+            }
+            acc
+        })
     }
 
     fn get_participants(&self) -> Vec<Participant> {
@@ -375,7 +384,7 @@ impl CombatLogParser for WoWRetailClassicParser {
     fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
         Some(match entry {
             15929 | 15930 => vec![(15928, -1000)],
-            _ => return None
+            _ => return None,
         })
     }
 

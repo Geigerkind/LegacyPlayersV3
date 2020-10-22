@@ -1,5 +1,5 @@
-use crate::modules::live_data_processor::dto::DamageComponent;
 use crate::modules::live_data_processor::domain_value::HitType;
+use crate::modules::live_data_processor::dto::DamageComponent;
 
 pub fn parse_damage(message_args: &[&str]) -> Option<(u32, u32, DamageComponent)> {
     let amount = u32::from_str_radix(message_args[0], 10).ok()?;

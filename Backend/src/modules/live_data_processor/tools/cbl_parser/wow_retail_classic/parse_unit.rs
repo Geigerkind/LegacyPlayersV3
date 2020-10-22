@@ -7,7 +7,7 @@ pub fn parse_unit(message_args: &[&str]) -> Option<Unit> {
     match unit_params[0] {
         "Player" => {
             unit_id = u64::from_str_radix(unit_params[2], 16).ok()?;
-        }
+        },
         // Ignore GameObject and Vignette
         "Pet" | "Vehicle" => {
             let spawn_uid = u64::from_str_radix(unit_params[6], 16).ok()?;
@@ -16,7 +16,7 @@ pub fn parse_unit(message_args: &[&str]) -> Option<Unit> {
             unit_id |= 0xF140000000000000;
             unit_id |= npc_id.rotate_left(24);
             unit_id |= spawn_uid;
-        }
+        },
         "Creature" => {
             let spawn_uid = u64::from_str_radix(unit_params[6], 16).ok()?;
             let npc_id = u64::from_str_radix(unit_params[5], 10).ok()?;
@@ -24,7 +24,7 @@ pub fn parse_unit(message_args: &[&str]) -> Option<Unit> {
             unit_id |= 0xF130000000000000;
             unit_id |= npc_id.rotate_left(24);
             unit_id |= spawn_uid;
-        }
+        },
         _ => return None,
     };
     Some(Unit { is_player: unit_id.is_player(), unit_id })

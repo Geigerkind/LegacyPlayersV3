@@ -16,7 +16,7 @@ impl Message {
             message_length: 0,
             timestamp,
             message_count,
-            message_type
+            message_type,
         }
     }
 }

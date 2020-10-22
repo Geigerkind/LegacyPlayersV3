@@ -1,19 +1,19 @@
 use crate::modules::armory::Armory;
+use crate::modules::data::tools::RetrieveServer;
 use crate::modules::data::Data as DataMaterial;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
+use crate::modules::live_data_processor::material::{WoWRetailClassicParser, WoWTBCParser, WoWWOTLKParser, WoWVanillaParser};
+use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
+use crate::modules::live_data_processor::tools::log_parser::parse_cbl;
 use crate::modules::live_data_processor::tools::ProcessMessages;
 use crate::modules::live_data_processor::LiveDataProcessor;
+use crate::util::database::{Execute, Select};
 use crate::MainDb;
 use chrono::NaiveDateTime;
 use rocket::http::ContentType;
 use rocket::{Data, State};
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 use std::io::Read;
-use crate::modules::live_data_processor::material::{WoWRetailClassicParser, WoWTBCParser, WoWWOTLKParser};
-use crate::modules::data::tools::RetrieveServer;
-use crate::modules::live_data_processor::tools::log_parser::parse_cbl;
-use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
-use crate::util::database::{Select, Execute};
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -57,10 +57,39 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
         return parse(&me, WoWRetailClassicParser::new(), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
     } else {
         let server = data.get_server(server_id as u32).unwrap();
-        if server.expansion_id == 2 {
-            return parse(&me, WoWTBCParser::new(server_id as u32), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
+        if server.expansion_id == 1 {
+            return parse(
+                &me,
+                WoWVanillaParser::new(server_id as u32),
+                &mut *db_main,
+                &data,
+                &armory,
+                content,
+                start_time.timestamp_millis() as u64,
+                end_time.timestamp_millis() as u64,
+            );
+        } else if server.expansion_id == 2 {
+            return parse(
+                &me,
+                WoWTBCParser::new(server_id as u32),
+                &mut *db_main,
+                &data,
+                &armory,
+                content,
+                start_time.timestamp_millis() as u64,
+                end_time.timestamp_millis() as u64,
+            );
         } else if server.expansion_id == 3 {
-            return parse(&me, WoWWOTLKParser::new(server_id as u32), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
+            return parse(
+                &me,
+                WoWWOTLKParser::new(server_id as u32),
+                &mut *db_main,
+                &data,
+                &armory,
+                content,
+                start_time.timestamp_millis() as u64,
+                end_time.timestamp_millis() as u64,
+            );
         }
     }
 

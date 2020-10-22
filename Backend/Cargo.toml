@@ -28,6 +28,7 @@ chrono="*"
 rand = "*"
 zip = "*"
 rust-lapper = "*"
+rustc-hash = "1.1.0"
 
 [dependencies.rocket_contrib]
 version = "*"

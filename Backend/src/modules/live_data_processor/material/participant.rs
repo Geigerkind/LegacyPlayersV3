@@ -4,12 +4,15 @@ pub struct Participant {
     pub is_player: bool,
     pub name: String,
     pub hero_class_id: Option<u8>,
+    pub gender_id: Option<bool>,
+    pub race_id: Option<u8>,
+    pub guild_args: Option<(String, String, u8)>,
     pub server: Option<(u32, String)>,
     pub gear_setups: Option<Vec<(u64, Vec<Option<(u32, Option<u32>)>>)>>,
     pub active_intervals: Vec<(u64, u64)>,
 
     // Technical
-    last_seen: u64
+    pub last_seen: u64,
 }
 
 impl Participant {
@@ -18,11 +21,14 @@ impl Participant {
             id,
             is_player,
             hero_class_id: None,
+            gender_id: None,
+            race_id: None,
             name,
             server: None,
             gear_setups: None,
             active_intervals: vec![(last_seen, last_seen)],
-            last_seen
+            last_seen,
+            guild_args: None,
         }
     }
 

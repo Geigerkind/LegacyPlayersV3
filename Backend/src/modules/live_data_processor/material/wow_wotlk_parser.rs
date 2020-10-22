@@ -1,13 +1,13 @@
-use std::collections::{HashMap, BTreeSet};
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::material::{Participant, ActiveMapMap, CollectActiveMap};
 use crate::modules::live_data_processor::dto::Unit;
+use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
+use std::collections::{BTreeSet, HashMap};
 
 pub struct WoWWOTLKParser {
     pub server_id: u32,
 
     pub participants: HashMap<u64, Participant>,
-    pub active_map: ActiveMapMap
+    pub active_map: ActiveMapMap,
 }
 
 impl WoWWOTLKParser {
@@ -15,7 +15,7 @@ impl WoWWOTLKParser {
         WoWWOTLKParser {
             server_id,
             participants: Default::default(),
-            active_map: Default::default()
+            active_map: Default::default(),
         }
     }
 
@@ -29,16 +29,32 @@ impl WoWWOTLKParser {
 
     pub fn collect_participant_class(&mut self, unit: &Unit, spell_id: u32) {
         lazy_static! {
-            static ref WARRIOR_SPELLS: BTreeSet<u32> = [47450, 57755, 23881, 23880, 23885, 12721, 12721, 1680, 44949, 46916, 50783, 47488, 47498, 57823, 46968, 47520, 7384, 20647, 47502].iter().cloned().collect();
-            static ref PALADIN_SPELLS: BTreeSet<u32> = [53739, 20167, 20424, 20375, 53736, 20165, 20166, 20271, 53733, 20186, 68066, 54158, 20185, 54153, 20267, 20467, 53408, 48819, 53385, 54172, 35395, 53742, 61411, 61840, 53595, 48801, 48952, 48827, 61411, 48782, 54968].iter().cloned().collect();
+            static ref WARRIOR_SPELLS: BTreeSet<u32> = [47450, 57755, 23881, 23880, 23885, 12721, 12721, 1680, 44949, 46916, 50783, 47488, 47498, 57823, 46968, 47520, 7384, 20647, 47502]
+                .iter()
+                .cloned()
+                .collect();
+            static ref PALADIN_SPELLS: BTreeSet<u32> =
+                [53739, 20167, 20424, 20375, 53736, 20165, 20166, 20271, 53733, 20186, 68066, 54158, 20185, 54153, 20267, 20467, 53408, 48819, 53385, 54172, 35395, 53742, 61411, 61840, 53595, 48801, 48952, 48827, 61411, 48782, 54968]
+                    .iter()
+                    .cloned()
+                    .collect();
             static ref ROGUE_SPELLS: BTreeSet<u32> = [57965, 57993, 57970, 48665, 48664, 48666, 51723, 52874, 48676, 48691].iter().cloned().collect();
             static ref PRIEST_SPELLS: BTreeSet<u32> = [52985, 56160, 48071, 33110, 48156, 58381, 48160, 48300, 48127, 48125, 63675, 75999, 53022, 53023, 48072, 48068, 64844].iter().cloned().collect();
             static ref HUNTER_SPELLS: BTreeSet<u32> = [53352, 60053, 75, 49052, 61006, 49001, 63672, 49050, 58433, 58434, 49065, 49048].iter().cloned().collect();
-            static ref MAGE_SPELLS: BTreeSet<u32> = [42897, 36032, 42845, 42939, 42940, 42937, 42938, 59638, 55802, 55807, 59637, 57984, 122, 57761, 54096, 42833, 42926, 42931, 42891, 59638].iter().cloned().collect();
+            static ref MAGE_SPELLS: BTreeSet<u32> = [42897, 36032, 42845, 42939, 42940, 42937, 42938, 59638, 55802, 55807, 59637, 57984, 122, 57761, 54096, 42833, 42926, 42931, 42891, 59638]
+                .iter()
+                .cloned()
+                .collect();
             static ref WARLOCK_SPELLS: BTreeSet<u32> = [47813, 47809, 47855, 47843, 47864, 59164, 47210, 47836, 47834, 47825, 47811, 47838, 47867, 50590].iter().cloned().collect();
             static ref SHAMAN_SPELLS: BTreeSet<u32> = [10444, 61654, 49238, 49271, 54531, 58735, 60103, 49233, 49279, 49281, 32175, 32176, 17364, 25504, 49231, 55459, 49276].iter().cloned().collect();
-            static ref DRUID_SPELLS: BTreeSet<u32> = [48441, 53251, 48443, 50464, 48461, 48465, 53201, 53195, 53190, 48463, 48468, 48572, 49800, 48574, 48577, 48566, 62078, 48480, 48562, 48564].iter().cloned().collect();
-            static ref DEATH_KNIGHT_SPELLS: BTreeSet<u32> = [55268, 66962, 51425, 66974, 51411, 55095, 55078, 51460, 52212, 49938, 49909, 49921, 66992, 47632, 50526, 55095, 61696, 49930, 66979].iter().cloned().collect();
+            static ref DRUID_SPELLS: BTreeSet<u32> = [48441, 53251, 48443, 50464, 48461, 48465, 53201, 53195, 53190, 48463, 48468, 48572, 49800, 48574, 48577, 48566, 62078, 48480, 48562, 48564]
+                .iter()
+                .cloned()
+                .collect();
+            static ref DEATH_KNIGHT_SPELLS: BTreeSet<u32> = [55268, 66962, 51425, 66974, 51411, 55095, 55078, 51460, 52212, 49938, 49909, 49921, 66992, 47632, 50526, 55095, 61696, 49930, 66979]
+                .iter()
+                .cloned()
+                .collect();
         }
 
         if !unit.is_player {

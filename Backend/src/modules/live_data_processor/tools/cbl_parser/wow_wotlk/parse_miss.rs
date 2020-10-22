@@ -2,11 +2,7 @@ use crate::modules::live_data_processor::domain_value::{HitType, School};
 use crate::modules::live_data_processor::dto::DamageComponent;
 
 pub fn parse_miss(message_args: &[&str]) -> Option<(u32, u32, Option<DamageComponent>)> {
-    let amount_missed = if message_args.len() == 2 {
-        u32::from_str_radix(message_args[1], 10).ok()?
-    } else {
-        0
-    };
+    let amount_missed = if message_args.len() == 2 { u32::from_str_radix(message_args[1], 10).ok()? } else { 0 };
     Some(match message_args[0] {
         "ABSORB" => (
             HitType::FullAbsorb as u32,

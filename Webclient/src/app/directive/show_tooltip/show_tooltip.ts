@@ -24,7 +24,7 @@ export class ShowTooltipDirective implements OnDestroy {
             this.tooltipControllerService.hideTooltip();
         });
         this.subscription.add(this.visibility$.pipe(debounceTime(50)).subscribe(([show_tooltip, args]) => {
-            if (show_tooltip) this.tooltipControllerService.showTooltip(this.tooltipArgs, false, args[0], args[1])
+            if (show_tooltip) this.tooltipControllerService.showTooltip(this.tooltipArgs, false, args[0], args[1]);
             else this.tooltipControllerService.hideTooltip();
         }));
     }

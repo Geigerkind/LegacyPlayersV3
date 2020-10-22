@@ -78,3 +78,27 @@ impl Default for CharacterGearDto {
         }
     }
 }
+
+impl CharacterGearDto {
+    pub fn is_naked(&self) -> bool {
+        self.head.is_none()
+            && self.neck.is_none()
+            && self.shoulder.is_none()
+            && self.back.is_none()
+            && self.chest.is_none()
+            && self.shirt.is_none()
+            && self.tabard.is_none()
+            && self.wrist.is_none()
+            && self.main_hand.is_none()
+            && self.off_hand.is_none()
+            && self.ternary_hand.is_none()
+            && self.glove.is_none()
+            && self.belt.is_none()
+            && self.leg.is_none()
+            && self.boot.is_none()
+            && self.ring1.is_none()
+            && self.ring2.is_none()
+            && self.trinket1.is_none()
+            && self.trinket2.is_none()
+    }
+}

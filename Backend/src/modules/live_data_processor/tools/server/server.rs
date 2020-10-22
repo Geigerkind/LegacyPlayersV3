@@ -489,6 +489,7 @@ impl Server {
                     }
 
                     self.unit_instance_id.insert(unit.unit_id, *instance_id);
+                    self.unit_instance_id.insert(0, *instance_id);
                 } else {
                     self.unit_instance_id.remove(&unit.unit_id);
                 }

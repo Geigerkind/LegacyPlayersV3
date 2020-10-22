@@ -1,15 +1,15 @@
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::armory::Armory;
-use crate::modules::data::tools::{RetrieveServer, RetrieveNPC};
+use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit};
+use crate::modules::live_data_processor::material::RetrieveActiveMap;
+use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use rust_lapper::{Interval, Lapper};
 use std::collections::{BTreeSet, HashMap};
-use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
-use crate::modules::live_data_processor::material::RetrieveActiveMap;
 
 pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
@@ -45,6 +45,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     }
 
     // Post processing step
+    parser.do_message_post_processing(data, &mut messages);
+
     let expansion_id = parser.get_expansion_id();
     let mut server_id = parser.get_server_id();
     if let Some(involved_server) = parser.get_involved_server() {
@@ -73,6 +75,12 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 continue;
             }
         } else {
+            // Only set char if gear is not empty or char does not exist
+            if let Some(character_info) = &character_dto.character_history {
+                if character_info.character_info.gear.is_naked() && armory.get_character_by_name(server_id, character_info.character_name.clone()).is_some() {
+                    continue;
+                }
+            }
             let _ = armory.set_character(db_main, server_id, character_dto);
         }
     }
@@ -117,8 +125,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             };
 
             let mut new_participants: HashMap<u64, bool> = HashMap::new();
-            for Interval { val: (unit_id, is_player), .. } in participants_by_interval
-                .find(*timestamp - 100, *timestamp + 100).filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
+            for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 100, *timestamp + 100).filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
                 new_participants.insert(*unit_id, *is_player);
             }
 
@@ -133,26 +140,30 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
 
-                additional_messages.push(
-                    Message::new_parsed((*timestamp as i64 + ts_offset) as u64,
-                                        *message_count, MessageType::InstanceMap(InstanceMap {
-                            map_id: map_id as u32,
-                            instance_id,
-                            map_difficulty: difficulty.unwrap_or(0),
-                            unit: Unit { is_player, unit_id },
-                        })));
+                additional_messages.push(Message::new_parsed(
+                    (*timestamp as i64 + ts_offset) as u64,
+                    *message_count,
+                    MessageType::InstanceMap(InstanceMap {
+                        map_id: map_id as u32,
+                        instance_id,
+                        map_difficulty: difficulty.unwrap_or(0),
+                        unit: Unit { is_player, unit_id },
+                    }),
+                ));
                 participants.insert(unit_id, is_player);
             }
         } else if current_map.is_some() {
             for (unit_id, is_player) in participants.iter() {
-                additional_messages.push(
-                    Message::new_parsed(*timestamp + 1, *message_count,
-                                        MessageType::InstanceMap(InstanceMap {
-                                            map_id: 0,
-                                            instance_id: 0,
-                                            map_difficulty: 0,
-                                            unit: Unit { is_player: *is_player, unit_id: *unit_id },
-                                        })));
+                additional_messages.push(Message::new_parsed(
+                    *timestamp + 1,
+                    *message_count,
+                    MessageType::InstanceMap(InstanceMap {
+                        map_id: 0,
+                        instance_id: 0,
+                        map_difficulty: 0,
+                        unit: Unit { is_player: *is_player, unit_id: *unit_id },
+                    }),
+                ));
             }
             participants.clear();
             current_map = None;
@@ -165,7 +176,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
                 add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
                 add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
-            }
+            },
             MessageType::Death(death) => {
                 additional_messages.push(Message {
                     api_version: 0,
@@ -192,8 +203,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                         }
                     }
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         };
     }
 
@@ -217,43 +228,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        }
+        },
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        }
+        },
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        }
+        },
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        }
+        },
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        }
+        },
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        }
+        },
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        }
+        },
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        }
+        },
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        }
+        },
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        }
-        _ => {}
+        },
+        _ => {},
     };
 }
 
@@ -311,17 +322,18 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
         current_unit_is_boss = data.get_npc(expansion_id, entry).map(|npc| npc.is_boss).contains(&true);
         if current_unit_is_boss {
             for (unit_id, last_update) in last_combat_update.clone() {
-                if unit_id.get_entry().contains(&entry) {
-                    if current_timestamp - last_update >= timeout {
-                        additional_messages.push(Message {
-                            api_version: 0,
-                            message_length: 0,
-                            timestamp: current_timestamp - (current_timestamp - last_update),
-                            message_count: current_message_count,
-                            message_type: MessageType::CombatState(CombatState { unit: Unit { is_player: false, unit_id }, in_combat: false }),
-                        });
-                        last_combat_update.remove(&unit_id);
-                    }
+                if unit_id.get_entry().contains(&entry) && current_timestamp - last_update >= timeout {
+                    additional_messages.push(Message {
+                        api_version: 0,
+                        message_length: 0,
+                        timestamp: current_timestamp - (current_timestamp - last_update),
+                        message_count: current_message_count,
+                        message_type: MessageType::CombatState(CombatState {
+                            unit: Unit { is_player: false, unit_id },
+                            in_combat: false,
+                        }),
+                    });
+                    last_combat_update.remove(&unit_id);
                 }
             }
         }

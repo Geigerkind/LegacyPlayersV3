@@ -1,10 +1,11 @@
-use crate::modules::live_data_processor::dto::MessageType;
 use crate::modules::armory::dto::CharacterDto;
-use crate::modules::live_data_processor::material::{Participant, ActiveMapVec};
 use crate::modules::data::Data;
+use crate::modules::live_data_processor::dto::{Message, MessageType};
+use crate::modules::live_data_processor::material::{ActiveMapVec, Participant};
 
 pub trait CombatLogParser {
     fn parse_cbl_line(&mut self, data: &Data, event_ts: u64, content: &str) -> Option<Vec<MessageType>>;
+    fn do_message_post_processing(&mut self, data: &Data, messages: &mut Vec<Message>);
     // Server that need to be created have Id=0!
     fn get_involved_server(&self) -> Option<Vec<(u32, String, String)>>;
     fn get_involved_character_builds(&self) -> Vec<(Option<u32>, CharacterDto)>;

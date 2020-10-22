@@ -1,9 +1,9 @@
-use std::collections::{HashMap, BTreeSet};
-use crate::modules::live_data_processor::dto::Unit;
-use crate::modules::data::Data;
-use crate::modules::live_data_processor::tools::GUID;
 use crate::modules::data::tools::RetrieveNPC;
-use rust_lapper::{Lapper, Interval};
+use crate::modules::data::Data;
+use crate::modules::live_data_processor::dto::Unit;
+use crate::modules::live_data_processor::tools::GUID;
+use rust_lapper::{Interval, Lapper};
+use std::collections::{BTreeSet, HashMap};
 
 pub type ActiveMapMap = HashMap<u16, ActiveMap>;
 pub type ActiveMapVec = Vec<ActiveMap>;
@@ -17,7 +17,11 @@ pub struct ActiveMap {
 
 impl ActiveMap {
     pub fn new(map_id: u16, now: u64) -> Self {
-        ActiveMap { map_id, intervals: vec![(now, now)], active_difficulty: HashMap::with_capacity(1) }
+        ActiveMap {
+            map_id,
+            intervals: vec![(now, now)],
+            active_difficulty: HashMap::with_capacity(1),
+        }
     }
 
     pub fn add_point(&mut self, now: u64) {
@@ -40,7 +44,7 @@ impl CollectActiveMap for ActiveMapMap {
         if let Some(entry) = unit.unit_id.get_entry() {
             if let Some(npc) = data.get_npc(expansion_id, entry) {
                 if let Some(map_id) = npc.map_id {
-                    let intervals = self.entry(map_id).or_insert(ActiveMap::new(map_id, now));
+                    let intervals = self.entry(map_id).or_insert_with(|| ActiveMap::new(map_id, now));
                     intervals.add_point(now);
                 }
             }
@@ -80,11 +84,15 @@ impl RetrieveActiveMap for ActiveMapVec {
             }
 
             if difficulty_id.is_none() {
-                if player_participants.find(current_timestamp - 100, current_timestamp + 100)
+                if player_participants
+                    .find(current_timestamp - 100, current_timestamp + 100)
                     .fold(BTreeSet::new(), |mut acc, Interval { val: unit_id, .. }| {
                         acc.insert(*unit_id);
                         acc
-                    }).len() > 15 {
+                    })
+                    .len()
+                    > 15
+                {
                     difficulty_id = Some(4);
                 } else {
                     difficulty_id = Some(3);

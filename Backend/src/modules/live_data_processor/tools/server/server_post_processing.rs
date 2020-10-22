@@ -1,3 +1,5 @@
+#![allow(clippy::if_same_then_else)]
+
 use crate::modules::data::tools::{RetrieveEncounterNpc, RetrieveItem};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::get_spell_components_total;
@@ -81,7 +83,8 @@ impl Server {
                                             let mut is_committable = false;
                                             if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                                 attempt.creatures_in_combat.remove(creature_id);
-                                                is_committable = ((attempt.creatures_in_combat.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS) || attempt.pivot_creature.contains(creature_id))
+                                                is_committable = ((attempt.creatures_in_combat.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS)
+                                                    || attempt.pivot_creature.contains(creature_id))
                                                     && !(encounter_npc.requires_death
                                                         && !attempt.creatures_required_to_die.is_empty()
                                                         && attempt.creatures_required_to_die.contains(creature_id)
