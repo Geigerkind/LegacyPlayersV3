@@ -10,6 +10,7 @@ use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use rust_lapper::{Interval, Lapper};
 use std::collections::{BTreeSet, HashMap};
+use std::cmp::Ordering;
 
 pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
@@ -28,7 +29,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 continue;
             }
 
-            if let Some(message_types) = parser.parse_cbl_line(data, event_timestamp, meta[1]) {
+            if let Some(message_types) = parser.parse_cbl_line(data, event_timestamp, meta[1].trim_end_matches("\r")) {
                 let mut message_count = (messages.len() + message_types.len()) as u64;
                 for message_type in message_types {
                     message_count -= 1;
@@ -225,7 +226,13 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             })
             .collect();
     }
-    messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
+    messages.sort_by(|left, right| {
+        let result = left.message_count.cmp(&right.message_count);
+        if result == Ordering::Equal {
+            return left.timestamp.cmp(&right.timestamp);
+        }
+        result
+    });
     Some((server_id, messages))
 }
 

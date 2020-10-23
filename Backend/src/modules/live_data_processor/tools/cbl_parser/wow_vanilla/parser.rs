@@ -90,215 +90,97 @@ POWERGAINOTHEROTHER
 impl CombatLogParser for WoWVanillaParser {
     fn parse_cbl_line(&mut self, data: &Data, event_ts: u64, content: &str) -> Option<Vec<MessageType>> {
         lazy_static! {
-            static ref RE_DAMAGE_HIT_OR_CRIT: Regex = Regex::new(r"([a-zA-Z\s']+) (cr|h)its ([a-zA-Z\s']+) for (\d+)\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_HIT_OR_CRIT_SCHOOL: Regex = Regex::new(r"([a-zA-Z\s']+) (cr|h)its ([a-zA-Z\s']+) for (\d+) ([a-zA-Z]+) damage\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_MISS: Regex = Regex::new(r"([a-zA-Z\s']+) misses ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_BLOCK_PARRY_EVADE_DODGE_DEFLECT: Regex = Regex::new(r"([a-zA-Z\s']+) attacks\. ([a-zA-Z\s']+) (blocks|parries|evades|dodges|deflects)\.").unwrap();
-            static ref RE_DAMAGE_ABSORB_RESIST: Regex = Regex::new(r"([a-zA-Z\s']+) attacks\. ([a-zA-Z\s']+) (absorbs|resists) all the damage\.").unwrap();
-            static ref RE_DAMAGE_IMMUNE: Regex = Regex::new(r"([a-zA-Z\s']+) attacks but ([a-zA-Z\s']+) is immune\.").unwrap();
+            static ref RE_DAMAGE_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s]) (cr|h)its (.+[^\s]) for (\d+)\.\s?(.*)").unwrap();
+            static ref RE_DAMAGE_HIT_OR_CRIT_SCHOOL: Regex = Regex::new(r"(.+[^\s]) (cr|h)its (.+[^\s]) for (\d+) ([a-zA-Z]+) damage\.\s?(.*)").unwrap();
+            static ref RE_DAMAGE_MISS: Regex = Regex::new(r"(.+[^\s]) misses (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_BLOCK_PARRY_EVADE_DODGE_DEFLECT: Regex = Regex::new(r"(.+[^\s]) attacks\. (.+[^\s]) (blocks|parries|evades|dodges|deflects)\.").unwrap();
+            static ref RE_DAMAGE_ABSORB_RESIST: Regex = Regex::new(r"(.+[^\s]) attacks\. (.+[^\s]) (absorbs|resists) all the damage\.").unwrap();
+            static ref RE_DAMAGE_IMMUNE: Regex = Regex::new(r"(.+[^\s]) attacks but (.+[^\s]) is immune\.").unwrap();
 
-            static ref RE_DAMAGE_SPELL_HIT_OR_CRIT: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) (cr|h)its ([a-zA-Z\s']+) for (\d+)\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_SPELL_HIT_OR_CRIT_SCHOOL: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) (cr|h)its ([a-zA-Z\s']+) for (\d+) ([a-zA-Z]+) damage\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_PERIODIC: Regex = Regex::new(r"([a-zA-Z\s']+) suffers (\d+) ([a-zA-Z]+) damage from ([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+)\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_SPELL_SPLIT: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) causes ([a-zA-Z\s']+) (\d+) damage\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_SPELL_MISS: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) misses ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_SPELL_BLOCK_PARRY_EVADE_DODGE_RESIST_DEFLECT: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) was (blocked|parried|evaded|dodged|resisted|deflected) by ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_SPELL_ABSORB: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) is absorbed by ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_SPELL_ABSORB_SELF: Regex = Regex::new(r"([a-zA-Z\s']+) absorbs ([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_REFLECT: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) is reflected back by ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_PROC_RESIST: Regex = Regex::new(r"([a-zA-Z\s']+) resists ([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_DAMAGE_SPELL_IMMUNE: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) fails\. ([a-zA-Z\s']+) is immune\.").unwrap();
+            static ref RE_DAMAGE_SPELL_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) (cr|h)its (.+[^\s]) for (\d+)\.\s?(.*)").unwrap();
+            static ref RE_DAMAGE_SPELL_HIT_OR_CRIT_SCHOOL: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) (cr|h)its (.+[^\s]) for (\d+) ([a-zA-Z]+) damage\.\s?(.*)").unwrap();
+            static ref RE_DAMAGE_PERIODIC: Regex = Regex::new(r"(.+[^\s]) suffers (\d+) ([a-zA-Z]+) damage from (.+[^\s])\s's (.+[^\s])\.\s?(.*)").unwrap();
+            static ref RE_DAMAGE_SPELL_SPLIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) causes (.+[^\s]) (\d+) damage\.\s?(.*)").unwrap();
+            static ref RE_DAMAGE_SPELL_MISS: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) misses (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_SPELL_BLOCK_PARRY_EVADE_DODGE_RESIST_DEFLECT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) was (blocked|parried|evaded|dodged|resisted|deflected) by (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_SPELL_ABSORB: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) is absorbed by (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_SPELL_ABSORB_SELF: Regex = Regex::new(r"(.+[^\s]) absorbs (.+[^\s])\s's (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_REFLECT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) is reflected back by (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_PROC_RESIST: Regex = Regex::new(r"(.+[^\s]) resists (.+[^\s])\s's (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_SPELL_IMMUNE: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) fails\. (.+[^\s]) is immune\.").unwrap();
 
-            static ref RE_DAMAGE_SHIELD: Regex = Regex::new(r"([a-zA-Z\s']+) reflects (\d+) ([a-zA-Z]+) damage to ([a-zA-Z\s']+)\.").unwrap(); // Ability?
+            static ref RE_DAMAGE_SHIELD: Regex = Regex::new(r"(.+[^\s]) reflects (\d+) ([a-zA-Z]+) damage to (.+[^\s])\.").unwrap(); // Ability?
 
-            static ref RE_HEAL_HIT_OR_CRIT: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) (critically heals|heals) ([a-zA-Z\s']+) for (\d+)\.").unwrap();
-            static ref RE_HEAL_PERIODIC: Regex = Regex::new(r"([a-zA-Z\s']+) gains (\d+) health from ([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+)\.").unwrap();
+            static ref RE_HEAL_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) (critically heals|heals) (.+[^\s]) for (\d+)\.").unwrap();
+            static ref RE_GAIN: Regex = Regex::new(r"(.+[^\s]) gains (\d+) (Health|Mana|Rage|Energy|Happiness|Focus) from (.+[^\s])\s's (.+[^\s])\.").unwrap();
 
             // Somehow track the owner?
-            static ref RE_AURA_GAIN_HARMFUL_HELPFUL: Regex = Regex::new(r"([a-zA-Z\s']+) (is afflicted by|gains) ([a-zA-Z\s']+) \((\d+)\)\.").unwrap();
-            static ref RE_AURA_FADE: Regex = Regex::new(r"([a-zA-Z\s']+) fades from ([a-zA-Z\s']+)\.").unwrap();
+            static ref RE_AURA_GAIN_HARMFUL_HELPFUL: Regex = Regex::new(r"(.+[^\s]) (is afflicted by|gains) (.+[^\s]) \((\d+)\)\.").unwrap();
+            static ref RE_AURA_FADE: Regex = Regex::new(r"(.+[^\s]) fades from (.+[^\s])\.").unwrap();
 
             // Find dispeller
-            static ref RE_AURA_DISPEL: Regex = Regex::new(r"([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+) is removed\.").unwrap();
-            static ref RE_AURA_INTERRUPT: Regex = Regex::new(r"([a-zA-Z\s']+) interrupts ([a-zA-Z\s']+)\s?'s ([a-zA-Z\s']+)\.").unwrap();
+            static ref RE_AURA_DISPEL: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) is removed\.").unwrap();
+            static ref RE_AURA_INTERRUPT: Regex = Regex::new(r"(.+[^\s]) interrupts (.+[^\s])\s's (.+[^\s])\.").unwrap();
 
-            static ref RE_SPELL_CAST_PERFORM: Regex = Regex::new(r"([a-zA-Z\s']+) (casts|performs) ([a-zA-Z\s']+) on ([a-zA-Z\s']+)\.").unwrap();
-            static ref RE_SPELL_CAST_PERFORM_UNKNOWN: Regex = Regex::new(r"([a-zA-Z\s']+) (casts|performs) ([a-zA-Z\s']+)\.").unwrap();
+            static ref RE_SPELL_CAST_PERFORM: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s]) on (.+[^\s])\.").unwrap();
+            static ref RE_SPELL_CAST_PERFORM_UNKNOWN: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s])\.").unwrap();
 
-            static ref RE_UNIT_DIE_DESTROYED: Regex = Regex::new(r"([a-zA-Z\s']+) (dies|is destroyed)\.").unwrap();
-            static ref RE_UNIT_SLAY_KILL: Regex = Regex::new(r"([a-zA-Z\s']+) is (slain|killed) by ([a-zA-Z\s']+)!").unwrap();
+            static ref RE_UNIT_DIE_DESTROYED: Regex = Regex::new(r"(.+[^\s]) (dies|is destroyed)\.").unwrap();
+            static ref RE_UNIT_SLAY_KILL: Regex = Regex::new(r"(.+[^\s]) is (slain|killed) by (.+[^\s])!").unwrap();
 
-            static ref RE_ZONE_INFO: Regex = Regex::new(r"ZONE_INFO: ([a-zA-Z\s']+)\&(\d+)").unwrap();
-            static ref RE_LOOT: Regex = Regex::new(r"LOOT: ([a-zA-Z\s']+) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(\d+):(\d+):(\d+)\|h\[([a-zA-Z0-9]+)\]\|h\|rx(\d+)\.").unwrap();
+            static ref RE_ZONE_INFO: Regex = Regex::new(r"ZONE_INFO: (.+[^\s])\&(\d+)").unwrap();
+            static ref RE_LOOT: Regex = Regex::new(r"LOOT: (.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(\d+):(\d+):(\d+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.").unwrap();
+
+            // Bugs?
+            static ref RE_BUG_DAMAGE_SPELL_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (cr|h)its (.+[^\s]) for (\d+)\.\s?(.*)").unwrap();
         }
 
-        /*
-         * Melee Damage
-         */
-        if let Some(captures) = RE_DAMAGE_HIT_OR_CRIT.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let mut hit_mask = if captures.get(2)?.as_str() == "cr" { HitType::Crit as u32 } else { HitType::Hit as u32 };
-            let victim = parse_unit(data, captures.get(3)?.as_str());
-            let damage = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
-            let trailer = parse_trailer(captures.get(5)?.as_str());
-            trailer.iter().for_each(|(_, hit_type)| hit_mask |= hit_type.clone() as u32);
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
-            self.collect_active_map(data, &attacker, event_ts);
-            self.collect_active_map(data, &victim, event_ts);
-            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
-
-            return Some(vec![MessageType::MeleeDamage(DamageDone {
-                attacker,
-                victim,
-                spell_id: None,
-                hit_mask,
-                blocked: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialBlock).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
-                damage_over_time: false,
-                damage_components: vec![DamageComponent {
-                    school_mask: School::Physical as u8,
-                    damage,
-                    resisted_or_glanced: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialResist).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
-                    absorbed: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialAbsorb).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
-                }],
-            })]);
+        if RE_BUG_DAMAGE_SPELL_HIT_OR_CRIT.captures(&content).is_some() {
+            return None;
         }
 
-        if let Some(captures) = RE_DAMAGE_HIT_OR_CRIT_SCHOOL.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let mut hit_mask = if captures.get(2)?.as_str() == "cr" { HitType::Crit as u32 } else { HitType::Hit as u32 };
-            let victim = parse_unit(data, captures.get(3)?.as_str());
-            let damage = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
-            let school = match captures.get(5)?.as_str() {
-                "Arcane" => School::Arcane,
-                "Fire" => School::Fire,
-                "Frost" => School::Frost,
-                "Shadow" => School::Shadow,
-                "Nature" => School::Nature,
-                "Holy" => School::Holy,
-                _ => unreachable!(),
-            };
-            let trailer = parse_trailer(captures.get(6)?.as_str());
-            trailer.iter().for_each(|(_, hit_type)| hit_mask |= hit_type.clone() as u32);
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
-            self.collect_active_map(data, &attacker, event_ts);
-            self.collect_active_map(data, &victim, event_ts);
-            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
+        if let Some(captures) = RE_GAIN.captures(&content) {
+            if captures.get(3)?.as_str() != "Health" {
+                return None;
+            }
 
-            return Some(vec![MessageType::MeleeDamage(DamageDone {
-                attacker,
-                victim,
-                spell_id: None,
-                hit_mask,
-                blocked: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialBlock).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
-                damage_over_time: false,
-                damage_components: vec![DamageComponent {
-                    school_mask: school as u8,
-                    damage,
-                    resisted_or_glanced: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialResist).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
-                    absorbed: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialAbsorb).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
-                }],
-            })]);
-        }
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let amount = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(5)?.as_str())?;
+            self.collect_participant(&caster, captures.get(4)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
+            self.collect_active_map(data, &caster, event_ts);
+            self.collect_active_map(data, &target, event_ts);
+            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
 
-        if let Some(captures) = RE_DAMAGE_MISS.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let victim = parse_unit(data, captures.get(2)?.as_str());
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
-            self.collect_active_map(data, &attacker, event_ts);
-            self.collect_active_map(data, &victim, event_ts);
-
-            return Some(vec![MessageType::MeleeDamage(DamageDone {
-                attacker,
-                victim,
-                spell_id: None,
-                hit_mask: HitType::Miss as u32,
-                blocked: 0,
-                damage_over_time: false,
-                damage_components: vec![],
-            })]);
-        }
-
-        if let Some(captures) = RE_DAMAGE_BLOCK_PARRY_EVADE_DODGE_DEFLECT.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let victim = parse_unit(data, captures.get(2)?.as_str());
-            let hit_type = match captures.get(3)?.as_str() {
-                "blocks" => HitType::FullBlock,
-                "parries" => HitType::Parry,
-                "evades" => HitType::Evade,
-                "dodges" => HitType::Dodge,
-                "deflects" => HitType::Deflect,
-                _ => unreachable!(),
-            };
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
-            self.collect_active_map(data, &attacker, event_ts);
-            self.collect_active_map(data, &victim, event_ts);
-
-            return Some(vec![MessageType::MeleeDamage(DamageDone {
-                attacker,
-                victim,
-                spell_id: None,
-                hit_mask: hit_type as u32,
-                blocked: 0,
-                damage_over_time: false,
-                damage_components: vec![],
-            })]);
-        }
-
-        if let Some(captures) = RE_DAMAGE_ABSORB_RESIST.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let victim = parse_unit(data, captures.get(2)?.as_str());
-            let hit_type = match captures.get(3)?.as_str() {
-                "absorbs" => HitType::FullAbsorb,
-                "resists" => HitType::FullResist,
-                _ => unreachable!(),
-            };
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
-            self.collect_active_map(data, &attacker, event_ts);
-            self.collect_active_map(data, &victim, event_ts);
-
-            return Some(vec![MessageType::MeleeDamage(DamageDone {
-                attacker,
-                victim,
-                spell_id: None,
-                hit_mask: hit_type as u32,
-                blocked: 0,
-                damage_over_time: false,
-                damage_components: vec![],
-            })]);
-        }
-
-        if let Some(captures) = RE_DAMAGE_IMMUNE.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let victim = parse_unit(data, captures.get(2)?.as_str());
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
-            self.collect_active_map(data, &attacker, event_ts);
-            self.collect_active_map(data, &victim, event_ts);
-
-            return Some(vec![MessageType::MeleeDamage(DamageDone {
-                attacker,
-                victim,
-                spell_id: None,
-                hit_mask: HitType::Immune as u32,
-                blocked: 0,
-                damage_over_time: false,
-                damage_components: vec![],
-            })]);
+            return Some(vec![
+                MessageType::SpellCast(SpellCast {
+                    caster: caster.clone(),
+                    target: Some(target.clone()),
+                    spell_id,
+                    hit_mask: HitType::Hit as u32,
+                }),
+                MessageType::Heal(HealDone {
+                    caster,
+                    target,
+                    spell_id,
+                    total_heal: amount,
+                    effective_heal,
+                    absorb: 0,
+                    hit_mask: HitType::Hit as u32,
+                }),
+            ]);
         }
 
         /*
          * Spell Damage
          */
         if let Some(captures) = RE_DAMAGE_SPELL_HIT_OR_CRIT.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
             let mut hit_mask = if captures.get(3)?.as_str() == "cr" { HitType::Crit as u32 } else { HitType::Hit as u32 };
-            let victim = parse_unit(data, captures.get(4)?.as_str());
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             let damage = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
             let trailer = parse_trailer(captures.get(6)?.as_str());
             trailer.iter().for_each(|(_, hit_type)| hit_mask |= hit_type.clone() as u32);
@@ -333,12 +215,13 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_SPELL_HIT_OR_CRIT_SCHOOL.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
             let mut hit_mask = if captures.get(3)?.as_str() == "cr" { HitType::Crit as u32 } else { HitType::Hit as u32 };
-            let victim = parse_unit(data, captures.get(4)?.as_str());
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             let damage = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
             let school = match captures.get(6)?.as_str() {
+                "Physical" => School::Physical,
                 "Arcane" => School::Arcane,
                 "Fire" => School::Fire,
                 "Frost" => School::Frost,
@@ -380,9 +263,10 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_PERIODIC.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let damage = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
             let school = match captures.get(3)?.as_str() {
+                "Physical" => School::Physical,
                 "Arcane" => School::Arcane,
                 "Fire" => School::Fire,
                 "Frost" => School::Frost,
@@ -391,8 +275,8 @@ impl CombatLogParser for WoWVanillaParser {
                 "Holy" => School::Holy,
                 _ => unreachable!(),
             };
-            let victim = parse_unit(data, captures.get(4)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(5)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(5)?.as_str())?;
 
             let mut hit_mask = HitType::Hit as u32;
             let trailer = parse_trailer(captures.get(6)?.as_str());
@@ -427,10 +311,199 @@ impl CombatLogParser for WoWVanillaParser {
             ]);
         }
 
+        if let Some(captures) = RE_DAMAGE_SHIELD.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let damage = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
+            let school = match captures.get(3)?.as_str() {
+                "Physical" => School::Physical,
+                "Arcane" => School::Arcane,
+                "Fire" => School::Fire,
+                "Frost" => School::Frost,
+                "Shadow" => School::Shadow,
+                "Nature" => School::Nature,
+                "Holy" => School::Holy,
+                _ => unreachable!(),
+            };
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            let spell_id = 2; // Thats our reflection spell
+            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
+            self.collect_active_map(data, &attacker, event_ts);
+            self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
+
+            return Some(vec![
+                MessageType::SpellCast(SpellCast {
+                    caster: attacker.clone(),
+                    target: Some(victim.clone()),
+                    spell_id,
+                    hit_mask: HitType::Hit as u32,
+                }),
+                MessageType::SpellDamage(DamageDone {
+                    attacker,
+                    victim,
+                    spell_id: Some(spell_id),
+                    hit_mask: HitType::Hit as u32,
+                    blocked: 0,
+                    damage_over_time: false,
+                    damage_components: vec![DamageComponent {
+                        school_mask: school as u8,
+                        damage,
+                        resisted_or_glanced: 0,
+                        absorbed: 0,
+                    }],
+                }),
+            ]);
+        }
+
+        /*
+         * Melee Damage
+         */
+        if let Some(captures) = RE_DAMAGE_HIT_OR_CRIT.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let mut hit_mask = if captures.get(2)?.as_str() == "cr" { HitType::Crit as u32 } else { HitType::Hit as u32 };
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let damage = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
+            let trailer = parse_trailer(captures.get(5)?.as_str());
+            trailer.iter().for_each(|(_, hit_type)| hit_mask |= hit_type.clone() as u32);
+            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
+            self.collect_active_map(data, &attacker, event_ts);
+            self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
+
+            return Some(vec![MessageType::MeleeDamage(DamageDone {
+                attacker,
+                victim,
+                spell_id: None,
+                hit_mask,
+                blocked: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialBlock).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
+                damage_over_time: false,
+                damage_components: vec![DamageComponent {
+                    school_mask: School::Physical as u8,
+                    damage,
+                    resisted_or_glanced: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialResist).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
+                    absorbed: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialAbsorb).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
+                }],
+            })]);
+        }
+
+        if let Some(captures) = RE_DAMAGE_HIT_OR_CRIT_SCHOOL.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let mut hit_mask = if captures.get(2)?.as_str() == "cr" { HitType::Crit as u32 } else { HitType::Hit as u32 };
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let damage = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
+            let school = match captures.get(5)?.as_str() {
+                "Physical" => School::Physical,
+                "Arcane" => School::Arcane,
+                "Fire" => School::Fire,
+                "Frost" => School::Frost,
+                "Shadow" => School::Shadow,
+                "Nature" => School::Nature,
+                "Holy" => School::Holy,
+                _ => unreachable!(),
+            };
+            let trailer = parse_trailer(captures.get(6)?.as_str());
+            trailer.iter().for_each(|(_, hit_type)| hit_mask |= hit_type.clone() as u32);
+            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
+            self.collect_active_map(data, &attacker, event_ts);
+            self.collect_active_map(data, &victim, event_ts);
+            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
+
+            return Some(vec![MessageType::MeleeDamage(DamageDone {
+                attacker,
+                victim,
+                spell_id: None,
+                hit_mask,
+                blocked: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialBlock).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
+                damage_over_time: false,
+                damage_components: vec![DamageComponent {
+                    school_mask: school as u8,
+                    damage,
+                    resisted_or_glanced: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialResist).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
+                    absorbed: trailer.iter().find(|(_, hit_type)| *hit_type == HitType::PartialAbsorb).map(|(amount, _)| amount.unwrap()).unwrap_or(0),
+                }],
+            })]);
+        }
+
+        /*
+         * Heal
+         */
+        if let Some(captures) = RE_HEAL_HIT_OR_CRIT.captures(&content) {
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let hit_mask = if captures.get(3)?.as_str() == "critically heals" { HitType::Crit as u32 } else { HitType::Hit as u32 };
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            let amount = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
+            self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
+            self.collect_active_map(data, &caster, event_ts);
+            self.collect_active_map(data, &target, event_ts);
+            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
+
+            return Some(vec![
+                MessageType::SpellCast(SpellCast {
+                    caster: caster.clone(),
+                    target: Some(target.clone()),
+                    spell_id,
+                    hit_mask,
+                }),
+                MessageType::Heal(HealDone {
+                    caster,
+                    target,
+                    spell_id,
+                    total_heal: amount,
+                    effective_heal,
+                    absorb: 0,
+                    hit_mask,
+                }),
+            ]);
+        }
+
+        /*
+         * Aura Application
+         */
+        if let Some(captures) = RE_AURA_GAIN_HARMFUL_HELPFUL.captures(&content) {
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
+            let stack_amount = u8::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
+            let caster = Unit { is_player: false, unit_id: 0 };
+            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
+            self.collect_active_map(data, &target, event_ts);
+
+            return Some(vec![MessageType::AuraApplication(AuraApplication {
+                caster,
+                target,
+                spell_id,
+                stack_amount: stack_amount as u32,
+                delta: stack_amount as i8,
+            })]);
+        }
+
+        if let Some(captures) = RE_AURA_FADE.captures(&content) {
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
+            let caster = Unit { is_player: false, unit_id: 0 };
+            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
+            self.collect_active_map(data, &target, event_ts);
+
+            return Some(vec![MessageType::AuraApplication(AuraApplication {
+                caster,
+                target,
+                spell_id,
+                stack_amount: 0,
+                delta: -1,
+            })]);
+        }
+
+        /*
+         * Spell damage continued
+         */
         if let Some(captures) = RE_DAMAGE_SPELL_SPLIT.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let victim = parse_unit(data, captures.get(3)?.as_str());
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             let damage = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
 
             let mut hit_mask = HitType::Hit as u32;
@@ -467,9 +540,9 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_SPELL_MISS.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let victim = parse_unit(data, captures.get(3)?.as_str());
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -495,8 +568,8 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_SPELL_BLOCK_PARRY_EVADE_DODGE_RESIST_DEFLECT.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
             let hit_type = match captures.get(3)?.as_str() {
                 "blocked" => HitType::FullBlock,
                 "parried" => HitType::Parry,
@@ -506,7 +579,7 @@ impl CombatLogParser for WoWVanillaParser {
                 "resisted" => HitType::FullResist,
                 _ => unreachable!(),
             };
-            let victim = parse_unit(data, captures.get(4)?.as_str());
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -532,9 +605,9 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_SPELL_ABSORB.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let victim = parse_unit(data, captures.get(3)?.as_str());
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -560,9 +633,9 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_SPELL_ABSORB_SELF.captures(&content) {
-            let victim = parse_unit(data, captures.get(1)?.as_str());
-            let attacker = parse_unit(data, captures.get(2)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(3)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -588,9 +661,9 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_REFLECT.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let victim = parse_unit(data, captures.get(3)?.as_str());
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -616,9 +689,9 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_PROC_RESIST.captures(&content) {
-            let victim = parse_unit(data, captures.get(1)?.as_str());
-            let attacker = parse_unit(data, captures.get(2)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(3)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -644,9 +717,9 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_SPELL_IMMUNE.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let victim = parse_unit(data, captures.get(3)?.as_str());
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
@@ -671,188 +744,105 @@ impl CombatLogParser for WoWVanillaParser {
             ]);
         }
 
-        if let Some(captures) = RE_DAMAGE_SHIELD.captures(&content) {
-            let attacker = parse_unit(data, captures.get(1)?.as_str());
-            let damage = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
-            let school = match captures.get(3)?.as_str() {
-                "Arcane" => School::Arcane,
-                "Fire" => School::Fire,
-                "Frost" => School::Frost,
-                "Shadow" => School::Shadow,
-                "Nature" => School::Nature,
-                "Holy" => School::Holy,
-                _ => unreachable!(),
-            };
-            let victim = parse_unit(data, captures.get(4)?.as_str());
-            let spell_id = 2; // Thats our reflection spell
+        /*
+         * Melee Damage continud
+         */
+        if let Some(captures) = RE_DAMAGE_MISS.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
-            self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
 
-            return Some(vec![
-                MessageType::SpellCast(SpellCast {
-                    caster: attacker.clone(),
-                    target: Some(victim.clone()),
-                    spell_id,
-                    hit_mask: HitType::Hit as u32,
-                }),
-                MessageType::SpellDamage(DamageDone {
-                    attacker,
-                    victim,
-                    spell_id: Some(spell_id),
-                    hit_mask: HitType::Hit as u32,
-                    blocked: 0,
-                    damage_over_time: false,
-                    damage_components: vec![DamageComponent {
-                        school_mask: school as u8,
-                        damage,
-                        resisted_or_glanced: 0,
-                        absorbed: 0,
-                    }],
-                }),
-            ]);
-        }
-
-        /*
-         * Heal
-         */
-        if let Some(captures) = RE_HEAL_HIT_OR_CRIT.captures(&content) {
-            let caster = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let hit_mask = if captures.get(3)?.as_str() == "critically heals" { HitType::Crit as u32 } else { HitType::Hit as u32 };
-            let target = parse_unit(data, captures.get(4)?.as_str());
-            let amount = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
-            self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
-            self.collect_active_map(data, &caster, event_ts);
-            self.collect_active_map(data, &target, event_ts);
-            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
-
-            return Some(vec![
-                MessageType::SpellCast(SpellCast {
-                    caster: caster.clone(),
-                    target: Some(target.clone()),
-                    spell_id,
-                    hit_mask,
-                }),
-                MessageType::Heal(HealDone {
-                    caster,
-                    target,
-                    spell_id,
-                    total_heal: amount,
-                    effective_heal,
-                    absorb: 0,
-                    hit_mask,
-                }),
-            ]);
-        }
-
-        if let Some(captures) = RE_HEAL_PERIODIC.captures(&content) {
-            let target = parse_unit(data, captures.get(1)?.as_str());
-            let amount = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
-            let caster = parse_unit(data, captures.get(3)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(4)?.as_str())?;
-            self.collect_participant(&caster, captures.get(3)?.as_str(), event_ts);
-            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
-            self.collect_active_map(data, &caster, event_ts);
-            self.collect_active_map(data, &target, event_ts);
-            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
-
-            return Some(vec![
-                MessageType::SpellCast(SpellCast {
-                    caster: caster.clone(),
-                    target: Some(target.clone()),
-                    spell_id,
-                    hit_mask: HitType::Hit as u32,
-                }),
-                MessageType::Heal(HealDone {
-                    caster,
-                    target,
-                    spell_id,
-                    total_heal: amount,
-                    effective_heal,
-                    absorb: 0,
-                    hit_mask: HitType::Hit as u32,
-                }),
-            ]);
-        }
-
-        /*
-         * Aura Application
-         */
-        if let Some(captures) = RE_AURA_GAIN_HARMFUL_HELPFUL.captures(&content) {
-            let target = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(3)?.as_str())?;
-            let stack_amount = u8::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
-            let caster = Unit { is_player: false, unit_id: 0 };
-            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
-            self.collect_active_map(data, &target, event_ts);
-
-            return Some(vec![MessageType::AuraApplication(AuraApplication {
-                caster,
-                target,
-                spell_id,
-                stack_amount: stack_amount as u32,
-                delta: stack_amount as i8,
+            return Some(vec![MessageType::MeleeDamage(DamageDone {
+                attacker,
+                victim,
+                spell_id: None,
+                hit_mask: HitType::Miss as u32,
+                blocked: 0,
+                damage_over_time: false,
+                damage_components: vec![],
             })]);
         }
 
-        if let Some(captures) = RE_AURA_FADE.captures(&content) {
-            let target = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(3)?.as_str())?;
-            let caster = Unit { is_player: false, unit_id: 0 };
-            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
-            self.collect_active_map(data, &target, event_ts);
+        if let Some(captures) = RE_DAMAGE_BLOCK_PARRY_EVADE_DODGE_DEFLECT.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            let hit_type = match captures.get(3)?.as_str() {
+                "blocks" => HitType::FullBlock,
+                "parries" => HitType::Parry,
+                "evades" => HitType::Evade,
+                "dodges" => HitType::Dodge,
+                "deflects" => HitType::Deflect,
+                _ => unreachable!(),
+            };
+            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
+            self.collect_active_map(data, &attacker, event_ts);
+            self.collect_active_map(data, &victim, event_ts);
 
-            return Some(vec![MessageType::AuraApplication(AuraApplication {
-                caster,
-                target,
-                spell_id,
-                stack_amount: 0,
-                delta: -1,
+            return Some(vec![MessageType::MeleeDamage(DamageDone {
+                attacker,
+                victim,
+                spell_id: None,
+                hit_mask: hit_type as u32,
+                blocked: 0,
+                damage_over_time: false,
+                damage_components: vec![],
             })]);
         }
 
-        /*
-         * Dispel, Steal and Interrupt
-         */
-        if let Some(captures) = RE_AURA_DISPEL.captures(&content) {
-            let un_aura_caster = Unit { is_player: false, unit_id: 0 }; // TODO
-            let un_aura_spell_id = 42; // TODO
-            let target = parse_unit(data, captures.get(1)?.as_str());
-            let target_spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
-            self.collect_active_map(data, &target, event_ts);
+        if let Some(captures) = RE_DAMAGE_ABSORB_RESIST.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            let hit_type = match captures.get(3)?.as_str() {
+                "absorbs" => HitType::FullAbsorb,
+                "resists" => HitType::FullResist,
+                _ => unreachable!(),
+            };
+            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
+            self.collect_active_map(data, &attacker, event_ts);
+            self.collect_active_map(data, &victim, event_ts);
 
-            return Some(vec![MessageType::Dispel(UnAura {
-                un_aura_caster,
-                target,
-                aura_caster: None,
-                un_aura_spell_id,
-                target_spell_id,
-                un_aura_amount: 1,
+            return Some(vec![MessageType::MeleeDamage(DamageDone {
+                attacker,
+                victim,
+                spell_id: None,
+                hit_mask: hit_type as u32,
+                blocked: 0,
+                damage_over_time: false,
+                damage_components: vec![],
             })]);
         }
 
-        if let Some(captures) = RE_AURA_INTERRUPT.captures(&content) {
-            // let un_aura_caster = parse_unit(data, captures.get(1)?.as_str())?
-            let target = parse_unit(data, captures.get(2)?.as_str());
-            let interrupted_spell_id = parse_spell_args(data, captures.get(3)?.as_str())?;
-            self.collect_participant(&target, captures.get(2)?.as_str(), event_ts);
-            self.collect_active_map(data, &target, event_ts);
+        if let Some(captures) = RE_DAMAGE_IMMUNE.captures(&content) {
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
+            self.collect_active_map(data, &attacker, event_ts);
+            self.collect_active_map(data, &victim, event_ts);
 
-            return Some(vec![MessageType::Interrupt(Interrupt { target, interrupted_spell_id })]);
+            return Some(vec![MessageType::MeleeDamage(DamageDone {
+                attacker,
+                victim,
+                spell_id: None,
+                hit_mask: HitType::Immune as u32,
+                blocked: 0,
+                damage_over_time: false,
+                damage_components: vec![],
+            })]);
         }
 
         /*
          * Spell casts
          */
         if let Some(captures) = RE_SPELL_CAST_PERFORM.captures(&content) {
-            let caster = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
-            let target = parse_unit(data, captures.get(3)?.as_str());
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
             self.collect_participant(&target, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
@@ -867,8 +857,8 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_SPELL_CAST_PERFORM_UNKNOWN.captures(&content) {
-            let caster = parse_unit(data, captures.get(1)?.as_str());
-            let spell_id = parse_spell_args(data, captures.get(2)?.as_str())?;
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
 
@@ -884,17 +874,17 @@ impl CombatLogParser for WoWVanillaParser {
          * Unit Death
          */
         if let Some(captures) = RE_UNIT_DIE_DESTROYED.captures(&content) {
-            let victim = parse_unit(data, captures.get(1)?.as_str());
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             self.collect_participant(&victim, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &victim, event_ts);
             return Some(vec![MessageType::Death(Death { cause: None, victim })]);
         }
 
         if let Some(captures) = RE_UNIT_SLAY_KILL.captures(&content) {
-            let victim = parse_unit(data, captures.get(1)?.as_str());
-            let cause = parse_unit(data, captures.get(2)?.as_str());
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let cause = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
             self.collect_participant(&victim, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&cause, captures.get(2)?.as_str(), event_ts);
+            self.collect_participant(&cause, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &victim, event_ts);
             self.collect_active_map(data, &cause, event_ts);
             return Some(vec![MessageType::Death(Death { cause: Some(cause), victim })]);
@@ -904,7 +894,7 @@ impl CombatLogParser for WoWVanillaParser {
          * Misc
          */
         if let Some(captures) = RE_LOOT.captures(&content) {
-            let receiver = parse_unit(data, captures.get(1)?.as_str());
+            let receiver = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             self.collect_participant(&receiver, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &receiver, event_ts);
             let item_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
@@ -993,7 +983,7 @@ impl CombatLogParser for WoWVanillaParser {
             }
 
             if pet_name != "nil" {
-                let pet_unit = parse_unit(data, pet_name);
+                let pet_unit = parse_unit(&mut self.cache_unit, data, pet_name)?;
                 self.pet_owner.insert(pet_unit.unit_id, unit_id);
             }
 
@@ -1001,7 +991,12 @@ impl CombatLogParser for WoWVanillaParser {
                 let mut gear = Vec::with_capacity(19);
                 let gear_setups = participant.gear_setups.get_or_insert_with(Vec::new);
                 for arg in message_args.iter().take(27).skip(8) {
-                    let item_args = arg.split(',').collect::<Vec<&str>>();
+                    if *arg == "nil" {
+                        gear.push(None);
+                        continue;
+                    }
+
+                    let item_args = arg.split(':').collect::<Vec<&str>>();
                     let item_id = u32::from_str_radix(item_args[0], 10).ok()?;
                     let enchant_id = u32::from_str_radix(item_args[1], 10).ok()?;
                     if item_id == 0 {
@@ -1014,6 +1009,38 @@ impl CombatLogParser for WoWVanillaParser {
                 }
                 gear_setups.push((event_ts, gear));
             }
+            return None;
+        }
+
+        /*
+         * Dispel, Steal and Interrupt
+         */
+        if let Some(captures) = RE_AURA_DISPEL.captures(&content) {
+            let un_aura_caster = Unit { is_player: false, unit_id: 0 };
+            let un_aura_spell_id = 42;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let target_spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
+            self.collect_active_map(data, &target, event_ts);
+
+            return Some(vec![MessageType::Dispel(UnAura {
+                un_aura_caster,
+                target,
+                aura_caster: None,
+                un_aura_spell_id,
+                target_spell_id,
+                un_aura_amount: 1,
+            })]);
+        }
+
+        if let Some(captures) = RE_AURA_INTERRUPT.captures(&content) {
+            // let un_aura_caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            let interrupted_spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
+            self.collect_participant(&target, captures.get(2)?.as_str(), event_ts);
+            self.collect_active_map(data, &target, event_ts);
+
+            return Some(vec![MessageType::Interrupt(Interrupt { target, interrupted_spell_id })]);
         }
 
         None
@@ -1124,8 +1151,10 @@ impl CombatLogParser for WoWVanillaParser {
             }
         }
 
+        // TODO: Zone info assume first entry! => Also log_parse must add the id to the map
+
         messages.append(&mut summon_events);
-        messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
+        messages.sort_by(|left, right| left.message_count.cmp(&right.message_count));
     }
 
     fn get_involved_server(&self) -> Option<Vec<(u32, String, String)>> {
@@ -1134,8 +1163,9 @@ impl CombatLogParser for WoWVanillaParser {
 
     fn get_involved_character_builds(&self) -> Vec<(Option<u32>, CharacterDto)> {
         self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
-            if let Some(gear_setups) = &participant.gear_setups {
-                for (_ts, gear) in gear_setups.iter() {
+            let gear_setups = &participant.gear_setups;
+            if gear_setups.is_some() && !gear_setups.as_ref().unwrap().is_empty() {
+                for (_ts, gear) in gear_setups.as_ref().unwrap().iter() {
                     // TODO: Use TS
                     acc.push((
                         None,

@@ -8,7 +8,7 @@ pub fn parse_trailer(trailer: &str) -> Vec<(Option<u32>, HitType)> {
             result.push((None, HitType::Glancing));
         } else if ind_trailer == "crushing" {
             result.push((None, HitType::Crushing));
-        } else {
+        } else if !ind_trailer.is_empty() {
             let parts = ind_trailer.split(' ').collect::<Vec<&str>>();
             let amount = u32::from_str_radix(&parts[0], 10).unwrap();
             let hit_type = match parts[1] {
