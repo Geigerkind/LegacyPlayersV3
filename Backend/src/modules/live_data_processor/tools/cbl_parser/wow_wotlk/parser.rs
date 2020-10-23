@@ -272,7 +272,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         character_history: Some(CharacterHistoryDto {
                             character_info: CharacterInfoDto {
                                 gear: Default::default(),
-                                hero_class_id: participant.hero_class_id.unwrap_or(1),
+                                hero_class_id: participant.hero_class_id.unwrap_or(12),
                                 level: 80,
                                 gender: false,
                                 profession1: None,

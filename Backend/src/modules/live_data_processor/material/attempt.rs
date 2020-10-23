@@ -3,6 +3,10 @@ use std::collections::{BTreeSet, HashMap, VecDeque};
 #[derive(Debug, Clone)]
 pub struct Attempt {
     pub encounter_id: u32,
+    pub hard_mode_encounter_id: Option<u32>,
+    pub hard_mode_found_buffs: BTreeSet<u32>,
+    pub hard_mode_npcs_died: BTreeSet<u32>,
+
     pub start_ts: u64,
     pub end_ts: u64,
     pub pivot_creature: Option<u64>,
@@ -34,7 +38,10 @@ impl Attempt {
             ranking_heal: HashMap::new(),
             ranking_threat: HashMap::new(),
             encounter_has_pivot,
-            pivot_is_finished: false
+            pivot_is_finished: false,
+            hard_mode_encounter_id: None,
+            hard_mode_found_buffs: BTreeSet::new(),
+            hard_mode_npcs_died: BTreeSet::new(),
         }
     }
 }

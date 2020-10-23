@@ -102,6 +102,27 @@ impl Server {
                                     EventType::Death { murder: _ } => {
                                         let mut is_committable = false;
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                            // Ulduar hardmodes
+                                            // If XTs heart dies, hard mode is activated
+                                            if *entry == 33329 {
+                                                attempt.hard_mode_encounter_id = Some(150);
+                                                attempt.hard_mode_npcs_died.insert(*entry);
+                                            }
+
+                                            // Assembly of iron, order determines hard mode
+                                            if *entry == 32857 || *entry == 32867 || *entry == 32927 {
+                                                attempt.hard_mode_npcs_died.insert(*entry);
+                                                if attempt.hard_mode_npcs_died.len() == 2 && !attempt.hard_mode_npcs_died.contains(&32867) {
+                                                    attempt.hard_mode_encounter_id = Some(151);
+                                                }
+                                            }
+
+                                            // Freya
+                                            if *entry == 33168 {
+                                                attempt.hard_mode_npcs_died.insert(*entry);
+                                            }
+
+                                            // attempt tracking
                                             attempt.creatures_required_to_die.remove(creature_id);
                                             if attempt.pivot_creature.contains(creature_id) {
                                                 attempt.pivot_is_finished = true;
@@ -138,6 +159,37 @@ impl Server {
                                         }
                                     }
                                     EventType::AuraApplication(aura_app) => {
+                                        // Ulduar hard mode tracking
+                                        // Flame Leviathan Tower buffs
+                                        if aura_app.spell_id == 65076 || aura_app.spell_id == 64482 || aura_app.spell_id == 65077 || aura_app.spell_id == 65075 {
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                attempt.hard_mode_found_buffs.insert(aura_app.spell_id);
+                                            }
+                                        }
+
+                                        // Freya Guardian buffs
+                                        // || aura_app.spell_id == 62713
+                                        if aura_app.spell_id == 65585 || aura_app.spell_id == 65590 {
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                attempt.hard_mode_found_buffs.insert(aura_app.spell_id);
+                                            }
+                                        }
+
+                                        // Mimiron Hard mode - Emergency mode
+                                        if aura_app.spell_id == 64582 || aura_app.spell_id == 65101 {
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                attempt.hard_mode_found_buffs.insert(aura_app.spell_id);
+                                            }
+                                        }
+
+                                        // General Vezax Hard mode - Saronite Barrier
+                                        if aura_app.spell_id == 63364 {
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                attempt.hard_mode_found_buffs.insert(aura_app.spell_id);
+                                            }
+                                        }
+
+                                        // Attempt tracking
                                         if encounter_npc.health_treshold.is_none() {
                                             continue;
                                         }
@@ -171,6 +223,14 @@ impl Server {
                                             }
                                         }
                                     }
+                                    EventType::SpellCast(spell_cast) => {
+                                        // Thorim Hard mode - Sifs casts
+                                        if spell_cast.spell_id == 62583 || spell_cast.spell_id == 62580 || spell_cast.spell_id == 62597 {
+                                            if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
+                                                attempt.hard_mode_found_buffs.insert(spell_cast.spell_id);
+                                            }
+                                        }
+                                    }
                                     _ => {}
                                 };
                             } else if let EventType::CombatState { in_combat } = &event.event {
@@ -187,40 +247,50 @@ impl Server {
                             }
                         }
                         Unit::Player(player) => {
-                            if let EventType::CombatState { in_combat } = &event.event {
-                                if *in_combat {
-                                    for (_encounter_id, attempt) in active_attempts.iter_mut() {
-                                        attempt.infight_player.insert(player.character_id);
-                                    }
-                                } else {
-                                    for (_encounter_id, attempt) in active_attempts.iter_mut() {
-                                        attempt.infight_player.remove(&player.character_id);
-                                    }
-                                    // If enough player are OOC and Kill requirements are fulfilled
-                                    for (encounter_id, attempt) in active_attempts.clone() {
-                                        if encounter_id == 75 {
-                                            continue; // Hard to judge for Kael'thas
+                            match &event.event {
+                                EventType::CombatState { in_combat } => {
+                                    if *in_combat {
+                                        for (_encounter_id, attempt) in active_attempts.iter_mut() {
+                                            attempt.infight_player.insert(player.character_id);
                                         }
-
-                                        if attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS {
-                                            // Commit As Kill
-                                            if attempt.creatures_required_to_die.is_empty() {
-                                                if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
-                                                    attempt.end_ts = event.timestamp;
-                                                    commit_attempt(db_main, *instance_meta_id, attempt);
-                                                }
+                                    } else {
+                                        for (_encounter_id, attempt) in active_attempts.iter_mut() {
+                                            attempt.infight_player.remove(&player.character_id);
+                                        }
+                                        // If enough player are OOC and Kill requirements are fulfilled
+                                        for (encounter_id, attempt) in active_attempts.clone() {
+                                            if encounter_id == 75 {
+                                                continue; // Hard to judge for Kael'thas
                                             }
-                                            // Commit As Attempt
-                                            else if attempt.creatures_in_combat.is_empty() {
-                                                if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
-                                                    attempt.end_ts = event.timestamp;
-                                                    commit_attempt(db_main, *instance_meta_id, attempt);
+
+                                            if attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS {
+                                                // Commit As Kill
+                                                if attempt.creatures_required_to_die.is_empty() {
+                                                    if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
+                                                        attempt.end_ts = event.timestamp;
+                                                        commit_attempt(db_main, *instance_meta_id, attempt);
+                                                    }
+                                                }
+                                                // Commit As Attempt
+                                                else if attempt.creatures_in_combat.is_empty() {
+                                                    if let Some(mut attempt) = active_attempts.remove(&encounter_id) {
+                                                        attempt.end_ts = event.timestamp;
+                                                        commit_attempt(db_main, *instance_meta_id, attempt);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
+                                EventType::AuraApplication(aura_app) => {
+                                    if aura_app.spell_id == 62670 || aura_app.spell_id == 62650 || aura_app.spell_id == 62671 || aura_app.spell_id == 62702 {
+                                        if let Some((_, attempt)) = active_attempts.iter_mut().find(|(encounter_id, _)| **encounter_id == 126) {
+                                            attempt.hard_mode_found_buffs.insert(aura_app.spell_id);
+                                        }
+                                    }
+                                }
+                                _ => {}
+                            };
                         }
                     }
 
@@ -339,8 +409,65 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
         return;
     }
 
+    // Ulduar hard modes
+    // Flame Leviathan
+    if attempt.encounter_id == 114 {
+        if attempt.hard_mode_found_buffs.len() == 1 {
+            attempt.hard_mode_encounter_id = Some(146);
+        } else if attempt.hard_mode_found_buffs.len() == 2 {
+            attempt.hard_mode_encounter_id = Some(147);
+        } else if attempt.hard_mode_found_buffs.len() == 3 {
+            attempt.hard_mode_encounter_id = Some(148);
+        } else if attempt.hard_mode_found_buffs.len() == 4 {
+            attempt.hard_mode_encounter_id = Some(149);
+        }
+    }
+    // Freya
+    else if attempt.encounter_id == 122 {
+        let knocks = attempt.hard_mode_found_buffs.len() + attempt.hard_mode_npcs_died.len();
+        if knocks == 1 {
+            attempt.hard_mode_encounter_id = Some(152);
+        } else if knocks == 2 {
+            attempt.hard_mode_encounter_id = Some(153);
+        } else if knocks == 3 {
+            attempt.hard_mode_encounter_id = Some(154);
+        }
+    }
+    // Mimiron
+    else if attempt.encounter_id == 121 {
+        if !attempt.hard_mode_found_buffs.is_empty() {
+            attempt.hard_mode_encounter_id = Some(156);
+        }
+    }
+    // Thorim
+    else if attempt.encounter_id == 123 {
+        if !attempt.hard_mode_found_buffs.is_empty() {
+            attempt.hard_mode_encounter_id = Some(155);
+        }
+    }
+    // General Vezax
+    else if attempt.encounter_id == 125 {
+        if !attempt.hard_mode_found_buffs.is_empty() {
+            attempt.hard_mode_encounter_id = Some(157);
+        }
+    }
+    // Yogg-Saron
+    else if attempt.encounter_id == 126 {
+        if attempt.hard_mode_found_buffs.len() == 3 {
+            attempt.hard_mode_encounter_id = Some(158);
+        } else if attempt.hard_mode_found_buffs.len() == 2 {
+            attempt.hard_mode_encounter_id = Some(159);
+        } else if attempt.hard_mode_found_buffs.len() == 1 {
+            attempt.hard_mode_encounter_id = Some(160);
+        } else if attempt.hard_mode_found_buffs.is_empty() {
+            attempt.hard_mode_encounter_id = Some(161);
+        }
+    }
+
+
+    let encounter_id = attempt.hard_mode_encounter_id.unwrap_or(attempt.encounter_id);
     let is_kill = attempt.creatures_required_to_die.is_empty() && (!attempt.encounter_has_pivot || attempt.pivot_is_finished);
-    let params = params!("instance_meta_id" => instance_meta_id, "encounter_id" => attempt.encounter_id,
+    let params = params!("instance_meta_id" => instance_meta_id, "encounter_id" => encounter_id,
         "start_ts" => attempt.start_ts, "end_ts" => attempt.end_ts, "is_kill" => is_kill);
     db_main.execute_wparams(
         "INSERT INTO `instance_attempt` (`instance_meta_id`, `encounter_id`, `start_ts`, `end_ts`, `is_kill`) VALUES (:instance_meta_id, :encounter_id, :start_ts, :end_ts, :is_kill)",

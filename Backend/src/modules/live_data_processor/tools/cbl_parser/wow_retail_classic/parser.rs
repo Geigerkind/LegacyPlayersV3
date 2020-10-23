@@ -333,7 +333,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                                         trinket1: create_character_item_dto(&gear[12]),
                                         trinket2: create_character_item_dto(&gear[13]),
                                     },
-                                    hero_class_id: participant.hero_class_id.unwrap_or(1),
+                                    hero_class_id: participant.hero_class_id.unwrap_or(12),
                                     level: 60,
                                     gender: false,
                                     profession1: None,

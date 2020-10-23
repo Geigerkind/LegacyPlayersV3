@@ -79,8 +79,10 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             if let Some(character_info) = &character_dto.character_history {
                 if character_info.character_info.gear.is_naked() {
                     if let Some(character) = armory.get_character_by_uid(server_id, character_dto.server_uid) {
-                        if character.last_update.is_some() {
-                            continue;
+                        if let Some(last_update) = character.last_update {
+                            if last_update.character_info.hero_class_id != 12 {
+                                continue;
+                            }
                         }
                     }
                 }
