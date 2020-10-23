@@ -32,7 +32,7 @@ impl CombatLogParser for WoWTBCParser {
                     damage_over_time: false,
                     damage_components: vec![damage_component],
                 })]
-            },
+            }
             "SWING_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -50,7 +50,7 @@ impl CombatLogParser for WoWTBCParser {
                     damage_over_time: false,
                     damage_components: Vec::new(),
                 })]
-            },
+            }
             "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -79,7 +79,7 @@ impl CombatLogParser for WoWTBCParser {
                         damage_components: vec![damage_component],
                     }),
                 ]
-            },
+            }
             "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -107,7 +107,7 @@ impl CombatLogParser for WoWTBCParser {
                         damage_components: Vec::new(),
                     }),
                 ]
-            },
+            }
             "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -134,7 +134,7 @@ impl CombatLogParser for WoWTBCParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                 ]
-            },
+            }
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
@@ -158,7 +158,7 @@ impl CombatLogParser for WoWTBCParser {
                 }
 
                 result
-            },
+            }
             "SPELL_CAST_SUCCESS" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -180,16 +180,16 @@ impl CombatLogParser for WoWTBCParser {
                 }
 
                 result
-            },
+            }
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Summon(Summon { owner, unit })]
-            },
+            }
             "UNIT_DIED" | "UNIT_DESTROYED" => {
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Death(Death { cause: None, victim })]
-            },
+            }
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -211,7 +211,7 @@ impl CombatLogParser for WoWTBCParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            },
+            }
             "SPELL_INTERRUPT" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -226,7 +226,7 @@ impl CombatLogParser for WoWTBCParser {
                     }),
                     MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
                 ]
-            },
+            }
             "SPELL_STOLEN" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -248,7 +248,7 @@ impl CombatLogParser for WoWTBCParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            },
+            }
             // TODO: Use more events
             // https://wow.gamepedia.com/COMBAT_LOG_EVENT?oldid=1585715
             _ => return None,
@@ -305,20 +305,38 @@ impl CombatLogParser for WoWTBCParser {
         self.active_map.iter().map(|(_, active_map)| active_map.clone()).collect()
     }
 
-    fn get_npc_appearance_offset(&self, _entry: u32) -> Option<i64> {
-        None
+    fn get_npc_appearance_offset(&self, entry: u32) -> Option<i64> {
+        Some(match entry {
+            20060 | 20062 | 20063 | 20064 | 19622 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => -180000,
+            _ => return None
+        })
     }
 
-    fn get_npc_timeout(&self, _entry: u32) -> Option<u64> {
-        None
+    fn get_npc_timeout(&self, entry: u32) -> Option<u64> {
+        Some(match entry {
+            20060 | 20062 | 20063 | 20064 | 19622 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => 180000,
+            _ => return None
+        })
     }
 
-    fn get_death_implied_npc_combat_state_and_offset(&self, _entry: u32) -> Option<Vec<(u32, i64)>> {
-        None
+    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
+        Some(match entry {
+            20060 => vec![(19622, -1000), (20062, -1000), (20063, -1000), (20064, -1000), (21268, -1000), (21269, -1000), (21270, -1000), (21271, -1000), (21272, -1000), (21273, -1000), (21274, -1000)],
+            20062 => vec![(19622, -1000), (20063, -1000), (20064, -1000), (21268, -1000), (21269, -1000), (21270, -1000), (21271, -1000), (21272, -1000), (21273, -1000), (21274, -1000)],
+            20063 => vec![(19622, -1000), (20064, -1000), (21268, -1000), (21269, -1000), (21270, -1000), (21271, -1000), (21272, -1000), (21273, -1000), (21274, -1000)],
+            20064 | 18545 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => vec![(19622, -1000)],
+            _ => return None
+        })
     }
 
-    fn get_in_combat_implied_npc_combat(&self, _entry: u32) -> Option<Vec<u32>> {
-        None
+    fn get_in_combat_implied_npc_combat(&self, entry: u32) -> Option<Vec<u32>> {
+        Some(match entry {
+            20060 => vec![19622, 20062, 20063, 20064, 21268, 21269, 21270, 21271, 21272, 21273, 21274],
+            20062 => vec![19622, 20063, 20064, 21268, 21268, 21269, 21270, 21271, 21272, 21273, 21274],
+            20063 => vec![19622, 20064, 21268, 21268, 21269, 21270, 21271, 21272, 21273, 21274],
+            18545 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => vec![19622],
+            _ => return None
+        })
     }
 
     fn get_expansion_id(&self) -> u8 {

@@ -5,7 +5,9 @@ pub struct Attempt {
     pub encounter_id: u32,
     pub start_ts: u64,
     pub end_ts: u64,
-    pub pivot_creature: Option<u64>, // (CreatureId, died)
+    pub pivot_creature: Option<u64>,
+    pub encounter_has_pivot: bool,
+    pub pivot_is_finished: bool,
     pub creatures_required_to_die: BTreeSet<u64>,
     pub creatures_in_combat: BTreeSet<u64>,
     pub infight_player: BTreeSet<u32>,
@@ -17,7 +19,7 @@ pub struct Attempt {
 }
 
 impl Attempt {
-    pub fn new(encounter_id: u32, start_ts: u64) -> Self {
+    pub fn new(encounter_id: u32, start_ts: u64, encounter_has_pivot: bool) -> Self {
         Attempt {
             encounter_id,
             start_ts,
@@ -31,6 +33,8 @@ impl Attempt {
             ranking_damage: HashMap::new(),
             ranking_heal: HashMap::new(),
             ranking_threat: HashMap::new(),
+            encounter_has_pivot,
+            pivot_is_finished: false
         }
     }
 }

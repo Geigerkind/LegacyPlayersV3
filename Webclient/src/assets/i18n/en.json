@@ -4,6 +4,7 @@
         "200": "Success!",
         "401": "Unauthorized!",
         "404": "Server is not available!",
+        "413": "File is too large!",
         "429": "Too many requests!",
         "500": "This is a bug! Contact Shino!",
         "502": "Backend server is down!",

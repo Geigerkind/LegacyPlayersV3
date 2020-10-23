@@ -71,7 +71,7 @@ impl Server {
                                 match &event.event {
                                     EventType::CombatState { in_combat } => {
                                         if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
-                                            let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp));
+                                            let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp, data.encounter_has_pivot(encounter_npc.encounter_id)));
                                             if encounter_npc.requires_death {
                                                 attempt.creatures_required_to_die.insert(*creature_id);
                                             }
@@ -86,9 +86,9 @@ impl Server {
                                                 is_committable = ((attempt.creatures_in_combat.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS)
                                                     || attempt.pivot_creature.contains(creature_id))
                                                     && !(encounter_npc.requires_death
-                                                        && !attempt.creatures_required_to_die.is_empty()
-                                                        && attempt.creatures_required_to_die.contains(creature_id)
-                                                        && look_ahead_death(committed_events, event, *creature_id));
+                                                    && !attempt.creatures_required_to_die.is_empty()
+                                                    && attempt.creatures_required_to_die.contains(creature_id)
+                                                    && look_ahead_death(committed_events, event, *creature_id));
                                             }
 
                                             if is_committable {
@@ -98,12 +98,13 @@ impl Server {
                                                 }
                                             }
                                         }
-                                    },
+                                    }
                                     EventType::Death { murder: _ } => {
                                         let mut is_committable = false;
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                             attempt.creatures_required_to_die.remove(creature_id);
                                             if attempt.pivot_creature.contains(creature_id) {
+                                                attempt.pivot_is_finished = true;
                                                 attempt.creatures_required_to_die.clear();
                                             }
                                             is_committable = attempt.creatures_required_to_die.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS;
@@ -115,13 +116,14 @@ impl Server {
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
-                                    },
+                                    }
                                     EventType::Power(Power { power_type, max_power, current_power }) => {
                                         if *power_type == PowerType::Health && encounter_npc.is_pivot {
                                             let mut is_committable = false;
                                             if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
                                                 if let Some(treshold) = encounter_npc.health_treshold {
                                                     if (100 * *max_power).div(current_power) <= treshold as u32 {
+                                                        attempt.pivot_is_finished = true;
                                                         attempt.creatures_required_to_die.clear();
                                                         is_committable = attempt.creatures_required_to_die.is_empty();
                                                     }
@@ -134,7 +136,7 @@ impl Server {
                                                 }
                                             }
                                         }
-                                    },
+                                    }
                                     EventType::AuraApplication(aura_app) => {
                                         if encounter_npc.health_treshold.is_none() {
                                             continue;
@@ -163,12 +165,13 @@ impl Server {
                                         if is_committable {
                                             if let Some(mut attempt) = active_attempts.remove(&encounter_npc.encounter_id) {
                                                 attempt.end_ts = event.timestamp;
+                                                attempt.pivot_is_finished = true;
                                                 attempt.creatures_required_to_die.clear(); // We assume death if it evades!
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
-                                    },
-                                    _ => {},
+                                    }
+                                    _ => {}
                                 };
                             } else if let EventType::CombatState { in_combat } = &event.event {
                                 for (_encounter_id, attempt) in active_attempts.iter_mut() {
@@ -182,7 +185,7 @@ impl Server {
                                     }
                                 }
                             }
-                        },
+                        }
                         Unit::Player(player) => {
                             if let EventType::CombatState { in_combat } = &event.event {
                                 if *in_combat {
@@ -195,6 +198,10 @@ impl Server {
                                     }
                                     // If enough player are OOC and Kill requirements are fulfilled
                                     for (encounter_id, attempt) in active_attempts.clone() {
+                                        if encounter_id == 75 {
+                                            continue; // Hard to judge for Kael'thas
+                                        }
+
                                         if attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS {
                                             // Commit As Kill
                                             if attempt.creatures_required_to_die.is_empty() {
@@ -214,7 +221,7 @@ impl Server {
                                     }
                                 }
                             }
-                        },
+                        }
                     }
 
                     process_ranking(&event.subject, &event, data, active_attempts);
@@ -295,7 +302,7 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
                         }
                     }
                 }
-            },
+            }
             EventType::Heal { heal, .. } => {
                 // TODO: We can't really tell, who this healer is in combat with
                 // For now attribute heal to every attempt, though its just one in 99.9% of the cases anyway.
@@ -307,7 +314,7 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
                         attempt.ranking_heal.insert(character_id, heal.effective);
                     }
                 }
-            },
+            }
             EventType::Threat { threat, .. } => {
                 if let Unit::Creature(Creature { entry, .. }) = threat.threatened {
                     if let Some(encounter_npc) = data.get_encounter_npc(entry) {
@@ -320,8 +327,8 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
                         }
                     }
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 }
@@ -332,7 +339,7 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
         return;
     }
 
-    let is_kill = attempt.creatures_required_to_die.is_empty();
+    let is_kill = attempt.creatures_required_to_die.is_empty() && (!attempt.encounter_has_pivot || attempt.pivot_is_finished);
     let params = params!("instance_meta_id" => instance_meta_id, "encounter_id" => attempt.encounter_id,
         "start_ts" => attempt.start_ts, "end_ts" => attempt.end_ts, "is_kill" => is_kill);
     db_main.execute_wparams(
