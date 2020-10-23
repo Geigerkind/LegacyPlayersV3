@@ -128,7 +128,9 @@ impl Server {
                                                 attempt.pivot_is_finished = true;
                                                 attempt.creatures_required_to_die.clear();
                                             }
-                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS;
+                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS
+                                                // Exception for Naxx KT, as this causes problems for vanilla
+                                                && (attempt.encounter_id != 57 || *entry == 15990);
                                         }
 
                                         if is_committable {
@@ -259,8 +261,8 @@ impl Server {
                                         }
                                         // If enough player are OOC and Kill requirements are fulfilled
                                         for (encounter_id, attempt) in active_attempts.clone() {
-                                            if encounter_id == 75 {
-                                                continue; // Hard to judge for Kael'thas
+                                            if encounter_id == 75 || encounter_id == 57 {
+                                                continue; // Hard to judge for Kael'thas or Naxx KT
                                             }
 
                                             if attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS {

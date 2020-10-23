@@ -1151,10 +1151,8 @@ impl CombatLogParser for WoWVanillaParser {
             }
         }
 
-        // TODO: Zone info assume first entry! => Also log_parse must add the id to the map
-
         messages.append(&mut summon_events);
-        messages.sort_by(|left, right| left.message_count.cmp(&right.message_count));
+        messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
     }
 
     fn get_involved_server(&self) -> Option<Vec<(u32, String, String)>> {
@@ -1286,30 +1284,36 @@ impl CombatLogParser for WoWVanillaParser {
     }
 
     fn get_npc_appearance_offset(&self, entry: u32) -> Option<i64> {
-        // Kel'Thuzad
-        if entry == 15990 {
-            return Some(-228000);
-        }
-        None
-    }
-
-    fn get_npc_timeout(&self, entry: u32) -> Option<u64> {
-        // Kel'Thuzad
-        if entry == 15990 {
-            return Some(228000);
-        }
-        None
-    }
-
-    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, -1000)],
+            15990 => -228000,
+            12435 => -300000,
+            65534 => -3000,
             _ => return None,
         })
     }
 
-    fn get_in_combat_implied_npc_combat(&self, _entry: u32) -> Option<Vec<u32>> {
-        None
+    fn get_npc_timeout(&self, entry: u32) -> Option<u64> {
+        Some(match entry {
+            65534 => 90000,
+            15990 => 180000,
+            _ => return None,
+        })
+    }
+
+    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
+        Some(match entry {
+            15929 | 15930 => vec![(15928, 0)],
+            16427 | 16428 | 16429 => vec![(65534, 0)],
+            _ => return None,
+        })
+    }
+
+    fn get_in_combat_implied_npc_combat(&self, entry: u32) -> Option<Vec<u32>> {
+        Some(match entry {
+            12557 | 14456 | 12416 | 12422 | 12420 => vec![12435],
+            16427 | 16429 | 16428 => vec![65534],
+            _ => return None,
+        })
     }
 
     fn get_expansion_id(&self) -> u8 {

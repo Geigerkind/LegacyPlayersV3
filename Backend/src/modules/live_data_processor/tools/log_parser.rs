@@ -3,14 +3,13 @@ use crate::modules::armory::Armory;
 use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit};
-use crate::modules::live_data_processor::material::RetrieveActiveMap;
+use crate::modules::live_data_processor::material::{RetrieveActiveMap, Participant};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use rust_lapper::{Interval, Lapper};
 use std::collections::{BTreeSet, HashMap};
-use std::cmp::Ordering;
 
 pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
@@ -92,16 +91,33 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         }
     }
 
+    // Pre-fill instance ids
+    let mut instance_ids = HashMap::new();
+    for Message { message_type, .. } in messages.iter() {
+        if let MessageType::InstanceMap(map) = message_type {
+            // TODO (If I ever get more of these events): This only works for vanilla!
+            instance_ids.insert((map.map_id as u16, None), map.instance_id);
+        }
+    }
+
     let mut temp_intervals = Vec::with_capacity(4000);
     let mut player_temp_intervals = Vec::with_capacity(1000);
 
-    let parsed_participants = parser.get_participants();
+    let mut parsed_participants = parser.get_participants();
+    let mut incombat_participant_helper = Participant::new(0xF13000FFFE000000, false, "CBT Helper".to_string(), 10000);
+    incombat_participant_helper.active_intervals.push((10001, u64::MAX.rotate_right(2)));
     parsed_participants.iter().for_each(|participant| {
         participant.active_intervals.iter().for_each(|(start, end)| {
             temp_intervals.push(Interval {
                 start: *start - 200,
                 stop: *end + 200,
                 val: (participant.id, participant.is_player),
+            });
+
+            temp_intervals.push(Interval {
+                start: *start - 200,
+                stop: *end + 200,
+                val: (incombat_participant_helper.id, incombat_participant_helper.is_player),
             });
 
             if participant.is_player {
@@ -113,13 +129,13 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             }
         });
     });
+    parsed_participants.push(incombat_participant_helper);
 
     let participants_by_interval = Lapper::new(temp_intervals);
     let player_participants_by_interval = Lapper::new(player_temp_intervals);
     let active_maps = parser.get_active_maps();
 
     let mut current_map = None;
-    let mut instance_ids = HashMap::new();
     let mut participants = HashMap::new();
     let mut last_combat_update = HashMap::new();
     let mut additional_messages = Vec::with_capacity(20000);
@@ -132,6 +148,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             };
 
             let mut new_participants: HashMap<u64, bool> = HashMap::new();
+            // TODO: This lapper does not seem to find all participants within that interval, it fails for large intervals
             for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 100, *timestamp + 100).filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
                 new_participants.insert(*unit_id, *is_player);
             }
@@ -185,6 +202,23 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
             },
             MessageType::Death(death) => {
+                if !death.victim.is_player {
+                    if let Some(entry) = death.victim.unit_id.get_entry() {
+                        if let Some(implied_npc_ids) = parser.get_death_implied_npc_combat_state_and_offset(entry) {
+                            for (npc_id, delay_ts) in implied_npc_ids {
+                                if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
+                                    if !participant.is_player && participant.id.get_entry().contains(&npc_id) {
+                                        return Some(participant.id);
+                                    }
+                                    None
+                                }) {
+                                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, (*timestamp as i64 + delay_ts) as u64, *message_count - 1, &Unit { is_player: false, unit_id });
+                                }
+                            }
+                        }
+                    }
+                }
+
                 additional_messages.push(Message {
                     api_version: 0,
                     message_length: 0,
@@ -193,23 +227,6 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     message_type: MessageType::CombatState(CombatState { unit: death.victim.clone(), in_combat: false }),
                 });
                 last_combat_update.remove(&death.victim.unit_id);
-
-                if !death.victim.is_player {
-                    if let Some(entry) = death.victim.unit_id.get_entry() {
-                        if let Some(implied_npc_ids) = parser.get_death_implied_npc_combat_state_and_offset(entry) {
-                            for (npc_id, _delay_ts) in implied_npc_ids {
-                                if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
-                                    if !participant.is_player && participant.id.get_entry().contains(&npc_id) {
-                                        return Some(participant.id);
-                                    }
-                                    None
-                                }) {
-                                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &Unit { is_player: false, unit_id });
-                                }
-                            }
-                        }
-                    }
-                }
             },
             _ => {},
         };
@@ -226,13 +243,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             })
             .collect();
     }
-    messages.sort_by(|left, right| {
-        let result = left.message_count.cmp(&right.message_count);
-        if result == Ordering::Equal {
-            return left.timestamp.cmp(&right.timestamp);
-        }
-        result
-    });
+    messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
     Some((server_id, messages))
 }
 
@@ -309,13 +320,15 @@ fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) ->
 }
 
 fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8, additional_messages: &mut Vec<Message>, last_combat_update: &mut HashMap<u64, u64>, current_timestamp: u64, current_message_count: u64, unit: &Unit) {
-    let mut ts_offset: i64 = -1;
+    let ts_offset: i64 = -1;
     let mut timeout = 60000;
     let mut current_unit_is_boss = false;
     if let Some(entry) = unit.unit_id.get_entry() {
+        /*
         if let Some(delay) = parser.get_npc_appearance_offset(entry) {
             ts_offset = delay;
         }
+         */
 
         if let Some(implied_in_combat_npc_ids) = parser.get_in_combat_implied_npc_combat(entry) {
             for (unit_id, _) in last_combat_update.clone() {
