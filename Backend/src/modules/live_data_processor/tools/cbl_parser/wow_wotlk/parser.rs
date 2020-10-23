@@ -306,6 +306,7 @@ impl CombatLogParser for WoWWOTLKParser {
         Some(match entry {
             // Kel'Thuzad
             15990 => -228000,
+            65534 => -3000,
             // Wyrmrest Skytalon
             32535 => -30000,
             // VX-001
@@ -320,8 +321,9 @@ impl CombatLogParser for WoWWOTLKParser {
         Some(match entry {
             // Kel'Thuzad
             15990 => 228000,
+            65534 => 90000,
             // Malygos
-            28859 => 180000,
+            28859 => 120000,
             // Yogg-Saron
             33288 => 55000,
             _ => return None,
@@ -330,7 +332,10 @@ impl CombatLogParser for WoWWOTLKParser {
 
     fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, -1000)],
+            15929 | 15930 => vec![(15928, 0)],
+            16427 | 16428 | 16429 => vec![(65534, 0)],
+            // Malygos
+            30084 | 30245 | 30249 => vec![(28859, 0)],
             _ => return None,
         })
     }
@@ -339,6 +344,10 @@ impl CombatLogParser for WoWWOTLKParser {
         Some(match entry {
             // Yogg-Saron Npcs
             33966 | 33983 | 33985 | 33988 | 33990 => vec![33288],
+            // Kel'thuzad
+            16427 | 16429 | 16428 => vec![65534],
+            // Malygos
+            30084 | 30245 | 30249 => vec![28859],
             _ => return None,
         })
     }
