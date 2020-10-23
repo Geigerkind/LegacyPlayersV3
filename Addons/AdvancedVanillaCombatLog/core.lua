@@ -26,6 +26,7 @@ RPLL:RegisterEvent("PET_STABLE_CLOSED")
 RPLL:RegisterEvent("UI_ERROR_MESSAGE")
 
 RPLL:RegisterEvent("CHAT_MSG_LOOT")
+RPLL:RegisterEvent("PLAYER_AURAS_CHANGED")
 
 local tinsert = table.insert
 local strformat = string.format
@@ -84,7 +85,13 @@ RPLL.VARIABLES_LOADED = function()
     if RPLL_PlayerInformation == nil then
         RPLL_PlayerInformation = {}
     end
-    RPLL.PlayerInformation = RPLL_PlayerInformation
+    this.PlayerInformation = RPLL_PlayerInformation
+    for key, val in this.PlayerInformation do
+        if key ~= nil and val ~= nil then
+            this.RotationLength = this.RotationLength + 1
+            this.PlayerRotation[this.RotationLength] = key
+        end
+    end
 
     this:grab_unit_information("player")
     this:RAID_ROSTER_UPDATE()
@@ -177,6 +184,10 @@ end
 RPLL.CHAT_MSG_LOOT = function(msg)
     tinsert(this.ExtraMessageQueue, "LOOT: "..msg)
     this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
+end
+
+RPLL.PLAYER_AURAS_CHANGED = function()
+    this:grab_unit_information("player")
 end
 
 local function strsplit(pString, pPattern)
@@ -688,11 +699,10 @@ function RPLL:grab_unit_information(unit)
             this.RotationLength = this.RotationLength + 1
         end
         local info = this.PlayerInformation[unit_name]
-        if info["last_update"] ~= nil and time() - info["last_update"] <= 60000 then
+        if info["last_update"] ~= nil and time() - info["last_update"] <= 10 then
             return
         end
         info["last_update"] = time()
-
         info["name"] = unit_name
 
         -- Guild info
@@ -744,6 +754,7 @@ function RPLL:grab_unit_information(unit)
         end
 
         if any_item then
+            info["gear"] = {}
             for i=1, 19 do
                 local inv_link = GetInventoryItemLink(unit, i)
                 if inv_link == nil then
@@ -760,29 +771,29 @@ function RPLL:grab_unit_information(unit)
         end
 
         -- Scrape buffs
-        local any_buff = false
-        RPLL_Tooltip:SetPlayerBuff(GetPlayerBuff(1, "HELPFUL"))
+        RPLL_Tooltip:ClearLines()
+        RPLL_Tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+        RPLL_Tooltip:SetPlayerBuff(GetPlayerBuff(0, "HELPFUL"))
         local aura = RPLL_TooltipTextLeft1:GetText()
         RPLL_Tooltip:Hide()
 
-        if aura ~= nil and aura ~= "" then
-            any_buff = true
-            break
-        end
-
+        local any_buff = aura ~= nil and aura ~= ""
         if info["buffs"] == nil then
             info["buffs"] = {}
         end
 
         if any_buff then
-            for i=1, 32 do
-               RPLL_Tooltip:SetPlayerBuff(GetPlayerBuff(i, "HELPFUL"))
-               local aura = RPLL_TooltipTextLeft1:GetText()
-               RPLL_Tooltip:Hide()
+            info["buffs"] = {}
+            for i=0, 15 do
+                RPLL_Tooltip:ClearLines()
+                RPLL_Tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+                RPLL_Tooltip:SetPlayerBuff(GetPlayerBuff(i, "HELPFUL"))
+                local aura = RPLL_TooltipTextLeft1:GetText()
+                RPLL_Tooltip:Hide()
 
-               if aura == nil or aura == "" then
-                   break
-               end
+                if aura == nil or aura == "" then
+                    break
+                end
 
                 info["buffs"][i] = aura
             end
@@ -802,9 +813,9 @@ function RPLL:rotate_combat_log_global_string()
         for i=2, 19 do
             gear_str = gear_str.."&"..prep_value(character["gear"][i])
         end
-        local buff_str = prep_value(character["buff"][1])
-        for i=2, 32 do
-            buff_str = buff_str.."&"..prep_value(character["buff"][i])
+        local buff_str = prep_value(character["buffs"][0])
+        for i=1, 15 do
+            buff_str = buff_str.."&"..prep_value(character["buffs"][i])
         end
 
         result = result..prep_value(character["name"]).."&"..prep_value(character["hero_class"]).."&"..prep_value(character["race"]).."&"..prep_value(character["sex"]).."&"..prep_value(character["pet"]).."&"..prep_value(character["guild_name"]).."&"..prep_value(character["guild_rank_name"]).."&"..prep_value(character["guild_rank_index"]).."&"..gear_str.."&"..buff_str
