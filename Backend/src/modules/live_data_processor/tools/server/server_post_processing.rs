@@ -447,6 +447,12 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
             attempt.hard_mode_encounter_id = Some(155);
         }
     }
+    // Hodir
+    else if attempt.encounter_id == 124 {
+        if attempt.end_ts - attempt.start_ts - 2000 <= 120000 {
+            attempt.hard_mode_encounter_id = Some(162);
+        }
+    }
     // General Vezax
     else if attempt.encounter_id == 125 {
         if !attempt.hard_mode_found_buffs.is_empty() {
