@@ -77,6 +77,11 @@ RPLL.PLAYER_ENTERING_WORLD = function()
 end
 
 RPLL.VARIABLES_LOADED = function()
+    if RPLL_PlayerInformation == nil then
+        RPLL_PlayerInformation = {}
+    end
+    RPLL.PlayerInformation = RPLL_PlayerInformation
+
     this:grab_unit_information("player")
     this:RAID_ROSTER_UPDATE()
     this:PARTY_MEMBERS_CHANGED()
@@ -688,9 +693,11 @@ function RPLL:grab_unit_information(unit)
 
         -- Guild info
         local guildName, guildRankName, guildRankIndex = GetGuildInfo(unit)
-        info["guild_name"] = guildName
-        info["guild_rank_name"] = guildRankName
-        info["guild_rank_index"] = guildRankIndex
+        if guildName ~= nil then
+            info["guild_name"] = guildName
+            info["guild_rank_name"] = guildRankName
+            info["guild_rank_index"] = guildRankIndex
+        end
 
         -- Pet name
         if strfind(unit, "pet") == nil then
@@ -709,29 +716,47 @@ function RPLL:grab_unit_information(unit)
         end
 
         -- Hero Class, race, sex
-        info["hero_class"] = UnitClass(unit)
-        info["race"] = UnitRace(unit)
-        info["sex"] = UnitSex(unit)
+        if UnitClass(unit) ~= nil then
+            info["hero_class"] = UnitClass(unit)
+        end
+        if UnitRace(unit) ~= nil then
+            info["race"] = UnitRace(unit)
+        end
+        if UnitSex(unit) ~= nil then
+            info["sex"] = UnitSex(unit)
+        end
 
         -- Gear
-        info["gear"] = {}
+        if info["gear"] == nil then
+            info["gear"] = {}
+        end
+
+        local any_item = false
         for i=1, 19 do
-            local inv_link = GetInventoryItemLink(unit, i)
-            if inv_link == nil then
-                info["gear"][i] = nil
-            else
-                local found, _, itemString = strfind(inv_link, "Hitem:(.+)\124h%[")
-                if found == nil then
+            if GetInventoryItemLink(unit, i) ~= nil then
+                any_item = true
+                break
+            end
+        end
+
+        if any_item then
+            for i=1, 19 do
+                local inv_link = GetInventoryItemLink(unit, i)
+                if inv_link == nil then
                     info["gear"][i] = nil
                 else
-                    info["gear"][i] = itemString
+                    local found, _, itemString = strfind(inv_link, "Hitem:(.+)\124h%[")
+                    if found == nil then
+                        info["gear"][i] = nil
+                    else
+                        info["gear"][i] = itemString
+                    end
                 end
             end
         end
     end
 end
 
--- TODO: Get talent specialization
 function RPLL:rotate_combat_log_global_string()
     if this.ExtraMessageQueueLength >= this.ExtraMessageQueueIndex then
         SPELLFAILCASTSELF = this.ExtraMessageQueue[this.ExtraMessageQueueIndex]
