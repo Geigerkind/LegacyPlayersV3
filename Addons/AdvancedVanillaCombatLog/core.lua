@@ -66,6 +66,10 @@ RPLL.ZONE_CHANGED_NEW_AREA = function()
     this:RAID_ROSTER_UPDATE()
     this:PARTY_MEMBERS_CHANGED()
     this:QueueRaidIds()
+    this:IssueSpamWarning()
+    if IsInInstance("player") then
+        this:ImportantNotes()
+    end
 end
 
 RPLL.UPDATE_INSTANCE_INFO = function()
@@ -74,11 +78,16 @@ RPLL.UPDATE_INSTANCE_INFO = function()
     this:RAID_ROSTER_UPDATE()
     this:PARTY_MEMBERS_CHANGED()
     this:QueueRaidIds()
+    this:IssueSpamWarning()
+    if IsInInstance("player") then
+        this:ImportantNotes()
+    end
 end
 
 RPLL.PLAYER_ENTERING_WORLD = function()
     this:grab_unit_information("player")
     this:fix_combat_log_strings()
+    this:IssueSpamWarning()
 end
 
 RPLL.VARIABLES_LOADED = function()
@@ -97,14 +106,18 @@ RPLL.VARIABLES_LOADED = function()
     this:RAID_ROSTER_UPDATE()
     this:PARTY_MEMBERS_CHANGED()
     this:fix_combat_log_strings()
+    this:IssueSpamWarning()
+    this:ImportantNotes()
 end
 
 RPLL.PLAYER_TARGET_CHANGED = function()
     this:grab_unit_information("target")
+    this:IssueSpamWarning()
 end
 
 RPLL.UPDATE_MOUSEOVER_UNIT = function()
     this:grab_unit_information("mouseover")
+    this:IssueSpamWarning()
 end
 
 RPLL.RAID_ROSTER_UPDATE = function()
@@ -112,6 +125,10 @@ RPLL.RAID_ROSTER_UPDATE = function()
         if UnitName("raid"..i) then
             this:grab_unit_information("raid"..i)
         end
+    end
+    this:IssueSpamWarning()
+    if IsInInstance("player") then
+        this:ImportantNotes()
     end
 end
 
@@ -122,20 +139,24 @@ RPLL.PARTY_MEMBERS_CHANGED = function()
             this:grab_unit_information("party"..i)
         end
     end
+    this:IssueSpamWarning()
 end
 
 RPLL.UNIT_PET = function(unit)
     if unit then
         this:grab_unit_information(unit)
     end
+    this:IssueSpamWarning()
 end
 
 RPLL.PLAYER_PET_CHANGED = function()
     this:grab_unit_information("player")
+    this:IssueSpamWarning()
 end
 
 RPLL.PET_STABLE_CLOSED = function()
     this:grab_unit_information("player")
+    this:IssueSpamWarning()
 end
 
 local rotate_reasons = {
@@ -179,15 +200,18 @@ RPLL.UI_ERROR_MESSAGE = function(msg)
             break;
         end
     end
+    this:IssueSpamWarning()
 end
 
 RPLL.CHAT_MSG_LOOT = function(msg)
     tinsert(this.ExtraMessageQueue, "LOOT: "..msg)
     this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
+    this:IssueSpamWarning()
 end
 
 RPLL.PLAYER_AURAS_CHANGED = function()
     this:grab_unit_information("player")
+    this:IssueSpamWarning()
 end
 
 local function strsplit(pString, pPattern)
@@ -801,6 +825,7 @@ function RPLL:grab_unit_information(unit)
     end
 end
 
+local player_rotations_done = 0
 function RPLL:rotate_combat_log_global_string()
     if this.ExtraMessageQueueLength >= this.ExtraMessageQueueIndex then
         SPELLFAILCASTSELF = this.ExtraMessageQueue[this.ExtraMessageQueueIndex]
@@ -826,6 +851,9 @@ function RPLL:rotate_combat_log_global_string()
         else
             this.RotationIndex = this.RotationIndex + 1
         end
+        if player_rotations_done < this.RotationLength then
+            player_rotations_done = player_rotations_done + 1
+        end
     else
         SPELLFAILCASTSELF = "NONE"
         SPELLFAILPERFORMSELF = "NONE"
@@ -837,4 +865,33 @@ function prep_value(val)
         return "nil"
     end
     return val
+end
+
+local last_spam_warning = 0
+function RPLL:IssueSpamWarning()
+    if not IsInInstance("player") then
+        return
+    end
+
+    local messages_todo = this.ExtraMessageQueueLength - this.ExtraMessageQueueIndex + this.RotationLength - player_rotations_done
+    if messages_todo >= 3 and time() - last_spam_warning >= 60 then
+        this:SendMessage("There are "..messages_todo.." messages that have not been written to the CombatLog yet.")
+        this:SendMessage("These messages are of utmost importance to upload correct logs.")
+        this:SendMessage("One way to write them into the CombatLog is to deselect any target and spam an ability, such that any UI error message shows up, e.g. Invalid target.")
+        this:SendMessage("You need to spam the your ability at least "..messages_todo.." times.")
+        last_spam_warning = time()
+    end
+end
+
+local last_important_notes_message = 0
+function RPLL:ImportantNotes()
+    if time() - last_important_notes_message >= 600 then
+        this:SendMessage("IMPORTANT: Make sure to delete the WoWCombatLog.txt before the raid session starts.")
+        this:SendMessage("IMPORTANT: Make sure that no Hunter named their pet after an instance NPC, otherwise this will serious mess up your logs!")
+        last_important_notes_message = time()
+    end
+end
+
+function RPLL:SendMessage(msg)
+    DEFAULT_CHAT_FRAME:AddMessage("|cFFFF8080LegacyPlayers|r: "..msg)
 end
