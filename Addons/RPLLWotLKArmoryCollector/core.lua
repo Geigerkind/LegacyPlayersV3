@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 1
+RPLL.VERSION = 2
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -262,7 +262,7 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
 end
 
 function RPLL:CollectUnit(unit)
-    if not IsInInstance() or not UnitIsPlayer(unit) then
+    if not UnitIsPlayer(unit) then
         return
     end
     local unit_guid = UnitGUID(unit)
