@@ -21,7 +21,7 @@ impl SpellDescription for Data {
         let spell = self.get_spell(expansion_id, spell_id)?;
         let mut template = self.get_localization(language_id, spell.description_localization_id).map(|localization| localization.content).unwrap();
 
-        let spell_effects = self.get_spell_effects(expansion_id, spell_id).unwrap();
+        let spell_effects = self.get_spell_effects(expansion_id, spell_id)?;
         template = template.replace("$d1", &format_duration(&self.dictionary, language_id, spell.duration.abs() as u32));
         template = template.replace("$d", &format_duration(&self.dictionary, language_id, spell.duration.abs() as u32));
 

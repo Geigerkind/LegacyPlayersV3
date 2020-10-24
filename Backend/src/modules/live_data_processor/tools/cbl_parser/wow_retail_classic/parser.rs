@@ -32,7 +32,7 @@ impl CombatLogParser for WoWRetailClassicParser {
                         gear.push(None);
                     } else {
                         let enchant_id = if cap.len() > 2 { u32::from_str_radix(&cap[4], 10).ok() } else { None };
-                        gear.push(Some((item_id, enchant_id)));
+                        gear.push(Some((item_id, enchant_id, None)));
                     }
                 }
 
@@ -407,10 +407,14 @@ impl CombatLogParser for WoWRetailClassicParser {
     fn get_server_id(&self) -> Option<u32> {
         None
     }
+
+    fn get_bonus_messages(&self) -> Option<Vec<Message>> {
+        None
+    }
 }
 
-fn create_character_item_dto(item: &Option<(u32, Option<u32>)>) -> Option<CharacterItemDto> {
-    item.map(|item| CharacterItemDto {
+fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>) -> Option<CharacterItemDto> {
+    item.as_ref().map(|item| CharacterItemDto {
         item_id: item.0,
         random_property_id: None,
         enchant_id: item.1,

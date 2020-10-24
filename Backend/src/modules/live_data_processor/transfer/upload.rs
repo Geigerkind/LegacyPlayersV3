@@ -19,7 +19,8 @@ use std::io::Read;
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
 pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State<DataMaterial>, armory: State<Armory>, content_type: &ContentType, form_data: Data) -> Result<(), LiveDataProcessorFailure> {
     let mut options = MultipartFormDataOptions::new();
-    options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(20 * 1024 * 1024 * 1024));
+    options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(40 * 1024 * 1024 * 1024));
+    options.allowed_fields.push(MultipartFormDataField::bytes("payload_armory").size_limit(10 * 1024 * 1024 * 1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("server_id").size_limit(1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("start_time").size_limit(1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("end_time").size_limit(1024));
@@ -53,6 +54,11 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
     let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
 
+    let armory_content = multipart_form_data.raw.remove("payload_armory").and_then(|mut armory_raw_fields| {
+        let RawField { raw, .. } = armory_raw_fields.remove(0);
+        std::str::from_utf8(&raw).ok().map(|str| str.to_string())
+    });
+
     if server_id == -1 {
         return parse(&me, WoWRetailClassicParser::new(), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
     } else {
@@ -71,7 +77,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
         } else if server.expansion_id == 2 {
             return parse(
                 &me,
-                WoWTBCParser::new(server_id as u32),
+                WoWTBCParser::new(server_id as u32, armory_content),
                 &mut *db_main,
                 &data,
                 &armory,
@@ -82,7 +88,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
         } else if server.expansion_id == 3 {
             return parse(
                 &me,
-                WoWWOTLKParser::new(server_id as u32),
+                WoWWOTLKParser::new(server_id as u32, armory_content),
                 &mut *db_main,
                 &data,
                 &armory,

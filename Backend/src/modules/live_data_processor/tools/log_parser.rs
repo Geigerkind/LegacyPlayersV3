@@ -66,7 +66,6 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut replace_unit_id = HashMap::new();
     for (retail_server_id, character_dto) in parser.get_involved_character_builds() {
         let server_id = retail_server_id.map(|id| data.get_internal_server_by_retail_id(id).unwrap().id).unwrap_or(server_id);
-
         if server_id == 4 || server_id == 5 {
             if let Some(character) = armory.get_character_by_name(server_id, character_dto.character_history.as_ref().unwrap().character_name.clone()) {
                 replace_unit_id.insert(character_dto.server_uid, character.server_uid);
@@ -232,6 +231,9 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         };
     }
 
+    if let Some(mut bonus_msgs) = parser.get_bonus_messages() {
+        messages.append(&mut bonus_msgs);
+    }
     messages.append(&mut additional_messages);
     if server_id == 4 || server_id == 5 {
         messages = messages

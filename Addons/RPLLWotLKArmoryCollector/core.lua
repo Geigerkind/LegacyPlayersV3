@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 2
+RPLL.VERSION = 3
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -217,7 +217,7 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
     end
 
     if guild_name ~= nil and guild_rank_name ~= nil then
-        info["guid_name"] = guild_name
+        info["guild_name"] = guild_name
         info["guild_rank_name"] = guild_rank_name
         info["guild_rank_index"] = guild_rank_index
     end

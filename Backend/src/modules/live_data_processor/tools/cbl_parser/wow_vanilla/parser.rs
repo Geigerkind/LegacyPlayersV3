@@ -1002,9 +1002,9 @@ impl CombatLogParser for WoWVanillaParser {
                     if item_id == 0 {
                         gear.push(None);
                     } else if enchant_id == 0 {
-                        gear.push(Some((item_id, None)));
+                        gear.push(Some((item_id, None, None)));
                     } else {
-                        gear.push(Some((item_id, Some(enchant_id))));
+                        gear.push(Some((item_id, Some(enchant_id), None)));
                     }
                 }
                 gear_setups.push((event_ts, gear));
@@ -1323,13 +1323,17 @@ impl CombatLogParser for WoWVanillaParser {
     fn get_server_id(&self) -> Option<u32> {
         Some(self.server_id)
     }
+
+    fn get_bonus_messages(&self) -> Option<Vec<Message>> {
+        None
+    }
 }
 
-fn create_character_item_dto(item: &Option<(u32, Option<u32>)>) -> Option<CharacterItemDto> {
-    item.map(|(item_id, enchant_id)| CharacterItemDto {
-        item_id,
+fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>) -> Option<CharacterItemDto> {
+    item.as_ref().map(|(item_id, enchant_id, _)| CharacterItemDto {
+        item_id: *item_id,
         random_property_id: None,
-        enchant_id,
+        enchant_id: enchant_id.clone(),
         gem_ids: vec![],
     })
 }

@@ -346,4 +346,8 @@ impl CombatLogParser for WoWTBCParser {
     fn get_server_id(&self) -> Option<u32> {
         Some(self.server_id)
     }
+
+    fn get_bonus_messages(&self) -> Option<Vec<Message>> {
+        Some(self.bonus_messages.clone())
+    }
 }

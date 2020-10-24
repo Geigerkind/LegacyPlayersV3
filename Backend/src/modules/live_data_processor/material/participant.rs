@@ -7,8 +7,9 @@ pub struct Participant {
     pub gender_id: Option<bool>,
     pub race_id: Option<u8>,
     pub guild_args: Option<(String, String, u8)>,
+    pub talents: Option<String>,
     pub server: Option<(u32, String)>,
-    pub gear_setups: Option<Vec<(u64, Vec<Option<(u32, Option<u32>)>>)>>,
+    pub gear_setups: Option<Vec<(u64, Vec<Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>>)>>,
     pub active_intervals: Vec<(u64, u64)>,
     available_effective_heal: u32,
 
@@ -30,7 +31,8 @@ impl Participant {
             active_intervals: vec![(last_seen, last_seen)],
             last_seen,
             guild_args: None,
-            available_effective_heal: 0
+            available_effective_heal: 0,
+            talents: None
         }
     }
 

@@ -19,4 +19,5 @@ pub trait CombatLogParser {
     fn get_in_combat_implied_npc_combat(&self, entry: u32) -> Option<Vec<u32>>;
     fn get_expansion_id(&self) -> u8;
     fn get_server_id(&self) -> Option<u32>;
+    fn get_bonus_messages(&self) -> Option<Vec<Message>>;
 }

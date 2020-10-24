@@ -1,5 +1,5 @@
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::Unit;
+use crate::modules::live_data_processor::dto::{Unit, Message};
 use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
 use std::collections::{BTreeSet, HashMap};
 
@@ -8,14 +8,18 @@ pub struct WoWTBCParser {
 
     pub participants: HashMap<u64, Participant>,
     pub active_map: ActiveMapMap,
+
+    // Hacky
+    pub bonus_messages: Vec<Message>,
 }
 
 impl WoWTBCParser {
-    pub fn new(server_id: u32) -> Self {
+    pub fn new(server_id: u32, armory_content: Option<String>) -> Self {
         WoWTBCParser {
             server_id,
             participants: Default::default(),
             active_map: Default::default(),
+            bonus_messages: Default::default(),
         }
     }
 
