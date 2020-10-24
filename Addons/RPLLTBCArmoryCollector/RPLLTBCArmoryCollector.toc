@@ -1,0 +1,10 @@
+## Interface: 20400
+## Title: RPLLWotLKArmoryCollector |cFFFF8080-Shino-|r
+## Notes: Collects pets and armory information such as gear.
+## Author: Shino
+## SavedVariables: RPLL_PlayerInformation, RPLL_ExtraMessages, RPLL_CurrentServer
+## DefaultState: enabled
+
+RPLLCollector.xml
+core.lua
+

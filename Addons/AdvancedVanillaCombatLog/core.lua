@@ -239,14 +239,10 @@ function RPLL:DeepSubString(str1, str2)
 end
 
 function RPLL:QueueRaidIds()
-    local zone, zone2 = GetRealZoneText(), GetZoneText()
     for i=1, GetNumSavedInstances() do
         local instance_name, instance_id = GetSavedInstanceInfo(i)
-        if zone == instance_name or zone2 == instance_name then
-            tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..instance_name.."&"..instance_id)
-            this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
-            break
-        end
+		tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..instance_name.."&"..instance_id)
+		this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
     end
 end
 

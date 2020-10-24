@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 2
+RPLL.VERSION = 1
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -24,7 +24,6 @@ local strlen = strlen
 local GetArenaTeam = GetArenaTeam
 local GetInspectArenaTeamData = GetInspectArenaTeamData
 local date = date
-local GetInstanceInfo = GetInstanceInfo
 local GetRealmName = GetRealmName
 local GetNumSavedInstances = GetNumSavedInstances
 local GetSavedInstanceInfo = GetSavedInstanceInfo
@@ -88,7 +87,7 @@ RPLL.CHAT_MSG_LOOT = function(msg)
     if not IsInInstance() then
         return
     end
-    this:PushExtraMessage(strjoin("&", "LOOT", msg))
+    this:PushExtraMessage(strjoin("&", "LOOT",msg))
 end
 
 RPLL:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -339,18 +338,9 @@ function RPLL:PushCurrentInstanceInfo()
         return
     end
 
-    local name, type, difficultyIndex, difficultyName, maxPlayers, playerDifficulty = GetInstanceInfo()
-    if type ~= nil and type ~= "none" then
-        local found_instance_id = nil
-        for i=1, GetNumSavedInstances() do
-            local instance_name, instance_id = GetSavedInstanceInfo(i)
-            if name == instance_name then
-                found_instance_id = instance_id
-                break
-            end
-        end
-
-        this:PushExtraMessage(strjoin("&", "ZONE_INFO", name, type, difficultyIndex, difficultyName, maxPlayers, playerDifficulty, prep_value(found_instance_id)))
+    for i=1, GetNumSavedInstances() do
+        local instance_name, instance_id = GetSavedInstanceInfo(i)
+        this:PushExtraMessage(strjoin("&", "ZONE_INFO", instance_name, instance_id))
     end
 end
 
