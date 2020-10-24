@@ -309,7 +309,8 @@
             "description": "You can currently only upload for Vanilla, TBC, WOTLK and Retail Classic. If you want to upload to a non listed server, please contact Shino!",
             "description2": "Please select the correct server, start time, end time in the upload form and upload a zip of your WoWCombatLog.txt.",
             "description3": "Vanilla (1.12) ONLY: You need to install an AddOn that can be found on LegacyPlayers GitHub page (see footer). Please note that this addon writes meta information into your spell failed combat log messages. Therefore you need to spam your spells. Caster should spam their spells without a target every now and then (can be done during trash phases for example) to produce a sufficient amount of meta information.",
-            "description4": "IMPORTANT: Classes with named pets should consider casting spell like Mend Pet, Feed Pet, Soul Link, Pet Buff food onto the pet, to aid the parser finding the pet, as many servers dont implement the SPELL_SUMMON event correctly."
+            "description4": "Also for Vanilla logging, make sure that no Hunter named its pet after an instance NPC. If someone does it, consider kicking him from your guild.",
+            "description5": "IMPORTANT: Classes with named pets should consider casting spell like Mend Pet, Feed Pet, Soul Link, Pet Buff food onto the pet, to aid the parser finding the pet, as many servers dont implement the SPELL_SUMMON event correctly."
         }
     },
     "PvE": {
