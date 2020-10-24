@@ -17,6 +17,10 @@ pub fn parse_unit(cache: &mut HashMap<String, Unit>, data: &Data, unit_name: &st
     if let Some(unit_id) = get_npc_unit_id(data, &unit_name) {
         unit = Unit { is_player: false, unit_id };
     } else {
+        // This indicates that something went terribly wrong during parsing
+        if unit_name.contains("'s ") {
+            return None;
+        }
         unit = Unit {
             is_player: true,
             unit_id: get_hashed_player_unit_id(unit_name.as_str()),
