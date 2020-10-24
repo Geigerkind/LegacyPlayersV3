@@ -17,7 +17,6 @@ RPLL:RegisterEvent("UPDATE_INSTANCE_INFO")
 
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL:RegisterEvent("PLAYER_ENTERING_WORLD")
-RPLL:RegisterEvent("VARIABLES_LOADED")
 
 RPLL:RegisterEvent("UNIT_PET")
 RPLL:RegisterEvent("PLAYER_PET_CHANGED")
@@ -29,10 +28,7 @@ RPLL:RegisterEvent("CHAT_MSG_LOOT")
 RPLL:RegisterEvent("PLAYER_AURAS_CHANGED")
 
 local tinsert = table.insert
-local strformat = string.format
-local GetTime = GetTime
 local UnitName = UnitName
-local strgfind = string.gfind
 local strsub = string.sub
 local GetNumSavedInstances = GetNumSavedInstances
 local GetSavedInstanceInfo = GetSavedInstanceInfo
@@ -40,16 +36,11 @@ local IsInInstance = IsInInstance
 local pairs = pairs
 local GetNumPartyMembers = GetNumPartyMembers
 local GetNumRaidMembers = GetNumRaidMembers
-local UnitHealth = UnitHealth
 local UnitIsPlayer = UnitIsPlayer
-local UnitLevel = UnitLevel
 local UnitSex = UnitSex
 local strlower = strlower
 local GetGuildInfo = GetGuildInfo
-local GetInspectPVPRankProgress = GetInspectPVPRankProgress
 local GetInventoryItemLink = GetInventoryItemLink
-local GetPVPRankInfo = GetPVPRankInfo
-local UnitPVPRank = UnitPVPRank
 local strfind = string.find
 local Unknown = UNKNOWN
 local LoggingCombat = LoggingCombat
@@ -85,12 +76,6 @@ RPLL.UPDATE_INSTANCE_INFO = function()
 end
 
 RPLL.PLAYER_ENTERING_WORLD = function()
-    this:grab_unit_information("player")
-    this:fix_combat_log_strings()
-    this:IssueSpamWarning()
-end
-
-RPLL.VARIABLES_LOADED = function()
     if RPLL_PlayerInformation == nil then
         RPLL_PlayerInformation = {}
     end
