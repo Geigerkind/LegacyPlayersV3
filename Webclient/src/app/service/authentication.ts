@@ -18,7 +18,7 @@ export class AuthenticationService {
     }
 
     clearToken(): void {
-        this.settingsService.set("API_TOKEN", undefined);
+        this.settingsService.delete("API_TOKEN");
     }
 
 }

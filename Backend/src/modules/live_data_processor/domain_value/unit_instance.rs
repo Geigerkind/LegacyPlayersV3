@@ -4,4 +4,5 @@ pub struct UnitInstance {
     pub entered: u64,
     pub map_id: u16,
     pub instance_id: u32,
+    pub uploaded_user: u32
 }

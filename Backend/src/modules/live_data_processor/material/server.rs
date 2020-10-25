@@ -12,15 +12,16 @@ pub struct Server {
     // Meta Data
     pub summons: HashMap<u64, Unit>,
     // TODO: This grows uncontrollable
-    pub active_instances: HashMap<u32, UnitInstance>,
-    // TODO: How to deal with changing difficulties in WOTLK?
+    // Key: (instance_id, member_id)
+    pub active_instances: HashMap<(u32, u32), UnitInstance>,
     pub unit_instance_id: HashMap<u64, u32>,
     pub instance_resets: HashMap<u16, InstanceResetDto>,
     // instance_meta_id => [(character_id, history_id)]
     pub instance_participants: HashMap<u32, BTreeSet<u32>>,
     // Per instance there is a set of active attempts and when they began,
     // though most of the times only 1
-    pub active_attempts: HashMap<u32, HashMap<u32, Attempt>>,
+    // Key: (instance_id, member_id)
+    pub active_attempts: HashMap<(u32, u32), HashMap<u32, Attempt>>,
 
     // Used to handle unordered events
     pub subject_prepend_mode_set: BTreeSet<u64>, // Contains server_uid of subject
@@ -29,10 +30,10 @@ pub struct Server {
     // Events
     // Mapping player to non committed event
     pub non_committed_events: HashMap<u64, NonCommittedEvent>,
-    // Instance_id => Events
-    pub committed_events: HashMap<u32, VecDeque<Event>>,
-    pub committed_events_count: HashMap<u32, u32>,
-    pub recently_committed_spell_cast_and_aura_applications: HashMap<u32, VecDeque<Event>>,
+    // Key: (instance_id, member_id)
+    pub committed_events: HashMap<(u32, u32), VecDeque<Event>>,
+    pub committed_events_count: HashMap<(u32, u32), u32>,
+    pub recently_committed_spell_cast_and_aura_applications: HashMap<(u32, u32), VecDeque<Event>>,
 
     // PERFORMANCE TEST
     pub cache_unit: HashMap<u64, Unit>,
@@ -64,31 +65,32 @@ impl Server {
         // Load active instances
         db_main
             .select_wparams(
-                "SELECT id, start_ts, map_id, instance_id FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
+                "SELECT id, start_ts, map_id, instance_id, uploaded_user FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
                 |mut row| UnitInstance {
                     instance_meta_id: row.take(0).unwrap(),
                     entered: row.take(1).unwrap(),
                     map_id: row.take(2).unwrap(),
                     instance_id: row.take(3).unwrap(),
+                    uploaded_user: row.take(4).unwrap()
                 },
                 params!("server_id" => self.server_id),
             )
             .into_iter()
             .for_each(|unit_instance| {
                 self.instance_participants.insert(unit_instance.instance_meta_id, BTreeSet::new());
-                self.active_instances.insert(unit_instance.instance_id, unit_instance);
+                self.active_instances.insert((unit_instance.instance_id, unit_instance.uploaded_user), unit_instance);
             });
 
         // Load current_event_id count
         db_main
             .select_wparams(
-                "SELECT instance_id, last_event_id FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
-                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap()),
+                "SELECT instance_id, last_event_id, uploaded_user FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
+                |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap(), row.take::<u32, usize>(2).unwrap()),
                 params!("server_id" => self.server_id),
             )
             .into_iter()
-            .for_each(|(instance_id, last_event_id)| {
-                self.committed_events_count.insert(instance_id, last_event_id);
+            .for_each(|(instance_id, last_event_id, member_id)| {
+                self.committed_events_count.insert((instance_id, member_id), last_event_id);
             });
 
         // Load active instance participants

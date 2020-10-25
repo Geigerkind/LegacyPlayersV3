@@ -72,6 +72,10 @@ SettingsService {
         this.set_with_expiration(storage_key, value, 3650);
     }
 
+    delete(storage_key: string): void {
+        this.set_with_expiration(storage_key, undefined, -1);
+    }
+
     set_with_expiration(storage_key: string, value: any, days: number): void {
         if (!this.settings.includes(storage_key))
             throw new Error("Storage: " + storage_key + " was not predefined!");
@@ -79,15 +83,14 @@ SettingsService {
             return;
 
         const expiration = Date.now() + days * 24 * 60 * 60 * 1000;
-        let storage: Storage;
+        const storage: Storage = {
+            payload: value,
+            expiration
+        };
         if (value === undefined) {
             if (localStorage.getItem(storage_key) !== null)
                 localStorage.removeItem(storage_key);
         } else {
-            storage = {
-                payload: value,
-                expiration
-            };
             localStorage.setItem(storage_key, JSON.stringify(storage));
         }
         this[storage_key] = storage;
@@ -113,7 +116,7 @@ SettingsService {
     }
 
     check(storage_key: string): boolean {
-        return !!this[storage_key];
+        return !!this[storage_key] && !!this[storage_key].payload;
     }
 
     subscribe(storage_key: string, callback: any): void {

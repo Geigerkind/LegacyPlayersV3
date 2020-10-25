@@ -3,6 +3,7 @@
         "0": "Server is not reachable!",
         "200": "Success!",
         "401": "Unauthorized!",
+        "4012": "You are not logged in!",
         "404": "Server is not available!",
         "413": "File is too large!",
         "429": "Too many requests!",

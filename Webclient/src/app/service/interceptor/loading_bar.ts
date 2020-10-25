@@ -1,7 +1,7 @@
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
 import {Observable, throwError} from "rxjs";
 import {LoadingBarService} from "../loading_bar";
-import {catchError, map} from "rxjs/operators";
+import {catchError, finalize, map} from "rxjs/operators";
 import { Injectable } from "@angular/core";
 
 @Injectable()

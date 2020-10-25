@@ -56,14 +56,22 @@ export class APIService {
     }
 
     private handleFailure(reason: HttpErrorResponse): APIFailure {
+        let status = reason.status;
+        if (reason.url?.includes("live_data_processor/upload") && reason.status === 502) {
+            status = 4012;
+        }
+        if (!reason.url && !reason.status) {
+            (reason as any).status = 599;
+        }
+
         const api_failure: APIFailure = {
-            status: reason.status,
-            translation: "serverResponses." + reason.status,
+            status,
+            translation: "serverResponses." + status,
             arguments: {
                 arg1: reason.error
             }
         };
-        if (![404].includes(reason.status))
+        if (![404].includes(status))
             this.notificationService.propagate(Severity.Error, api_failure.translation, api_failure.arguments);
         return api_failure;
     }

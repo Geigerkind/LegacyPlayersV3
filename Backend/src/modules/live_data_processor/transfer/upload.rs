@@ -14,10 +14,11 @@ use rocket::http::ContentType;
 use rocket::{Data, State};
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 use std::io::Read;
+use crate::modules::account::guard::Authenticate;
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
-pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State<DataMaterial>, armory: State<Armory>, content_type: &ContentType, form_data: Data) -> Result<(), LiveDataProcessorFailure> {
+pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataProcessor>, data: State<DataMaterial>, armory: State<Armory>, content_type: &ContentType, form_data: Data) -> Result<(), LiveDataProcessorFailure> {
     let mut options = MultipartFormDataOptions::new();
     options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(40 * 1024 * 1024 * 1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("payload_armory").size_limit(10 * 1024 * 1024 * 1024));
@@ -60,7 +61,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
     });
 
     if server_id == -1 {
-        return parse(&me, WoWRetailClassicParser::new(), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64);
+        return parse(&me, WoWRetailClassicParser::new(), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, auth.0);
     } else {
         let server = data.get_server(server_id as u32).unwrap();
         if server.expansion_id == 1 {
@@ -73,6 +74,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
                 content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
+                auth.0
             );
         } else if server.expansion_id == 2 {
             return parse(
@@ -84,6 +86,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
                 content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
+                auth.0
             );
         } else if server.expansion_id == 3 {
             return parse(
@@ -95,6 +98,7 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
                 content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
+                auth.0
             );
         }
     }
@@ -102,9 +106,9 @@ pub fn upload_log(mut db_main: MainDb, me: State<LiveDataProcessor>, data: State
     Err(LiveDataProcessorFailure::InvalidInput)
 }
 
-fn parse(me: &LiveDataProcessor, mut parser: impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &DataMaterial, armory: &Armory, content: &str, start_time: u64, end_time: u64) -> Result<(), LiveDataProcessorFailure> {
+fn parse(me: &LiveDataProcessor, mut parser: impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &DataMaterial, armory: &Armory, content: &str, start_time: u64, end_time: u64, member_id: u32) -> Result<(), LiveDataProcessorFailure> {
     if let Some((server_id, messages)) = parse_cbl(&mut parser, &mut *db_main, data, armory, content, start_time, end_time) {
-        return me.process_messages(&mut *db_main, server_id as u32, &armory, &data, messages);
+        return me.process_messages(&mut *db_main, server_id as u32, &armory, &data, messages, member_id);
     }
     Err(LiveDataProcessorFailure::InvalidInput)
 }
