@@ -44,12 +44,12 @@ export class RaidDetailTableComponent implements OnDestroy {
         {value: 6, label_key: 'Effective healing taken'},
         {value: 7, label_key: 'Overhealing done'},
         {value: 8, label_key: 'Overhealing taken'},
-        {value: 9, label_key: 'Threat done'},
-        {value: 10, label_key: 'Threat taken'},
         {value: 21, label_key: 'Absorb done'},
         {value: 22, label_key: 'Absorb taken'},
         {value: 23, label_key: 'Effective heal and absorb done'},
         {value: 24, label_key: 'Effective heal and absorb taken'},
+        {value: 9, label_key: 'Threat done'},
+        {value: 10, label_key: 'Threat taken'},
     ];
 
     constructor(

@@ -131,12 +131,12 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         {id: DataSet.EffectiveHealingTaken, label: "Effective healing taken"},
         {id: DataSet.OverhealingDone, label: "Overhealing done"},
         {id: DataSet.OverhealingTaken, label: "Overhealing taken"},
-        {id: DataSet.ThreatDone, label: "Threat done"},
-        {id: DataSet.ThreatTaken, label: "Threat taken"},
         {id: DataSet.AbsorbDone, label: "Absorb done"},
         {id: DataSet.AbsorbTaken, label: "Absorb taken"},
         {id: DataSet.HealAndAbsorbDone, label: "Efficient heal and absorb done"},
         {id: DataSet.HealAndAbsorbTaken, label: "Efficient heal and absorb taken"},
+        {id: DataSet.ThreatDone, label: "Threat done"},
+        {id: DataSet.ThreatTaken, label: "Threat taken"},
     ];
     dataSetsSelected = [];
     selectedDataSets: Set<DataSet> = new Set();

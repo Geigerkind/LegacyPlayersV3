@@ -100,6 +100,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 6, label_key: 'Effective healing taken'},
         {value: 7, label_key: 'Overhealing done'},
         {value: 8, label_key: 'Overhealing taken'},
+        {value: 21, label_key: 'Absorb done'},
+        {value: 22, label_key: 'Absorb taken'},
+        {value: 23, label_key: 'Effective heal and absorb done'},
+        {value: 24, label_key: 'Effective heal and absorb taken'},
         {value: 9, label_key: 'Threat done'},
         {value: 10, label_key: 'Threat taken'},
         {value: 11, label_key: 'Deaths'},
@@ -112,10 +116,6 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 18, label_key: 'Spell steal received'},
         {value: 19, label_key: 'Source aura uptime'},
         {value: 20, label_key: 'Target aura uptime'},
-        {value: 21, label_key: 'Absorb done'},
-        {value: 22, label_key: 'Absorb taken'},
-        {value: 23, label_key: 'Effective heal and absorb done'},
-        {value: 24, label_key: 'Effective heal and absorb taken'},
         {value: 99, label_key: 'Event Log'},
     ];
 
