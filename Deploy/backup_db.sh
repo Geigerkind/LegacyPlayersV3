@@ -6,6 +6,9 @@ fi
 DB_PASSWORD=$(cat /root/Keys/db_password)
 TIMESTAMP=$(date +%s)
 
+echo "Removing dumps older than 14 days..."
+find /root/DB_BACKUPS/*.zip -mtime +14 -exec rm {} \;
+
 echo "Dumping database..."
 mariabackup --backup --target-dir /root/DB_BACKUPS/${TIMESTAMP} --user=root --password=${DB_PASSWORD}
 
