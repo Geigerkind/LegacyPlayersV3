@@ -1,4 +1,4 @@
-use crate::modules::armory::dto::{CharacterDto, CharacterHistoryDto, CharacterInfoDto};
+use crate::modules::armory::dto::{CharacterDto, CharacterHistoryDto, CharacterInfoDto, GuildDto, CharacterGuildDto, CharacterGearDto, CharacterItemDto};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::HitType;
 use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit};
@@ -9,6 +9,8 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_heal:
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_miss::parse_miss;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_spell_args::parse_spell_args;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_unit::parse_unit;
+use crate::modules::armory::domain_value::GuildRank;
+use crate::util::hash_str::hash_str;
 
 impl CombatLogParser for WoWTBCParser {
     fn parse_cbl_line(&mut self, data: &Data, event_ts: u64, content: &str) -> Option<Vec<MessageType>> {
@@ -267,34 +269,119 @@ impl CombatLogParser for WoWTBCParser {
         self.participants
             .iter()
             .filter(|(_, participant)| participant.is_player)
-            .map(|(_, participant)| {
-                (
-                    None,
-                    CharacterDto {
-                        server_uid: participant.id,
-                        character_history: Some(CharacterHistoryDto {
-                            character_info: CharacterInfoDto {
-                                gear: Default::default(),
-                                hero_class_id: participant.hero_class_id.unwrap_or(12),
-                                level: 70,
-                                gender: false,
-                                profession1: None,
-                                profession2: None,
-                                talent_specialization: None,
-                                race_id: 1,
+            .fold(Vec::new(), |mut acc, (_, participant)| {
+                let gear_setups = &participant.gear_setups;
+                if gear_setups.is_some() && !gear_setups.as_ref().unwrap().is_empty() {
+                    for (_ts, gear) in gear_setups.as_ref().unwrap().iter() {
+                        // TODO: Use TS
+                        acc.push((
+                            None,
+                            CharacterDto {
+                                server_uid: participant.id,
+                                character_history: Some(CharacterHistoryDto {
+                                    character_info: CharacterInfoDto {
+                                        gear: CharacterGearDto {
+                                            head: create_character_item_dto(&gear[0]),
+                                            neck: create_character_item_dto(&gear[1]),
+                                            shoulder: create_character_item_dto(&gear[2]),
+                                            back: create_character_item_dto(&gear[14]),
+                                            chest: create_character_item_dto(&gear[4]),
+                                            shirt: create_character_item_dto(&gear[3]),
+                                            tabard: create_character_item_dto(&gear[18]),
+                                            wrist: create_character_item_dto(&gear[8]),
+                                            main_hand: create_character_item_dto(&gear[15]),
+                                            off_hand: create_character_item_dto(&gear[16]),
+                                            ternary_hand: create_character_item_dto(&gear[17]),
+                                            glove: create_character_item_dto(&gear[9]),
+                                            belt: create_character_item_dto(&gear[5]),
+                                            leg: create_character_item_dto(&gear[6]),
+                                            boot: create_character_item_dto(&gear[7]),
+                                            ring1: create_character_item_dto(&gear[10]),
+                                            ring2: create_character_item_dto(&gear[11]),
+                                            trinket1: create_character_item_dto(&gear[12]),
+                                            trinket2: create_character_item_dto(&gear[13]),
+                                        },
+                                        hero_class_id: participant.hero_class_id.unwrap_or(12),
+                                        level: 70,
+                                        gender: participant.gender_id.unwrap_or(false),
+                                        profession1: None,
+                                        profession2: None,
+                                        talent_specialization: participant.talents.clone(),
+                                        race_id: participant.race_id.unwrap_or(1),
+                                    },
+                                    character_name: participant.name.clone(),
+                                    character_guild: participant.guild_args.as_ref().map(|(guild_name, rank_name, rank_index)| CharacterGuildDto {
+                                        guild: GuildDto {
+                                            server_uid: hash_str(guild_name) & 0x0000FFFFFFFFFFFF,
+                                            name: guild_name.clone(),
+                                        },
+                                        rank: GuildRank { index: *rank_index, name: rank_name.clone() },
+                                    }),
+                                    character_title: None,
+                                    profession_skill_points1: None,
+                                    profession_skill_points2: None,
+                                    facial: None,
+                                    arena_teams: vec![],
+                                }),
                             },
-                            character_name: participant.name.clone(),
-                            character_guild: None,
-                            character_title: None,
-                            profession_skill_points1: None,
-                            profession_skill_points2: None,
-                            facial: None,
-                            arena_teams: vec![],
-                        }),
-                    },
-                )
+                        ));
+                    }
+                } else {
+                    // TODO: Use TS
+                    acc.push((
+                        None,
+                        CharacterDto {
+                            server_uid: participant.id,
+                            character_history: Some(CharacterHistoryDto {
+                                character_info: CharacterInfoDto {
+                                    gear: CharacterGearDto {
+                                        head: None,
+                                        neck: None,
+                                        shoulder: None,
+                                        back: None,
+                                        chest: None,
+                                        shirt: None,
+                                        tabard: None,
+                                        wrist: None,
+                                        main_hand: None,
+                                        off_hand: None,
+                                        ternary_hand: None,
+                                        glove: None,
+                                        belt: None,
+                                        leg: None,
+                                        boot: None,
+                                        ring1: None,
+                                        ring2: None,
+                                        trinket1: None,
+                                        trinket2: None,
+                                    },
+                                    hero_class_id: participant.hero_class_id.unwrap_or(1),
+                                    level: 70,
+                                    gender: participant.gender_id.unwrap_or(false),
+                                    profession1: None,
+                                    profession2: None,
+                                    talent_specialization: participant.talents.clone(),
+                                    race_id: participant.race_id.unwrap_or(1),
+                                },
+                                character_name: participant.name.clone(),
+                                character_guild: participant.guild_args.as_ref().map(|(guild_name, rank_name, rank_index)| CharacterGuildDto {
+                                    guild: GuildDto {
+                                        server_uid: hash_str(guild_name) & 0x0000FFFFFFFFFFFF,
+                                        name: guild_name.clone(),
+                                    },
+                                    rank: GuildRank { index: *rank_index, name: rank_name.clone() },
+                                }),
+                                character_title: None,
+                                profession_skill_points1: None,
+                                profession_skill_points2: None,
+                                facial: None,
+                                arena_teams: vec![],
+                            }),
+                        },
+                    ));
+                }
+                acc
             })
-            .collect()
     }
 
     fn get_participants(&self) -> Vec<Participant> {
@@ -350,4 +437,13 @@ impl CombatLogParser for WoWTBCParser {
     fn get_bonus_messages(&self) -> Option<Vec<Message>> {
         Some(self.bonus_messages.clone())
     }
+}
+
+fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>) -> Option<CharacterItemDto> {
+    item.as_ref().map(|(item_id, enchant_id, gems)| CharacterItemDto {
+        item_id: *item_id,
+        random_property_id: None,
+        enchant_id: enchant_id.clone(),
+        gem_ids: gems.clone().unwrap_or_else(Vec::new),
+    })
 }

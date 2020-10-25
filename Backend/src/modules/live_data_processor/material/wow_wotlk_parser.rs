@@ -6,6 +6,7 @@ use regex::Regex;
 use crate::modules::armory::tools::strip_talent_specialization;
 use crate::modules::live_data_processor::tools::GUID;
 use chrono::NaiveDateTime;
+use time_util::now;
 
 pub struct WoWWOTLKParser {
     pub server_id: u32,
@@ -115,7 +116,7 @@ impl WoWWOTLKParser {
         lazy_static! {
             static ref RE_PLAYER_INFOS: Regex = Regex::new(r##"\["0x([A-Z0-9]+)"\]\s=\s"([^"]+)","##).unwrap();
             static ref RE_LOOT: Regex = Regex::new(r##""(.+)&LOOT&(.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(.+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.","##).unwrap();
-            static ref RE_ZONE: Regex = Regex::new(r##"(.+)&ZONE_INFO&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)"##).unwrap();
+            static ref RE_ZONE: Regex = Regex::new(r##"(.+)&ZONE_INFO&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&?(.*)"##).unwrap();
         }
 
         for cap in RE_PLAYER_INFOS.captures_iter(&armory_content) {
@@ -219,7 +220,7 @@ impl WoWWOTLKParser {
                             gear.push(Some((item_id, Some(enchant_id), Some(gems))));
                         }
                     }
-                    gear_setups.push((0, gear)); // TODO: Change it to now
+                    gear_setups.push((now() * 1000, gear));
                 }
 
                 if talents != "nil" {
@@ -271,48 +272,42 @@ impl WoWWOTLKParser {
             }
         }
 
-        /*
-        // Cant do this, as I should only add player to the instance that actually participate
-        // => Maybe add list of participants as well?
         for cap in RE_ZONE.captures_iter(&armory_content) {
             if let Ok(timestamp) = NaiveDateTime::parse_from_str(&cap[1], "%d.%m.%y %H:%M:%S") {
-                if cap[8].as_str() != "nil" {
-                    if let Ok(instance_id) = u32::from_str_radix(&cap[8], 10) {
-                        let map_id = match &cap[2].as_str() {
-                            "Naxxramas" => 533,
-                            "The Obsidian Sanctum" => 615,
-                            "The Eye of Eternity" => 616,
-                            "Ulduar" => 603,
-                            "Trial of the Crusader" => 649,
-                            "Onyxia's Lair" => 249,
-                            "Icecrown Citadel" => 631,
-                            "The Ruby Sanctum" => 724,
-                            _ => continue
-                        };
-                        let difficulty_id = match &cap[5].as_str() {
-                            "10 Player" => 3,
-                            "25 Player" => 4,
-                            "10 Player (Heroic)" => 5,
-                            "25 Player (Heroic)" => 6,
-                            _ => continue
-                        };
-
-                        for (unit_id, _) in self.participants.iter() {
-                            self.bonus_messages.push(Message::new_parsed(
-                                timestamp.timestamp_millis() as u64, 0,
-                                MessageType::InstanceMap(
-                                    InstanceMap {
-                                        map_id,
-                                        instance_id,
-                                        map_difficulty: difficulty_id,
-                                        unit: Unit { is_player: true, unit_id: *unit_id }
-                                    })));
+                if &cap[9] != "nil" {
+                    if let Ok(map_id) = u32::from_str_radix(&cap[8], 10) {
+                        if let Ok(instance_id) = u32::from_str_radix(&cap[9], 10) {
+                            let difficulty_id = match &cap[5] {
+                                "10 Player" => 3,
+                                "25 Player" => 4,
+                                "10 Player (Heroic)" => 5,
+                                "25 Player (Heroic)" => 6,
+                                _ => continue
+                            };
+                            if !cap[10].is_empty() {
+                                for participant_unit_guid in cap[10].split('&') {
+                                    if let Ok(mut guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
+                                        // Crystalsong UID fix
+                                        if guid.get_high() == 0x0110 {
+                                            guid &= 0x0000000000FFFFFF;
+                                        }
+                                        self.bonus_messages.push(Message::new_parsed(
+                                            timestamp.timestamp_millis() as u64, 0,
+                                            MessageType::InstanceMap(
+                                                InstanceMap {
+                                                    map_id,
+                                                    instance_id,
+                                                    map_difficulty: difficulty_id,
+                                                    unit: Unit { is_player: true, unit_id: guid },
+                                                })));
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-         */
 
 
         Some(())

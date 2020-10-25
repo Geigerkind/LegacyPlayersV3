@@ -47,6 +47,7 @@ local LoggingCombat = LoggingCombat
 local pairs = pairs
 local time = time
 local GetPlayerBuff = GetPlayerBuff
+local GetRealZoneText = GetRealZoneText
 
 local RPLL_Tooltip = RPLL_Tooltip
 local RPLL_TooltipTextLeft1 = RPLL_TooltipTextLeft1
@@ -239,10 +240,13 @@ function RPLL:DeepSubString(str1, str2)
 end
 
 function RPLL:QueueRaidIds()
+	local zone = strlower(GetRealZoneText())
     for i=1, GetNumSavedInstances() do
         local instance_name, instance_id = GetSavedInstanceInfo(i)
-		tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..instance_name.."&"..instance_id)
-		this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
+		if zone == strlower(instance_name) then
+			tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..instance_name.."&"..instance_id)
+			this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
+		end
     end
 end
 

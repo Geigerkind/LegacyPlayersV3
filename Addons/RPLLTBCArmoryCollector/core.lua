@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 2
+RPLL.VERSION = 3
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -27,6 +27,9 @@ local date = date
 local GetRealmName = GetRealmName
 local GetNumSavedInstances = GetNumSavedInstances
 local GetSavedInstanceInfo = GetSavedInstanceInfo
+local unpack = unpack
+local strlower = strlower
+local GetRealZoneText = GetRealZoneText
 
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL.UPDATE_MOUSEOVER_UNIT = function()
@@ -264,6 +267,9 @@ function RPLL:CollectUnit(unit)
     if not UnitIsPlayer(unit) then
         return
     end
+    if UnitGUID(unit) ~= nil and UnitGUID(unit) == UnitGUID("player") then
+        unit = "player"
+    end
     local unit_guid = UnitGUID(unit)
     local unit_name = UnitName(unit)
     local unit_race = UnitRace(unit)
@@ -338,9 +344,25 @@ function RPLL:PushCurrentInstanceInfo()
         return
     end
 
+    local zone = strlower(GetRealZoneText())
     for i=1, GetNumSavedInstances() do
         local instance_name, instance_id = GetSavedInstanceInfo(i)
-        this:PushExtraMessage(strjoin("&", "ZONE_INFO", instance_name, instance_id))
+        if zone == strlower(instance_name) then
+            local participants = {}
+            tinsert(participants, UnitGUID("player"))
+            for j = 1, GetNumRaidMembers() do
+                if UnitName("raid" .. j) then
+                    tinsert(participants, UnitGUID("raid"..j))
+                end
+            end
+            for j = 1, GetNumPartyMembers() do
+                if UnitName("party" .. j) then
+                    tinsert(participants, UnitGUID("party"..j))
+                end
+            end
+            this:PushExtraMessage(strjoin("&", "ZONE_INFO", instance_name, instance_id, unpack(participants)))
+            break
+        end
     end
 end
 
