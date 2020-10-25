@@ -1,4 +1,4 @@
-import {Component, LOCALE_ID, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {DataService} from "../../../../../../service/data";
@@ -11,6 +11,8 @@ import {table_init_filter} from "../../../../../../template/table/utility/table_
 import {SettingsService} from "../../../../../../service/settings";
 import {DateService} from "../../../../../../service/date";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {NotificationService} from "../../../../../../service/notification";
+import {Severity} from "../../../../../../domain_value/severity";
 
 @Component({
     selector: "Search",
@@ -59,15 +61,17 @@ export class SearchComponent implements OnInit {
     num_characters: number = 0;
 
     private available_servers: Array<AvailableServer> = [];
+    private last_filter;
 
     constructor(
         private dataService: DataService,
         private searchService: RaidSearchService,
         private settingsService: SettingsService,
         public dateService: DateService,
-        public tinyUrlService: TinyUrlService
+        public tinyUrlService: TinyUrlService,
+        private notificationService: NotificationService
     ) {
-        this.dataService.get_maps_by_type(0).subscribe( (instance_maps: Array<Localized<InstanceMap>>) => {
+        this.dataService.get_maps_by_type(0).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(inner_map => this.header_columns[0].type_range.push({
                 value: inner_map.base.id,
                 label_key: inner_map.localization
@@ -102,6 +106,7 @@ export class SearchComponent implements OnInit {
 
     onFilter(filter: any): void {
         this.searchService.search_raids(filter, (search_result) => {
+            this.last_filter = filter;
             this.num_characters = search_result.num_items;
             this.body_columns = search_result.result.map(item => {
                 const body_columns: Array<BodyColumn> = [];
@@ -110,7 +115,8 @@ export class SearchComponent implements OnInit {
                     content: item.map_id.toString(),
                     args: {
                         icon: item.map_icon,
-                        instance_meta_id: item.instance_meta_id
+                        instance_meta_id: item.instance_meta_id,
+                        can_delete: item.can_delete
                     }
                 });
                 body_columns.push({
@@ -147,6 +153,13 @@ export class SearchComponent implements OnInit {
                 };
             });
         }, () => {
+        });
+    }
+
+    delete_raid(instance_meta_id: number): void {
+        this.searchService.delete_raid(instance_meta_id, () => {
+           this.onFilter(this.last_filter);
+           this.notificationService.propagate(Severity.Success, "Raid deleted!");
         });
     }
 

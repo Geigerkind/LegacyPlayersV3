@@ -19,6 +19,10 @@ $warning: darken(#FEEFB3, 20%);
 $error: darken(#FFD2D2, 20%);
 $information: darken(#BDE5F8, 20%);
 
+.color_error {
+    color: $error;
+}
+
 $alliance: #372727;
 $horde: #272f37;
 

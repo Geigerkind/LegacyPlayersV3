@@ -10,4 +10,5 @@ pub struct InstanceMeta {
     pub expired: Option<u64>,
     pub participants: Vec<u32>,
     pub instance_specific: MetaType,
+    pub uploaded_user: u32,
 }

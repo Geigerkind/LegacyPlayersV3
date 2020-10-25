@@ -25,4 +25,11 @@ $columnHeight: 50px;
         float: left;
         line-height: $columnHeight;
     }
+
+    .delete_button {
+        cursor: pointer;
+        &:hover {
+            color: $font_default;
+        }
+    }
 }

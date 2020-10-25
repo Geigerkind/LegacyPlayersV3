@@ -58,6 +58,10 @@ impl Instance {
         });
         self
     }
+
+    pub fn update_instance_meta(&self, db_main: &mut impl Select, armory: &Armory) {
+        update_instance_metas(Arc::clone(&self.instance_metas), db_main, armory);
+    }
 }
 
 fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
@@ -181,11 +185,12 @@ fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<V
 
 fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>, db_main: &mut impl Select, armory: &Armory) {
     let mut instance_metas = instance_metas.write().unwrap();
+    instance_metas.clear();
 
     // Raids
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty, A.uploaded_user FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id",
             |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
@@ -197,6 +202,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                 instance_specific: MetaType::Raid {
                     map_difficulty: row.take::<u8, usize>(6).unwrap(),
                 },
+                uploaded_user: row.take(7).unwrap()
             },
         )
         .into_iter()
@@ -208,7 +214,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // TODO: Rename team_change1 to team1_change
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2 FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2, A.uploaded_user FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
             |mut row| {
                 (
                     row.take::<u32, usize>(0).unwrap(),
@@ -222,11 +228,12 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     row.take::<u32, usize>(8).unwrap(),
                     row.take::<i32, usize>(9).unwrap(),
                     row.take::<i32, usize>(10).unwrap(),
+                    row.take::<u32, usize>(11).unwrap()
                 )
             },
         )
         .into_iter()
-        .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change)| {
+        .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change, uploaded_user)| {
             instance_metas.insert(
                 instance_meta_id,
                 InstanceMeta {
@@ -244,6 +251,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                         team1_change,
                         team2_change,
                     },
+                    uploaded_user
                 },
             );
         });
@@ -251,7 +259,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // Skirmishes
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, A.uploaded_user FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id",
             |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
@@ -263,6 +271,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                 instance_specific: MetaType::Skirmish {
                     winner: row.take::<u8, usize>(6).unwrap().to_winner(),
                 },
+                uploaded_user: row.take(7).unwrap()
             },
         )
         .into_iter()
@@ -273,7 +282,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // Battlegrounds
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde, A.uploaded_user FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id",
             |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
@@ -287,6 +296,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     score_alliance: row.take(7).unwrap(),
                     score_horde: row.take(8).unwrap(),
                 },
+                uploaded_user: row.take(9).unwrap()
             },
         )
         .into_iter()

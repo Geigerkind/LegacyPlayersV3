@@ -5,4 +5,5 @@ pub struct MetaSkirmishSearch {
     pub winner: Option<bool>,
     pub start_ts: u64,
     pub end_ts: Option<u64>,
+    pub can_delete: bool
 }

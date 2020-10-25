@@ -12,14 +12,14 @@ use crate::util::ordering::NegateOrdExt;
 use std::cmp::Ordering;
 
 pub trait MetaSearch {
-    fn search_meta_raids(&self, armory: &Armory, data: &Data, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
-    fn search_meta_rated_arenas(&self, filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch>;
-    fn search_meta_skirmishes(&self, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch>;
-    fn search_meta_battlegrounds(&self, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch>;
+    fn search_meta_raids(&self, armory: &Armory, data: &Data, current_user: Option<u32>, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
+    fn search_meta_rated_arenas(&self, current_user: Option<u32>, filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch>;
+    fn search_meta_skirmishes(&self, current_user: Option<u32>, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch>;
+    fn search_meta_battlegrounds(&self, current_user: Option<u32>, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch>;
 }
 
 impl MetaSearch for Instance {
-    fn search_meta_raids(&self, armory: &Armory, data: &Data, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
+    fn search_meta_raids(&self, armory: &Armory, data: &Data, current_user: Option<u32>, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
         filter.guild.convert_to_lowercase();
         let mut result = self
             .export_meta(0)
@@ -46,6 +46,7 @@ impl MetaSearch for Instance {
                                 server_id: raid.server_id,
                                 start_ts: raid.start_ts,
                                 end_ts: raid.end_ts,
+                                can_delete: current_user.contains(&raid.uploaded_user)
                             });
                         }
                     }
@@ -72,7 +73,7 @@ impl MetaSearch for Instance {
         }
     }
 
-    fn search_meta_rated_arenas(&self, mut filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch> {
+    fn search_meta_rated_arenas(&self, current_user: Option<u32>, mut filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch> {
         filter.team1.convert_to_lowercase();
         filter.team2.convert_to_lowercase();
         let mut result = self
@@ -106,6 +107,7 @@ impl MetaSearch for Instance {
                             team2_change,
                             start_ts: rated_arena.start_ts,
                             end_ts: rated_arena.end_ts,
+                            can_delete: current_user.contains(&rated_arena.uploaded_user)
                         });
                     }
                 }
@@ -133,7 +135,7 @@ impl MetaSearch for Instance {
         }
     }
 
-    fn search_meta_skirmishes(&self, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch> {
+    fn search_meta_skirmishes(&self, current_user: Option<u32>, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch> {
         let mut result = self
             .export_meta(2)
             .into_iter()
@@ -153,6 +155,7 @@ impl MetaSearch for Instance {
                         winner,
                         start_ts: skirmish.start_ts,
                         end_ts: skirmish.end_ts,
+                        can_delete: current_user.contains(&skirmish.uploaded_user)
                     });
                 }
                 None
@@ -175,7 +178,7 @@ impl MetaSearch for Instance {
         }
     }
 
-    fn search_meta_battlegrounds(&self, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch> {
+    fn search_meta_battlegrounds(&self, current_user: Option<u32>, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch> {
         let mut result = self
             .export_meta(3)
             .into_iter()
@@ -198,6 +201,7 @@ impl MetaSearch for Instance {
                             score_horde,
                             start_ts: skirmish.start_ts,
                             end_ts: skirmish.end_ts,
+                            can_delete: current_user.contains(&skirmish.uploaded_user)
                         });
                     }
                 }
