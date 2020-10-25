@@ -116,7 +116,7 @@ impl WoWWOTLKParser {
         lazy_static! {
             static ref RE_PLAYER_INFOS: Regex = Regex::new(r##"\["0x([A-Z0-9]+)"\]\s=\s"([^"]+)","##).unwrap();
             static ref RE_LOOT: Regex = Regex::new(r##""(.+)&LOOT&(.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(.+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.","##).unwrap();
-            static ref RE_ZONE: Regex = Regex::new(r##"(.+)&ZONE_INFO&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&?(.*)"##).unwrap();
+            static ref RE_ZONE: Regex = Regex::new(r##"(.+)&ZONE_INFO&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&([^&]+)&?([^"]*)"##).unwrap();
         }
 
         for cap in RE_PLAYER_INFOS.captures_iter(&armory_content) {
