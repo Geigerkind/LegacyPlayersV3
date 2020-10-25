@@ -9,3 +9,4 @@ mod instance_guild;
 mod meta;
 mod meta_search;
 mod ranking;
+mod delete;
