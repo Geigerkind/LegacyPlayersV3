@@ -8,6 +8,10 @@ export class DateService {
 
     constructor(private datePipe: DatePipe) {}
 
+    toRPLLLongEUDate(timestamp_in_ms: any): string {
+        return this.datePipe.transform(new Date(Number(timestamp_in_ms)), 'dd.MM.yy hh:mm:ss', "+0000");
+    }
+
     toRPLLLongDate(timestamp_in_ms: any): string {
         return this.datePipe.transform(new Date(Number(timestamp_in_ms)), 'dd.MM.yy hh:mm a', "+0000");
     }

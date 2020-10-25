@@ -31,9 +31,9 @@ export class UploadComponent implements OnDestroy {
         private data_service: DataService
     ) {
         const start = new Date();
-        start.setUTCHours(1, 0, 0, 0);
+        start.setUTCHours(-24, 1, 0, 0);
         const end = new Date();
-        end.setUTCHours(23, 0, 0, 0);
+        end.setUTCHours(23 + 24, 59, 0, 0);
 
         this.selected_start_date = this.date_service.toRPLLLongDate(start);
         this.selected_end_date = this.date_service.toRPLLLongDate(end);
