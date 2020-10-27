@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 1
+RPLL.VERSION = 2
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -818,19 +818,21 @@ function RPLL:rotate_combat_log_global_string()
         this.ExtraMessageQueueIndex = this.ExtraMessageQueueIndex + 1
     elseif this.RotationLength ~= 0 then
         local character = this.PlayerInformation[this.PlayerRotation[this.RotationIndex]]
-        local result = "COMBATANT_INFO: "
-        local gear_str = prep_value(character["gear"][1])
-        for i=2, 19 do
-            gear_str = gear_str.."&"..prep_value(character["gear"][i])
-        end
-        local buff_str = prep_value(character["buffs"][0])
-        for i=1, 15 do
-            buff_str = buff_str.."&"..prep_value(character["buffs"][i])
-        end
+		if character ~= nil then
+			local result = "COMBATANT_INFO: "
+			local gear_str = prep_value(character["gear"][1])
+			for i=2, 19 do
+				gear_str = gear_str.."&"..prep_value(character["gear"][i])
+			end
+			local buff_str = prep_value(character["buffs"][0])
+			for i=1, 15 do
+				buff_str = buff_str.."&"..prep_value(character["buffs"][i])
+			end
 
-        result = result..prep_value(character["name"]).."&"..prep_value(character["hero_class"]).."&"..prep_value(character["race"]).."&"..prep_value(character["sex"]).."&"..prep_value(character["pet"]).."&"..prep_value(character["guild_name"]).."&"..prep_value(character["guild_rank_name"]).."&"..prep_value(character["guild_rank_index"]).."&"..gear_str.."&"..buff_str
-        SPELLFAILCASTSELF = result
-        SPELLFAILPERFORMSELF = result
+			result = result..prep_value(character["name"]).."&"..prep_value(character["hero_class"]).."&"..prep_value(character["race"]).."&"..prep_value(character["sex"]).."&"..prep_value(character["pet"]).."&"..prep_value(character["guild_name"]).."&"..prep_value(character["guild_rank_name"]).."&"..prep_value(character["guild_rank_index"]).."&"..gear_str.."&"..buff_str
+			SPELLFAILCASTSELF = result
+			SPELLFAILPERFORMSELF = result
+		end
         if this.RotationIndex + 1 > this.RotationLength then
             this.RotationIndex = 1
         else
