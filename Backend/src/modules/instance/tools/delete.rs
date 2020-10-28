@@ -22,6 +22,7 @@ impl DeleteInstance for Instance {
         )) {
                 self.update_instance_meta(db_main, armory);
                 let _ = fs::remove_dir_all(&format!("{}/{}/{}", storage_path, server_id, instance_meta_id));
+                let _ = fs::remove_file(&format!("{}/{}/{}.zip", storage_path, server_id, instance_meta_id));
                 return Ok(());
             }
         }

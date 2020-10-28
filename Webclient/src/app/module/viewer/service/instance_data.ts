@@ -49,6 +49,7 @@ export class InstanceDataService implements OnDestroy {
     private knecht_updates$: Subject<[KnechtUpdates, Array<number>]> = new Subject();
     private recent_knecht_updates$: [Set<KnechtUpdates>, Set<number>] = [new Set(), new Set()];
     private worker_initialized: number = 0;
+    private init_worker_done: boolean = false;
 
     constructor(
         private apiService: APIService,
@@ -216,6 +217,9 @@ export class InstanceDataService implements OnDestroy {
     }
 
     private init_worker(instance_meta_id: number, is_expired: boolean): void {
+        if (this.init_worker_done) return;
+        this.init_worker_done = true;
+
         // Cant be put into a function because Angular won't recognize paths otherwise
         const knecht_condition = data => !!data && !!data[0] && data[0] === "KNECHT_UPDATES";
         const handle_loading_bar = data => {
@@ -233,7 +237,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -256,7 +259,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -269,7 +271,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -282,7 +283,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -294,7 +294,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -307,7 +306,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -320,7 +318,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };
@@ -332,7 +329,6 @@ export class InstanceDataService implements OnDestroy {
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
-
                 this.knecht_updates$.next([data[1], data[2]]);
             }
         };

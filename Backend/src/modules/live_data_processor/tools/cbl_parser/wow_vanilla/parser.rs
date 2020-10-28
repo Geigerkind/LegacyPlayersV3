@@ -112,7 +112,7 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_DAMAGE_SHIELD: Regex = Regex::new(r"(.+[^\s]) reflects (\d+) ([a-zA-Z]+) damage to (.+[^\s])\.").unwrap(); // Ability?
 
             static ref RE_HEAL_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) (critically heals|heals) (.+[^\s]) for (\d+)\.").unwrap();
-            static ref RE_GAIN: Regex = Regex::new(r"(.+[^\s]) gains (\d+) (Health|Mana|Rage|Energy|Happiness|Focus) from (.+[^\s])\s's (.+[^\s])\.").unwrap();
+            static ref RE_GAIN: Regex = Regex::new(r"(.+[^\s]) gains (\d+) (Health|health|Mana|Rage|Energy|Happiness|Focus) from (.+[^\s])\s's (.+[^\s])\.").unwrap();
 
             // Somehow track the owner?
             static ref RE_AURA_GAIN_HARMFUL_HELPFUL: Regex = Regex::new(r"(.+[^\s]) (is afflicted by|gains) (.+[^\s]) \((\d+)\)\.").unwrap();
@@ -140,7 +140,7 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_GAIN.captures(&content) {
-            if captures.get(3)?.as_str() != "Health" {
+            if !captures.get(3)?.as_str().contains("ealth") {
                 return None;
             }
 
@@ -263,7 +263,7 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_DAMAGE_PERIODIC.captures(&content) {
-            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let damage = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
             let school = match captures.get(3)?.as_str() {
                 "Physical" => School::Physical,
@@ -275,7 +275,7 @@ impl CombatLogParser for WoWVanillaParser {
                 "Holy" => School::Holy,
                 _ => unreachable!(),
             };
-            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            let attacker = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(5)?.as_str())?;
 
             let mut hit_mask = HitType::Hit as u32;

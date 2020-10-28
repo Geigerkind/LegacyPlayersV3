@@ -33,7 +33,7 @@ impl ExportInstance for Instance {
             if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
                 let now = time_util::now() * 1000;
                 let last_updated = cached.get_last_updated();
-                if (expired.is_some() && expired.unwrap() < last_updated) || (last_updated + 10000 > now) {
+                if (expired.is_some() && expired.unwrap() < last_updated) || (last_updated + 300000 > now) {
                     return Ok(cached.get_cached());
                 }
             }
@@ -46,7 +46,7 @@ impl ExportInstance for Instance {
             if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
                 let now = time_util::now() * 1000;
                 let last_updated = cached.get_last_updated() * 1000;
-                if (expired.is_some() && expired.unwrap() < last_updated) || (last_updated + 10000 > now) {
+                if (expired.is_some() && expired.unwrap() < last_updated) || (last_updated + 300000 > now) {
                     return Ok(cached.get_cached());
                 }
             }

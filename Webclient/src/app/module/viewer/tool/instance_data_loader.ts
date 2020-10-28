@@ -80,10 +80,13 @@ export class InstanceDataLoader {
             });
         this.load_data(event_types)
             .finally(() => {
+                // DISABLED ATM
+                /*
                 if (!is_expired) {
                     setInterval(() =>
                         this.load_data(event_types), InstanceDataLoader.UPDATE_INTERVAL);
                 }
+                 */
             });
     }
 
