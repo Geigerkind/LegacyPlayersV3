@@ -25,7 +25,7 @@
             <div *ngFor="let hero_classes of healer" class="class_row"
                  [attr.data-hero-class-id]="hero_classes[0].hero_class_id">
                 <span *ngFor="let participant of hero_classes"
-                      [showTooltip]="{type: 1, character_id: hero_classes[0].character_id }"><a
+                      [showTooltip]="{type: 1, character_id: participant.character_id }"><a
                     [routerLink]="'/armory/character/' + (server_name | async) + '/' + participant.name">{{participant.name}}</a></span>
             </div>
         </div>
