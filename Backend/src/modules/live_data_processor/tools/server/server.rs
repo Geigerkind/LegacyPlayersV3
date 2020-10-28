@@ -12,22 +12,26 @@ use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
 use std::collections::{BTreeSet, VecDeque};
+use chrono::{NaiveDateTime, Datelike, Timelike};
+use time_util::now;
+use chrono::Duration;
 
 impl Server {
     pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, data: &Data, messages: Vec<Message>, member_id: u32) -> Result<(), LiveDataProcessorFailure> {
-        let mut next_reset = 0;
-
         println!("Start");
+        if messages.is_empty() {
+            return Ok(());
+        }
+
+        let last_ts = messages.last().unwrap().timestamp;
         for msg in messages {
             self.extract_meta_information(db_main, armory, &msg, member_id);
             self.test_for_committable_events(db_main, data, armory, member_id);
             self.cleanup(msg.timestamp);
-            if next_reset < msg.timestamp || next_reset == u64::MAX {
-                next_reset = self.reset_instances(db_main, msg.timestamp, member_id);
-            }
             self.push_non_committed_event(msg);
         }
-        self.perform_post_processing(db_main, u64::MAX, data);
+        self.reset_instances(db_main, last_ts);
+        self.perform_post_processing(db_main, last_ts, data);
         println!("Done");
         Ok(())
     }
@@ -655,8 +659,9 @@ impl Server {
     }
 
     fn finalize_instance_meta(&self, db_main: &mut impl Execute, end_ts: u64, instance_meta_id: u32) -> bool {
+        // TODO: Flag for zip!
         db_main.execute_wparams(
-            "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=:end_ts WHERE instance_meta_id=:instance_meta_id",
+            "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=:end_ts WHERE id=:instance_meta_id",
             params!(
                 "end_ts" => end_ts,
                 "instance_meta_id" => instance_meta_id
@@ -664,30 +669,36 @@ impl Server {
         )
     }
 
-    /// Returns timestamp when the next reset is required
-    pub fn reset_instances(&mut self, db_main: &mut impl Execute, now: u64, member_id: u32) -> u64 {
-        for ((instance_id, _), instance_meta_id) in self
+    pub fn reset_instances(&mut self, db_main: &mut impl Execute, current_ts: u64) {
+        for ((instance_id, member_id), instance_meta_id) in self
             .active_instances
             .iter()
             .filter(|(_, active_instance)| {
                 if let Some(instance_reset) = self.instance_resets.get(&active_instance.map_id) {
-                    return active_instance.entered <= instance_reset.reset_time && now > instance_reset.reset_time;
+                    active_instance.entered < instance_reset.reset_time - 7 * 24 * 60 * 60 * 1000
+                } else {
+                    // By default we assume wednesday reset 6 AM
+                    let mut reset_time = NaiveDateTime::from_timestamp(now() as i64, 0);
+                    let day_from_mon = reset_time.weekday().num_days_from_monday();
+                    if day_from_mon < 2 {
+                        reset_time = reset_time.checked_add_signed(Duration::days(day_from_mon as i64)).unwrap();
+                    } else if day_from_mon > 2 {
+                        reset_time = reset_time.checked_add_signed(Duration::days((9 - day_from_mon) as i64)).unwrap();
+                    }
+                    reset_time = reset_time.checked_sub_signed(Duration::days(7)).unwrap();
+                    let reset_time = reset_time.with_hour(6).expect("Should be valid").timestamp_millis() as u64;
+                    active_instance.entered < reset_time
                 }
-                false
             })
             .map(|(instance_id, unit_instance)| (*instance_id, unit_instance.instance_meta_id))
             .collect::<Vec<((u32, u32), u32)>>()
         {
-            if self.finalize_instance_meta(db_main, now, instance_meta_id) {
+            if self.finalize_instance_meta(db_main, current_ts, instance_meta_id) {
                 self.active_instances.remove(&(instance_id, member_id));
                 self.instance_participants.remove(&instance_meta_id);
                 self.active_attempts.remove(&(instance_id, member_id));
             }
         }
-        self.instance_resets
-            .iter()
-            .filter(|(_, active_instance)| active_instance.reset_time >= now)
-            .fold(u64::MAX, |acc, (_, active_instance)| acc.min(active_instance.reset_time))
     }
 
     fn find_matching_spell_cause(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit, victim: &Unit, message_count: u64, is_dot: Option<bool>, member_id: u32) -> Result<Event, EventParseFailureAction> {

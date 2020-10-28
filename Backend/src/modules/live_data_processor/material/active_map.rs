@@ -90,8 +90,7 @@ impl RetrieveActiveMap for ActiveMapVec {
                         acc.insert(*unit_id);
                         acc
                     })
-                    .len()
-                    >= 18
+                    .len() >= 13
                 {
                     difficulty_id = Some(4);
                 } else {

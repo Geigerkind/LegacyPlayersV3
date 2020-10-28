@@ -19,12 +19,12 @@ services:
     build:
       context: ./../
       dockerfile: ./Environment/nginx/Dockerfile
-    volumes:
-      - ./../ModelViewer/mo3/:/var/www/html/model_viewer/mo3
-      - ./../ModelViewer/meta/:/var/www/html/model_viewer/meta
-      - ./../ModelViewer/textures/:/var/www/html/model_viewer/textures
-      - ./../ModelViewer/viewer/:/var/www/html/model_viewer/viewer
-      - ./../ModelViewer/bg.png:/var/www/html/model_viewer/bg.png
+    #volumes:
+    #  - ./../ModelViewer/mo3/:/var/www/html/model_viewer/mo3
+    #  - ./../ModelViewer/meta/:/var/www/html/model_viewer/meta
+    #  - ./../ModelViewer/textures/:/var/www/html/model_viewer/textures
+    #  - ./../ModelViewer/viewer/:/var/www/html/model_viewer/viewer
+    #  - ./../ModelViewer/bg.png:/var/www/html/model_viewer/bg.png
     ports:
     - '80:80'
     - '443:443'
