@@ -548,20 +548,17 @@ impl Server {
                                                         score_horde,
                                                         ..
                                                     }) => {
-                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)) {
-                    self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
+                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)).cloned() {
+                    self.finalize_instance_meta(db_main, message.timestamp, instance_meta_id);
                     db_main.execute_wparams(
                         "UPDATE instance_battleground SET `winner`=:winner, `score_alliance`=:score_alliance, `score_horde`=:score_horde WHERE instance_meta_id=:instance_meta_id",
                         params!(
-                            "instance_meta_id" => *instance_meta_id,
+                            "instance_meta_id" => instance_meta_id,
                             "winner" => *winner,
                             "score_alliance" => *score_alliance,
                             "score_horde" => *score_horde
                         ),
                     );
-                    self.instance_participants.remove(instance_meta_id);
-                    self.active_instances.remove(&(*instance_id, member_id));
-                    self.active_attempts.remove(&(*instance_id, member_id));
                 }
             }
             MessageType::InstancePvPEndRatedArena(dto::InstanceArena {
@@ -571,44 +568,34 @@ impl Server {
                                                       team_change2,
                                                       ..
                                                   }) => {
-                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)) {
-                    self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
+                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)).cloned() {
+                    self.finalize_instance_meta(db_main, message.timestamp, instance_meta_id);
                     db_main.execute_wparams(
                         "UPDATE instance_rated_arena SET `winner`=:winner, `team_change1`=:team_change1, `team_change2`=:team_change2 WHERE instance_meta_id=:instance_meta_id",
                         params!(
-                            "instance_meta_id" => *instance_meta_id,
+                            "instance_meta_id" => instance_meta_id,
                             "winner" => *winner,
                             "team_change1" => *team_change1,
                             "team_change2" => *team_change2
                         ),
                     );
-                    self.instance_participants.remove(instance_meta_id);
-                    self.active_instances.remove(&(*instance_id, member_id));
-                    self.active_attempts.remove(&(*instance_id, member_id));
                 }
             }
             MessageType::InstancePvPEndUnratedArena(dto::InstanceUnratedArena { instance_id, winner, .. }) => {
-                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)) {
-                    self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id);
+                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)).cloned() {
+                    self.finalize_instance_meta(db_main, message.timestamp, instance_meta_id);
                     db_main.execute_wparams(
                         "UPDATE instance_skirmish `winner`=:winner WHERE instance_meta_id=:instance_meta_id",
                         params!(
-                            "instance_meta_id" => *instance_meta_id,
+                            "instance_meta_id" => instance_meta_id,
                             "winner" => *winner
                         ),
                     );
-                    self.instance_participants.remove(instance_meta_id);
-                    self.active_instances.remove(&(*instance_id, member_id));
-                    self.active_attempts.remove(&(*instance_id, member_id));
                 }
             }
             MessageType::InstanceDelete { instance_id } => {
-                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)) {
-                    if self.finalize_instance_meta(db_main, message.timestamp, *instance_meta_id) {
-                        self.instance_participants.remove(instance_meta_id);
-                        self.active_instances.remove(&(*instance_id, member_id));
-                        self.active_attempts.remove(&(*instance_id, member_id));
-                    }
+                if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&(*instance_id, member_id)).cloned() {
+                    self.finalize_instance_meta(db_main, message.timestamp, instance_meta_id);
                 }
             }
             _ => {}
@@ -649,6 +636,7 @@ impl Server {
                         map_id: map_id as u16,
                         instance_id,
                         uploaded_user: member_id,
+                        ready_to_zip: false
                     },
                 );
 
@@ -658,19 +646,23 @@ impl Server {
         None
     }
 
-    fn finalize_instance_meta(&self, db_main: &mut impl Execute, end_ts: u64, instance_meta_id: u32) -> bool {
-        // TODO: Flag for zip!
-        db_main.execute_wparams(
+    fn finalize_instance_meta(&mut self, db_main: &mut impl Execute, end_ts: u64, instance_meta_id: u32) {
+        if db_main.execute_wparams(
             "UPDATE instance_meta SET end_ts=IF(end_ts IS NULL, :end_ts, end_ts), expired=:end_ts WHERE id=:instance_meta_id",
             params!(
                 "end_ts" => end_ts,
                 "instance_meta_id" => instance_meta_id
             ),
-        )
+        ) {
+            if let Some((_, active_instance)) = self.active_instances.iter_mut()
+                .find(|(_, instance)| instance.instance_meta_id == instance_meta_id) {
+                active_instance.ready_to_zip = true;
+            }
+        }
     }
 
     pub fn reset_instances(&mut self, db_main: &mut impl Execute, current_ts: u64) {
-        for ((instance_id, member_id), instance_meta_id) in self
+        for (_, instance_meta_id) in self
             .active_instances
             .iter()
             .filter(|(_, active_instance)| {
@@ -693,11 +685,7 @@ impl Server {
             .map(|(instance_id, unit_instance)| (*instance_id, unit_instance.instance_meta_id))
             .collect::<Vec<((u32, u32), u32)>>()
         {
-            if self.finalize_instance_meta(db_main, current_ts, instance_meta_id) {
-                self.active_instances.remove(&(instance_id, member_id));
-                self.instance_participants.remove(&instance_meta_id);
-                self.active_attempts.remove(&(instance_id, member_id));
-            }
+            self.finalize_instance_meta(db_main, current_ts, instance_meta_id);
         }
     }
 

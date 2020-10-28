@@ -52,6 +52,7 @@ export class MeterHealAndAbsorbService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         this.subscription?.unsubscribe();
         this.subscription = zip(...[this.meter_absorb_service.get_data(this.current_mode, this.abilities$, this.units$),
             this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)])

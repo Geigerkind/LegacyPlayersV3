@@ -9,8 +9,13 @@ use crate::modules::live_data_processor::tools::LiveDataDeserializer;
 use crate::params;
 use crate::util::database::{Execute, Select};
 use std::collections::{HashMap, VecDeque};
-use std::io::Write;
+use std::io::{Write, Read};
 use std::ops::Div;
+use std::path::Path;
+use std::fs::File;
+use walkdir::WalkDir;
+use zip::write::FileOptions;
+use std::fs;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
@@ -18,6 +23,7 @@ impl Server {
         self.extract_loot(db_main, data, now);
         self.save_current_event_id_and_end_ts(db_main);
         self.save_committed_events_to_disk(now);
+        self.zip_instances();
     }
 
     fn extract_loot(&self, db_main: &mut (impl Execute + Select), data: &Data, now: u64) {
@@ -357,6 +363,53 @@ impl Server {
             }
         }
     }
+
+    fn zip_instances(&mut self) {
+        let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
+        for (key, instance) in self.active_instances.clone() {
+            let dst_file = format!("{}/{}/{}.zip", storage_path, self.server_id, instance.instance_meta_id);
+            let src_dir = format!("{}/{}/{}", storage_path, self.server_id, instance.instance_meta_id);
+            if zip_directory(src_dir.clone(), dst_file).is_ok() {
+                let _ = fs::remove_dir_all(&src_dir);
+            }
+            self.instance_participants.remove(&instance.instance_meta_id);
+            self.active_attempts.remove(&key);
+            self.active_instances.remove(&key);
+        }
+    }
+}
+
+fn zip_directory(src_dir: String, dst_file: String) -> zip::result::ZipResult<()> {
+    let path = Path::new(&dst_file);
+    let file = File::create(&path)?;
+
+    let walkdir = WalkDir::new(src_dir.clone());
+    let it = walkdir.into_iter();
+
+    let mut zip = zip::ZipWriter::new(file);
+    let options = FileOptions::default()
+        .compression_method(zip::CompressionMethod::Bzip2)
+        .unix_permissions(0o755);
+
+    let mut buffer = Vec::new();
+    for entry in it {
+        let path = entry.as_ref().unwrap().path();
+        let name = path.strip_prefix(Path::new(&src_dir)).unwrap();
+
+        if path.is_file() {
+            #[allow(deprecated)]
+                zip.start_file_from_path(name, options)?;
+            let mut f = File::open(path)?;
+            f.read_to_end(&mut buffer)?;
+            zip.write_all(&*buffer)?;
+            buffer.clear();
+        } else if name.as_os_str().len() != 0 {
+            #[allow(deprecated)]
+                zip.add_directory_from_path(name, options)?;
+        }
+    }
+    zip.finish()?;
+    Result::Ok(())
 }
 
 fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mut HashMap<u32, Attempt>) {

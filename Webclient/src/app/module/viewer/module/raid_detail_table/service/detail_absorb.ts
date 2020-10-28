@@ -55,6 +55,7 @@ export class DetailAbsorbService implements OnDestroy {
     }
 
     private async commit(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const abilities = new Map<number, SelectOption>();
         const result = new Map();
 

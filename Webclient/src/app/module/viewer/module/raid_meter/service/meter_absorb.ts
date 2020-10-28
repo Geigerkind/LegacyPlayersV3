@@ -54,6 +54,7 @@ export class MeterAbsorbService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const result = new Map<number, Map<number, number>>();
 
         const data_points = await get_absorb_data_points(this.current_mode, this.instanceDataService);

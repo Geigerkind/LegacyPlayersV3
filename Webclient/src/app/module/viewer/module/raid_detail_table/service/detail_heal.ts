@@ -55,6 +55,7 @@ export class DetailHealService implements OnDestroy {
     }
 
     private async commit(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const abilities = new Map<number, SelectOption>();
 
         const result1 = await this.instanceDataService.knecht_heal.detail_heal(this.current_heal_mode, this.current_mode);

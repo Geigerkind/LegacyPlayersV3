@@ -90,6 +90,10 @@ export class InstanceDataService implements OnDestroy {
         }));
     }
 
+    public isInitialized(): boolean {
+        return this.worker.length >= InstanceDataService.NUMBER_OF_WORKER;
+    }
+
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
         clearInterval(this.updater);
@@ -99,11 +103,13 @@ export class InstanceDataService implements OnDestroy {
     private load_instance_meta(on_success: any): void {
         if (!this.instance_meta_id$)
             return;
-
         return this.apiService.get(
             InstanceDataService.INSTANCE_EXPORT_META_URL
                 .replace(":instance_meta_id", this.instance_meta_id$.toString()),
-            on_success, () => {
+            (result) => {
+                this.init_worker(this.instance_meta_id$, !!result.expired);
+                on_success.call(on_success, result);
+            }, () => {
             }
         );
     }
@@ -207,7 +213,9 @@ export class InstanceDataService implements OnDestroy {
             return;
 
         this.instance_meta_id$ = instance_meta_id;
+    }
 
+    private init_worker(instance_meta_id: number, is_expired: boolean): void {
         // Cant be put into a function because Angular won't recognize paths otherwise
         const knecht_condition = data => !!data && !!data[0] && data[0] === "KNECHT_UPDATES";
         const handle_loading_bar = data => {
@@ -221,7 +229,7 @@ export class InstanceDataService implements OnDestroy {
             this.loading_bar_service.incrementCounter();
 
         let worker = new Worker('./../worker/melee.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -233,7 +241,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_melee = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/spell_damage.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -244,7 +252,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_spell_damage = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/misc.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -257,7 +265,7 @@ export class InstanceDataService implements OnDestroy {
 
         /*
         worker = new Worker('./../worker/replay.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -270,7 +278,7 @@ export class InstanceDataService implements OnDestroy {
          */
 
         worker = new Worker('./../worker/un_aura.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -282,7 +290,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_un_aura = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/heal.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -295,7 +303,7 @@ export class InstanceDataService implements OnDestroy {
 
         /*
         worker = new Worker('./../worker/spell_cast.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -308,7 +316,7 @@ export class InstanceDataService implements OnDestroy {
          */
 
         worker = new Worker('./../worker/threat.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -320,7 +328,7 @@ export class InstanceDataService implements OnDestroy {
         this.knecht_threat = Comlink.wrap<Rechenknecht>(worker);
 
         worker = new Worker('./../worker/aura.worker', {type: 'module'});
-        worker.postMessage(["INIT", instance_meta_id]);
+        worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
                 handle_loading_bar(data);
@@ -330,6 +338,7 @@ export class InstanceDataService implements OnDestroy {
         };
         this.worker.push(worker);
         this.knecht_aura = Comlink.wrap<Rechenknecht>(worker);
+        this.knecht_updates$.next([KnechtUpdates.WorkerInitialized, []]);
     }
 
     public get meta(): Observable<InstanceViewerMeta> {

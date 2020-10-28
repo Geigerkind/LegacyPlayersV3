@@ -52,6 +52,7 @@ export class DetailDamageService implements OnDestroy {
     }
 
     private async commit(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const abilities = new Map<number, SelectOption>();
 
         const result1 = await this.instanceDataService.knecht_melee.detail_damage(this.current_mode);

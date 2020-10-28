@@ -39,8 +39,8 @@ export class InstanceDataFilter {
     private data_loader: InstanceDataLoader;
     private cache: Map<string, Array<Event>> = new Map();
 
-    constructor(instance_meta_id: number, event_types: Array<number>) {
-        this.data_loader = new InstanceDataLoader(instance_meta_id, event_types);
+    constructor(instance_meta_id: number, is_expired: boolean, event_types: Array<number>) {
+        this.data_loader = new InstanceDataLoader(instance_meta_id, is_expired, event_types);
     }
 
     private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => number, target_extraction: (Event) => number,

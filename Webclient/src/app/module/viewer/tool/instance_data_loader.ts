@@ -72,16 +72,19 @@ export class InstanceDataLoader {
         [15, [() => this.threat, se_threat, te_threat, ae_threat]],
     ]);
 
-    constructor(private instance_meta_id: number, event_types: Array<number>) {
+    constructor(private instance_meta_id: number, is_expired: boolean, event_types: Array<number>) {
         this.newData$.asObservable().pipe(debounceTime(500))
             .subscribe(() => {
                 (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData, [...this.new_data_event_types.values()]]);
                 this.new_data_event_types = new Set();
             });
         this.load_data(event_types)
-            .finally(() =>
-                setInterval(() =>
-                    this.load_data(event_types), InstanceDataLoader.UPDATE_INTERVAL));
+            .finally(() => {
+                if (!is_expired) {
+                    setInterval(() =>
+                        this.load_data(event_types), InstanceDataLoader.UPDATE_INTERVAL);
+                }
+            });
     }
 
     private extract_subjects(event_type: number, event: Event): void {

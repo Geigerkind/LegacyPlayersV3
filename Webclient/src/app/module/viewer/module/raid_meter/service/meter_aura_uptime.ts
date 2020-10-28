@@ -52,6 +52,7 @@ export class MeterAuraUptimeService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const result = new Map<number, Map<number, Array<[number, number]>>>();
 
         const result1 = await this.instanceDataService.knecht_aura.meter_aura_uptime(this.current_mode);

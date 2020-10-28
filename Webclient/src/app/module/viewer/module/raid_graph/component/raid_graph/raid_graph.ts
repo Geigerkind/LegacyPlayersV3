@@ -8,6 +8,8 @@ import {SettingsService} from "src/app/service/settings";
 import {Subscription} from "rxjs";
 import {number_to_chart_type} from "../../domain_value/chart_type";
 import {get_point_style} from "../../stdlib/data_set_helper";
+import {InstanceDataService} from "../../../../service/instance_data";
+import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
 
 @Component({
     selector: "RaidGraph",
@@ -173,7 +175,8 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     constructor(
         public graphDataService: GraphDataService,
         private dateService: DateService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        private instanceDataService: InstanceDataService
     ) {
         this.subscription = this.graphDataService.data_points.subscribe(([x_axis, data_sets]) => {
             this.chartLabels = x_axis;
@@ -198,17 +201,22 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.selectedDataSets = new Set(this.settingsService.get_or_set("viewer_raid_graph_datasets", []));
-        for (const data_set of this.selectedDataSets) {
-            this.graphDataService.add_data_set(data_set);
-            this.dataSetsSelected.push(this.dataSets.find(set => set.id === data_set));
-        }
+        // tslint:disable-next-line:variable-name
+        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_updates, _ev_types]) => {
+            if (knecht_updates.includes(KnechtUpdates.WorkerInitialized)) {
+                this.selectedDataSets = new Set(this.settingsService.get_or_set("viewer_raid_graph_datasets", []));
+                for (const data_set of this.selectedDataSets) {
+                    this.graphDataService.add_data_set(data_set);
+                    this.dataSetsSelected.push(this.dataSets.find(set => set.id === data_set));
+                }
 
-        this.selectedEvents = new Set(this.settingsService.get_or_set("viewer_raid_graph_events", []));
-        for (const data_set of this.selectedEvents) {
-            this.graphDataService.add_data_set(data_set);
-            this.eventsSelected.push(this.events.find(set => set.id === data_set));
-        }
+                this.selectedEvents = new Set(this.settingsService.get_or_set("viewer_raid_graph_events", []));
+                for (const data_set of this.selectedEvents) {
+                    this.graphDataService.add_data_set(data_set);
+                    this.eventsSelected.push(this.events.find(set => set.id === data_set));
+                }
+            }
+        }));
     }
 
     ngOnDestroy(): void {

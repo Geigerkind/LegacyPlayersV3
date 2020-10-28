@@ -54,6 +54,7 @@ export class MeterSpellStealService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const result = new Map<number, Array<UnAuraOverviewRow>>();
 
         const result1 = await this.instanceDataService.knecht_un_aura.meter_spell_steal(this.current_mode);

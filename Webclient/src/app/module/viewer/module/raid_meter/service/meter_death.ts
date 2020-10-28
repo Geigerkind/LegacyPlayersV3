@@ -54,6 +54,7 @@ export class MeterDeathService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const result = new Map<number, Array<DeathOverviewRow>>();
 
         const result1 = await this.instanceDataService.knecht_melee.meter_death(this.current_mode);

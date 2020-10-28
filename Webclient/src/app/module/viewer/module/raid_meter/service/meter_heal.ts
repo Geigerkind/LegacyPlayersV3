@@ -56,6 +56,7 @@ export class MeterHealService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const result = new Map<number, Map<number, number>>();
 
         const result1 = await this.instanceDataService.knecht_heal.meter_heal(this.current_heal_mode, this.current_mode);

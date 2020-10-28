@@ -52,6 +52,7 @@ export class DetailThreatService implements OnDestroy {
     }
 
     private async commit(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const abilities = new Map<number, SelectOption>();
 
         const result1 = await this.instanceDataService.knecht_threat.detail_threat(this.current_mode);

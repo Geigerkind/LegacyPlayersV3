@@ -52,6 +52,7 @@ export class MeterDamageService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         const result = new Map<number, Map<number, number>>();
 
         const result1 = await this.instanceDataService.knecht_melee.meter_damage(this.current_mode);

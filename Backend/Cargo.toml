@@ -27,6 +27,7 @@ grouping_by="*"
 chrono="*"
 rand = "*"
 zip = "*"
+walkdir = "*"
 rust-lapper = "*"
 rustc-hash = "1.1.0"
 

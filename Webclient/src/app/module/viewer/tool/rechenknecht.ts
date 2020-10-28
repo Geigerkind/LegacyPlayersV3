@@ -15,6 +15,7 @@ import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {School} from "../domain_value/school";
 
 export class Rechenknecht {
+
     constructor(
         private data_filter: InstanceDataFilter,
         private raid_meter_knecht: RaidMeterKnecht,

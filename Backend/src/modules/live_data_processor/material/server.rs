@@ -35,7 +35,7 @@ pub struct Server {
     pub committed_events_count: HashMap<(u32, u32), u32>,
     pub recently_committed_spell_cast_and_aura_applications: HashMap<(u32, u32), VecDeque<Event>>,
 
-    // PERFORMANCE TEST
+    // PERFORMANCE
     pub cache_unit: HashMap<u64, Unit>,
 }
 
@@ -57,7 +57,7 @@ impl Server {
             active_attempts: HashMap::new(),
             post_processing_last_precessed_event_id: HashMap::new(),
             recently_committed_spell_cast_and_aura_applications: HashMap::new(),
-            cache_unit: HashMap::new(),
+            cache_unit: HashMap::new()
         }
     }
 
@@ -71,7 +71,8 @@ impl Server {
                     entered: row.take(1).unwrap(),
                     map_id: row.take(2).unwrap(),
                     instance_id: row.take(3).unwrap(),
-                    uploaded_user: row.take(4).unwrap()
+                    uploaded_user: row.take(4).unwrap(),
+                    ready_to_zip: false
                 },
                 params!("server_id" => self.server_id),
             )

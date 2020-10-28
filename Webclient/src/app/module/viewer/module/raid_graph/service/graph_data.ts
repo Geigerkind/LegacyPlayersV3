@@ -112,6 +112,7 @@ export class GraphDataService implements OnDestroy {
     }
 
     async add_data_set(data_set: DataSet): Promise<void> {
+        if (!this.instanceDataService.isInitialized()) return;
         switch (data_set) {
             case DataSet.DamageDone:
             case DataSet.DamageTaken:
