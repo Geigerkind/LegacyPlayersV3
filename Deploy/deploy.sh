@@ -170,6 +170,12 @@ function deployModelGenerator {
   chown -R rpll /home/rpll/ModelViewer
 }
 
+function deployAddons {
+  zip -r /var/www/html/AdvancedVanillaCombatLog.zip /root/${REPOSITORY_NAME}/Addons/AdvancedVanillaCombatLog
+  zip -r /var/www/html/RPLLTBCArmoryCollector.zip /root/${REPOSITORY_NAME}/Addons/RPLLTBCArmoryCollector
+  zip -r /var/www/html/RPLLWotLKArmoryCollector.zip /root/${REPOSITORY_NAME}/Addons/RPLLWotLKArmoryCollector
+}
+
 function updateConfigs {
   # Postfix
   cp /root/${REPOSITORY_NAME}/Deploy/conf/virtual /etc/postfix/
@@ -258,6 +264,7 @@ function deploy {
   deployWebclient
   deployBackend
   deployModelGenerator
+  deployAddons
   waitForJobs
 
   startServices
