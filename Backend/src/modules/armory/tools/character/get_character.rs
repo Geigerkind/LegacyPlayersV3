@@ -34,6 +34,7 @@ impl GetCharacter for Armory {
             return None;
         }
 
+        let timestamp = timestamp / 1000;
         let mut closest_history_moment = character.history_moments.first().unwrap();
         for moment in character.history_moments.iter() {
             if (timestamp as i64 - moment.timestamp as i64).abs() < (timestamp as i64 - closest_history_moment.timestamp as i64).abs() {
