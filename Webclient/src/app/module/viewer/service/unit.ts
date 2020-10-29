@@ -25,41 +25,41 @@ export class UnitService {
         this.server_id$ = server_id;
     }
 
-    get_unit_bg_color(unit: Unit): Observable<string> {
+    get_unit_bg_color(unit: Unit, timestamp: number): Observable<string> {
         if (!!unit) {
             // TODO: Use method to get character at the time of the raid
             if (is_player(unit, false)) {
                 return this.characterService
-                    .get_basic_character_by_id(get_unit_id(unit, false))
+                    .get_basic_character_by_id(get_unit_id(unit, false), timestamp)
                     .pipe(map(character => "hero_class_bg_" + character.hero_class_id.toString()));
             }
         }
         return of("hero_class_bg_1");
     }
 
-    get_unit_icon(unit: Unit): Observable<string> {
+    get_unit_icon(unit: Unit, timestamp: number): Observable<string> {
         if (!!unit) {
             if (is_player(unit, false)) {
                 return this.characterService
-                    .get_basic_character_by_id(get_unit_id(unit, false))
+                    .get_basic_character_by_id(get_unit_id(unit, false), timestamp)
                     .pipe(map(character => "/assets/wow_hero_classes/c" + character.hero_class_id.toString() + "-" + character.spec_id + ".png"));
             }
         }
         return of("/assets/wow_hero_classes/c1-0.png");
     }
 
-    get_unit_name(unit: Unit): Observable<string> {
+    get_unit_name(unit: Unit, timestamp: number): Observable<string> {
         if (!!unit) {
             if (is_player(unit, false))
                 return this.characterService
-                    .get_basic_character_by_id(get_unit_id(unit, false))
+                    .get_basic_character_by_id(get_unit_id(unit, false), timestamp)
                     .pipe(map(character => character.name));
 
             if (is_creature(unit, false)) {
                 const creatureEntry = get_creature_entry(unit);
                 const npcName = this.get_npc_name(creatureEntry);
                 if (!!unit[3]) {
-                    return this.get_unit_name(get_unit_owner(unit)).pipe(concatMap(unit_name =>
+                    return this.get_unit_name(get_unit_owner(unit), timestamp).pipe(concatMap(unit_name =>
                         npcName.pipe(map(npc_name => npc_name + " (" + unit_name + ")"))));
                 }
                 return npcName;

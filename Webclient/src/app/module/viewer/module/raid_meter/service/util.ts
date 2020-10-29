@@ -1,31 +1,42 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnDestroy} from "@angular/core";
 import {get_unit_id, Unit} from "../../../domain_value/unit";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {UnitService} from "../../../service/unit";
-import {of} from "rxjs";
+import {of, Subscription} from "rxjs";
 import {map} from "rxjs/operators";
 import {first_matching_primary_school} from "../../../../../stdlib/spell";
 import {SpellService} from "../../../service/spell";
 import {CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_LABEL} from "../../../constant/viewer";
+import {InstanceDataService} from "../../../service/instance_data";
+import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 
 @Injectable({
     providedIn: "root",
 })
-export class UtilService {
+export class UtilService implements OnDestroy {
+
+    private subscription: Subscription;
+    private current_meta: InstanceViewerMeta;
 
     constructor(
         private unitService: UnitService,
-        private spellService: SpellService
+        private spellService: SpellService,
+        private instanceDataService: InstanceDataService
     ) {
+        this.subscription = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 
     get_row_unit_subject(unit: Unit): RaidMeterSubject {
         const unit_id = get_unit_id(unit, false);
         return {
             id: unit_id,
-            name: this.unitService.get_unit_name(unit),
-            color_class: this.unitService.get_unit_bg_color(unit),
-            icon: this.unitService.get_unit_icon(unit)
+            name: this.unitService.get_unit_name(unit, this.current_meta.end_ts ?? this.current_meta.start_ts),
+            color_class: this.unitService.get_unit_bg_color(unit, this.current_meta.end_ts ?? this.current_meta.start_ts),
+            icon: this.unitService.get_unit_icon(unit, this.current_meta.end_ts ?? this.current_meta.start_ts)
         };
     }
 

@@ -82,7 +82,7 @@ export class LootService implements OnDestroy {
             }
             const loot_item: LootItem = {
                 receiver_id: se_loot(item)[1],
-                receiver: this.unitService.get_unit_name(se_loot(item)),
+                receiver: this.unitService.get_unit_name(se_loot(item), this.current_meta.end_ts ?? this.current_meta.start_ts),
                 item: this.get_basic_item(item[3]),
                 amount: item[4]
             };

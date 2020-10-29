@@ -27,14 +27,14 @@ pub fn get_character(me: State<Armory>, id: u32) -> Result<Json<Character>, Armo
 
 #[openapi]
 #[get("/character/basic/<id>")]
-pub fn get_basic_character(me: State<Armory>, id: u32) -> Result<Json<BasicCharacter>, ArmoryFailure> {
-    me.get_basic_character(id).map(Json).ok_or(ArmoryFailure::InvalidInput)
+pub fn get_basic_character(mut db_main: MainDb, me: State<Armory>, id: u32) -> Result<Json<BasicCharacter>, ArmoryFailure> {
+    me.get_basic_character(&mut *db_main, id, u64::MAX).map(Json).ok_or(ArmoryFailure::InvalidInput)
 }
 
 #[openapi(skip)]
-#[post("/characters/basic", format = "application/json", data = "<character_ids>")]
-pub fn get_basic_characters(me: State<Armory>, character_ids: Json<Vec<u32>>) -> Json<Vec<BasicCharacter>> {
-    Json(character_ids.iter().map(|character_id| me.get_basic_character(*character_id)).filter(Option::is_some).map(Option::unwrap).collect())
+#[post("/characters/basic", format = "application/json", data = "<char_payload>")]
+pub fn get_basic_characters(mut db_main: MainDb, me: State<Armory>, char_payload: Json<(Vec<u32>, u64)>) -> Json<Vec<BasicCharacter>> {
+    Json((*char_payload).0.iter().map(|character_id| me.get_basic_character(&mut *db_main, *character_id, (*char_payload).1)).filter(Option::is_some).map(Option::unwrap).collect())
 }
 
 #[openapi]

@@ -73,7 +73,10 @@ export class DataService implements OnDestroy {
                     for (const npc of npcs) {
                         this.cache_npc.get(expansion_id).set(npc.base.id, npc);
                         pending_npcs.get(npc.base.id).next(npc);
+                        pending_npcs.delete(npc.base.id);
                     }
+                    for (const [id, subject] of pending_npcs.entries())
+                        subject.next(this.get_unknown_npc(expansion_id, id));
                 }, reason => {});
         }));
 
@@ -88,7 +91,10 @@ export class DataService implements OnDestroy {
                     for (const spell of spells) {
                         this.cache_basic_spell.get(expansion_id).set(spell.base.id, spell);
                         pending_basic_spells.get(spell.base.id).next(spell);
+                        pending_basic_spells.delete(spell.base.id);
                     }
+                    for (const [_id, subject] of pending_basic_spells.entries())
+                        subject.next(this.unknown_basic_spell);
                 }, reason => {});
         }));
     }

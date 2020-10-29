@@ -300,7 +300,8 @@ export class RaidConfigurationService implements OnDestroy {
         const result: Array<Observable<EventSource>> = [];
         // TODO: Optimize!
         for (const source of sources)
-            result.push(combineLatest([this.unitService.get_unit_name(source), this.unitService.is_unit_boss(source)])
+            result.push(combineLatest([this.unitService.get_unit_name(source, this.current_meta.end_ts ?? this.current_meta.start_ts),
+                this.unitService.is_unit_boss(source)])
                 .pipe(map(([label, is_boss]) => {
                     return {
                         id: get_unit_id(source, false),
@@ -317,7 +318,8 @@ export class RaidConfigurationService implements OnDestroy {
         const result: Array<Observable<EventSource>> = [];
         // TODO: Optimize!
         for (const target of targets)
-            result.push(combineLatest([this.unitService.get_unit_name(target), this.unitService.is_unit_boss(target)])
+            result.push(combineLatest([this.unitService.get_unit_name(target, this.current_meta.end_ts ?? this.current_meta.start_ts),
+                this.unitService.is_unit_boss(target)])
                 .pipe(map(([label, is_boss]) => {
                     return {
                         id: get_unit_id(target, false),

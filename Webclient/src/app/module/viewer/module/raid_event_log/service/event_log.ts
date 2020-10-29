@@ -1,9 +1,9 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {BehaviorSubject, combineLatest, Observable, of, Subject, Subscription} from "rxjs";
+import {BehaviorSubject, combineLatest, Observable, Subject, Subscription} from "rxjs";
 import {EventLogEntry} from "../domain_value/event_log_entry";
 import {InstanceDataService} from "../../../service/instance_data";
 import {debounceTime, map} from "rxjs/operators";
-import {Event, MeleeDamage, SpellCast, SpellDamage} from "../../../domain_value/event";
+import {Event, MeleeDamage, SpellDamage} from "../../../domain_value/event";
 import {UnitService} from "../../../service/unit";
 import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
@@ -32,11 +32,14 @@ import {
 } from "../../../extractor/abilities";
 import {get_spell_components_total_amount, SpellComponent} from "../../../domain_value/damage";
 import {school_mask_to_school_array} from "../../../domain_value/school";
+import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 
 @Injectable({
     providedIn: "root",
 })
 export class EventLogService implements OnDestroy {
+
+    private current_meta: InstanceViewerMeta;
 
     private subscription: Subscription = new Subscription();
     private event_log_entries$: BehaviorSubject<Array<EventLogEntry>> = new BehaviorSubject([]);
@@ -62,6 +65,7 @@ export class EventLogService implements OnDestroy {
         [14, [0, new Set()]],
         [15, [0, new Set()]],
     ]);
+
     public offset_changed: Subject<number> = new Subject();
 
     constructor(
@@ -103,6 +107,7 @@ export class EventLogService implements OnDestroy {
             this.last_global_offset = offset;
             this.update_event_log_entries();
         }));
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
     }
 
     ngOnDestroy(): void {
@@ -172,8 +177,8 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_spell_cast(event: Event): Observable<string> {
-        const subject$ = this.unitService.get_unit_name(se_spell_cast(event));
-        const victim$ = this.unitService.get_unit_name(te_spell_cast(event));
+        const subject$ = this.unitService.get_unit_name(se_spell_cast(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim$ = this.unitService.get_unit_name(te_spell_cast(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const spell$ = this.spellService.get_spell_name(ae_spell_cast(event));
         return combineLatest([subject$, victim$, spell$])
             .pipe(map((([subject_name, victim_name, spell_name]) => {
@@ -182,7 +187,7 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_combat_state(event: Event): Observable<string> {
-        const subject$ = this.unitService.get_unit_name(se_combat_state(event));
+        const subject$ = this.unitService.get_unit_name(se_combat_state(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         return combineLatest([subject$])
             .pipe(map((([subject_name]) => {
                 if (event[3])
@@ -192,8 +197,8 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_aura_application(event: Event): Observable<string> {
-        const subject$ = this.unitService.get_unit_name(se_aura_application(event));
-        const caster$ = this.unitService.get_unit_name(te_aura_application(event));
+        const subject$ = this.unitService.get_unit_name(se_aura_application(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const caster$ = this.unitService.get_unit_name(te_aura_application(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const spell$ = this.spellService.get_spell_name(ae_aura_application(event));
         return combineLatest([subject$, caster$, spell$])
             .pipe(map((([subject_name, caster_name, spell_name]) => {
@@ -205,8 +210,8 @@ export class EventLogService implements OnDestroy {
 
     private process_interrupt(event: Event): Observable<string> {
         const spells = ae_interrupt(event);
-        const subject$ = this.unitService.get_unit_name(se_interrupt(event));
-        const victim$ = this.unitService.get_unit_name(te_interrupt(event));
+        const subject$ = this.unitService.get_unit_name(se_interrupt(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim$ = this.unitService.get_unit_name(te_interrupt(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const ability$ = this.spellService.get_spell_name(spells[0]);
         const interrupted_ability$ = this.spellService.get_spell_name(spells[1]);
         return combineLatest([subject$, victim$, ability$, interrupted_ability$])
@@ -217,8 +222,8 @@ export class EventLogService implements OnDestroy {
 
     private process_spell_steal(event: Event): Observable<string> {
         const spells = ae_un_aura(event);
-        const subject$ = this.unitService.get_unit_name(se_un_aura(event));
-        const victim$ = this.unitService.get_unit_name(te_un_aura(event));
+        const subject$ = this.unitService.get_unit_name(se_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim$ = this.unitService.get_unit_name(te_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const ability$ = this.spellService.get_spell_name(spells[0]);
         const stolen_ability$ = this.spellService.get_spell_name(spells[1]);
         return combineLatest([subject$, victim$, ability$, stolen_ability$])
@@ -229,8 +234,8 @@ export class EventLogService implements OnDestroy {
 
     private process_dispel(event: Event): Observable<string> {
         const spells = ae_un_aura(event);
-        const subject$ = this.unitService.get_unit_name(se_un_aura(event));
-        const victim$ = this.unitService.get_unit_name(te_un_aura(event));
+        const subject$ = this.unitService.get_unit_name(se_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim$ = this.unitService.get_unit_name(te_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const ability$ = this.spellService.get_spell_name(spells[0]);
         const dispelled_ability$ = this.spellService.get_spell_name(spells[1]);
         return combineLatest([subject$, victim$, ability$, dispelled_ability$])
@@ -240,8 +245,8 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_melee_damage(event: MeleeDamage): Observable<string> {
-        const subject = this.unitService.get_unit_name(se_melee_damage(event));
-        const victim = this.unitService.get_unit_name(te_melee_damage(event));
+        const subject = this.unitService.get_unit_name(se_melee_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim = this.unitService.get_unit_name(te_melee_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         return combineLatest([subject, victim])
             .pipe(map((([subject_name, victim_name]) => {
                 const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[4]));
@@ -254,8 +259,8 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_spell_damage(event: SpellDamage): Observable<string> {
-        const subject$ = this.unitService.get_unit_name(se_spell_damage(event));
-        const victim$ = this.unitService.get_unit_name(te_spell_damage(event));
+        const subject$ = this.unitService.get_unit_name(se_spell_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim$ = this.unitService.get_unit_name(te_spell_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const ability$ = this.spellService.get_spell_name(ae_spell_damage(event));
         return combineLatest([subject$, victim$, ability$])
             .pipe(map((([subject_name, victim_name, ability_name]) => {
@@ -269,8 +274,8 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_heal(event: Event): Observable<string> {
-        const subject$ = this.unitService.get_unit_name(se_heal(event));
-        const victim$ = this.unitService.get_unit_name(te_heal(event));
+        const subject$ = this.unitService.get_unit_name(se_heal(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const victim$ = this.unitService.get_unit_name(te_heal(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         const ability$ = this.spellService.get_spell_name(ae_heal(event));
         return combineLatest([subject$, victim$, ability$])
             .pipe(map((([subject_name, victim_name, ability_name]) => {
@@ -285,8 +290,8 @@ export class EventLogService implements OnDestroy {
     }
 
     private process_death(event: Event): Observable<string> {
-        const subject$ = this.unitService.get_unit_name(se_death(event));
-        const murder$ = this.unitService.get_unit_name(te_death(event));
+        const subject$ = this.unitService.get_unit_name(se_death(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+        const murder$ = this.unitService.get_unit_name(te_death(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
         return combineLatest([subject$, murder$])
             .pipe(map((([subject_name, murder_name]) => {
                 if (murder_name === CONST_UNKNOWN_LABEL)
