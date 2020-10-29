@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 2
+RPLL.VERSION = 3
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -81,12 +81,7 @@ RPLL.PLAYER_ENTERING_WORLD = function()
         RPLL_PlayerInformation = {}
     end
     this.PlayerInformation = RPLL_PlayerInformation
-    for key, val in this.PlayerInformation do
-        if key ~= nil and val ~= nil then
-            this.RotationLength = this.RotationLength + 1
-            this.PlayerRotation[this.RotationLength] = key
-        end
-    end
+	this.PlayerRotation, this.RotationLength = this:Build_RotationTable()
 
     this:grab_unit_information("player")
     this:RAID_ROSTER_UPDATE()
@@ -697,6 +692,23 @@ function RPLL:fix_combat_log_strings()
             this:FriendlyPlayerHits(arg1)
         end
     end
+
+	-- Fix ParserLib
+	local parser_lib = ParserLib:GetInstance("1.1")
+	if parser_lib ~= nil then
+		ParserLib_SELF = player_name
+		parser_lib.eventTable["CHAT_MSG_COMBAT_SELF_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
+		parser_lib.eventTable["CHAT_MSG_COMBAT_CREATURE_VS_SELF_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
+		parser_lib.eventTable["CHAT_MSG_COMBAT_SELF_MISSES"] = parser_lib:LoadPatternCategoryTree({ "MissOtherOther" })
+		parser_lib.eventTable["CHAT_MSG_COMBAT_HOSTILEPLAYER_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
+		parser_lib.eventTable["CHAT_MSG_COMBAT_HOSTILEPLAYER_MISSES"] = parser_lib:LoadPatternCategoryTree({ "MissOtherOther" })
+		parser_lib.eventTable["CHAT_MSG_SPELL_SELF_BUFF"] = parser_lib:LoadPatternCategoryTree({ { "HealOther", "PowerGainOther", "ExtraAttackOther", "DrainOther" }, "SPELLCASTOTHERSTART", { "CastOther", "PerformOther" }, "SPELLPERFORMOTHERSTART", "SpellMissOther", "ProcResistOther", "SplitDamageOther", "DispelFailOther" })
+		parser_lib.eventTable["CHAT_MSG_SPELL_SELF_DAMAGE"] = parser_lib:LoadPatternCategoryTree({ "SpellHitOther", "SPELLCASTOTHERSTART", "SPELLPERFORMOTHERSTART", "DrainOther", "SpellMissOther", { "INSTAKILLOTHER" }, { "PROCRESISTOTHEROTHER" }, "SplitDamageOther", { "CastOther", "InterruptOther", "DurabilityDamageOther" }, "PerformOther", "ExtraAttackOther", { "DISPELFAILEDOTHEROTHER" } })
+		parser_lib.eventTable["CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS"] = parser_lib:LoadPatternCategoryTree({ { "HotOther", "DrainOther" }, { "BuffOther", "PowerGainOther", "DrainOther" }, "DotOther", "DebuffOther" })
+		parser_lib.eventTable["CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE"] = parser_lib:LoadPatternCategoryTree({ "DebuffOther", "DotOther", { "SPELLLOGABSORBOTHEROTHER" }, "DrainOther", { "PowerGainOther", "BuffOther" } })
+		parser_lib.eventTable["CHAT_MSG_SPELL_DAMAGESHIELDS_ON_SELF"] = { "SPELLRESISTOTHEROTHER", "DAMAGESHIELDOTHEROTHER" }
+		parser_lib.eventTable["CHAT_MSG_SPELL_AURA_GONE_SELF"] = { "AURAREMOVEDOTHER" }
+	end
 end
 
 function RPLL:grab_unit_information(unit)
@@ -810,6 +822,21 @@ function RPLL:grab_unit_information(unit)
     end
 end
 
+function RPLL:Build_RotationTable()
+	local rotation_table = {}
+	local table_length = 0
+	local now = time()
+	for key, val in this.PlayerInformation do
+		if key ~= nil and val ~= nil then
+			if now - val["last_update"] <= 7200 then
+				tinsert(rotation_table, key)
+				table_length = table_length + 1
+			end
+		end
+	end
+	return rotation_table, table_length
+end
+
 local player_rotations_done = 0
 function RPLL:rotate_combat_log_global_string()
     if this.ExtraMessageQueueLength >= this.ExtraMessageQueueIndex then
@@ -861,7 +888,7 @@ function RPLL:IssueSpamWarning()
     end
 
     local messages_todo = this.ExtraMessageQueueLength - this.ExtraMessageQueueIndex + this.RotationLength - player_rotations_done
-    if messages_todo >= 3 and time() - last_spam_warning >= 60 then
+    if messages_todo >= 10 and time() - last_spam_warning >= 60 then
         this:SendMessage("There are "..messages_todo.." messages that have not been written to the CombatLog yet.")
         this:SendMessage("These messages are of utmost importance to upload correct logs.")
         this:SendMessage("One way to write them into the CombatLog is to deselect any target and spam an ability, such that any UI error message shows up, e.g. Invalid target.")
