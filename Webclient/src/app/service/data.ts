@@ -62,7 +62,7 @@ export class DataService implements OnDestroy {
             this.cache_npc.set(i, new Map());
         }
 
-        this.subscriptions.add(this.lazy_npcs$.pipe(auditTime(250)).subscribe(expansion_id => {
+        this.subscriptions.add(this.lazy_npcs$.pipe(auditTime(100)).subscribe(expansion_id => {
             const pending_npcs = new Map(this.pending_npcs);
             this.pending_npcs = [];
             this.apiService.post(DataService.URL_DATA_NPCS_LOCALIZED, {
@@ -77,7 +77,7 @@ export class DataService implements OnDestroy {
                 }, reason => {});
         }));
 
-        this.subscriptions.add(this.lazy_basic_spells$.pipe(auditTime(250)).subscribe(expansion_id => {
+        this.subscriptions.add(this.lazy_basic_spells$.pipe(auditTime(100)).subscribe(expansion_id => {
             const pending_basic_spells = new Map(this.pending_basic_spells);
             this.pending_basic_spells = [];
             this.apiService.post(DataService.URL_DATA_BASIC_SPELLS_LOCALIZED, {

@@ -134,6 +134,7 @@ export class InstanceDataLoader {
     }
 
     private append_subject_interval(interval_holder: [any, Array<[number, number]>], timestamp: number): void {
+        const interval_threshold = 2500;
         const intervals = interval_holder[1];
         if (intervals.length === 0) {
             intervals.push([timestamp, timestamp]);
@@ -150,24 +151,24 @@ export class InstanceDataLoader {
 
         if (prev_interval_index === -1) { // We lower than all
             const first_interval = intervals[0];
-            if (first_interval[0] > timestamp && first_interval[0] - timestamp <= 1000) first_interval[0] = timestamp;
+            if (first_interval[0] > timestamp && first_interval[0] - timestamp <= interval_threshold) first_interval[0] = timestamp;
             else interval_holder[1] = [[timestamp, timestamp], ...intervals];
         } else if (prev_interval_index + 1 === intervals.length) { // We are greater than all
             const last_interval = intervals[prev_interval_index];
-            if (timestamp - last_interval[1] <= 1000) last_interval[1] = timestamp;
+            if (timestamp - last_interval[1] <= interval_threshold) last_interval[1] = timestamp;
             else intervals.push([timestamp, timestamp]);
         } else { // We are between two intervals
             const prev_interval = intervals[prev_interval_index];
             const next_interval = intervals[prev_interval_index + 1];
-            if (timestamp - prev_interval[1] <= 1000) {
-                if (next_interval[0] - timestamp <= 1000) {
+            if (timestamp - prev_interval[1] <= interval_threshold) {
+                if (next_interval[0] - timestamp <= interval_threshold) {
                     prev_interval[1] = next_interval[1];
                     interval_holder[1] = [...intervals.slice(0, prev_interval_index + 1), ...intervals.slice(prev_interval_index + 2)];
                 } else {
                     prev_interval[1] = timestamp;
                 }
             } else {
-                if (next_interval[0] - timestamp <= 1000) next_interval[0] = timestamp;
+                if (next_interval[0] - timestamp <= interval_threshold) next_interval[0] = timestamp;
                 else intervals.push([timestamp, timestamp]);
             }
         }

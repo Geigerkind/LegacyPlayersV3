@@ -44,6 +44,7 @@ export class RaidConfigurationService implements OnDestroy {
 
     private current_source_map: Map<number, Unit> = new Map();
     private current_target_map: Map<number, Unit> = new Map();
+    private current_ability_map: Map<number, Set<number>> = new Map();
 
     private current_filtered_intervals: Array<[number, number]> = [];
 
@@ -75,6 +76,7 @@ export class RaidConfigurationService implements OnDestroy {
 
     private filter_stack: Array<FilterStackItem> = [];
     private filter_updated$: Subject<void> = new Subject();
+    private current_event_types: Set<number> = new Set();
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -377,7 +379,8 @@ export class RaidConfigurationService implements OnDestroy {
         const abilities: Set<number> = new Set();
         for (const [start, end] of this.current_filtered_intervals) {
             for (const ability_id of this.current_ability_intervals.search(start, end))
-                abilities.add(ability_id);
+                if (iterable_some(this.current_ability_map.get(ability_id).values(), (evt_type) => this.current_event_types.has(evt_type)))
+                    abilities.add(ability_id);
         }
 
         this.update_sources(iterable_map(sources.values(), (id) => this.current_source_map.get(id)));
@@ -387,34 +390,35 @@ export class RaidConfigurationService implements OnDestroy {
 
     private async update_subjects(): Promise<void> {
         const source_prom = [];
-        source_prom.push(this.instanceDataService.knecht_melee.get_sources());
-        source_prom.push(this.instanceDataService.knecht_misc.get_sources());
-        source_prom.push(this.instanceDataService.knecht_spell_damage.get_sources());
-        source_prom.push(this.instanceDataService.knecht_heal.get_sources());
-        source_prom.push(this.instanceDataService.knecht_un_aura.get_sources());
-        source_prom.push(this.instanceDataService.knecht_threat.get_sources());
-        source_prom.push(this.instanceDataService.knecht_aura.get_sources());
+        source_prom.push([this.instanceDataService.knecht_melee.get_sources(), [12, 1]]);
+        source_prom.push([this.instanceDataService.knecht_misc.get_sources(), [3, 10]]);
+        source_prom.push([this.instanceDataService.knecht_spell_damage.get_sources(), [13, 1]]);
+        source_prom.push([this.instanceDataService.knecht_heal.get_sources(), [14, 1]]);
+        source_prom.push([this.instanceDataService.knecht_un_aura.get_sources(), [7, 8, 9]]);
+        source_prom.push([this.instanceDataService.knecht_threat.get_sources(), [15]]);
+        source_prom.push([this.instanceDataService.knecht_aura.get_sources(), [6]]);
 
         const target_prom = [];
-        target_prom.push(this.instanceDataService.knecht_melee.get_targets());
-        target_prom.push(this.instanceDataService.knecht_misc.get_targets());
-        target_prom.push(this.instanceDataService.knecht_spell_damage.get_targets());
-        target_prom.push(this.instanceDataService.knecht_heal.get_targets());
-        target_prom.push(this.instanceDataService.knecht_un_aura.get_targets());
-        target_prom.push(this.instanceDataService.knecht_threat.get_targets());
-        target_prom.push(this.instanceDataService.knecht_aura.get_targets());
+        target_prom.push([this.instanceDataService.knecht_melee.get_targets(), [12, 1]]);
+        target_prom.push([this.instanceDataService.knecht_misc.get_targets(), [3, 10]]);
+        target_prom.push([this.instanceDataService.knecht_spell_damage.get_targets(), [13, 1]]);
+        target_prom.push([this.instanceDataService.knecht_heal.get_targets(), [14, 1]]);
+        target_prom.push([this.instanceDataService.knecht_un_aura.get_targets(), [7, 8, 9]]);
+        target_prom.push([this.instanceDataService.knecht_threat.get_targets(), [15]]);
+        target_prom.push([this.instanceDataService.knecht_aura.get_targets(), [6]]);
 
         const ability_prom = [];
-        ability_prom.push(this.instanceDataService.knecht_melee.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_misc.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_spell_damage.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_heal.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_un_aura.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_threat.get_abilities());
-        ability_prom.push(this.instanceDataService.knecht_aura.get_abilities());
+        ability_prom.push([this.instanceDataService.knecht_melee.get_abilities(), [12, 1]]);
+        ability_prom.push([this.instanceDataService.knecht_misc.get_abilities(), [3, 10]]);
+        ability_prom.push([this.instanceDataService.knecht_spell_damage.get_abilities(), [13, 1]]);
+        ability_prom.push([this.instanceDataService.knecht_heal.get_abilities(), [14, 1]]);
+        ability_prom.push([this.instanceDataService.knecht_un_aura.get_abilities(), [7, 8, 9]]);
+        ability_prom.push([this.instanceDataService.knecht_threat.get_abilities(), [15]]);
+        ability_prom.push([this.instanceDataService.knecht_aura.get_abilities(), [6]]);
 
+        // Performance: Adding it here initially is extremely expensive!
         const source_intervals = new DataIntervalTree<number>();
-        for (const prom of source_prom) {
+        for (const [prom, _evt_types] of source_prom) {
             const subjects = await prom;
             for (const [subject_id, [subject, intervals]] of subjects) {
                 if (!this.current_source_map.has(subject_id))
@@ -426,7 +430,7 @@ export class RaidConfigurationService implements OnDestroy {
         this.current_source_intervals = source_intervals;
 
         const target_intervals = new DataIntervalTree<number>();
-        for (const prom of target_prom) {
+        for (const [prom, _evt_types] of target_prom) {
             const subjects = await prom;
             for (const [subject_id, [subject, intervals]] of subjects) {
                 if (!this.current_target_map.has(subject_id))
@@ -438,9 +442,15 @@ export class RaidConfigurationService implements OnDestroy {
         this.current_target_intervals = target_intervals;
 
         const ability_intervals = new DataIntervalTree<number>();
-        for (const prom of ability_prom) {
+        for (const [prom, evt_types] of ability_prom) {
             const subjects = await prom;
             for (const [subject_id, [_, intervals]] of subjects) {
+                if (this.current_ability_map.has(subject_id)) {
+                    let current_evt_types = this.current_ability_map.get(subject_id);
+                    for (const evt_type of evt_types) current_evt_types.add(evt_type);
+                } else {
+                    this.current_ability_map.set(subject_id, new Set(evt_types));
+                }
                 for (const [start, end] of intervals)
                     ability_intervals.insert(start, end, subject_id);
             }
@@ -448,4 +458,13 @@ export class RaidConfigurationService implements OnDestroy {
         this.current_ability_intervals = ability_intervals;
         this.update_filter();
     }
+
+    public select_event_types(evt_types: Array<number>): void {
+        if (evt_types.length !== this.current_event_types.size || evt_types.some(evt_type => !this.current_event_types.has(evt_type))) {
+            this.current_event_types = new Set(evt_types);
+            this.update_filter();
+        }
+    }
+
 }
+
