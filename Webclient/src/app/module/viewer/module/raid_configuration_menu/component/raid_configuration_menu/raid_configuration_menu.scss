@@ -13,9 +13,12 @@
 }
 
 .container {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
     width: calc(100% - #{$spacing} - 2px);
-    height: 36px;
+    min-height: 36px;
     background: $tdc_darker;
     border: 1px solid $tdc_accent;
     border-radius: 3px 3px 3px 3px;
@@ -29,6 +32,36 @@
 
         &:last-child {
             margin-right: 0;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        MultiSelect, SelectInput {
+            margin-right: 0.5 * $spacing;
+            margin-bottom: 0.5 * $spacing;
+            width: calc(33.3% - 0.5 * #{$spacing});
+            max-width: calc(33.3% - 0.5 * #{$spacing});
+
+            &:nth-child(4), &:nth-child(5) {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    @media (max-width: 600px) {
+        SelectInput {
+            margin-top: 0.5 * $spacing;
+        }
+
+        MultiSelect, SelectInput {
+            margin-right: 0;
+            margin-bottom: 0.5 * $spacing;
+            width: 100%;
+            max-width: 100%;
+
+            &:nth-child(4), &:nth-child(5) {
+                margin-bottom: 0;
+            }
         }
     }
 }

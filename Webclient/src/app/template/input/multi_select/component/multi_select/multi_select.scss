@@ -23,6 +23,11 @@ ng-multiselect-dropdown {
 
                 span:last-child {
                     margin-left: auto;
+                    display: flex;
+
+                    span:last-child {
+                        margin-top: 5px;
+                    }
                 }
             }
 
