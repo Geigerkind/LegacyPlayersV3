@@ -93,6 +93,10 @@ fn main() {
             url: "/API/live_data_processor/openapi.json".to_string(),
         },
         UrlObject {
+            name: "Instance".to_string(),
+            url: "/API/instance/openapi.json".to_string(),
+        },
+        UrlObject {
             name: "Utility".to_string(),
             url: "/API/utility/openapi.json".to_string(),
         },
