@@ -49,7 +49,9 @@ export class InstanceDataService implements OnDestroy {
     private knecht_updates$: Subject<[KnechtUpdates, Array<number>]> = new Subject();
     private recent_knecht_updates$: [Set<KnechtUpdates>, Set<number>] = [new Set(), new Set()];
     private worker_initialized: number = 0;
+    private filter_initialized: Array<boolean> = [false, false, false, false];
     private init_worker_done: boolean = false;
+    private filter_update_in_progress: number = 0;
 
     constructor(
         private apiService: APIService,
@@ -92,7 +94,7 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public isInitialized(): boolean {
-        return this.worker.length >= InstanceDataService.NUMBER_OF_WORKER;
+        return this.worker_initialized >= InstanceDataService.NUMBER_OF_WORKER && this.filter_initialized.every(init => init);
     }
 
     ngOnDestroy(): void {
@@ -140,6 +142,7 @@ export class InstanceDataService implements OnDestroy {
     }
 
     public async set_segment_intervals(intervals: Array<[number, number]>) {
+        ++this.filter_update_in_progress;
         this.attempt_total_duration$.next(intervals.reduce((acc, interval) => acc + interval[1] - interval[0], 0));
 
         const promisses = [];
@@ -155,10 +158,15 @@ export class InstanceDataService implements OnDestroy {
 
         for (const prom of promisses)
             await prom;
-        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+
+        --this.filter_update_in_progress;
+        this.filter_initialized[0] = true;
+        if (this.filter_update_in_progress === 0)
+            this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
     public async set_source_filter(sources: Array<number>) {
+        ++this.filter_update_in_progress;
         const promisses = [];
         promisses.push(this.knecht_melee.set_source_filter(sources));
         promisses.push(this.knecht_misc.set_source_filter(sources));
@@ -172,10 +180,15 @@ export class InstanceDataService implements OnDestroy {
 
         for (const prom of promisses)
             await prom;
-        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+
+        --this.filter_update_in_progress;
+        this.filter_initialized[1] = true;
+        if (this.filter_update_in_progress === 0)
+            this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
     public async set_target_filter(targets: Array<number>) {
+        ++this.filter_update_in_progress;
         const promisses = [];
         promisses.push(this.knecht_melee.set_target_filter(targets));
         promisses.push(this.knecht_misc.set_target_filter(targets));
@@ -189,10 +202,15 @@ export class InstanceDataService implements OnDestroy {
 
         for (const prom of promisses)
             await prom;
-        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+
+        --this.filter_update_in_progress;
+        this.filter_initialized[2] = true;
+        if (this.filter_update_in_progress === 0)
+            this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
     public async set_ability_filter(abilities: Array<number>) {
+        ++this.filter_update_in_progress;
         const promisses = [];
         promisses.push(this.knecht_melee.set_ability_filter(abilities));
         promisses.push(this.knecht_misc.set_ability_filter(abilities));
@@ -206,7 +224,11 @@ export class InstanceDataService implements OnDestroy {
 
         for (const prom of promisses)
             await prom;
-        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+
+        --this.filter_update_in_progress;
+        this.filter_initialized[3] = true;
+        if (this.filter_update_in_progress === 0)
+            this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
     public set instance_meta_id(instance_meta_id: number) {

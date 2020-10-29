@@ -75,7 +75,9 @@ export class InstanceDataLoader {
     constructor(private instance_meta_id: number, is_expired: boolean, event_types: Array<number>) {
         this.newData$.asObservable().pipe(debounceTime(500))
             .subscribe(() => {
-                (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData, [...this.new_data_event_types.values()]]);
+                // Currently not needed, cause we dont have live updates
+                // The debounce causes a newData event to be issued after initialized was send, causing 2 updates
+                // (self as any).postMessage(["KNECHT_UPDATES", KnechtUpdates.NewData, [...this.new_data_event_types.values()]]);
                 this.new_data_event_types = new Set();
             });
         this.load_data(event_types)

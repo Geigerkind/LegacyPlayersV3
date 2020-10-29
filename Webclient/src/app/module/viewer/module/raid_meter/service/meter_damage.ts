@@ -1,9 +1,10 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {BehaviorSubject, Observable, Subject, Subscription} from "rxjs";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {InstanceDataService} from "../../../service/instance_data";
 import {UtilService} from "./util";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
+import {debounceTime} from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",

@@ -152,9 +152,9 @@ export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = 
     [43039, [[School.Frost], ALL_SCHOOLS]],
     // Glyph: PoW
     [56160, [[School.Holy], ALL_SCHOOLS]],
-    // TODO: Sacred Shield
+    // Sacred Shield
     [58597, [[School.Holy], ALL_SCHOOLS]],
-    // TODO: Divine Aegis
+    // Divine Aegis
     [47753, [[School.Holy], ALL_SCHOOLS]],
 ]);
 
@@ -173,13 +173,14 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                 continue;
             const subject_intervals = new Map(aura_uptime_map.get(subject_id)[1]);
             for (const [spell_id, timestamp, amount, schools] of absorbs) {
+                let found_outer = false;
                 for (const [absorb_spell_id, [school_mask, absorbing_schools]] of ABSORBING_SPELL_IDS.entries()) {
-                    if (!subject_intervals.has(absorb_spell_id) || !absorbing_schools.some(school => schools.includes(school)))
+                    if (!subject_intervals.has(absorb_spell_id) || (schools.length > 0 && !absorbing_schools.some(school => schools.includes(school))))
                         continue;
                     const uptime_intervals = subject_intervals.get(absorb_spell_id);
                     let found = false;
                     for (const [start, end, start_aura_app_unit, end_aura_app_unit] of uptime_intervals) {
-                        if ((start === undefined || start <= timestamp) && (end === undefined || end >= timestamp)) {
+                        if ((start === undefined || start - 500 <= timestamp) && (end === undefined || end + 500 >= timestamp)) {
                             if (current_mode) {
                                 if (!result.has(subject_id))
                                     result.set(subject_id, [subject, []]);
@@ -194,7 +195,10 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                             break;
                         }
                     }
-                    if (found) break;
+                    if (found) {
+                        found_outer = true;
+                        break;
+                    }
                 }
             }
         }
