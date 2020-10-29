@@ -694,20 +694,22 @@ function RPLL:fix_combat_log_strings()
     end
 
 	-- Fix ParserLib
-	local parser_lib = ParserLib:GetInstance("1.1")
-	if parser_lib ~= nil then
-		ParserLib_SELF = player_name
-		parser_lib.eventTable["CHAT_MSG_COMBAT_SELF_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
-		parser_lib.eventTable["CHAT_MSG_COMBAT_CREATURE_VS_SELF_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
-		parser_lib.eventTable["CHAT_MSG_COMBAT_SELF_MISSES"] = parser_lib:LoadPatternCategoryTree({ "MissOtherOther" })
-		parser_lib.eventTable["CHAT_MSG_COMBAT_HOSTILEPLAYER_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
-		parser_lib.eventTable["CHAT_MSG_COMBAT_HOSTILEPLAYER_MISSES"] = parser_lib:LoadPatternCategoryTree({ "MissOtherOther" })
-		parser_lib.eventTable["CHAT_MSG_SPELL_SELF_BUFF"] = parser_lib:LoadPatternCategoryTree({ { "HealOther", "PowerGainOther", "ExtraAttackOther", "DrainOther" }, "SPELLCASTOTHERSTART", { "CastOther", "PerformOther" }, "SPELLPERFORMOTHERSTART", "SpellMissOther", "ProcResistOther", "SplitDamageOther", "DispelFailOther" })
-		parser_lib.eventTable["CHAT_MSG_SPELL_SELF_DAMAGE"] = parser_lib:LoadPatternCategoryTree({ "SpellHitOther", "SPELLCASTOTHERSTART", "SPELLPERFORMOTHERSTART", "DrainOther", "SpellMissOther", { "INSTAKILLOTHER" }, { "PROCRESISTOTHEROTHER" }, "SplitDamageOther", { "CastOther", "InterruptOther", "DurabilityDamageOther" }, "PerformOther", "ExtraAttackOther", { "DISPELFAILEDOTHEROTHER" } })
-		parser_lib.eventTable["CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS"] = parser_lib:LoadPatternCategoryTree({ { "HotOther", "DrainOther" }, { "BuffOther", "PowerGainOther", "DrainOther" }, "DotOther", "DebuffOther" })
-		parser_lib.eventTable["CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE"] = parser_lib:LoadPatternCategoryTree({ "DebuffOther", "DotOther", { "SPELLLOGABSORBOTHEROTHER" }, "DrainOther", { "PowerGainOther", "BuffOther" } })
-		parser_lib.eventTable["CHAT_MSG_SPELL_DAMAGESHIELDS_ON_SELF"] = { "SPELLRESISTOTHEROTHER", "DAMAGESHIELDOTHEROTHER" }
-		parser_lib.eventTable["CHAT_MSG_SPELL_AURA_GONE_SELF"] = { "AURAREMOVEDOTHER" }
+	if ParserLib ~= nil then
+		local parser_lib = ParserLib:GetInstance("1.1")
+		if parser_lib ~= nil then
+			ParserLib_SELF = player_name
+			parser_lib.eventTable["CHAT_MSG_COMBAT_SELF_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
+			parser_lib.eventTable["CHAT_MSG_COMBAT_CREATURE_VS_SELF_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
+			parser_lib.eventTable["CHAT_MSG_COMBAT_SELF_MISSES"] = parser_lib:LoadPatternCategoryTree({ "MissOtherOther" })
+			parser_lib.eventTable["CHAT_MSG_COMBAT_HOSTILEPLAYER_HITS"] = parser_lib:LoadPatternCategoryTree({ "HitOtherOther", "EnvOther" })
+			parser_lib.eventTable["CHAT_MSG_COMBAT_HOSTILEPLAYER_MISSES"] = parser_lib:LoadPatternCategoryTree({ "MissOtherOther" })
+			parser_lib.eventTable["CHAT_MSG_SPELL_SELF_BUFF"] = parser_lib:LoadPatternCategoryTree({ { "HealOther", "PowerGainOther", "ExtraAttackOther", "DrainOther" }, "SPELLCASTOTHERSTART", { "CastOther", "PerformOther" }, "SPELLPERFORMOTHERSTART", "SpellMissOther", "ProcResistOther", "SplitDamageOther", "DispelFailOther" })
+			parser_lib.eventTable["CHAT_MSG_SPELL_SELF_DAMAGE"] = parser_lib:LoadPatternCategoryTree({ "SpellHitOther", "SPELLCASTOTHERSTART", "SPELLPERFORMOTHERSTART", "DrainOther", "SpellMissOther", { "INSTAKILLOTHER" }, { "PROCRESISTOTHEROTHER" }, "SplitDamageOther", { "CastOther", "InterruptOther", "DurabilityDamageOther" }, "PerformOther", "ExtraAttackOther", { "DISPELFAILEDOTHEROTHER" } })
+			parser_lib.eventTable["CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS"] = parser_lib:LoadPatternCategoryTree({ { "HotOther", "DrainOther" }, { "BuffOther", "PowerGainOther", "DrainOther" }, "DotOther", "DebuffOther" })
+			parser_lib.eventTable["CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE"] = parser_lib:LoadPatternCategoryTree({ "DebuffOther", "DotOther", { "SPELLLOGABSORBOTHEROTHER" }, "DrainOther", { "PowerGainOther", "BuffOther" } })
+			parser_lib.eventTable["CHAT_MSG_SPELL_DAMAGESHIELDS_ON_SELF"] = { "SPELLRESISTOTHEROTHER", "DAMAGESHIELDOTHEROTHER" }
+			parser_lib.eventTable["CHAT_MSG_SPELL_AURA_GONE_SELF"] = { "AURAREMOVEDOTHER" }
+		end
 	end
 end
 
