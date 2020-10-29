@@ -281,8 +281,8 @@ impl CombatLogParser for WoWVanillaParser {
             let mut hit_mask = HitType::Hit as u32;
             let trailer = parse_trailer(captures.get(6)?.as_str());
             trailer.iter().for_each(|(_, hit_type)| hit_mask |= hit_type.clone() as u32);
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&attacker, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
             self.participants.get_mut(&victim.unit_id).unwrap().attribute_damage(damage);
