@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 4
+RPLL.VERSION = 5
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -33,17 +33,17 @@ local GetCurrentMapAreaID = GetCurrentMapAreaID
 
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL.UPDATE_MOUSEOVER_UNIT = function()
-    this:CollectUnit("mouseover")
+    RPLL:CollectUnit("mouseover")
 end
 RPLL:RegisterEvent("PLAYER_TARGET_CHANGED")
 RPLL.PLAYER_TARGET_CHANGED = function()
-    this:CollectUnit("target")
+    RPLL:CollectUnit("target")
 end
 RPLL:RegisterEvent("RAID_ROSTER_UPDATE")
 RPLL.RAID_ROSTER_UPDATE = function()
     for i = 1, GetNumRaidMembers() do
         if UnitName("raid" .. i) then
-            this:CollectUnit("raid" .. i)
+            RPLL:CollectUnit("raid" .. i)
         end
     end
 end
@@ -51,7 +51,7 @@ RPLL:RegisterEvent("PARTY_MEMBERS_CHANGED")
 RPLL.PARTY_MEMBERS_CHANGED = function()
     for i = 1, GetNumPartyMembers() do
         if UnitName("party" .. i) then
-            this:CollectUnit("party" .. i)
+            RPLL:CollectUnit("party" .. i)
         end
     end
 end
@@ -59,30 +59,30 @@ end
 RPLL:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 RPLL.ZONE_CHANGED_NEW_AREA = function()
     LoggingCombat(IsInInstance("player"))
-    this:PushCurrentInstanceInfo()
+    RPLL:PushCurrentInstanceInfo()
 end
 RPLL:RegisterEvent("UPDATE_INSTANCE_INFO")
 RPLL.UPDATE_INSTANCE_INFO = function()
     LoggingCombat(IsInInstance("player"))
-    this:PushCurrentInstanceInfo()
+    RPLL:PushCurrentInstanceInfo()
 end
 
 RPLL:RegisterEvent("UNIT_PET")
 RPLL.UNIT_PET = function(unit)
-    this:CollectUnit(unit)
+    RPLL:CollectUnit(unit)
 end
 RPLL:RegisterEvent("UNIT_ENTERED_VEHICLE")
 RPLL.UNIT_ENTERED_VEHICLE = function(unit)
-    this:CollectUnit(unit)
+    RPLL:CollectUnit(unit)
 end
 
 RPLL:RegisterEvent("PLAYER_PET_CHANGED")
 RPLL.PLAYER_PET_CHANGED = function()
-    this:CollectUnit("player")
+    RPLL:CollectUnit("player")
 end
 RPLL:RegisterEvent("PET_STABLE_CLOSED")
 RPLL.PET_STABLE_CLOSED = function()
-    this:CollectUnit("player")
+    RPLL:CollectUnit("player")
 end
 
 RPLL:RegisterEvent("CHAT_MSG_LOOT")
@@ -90,7 +90,7 @@ RPLL.CHAT_MSG_LOOT = function(msg)
     if not IsInInstance() then
         return
     end
-    this:PushExtraMessage(strjoin("&", "LOOT", msg))
+    RPLL:PushExtraMessage(strjoin("&", "LOOT", msg))
 end
 
 RPLL:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -126,7 +126,10 @@ RPLL.PLAYER_ENTERING_WORLD = function()
             RPLL.PlayerInformation = {}
             RPLL_ExtraMessages = {}
             RPLL_CurrentServer = GetRealmName()
-            print("Log nuked");
+            print("Log nuked")
+            RPLL:CollectUnit("player")
+            RPLL:RAID_ROSTER_UPDATE()
+            RPLL:PARTY_MEMBERS_CHANGED()
         else
             print("LegacyPlayers: To nuke a log type: /rpll nuke!");
         end
@@ -134,15 +137,15 @@ RPLL.PLAYER_ENTERING_WORLD = function()
 
     print("LegacyPlayers collector v"..RPLL.VERSION.." has been loaded. Type /rpll for help.")
 
-    this:LoadPlayerInformation()
-    this:CollectUnit("player")
-    this:RAID_ROSTER_UPDATE()
-    this:PARTY_MEMBERS_CHANGED()
+    RPLL:LoadPlayerInformation()
+    RPLL:CollectUnit("player")
+    RPLL:RAID_ROSTER_UPDATE()
+    RPLL:PARTY_MEMBERS_CHANGED()
 end
 
 RPLL:RegisterEvent("PLAYER_LOGOUT")
 RPLL.PLAYER_LOGOUT = function()
-    this:SavePlayerInformation()
+    RPLL:SavePlayerInformation()
 end
 
 function RPLL:LoadPlayerInformation()
@@ -166,14 +169,14 @@ function RPLL:LoadPlayerInformation()
                 arena_teams[5] = arena_team5
             end
 
-            this:UpdatePlayer(unit_guid, unit_name, unit_race, hero_class, gender, guild_name, guild_rank_name, guild_rank_index, pet_guids, gear, talents, arena_teams)
+            RPLL:UpdatePlayer(unit_guid, unit_name, unit_race, hero_class, gender, guild_name, guild_rank_name, guild_rank_index, pet_guids, gear, talents, arena_teams)
         end
     end
 end
 
 function RPLL:SavePlayerInformation()
     RPLL_PlayerInformation = {}
-    for key, val in pairs(this.PlayerInformation) do
+    for key, val in pairs(RPLL.PlayerInformation) do
         if key ~= nil and val ~= nil then
             local pets = prep_value(val["pet_guids"][1])
             for i=2, table_len(val["pet_guids"]) do
@@ -198,11 +201,11 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
         return
     end
 
-    if this.PlayerInformation[unit_guid] == nil then
-        this.PlayerInformation[unit_guid] = {}
+    if RPLL.PlayerInformation[unit_guid] == nil then
+        RPLL.PlayerInformation[unit_guid] = {}
     end
 
-    local info = this.PlayerInformation[unit_guid]
+    local info = RPLL.PlayerInformation[unit_guid]
     info["unit_guid"] = unit_guid
     info["unit_name"] = unit_name
 
@@ -330,7 +333,7 @@ function RPLL:CollectUnit(unit)
         end
     end
 
-    this:UpdatePlayer(unit_guid, unit_name, unit_race, unit_hero_class, unit_gender, guild_name, guild_rank_name, guild_rank_index, { [1] = pet_guid }, gear, talents, arena_teams)
+    RPLL:UpdatePlayer(unit_guid, unit_name, unit_race, unit_hero_class, unit_gender, guild_name, guild_rank_name, guild_rank_index, { [1] = pet_guid }, gear, talents, arena_teams)
 end
 
 function RPLL:PushExtraMessage(msg)
@@ -370,7 +373,7 @@ function RPLL:PushCurrentInstanceInfo()
             end
         end
 
-        this:PushExtraMessage(strjoin("&", "ZONE_INFO", name, type, difficultyIndex, difficultyName, maxPlayers, playerDifficulty, GetCurrentMapAreaID(), prep_value(found_instance_id), unpack(participants)))
+        RPLL:PushExtraMessage(strjoin("&", "ZONE_INFO", name, type, difficultyIndex, difficultyName, maxPlayers, playerDifficulty, GetCurrentMapAreaID(), prep_value(found_instance_id), unpack(participants)))
     end
 end
 
