@@ -7,5 +7,5 @@ pub fn get_hashed_player_unit_id(unit_name: &str) -> u64 {
 }
 
 pub fn get_npc_unit_id(data: &Data, unit_name: &str) -> Option<u64> {
-    data.get_npc_by_name(1, &unit_name.to_string()).map(|npc| 0xF130000000000000 + (npc.id as u64).rotate_left(24))
+    data.get_npc_by_name(1, &unit_name.to_string()).map(|npc| 0xF130000000000000 + (npc.id as u64) << 24)
 }

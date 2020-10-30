@@ -14,16 +14,16 @@ pub fn parse_unit(message_args: &[&str]) -> Option<Unit> {
             let npc_id = u64::from_str_radix(unit_params[5], 10).ok()?;
             unit_id = 0;
             unit_id |= 0xF140000000000000;
-            unit_id |= npc_id.rotate_left(24);
-            unit_id |= spawn_uid;
+            unit_id |= npc_id << 24;
+            unit_id |= spawn_uid & 0x0000000000FFFFFF;
         },
         "Creature" => {
             let spawn_uid = u64::from_str_radix(unit_params[6], 16).ok()?;
             let npc_id = u64::from_str_radix(unit_params[5], 10).ok()?;
             unit_id = 0;
             unit_id |= 0xF130000000000000;
-            unit_id |= npc_id.rotate_left(24);
-            unit_id |= spawn_uid;
+            unit_id |= npc_id << 24;
+            unit_id |= spawn_uid & 0x0000000000FFFFFF;
         },
         _ => return None,
     };

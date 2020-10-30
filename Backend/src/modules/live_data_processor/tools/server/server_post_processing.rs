@@ -130,7 +130,8 @@ impl Server {
 
                                             // attempt tracking
                                             attempt.creatures_required_to_die.remove(creature_id);
-                                            if attempt.pivot_creature.contains(creature_id) {
+                                            // Exception for Prophet skeram, may cause problems for vanilla
+                                            if attempt.pivot_creature.contains(creature_id) || *entry == 15263 {
                                                 attempt.pivot_is_finished = true;
                                                 attempt.creatures_required_to_die.clear();
                                             }
@@ -369,8 +370,10 @@ impl Server {
         for (key, instance) in self.active_instances.clone() {
             let dst_file = format!("{}/{}/{}.zip", storage_path, self.server_id, instance.instance_meta_id);
             let src_dir = format!("{}/{}/{}", storage_path, self.server_id, instance.instance_meta_id);
-            if zip_directory(src_dir.clone(), dst_file).is_ok() {
-                let _ = fs::remove_dir_all(&src_dir);
+            if Path::new(&src_dir).exists() {
+                if zip_directory(src_dir.clone(), dst_file).is_ok() {
+                    let _ = fs::remove_dir_all(&src_dir);
+                }
             }
             self.instance_participants.remove(&instance.instance_meta_id);
             self.active_attempts.remove(&key);

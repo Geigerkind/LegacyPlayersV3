@@ -137,6 +137,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut current_map = None;
     let mut participants = HashMap::new();
     let mut last_combat_update = HashMap::new();
+    let mut unit_died_recently = HashMap::new();
     let mut additional_messages = Vec::with_capacity(20000);
     for Message { timestamp, message_count, message_type, .. } in messages.iter() {
         // Insert Instance Map Messages
@@ -197,9 +198,13 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         // We assume end if it dies or after a timeout
         match &message_type {
             MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
-                add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
-                add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
-            },
+                if !unit_died_recently.contains_key(&dmg.attacker.unit_id) || *timestamp - *unit_died_recently.get(&dmg.attacker.unit_id).unwrap() > 15000 {
+                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
+                }
+                if !unit_died_recently.contains_key(&dmg.victim.unit_id) || *timestamp - *unit_died_recently.get(&dmg.victim.unit_id).unwrap() > 15000 {
+                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
+                }
+            }
             MessageType::Death(death) => {
                 if !death.victim.is_player {
                     if let Some(entry) = death.victim.unit_id.get_entry() {
@@ -226,8 +231,9 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     message_type: MessageType::CombatState(CombatState { unit: death.victim.clone(), in_combat: false }),
                 });
                 last_combat_update.remove(&death.victim.unit_id);
-            },
-            _ => {},
+                unit_died_recently.insert(death.victim.unit_id, *timestamp);
+            }
+            _ => {}
         };
     }
 
@@ -254,43 +260,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        },
+        }
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        },
+        }
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        },
+        }
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        },
+        }
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        },
+        }
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        },
+        }
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        },
+        }
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        },
+        }
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        },
+        }
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        },
-        _ => {},
+        }
+        _ => {}
     };
 }
 
