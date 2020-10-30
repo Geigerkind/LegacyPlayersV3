@@ -636,8 +636,8 @@ impl CombatLogParser for WoWVanillaParser {
             let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let attacker = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
-            self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(2)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&attacker, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
 
