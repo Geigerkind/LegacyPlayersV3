@@ -15,7 +15,7 @@ use std::io::Read;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure>;
-    fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
+    fn get_instance_meta(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
     fn get_instance_participants(&self, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure>;
     fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure>;
 }
@@ -99,10 +99,10 @@ impl ExportInstance for Instance {
         Ok(vec![])
     }
 
-    fn get_instance_meta(&self, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
+    fn get_instance_meta(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
         let instance_metas = self.instance_metas.read().unwrap();
         if let Some(instance_meta) = instance_metas.get(&instance_meta_id) {
-            let guild = instance_meta.participants.find_instance_guild(armory);
+            let guild = instance_meta.participants.find_instance_guild(db_main, armory, instance_meta.start_ts);
             let map_difficulty = match instance_meta.instance_specific {
                 MetaType::Raid { map_difficulty } => Some(map_difficulty),
                 _ => None,

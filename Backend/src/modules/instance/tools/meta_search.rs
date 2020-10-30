@@ -10,16 +10,17 @@ use crate::modules::instance::Instance;
 use crate::rpll_table_sort;
 use crate::util::ordering::NegateOrdExt;
 use std::cmp::Ordering;
+use crate::util::database::Select;
 
 pub trait MetaSearch {
-    fn search_meta_raids(&self, armory: &Armory, data: &Data, current_user: Option<u32>, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
+    fn search_meta_raids(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, current_user: Option<u32>, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
     fn search_meta_rated_arenas(&self, current_user: Option<u32>, filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch>;
     fn search_meta_skirmishes(&self, current_user: Option<u32>, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch>;
     fn search_meta_battlegrounds(&self, current_user: Option<u32>, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch>;
 }
 
 impl MetaSearch for Instance {
-    fn search_meta_raids(&self, armory: &Armory, data: &Data, current_user: Option<u32>, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
+    fn search_meta_raids(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, current_user: Option<u32>, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
         filter.guild.convert_to_lowercase();
         let mut result = self
             .export_meta(0)
@@ -35,7 +36,7 @@ impl MetaSearch for Instance {
                 } = raid
                 {
                     if filter.map_difficulty.apply_filter(map_difficulty) {
-                        let guild = raid.participants.find_instance_guild(armory).map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name });
+                        let guild = raid.participants.find_instance_guild(db_main, armory, raid.start_ts).map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name });
                         if filter.guild.apply_filter(guild.as_ref().map(|guild| guild.name.clone())) {
                             return Some(MetaRaidSearch {
                                 instance_meta_id: raid.instance_meta_id,
@@ -46,7 +47,7 @@ impl MetaSearch for Instance {
                                 server_id: raid.server_id,
                                 start_ts: raid.start_ts,
                                 end_ts: raid.end_ts,
-                                can_delete: current_user.contains(&raid.uploaded_user)
+                                can_delete: current_user.contains(&raid.uploaded_user),
                             });
                         }
                     }
@@ -86,13 +87,13 @@ impl MetaSearch for Instance {
             .filter_map(|rated_arena| {
                 if let InstanceMeta {
                     instance_specific:
-                        MetaType::RatedArena {
-                            winner,
-                            team1,
-                            team2,
-                            team1_change,
-                            team2_change,
-                        },
+                    MetaType::RatedArena {
+                        winner,
+                        team1,
+                        team2,
+                        team1_change,
+                        team2_change,
+                    },
                     ..
                 } = rated_arena
                 {
@@ -107,7 +108,7 @@ impl MetaSearch for Instance {
                             team2_change,
                             start_ts: rated_arena.start_ts,
                             end_ts: rated_arena.end_ts,
-                            can_delete: current_user.contains(&rated_arena.uploaded_user)
+                            can_delete: current_user.contains(&rated_arena.uploaded_user),
                         });
                     }
                 }
@@ -155,7 +156,7 @@ impl MetaSearch for Instance {
                         winner,
                         start_ts: skirmish.start_ts,
                         end_ts: skirmish.end_ts,
-                        can_delete: current_user.contains(&skirmish.uploaded_user)
+                        can_delete: current_user.contains(&skirmish.uploaded_user),
                     });
                 }
                 None
@@ -201,7 +202,7 @@ impl MetaSearch for Instance {
                             score_horde,
                             start_ts: skirmish.start_ts,
                             end_ts: skirmish.end_ts,
-                            can_delete: current_user.contains(&skirmish.uploaded_user)
+                            can_delete: current_user.contains(&skirmish.uploaded_user),
                         });
                     }
                 }

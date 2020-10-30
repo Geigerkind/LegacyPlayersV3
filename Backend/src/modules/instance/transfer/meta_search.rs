@@ -7,11 +7,12 @@ use crate::modules::instance::Instance;
 use rocket::State;
 use rocket_contrib::json::Json;
 use crate::modules::account::guard::CurrentUser;
+use crate::MainDb;
 
 #[openapi]
 #[post("/meta_search/raids", format = "application/json", data = "<filter>")]
-pub fn export_raids(me: State<Instance>, armory: State<Armory>, data: State<Data>, current_user: CurrentUser, filter: Json<RaidSearchFilter>) -> Json<SearchResult<MetaRaidSearch>> {
-    Json(me.search_meta_raids(&armory, &data, current_user.0, filter.into_inner()))
+pub fn export_raids(mut db_main: MainDb, me: State<Instance>, armory: State<Armory>, data: State<Data>, current_user: CurrentUser, filter: Json<RaidSearchFilter>) -> Json<SearchResult<MetaRaidSearch>> {
+    Json(me.search_meta_raids(&mut *db_main, &armory, &data, current_user.0, filter.into_inner()))
 }
 
 #[openapi]

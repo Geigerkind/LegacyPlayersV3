@@ -102,6 +102,12 @@ export class RaidConfigurationService implements OnDestroy {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem))) {
                 this.update_subjects();
             }
+            if (knecht_updates.includes(KnechtUpdates.WorkerInitialized)) {
+                this.instanceDataService.set_segment_intervals(this.current_filtered_intervals);
+                this.instanceDataService.set_source_filter([...this.source_filter.values()]);
+                this.instanceDataService.set_target_filter([...this.target_filter.values()]);
+                this.instanceDataService.set_ability_filter([...this.ability_filter.values()]);
+            }
         }));
 
         this.subscription.add(this.activated_route_service.paramMap.subscribe(params => this.current_mode = params.get("mode") as ViewerMode));

@@ -2,22 +2,21 @@ use crate::modules::armory::material::Guild;
 use crate::modules::armory::tools::{GetCharacter, GetGuild};
 use crate::modules::armory::Armory;
 use grouping_by::GroupingBy;
+use crate::util::database::Select;
 
 pub trait FindInstanceGuild {
-    fn find_instance_guild(&self, armory: &Armory) -> Option<Guild>;
+    fn find_instance_guild(&self, db_main: &mut impl Select, armory: &Armory, timestamp: u64) -> Option<Guild>;
 }
 
 // Where u32 is a character_id
 impl FindInstanceGuild for Vec<u32> {
-    fn find_instance_guild(&self, armory: &Armory) -> Option<Guild> {
+    fn find_instance_guild(&self, db_main: &mut impl Select, armory: &Armory, timestamp: u64) -> Option<Guild> {
         let same_guild_fraction = 0.75;
         for (guild_id, group) in &self
             .iter()
             .map(|character_id| {
-                if let Some(character) = armory.get_character(*character_id) {
-                    if let Some(character_history) = character.last_update {
-                        return character_history.character_guild.map(|inner| inner.guild_id);
-                    }
+                if let Some(character_history) = armory.get_character_moment(db_main, *character_id, timestamp) {
+                    return character_history.character_guild.map(|inner| inner.guild_id);
                 }
                 None
             })
