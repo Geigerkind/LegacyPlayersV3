@@ -17,8 +17,12 @@ export class TooltipService {
     ) {
     }
 
-    loadCharacterTooltip(character_id: number, on_success: any): void {
-        this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_CHARACTER_TOOLTIP + "/" + character_id, on_success);
+    loadCharacterTooltip(character_id: number, on_success: any, timestamp?: number): void {
+        if (timestamp > 0) {
+            this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_CHARACTER_TOOLTIP + "/" + character_id + "/" + timestamp.toString(), on_success);
+        } else {
+            this.apiService.get(TooltipService.URL_TOOLTIP + TooltipService.URL_CHARACTER_TOOLTIP + "/" + character_id, on_success);
+        }
     }
 
     loadCharacterItemTooltip(history_id: number, item_id: number, on_success: any): void {

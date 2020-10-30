@@ -5,6 +5,7 @@ import {Role} from "../../../../domain_value/role";
 import {Observable, Subscription} from "rxjs";
 import {concatMap, map} from "rxjs/operators";
 import {DataService} from "../../../../../../service/data";
+import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
 
 @Component({
     selector: "RaidComposition",
@@ -12,6 +13,8 @@ import {DataService} from "../../../../../../service/data";
     styleUrls: ["./raid_composition.scss"]
 })
 export class RaidCompositionComponent implements OnDestroy {
+
+    current_meta: InstanceViewerMeta;
 
     private subscription: Subscription;
     private subscription_server: Subscription;
@@ -39,11 +42,19 @@ export class RaidCompositionComponent implements OnDestroy {
             concatMap(meta => !meta ? undefined : this.dataService.get_server_by_id(meta.server_id)),
             map(server => server?.name)
         );
+
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
         this.subscription_server?.unsubscribe();
+    }
+
+    get current_ts(): number {
+        if (!this.current_meta)
+            return 0;
+        return this.current_meta.end_ts ?? this.current_meta.start_ts;
     }
 
     private create_participant_array(participants: Array<InstanceViewerParticipants>, role: Role): Array<Array<InstanceViewerParticipants>> {

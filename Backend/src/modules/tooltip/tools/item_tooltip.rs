@@ -171,7 +171,7 @@ impl RetrieveItemTooltip for Tooltip {
             return Err(TooltipFailure::InvalidInput);
         }
         let character_history = character_history_res.unwrap();
-        let character = self.get_character(data, armory, language_id, character_history.character_id).unwrap();
+        let character = self.get_character(db_main, data, armory, language_id, character_history.character_id, u64::MAX).unwrap();
         let character_gear = character_history.character_info.gear;
         let expansion_id = character.expansion_id;
 

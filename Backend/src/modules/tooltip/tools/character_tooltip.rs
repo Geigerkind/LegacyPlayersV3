@@ -15,23 +15,37 @@ use crate::modules::{
         Tooltip,
     },
 };
+use crate::util::database::Select;
+use crate::modules::armory::tools::GetCharacterHistory;
 
 pub trait RetrieveCharacterTooltip {
-    fn get_character(&self, data: &Data, armory: &Armory, language_id: u8, character_id: u32) -> Result<CharacterTooltip, TooltipFailure>;
+    fn get_character(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, language_id: u8, character_id: u32, timestamp: u64) -> Result<CharacterTooltip, TooltipFailure>;
 }
 
 impl RetrieveCharacterTooltip for Tooltip {
-    fn get_character(&self, data: &Data, armory: &Armory, language_id: u8, character_id: u32) -> Result<CharacterTooltip, TooltipFailure> {
+    fn get_character(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, language_id: u8, character_id: u32, timestamp: u64) -> Result<CharacterTooltip, TooltipFailure> {
         let character_res = armory.get_character(character_id);
         if character_res.is_none() {
             return Err(TooltipFailure::InvalidInput);
         }
         let character = character_res.unwrap();
-
         if character.last_update.is_none() {
             return Err(TooltipFailure::CharacterHasNoInformation);
         }
-        let character_history = character.last_update.unwrap();
+
+        let timestamp = timestamp / 1000;
+        let mut closest_history_moment = character.history_moments.first().unwrap();
+        for moment in character.history_moments.iter() {
+            if (timestamp as i64 - moment.timestamp as i64).abs() < (timestamp as i64 - closest_history_moment.timestamp as i64).abs() {
+                closest_history_moment = moment;
+            }
+        }
+
+        let character_history = if closest_history_moment.id == character.last_update.as_ref().unwrap().id {
+            character.last_update.clone().unwrap()
+        } else {
+            armory.get_character_history(db_main, closest_history_moment.id).map_err(|_| TooltipFailure::CharacterHasNoInformation)?
+        };
 
         let guild = character_history.character_guild.and_then(|character_guild| {
             armory.get_guild(character_guild.guild_id).map(|guild| CharacterGuild {

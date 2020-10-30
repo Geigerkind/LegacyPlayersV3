@@ -251,6 +251,7 @@ fn main() {
                 tooltip::transfer::item_tooltip::get_character_item,
                 tooltip::transfer::spell_tooltip::get_spell,
                 tooltip::transfer::character_tooltip::get_character,
+                tooltip::transfer::character_tooltip::get_character_by_ts,
                 tooltip::transfer::guild_tooltip::get_guild
             ],
         )
