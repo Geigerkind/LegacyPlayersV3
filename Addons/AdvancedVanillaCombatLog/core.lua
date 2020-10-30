@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 3
+RPLL.VERSION = 4
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -466,13 +466,17 @@ local GlobalStrings = {
 
 function RPLL:fix_combat_log_strings()
     local player_name = UnitName("player")
-    if SW_FixLogStrings == nil and DPSMate == nil then
+    if SW_FixLogStrings == nil and (DPSMate == nil or DPSMate.VERSION < 130) then
         for _, val in GlobalStrings do
             local glb = getglobal(val)
             local str = string.gsub(glb, "(%%%d?$?s)('s)", "%1% %2")
             setglobal(val, str)
         end
     end
+
+	if DPSMate ~= nil and DPSMate.VERSION < 130 then
+		this:SendMessage("Your current DPSMate version is outdated and not compatible. Please get a version >= 130.")
+	end
 
     AURAADDEDSELFHARMFUL = player_name.." is afflicted by %s."
     AURAADDEDSELFHELPFUL = player_name.." gains %s."
