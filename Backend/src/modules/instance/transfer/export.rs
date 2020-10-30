@@ -22,8 +22,8 @@ pub fn get_instance_meta(mut db_main: MainDb, me: State<Instance>, armory: State
 
 #[openapi]
 #[get("/export/participants/<instance_meta_id>")]
-pub fn get_instance_participants(me: State<Instance>, armory: State<Armory>, instance_meta_id: u32) -> Result<Json<Vec<InstanceViewerParticipant>>, InstanceFailure> {
-    me.get_instance_participants(&armory, instance_meta_id).map(Json)
+pub fn get_instance_participants(mut db_main: MainDb, me: State<Instance>, armory: State<Armory>, instance_meta_id: u32) -> Result<Json<Vec<InstanceViewerParticipant>>, InstanceFailure> {
+    me.get_instance_participants(&mut *db_main, &armory, instance_meta_id).map(Json)
 }
 
 #[openapi]
