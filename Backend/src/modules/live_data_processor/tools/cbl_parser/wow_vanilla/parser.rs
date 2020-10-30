@@ -1159,14 +1159,14 @@ impl CombatLogParser for WoWVanillaParser {
         None
     }
 
-    fn get_involved_character_builds(&self) -> Vec<(Option<u32>, CharacterDto)> {
+    fn get_involved_character_builds(&self) -> Vec<(Option<u32>, u64, CharacterDto)> {
         self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
             let gear_setups = &participant.gear_setups;
             if gear_setups.is_some() && !gear_setups.as_ref().unwrap().is_empty() {
-                for (_ts, gear) in gear_setups.as_ref().unwrap().iter() {
-                    // TODO: Use TS
+                for (ts, gear) in gear_setups.as_ref().unwrap().iter() {
                     acc.push((
                         None,
+                        *ts,
                         CharacterDto {
                             server_uid: participant.id,
                             character_history: Some(CharacterHistoryDto {
@@ -1218,9 +1218,9 @@ impl CombatLogParser for WoWVanillaParser {
                     ));
                 }
             } else {
-                // TODO: Use TS
                 acc.push((
                     None,
+                    time_util::now() * 1000,
                     CharacterDto {
                         server_uid: participant.id,
                         character_history: Some(CharacterHistoryDto {

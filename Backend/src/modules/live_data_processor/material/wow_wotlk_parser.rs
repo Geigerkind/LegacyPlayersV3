@@ -233,7 +233,6 @@ impl WoWWOTLKParser {
                 if pet_guids_str != "nil" {
                     for pet_guid_str in pet_guids_str.split('}') {
                         if let Ok(mut pet_unit_guid) = u64::from_str_radix(pet_guid_str.trim_start_matches("0x"), 16) {
-                            // TODO: Do we need to add instance events?
                             if pet_unit_guid.is_pet() {
                                 let mut new_unit_id = pet_unit_guid;
                                 new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);

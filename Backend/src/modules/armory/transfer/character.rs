@@ -16,7 +16,7 @@ use crate::MainDb;
 #[openapi]
 #[post("/character", format = "application/json", data = "<character>")]
 pub fn set_character(mut db_main: MainDb, me: State<Armory>, owner: ServerOwner, character: Json<CharacterDto>) -> Result<(), ArmoryFailure> {
-    me.set_character(&mut *db_main, owner.0, character.into_inner()).map(|_| ())
+    me.set_character(&mut *db_main, owner.0, character.into_inner(), time_util::now() * 1000).map(|_| ())
 }
 
 #[openapi]

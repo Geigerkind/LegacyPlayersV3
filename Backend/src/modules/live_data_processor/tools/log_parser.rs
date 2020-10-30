@@ -64,7 +64,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
 
     let mut remove_unit = BTreeSet::new();
     let mut replace_unit_id = HashMap::new();
-    for (retail_server_id, character_dto) in parser.get_involved_character_builds() {
+    for (retail_server_id, timestamp, character_dto) in parser.get_involved_character_builds() {
         let server_id = retail_server_id.map(|id| data.get_internal_server_by_retail_id(id).unwrap().id).unwrap_or(server_id);
         if server_id == 4 || server_id == 5 {
             if let Some(character) = armory.get_character_by_name(server_id, character_dto.character_history.as_ref().unwrap().character_name.clone()) {
@@ -86,7 +86,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
             }
-            let _ = armory.set_character(db_main, server_id, character_dto);
+            let _ = armory.set_character(db_main, server_id, character_dto, timestamp);
         }
     }
 
@@ -95,6 +95,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     for Message { message_type, .. } in messages.iter() {
         if let MessageType::InstanceMap(map) = message_type {
             // TODO (If I ever get more of these events): This only works for vanilla!
+            // TODO: Spoiler have these for tbc and wotlk now
             instance_ids.insert((map.map_id as u16, None), map.instance_id);
         }
     }

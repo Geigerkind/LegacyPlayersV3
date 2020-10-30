@@ -8,7 +8,7 @@ pub trait CombatLogParser {
     fn do_message_post_processing(&mut self, data: &Data, messages: &mut Vec<Message>);
     // Server that need to be created have Id=0!
     fn get_involved_server(&self) -> Option<Vec<(u32, String, String)>>;
-    fn get_involved_character_builds(&self) -> Vec<(Option<u32>, CharacterDto)>;
+    fn get_involved_character_builds(&self) -> Vec<(Option<u32>, u64, CharacterDto)>;
     fn get_participants(&self) -> Vec<Participant>;
     fn get_active_maps(&self) -> ActiveMapVec;
     fn get_npc_appearance_offset(&self, entry: u32) -> Option<i64>;

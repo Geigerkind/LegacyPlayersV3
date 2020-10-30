@@ -301,13 +301,13 @@ impl CombatLogParser for WoWRetailClassicParser {
         )
     }
 
-    fn get_involved_character_builds(&self) -> Vec<(Option<u32>, CharacterDto)> {
+    fn get_involved_character_builds(&self) -> Vec<(Option<u32>, u64, CharacterDto)> {
         self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
             if let Some(gear_setups) = &participant.gear_setups {
-                for (_ts, gear) in gear_setups.iter() {
-                    // TODO: Use TS
+                for (ts, gear) in gear_setups.iter() {
                     acc.push((
                         participant.server.as_ref().map(|(server_id, _)| *server_id),
+                        *ts,
                         CharacterDto {
                             server_uid: participant.id,
                             character_history: Some(CharacterHistoryDto {

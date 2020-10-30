@@ -10,11 +10,11 @@ use crate::{
 };
 
 pub trait SetCharacter {
-    fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure>;
+    fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto, timestamp: u64) -> Result<Character, ArmoryFailure>;
 }
 
 impl SetCharacter for Armory {
-    fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto) -> Result<Character, ArmoryFailure> {
+    fn set_character(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character: CharacterDto, timestamp: u64) -> Result<Character, ArmoryFailure> {
         // Validation
         if !update_character.is_plausible() {
             return Err(ArmoryFailure::ImplausibleInput);
@@ -29,7 +29,7 @@ impl SetCharacter for Armory {
 
         // Set the character history
         if update_character.character_history.is_some() {
-            let character_history_res = self.set_character_history(db_main, server_id, update_character.character_history.unwrap(), update_character.server_uid);
+            let character_history_res = self.set_character_history(db_main, server_id, update_character.character_history.unwrap(), update_character.server_uid, timestamp);
             if character_history_res.is_err() {
                 return Err(character_history_res.err().unwrap());
             }

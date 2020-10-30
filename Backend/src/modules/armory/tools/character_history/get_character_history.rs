@@ -13,7 +13,7 @@ use crate::modules::armory::{
 
 pub trait GetCharacterHistory {
     fn get_character_history(&self, db_main: &mut impl Select, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure>;
-    fn get_character_history_by_value(&self, db_main: &mut impl Select, character_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, ArmoryFailure>;
+    fn get_character_history_by_value(&self, db_main: &mut impl Select, character_id: u32, character_history_dto: CharacterHistoryDto, timestamp: u64) -> Result<CharacterHistory, ArmoryFailure>;
 }
 
 impl GetCharacterHistory for Armory {
@@ -55,7 +55,7 @@ impl GetCharacterHistory for Armory {
         Err(ArmoryFailure::Database("get_character_history".to_owned()))
     }
 
-    fn get_character_history_by_value(&self, db_main: &mut impl Select, character_id: u32, character_history_dto: CharacterHistoryDto) -> Result<CharacterHistory, ArmoryFailure> {
+    fn get_character_history_by_value(&self, db_main: &mut impl Select, character_id: u32, character_history_dto: CharacterHistoryDto, timestamp: u64) -> Result<CharacterHistory, ArmoryFailure> {
         let character = self.get_character(character_id).unwrap();
         let guild_id = if character_history_dto.character_guild.is_some() {
             let guild = self.get_guild_by_uid(character.server_id, character_history_dto.character_guild.as_ref().unwrap().guild.server_uid);
@@ -94,14 +94,15 @@ impl GetCharacterHistory for Armory {
           "facial" => facial.as_ref().map(|chr_facial| chr_facial.id),
           "arena2" => arena2,
           "arena3" => arena3,
-          "arena5" => arena5
+          "arena5" => arena5,
+          "timestamp" => timestamp / 1000
         );
 
         let mut result = db_main.select_wparams_value(
             "SELECT id, timestamp FROM armory_character_history WHERE character_id=:character_id AND character_info_id=:character_info_id AND character_name=:character_name AND ((ISNULL(:guild_id) AND ISNULL(guild_id)) OR guild_id = :guild_id) AND \
              ((ISNULL(:guild_rank) AND ISNULL(guild_rank)) OR guild_rank = :guild_rank) AND ((ISNULL(:title) AND ISNULL(title)) OR title = :title) AND ((ISNULL(:prof_skill_points1) AND ISNULL(prof_skill_points1)) OR prof_skill_points1 = \
              :prof_skill_points1) AND ((ISNULL(:prof_skill_points2) AND ISNULL(prof_skill_points2)) OR prof_skill_points2 = :prof_skill_points2) AND ((ISNULL(:facial) AND ISNULL(facial)) OR facial = :facial) AND ((ISNULL(:arena2) AND \
-             ISNULL(arena2)) OR arena2 = :arena2) AND ((ISNULL(:arena3) AND ISNULL(arena3)) OR arena3 = :arena3) AND ((ISNULL(:arena5) AND ISNULL(arena5)) OR arena5 = :arena5) AND timestamp >= UNIX_TIMESTAMP()-60",
+             ISNULL(arena2)) OR arena2 = :arena2) AND ((ISNULL(:arena3) AND ISNULL(arena3)) OR arena3 = :arena3) AND ((ISNULL(:arena5) AND ISNULL(arena5)) OR arena5 = :arena5) AND timestamp >= :timestamp-60 ORDER BY timestamp ASC LIMIT 1",
             &|row| row,
             params,
         );
