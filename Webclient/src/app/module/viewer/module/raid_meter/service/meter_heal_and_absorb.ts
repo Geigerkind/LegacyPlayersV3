@@ -21,6 +21,9 @@ export class MeterHealAndAbsorbService implements OnDestroy {
     private initialized: boolean = false;
     private current_mode: boolean = false;
 
+    private heal_data: Array<[number, Array<[number, number]>]> = [];
+    private absorb_data: Array<[number, Array<[number, number]>]> = [];
+
     constructor(
         private instanceDataService: InstanceDataService,
         private utilService: UtilService,
@@ -52,21 +55,31 @@ export class MeterHealAndAbsorbService implements OnDestroy {
     }
 
     private async merge_data(): Promise<void> {
-        if (!this.instanceDataService.isInitialized()) return;
+        this.heal_data = [];
+        this.absorb_data = [];
         this.subscription?.unsubscribe();
-        this.subscription = zip(...[this.meter_absorb_service.get_data(this.current_mode, this.abilities$, this.units$),
-            this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)])
-            .subscribe(meters => {
-                const result = new Map();
-
-                for (const data_set of meters) {
-                    for (const [subject_id, abilities] of data_set) {
-                        if (result.has(subject_id)) result.set(subject_id, [...result.get(subject_id), ...abilities]);
-                        else result.set(subject_id, abilities);
-                    }
-                }
-
-                this.data$.next([...result.entries()]);
+        this.subscription = this.meter_absorb_service.get_data(this.current_mode, this.abilities$, this.units$)
+            .subscribe(data => {
+                this.absorb_data = data;
+                this.merge_meters();
             });
+        this.subscription.add(this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)
+            .subscribe(data =>  {
+                this.heal_data = data;
+                this.merge_meters();
+            }));
+    }
+
+    private merge_meters(): void {
+        const result = new Map();
+
+        for (const data_set of [this.heal_data, this.absorb_data]) {
+            for (const [subject_id, abilities] of data_set) {
+                if (result.has(subject_id)) result.set(subject_id, [...result.get(subject_id), ...abilities]);
+                else result.set(subject_id, abilities);
+            }
+        }
+
+        this.data$.next([...result.entries()]);
     }
 }
