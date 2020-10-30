@@ -400,6 +400,8 @@ impl CombatLogParser for WoWWOTLKParser {
             33651 => -50000,
             // Yogg-Saron Npcs
             33966 | 33983 | 33985 | 33988 | 33990 | 33288 => -55000,
+            // Thaddius
+            15928 => -30000,
             _ => return None,
         })
     }
@@ -413,13 +415,15 @@ impl CombatLogParser for WoWWOTLKParser {
             28859 => 120000,
             // Yogg-Saron
             33288 => 55000,
+            // Thaddius
+            15928 => 80000,
             _ => return None,
         })
     }
 
     fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, 0)],
+            15929 | 15930 => vec![(15928, -1000)],
             16427 | 16428 | 16429 => vec![(65534, 0)],
             // Malygos
             30084 | 30245 | 30249 => vec![(28859, 0)],

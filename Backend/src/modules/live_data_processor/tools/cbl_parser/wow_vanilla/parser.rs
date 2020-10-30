@@ -1288,6 +1288,8 @@ impl CombatLogParser for WoWVanillaParser {
             15990 => -228000,
             12435 => -300000,
             65534 => -3000,
+            // Thaddius
+            15928 => -30000,
             _ => return None,
         })
     }
@@ -1296,13 +1298,15 @@ impl CombatLogParser for WoWVanillaParser {
         Some(match entry {
             65534 => 90000,
             15990 => 180000,
+            // Thaddius
+            15928 => 80000,
             _ => return None,
         })
     }
 
     fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, 0)],
+            15929 | 15930 => vec![(15928, -1000)],
             16427 | 16428 | 16429 => vec![(65534, 0)],
             _ => return None,
         })

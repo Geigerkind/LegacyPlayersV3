@@ -135,7 +135,7 @@ impl Server {
                                                 attempt.pivot_is_finished = true;
                                                 attempt.creatures_required_to_die.clear();
                                             }
-                                            is_committable = attempt.creatures_required_to_die.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS
+                                            is_committable = attempt.creatures_required_to_die.is_empty()
                                                 // Exception for Naxx KT, as this causes problems for vanilla
                                                 && (attempt.encounter_id != 57 || *entry == 15990);
                                         }
