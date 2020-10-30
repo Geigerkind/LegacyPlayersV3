@@ -11,7 +11,7 @@ pub fn valid_password(input: &str) -> Result<(), PasswordFailure> {
             .unwrap();
     }
 
-    if !input.chars().all(char::is_alphanumeric) {
+    if !input.chars().all(|character| character.is_alphanumeric() || "+#'.:,;<>@|!\"§$%&/()=?`'\\[]{}^°*~-_".chars().any(|extra| extra == character)) {
         return Err(PasswordFailure::InvalidCharacters);
     }
 
