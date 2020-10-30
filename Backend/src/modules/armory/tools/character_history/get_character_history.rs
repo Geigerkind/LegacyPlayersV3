@@ -18,6 +18,13 @@ pub trait GetCharacterHistory {
 
 impl GetCharacterHistory for Armory {
     fn get_character_history(&self, db_main: &mut impl Select, character_history_id: u32) -> Result<CharacterHistory, ArmoryFailure> {
+        {
+            let cache_char_history = self.cache_char_history.read().unwrap();
+            if let Some(char_hist) = cache_char_history.get(&character_history_id) {
+                return Ok(char_hist.clone());
+            }
+        }
+
         let mut result = db_main.select_wparams_value("SELECT * FROM armory_character_history WHERE id=:id", &|row| row, params!("id" => character_history_id));
 
         if let Some(row) = result.as_mut() {
@@ -31,7 +38,7 @@ impl GetCharacterHistory for Armory {
             .filter(|team| team.is_some())
             .map(|team| team.as_ref().unwrap().clone())
             .collect();
-            return Ok(CharacterHistory {
+            let char_history = CharacterHistory {
                 id: character_history_id,
                 character_id: row.take(1).unwrap(),
                 character_info,
@@ -50,7 +57,11 @@ impl GetCharacterHistory for Armory {
                 facial: row.take_opt(9).unwrap().ok().and_then(|facial_id| self.get_character_facial(db_main, facial_id).ok()),
                 arena_teams,
                 timestamp: row.take(13).unwrap(),
-            });
+            };
+
+            let mut cache_char_hist = self.cache_char_history.write().unwrap();
+            cache_char_hist.insert(character_history_id, char_history.clone());
+            return Ok(char_history);
         }
         Err(ArmoryFailure::Database("get_character_history".to_owned()))
     }

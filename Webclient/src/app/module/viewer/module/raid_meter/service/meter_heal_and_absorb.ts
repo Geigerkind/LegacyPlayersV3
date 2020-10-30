@@ -59,7 +59,7 @@ export class MeterHealAndAbsorbService implements OnDestroy {
                 this.absorb_data = data;
                 this.merge_meters();
             });
-        this.subscription =this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)
+        this.subscription = this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)
             .subscribe(data =>  {
                 this.heal_data = data;
                 this.merge_meters();

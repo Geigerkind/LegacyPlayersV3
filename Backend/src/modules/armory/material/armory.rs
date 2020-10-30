@@ -12,6 +12,10 @@ use crate::modules::armory::{
 pub struct Armory {
     pub characters: RwLock<HashMap<u32, Character>>,
     pub guilds: RwLock<HashMap<u32, Guild>>,
+
+    // Caches
+    // TODO: Evict them at some point!
+    pub cache_char_history: RwLock<HashMap<u32, CharacterHistory>>,
 }
 
 impl Default for Armory {
@@ -19,6 +23,7 @@ impl Default for Armory {
         Armory {
             characters: RwLock::new(HashMap::new()),
             guilds: RwLock::new(HashMap::new()),
+            cache_char_history: RwLock::new(HashMap::new()),
         }
     }
 }
