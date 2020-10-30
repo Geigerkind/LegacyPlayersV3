@@ -13,8 +13,9 @@ fn set_character() {
 
     let armory = Armory::default();
     let character_dto = get_character();
+    let timestamp = time_util::now() * 1000;
 
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone(), timestamp);
     assert!(set_character_res.is_ok());
 
     let set_character = set_character_res.unwrap();
@@ -28,7 +29,7 @@ fn set_character() {
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
     thread::sleep(time::Duration::from_secs(2));
-    let set_character_res2 = armory.set_character(&mut conn, 3, character_dto);
+    let set_character_res2 = armory.set_character(&mut conn, 3, character_dto, timestamp);
     assert!(set_character_res2.is_ok());
 
     let set_character2 = set_character_res2.unwrap();

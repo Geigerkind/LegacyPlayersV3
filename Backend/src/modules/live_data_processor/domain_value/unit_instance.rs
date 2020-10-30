@@ -5,5 +5,5 @@ pub struct UnitInstance {
     pub map_id: u16,
     pub instance_id: u32,
     pub uploaded_user: u32,
-    pub ready_to_zip: bool
+    pub ready_to_zip: bool,
 }

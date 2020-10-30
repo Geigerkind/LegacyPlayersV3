@@ -15,6 +15,7 @@ fn parse_spell_damage() {
     let mut server = Server::new(server_id, 2);
     let armory = Armory::default();
     let data = Data::default();
+    let member_id = 23;
 
     let caster_unit_id = 0xF140000000000000 + 40;
     let target_unit_id = 0xF140000000000000 + 43;
@@ -96,10 +97,10 @@ fn parse_spell_damage() {
     });
 
     // Act + Assert
-    let parse_result1 = server.parse_events(&mut conn, &armory, &data, messages);
+    let parse_result1 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result1.is_ok());
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 1);
-    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 2);
+    assert_eq!(server.committed_events.get(&(caster_instance_id, member_id)).unwrap().len(), 2);
 
     let mut messages = Vec::new();
     messages.push(Message {
@@ -115,7 +116,7 @@ fn parse_spell_damage() {
         }),
     });
 
-    let parse_result2 = server.parse_events(&mut conn, &armory, &data, messages);
+    let parse_result2 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result2.is_ok());
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 2);
 
@@ -136,7 +137,7 @@ fn parse_spell_damage() {
         }),
     });
 
-    let parse_result3 = server.parse_events(&mut conn, &armory, &data, messages);
+    let parse_result3 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result3.is_ok());
 
     let mut messages = Vec::new();
@@ -156,8 +157,8 @@ fn parse_spell_damage() {
         }),
     });
 
-    let parse_result4 = server.parse_events(&mut conn, &armory, &data, messages);
+    let parse_result4 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result4.is_ok());
-    assert_eq!(server.committed_events.get(&caster_instance_id).unwrap().len(), 5);
+    assert_eq!(server.committed_events.get(&(caster_instance_id, member_id)).unwrap().len(), 5);
     assert!(!server.non_committed_events.contains_key(&caster_unit_id));
 }

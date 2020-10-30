@@ -192,7 +192,7 @@ fn shadowmourne_socketed_and_enchanted() {
         character_history: Some(character_history_dto),
     };
 
-    let character_res = armory.set_character(&mut conn, 3, character_dto);
+    let character_res = armory.set_character(&mut conn, 3, character_dto, time_util::now() * 1000);
     assert!(character_res.is_ok());
     let character = character_res.unwrap();
 

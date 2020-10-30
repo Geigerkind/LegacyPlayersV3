@@ -1,13 +1,13 @@
 use crate::dto::SearchResult;
+use crate::modules::account::guard::CurrentUser;
 use crate::modules::armory::Armory;
 use crate::modules::data::Data;
 use crate::modules::instance::dto::{BattlegroundSearchFilter, MetaBattlegroundSearch, MetaRaidSearch, MetaRatedArenaSearch, MetaSkirmishSearch, RaidSearchFilter, RatedArenaSearchFilter, SkirmishSearchFilter};
 use crate::modules::instance::tools::MetaSearch;
 use crate::modules::instance::Instance;
+use crate::MainDb;
 use rocket::State;
 use rocket_contrib::json::Json;
-use crate::modules::account::guard::CurrentUser;
-use crate::MainDb;
 
 #[openapi]
 #[post("/meta_search/raids", format = "application/json", data = "<filter>")]

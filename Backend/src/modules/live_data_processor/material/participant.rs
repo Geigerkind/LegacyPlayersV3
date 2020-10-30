@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 #[derive(Debug, Clone)]
 pub struct Participant {
     pub id: u64,
@@ -32,7 +34,7 @@ impl Participant {
             last_seen,
             guild_args: None,
             available_effective_heal: 0,
-            talents: None
+            talents: None,
         }
     }
 

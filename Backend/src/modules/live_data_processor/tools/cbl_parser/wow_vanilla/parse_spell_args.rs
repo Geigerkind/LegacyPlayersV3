@@ -9,10 +9,10 @@ pub fn parse_spell_args(cache: &mut HashMap<String, Option<u32>>, data: &Data, s
 
     let spell_name = spell_name.to_string();
     if let Some(spell_id) = cache.get(&spell_name) {
-        return spell_id.clone();
+        return *spell_id;
     }
 
-    let spell_id = data.get_spell_by_name(1, &spell_name.to_string()).map(|spell| spell.id);
-    cache.insert(spell_name, spell_id.clone());
+    let spell_id = data.get_spell_by_name(1, &spell_name).map(|spell| spell.id);
+    cache.insert(spell_name, spell_id);
     spell_id
 }

@@ -9,13 +9,13 @@ use crate::modules::live_data_processor::tools::LiveDataDeserializer;
 use crate::params;
 use crate::util::database::{Execute, Select};
 use std::collections::{HashMap, VecDeque};
-use std::io::{Write, Read};
+use std::fs;
+use std::fs::File;
+use std::io::{Read, Write};
 use std::ops::Div;
 use std::path::Path;
-use std::fs::File;
 use walkdir::WalkDir;
 use zip::write::FileOptions;
-use std::fs;
 
 impl Server {
     pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
@@ -77,7 +77,9 @@ impl Server {
                                 match &event.event {
                                     EventType::CombatState { in_combat } => {
                                         if *in_combat && (active_attempts.contains_key(&encounter_npc.encounter_id) || encounter_npc.can_start_encounter) {
-                                            let attempt = active_attempts.entry(encounter_npc.encounter_id).or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp, data.encounter_has_pivot(encounter_npc.encounter_id)));
+                                            let attempt = active_attempts
+                                                .entry(encounter_npc.encounter_id)
+                                                .or_insert_with(|| Attempt::new(encounter_npc.encounter_id, event.timestamp, data.encounter_has_pivot(encounter_npc.encounter_id)));
                                             if encounter_npc.requires_death {
                                                 attempt.creatures_required_to_die.insert(*creature_id);
                                             }
@@ -92,9 +94,9 @@ impl Server {
                                                 is_committable = ((attempt.creatures_in_combat.is_empty() && attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS)
                                                     || attempt.pivot_creature.contains(creature_id))
                                                     && !(encounter_npc.requires_death
-                                                    && !attempt.creatures_required_to_die.is_empty()
-                                                    && attempt.creatures_required_to_die.contains(creature_id)
-                                                    && look_ahead_death(committed_events, event, *creature_id));
+                                                        && !attempt.creatures_required_to_die.is_empty()
+                                                        && attempt.creatures_required_to_die.contains(creature_id)
+                                                        && look_ahead_death(committed_events, event, *creature_id));
                                             }
 
                                             if is_committable {
@@ -104,7 +106,7 @@ impl Server {
                                                 }
                                             }
                                         }
-                                    }
+                                    },
                                     EventType::Death { murder: _ } => {
                                         let mut is_committable = false;
                                         if let Some(attempt) = active_attempts.get_mut(&encounter_npc.encounter_id) {
@@ -146,7 +148,7 @@ impl Server {
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
-                                    }
+                                    },
                                     EventType::Power(Power { power_type, max_power, current_power }) => {
                                         if *power_type == PowerType::Health && encounter_npc.is_pivot {
                                             let mut is_committable = false;
@@ -166,7 +168,7 @@ impl Server {
                                                 }
                                             }
                                         }
-                                    }
+                                    },
                                     EventType::AuraApplication(aura_app) => {
                                         // Ulduar hard mode tracking
                                         // Flame Leviathan Tower buffs
@@ -231,7 +233,7 @@ impl Server {
                                                 commit_attempt(db_main, *instance_meta_id, attempt);
                                             }
                                         }
-                                    }
+                                    },
                                     EventType::SpellCast(spell_cast) => {
                                         // Thorim Hard mode - Sifs casts
                                         if spell_cast.spell_id == 62583 || spell_cast.spell_id == 62580 || spell_cast.spell_id == 62597 {
@@ -239,8 +241,8 @@ impl Server {
                                                 attempt.hard_mode_found_buffs.insert(spell_cast.spell_id);
                                             }
                                         }
-                                    }
-                                    _ => {}
+                                    },
+                                    _ => {},
                                 };
                             } else if let EventType::CombatState { in_combat } = &event.event {
                                 for (_encounter_id, attempt) in active_attempts.iter_mut() {
@@ -254,7 +256,7 @@ impl Server {
                                     }
                                 }
                             }
-                        }
+                        },
                         Unit::Player(player) => {
                             match &event.event {
                                 EventType::CombatState { in_combat } => {
@@ -290,17 +292,17 @@ impl Server {
                                             }
                                         }
                                     }
-                                }
+                                },
                                 EventType::AuraApplication(aura_app) => {
                                     if aura_app.spell_id == 62670 || aura_app.spell_id == 62650 || aura_app.spell_id == 62671 || aura_app.spell_id == 62702 {
                                         if let Some((_, attempt)) = active_attempts.iter_mut().find(|(encounter_id, _)| **encounter_id == 126) {
                                             attempt.hard_mode_found_buffs.insert(aura_app.spell_id);
                                         }
                                     }
-                                }
-                                _ => {}
+                                },
+                                _ => {},
                             };
-                        }
+                        },
                     }
 
                     process_ranking(&event.subject, &event, data, active_attempts);
@@ -370,10 +372,8 @@ impl Server {
         for (key, instance) in self.active_instances.clone() {
             let dst_file = format!("{}/{}/{}.zip", storage_path, self.server_id, instance.instance_meta_id);
             let src_dir = format!("{}/{}/{}", storage_path, self.server_id, instance.instance_meta_id);
-            if Path::new(&src_dir).exists() {
-                if zip_directory(src_dir.clone(), dst_file).is_ok() {
-                    let _ = fs::remove_dir_all(&src_dir);
-                }
+            if Path::new(&src_dir).exists() && zip_directory(src_dir.clone(), dst_file).is_ok() {
+                let _ = fs::remove_dir_all(&src_dir);
             }
             self.instance_participants.remove(&instance.instance_meta_id);
             self.active_attempts.remove(&key);
@@ -390,9 +390,7 @@ fn zip_directory(src_dir: String, dst_file: String) -> zip::result::ZipResult<()
     let it = walkdir.into_iter();
 
     let mut zip = zip::ZipWriter::new(file);
-    let options = FileOptions::default()
-        .compression_method(zip::CompressionMethod::Bzip2)
-        .unix_permissions(0o755);
+    let options = FileOptions::default().compression_method(zip::CompressionMethod::Bzip2).unix_permissions(0o755);
 
     let mut buffer = Vec::new();
     for entry in it {
@@ -401,14 +399,14 @@ fn zip_directory(src_dir: String, dst_file: String) -> zip::result::ZipResult<()
 
         if path.is_file() {
             #[allow(deprecated)]
-                zip.start_file_from_path(name, options)?;
+            zip.start_file_from_path(name, options)?;
             let mut f = File::open(path)?;
             f.read_to_end(&mut buffer)?;
             zip.write_all(&*buffer)?;
             buffer.clear();
-        } else if name.as_os_str().len() != 0 {
+        } else if !name.as_os_str().is_empty() {
             #[allow(deprecated)]
-                zip.add_directory_from_path(name, options)?;
+            zip.add_directory_from_path(name, options)?;
         }
     }
     zip.finish()?;
@@ -430,7 +428,7 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
                         }
                     }
                 }
-            }
+            },
             EventType::Heal { heal, .. } => {
                 // TODO: We can't really tell, who this healer is in combat with
                 // For now attribute heal to every attempt, though its just one in 99.9% of the cases anyway.
@@ -442,7 +440,7 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
                         attempt.ranking_heal.insert(character_id, heal.effective);
                     }
                 }
-            }
+            },
             EventType::Threat { threat, .. } => {
                 if let Unit::Creature(Creature { entry, .. }) = threat.threatened {
                     if let Some(encounter_npc) = data.get_encounter_npc(entry) {
@@ -455,8 +453,8 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
                         }
                     }
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 }
@@ -527,7 +525,6 @@ fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, 
             attempt.hard_mode_encounter_id = Some(161);
         }
     }
-
 
     let encounter_id = attempt.hard_mode_encounter_id.unwrap_or(attempt.encounter_id);
     let is_kill = attempt.creatures_required_to_die.is_empty() && (!attempt.encounter_has_pivot || attempt.pivot_is_finished);

@@ -202,7 +202,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                 instance_specific: MetaType::Raid {
                     map_difficulty: row.take::<u8, usize>(6).unwrap(),
                 },
-                uploaded_user: row.take(7).unwrap()
+                uploaded_user: row.take(7).unwrap(),
             },
         )
         .into_iter()
@@ -228,7 +228,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     row.take::<u32, usize>(8).unwrap(),
                     row.take::<i32, usize>(9).unwrap(),
                     row.take::<i32, usize>(10).unwrap(),
-                    row.take::<u32, usize>(11).unwrap()
+                    row.take::<u32, usize>(11).unwrap(),
                 )
             },
         )
@@ -251,7 +251,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                         team1_change,
                         team2_change,
                     },
-                    uploaded_user
+                    uploaded_user,
                 },
             );
         });
@@ -271,7 +271,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                 instance_specific: MetaType::Skirmish {
                     winner: row.take::<u8, usize>(6).unwrap().to_winner(),
                 },
-                uploaded_user: row.take(7).unwrap()
+                uploaded_user: row.take(7).unwrap(),
             },
         )
         .into_iter()
@@ -296,7 +296,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     score_alliance: row.take(7).unwrap(),
                     score_horde: row.take(8).unwrap(),
                 },
-                uploaded_user: row.take(9).unwrap()
+                uploaded_user: row.take(9).unwrap(),
             },
         )
         .into_iter()

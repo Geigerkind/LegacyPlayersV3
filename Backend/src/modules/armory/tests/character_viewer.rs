@@ -64,7 +64,7 @@ fn get_character_viewer() {
         character_history: Some(character_history_dto.to_owned()),
     };
 
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto, time_util::now() * 1000);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 

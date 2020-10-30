@@ -19,7 +19,7 @@ export class RaidConfigurationSelectionService implements OnDestroy {
     ) {
         this.subscription = this.event_type_selection_changed.pipe(debounceTime(50))
             .subscribe(() => this.raidConfigurationService.select_event_types([...this.active_event_types.entries()]
-                .filter(([evt_type, num]) => num > 0).map(([evt_type, _num]) => evt_type)));
+                .filter(([, num]) => num > 0).map(([evt_type]) => evt_type)));
     }
 
     ngOnDestroy(): void {

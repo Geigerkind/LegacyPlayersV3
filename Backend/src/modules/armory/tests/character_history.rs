@@ -17,14 +17,15 @@ fn set_character_history() {
     let armory = Armory::default();
     let character_dto = CharacterDto { server_uid: 123124, character_history: None };
     let character_history_dto = get_character_history();
+    let timestamp = time_util::now() * 1000;
 
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone());
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto.clone(), timestamp);
     assert!(set_character_res.is_ok());
 
     let set_character = set_character_res.unwrap();
     assert!(set_character.compare_by_value(&character_dto));
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid, timestamp);
     assert!(set_character_history_res.is_ok());
 
     let set_character_history = set_character_history_res.unwrap();
@@ -38,7 +39,7 @@ fn set_character_history() {
 
     // Sleeping 2 seconds in order to cause an timestamp update in the DB
     thread::sleep(time::Duration::from_millis(2000));
-    let set_character_history_res2 = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid);
+    let set_character_history_res2 = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid, timestamp);
     assert!(set_character_history_res2.is_ok());
 
     let set_character_history2 = set_character_history_res2.unwrap();
@@ -66,14 +67,15 @@ fn test_set_character_history_character_history_dto_inplausible() {
     let armory = Armory::default();
     let character_dto = CharacterDto { server_uid: 123124, character_history: None };
     let mut character_history_dto = get_character_history();
+    let timestamp = time_util::now() * 1000;
     character_history_dto.character_name = String::from("");
 
     // Act
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto, timestamp);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid, timestamp);
 
     // Assert
     assert!(set_character_history_res.is_err());
@@ -122,18 +124,19 @@ fn test_set_character_history_update_not_successful() {
     let mut db_mock = DbMock {};
     let character_dto = CharacterDto { server_uid: 123124, character_history: None };
     let mut character_history_dto = get_character_history();
+    let timestamp = time_util::now() * 1000;
     character_history_dto.character_guild = None;
 
     // Act + Assert
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto, timestamp);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid, timestamp);
     assert!(set_character_history_res.is_ok());
     thread::sleep(time::Duration::from_millis(2000));
 
-    let set_character_history_res = armory.set_character_history(&mut db_mock, 3, character_history_dto, set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut db_mock, 3, character_history_dto, set_character.server_uid, timestamp);
 
     assert!(set_character_history_res.is_err());
     assert!(match set_character_history_res.err().unwrap() {
@@ -151,17 +154,18 @@ fn test_set_character_history_different_value() {
     let armory = Armory::default();
     let character_dto = CharacterDto { server_uid: 123124, character_history: None };
     let mut character_history_dto = get_character_history();
+    let timestamp = time_util::now() * 1000;
 
     // Act + Assert
-    let set_character_res = armory.set_character(&mut conn, 3, character_dto);
+    let set_character_res = armory.set_character(&mut conn, 3, character_dto, timestamp);
     assert!(set_character_res.is_ok());
     let set_character = set_character_res.unwrap();
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto.clone(), set_character.server_uid, timestamp);
     assert!(set_character_history_res.is_ok());
     character_history_dto.character_guild = None;
 
-    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid);
+    let set_character_history_res = armory.set_character_history(&mut conn, 3, character_history_dto, set_character.server_uid, timestamp);
     assert!(set_character_history_res.is_ok());
 
     let set_character_history = set_character_history_res.unwrap();

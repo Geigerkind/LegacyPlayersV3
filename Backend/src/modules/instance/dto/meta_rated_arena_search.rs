@@ -11,5 +11,5 @@ pub struct MetaRatedArenaSearch {
     pub team2_change: i32,
     pub start_ts: u64,
     pub end_ts: Option<u64>,
-    pub can_delete: bool
+    pub can_delete: bool,
 }

@@ -57,7 +57,7 @@ impl Server {
             active_attempts: HashMap::new(),
             post_processing_last_precessed_event_id: HashMap::new(),
             recently_committed_spell_cast_and_aura_applications: HashMap::new(),
-            cache_unit: HashMap::new()
+            cache_unit: HashMap::new(),
         }
     }
 
@@ -72,7 +72,7 @@ impl Server {
                     map_id: row.take(2).unwrap(),
                     instance_id: row.take(3).unwrap(),
                     uploaded_user: row.take(4).unwrap(),
-                    ready_to_zip: false
+                    ready_to_zip: false,
                 },
                 params!("server_id" => self.server_id),
             )

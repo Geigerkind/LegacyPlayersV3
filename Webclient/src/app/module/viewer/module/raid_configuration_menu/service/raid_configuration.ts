@@ -426,7 +426,7 @@ export class RaidConfigurationService implements OnDestroy {
 
         // Performance: Adding it here initially is extremely expensive!
         const source_intervals = new DataIntervalTree<number>();
-        for (const [prom, _evt_types] of source_prom) {
+        for (const [prom] of source_prom) {
             const subjects = await prom;
             for (const [subject_id, [subject, intervals]] of subjects) {
                 if (!this.current_source_map.has(subject_id))
@@ -438,7 +438,7 @@ export class RaidConfigurationService implements OnDestroy {
         this.current_source_intervals = source_intervals;
 
         const target_intervals = new DataIntervalTree<number>();
-        for (const [prom, _evt_types] of target_prom) {
+        for (const [prom] of target_prom) {
             const subjects = await prom;
             for (const [subject_id, [subject, intervals]] of subjects) {
                 if (!this.current_target_map.has(subject_id))
@@ -454,7 +454,7 @@ export class RaidConfigurationService implements OnDestroy {
             const subjects = await prom;
             for (const [subject_id, [_, intervals]] of subjects) {
                 if (this.current_ability_map.has(subject_id)) {
-                    let current_evt_types = this.current_ability_map.get(subject_id);
+                    const current_evt_types = this.current_ability_map.get(subject_id);
                     for (const evt_type of evt_types) current_evt_types.add(evt_type);
                 } else {
                     this.current_ability_map.set(subject_id, new Set(evt_types));

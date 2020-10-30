@@ -11,7 +11,7 @@ pub struct WoWVanillaParser {
     pub pet_owner: HashMap<u64, u64>,
 
     pub cache_unit: HashMap<String, Unit>,
-    pub cache_spell_id: HashMap<String, Option<u32>>
+    pub cache_spell_id: HashMap<String, Option<u32>>,
 }
 
 impl WoWVanillaParser {
@@ -22,7 +22,7 @@ impl WoWVanillaParser {
             active_map: Default::default(),
             pet_owner: Default::default(),
             cache_unit: Default::default(),
-            cache_spell_id: Default::default()
+            cache_spell_id: Default::default(),
         }
     }
 

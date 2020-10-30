@@ -1,4 +1,5 @@
-use crate::modules::armory::dto::{CharacterDto, CharacterHistoryDto, CharacterInfoDto, CharacterGearDto, GuildDto, CharacterGuildDto, CharacterItemDto};
+use crate::modules::armory::domain_value::GuildRank;
+use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::HitType;
 use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit};
@@ -9,7 +10,6 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_dam
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_heal;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_miss;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_unit;
-use crate::modules::armory::domain_value::GuildRank;
 use crate::util::hash_str::hash_str;
 
 impl CombatLogParser for WoWWOTLKParser {
@@ -263,96 +263,39 @@ impl CombatLogParser for WoWWOTLKParser {
     }
 
     fn get_involved_character_builds(&self) -> Vec<(Option<u32>, u64, CharacterDto)> {
-        self.participants
-            .iter()
-            .filter(|(_, participant)| participant.is_player)
-            .fold(Vec::new(), |mut acc, (_, participant)| {
-                let gear_setups = &participant.gear_setups;
-                if gear_setups.is_some() && !gear_setups.as_ref().unwrap().is_empty() {
-                    for (ts, gear) in gear_setups.as_ref().unwrap().iter() {
-                        acc.push((
-                            None,
-                            *ts,
-                            CharacterDto {
-                                server_uid: participant.id,
-                                character_history: Some(CharacterHistoryDto {
-                                    character_info: CharacterInfoDto {
-                                        gear: CharacterGearDto {
-                                            head: create_character_item_dto(&gear[0]),
-                                            neck: create_character_item_dto(&gear[1]),
-                                            shoulder: create_character_item_dto(&gear[2]),
-                                            back: create_character_item_dto(&gear[14]),
-                                            chest: create_character_item_dto(&gear[4]),
-                                            shirt: create_character_item_dto(&gear[3]),
-                                            tabard: create_character_item_dto(&gear[18]),
-                                            wrist: create_character_item_dto(&gear[8]),
-                                            main_hand: create_character_item_dto(&gear[15]),
-                                            off_hand: create_character_item_dto(&gear[16]),
-                                            ternary_hand: create_character_item_dto(&gear[17]),
-                                            glove: create_character_item_dto(&gear[9]),
-                                            belt: create_character_item_dto(&gear[5]),
-                                            leg: create_character_item_dto(&gear[6]),
-                                            boot: create_character_item_dto(&gear[7]),
-                                            ring1: create_character_item_dto(&gear[10]),
-                                            ring2: create_character_item_dto(&gear[11]),
-                                            trinket1: create_character_item_dto(&gear[12]),
-                                            trinket2: create_character_item_dto(&gear[13]),
-                                        },
-                                        hero_class_id: participant.hero_class_id.unwrap_or(12),
-                                        level: 80,
-                                        gender: participant.gender_id.unwrap_or(false),
-                                        profession1: None,
-                                        profession2: None,
-                                        talent_specialization: participant.talents.clone(),
-                                        race_id: participant.race_id.unwrap_or(1),
-                                    },
-                                    character_name: participant.name.clone(),
-                                    character_guild: participant.guild_args.as_ref().map(|(guild_name, rank_name, rank_index)| CharacterGuildDto {
-                                        guild: GuildDto {
-                                            server_uid: hash_str(guild_name) & 0x0000FFFFFFFFFFFF,
-                                            name: guild_name.clone(),
-                                        },
-                                        rank: GuildRank { index: *rank_index, name: rank_name.clone() },
-                                    }),
-                                    character_title: None,
-                                    profession_skill_points1: None,
-                                    profession_skill_points2: None,
-                                    facial: None,
-                                    arena_teams: vec![],
-                                }),
-                            },
-                        ));
-                    }
-                } else {
+        self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
+            let gear_setups = &participant.gear_setups;
+            if gear_setups.is_some() && !gear_setups.as_ref().unwrap().is_empty() {
+                for (ts, gear) in gear_setups.as_ref().unwrap().iter() {
                     acc.push((
                         None,
-                        time_util::now() * 1000,
+                        *ts,
                         CharacterDto {
                             server_uid: participant.id,
                             character_history: Some(CharacterHistoryDto {
                                 character_info: CharacterInfoDto {
                                     gear: CharacterGearDto {
-                                        head: None,
-                                        neck: None,
-                                        shoulder: None,
-                                        back: None,
-                                        chest: None,
-                                        shirt: None,
-                                        tabard: None,
-                                        wrist: None,
-                                        main_hand: None,
-                                        off_hand: None,
-                                        ternary_hand: None,
-                                        glove: None,
-                                        belt: None,
-                                        leg: None,
-                                        boot: None,
-                                        ring1: None,
-                                        ring2: None,
-                                        trinket1: None,
-                                        trinket2: None,
+                                        head: create_character_item_dto(&gear[0]),
+                                        neck: create_character_item_dto(&gear[1]),
+                                        shoulder: create_character_item_dto(&gear[2]),
+                                        back: create_character_item_dto(&gear[14]),
+                                        chest: create_character_item_dto(&gear[4]),
+                                        shirt: create_character_item_dto(&gear[3]),
+                                        tabard: create_character_item_dto(&gear[18]),
+                                        wrist: create_character_item_dto(&gear[8]),
+                                        main_hand: create_character_item_dto(&gear[15]),
+                                        off_hand: create_character_item_dto(&gear[16]),
+                                        ternary_hand: create_character_item_dto(&gear[17]),
+                                        glove: create_character_item_dto(&gear[9]),
+                                        belt: create_character_item_dto(&gear[5]),
+                                        leg: create_character_item_dto(&gear[6]),
+                                        boot: create_character_item_dto(&gear[7]),
+                                        ring1: create_character_item_dto(&gear[10]),
+                                        ring2: create_character_item_dto(&gear[11]),
+                                        trinket1: create_character_item_dto(&gear[12]),
+                                        trinket2: create_character_item_dto(&gear[13]),
                                     },
-                                    hero_class_id: participant.hero_class_id.unwrap_or(1),
+                                    hero_class_id: participant.hero_class_id.unwrap_or(12),
                                     level: 80,
                                     gender: participant.gender_id.unwrap_or(false),
                                     profession1: None,
@@ -377,8 +320,62 @@ impl CombatLogParser for WoWWOTLKParser {
                         },
                     ));
                 }
-                acc
-            })
+            } else {
+                acc.push((
+                    None,
+                    time_util::now() * 1000,
+                    CharacterDto {
+                        server_uid: participant.id,
+                        character_history: Some(CharacterHistoryDto {
+                            character_info: CharacterInfoDto {
+                                gear: CharacterGearDto {
+                                    head: None,
+                                    neck: None,
+                                    shoulder: None,
+                                    back: None,
+                                    chest: None,
+                                    shirt: None,
+                                    tabard: None,
+                                    wrist: None,
+                                    main_hand: None,
+                                    off_hand: None,
+                                    ternary_hand: None,
+                                    glove: None,
+                                    belt: None,
+                                    leg: None,
+                                    boot: None,
+                                    ring1: None,
+                                    ring2: None,
+                                    trinket1: None,
+                                    trinket2: None,
+                                },
+                                hero_class_id: participant.hero_class_id.unwrap_or(1),
+                                level: 80,
+                                gender: participant.gender_id.unwrap_or(false),
+                                profession1: None,
+                                profession2: None,
+                                talent_specialization: participant.talents.clone(),
+                                race_id: participant.race_id.unwrap_or(1),
+                            },
+                            character_name: participant.name.clone(),
+                            character_guild: participant.guild_args.as_ref().map(|(guild_name, rank_name, rank_index)| CharacterGuildDto {
+                                guild: GuildDto {
+                                    server_uid: hash_str(guild_name) & 0x0000FFFFFFFFFFFF,
+                                    name: guild_name.clone(),
+                                },
+                                rank: GuildRank { index: *rank_index, name: rank_name.clone() },
+                            }),
+                            character_title: None,
+                            profession_skill_points1: None,
+                            profession_skill_points2: None,
+                            facial: None,
+                            arena_teams: vec![],
+                        }),
+                    },
+                ));
+            }
+            acc
+        })
     }
 
     fn get_participants(&self) -> Vec<Participant> {
@@ -460,7 +457,7 @@ fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<
     item.as_ref().map(|(item_id, enchant_id, gems)| CharacterItemDto {
         item_id: *item_id,
         random_property_id: None,
-        enchant_id: enchant_id.clone(),
+        enchant_id: *enchant_id,
         gem_ids: gems.clone().unwrap_or_else(Vec::new),
     })
 }

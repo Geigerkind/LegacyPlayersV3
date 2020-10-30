@@ -1,8 +1,9 @@
+use crate::modules::account::guard::Authenticate;
 use crate::modules::armory::Armory;
 use crate::modules::data::tools::RetrieveServer;
 use crate::modules::data::Data as DataMaterial;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
-use crate::modules::live_data_processor::material::{WoWRetailClassicParser, WoWTBCParser, WoWWOTLKParser, WoWVanillaParser};
+use crate::modules::live_data_processor::material::{WoWRetailClassicParser, WoWTBCParser, WoWVanillaParser, WoWWOTLKParser};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::log_parser::parse_cbl;
 use crate::modules::live_data_processor::tools::ProcessMessages;
@@ -14,7 +15,6 @@ use rocket::http::ContentType;
 use rocket::{Data, State};
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
 use std::io::Read;
-use crate::modules::account::guard::Authenticate;
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -61,7 +61,17 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     });
 
     if server_id == -1 {
-        return parse(&me, WoWRetailClassicParser::new(), &mut *db_main, &data, &armory, content, start_time.timestamp_millis() as u64, end_time.timestamp_millis() as u64, auth.0);
+        return parse(
+            &me,
+            WoWRetailClassicParser::new(),
+            &mut *db_main,
+            &data,
+            &armory,
+            content,
+            start_time.timestamp_millis() as u64,
+            end_time.timestamp_millis() as u64,
+            auth.0,
+        );
     } else {
         let server = data.get_server(server_id as u32).unwrap();
         if server.expansion_id == 1 {
@@ -74,7 +84,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
-                auth.0
+                auth.0,
             );
         } else if server.expansion_id == 2 {
             return parse(
@@ -86,7 +96,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
-                auth.0
+                auth.0,
             );
         } else if server.expansion_id == 3 {
             return parse(
@@ -98,7 +108,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
-                auth.0
+                auth.0,
             );
         }
     }

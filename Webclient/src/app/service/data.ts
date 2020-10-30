@@ -93,7 +93,7 @@ export class DataService implements OnDestroy {
                         pending_basic_spells.get(spell.base.id).next(spell);
                         pending_basic_spells.delete(spell.base.id);
                     }
-                    for (const [_id, subject] of pending_basic_spells.entries())
+                    for (const [, subject] of pending_basic_spells.entries())
                         subject.next(this.unknown_basic_spell);
                 }, reason => {});
         }));

@@ -1,12 +1,12 @@
-use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::{Unit, Message, MessageType, Summon, InstanceMap, Loot};
-use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
-use std::collections::{BTreeSet, HashMap};
-use chrono::NaiveDateTime;
-use crate::modules::live_data_processor::tools::GUID;
 use crate::modules::armory::tools::strip_talent_specialization;
-use time_util::now;
+use crate::modules::data::Data;
+use crate::modules::live_data_processor::dto::{InstanceMap, Loot, Message, MessageType, Summon, Unit};
+use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
+use crate::modules::live_data_processor::tools::GUID;
+use chrono::NaiveDateTime;
 use regex::Regex;
+use std::collections::{BTreeSet, HashMap};
+use time_util::now;
 
 pub struct WoWTBCParser {
     pub server_id: u32,
@@ -224,12 +224,13 @@ impl WoWTBCParser {
                             }
 
                             self.bonus_messages.push(Message::new_parsed(
-                                10000, 1,
-                                MessageType::Summon(
-                                    Summon {
-                                        owner: Unit { is_player: true, unit_id: unit_guid },
-                                        unit: Unit { is_player: false, unit_id: pet_unit_guid },
-                                    })));
+                                10000,
+                                1,
+                                MessageType::Summon(Summon {
+                                    owner: Unit { is_player: true, unit_id: unit_guid },
+                                    unit: Unit { is_player: false, unit_id: pet_unit_guid },
+                                }),
+                            ));
                         }
                     }
                 }
@@ -242,11 +243,15 @@ impl WoWTBCParser {
                 if let Ok(timestamp) = NaiveDateTime::parse_from_str(&cap[1], "%d.%m.%y %H:%M:%S") {
                     if let Ok(item_id) = u32::from_str_radix(&cap[4], 10) {
                         if let Ok(count) = u32::from_str_radix(&cap[7], 10) {
-                            self.bonus_messages.push(Message::new_parsed(timestamp.timestamp_millis() as u64, 0, MessageType::Loot(Loot {
-                                unit: Unit { is_player: true, unit_id: unit_guid },
-                                item_id,
-                                count,
-                            })));
+                            self.bonus_messages.push(Message::new_parsed(
+                                timestamp.timestamp_millis() as u64,
+                                0,
+                                MessageType::Loot(Loot {
+                                    unit: Unit { is_player: true, unit_id: unit_guid },
+                                    item_id,
+                                    count,
+                                }),
+                            ));
                         }
                     }
                 }
@@ -266,27 +271,27 @@ impl WoWTBCParser {
                         "Black Temple" => 564,
                         "The Battle for Mount Hyjal" => 534,
                         "The Sunwell" => 580,
-                        _ => continue
+                        _ => continue,
                     };
                     if !cap[3].is_empty() {
                         for participant_unit_guid in cap[3].split('&') {
                             if let Ok(guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
                                 self.bonus_messages.push(Message::new_parsed(
-                                    timestamp.timestamp_millis() as u64, 0,
-                                    MessageType::InstanceMap(
-                                        InstanceMap {
-                                            map_id,
-                                            instance_id,
-                                            map_difficulty: 0,
-                                            unit: Unit { is_player: true, unit_id: guid },
-                                        })));
+                                    timestamp.timestamp_millis() as u64,
+                                    0,
+                                    MessageType::InstanceMap(InstanceMap {
+                                        map_id,
+                                        instance_id,
+                                        map_difficulty: 0,
+                                        unit: Unit { is_player: true, unit_id: guid },
+                                    }),
+                                ));
                             }
                         }
                     }
                 }
             }
         }
-
 
         Some(())
     }

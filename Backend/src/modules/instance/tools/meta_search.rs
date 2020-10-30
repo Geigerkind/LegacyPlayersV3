@@ -8,9 +8,9 @@ use crate::modules::instance::dto::{BattlegroundSearchFilter, MetaBattlegroundSe
 use crate::modules::instance::tools::{ExportMeta, FindInstanceGuild};
 use crate::modules::instance::Instance;
 use crate::rpll_table_sort;
+use crate::util::database::Select;
 use crate::util::ordering::NegateOrdExt;
 use std::cmp::Ordering;
-use crate::util::database::Select;
 
 pub trait MetaSearch {
     fn search_meta_raids(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, current_user: Option<u32>, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
@@ -87,13 +87,13 @@ impl MetaSearch for Instance {
             .filter_map(|rated_arena| {
                 if let InstanceMeta {
                     instance_specific:
-                    MetaType::RatedArena {
-                        winner,
-                        team1,
-                        team2,
-                        team1_change,
-                        team2_change,
-                    },
+                        MetaType::RatedArena {
+                            winner,
+                            team1,
+                            team2,
+                            team1_change,
+                            team2_change,
+                        },
                     ..
                 } = rated_arena
                 {

@@ -77,11 +77,11 @@ fn character_tooltip() {
 
     let server = data.get_server(3).unwrap();
 
-    let character_res = armory.set_character(&mut conn, 3, character_dto);
+    let character_res = armory.set_character(&mut conn, 3, character_dto, time_util::now() * 1000);
     assert!(character_res.is_ok());
     let character = character_res.unwrap();
 
-    let tooltip_res = tooltip.get_character(&data, &armory, 1, character.id);
+    let tooltip_res = tooltip.get_character(&mut conn, &data, &armory, 1, character.id, time_util::now() * 1000 - 1000);
     assert!(tooltip_res.is_ok());
     let tooltip = tooltip_res.unwrap();
 

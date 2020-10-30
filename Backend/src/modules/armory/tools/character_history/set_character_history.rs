@@ -1,6 +1,7 @@
 use crate::params;
 use crate::util::database::*;
 
+use crate::modules::armory::tools::GetCharacterHistory;
 use crate::{
     dto::CheckPlausability,
     modules::armory::{
@@ -10,7 +11,6 @@ use crate::{
         Armory,
     },
 };
-use crate::modules::armory::tools::GetCharacterHistory;
 
 pub trait SetCharacterHistory {
     fn set_character_history(&self, db_main: &mut (impl Execute + Select), server_id: u32, update_character_history: CharacterHistoryDto, character_uid: u64, timestamp: u64) -> Result<CharacterHistory, ArmoryFailure>;
@@ -40,7 +40,6 @@ impl SetCharacterHistory for Armory {
             let mut characters = self.characters.write().unwrap();
             let character = characters.get_mut(&character_id).unwrap();
             if character.last_update.is_some() {
-
                 let timestamp = timestamp / 1000;
                 let mut closest_history_moment = character.history_moments.first().unwrap();
                 for moment in character.history_moments.iter() {
@@ -64,9 +63,9 @@ impl SetCharacterHistory for Armory {
                         if db_main.execute_wparams(
                             "UPDATE armory_character_history SET `timestamp` = :timestamp WHERE id=:id",
                             params!(
-                          "timestamp" => now,
-                          "id" => last_update.id
-                        ),
+                              "timestamp" => now,
+                              "id" => last_update.id
+                            ),
                         ) {
                             last_update.timestamp = now.to_owned();
                             return Ok(last_update.clone());

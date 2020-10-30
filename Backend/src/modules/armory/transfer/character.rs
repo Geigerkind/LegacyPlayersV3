@@ -34,7 +34,15 @@ pub fn get_basic_character(mut db_main: MainDb, me: State<Armory>, id: u32) -> R
 #[openapi(skip)]
 #[post("/characters/basic", format = "application/json", data = "<char_payload>")]
 pub fn get_basic_characters(mut db_main: MainDb, me: State<Armory>, char_payload: Json<(Vec<u32>, u64)>) -> Json<Vec<BasicCharacter>> {
-    Json((*char_payload).0.iter().map(|character_id| me.get_basic_character(&mut *db_main, *character_id, (*char_payload).1)).filter(Option::is_some).map(Option::unwrap).collect())
+    Json(
+        (*char_payload)
+            .0
+            .iter()
+            .map(|character_id| me.get_basic_character(&mut *db_main, *character_id, (*char_payload).1))
+            .filter(Option::is_some)
+            .map(Option::unwrap)
+            .collect(),
+    )
 }
 
 #[openapi]

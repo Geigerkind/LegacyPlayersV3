@@ -1,11 +1,11 @@
-use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::{Unit, Message, MessageType, Summon, Loot, InstanceMap};
-use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
-use std::collections::{BTreeSet, HashMap};
-use regex::Regex;
 use crate::modules::armory::tools::strip_talent_specialization;
+use crate::modules::data::Data;
+use crate::modules::live_data_processor::dto::{InstanceMap, Loot, Message, MessageType, Summon, Unit};
+use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
 use crate::modules::live_data_processor::tools::GUID;
 use chrono::NaiveDateTime;
+use regex::Regex;
+use std::collections::{BTreeSet, HashMap};
 use time_util::now;
 
 pub struct WoWWOTLKParser {
@@ -242,12 +242,13 @@ impl WoWWOTLKParser {
                             }
 
                             self.bonus_messages.push(Message::new_parsed(
-                                10000, 1,
-                                MessageType::Summon(
-                                    Summon {
-                                        owner: Unit { is_player: true, unit_id: unit_guid },
-                                        unit: Unit { is_player: false, unit_id: pet_unit_guid },
-                                    })));
+                                10000,
+                                1,
+                                MessageType::Summon(Summon {
+                                    owner: Unit { is_player: true, unit_id: unit_guid },
+                                    unit: Unit { is_player: false, unit_id: pet_unit_guid },
+                                }),
+                            ));
                         }
                     }
                 }
@@ -260,11 +261,15 @@ impl WoWWOTLKParser {
                 if let Ok(timestamp) = NaiveDateTime::parse_from_str(&cap[1], "%d.%m.%y %H:%M:%S") {
                     if let Ok(item_id) = u32::from_str_radix(&cap[4], 10) {
                         if let Ok(count) = u32::from_str_radix(&cap[7], 10) {
-                            self.bonus_messages.push(Message::new_parsed(timestamp.timestamp_millis() as u64, 0, MessageType::Loot(Loot {
-                                unit: Unit { is_player: true, unit_id: unit_guid },
-                                item_id,
-                                count,
-                            })));
+                            self.bonus_messages.push(Message::new_parsed(
+                                timestamp.timestamp_millis() as u64,
+                                0,
+                                MessageType::Loot(Loot {
+                                    unit: Unit { is_player: true, unit_id: unit_guid },
+                                    item_id,
+                                    count,
+                                }),
+                            ));
                         }
                     }
                 }
@@ -281,7 +286,7 @@ impl WoWWOTLKParser {
                                 "25 Player" => 4,
                                 "10 Player (Heroic)" => 5,
                                 "25 Player (Heroic)" => 6,
-                                _ => continue
+                                _ => continue,
                             };
                             if !cap[10].is_empty() {
                                 for participant_unit_guid in cap[10].split('&') {
@@ -291,14 +296,15 @@ impl WoWWOTLKParser {
                                             guid &= 0x0000000000FFFFFF;
                                         }
                                         self.bonus_messages.push(Message::new_parsed(
-                                            timestamp.timestamp_millis() as u64, 0,
-                                            MessageType::InstanceMap(
-                                                InstanceMap {
-                                                    map_id,
-                                                    instance_id,
-                                                    map_difficulty: difficulty_id,
-                                                    unit: Unit { is_player: true, unit_id: guid },
-                                                })));
+                                            timestamp.timestamp_millis() as u64,
+                                            0,
+                                            MessageType::InstanceMap(InstanceMap {
+                                                map_id,
+                                                instance_id,
+                                                map_difficulty: difficulty_id,
+                                                unit: Unit { is_player: true, unit_id: guid },
+                                            }),
+                                        ));
                                     }
                                 }
                             }
@@ -307,7 +313,6 @@ impl WoWWOTLKParser {
                 }
             }
         }
-
 
         Some(())
     }

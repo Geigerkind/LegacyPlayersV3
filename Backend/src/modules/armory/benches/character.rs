@@ -181,9 +181,10 @@ fn set_character(b: &mut Bencher) {
 
     let num_iterations = 1000;
     let mut average_ns = Vec::new();
+    let timestamp = time_util::now() * 1000;
     for _i in 0..num_iterations {
         let start = Instant::now();
-        let character = armory.set_character(&mut conn, 3, character_dto.clone()).unwrap();
+        let character = armory.set_character(&mut conn, 3, character_dto.clone(), timestamp).unwrap();
         average_ns.push(start.elapsed().as_nanos());
 
         // Cleanup

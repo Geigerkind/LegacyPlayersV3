@@ -1337,7 +1337,7 @@ fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<
     item.as_ref().map(|(item_id, enchant_id, _)| CharacterItemDto {
         item_id: *item_id,
         random_property_id: None,
-        enchant_id: enchant_id.clone(),
+        enchant_id: *enchant_id,
         gem_ids: vec![],
     })
 }

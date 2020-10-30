@@ -1,3 +1,4 @@
+use crate::modules::armory::tools::GetCharacterHistory;
 use crate::modules::{
     armory::{
         domain_value::CharacterItem,
@@ -16,7 +17,6 @@ use crate::modules::{
     },
 };
 use crate::util::database::Select;
-use crate::modules::armory::tools::GetCharacterHistory;
 
 pub trait RetrieveCharacterTooltip {
     fn get_character(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, language_id: u8, character_id: u32, timestamp: u64) -> Result<CharacterTooltip, TooltipFailure>;

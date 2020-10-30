@@ -1,8 +1,8 @@
 use crate::modules::armory::material::Guild;
 use crate::modules::armory::tools::{GetCharacter, GetGuild};
 use crate::modules::armory::Armory;
-use grouping_by::GroupingBy;
 use crate::util::database::Select;
+use grouping_by::GroupingBy;
 
 pub trait FindInstanceGuild {
     fn find_instance_guild(&self, db_main: &mut impl Select, armory: &Armory, timestamp: u64) -> Option<Guild>;

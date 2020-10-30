@@ -8,10 +8,10 @@ use crate::modules::instance::tools::FindInstanceGuild;
 use crate::modules::instance::Instance;
 use crate::params;
 use crate::util::database::Select;
-use std::str::FromStr;
-use std::path::Path;
 use std::fs::File;
 use std::io::Read;
+use std::path::Path;
+use std::str::FromStr;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure>;
@@ -53,8 +53,7 @@ impl ExportInstance for Instance {
 
             let reader = File::open(format!("{}/{}/{}.zip", storage_path, server_id, instance_meta_id)).unwrap();
             let mut zip = zip::ZipArchive::new(reader).unwrap();
-            for i in 0..zip.len()
-            {
+            for i in 0..zip.len() {
                 let file = zip.by_index(i).unwrap();
                 let evt_type = u8::from_str_radix(file.name(), 10).unwrap();
                 let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
@@ -134,9 +133,7 @@ impl ExportInstance for Instance {
                             character_id: char_history.character_id,
                             name: char_history.character_name,
                             hero_class_id: char_history.character_info.hero_class_id,
-                            role: Role::from_class_talent_string(
-                                char_history.character_info.hero_class_id,
-                                &char_history.character_info.talent_specialization.unwrap_or_else(|| String::from(""))),
+                            role: Role::from_class_talent_string(char_history.character_info.hero_class_id, &char_history.character_info.talent_specialization.unwrap_or_else(|| String::from(""))),
                         }
                     } else {
                         InstanceViewerParticipant {
@@ -146,7 +143,8 @@ impl ExportInstance for Instance {
                             role: Role::Dps,
                         }
                     }
-                }).collect());
+                })
+                .collect());
         }
         Err(InstanceFailure::InvalidInput)
     }
