@@ -40,7 +40,6 @@ import {DetailHealAndAbsorbService} from "../../../raid_detail_table/service/det
     templateUrl: "./raid_meter.html",
     styleUrls: ["./raid_meter.scss"],
     providers: [
-        UtilService,
         MeterHealAndAbsorbService,
         MeterDamageService,
         MeterHealService,

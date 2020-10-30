@@ -4,7 +4,6 @@ import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value
 import {InstanceDataService} from "../../../service/instance_data";
 import {UtilService} from "./util";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
-import {debounceTime} from "rxjs/operators";
 
 @Injectable({
     providedIn: "root",

@@ -1,8 +1,6 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {BehaviorSubject, Observable, Subscription, zip} from "rxjs";
+import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
-import {InstanceDataService} from "../../../service/instance_data";
-import {UtilService} from "./util";
 import {MeterHealService} from "./meter_heal";
 import {MeterAbsorbService} from "./meter_absorb";
 import {HealMode} from "../../../domain_value/heal_mode";
@@ -25,8 +23,6 @@ export class MeterHealAndAbsorbService implements OnDestroy {
     private absorb_data: Array<[number, Array<[number, number]>]> = [];
 
     constructor(
-        private instanceDataService: InstanceDataService,
-        private utilService: UtilService,
         private meter_heal_service: MeterHealService,
         private meter_absorb_service: MeterAbsorbService
     ) {
@@ -63,11 +59,11 @@ export class MeterHealAndAbsorbService implements OnDestroy {
                 this.absorb_data = data;
                 this.merge_meters();
             });
-        this.subscription.add(this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)
+        this.subscription =this.meter_heal_service.get_data(HealMode.Effective, this.current_mode, this.abilities$, this.units$)
             .subscribe(data =>  {
                 this.heal_data = data;
                 this.merge_meters();
-            }));
+            });
     }
 
     private merge_meters(): void {

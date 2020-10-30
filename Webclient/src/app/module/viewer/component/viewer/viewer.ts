@@ -7,6 +7,7 @@ import {SpellService} from "../../service/spell";
 import {RaidConfigurationSelectionService} from "../../module/raid_configuration_menu/service/raid_configuration_selection";
 import {RaidConfigurationService} from "../../module/raid_configuration_menu/service/raid_configuration";
 import {Subscription} from "rxjs";
+import {UtilService} from "../../module/raid_meter/service/util";
 
 @Component({
     selector: "Viewer",
@@ -17,7 +18,8 @@ import {Subscription} from "rxjs";
         RaidConfigurationSelectionService,
         InstanceDataService,
         UnitService,
-        SpellService
+        SpellService,
+        UtilService
     ]
 })
 export class ViewerComponent implements OnDestroy {
