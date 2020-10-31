@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 6
+RPLL.VERSION = 7
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -374,8 +374,14 @@ RPLL.COMBAT_LOG_EVENT = function(ts, evt)
     end
 end
 
+local initialized = false
 RPLL:RegisterEvent("PLAYER_ENTERING_WORLD")
 RPLL.PLAYER_ENTERING_WORLD = function()
+    if initialized then
+        return
+    end
+    initialized = true
+
     if RPLL_PlayerInformation == nil then
         RPLL_PlayerInformation = {}
     else
