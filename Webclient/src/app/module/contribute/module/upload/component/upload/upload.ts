@@ -16,7 +16,6 @@ export class UploadComponent implements OnDestroy {
     private subscription: Subscription;
 
     @ViewChild("upload_file", {static: true}) upload_file: ElementRef;
-    @ViewChild("upload_file_armory", {static: true}) upload_file_armory: ElementRef;
     disableSubmit = false;
 
     server = [];
@@ -63,8 +62,6 @@ export class UploadComponent implements OnDestroy {
             formData.append('start_time', this.selected_start_date);
             formData.append('end_time', this.selected_end_date);
             formData.append('payload', this.upload_file.nativeElement.files[0]);
-            if (!!this.upload_file_armory.nativeElement.files[0])
-                formData.append('payload_armory', this.upload_file_armory.nativeElement.files[0]);
             this.uploadService.upload_file(formData, () => {
                 this.notification_service.propagate(Severity.Success, "Your log has been uploaded!");
                 this.disableSubmit = false;

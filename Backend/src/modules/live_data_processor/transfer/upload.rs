@@ -21,7 +21,6 @@ use std::io::Read;
 pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataProcessor>, data: State<DataMaterial>, armory: State<Armory>, content_type: &ContentType, form_data: Data) -> Result<(), LiveDataProcessorFailure> {
     let mut options = MultipartFormDataOptions::new();
     options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(40 * 1024 * 1024 * 1024));
-    options.allowed_fields.push(MultipartFormDataField::bytes("payload_armory").size_limit(10 * 1024 * 1024 * 1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("server_id").size_limit(1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("start_time").size_limit(1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("end_time").size_limit(1024));
@@ -55,11 +54,6 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
     let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
 
-    let armory_content = multipart_form_data.raw.remove("payload_armory").and_then(|mut armory_raw_fields| {
-        let RawField { raw, .. } = armory_raw_fields.remove(0);
-        std::str::from_utf8(&raw).ok().map(|str| str.to_string())
-    });
-
     if server_id == -1 {
         return parse(
             &me,
@@ -89,7 +83,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
         } else if server.expansion_id == 2 {
             return parse(
                 &me,
-                WoWTBCParser::new(server_id as u32, &data, armory_content),
+                WoWTBCParser::new(server_id as u32),
                 &mut *db_main,
                 &data,
                 &armory,
@@ -101,7 +95,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
         } else if server.expansion_id == 3 {
             return parse(
                 &me,
-                WoWWOTLKParser::new(server_id as u32, &data, armory_content),
+                WoWWOTLKParser::new(server_id as u32),
                 &mut *db_main,
                 &data,
                 &armory,

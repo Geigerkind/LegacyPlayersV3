@@ -2,7 +2,7 @@ use crate::modules::armory::domain_value::GuildRank;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::HitType;
-use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit};
+use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit, Loot, InstanceMap};
 use crate::modules::live_data_processor::material::{ActiveMapVec, Participant, WoWWOTLKParser};
 use crate::modules::live_data_processor::tools::cbl_parser::combat_log_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_spell_args;
@@ -11,11 +11,215 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_hea
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_miss;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_unit;
 use crate::util::hash_str::hash_str;
+use chrono::NaiveDateTime;
+use regex::Regex;
+use crate::modules::live_data_processor::tools::GUID;
+use crate::modules::armory::tools::strip_talent_specialization;
+use crate::modules::data::tools::RetrieveGem;
 
 impl CombatLogParser for WoWWOTLKParser {
     fn parse_cbl_line(&mut self, data: &Data, event_ts: u64, content: &str) -> Option<Vec<MessageType>> {
         let message_args = content.trim_end_matches('\r').split(',').collect::<Vec<&str>>();
         Some(match message_args[0] {
+            "SPELL_CAST_FAILED" => {
+                lazy_static! {
+                    static ref RE_LOOT: Regex = Regex::new(r##"(.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(.+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\."##).unwrap();
+                }
+
+                let fail_str: String = message_args.iter().skip(10).cloned().collect::<Vec<&str>>().concat().replace("\"", "");
+                if fail_str.starts_with("COMBATANT_INFO: ") {
+                    let args: Vec<&str> = fail_str.trim_start_matches("COMBATANT_INFO: ").split('&').collect();
+                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                    let mut unit_guid = u64::from_str_radix(args[1].trim_start_matches("0x"), 16).ok()?;
+                    // Crystalsong UID fix
+                    if unit_guid.get_high() == 0x0110 {
+                        unit_guid &= 0x0000000000FFFFFF;
+                    }
+
+                    let unit_name = args[2].to_string();
+                    let race = args[3];
+                    let hero_class = args[4];
+                    let gender = args[5];
+                    let guild_name = args[6];
+                    let guild_rank_name = args[7];
+                    let guild_rank_index = args[8];
+                    let gear = args[9];
+                    let talents = args[10];
+                    let _arena_team2 = args[11];
+                    let _arena_team3 = args[12];
+                    let _arena_team5 = args[13];
+
+                    let mut participant = Participant::new(unit_guid, true, unit_name, 0);
+
+                    if race != "nil" {
+                        participant.race_id = Some(match race {
+                            "Human" => 1,
+                            "Orc" => 2,
+                            "Dwarf" => 3,
+                            "Night Elf" => 4,
+                            "NightElf" => 4,
+                            "Undead" => 5,
+                            "Scourge" => 5,
+                            "Tauren" => 6,
+                            "Gnome" => 7,
+                            "Troll" => 8,
+                            "Blood Elf" => 10,
+                            "Draenei" => 11,
+                            _ => return None,
+                        });
+                    }
+
+                    if hero_class != "nil" {
+                        participant.hero_class_id = Some(match hero_class {
+                            "Warrior" => 1,
+                            "Paladin" => 2,
+                            "Hunter" => 3,
+                            "Rogue" => 4,
+                            "Priest" => 5,
+                            "Death Knight" => 6,
+                            "Shaman" => 7,
+                            "Mage" => 8,
+                            "Warlock" => 9,
+                            "Druid" => 11,
+                            _ => return None,
+                        });
+                    }
+
+                    if gender != "nil" {
+                        if gender == "2" {
+                            participant.gender_id = Some(false);
+                        } else if gender == "3" {
+                            participant.gender_id = Some(true);
+                        }
+                    }
+
+                    if guild_name != "nil" && guild_rank_name != "nil" && guild_rank_index != "nil" {
+                        participant.guild_args = Some((guild_name.to_string(), guild_rank_name.to_string(), u8::from_str_radix(guild_rank_index, 10).ok()?));
+                    }
+
+                    let items: Vec<&str> = gear.split('}').collect();
+                    if items.iter().any(|item| *item != "nil") {
+                        let mut gear = Vec::with_capacity(19);
+                        let gear_setups = participant.gear_setups.get_or_insert_with(Vec::new);
+                        for item in items {
+                            if item == "nil" {
+                                gear.push(None);
+                                continue;
+                            }
+
+                            let item_args = item.split(':').collect::<Vec<&str>>();
+                            let item_id = u32::from_str_radix(item_args[0], 10).ok()?;
+                            let enchant_id = u32::from_str_radix(item_args[1], 10).ok()?;
+                            let mut gems = Vec::with_capacity(4);
+                            for arg in item_args.iter().take(6).skip(2) {
+                                let gem_enchant_id = u32::from_str_radix(arg, 10).ok()?;
+                                if gem_enchant_id > 0 {
+                                    if let Some(gem) = data.get_gem_by_enchant_id(3, gem_enchant_id) {
+                                        gems.push(Some(gem.item_id));
+                                    }
+                                } else {
+                                    gems.push(None);
+                                }
+                            }
+
+                            if item_id == 0 {
+                                gear.push(None);
+                            } else if enchant_id == 0 {
+                                gear.push(Some((item_id, None, Some(gems))));
+                            } else {
+                                gear.push(Some((item_id, Some(enchant_id), Some(gems))));
+                            }
+                        }
+                        gear_setups.push((timestamp as u64, gear));
+                    }
+
+                    if talents != "nil" {
+                        participant.talents = strip_talent_specialization(&Some(talents.replace("}", "|")));
+                    }
+
+                    self.participants.insert(unit_guid, participant);
+                } else if fail_str.starts_with("LOOT: ") {
+                    let args: Vec<&str> = fail_str.trim_start_matches("LOOT: ").split('&').collect();
+                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                    let captures = RE_LOOT.captures(&args[1])?;
+                    let unit_name = captures[1].to_string();
+                    let unit_guid = self.participants.iter()
+                        .find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
+                    let item_id = u32::from_str_radix(&captures[3], 10).ok()?;
+                    let count = u32::from_str_radix(&captures[6], 10).ok()?;
+                    self.bonus_messages.push(Message::new_parsed(
+                        timestamp as u64,
+                        0,
+                        MessageType::Loot(Loot {
+                            unit: Unit { is_player: true, unit_id: unit_guid },
+                            item_id,
+                            count,
+                        }),
+                    ));
+                } else if fail_str.starts_with("ZONE_INFO: ") {
+                    let args: Vec<&str> = fail_str.trim_start_matches("ZONE_INFO: ").split('&').collect();
+                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                    if args[8] != "nil" {
+                        if let Ok(map_id) = u32::from_str_radix(args[7], 10) {
+                            if let Ok(instance_id) = u32::from_str_radix(args[8], 10) {
+                                let difficulty_id = match args[4] {
+                                    "10 Player" => 3,
+                                    "25 Player" => 4,
+                                    "10 Player (Heroic)" => 5,
+                                    "25 Player (Heroic)" => 6,
+                                    _ => return None,
+                                };
+                                if args.len() >= 10 {
+                                    for participant_unit_guid in args.iter().skip(9) {
+                                        if let Ok(mut guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
+                                            // Crystalsong UID fix
+                                            if guid.get_high() == 0x0110 {
+                                                guid &= 0x0000000000FFFFFF;
+                                            }
+                                            self.bonus_messages.push(Message::new_parsed(
+                                                timestamp as u64,
+                                                0,
+                                                MessageType::InstanceMap(InstanceMap {
+                                                    map_id,
+                                                    instance_id,
+                                                    map_difficulty: difficulty_id,
+                                                    unit: Unit { is_player: true, unit_id: guid },
+                                                }),
+                                            ));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if fail_str.starts_with("PET_SUMMON: ") {
+                    let args: Vec<&str> = fail_str.trim_start_matches("PET_SUMMON: ").split('&').collect();
+                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                    let mut owner_guid = u64::from_str_radix(args[1].trim_start_matches("0x"), 16).ok()?;
+                    let mut pet_guid = u64::from_str_radix(args[2].trim_start_matches("0x"), 16).ok()?;
+                    // Crystalsong UID fix
+                    if owner_guid.get_high() == 0x0110 {
+                        owner_guid &= 0x0000000000FFFFFF;
+                    }
+                    if pet_guid.is_pet() {
+                        let mut new_unit_id = pet_guid;
+                        new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
+                        new_unit_id |= 0x000000FFFF000000;
+                        new_unit_id |= 0xF140000000000000;
+                        pet_guid = new_unit_id;
+                    }
+
+                    self.bonus_messages.push(Message::new_parsed(
+                        timestamp as u64,
+                        1,
+                        MessageType::Summon(Summon {
+                            owner: Unit { is_player: true, unit_id: owner_guid },
+                            unit: Unit { is_player: false, unit_id: pet_guid },
+                        }),
+                    ));
+                }
+                return None;
+            }
             "SWING_DAMAGE" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -33,7 +237,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     damage_over_time: false,
                     damage_components: vec![damage_component],
                 })]
-            },
+            }
             "SWING_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -51,7 +255,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     damage_over_time: false,
                     damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                 })]
-            },
+            }
             "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -79,7 +283,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         damage_components: vec![damage_component],
                     }),
                 ]
-            },
+            }
             "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -107,7 +311,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                     }),
                 ]
-            },
+            }
             "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -133,7 +337,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                 ]
-            },
+            }
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
@@ -157,7 +361,7 @@ impl CombatLogParser for WoWWOTLKParser {
                 }
 
                 result
-            },
+            }
             "SPELL_CAST_SUCCESS" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -179,16 +383,16 @@ impl CombatLogParser for WoWWOTLKParser {
                 }
 
                 result
-            },
+            }
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Summon(Summon { owner, unit })]
-            },
+            }
             "UNIT_DIED" | "UNIT_DESTROYED" => {
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Death(Death { cause: None, victim })]
-            },
+            }
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -210,7 +414,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            },
+            }
             "SPELL_INTERRUPT" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -225,7 +429,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     }),
                     MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
                 ]
-            },
+            }
             "SPELL_STOLEN" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -247,7 +451,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            },
+            }
             // TODO: Use more events
             // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
             _ => return None,

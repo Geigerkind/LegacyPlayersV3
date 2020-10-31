@@ -437,7 +437,7 @@ function RPLL:RotateSpellFailedMessages()
             result = RPLL.ExtraMessages[RPLL.ExtraMessageIndex]
             RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + 1
         elseif RPLL.RotationLength ~= 0 then
-            result = RPLL:SerializePlayerInformation(RPLL.RotationIndex)
+            result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation(RPLL.RotationIndex)
             if RPLL.RotationIndex + 1 > RPLL.RotationLength then
                 RPLL.RotationIndex = 1
             else
