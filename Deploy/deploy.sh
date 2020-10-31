@@ -172,8 +172,8 @@ function deployModelGenerator {
 
 function deployAddons {
   zip -r /var/www/html/AdvancedVanillaCombatLog.zip /root/${REPOSITORY_NAME}/Addons/AdvancedVanillaCombatLog
-  zip -r /var/www/html/RPLLTBCArmoryCollector.zip /root/${REPOSITORY_NAME}/Addons/RPLLTBCArmoryCollector
-  zip -r /var/www/html/RPLLWotLKArmoryCollector.zip /root/${REPOSITORY_NAME}/Addons/RPLLWotLKArmoryCollector
+  zip -r /var/www/html/AdvancedTBCCombatLog.zip /root/${REPOSITORY_NAME}/Addons/AdvancedTBCCombatLog
+  zip -r /var/www/html/AdvancedWotLKCombatLog.zip /root/${REPOSITORY_NAME}/Addons/AdvancedWotLKCombatLog
 }
 
 function updateConfigs {
