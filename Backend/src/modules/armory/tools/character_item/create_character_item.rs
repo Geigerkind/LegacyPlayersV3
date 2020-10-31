@@ -37,9 +37,9 @@ impl CreateCharacterItem for Armory {
             "INSERT INTO armory_item (`item_id`, `random_property_id`, `enchant_id`, `gem_id1`, `gem_id2`, `gem_id3`, `gem_id4`) VALUES (:item_id, :random_property_id, :enchant_id, :gem_id1, :gem_id2, :gem_id3, :gem_id4)",
             params,
         );
-        if let Ok(char_item) = self.get_character_item_by_value(db_main, character_item) {
+        if let Ok(char_item) = self.get_character_item_by_value(db_main, character_item.clone()) {
             return Ok(char_item);
         }
-        Err(ArmoryFailure::Database("create_character_item".to_owned()))
+        Err(ArmoryFailure::Database(format!("create_character_item: {:?}", character_item)))
     }
 }

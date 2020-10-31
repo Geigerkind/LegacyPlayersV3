@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 5
+RPLL.VERSION = 6
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -112,6 +112,9 @@ RPLL.PLAYER_ENTERING_WORLD = function()
 
     local player_name = UnitName("player")
 
+    LOOT_ITEM_CREATED_SELF = player_name.." creates: %sx1."
+    TRADESKILL_LOG_FIRSTPERSON = player_name.." creates %sx1."
+    LOOT_ITEM_CREATED_SELF_MULTIPLE = player_name.." creates: %sx%d."
     LOOT_ITEM_PUSHED_SELF = player_name.." receives item: %sx1."
     LOOT_ITEM_PUSHED_SELF_MULTIPLE = player_name.." receives item: %sx%d."
     LOOT_ITEM_SELF = player_name.." receives loot: %sx1."

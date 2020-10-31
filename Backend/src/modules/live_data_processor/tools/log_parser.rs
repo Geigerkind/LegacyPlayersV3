@@ -86,7 +86,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
             }
-            let _ = armory.set_character(db_main, server_id, character_dto, timestamp);
+            let _result = armory.set_character(db_main, server_id, character_dto, timestamp);
         }
     }
 

@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 4
+RPLL.VERSION = 5
 RPLL.PlayerInformation = {}
 
 local strsplit = strsplit
@@ -112,6 +112,9 @@ RPLL.PLAYER_ENTERING_WORLD = function()
 
     local player_name = UnitName("player")
 
+    LOOT_ITEM_CREATED_SELF = player_name.." creates: %sx1."
+    TRADESKILL_LOG_FIRSTPERSON = player_name.." creates %sx1."
+    LOOT_ITEM_CREATED_SELF_MULTIPLE = player_name.." creates: %sx%d."
     LOOT_ITEM_PUSHED_SELF = player_name.." receives item: %sx1."
     LOOT_ITEM_PUSHED_SELF_MULTIPLE = player_name.." receives item: %sx%d."
     LOOT_ITEM_SELF = player_name.." receives loot: %sx1."
@@ -295,7 +298,8 @@ function RPLL:CollectUnit(unit)
             gear[i] = nil
         else
             local _, itemId, enchantId, jewelId1, jewelId2, jewelId3,
-            jewelId4, suffixId, uniqueId = strsplit(":", inv_link)
+            jewelId4, suffixId, uniqueId_plus_extra = strsplit(":", inv_link)
+            local uniqueId = strsplit("|", uniqueId_plus_extra)
             if itemId == nil then
                 gear[i] = nil
             else

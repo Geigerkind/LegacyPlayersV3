@@ -7,6 +7,7 @@ use chrono::NaiveDateTime;
 use regex::Regex;
 use std::collections::{BTreeSet, HashMap};
 use time_util::now;
+use crate::modules::data::tools::RetrieveGem;
 
 pub struct WoWTBCParser {
     pub server_id: u32,
@@ -19,7 +20,7 @@ pub struct WoWTBCParser {
 }
 
 impl WoWTBCParser {
-    pub fn new(server_id: u32, armory_content: Option<String>) -> Self {
+    pub fn new(server_id: u32, data: &Data, armory_content: Option<String>) -> Self {
         let mut parser = WoWTBCParser {
             server_id,
             participants: Default::default(),
@@ -27,7 +28,7 @@ impl WoWTBCParser {
             bonus_messages: Default::default(),
         };
         if let Some(armory_content) = armory_content {
-            parser.parse_armory(armory_content);
+            parser.parse_armory(data, armory_content);
         }
         parser
     }
@@ -99,7 +100,7 @@ impl WoWTBCParser {
         self.active_map.collect(data, unit, 2, now);
     }
 
-    fn parse_armory(&mut self, armory_content: String) -> Option<()> {
+    fn parse_armory(&mut self, data: &Data, armory_content: String) -> Option<()> {
         lazy_static! {
             static ref RE_PLAYER_INFOS: Regex = Regex::new(r##"\["0x([A-Z0-9]+)"\]\s=\s"([^"]+)","##).unwrap();
             static ref RE_LOOT: Regex = Regex::new(r##""(.+)&LOOT&(.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(.+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.","##).unwrap();
@@ -186,9 +187,11 @@ impl WoWTBCParser {
                         let enchant_id = u32::from_str_radix(item_args[1], 10).ok()?;
                         let mut gems = Vec::with_capacity(4);
                         for arg in item_args.iter().take(6).skip(2) {
-                            let gem_id = u32::from_str_radix(arg, 10).ok()?;
-                            if gem_id > 0 {
-                                gems.push(Some(gem_id));
+                            let gem_enchant_id = u32::from_str_radix(arg, 10).ok()?;
+                            if gem_enchant_id > 0 {
+                                if let Some(gem) = data.get_gem_by_enchant_id(2, gem_enchant_id) {
+                                    gems.push(Some(gem.item_id));
+                                }
                             } else {
                                 gems.push(None);
                             }

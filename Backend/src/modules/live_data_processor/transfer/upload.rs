@@ -89,7 +89,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
         } else if server.expansion_id == 2 {
             return parse(
                 &me,
-                WoWTBCParser::new(server_id as u32, armory_content),
+                WoWTBCParser::new(server_id as u32, &data, armory_content),
                 &mut *db_main,
                 &data,
                 &armory,
@@ -101,7 +101,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
         } else if server.expansion_id == 3 {
             return parse(
                 &me,
-                WoWWOTLKParser::new(server_id as u32, armory_content),
+                WoWWOTLKParser::new(server_id as u32, &data, armory_content),
                 &mut *db_main,
                 &data,
                 &armory,
