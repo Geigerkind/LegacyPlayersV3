@@ -16,6 +16,12 @@ pub fn export_raids(mut db_main: MainDb, me: State<Instance>, armory: State<Armo
 }
 
 #[openapi]
+#[post("/meta_search/raids/by_member_id", format = "application/json", data = "<filter>")]
+pub fn export_raids_by_member_id(mut db_main: MainDb, me: State<Instance>, armory: State<Armory>, data: State<Data>, current_user: CurrentUser, filter: Json<RaidSearchFilter>) -> Json<SearchResult<MetaRaidSearch>> {
+    Json(me.search_meta_raids_by_member(&mut *db_main, &armory, &data, current_user.0, filter.into_inner()))
+}
+
+#[openapi]
 #[post("/meta_search/rated_arena", format = "application/json", data = "<filter>")]
 pub fn export_rated_arenas(me: State<Instance>, current_user: CurrentUser, filter: Json<RatedArenaSearchFilter>) -> Json<SearchResult<MetaRatedArenaSearch>> {
     Json(me.search_meta_rated_arenas(current_user.0, filter.into_inner()))

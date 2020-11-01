@@ -10,6 +10,10 @@ const routes: Routes = [
                 loadChildren: () => import("./module/account_information/module").then(m => m.AccountInformationModule)
             },
             {
+                path: "uploads",
+                loadChildren: () => import("./module/uploads/module").then(m => m.UploadsModule)
+            },
+            {
                 path: "nickname",
                 loadChildren: () => import("./module/update_nickname/module").then(m => m.UpdateNicknameModule)
             },

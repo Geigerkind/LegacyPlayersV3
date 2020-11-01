@@ -9,6 +9,7 @@ import {AccountService} from "../../service/account";
 export class AccountComponent {
     settings: Array<Array<string>> = [
         ["./", "Account.navBar.entries.overview"],
+        ["uploads", "Account.navBar.entries.uploads"],
         ["nickname", "Account.navBar.entries.nickname"],
         ["password", "Account.navBar.entries.password"],
         ["mail", "Account.navBar.entries.mail"],

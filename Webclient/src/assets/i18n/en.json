@@ -209,6 +209,7 @@
             "title": "Account settings",
             "entries": {
                 "overview": "Overview",
+                "uploads": "Uploads",
                 "nickname": "Update nickname",
                 "password": "Update password",
                 "mail": "Update mail",
