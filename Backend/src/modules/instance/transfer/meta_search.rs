@@ -22,6 +22,12 @@ pub fn export_raids_by_member_id(mut db_main: MainDb, me: State<Instance>, armor
 }
 
 #[openapi]
+#[post("/meta_search/raids/by_character_id", format = "application/json", data = "<filter>")]
+pub fn export_raids_by_character_id(mut db_main: MainDb, me: State<Instance>, armory: State<Armory>, data: State<Data>, filter: Json<(u32, RaidSearchFilter)>) -> Json<SearchResult<MetaRaidSearch>> {
+    Json(me.search_meta_raids_by_character(&mut *db_main, &armory, &data, (*filter).0, (*filter).1.clone()))
+}
+
+#[openapi]
 #[post("/meta_search/rated_arena", format = "application/json", data = "<filter>")]
 pub fn export_rated_arenas(me: State<Instance>, current_user: CurrentUser, filter: Json<RatedArenaSearchFilter>) -> Json<SearchResult<MetaRatedArenaSearch>> {
     Json(me.search_meta_rated_arenas(current_user.0, filter.into_inner()))

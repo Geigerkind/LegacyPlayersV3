@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
@@ -17,7 +17,7 @@ import {NotificationService} from "../../../../../../service/notification";
     templateUrl: "./uploads.html",
     styleUrls: ["./uploads.scss"]
 })
-export class UploadsComponent {
+export class UploadsComponent implements OnInit {
     header_columns: Array<HeaderColumn> = [
         {
             index: 0,

@@ -7,6 +7,7 @@ import {ProfessionModule} from "./module/profession/module";
 import {TalentsModule} from "./module/talents/module";
 import {StatsModule} from "./module/stats/module";
 import {RankingTableModule} from "./module/ranking_table/module";
+import {AttendedRaidsModule} from "./module/attended_raids/module";
 
 @NgModule({
     declarations: [CharacterViewerComponent],
@@ -17,7 +18,8 @@ import {RankingTableModule} from "./module/ranking_table/module";
         ProfessionModule,
         TalentsModule,
         StatsModule,
-        RankingTableModule
+        RankingTableModule,
+        AttendedRaidsModule
     ],
     exports: [CharacterViewerComponent]
 })

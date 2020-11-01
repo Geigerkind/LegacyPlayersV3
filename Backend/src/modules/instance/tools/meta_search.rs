@@ -15,6 +15,7 @@ use std::cmp::Ordering;
 pub trait MetaSearch {
     fn search_meta_raids(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, current_user: Option<u32>, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
     fn search_meta_raids_by_member(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, current_user: Option<u32>, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
+    fn search_meta_raids_by_character(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, character_id: u32, filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch>;
     fn search_meta_rated_arenas(&self, current_user: Option<u32>, filter: RatedArenaSearchFilter) -> SearchResult<MetaRatedArenaSearch>;
     fn search_meta_skirmishes(&self, current_user: Option<u32>, filter: SkirmishSearchFilter) -> SearchResult<MetaSkirmishSearch>;
     fn search_meta_battlegrounds(&self, current_user: Option<u32>, filter: BattlegroundSearchFilter) -> SearchResult<MetaBattlegroundSearch>;
@@ -111,6 +112,56 @@ impl MetaSearch for Instance {
         result.sort_by(|l_instance, r_instance| {
             rpll_table_sort! {
                 (filter.map_id, Some(l_instance.map_id), Some(r_instance.map_id)),
+                (filter.start_ts, Some(l_instance.start_ts), Some(r_instance.start_ts)),
+                (filter.end_ts, l_instance.end_ts, r_instance.end_ts)
+            }
+        });
+
+        SearchResult {
+            result: result.into_iter().skip((filter.page * 10) as usize).take(10).collect(),
+            num_items: num_raids,
+        }
+    }
+
+    fn search_meta_raids_by_character(&self, db_main: &mut impl Select, armory: &Armory, data: &Data, character_id: u32, mut filter: RaidSearchFilter) -> SearchResult<MetaRaidSearch> {
+        filter.guild.convert_to_lowercase();
+        let mut result = self
+            .export_meta(0)
+            .into_iter()
+            .filter(|raid| filter.map_id.apply_filter(raid.map_id))
+            .filter(|raid| filter.start_ts.apply_filter_ts(raid.start_ts))
+            .filter(|raid| filter.end_ts.apply_filter_ts(raid.end_ts))
+            .filter(|raid| raid.participants.iter().any(|participant| *participant == character_id))
+            .filter_map(|raid| {
+                if let InstanceMeta {
+                    instance_specific: MetaType::Raid { map_difficulty },
+                    ..
+                } = raid
+                {
+                    if filter.map_difficulty.apply_filter(map_difficulty) {
+                        let guild = raid.participants.find_instance_guild(db_main, armory, raid.start_ts).map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name });
+                        return Some(MetaRaidSearch {
+                            instance_meta_id: raid.instance_meta_id,
+                            map_id: raid.map_id,
+                            map_difficulty,
+                            map_icon: data.get_map(raid.map_id).map(|map| map.icon).unwrap(),
+                            guild,
+                            server_id: raid.server_id,
+                            start_ts: raid.start_ts,
+                            end_ts: raid.end_ts,
+                            can_delete: false,
+                        });
+                    }
+                }
+                None
+            })
+            .collect::<Vec<MetaRaidSearch>>();
+        let num_raids = result.len();
+
+        result.sort_by(|l_instance, r_instance| {
+            rpll_table_sort! {
+                (filter.map_id, Some(l_instance.map_id), Some(r_instance.map_id)),
+                (filter.map_difficulty, Some(l_instance.map_difficulty), Some(r_instance.map_difficulty)),
                 (filter.start_ts, Some(l_instance.start_ts), Some(r_instance.start_ts)),
                 (filter.end_ts, l_instance.end_ts, r_instance.end_ts)
             }
