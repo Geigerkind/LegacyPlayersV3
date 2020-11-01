@@ -39,7 +39,7 @@ export class UploadComponent implements OnDestroy {
 
         this.subscription = this.data_service.servers.subscribe(available_servers => {
             this.server = available_servers
-                .filter(server => server.id > 4 && !server.is_retail)
+                .filter(server => !server.is_retail)
                 .sort((left, right) => left.expansion_id - right.expansion_id)
                 .map(server => {
                     return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
