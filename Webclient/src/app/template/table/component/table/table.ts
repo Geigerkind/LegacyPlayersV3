@@ -22,6 +22,7 @@ export class TableComponent implements OnChanges {
     @Input() responsiveModeWidthInPx: number = 500;
     @Input() enableHeader: boolean = true;
     @Input() enableFooter: boolean = true;
+    @Input() enableShare: boolean = true;
     @Input() clientSide: boolean = true;
     @Input() headColumns: Array<HeaderColumn> = [];
     @Input() numItems: number = 0;

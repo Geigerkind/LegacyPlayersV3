@@ -3,7 +3,7 @@
 <Table [bodyRows]="body_columns" [headColumns]="header_columns" [clientSide]="clientSide"
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
        [numItems]="num_characters" unique_id="account_raids_search"
-       (filterOrPageChanged)="onFilter($event)"
+       (filterOrPageChanged)="onFilter($event)" [enableShare]="false"
        [et_row_items]="[instance_map, detailed_ts, detailed_ts]">
 </Table>
 
