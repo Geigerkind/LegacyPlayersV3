@@ -8,6 +8,8 @@ $headerSize: 50px;
     min-width: $headerSize;
     height: $headerSize;
     overflow: hidden;
+    position: relative;
+    align-items: flex-start;
 
     SortButton {
         display: block;
@@ -22,10 +24,26 @@ $headerSize: 50px;
         line-height: $headerSize;
         white-space: nowrap;
         font-size: 20px;
+        width: 100%;
+        z-index: 4;
+        padding-right: 25px;
+        overflow: hidden;
     }
 
     GeneralInput, NumberInput, DateInput, SelectInput {
         width: calc(100% - #{$headerSize} * 0.5 - 5px);
         margin-top: 0.5 * $spacing;
+    }
+
+    #search_indicator {
+        position: absolute;
+        height: 15px;
+        width: 15px;
+        top: 18px;
+        right: 1px;
+        cursor: pointer;
+        fill: white;
+        opacity: 0.5;
+        z-index: 3;
     }
 }
