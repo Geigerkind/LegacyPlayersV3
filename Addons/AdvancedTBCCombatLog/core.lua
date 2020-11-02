@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 7
+RPLL.VERSION = 8
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -410,7 +410,8 @@ RPLL.PLAYER_ENTERING_WORLD = function()
         if msg == "nuke" then
             RPLL_PlayerInformation = {}
             RPLL.PlayerInformation = {}
-            RPLL.RotationIndex = 0
+            RPLL.PlayerRotation = {}
+            RPLL.RotationLength = 0
             RPLL.RotationIndex = 1
             RPLL.ExtraMessages = {}
             RPLL.ExtraMessageLength = 0
@@ -437,27 +438,27 @@ RPLL.PLAYER_LOGOUT = function()
 end
 
 function RPLL:RotateSpellFailedMessages()
-    for _, evt in pairs(SpellFailedCombatLogEvents) do
-        local result = ""
-        if RPLL.ExtraMessageIndex <= RPLL.ExtraMessageLength then
-            result = RPLL.ExtraMessages[RPLL.ExtraMessageIndex]
-            RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + 1
-        elseif RPLL.RotationLength ~= 0 then
-            result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation(RPLL.RotationIndex)
-            if RPLL.RotationIndex + 1 > RPLL.RotationLength then
-                RPLL.RotationIndex = 1
-            else
-                RPLL.RotationIndex = RPLL.RotationIndex + 1
-            end
+    local result = ""
+    if RPLL.ExtraMessageIndex <= RPLL.ExtraMessageLength then
+        result = RPLL.ExtraMessages[RPLL.ExtraMessageIndex]
+        RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + 1
+    elseif RPLL.RotationLength ~= 0 then
+        result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation()
+        if RPLL.RotationIndex + 1 > RPLL.RotationLength then
+            RPLL.RotationIndex = 1
         else
-            result = "NONE"
+            RPLL.RotationIndex = RPLL.RotationIndex + 1
         end
+    else
+        result = "NONE"
+    end
+    for _, evt in pairs(SpellFailedCombatLogEvents) do
         setglobal(evt, result)
     end
 end
 
-function RPLL:SerializePlayerInformation(index)
-    local val = RPLL.PlayerInformation[RPLL.PlayerRotation[index]]
+function RPLL:SerializePlayerInformation()
+    local val = RPLL.PlayerInformation[RPLL.PlayerRotation[RPLL.RotationIndex]]
 
     local gear = prep_value(val["gear"][1])
     for i = 2, 19 do
