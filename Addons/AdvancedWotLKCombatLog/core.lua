@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 10
+RPLL.VERSION = 11
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -478,6 +478,8 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
 
     if RPLL.PlayerInformation[unit_guid] == nil then
         RPLL.PlayerInformation[unit_guid] = {}
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
     end
 
     local info = RPLL.PlayerInformation[unit_guid]
