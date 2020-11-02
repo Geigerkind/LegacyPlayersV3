@@ -6,6 +6,8 @@ import {GuildViewerRouting} from "./routing";
 import {TableModule} from "../../../../template/table/module";
 import { HeroClassModule } from 'src/app/template/row_components/hero_class/module';
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
+import {RecentRaidsModule} from "./module/recent_raids/module";
+import {GuildRosterModule} from "./module/guild_roster/module";
 
 @NgModule({
     declarations: [GuildViewerComponent],
@@ -15,7 +17,9 @@ import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/mod
         GuildViewerRouting,
         TableModule,
         HeroClassModule,
-        ShowTooltipDirectiveModule
+        ShowTooltipDirectiveModule,
+        GuildRosterModule,
+        RecentRaidsModule
     ],
     exports: [GuildViewerComponent]
 })

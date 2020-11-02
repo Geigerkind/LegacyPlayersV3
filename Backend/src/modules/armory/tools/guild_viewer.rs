@@ -8,19 +8,23 @@ use crate::modules::{
 };
 
 pub trait GuildViewer {
-    fn get_guild_view(&self, data: &Data, language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure>;
+    fn get_guild_view(&self, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure>;
+    fn get_guild_roster(&self, data: &Data, guild_id: u32) -> Vec<GuildViewerMemberDto>;
 }
 
 impl GuildViewer for Armory {
-    fn get_guild_view(&self, data: &Data, _language_id: u8, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure> {
-        let guild = self.get_guild(guild_id);
-        if guild.is_none() {
-            return Err(ArmoryFailure::InvalidInput);
-        }
-        let guild = guild.unwrap();
+    fn get_guild_view(&self, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure> {
+        let guild = self.get_guild(guild_id).ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        Ok(GuildViewerDto {
+            guild_id,
+            guild_name: guild.name,
+            ranks: guild.ranks,
+        })
+    }
 
+    fn get_guild_roster(&self, data: &Data, guild_id: u32) -> Vec<GuildViewerMemberDto> {
         let characters = self.characters.read().unwrap();
-        let member = characters
+        characters
             .iter()
             .filter(|(_, character)| character.last_update.is_some())
             .filter(|(_, character)| character.last_update.as_ref().unwrap().character_guild.is_some())
@@ -39,13 +43,6 @@ impl GuildViewer for Armory {
                     last_seen: last_update.timestamp,
                 }
             })
-            .collect();
-
-        Ok(GuildViewerDto {
-            guild_id,
-            guild_name: guild.name,
-            ranks: guild.ranks,
-            member,
-        })
+            .collect()
     }
 }

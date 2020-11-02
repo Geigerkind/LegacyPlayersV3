@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 4
+RPLL.VERSION = 5
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -76,7 +76,13 @@ RPLL.UPDATE_INSTANCE_INFO = function()
     end
 end
 
+local initialized = false
 RPLL.PLAYER_ENTERING_WORLD = function()
+	if initialized then
+		return
+	end
+	initialized = true
+
     if RPLL_PlayerInformation == nil then
         RPLL_PlayerInformation = {}
     end

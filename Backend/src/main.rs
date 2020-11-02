@@ -241,7 +241,8 @@ fn main() {
                 armory::transfer::character_viewer::get_character_viewer_by_history,
                 armory::transfer::character_viewer::get_character_viewer_by_history_date,
                 armory::transfer::character_viewer::get_character_viewer_picture,
-                armory::transfer::guild_viewer::get_guild_view
+                armory::transfer::guild_viewer::get_guild_view,
+                armory::transfer::guild_viewer::get_guild_roster
             ],
         )
         .mount(
