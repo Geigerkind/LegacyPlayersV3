@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 10
+RPLL.VERSION = 11
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -302,7 +302,14 @@ local SpellFailedCombatLogEvents = {
     "SPELL_FAILED_UNIT_NOT_INFRONT",
     "SPELL_FAILED_UNKNOWN",
     "SPELL_FAILED_WRONG_PET_FOOD",
-    "SPELL_FAILED_WRONG_WEATHER"
+    "SPELL_FAILED_WRONG_WEATHER",
+    "ERR_OUT_OF_ENERGY",
+    "ERR_OUT_OF_FOCUS",
+    "ERR_OUT_OF_HEALTH",
+    "ERR_OUT_OF_MANA",
+    "ERR_OUT_OF_RANGE",
+    "ERR_OUT_OF_RUNES",
+    "ERR_OUT_OF_RUNIC_POWER",
 }
 
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
