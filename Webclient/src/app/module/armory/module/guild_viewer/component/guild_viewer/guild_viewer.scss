@@ -1,5 +1,31 @@
+@import "src/styles/units";
+
 :host {
     h1 {
         font-size: 30px;
+    }
+}
+
+RecentRaids, GuildRoster {
+    float: left;
+}
+
+RecentRaids {
+    width: 33%;
+    margin-right: 0.5 * $spacing;
+}
+
+GuildRoster {
+    width: calc(67% - #{$spacing} * 0.5);
+}
+
+@media (max-width: 1000px) {
+    RecentRaids, GuildRoster {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    RecentRaids {
+        margin-bottom: $spacing * 0.5;
     }
 }

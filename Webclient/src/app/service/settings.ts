@@ -17,6 +17,7 @@ SettingsService {
         "API_TOKEN",
         "table_filter_armory_search",
         "table_filter_guild_viewer_member",
+        "table_filter_guild_recent_raids_search",
         "table_filter_armory_raids_search",
         "table_filter_account_raids_search",
         "table_filter_raids_search",

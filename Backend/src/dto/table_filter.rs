@@ -22,7 +22,7 @@ impl<T: PartialEq> ApplyFilter<T> for TableFilter<T> {
 
 impl ApplyFilter<Option<String>> for TableFilter<String> {
     fn apply_filter(&self, input: Option<String>) -> bool {
-        self.filter.is_none() || input.is_some() && self.filter.contains(&input.unwrap())
+        self.filter.is_none() || input.is_some() && input.as_ref().unwrap().to_lowercase().contains(&self.filter.as_ref().unwrap().to_lowercase())
     }
 }
 

@@ -80,7 +80,7 @@ export class GuildRosterComponent implements OnInit, OnChanges {
         if (changes.guild_id != this.guild_id) {
             this.loadGuild();
         }
-        if (changes.ranks != this.ranks) {
+        if (changes.ranks != this.ranks && !!this.ranks) {
             this.member_header_columns[2].type_range = [{value: -1, label_key: "Armory.GuildViewer.rank"}];
             this.ranks.forEach(entry => this.member_header_columns[2].type_range.push({
                 value: entry.index,

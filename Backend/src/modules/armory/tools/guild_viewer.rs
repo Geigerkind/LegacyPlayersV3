@@ -19,6 +19,7 @@ impl GuildViewer for Armory {
             guild_id,
             guild_name: guild.name,
             ranks: guild.ranks,
+            server_id: guild.server_id
         })
     }
 
