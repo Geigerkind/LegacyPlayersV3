@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 8
+RPLL.VERSION = 9
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -367,8 +367,8 @@ RPLL.CHAT_MSG_LOOT = function(msg)
     RPLL:PushExtraMessage("LOOT", strjoin("&", msg))
 end
 
-RPLL:RegisterEvent("COMBAT_LOG_EVENT")
-RPLL.COMBAT_LOG_EVENT = function(ts, evt)
+RPLL:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+RPLL.COMBAT_LOG_EVENT_UNFILTERED = function(ts, evt)
     if evt == "SPELL_CAST_FAILED" then
         RPLL:RotateSpellFailedMessages()
     end

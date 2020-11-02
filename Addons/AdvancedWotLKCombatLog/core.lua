@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 9
+RPLL.VERSION = 10
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -367,10 +367,9 @@ RPLL.CHAT_MSG_LOOT = function(msg)
     RPLL:PushExtraMessage("LOOT", strjoin("&", msg))
 end
 
-RPLL:RegisterEvent("COMBAT_LOG_EVENT")
-RPLL.COMBAT_LOG_EVENT = function(ts, evt)
+RPLL:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+RPLL.COMBAT_LOG_EVENT_UNFILTERED = function(ts, evt)
     if evt == "SPELL_CAST_FAILED" then
-        print("Rotating log!")
         RPLL:RotateSpellFailedMessages()
     end
 end
@@ -392,9 +391,6 @@ RPLL.PLAYER_ENTERING_WORLD = function()
             RPLL.RotationLength = RPLL.RotationLength + 1
         end
     end
-
-    print("Rotation Length: ".. RPLL.RotationLength)
-    print("First index: "..RPLL.PlayerInformation[RPLL.PlayerRotation[1]]["unit_name"])
 
     UIErrorsFrame:Hide()
     local player_name = UnitName("player")
