@@ -621,7 +621,7 @@ impl CombatLogParser for WoWWOTLKParser {
             // Thaddius
             15928 => 80000,
             // Northrend Beasts
-            34797 | 34799 | 35144 => 80000,
+            34797 | 34799 | 35144 => 45000,
             // Anub
             34564 => 80000,
             _ => return None,

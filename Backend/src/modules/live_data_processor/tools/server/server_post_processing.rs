@@ -18,22 +18,18 @@ use walkdir::WalkDir;
 use zip::write::FileOptions;
 
 impl Server {
-    pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), now: u64, data: &Data) {
-        self.extract_attempts_and_collect_ranking(db_main, data, now);
-        self.extract_loot(db_main, data, now);
+    pub fn perform_post_processing(&mut self, db_main: &mut (impl Execute + Select), data: &Data) {
+        self.extract_attempts_and_collect_ranking(db_main, data);
+        self.extract_loot(db_main, data);
         self.save_current_event_id_and_end_ts(db_main);
-        self.save_committed_events_to_disk(now);
+        self.save_committed_events_to_disk();
         self.zip_instances();
     }
 
-    fn extract_loot(&self, db_main: &mut (impl Execute + Select), data: &Data, now: u64) {
+    fn extract_loot(&self, db_main: &mut (impl Execute + Select), data: &Data) {
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 for event in committed_events.iter() {
-                    if event.timestamp + 2000 > now {
-                        break;
-                    }
-
                     if let EventType::Loot { item_id, amount } = &event.event {
                         if let Unit::Player(Player { character_id, .. }) = event.subject {
                             if let Some(item) = data.get_item(self.expansion_id, *item_id) {
@@ -61,16 +57,12 @@ impl Server {
      *    2. Or if pivot NPC dies
      *    3. Or if pivot NPC goes below a certain threshold
      */
-    fn extract_attempts_and_collect_ranking(&mut self, db_main: &mut (impl Execute + Select), data: &Data, now: u64) {
+    fn extract_attempts_and_collect_ranking(&mut self, db_main: &mut (impl Execute + Select), data: &Data) {
         static KILL_MIN_INFIGHT_UNITS: usize = 5;
         for (instance_id, committed_events) in self.committed_events.iter() {
             if let Some(UnitInstance { instance_meta_id, .. }) = self.active_instances.get(&instance_id) {
                 let active_attempts = self.active_attempts.entry(*instance_id).or_insert_with(|| HashMap::with_capacity(1));
                 for event in committed_events.iter() {
-                    if event.timestamp + 2000 > now {
-                        break;
-                    }
-
                     match &event.subject {
                         Unit::Creature(Creature { creature_id, entry, owner: _ }) => {
                             if let Some(encounter_npc) = data.get_encounter_npc(*entry) {
@@ -326,7 +318,7 @@ impl Server {
         }
     }
 
-    fn save_committed_events_to_disk(&mut self, now: u64) {
+    fn save_committed_events_to_disk(&mut self) {
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set!");
         let mut open_options = std::fs::File::with_options();
         open_options.append(true);
@@ -337,7 +329,7 @@ impl Server {
                 let _result = std::fs::create_dir_all(format!("{}/{}/{}", storage_path, self.server_id, active_instance.instance_meta_id));
 
                 // Find first event that is committable from the back
-                if let Some(extraction_index) = committable_events.iter().rposition(|event| event.timestamp + 2000 < now) {
+                if let Some(extraction_index) = committable_events.iter().rposition(|_| true) {
                     let mut drained_events = committable_events.drain(..(extraction_index + 1)).collect::<Vec<Event>>();
                     drained_events.sort_by(|left, right| {
                         let by_event_type = left.event.to_u8().cmp(&right.event.to_u8());

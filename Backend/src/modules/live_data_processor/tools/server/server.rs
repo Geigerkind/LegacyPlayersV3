@@ -33,7 +33,7 @@ impl Server {
             self.push_non_committed_event(msg);
         }
         self.reset_instances(db_main, last_ts);
-        self.perform_post_processing(db_main, last_ts, data);
+        self.perform_post_processing(db_main, data);
         println!("Done");
         Ok(())
     }

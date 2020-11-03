@@ -179,8 +179,19 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             }
         } else if current_map.is_some() {
             for (unit_id, is_player) in participants.iter() {
+                if let Some(last_cbt_state) = last_combat_update.get(unit_id) {
+                    additional_messages.push(Message {
+                        api_version: 0,
+                        message_length: 0,
+                        timestamp: *last_cbt_state + 1,
+                        message_count: *message_count,
+                        message_type: MessageType::CombatState(CombatState { unit: Unit { is_player: *is_player, unit_id: *unit_id }, in_combat: false }),
+                    });
+                    last_combat_update.remove(unit_id);
+                }
+
                 additional_messages.push(Message::new_parsed(
-                    *timestamp + 1,
+                    *timestamp + 2,
                     *message_count,
                     MessageType::InstanceMap(InstanceMap {
                         map_id: 0,
@@ -383,7 +394,7 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
             }
         }
     } else if !unit.is_player {
-        timeout = 45000;
+        timeout = 20000;
     }
 
     if let Some(last_update) = last_combat_update.get_mut(&unit.unit_id) {
