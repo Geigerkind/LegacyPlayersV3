@@ -270,7 +270,7 @@ impl Server {
                                         }
                                         // If enough player are OOC and Kill requirements are fulfilled
                                         for (encounter_id, attempt) in active_attempts.clone() {
-                                            if encounter_id == 75 || encounter_id == 57 || encounter_id == 128 {
+                                            if encounter_id == 75 || encounter_id == 57 {
                                                 continue; // Hard to judge for Kael'thas or Naxx KT
                                             }
 
