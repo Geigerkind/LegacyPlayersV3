@@ -52,7 +52,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     // There should only be the combat log in there
     let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
-    let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let content = unsafe { std::str::from_utf8_unchecked(&bytes) };
 
     if server_id == -1 {
         return parse(
