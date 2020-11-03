@@ -603,6 +603,8 @@ impl CombatLogParser for WoWWOTLKParser {
             33966 | 33983 | 33985 | 33988 | 33990 | 33288 => -55000,
             // Thaddius
             15928 => -30000,
+            // Northrend Beasts
+            34797 | 34799 | 35144 => -30000,
             _ => return None,
         })
     }
@@ -618,6 +620,10 @@ impl CombatLogParser for WoWWOTLKParser {
             33288 => 55000,
             // Thaddius
             15928 => 80000,
+            // Northrend Beasts
+            34797 | 34799 | 35144 => 80000,
+            // Anub
+            34564 => 80000,
             _ => return None,
         })
     }
@@ -628,6 +634,9 @@ impl CombatLogParser for WoWWOTLKParser {
             16427 | 16428 | 16429 => vec![(65534, 0)],
             // Malygos
             30084 | 30245 | 30249 => vec![(28859, 0)],
+            // Norhrend Beasts
+            34796 => vec![(35144, 0), (34799, -1000)],
+            35144 | 34799 => vec![(34797, -1000)],
             _ => return None,
         })
     }
@@ -640,6 +649,8 @@ impl CombatLogParser for WoWWOTLKParser {
             16427 | 16429 | 16428 => vec![65534],
             // Malygos
             30084 | 30245 | 30249 => vec![28859],
+            // Anub Swarm Scarabs
+            34605 => vec![34564],
             _ => return None,
         })
     }

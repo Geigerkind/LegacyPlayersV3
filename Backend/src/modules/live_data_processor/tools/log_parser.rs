@@ -205,14 +205,15 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 if !unit_died_recently.contains_key(&dmg.victim.unit_id) || *timestamp - *unit_died_recently.get(&dmg.victim.unit_id).unwrap() > 15000 {
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
                 }
-            },
+            }
             MessageType::Death(death) => {
                 if !death.victim.is_player {
                     if let Some(entry) = death.victim.unit_id.get_entry() {
                         if let Some(implied_npc_ids) = parser.get_death_implied_npc_combat_state_and_offset(entry) {
                             for (npc_id, delay_ts) in implied_npc_ids {
                                 if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
-                                    if !participant.is_player && participant.id.get_entry().contains(&npc_id) {
+                                    if !participant.is_player && participant.id.get_entry().contains(&npc_id)
+                                        && participant.active_intervals.iter().any(|(start, end)| (start <= timestamp && end >= timestamp) || (*start <= *timestamp + 120000 && *end >= *timestamp + 120000)) {
                                         return Some(participant.id);
                                     }
                                     None
@@ -242,8 +243,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 });
                 last_combat_update.remove(&death.victim.unit_id);
                 unit_died_recently.insert(death.victim.unit_id, *timestamp);
-            },
-            _ => {},
+            }
+            _ => {}
         };
     }
 
@@ -270,43 +271,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        },
+        }
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        },
+        }
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        },
+        }
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        },
+        }
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        },
+        }
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        },
+        }
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        },
+        }
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        },
+        }
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        },
+        }
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        },
-        _ => {},
+        }
+        _ => {}
     };
 }
 
@@ -382,7 +383,7 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
             }
         }
     } else if !unit.is_player {
-        timeout = 30000;
+        timeout = 45000;
     }
 
     if let Some(last_update) = last_combat_update.get_mut(&unit.unit_id) {
