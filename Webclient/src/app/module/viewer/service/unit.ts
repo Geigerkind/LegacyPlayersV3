@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {get_creature_entry, get_unit_id, get_unit_owner, is_creature, is_player, Unit} from "../domain_value/unit";
-import {Observable, of} from "rxjs";
+import {combineLatest, Observable, of, zip} from "rxjs";
 import {CharacterService} from "../../armory/service/character";
 import {concatMap, map} from "rxjs/operators";
 import {DataService} from "../../../service/data";
@@ -27,7 +27,6 @@ export class UnitService {
 
     get_unit_bg_color(unit: Unit, timestamp: number): Observable<string> {
         if (!!unit) {
-            // TODO: Use method to get character at the time of the raid
             if (is_player(unit, false)) {
                 return this.characterService
                     .get_basic_character_by_id(get_unit_id(unit, false), timestamp)
@@ -57,12 +56,13 @@ export class UnitService {
 
             if (is_creature(unit, false)) {
                 const creatureEntry = get_creature_entry(unit);
-                const npcName = this.get_npc_name(creatureEntry);
+                const npc = this.get_npc_name(creatureEntry);
                 if (!!unit[3]) {
-                    return this.get_unit_name(get_unit_owner(unit), timestamp).pipe(concatMap(unit_name =>
-                        npcName.pipe(map(npc_name => npc_name + " (" + unit_name + ")"))));
+                    const owner = this.get_unit_name(get_unit_owner(unit), timestamp);
+                    return combineLatest([npc, owner]).pipe(map(([npc_name, owner_name]) =>
+                        npc_name + " (" + owner_name + ")"));
                 }
-                return npcName;
+                return npc;
             }
         }
         return of(CONST_UNKNOWN_LABEL);
