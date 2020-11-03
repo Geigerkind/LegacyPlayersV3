@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 6
+RPLL.VERSION = 7
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -865,7 +865,8 @@ function RPLL:rotate_combat_log_global_string()
 			end
 			local buff_str = prep_value(character["buffs"][0])
 			for i=1, 15 do
-				buff_str = buff_str.."&"..prep_value(character["buffs"][i])
+				buff_str = buff_str.."&nil"
+				--buff_str = buff_str.."&"..prep_value(character["buffs"][i])
 			end
 
 			result = result..prep_value(character["name"]).."&"..prep_value(character["hero_class"]).."&"..prep_value(character["race"]).."&"..prep_value(character["sex"]).."&"..prep_value(character["pet"]).."&"..prep_value(character["guild_name"]).."&"..prep_value(character["guild_rank_name"]).."&"..prep_value(character["guild_rank_index"]).."&"..gear_str.."&"..buff_str
