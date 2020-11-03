@@ -481,7 +481,9 @@ impl Server {
                         // Vanilla does usually not set difficulty for raids correctly
                         // Nor does TBC
                         let map_difficulty = match *map_id {
-                            249 | 409 | 469 => 9,                         // 40 man
+                            // Onyxias Liar is an instance in WotLK and Vanilla
+                            249 => if self.expansion_id > 2 { *map_difficulty } else { 9},
+                            409 | 469 => 9,                               // 40 man
                             309 | 509 | 531 => 148,                       // 20 man
                             532 | 568 => 3,                               // 10 man
                             534 | 544 | 548 | 550 | 564 | 580 | 565 => 4, // 25 man
