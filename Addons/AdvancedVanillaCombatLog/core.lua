@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 5
+RPLL.VERSION = 6
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -757,7 +757,7 @@ function RPLL:grab_unit_information(unit)
                 pet_name = UnitName("partypet"..strsub(unit, 6))
             end
 
-            if pet_name ~= nil and pet_name ~= Unknown then
+            if pet_name ~= nil and pet_name ~= Unknown and pet ~= "" then
                 info["pet"] = pet_name
             end
         end

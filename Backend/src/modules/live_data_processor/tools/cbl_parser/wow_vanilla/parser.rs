@@ -927,6 +927,10 @@ impl CombatLogParser for WoWVanillaParser {
 
         if content.starts_with("COMBATANT_INFO:") {
             let message_args = content.trim_start_matches("COMBATANT_INFO: ").split('&').collect::<Vec<&str>>();
+            if message_args.len() <= 27 {
+                return None;
+            }
+
             let player_name = message_args[0];
             let hero_class_local = message_args[1];
             let race_local = message_args[2];
