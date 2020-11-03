@@ -14,7 +14,9 @@ use chrono::NaiveDateTime;
 use rocket::http::ContentType;
 use rocket::{Data, State};
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
-use std::io::Read;
+use std::io::{Read, Write};
+use std::fs::File;
+use time_util::now;
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -48,6 +50,13 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     }
     let reader = std::io::Cursor::new(raw.as_slice());
     let mut zip = zip::ZipArchive::new(reader).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+
+    let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
+    if std::fs::create_dir_all(&format!("{}/zips", storage_path)).is_ok() {
+        if let Ok(mut saved_zip) = File::create(&format!("{}/zips/{}_{}_{}.zip", storage_path, auth.0, server_id, now())) {
+            let _ = saved_zip.write_all(&raw);
+        }
+    }
 
     // There should only be the combat log in there
     let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
