@@ -91,12 +91,13 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     }
 
     // Pre-fill instance ids
+    let mut bonus_messages = parser.get_bonus_messages().unwrap_or_else(Vec::new);
     let mut instance_ids = HashMap::new();
-    for Message { message_type, .. } in messages.iter() {
+    let mut suggested_instances = Vec::new();
+    for Message { message_type, timestamp, .. } in bonus_messages.iter() {
         if let MessageType::InstanceMap(map) = message_type {
-            // TODO (If I ever get more of these events): This only works for vanilla!
-            // TODO: Spoiler have these for tbc and wotlk now
-            instance_ids.insert((map.map_id as u16, None), map.instance_id);
+            instance_ids.insert((map.map_id as u16, if map.map_difficulty == 0 { None } else {Some(map.map_difficulty)} ), map.instance_id);
+            suggested_instances.push((*timestamp, map.map_id as u16, map.map_difficulty));
         }
     }
 
@@ -142,7 +143,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut additional_messages = Vec::with_capacity(20000);
     for Message { timestamp, message_count, message_type, .. } in messages.iter() {
         // Insert Instance Map Messages
-        if let Some((map_id, difficulty)) = active_maps.get_current_active_map(&player_participants_by_interval, expansion_id, *timestamp) {
+        if let Some((map_id, difficulty)) = active_maps.get_current_active_map(&suggested_instances, &player_participants_by_interval, expansion_id, *timestamp) {
             if !current_map.contains(&(map_id, difficulty)) {
                 current_map = Some((map_id, difficulty));
                 participants.clear();
@@ -259,9 +260,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         };
     }
 
-    if let Some(mut bonus_msgs) = parser.get_bonus_messages() {
-        messages.append(&mut bonus_msgs);
-    }
+    messages.append(&mut bonus_messages);
     messages.append(&mut additional_messages);
     if server_id == 4 || server_id == 5 {
         messages = messages

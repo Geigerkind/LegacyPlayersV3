@@ -160,33 +160,42 @@ impl CombatLogParser for WoWWOTLKParser {
                     let args: Vec<&str> = fail_str.trim_start_matches("ZONE_INFO: ").split('&').collect();
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
                     if args[8] != "nil" {
-                        if let Ok(map_id) = u32::from_str_radix(args[7], 10) {
-                            if let Ok(instance_id) = u32::from_str_radix(args[8], 10) {
-                                let difficulty_id = match args[4] {
-                                    "10 Player" => 3,
-                                    "25 Player" => 4,
-                                    "10 Player (Heroic)" => 5,
-                                    "25 Player (Heroic)" => 6,
-                                    _ => return None,
-                                };
-                                if args.len() >= 10 {
-                                    for participant_unit_guid in args.iter().skip(9) {
-                                        if let Ok(mut guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
-                                            // Crystalsong UID fix
-                                            if guid.get_high() == 0x0110 {
-                                                guid &= 0x0000000000FFFFFF;
-                                            }
-                                            self.bonus_messages.push(Message::new_parsed(
-                                                timestamp as u64,
-                                                0,
-                                                MessageType::InstanceMap(InstanceMap {
-                                                    map_id,
-                                                    instance_id,
-                                                    map_difficulty: difficulty_id,
-                                                    unit: Unit { is_player: true, unit_id: guid },
-                                                }),
-                                            ));
+                        if let Ok(instance_id) = u32::from_str_radix(args[8], 10) {
+                            let map_id = match args[1] {
+                                "Naxxramas" => 533,
+                                "Ulduar" => 603,
+                                "The Obsidian Sanctum" => 615,
+                                "The Eye of Eternity" => 616,
+                                "Vault of Archavon" => 624,
+                                "Icecrown Citadel" => 631,
+                                "Trial of the Crusader" => 649,
+                                "The Ruby Sanctum" => 724,
+                                _ => return None,
+                            };
+                            let difficulty_id = match args[4] {
+                                "10 Player" => 3,
+                                "25 Player" => 4,
+                                "10 Player (Heroic)" => 5,
+                                "25 Player (Heroic)" => 6,
+                                _ => return None,
+                            };
+                            if args.len() >= 10 {
+                                for participant_unit_guid in args.iter().skip(9) {
+                                    if let Ok(mut guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
+                                        // Crystalsong UID fix
+                                        if guid.get_high() == 0x0110 {
+                                            guid &= 0x0000000000FFFFFF;
                                         }
+                                        self.bonus_messages.push(Message::new_parsed(
+                                            timestamp as u64,
+                                            0,
+                                            MessageType::InstanceMap(InstanceMap {
+                                                map_id,
+                                                instance_id,
+                                                map_difficulty: difficulty_id,
+                                                unit: Unit { is_player: true, unit_id: guid },
+                                            }),
+                                        ));
                                     }
                                 }
                             }

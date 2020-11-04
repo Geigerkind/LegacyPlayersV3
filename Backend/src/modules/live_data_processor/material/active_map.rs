@@ -53,11 +53,11 @@ impl CollectActiveMap for ActiveMapMap {
 }
 
 pub trait RetrieveActiveMap {
-    fn get_current_active_map(&self, player_participants: &Lapper<u64, u64>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)>;
+    fn get_current_active_map(&self, suggested_instances: &Vec<(u64, u16, u8)>, player_participants: &Lapper<u64, u64>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)>;
 }
 
 impl RetrieveActiveMap for ActiveMapVec {
-    fn get_current_active_map(&self, player_participants: &Lapper<u64, u64>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)> {
+    fn get_current_active_map(&self, suggested_instances: &Vec<(u64, u16, u8)>, player_participants: &Lapper<u64, u64>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)> {
         let mut chosen_map = None;
         for active_map in self.iter() {
             for (start, end) in active_map.intervals.iter() {
@@ -71,6 +71,18 @@ impl RetrieveActiveMap for ActiveMapVec {
         chosen_map.and_then(|map| {
             if expansion_id < 3 {
                 return Some((map.map_id, None));
+            }
+
+            for (ts, map_id, difficulty) in suggested_instances.iter().rev() {
+                if *ts <= current_timestamp && *map_id == map.map_id {
+                    return Some((map.map_id, Some(*difficulty)));
+                }
+            }
+
+            for (ts, map_id, difficulty) in suggested_instances.iter().rev() {
+                if *ts - 30 * 60 * 60 * 1000 <= current_timestamp && *map_id == map.map_id {
+                    return Some((map.map_id, Some(*difficulty)));
+                }
             }
 
             let mut difficulty_id = None;

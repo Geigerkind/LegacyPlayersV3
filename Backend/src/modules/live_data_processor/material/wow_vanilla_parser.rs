@@ -1,5 +1,5 @@
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::Unit;
+use crate::modules::live_data_processor::dto::{Unit, Message};
 use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
 use std::collections::HashMap;
 
@@ -12,6 +12,9 @@ pub struct WoWVanillaParser {
 
     pub cache_unit: HashMap<String, Unit>,
     pub cache_spell_id: HashMap<String, Option<u32>>,
+
+    // Hacky
+    pub bonus_messages: Vec<Message>,
 }
 
 impl WoWVanillaParser {
@@ -23,6 +26,7 @@ impl WoWVanillaParser {
             pet_owner: Default::default(),
             cache_unit: Default::default(),
             cache_spell_id: Default::default(),
+            bonus_messages: Default::default()
         }
     }
 
