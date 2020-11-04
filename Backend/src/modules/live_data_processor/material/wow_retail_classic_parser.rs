@@ -43,7 +43,7 @@ impl WoWRetailClassicParser {
             static ref MAGE_SPELLS: BTreeSet<u32> = [25306, 12654, 10207, 10202, 10199, 13021, 10161, 10181, 10187, 10230].iter().cloned().collect();
             static ref WARLOCK_SPELLS: BTreeSet<u32> = [25307, 25311, 18871, 11682].iter().cloned().collect();
             static ref SHAMAN_SPELLS: BTreeSet<u32> = [15208, 10605, 403, 10392, 26363, 1064, 10622, 10623, 10448, 939, 10395, 10468, 25357].iter().cloned().collect();
-            static ref DRUID_SPELLS: BTreeSet<u32> = [9881, 9908, 25299, 5187, 5188, 25297, 9858].iter().cloned().collect();
+            static ref DRUID_SPELLS: BTreeSet<u32> = [9881, 9908, 25299, 5187, 5188, 25297, 9858, 25298, 2912, 9912].iter().cloned().collect();
         }
 
         if !unit.is_player {
