@@ -369,6 +369,7 @@ impl CombatLogParser for WoWRetailClassicParser {
         Some(match entry {
             15990 => -228000,
             12435 => -300000,
+            11583 => -140000,
             65534 => -3000,
             _ => return None,
         })
@@ -378,6 +379,12 @@ impl CombatLogParser for WoWRetailClassicParser {
         Some(match entry {
             65534 => 90000,
             15990 => 180000,
+            // Viscidius
+            15299 => 80000,
+            // Razorgore
+            12435 => 80000,
+            // Nefarian
+            11583 => 80000,
             _ => return None,
         })
     }
@@ -386,6 +393,8 @@ impl CombatLogParser for WoWRetailClassicParser {
         Some(match entry {
             15929 | 15930 => vec![(15928, 0)],
             16427 | 16428 | 16429 => vec![(65534, 0)],
+            12557 | 14456 | 12416 | 12422 | 12420 => vec![(12435, 0)],
+            14261 | 14262 | 14263 | 14264 | 14265 => vec![(11583, 0)],
             _ => return None,
         })
     }
@@ -396,6 +405,9 @@ impl CombatLogParser for WoWRetailClassicParser {
             16427 | 16429 | 16428 => vec![65534],
             // Razorscale
             12557 | 14456 | 12416 | 12422 | 12420 => vec![12435],
+            15667 => vec![15299],
+            // Nefarian
+            14261 | 14262 | 14263 | 14264 | 14265 => vec![11583],
             _ => return None,
         })
     }

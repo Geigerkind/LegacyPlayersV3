@@ -225,7 +225,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                             for (npc_id, delay_ts) in implied_npc_ids {
                                 if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
                                     if !participant.is_player && participant.id.get_entry().contains(&npc_id)
-                                        && participant.active_intervals.iter().any(|(start, end)| (start <= timestamp && end >= timestamp) || (*start <= *timestamp + 120000 && *end >= *timestamp + 120000)) {
+                                        && participant.active_intervals.iter().any(|(start, end)| (start <= timestamp && end >= timestamp) || (*start <= *timestamp + 180000 && *end >= *timestamp + 180000)) {
                                         return Some(participant.id);
                                     }
                                     None

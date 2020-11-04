@@ -262,8 +262,8 @@ impl Server {
                                         }
                                         // If enough player are OOC and Kill requirements are fulfilled
                                         for (encounter_id, attempt) in active_attempts.clone() {
-                                            if encounter_id == 75 || encounter_id == 57 {
-                                                continue; // Hard to judge for Kael'thas or Naxx KT
+                                            if encounter_id == 75 || encounter_id == 57 || encounter_id == 22 || encounter_id == 29 {
+                                                continue; // Hard to judge for Kael'thas or Naxx KT or Razorgore or Nefarian
                                             }
 
                                             if attempt.infight_player.len() <= KILL_MIN_INFIGHT_UNITS && attempt.infight_vehicle.len() <= KILL_MIN_INFIGHT_UNITS {
