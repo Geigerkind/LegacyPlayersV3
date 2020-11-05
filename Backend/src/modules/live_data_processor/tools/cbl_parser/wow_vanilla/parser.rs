@@ -436,10 +436,10 @@ impl CombatLogParser for WoWVanillaParser {
             let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
             let hit_mask = HitType::Crit as u32;
-            let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
-            let amount = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let amount = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
             self.collect_active_map(data, &target, event_ts);
             let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
@@ -467,10 +467,10 @@ impl CombatLogParser for WoWVanillaParser {
             let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
             let hit_mask = HitType::Hit as u32;
-            let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
-            let amount = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let amount = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(3)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
             self.collect_active_map(data, &target, event_ts);
             let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);

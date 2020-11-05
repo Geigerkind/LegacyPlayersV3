@@ -485,7 +485,7 @@ function RPLL:fix_combat_log_strings()
 	end
 
     AURAADDEDSELFHARMFUL = player_name.." is afflicted by %s (1)."
-    AURAADDEDSELFHELPFUL = player_name.." gains %s."
+    AURAADDEDSELFHELPFUL = player_name.." gains %s (1)."
     AURAAPPLICATIONADDEDSELFHARMFUL = player_name.." is afflicted by %s (%d)."
     AURAAPPLICATIONADDEDSELFHELPFUL = player_name.." gains %s (%d)."
     AURACHANGEDSELF = player_name.." replaces %s with %s."
