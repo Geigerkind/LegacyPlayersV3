@@ -40,6 +40,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                         message_type,
                     });
                 }
+            } else {
+                println!("Could not parse: {}", meta[1]);
             }
         }
     }
