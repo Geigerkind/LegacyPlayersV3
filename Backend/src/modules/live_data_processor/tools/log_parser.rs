@@ -110,21 +110,21 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     parsed_participants.iter().for_each(|participant| {
         participant.active_intervals.iter().for_each(|(start, end)| {
             temp_intervals.push(Interval {
-                start: *start - 200,
-                stop: *end + 200,
+                start: *start - 1000,
+                stop: *end + 1000,
                 val: (participant.id, participant.is_player),
             });
 
             temp_intervals.push(Interval {
-                start: *start - 200,
-                stop: *end + 200,
+                start: *start - 1000,
+                stop: *end + 1000,
                 val: (incombat_participant_helper.id, incombat_participant_helper.is_player),
             });
 
             if participant.is_player {
                 player_temp_intervals.push(Interval {
-                    start: *start - 200,
-                    stop: *end + 200,
+                    start: *start - 1000,
+                    stop: *end + 1000,
                     val: participant.id,
                 });
             }
@@ -151,7 +151,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
 
             let mut new_participants: HashMap<u64, bool> = HashMap::new();
             // TODO: This lapper does not seem to find all participants within that interval, it fails for large intervals
-            for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 100, *timestamp + 100).filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
+            for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 1000, *timestamp + 1000)
+                .filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
                 new_participants.insert(*unit_id, *is_player);
             }
 

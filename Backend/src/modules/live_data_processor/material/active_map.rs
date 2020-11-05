@@ -79,8 +79,8 @@ impl RetrieveActiveMap for ActiveMapVec {
                 }
             }
 
-            for (ts, map_id, difficulty) in suggested_instances.iter().rev() {
-                if *ts - 30 * 60 * 60 * 1000 <= current_timestamp && *map_id == map.map_id {
+            for (ts, map_id, difficulty) in suggested_instances.iter() {
+                if *ts >= current_timestamp && *map_id == map.map_id {
                     return Some((map.map_id, Some(*difficulty)));
                 }
             }

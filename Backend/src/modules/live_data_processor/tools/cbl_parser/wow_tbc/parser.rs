@@ -45,9 +45,9 @@ impl CombatLogParser for WoWTBCParser {
                     let _arena_team3 = args[12];
                     let _arena_team5 = args[13];
 
-                    let mut participant = Participant::new(unit_guid, true, unit_name, 0);
+                    let mut participant = self.participants.entry(unit_guid).or_insert_with(|| Participant::new(unit_guid, true, unit_name, 0));
 
-                    if race != "nil" {
+                    if race != "nil" && participant.race_id.is_none() {
                         participant.race_id = Some(match race {
                             "Human" => 1,
                             "Orc" => 2,
@@ -65,7 +65,7 @@ impl CombatLogParser for WoWTBCParser {
                         });
                     }
 
-                    if hero_class != "nil" {
+                    if hero_class != "nil" && participant.hero_class_id.is_none() {
                         participant.hero_class_id = Some(match hero_class {
                             "Warrior" => 1,
                             "Paladin" => 2,
@@ -80,7 +80,7 @@ impl CombatLogParser for WoWTBCParser {
                         });
                     }
 
-                    if gender != "nil" {
+                    if gender != "nil" && participant.gender_id.is_none() {
                         if gender == "2" {
                             participant.gender_id = Some(false);
                         } else if gender == "3" {
@@ -88,7 +88,7 @@ impl CombatLogParser for WoWTBCParser {
                         }
                     }
 
-                    if guild_name != "nil" && guild_rank_name != "nil" && guild_rank_index != "nil" {
+                    if guild_name != "nil" && guild_rank_name != "nil" && guild_rank_index != "nil" && participant.guild_args.is_none() {
                         participant.guild_args = Some((guild_name.to_string(), guild_rank_name.to_string(), u8::from_str_radix(guild_rank_index, 10).ok()?));
                     }
 
@@ -131,8 +131,6 @@ impl CombatLogParser for WoWTBCParser {
                     if talents != "nil" {
                         participant.talents = strip_talent_specialization(&Some(talents.replace("}", "|")));
                     }
-
-                    self.participants.insert(unit_guid, participant);
                 } else if fail_str.starts_with("LOOT: ") {
                     let args: Vec<&str> = fail_str.trim_start_matches("LOOT: ").split('&').collect();
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
@@ -167,6 +165,17 @@ impl CombatLogParser for WoWTBCParser {
                         "The Sunwell" => 580,
                         _ => return None,
                     };
+                    self.bonus_messages.push(Message::new_parsed(
+                        timestamp as u64,
+                        0,
+                        MessageType::InstanceMap(InstanceMap {
+                            map_id,
+                            instance_id,
+                            map_difficulty: 0,
+                            unit: Unit { is_player: false, unit_id: 1 },
+                        }),
+                    ));
+                    /*
                     if args.len() >= 3 {
                         for participant_unit_guid in args.iter().skip(2) {
                             if let Ok(guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
@@ -183,6 +192,7 @@ impl CombatLogParser for WoWTBCParser {
                             }
                         }
                     }
+                     */
                 } else if fail_str.starts_with("PET_SUMMON: ") {
                     let args: Vec<&str> = fail_str.trim_start_matches("PET_SUMMON: ").split('&').collect();
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
@@ -225,7 +235,7 @@ impl CombatLogParser for WoWTBCParser {
                     damage_over_time: false,
                     damage_components: vec![damage_component],
                 })]
-            },
+            }
             "SWING_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -243,7 +253,7 @@ impl CombatLogParser for WoWTBCParser {
                     damage_over_time: false,
                     damage_components: Vec::new(),
                 })]
-            },
+            }
             "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -272,7 +282,7 @@ impl CombatLogParser for WoWTBCParser {
                         damage_components: vec![damage_component],
                     }),
                 ]
-            },
+            }
             "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -300,7 +310,7 @@ impl CombatLogParser for WoWTBCParser {
                         damage_components: Vec::new(),
                     }),
                 ]
-            },
+            }
             "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -327,7 +337,7 @@ impl CombatLogParser for WoWTBCParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                 ]
-            },
+            }
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
@@ -351,7 +361,7 @@ impl CombatLogParser for WoWTBCParser {
                 }
 
                 result
-            },
+            }
             "SPELL_CAST_SUCCESS" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -373,16 +383,16 @@ impl CombatLogParser for WoWTBCParser {
                 }
 
                 result
-            },
+            }
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Summon(Summon { owner, unit })]
-            },
+            }
             "UNIT_DIED" | "UNIT_DESTROYED" => {
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Death(Death { cause: None, victim })]
-            },
+            }
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -404,7 +414,7 @@ impl CombatLogParser for WoWTBCParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            },
+            }
             "SPELL_INTERRUPT" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -419,7 +429,7 @@ impl CombatLogParser for WoWTBCParser {
                     }),
                     MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
                 ]
-            },
+            }
             "SPELL_STOLEN" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -441,7 +451,7 @@ impl CombatLogParser for WoWTBCParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            },
+            }
             // TODO: Use more events
             // https://wow.gamepedia.com/COMBAT_LOG_EVENT?oldid=1585715
             _ => return None,

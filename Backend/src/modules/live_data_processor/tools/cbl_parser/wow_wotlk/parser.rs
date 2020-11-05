@@ -49,9 +49,9 @@ impl CombatLogParser for WoWWOTLKParser {
                     let _arena_team3 = args[12];
                     let _arena_team5 = args[13];
 
-                    let mut participant = Participant::new(unit_guid, true, unit_name, 0);
+                    let mut participant = self.participants.entry(unit_guid).or_insert_with(|| Participant::new(unit_guid, true, unit_name, 0));
 
-                    if race != "nil" {
+                    if race != "nil" && participant.race_id.is_none() {
                         participant.race_id = Some(match race {
                             "Human" => 1,
                             "Orc" => 2,
@@ -69,7 +69,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         });
                     }
 
-                    if hero_class != "nil" {
+                    if hero_class != "nil" && participant.hero_class_id.is_none() {
                         participant.hero_class_id = Some(match hero_class {
                             "Warrior" => 1,
                             "Paladin" => 2,
@@ -85,7 +85,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         });
                     }
 
-                    if gender != "nil" {
+                    if gender != "nil" && participant.gender_id.is_none() {
                         if gender == "2" {
                             participant.gender_id = Some(false);
                         } else if gender == "3" {
@@ -93,7 +93,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         }
                     }
 
-                    if guild_name != "nil" && guild_rank_name != "nil" && guild_rank_index != "nil" {
+                    if guild_name != "nil" && guild_rank_name != "nil" && guild_rank_index != "nil" && participant.guild_args.is_none() {
                         participant.guild_args = Some((guild_name.to_string(), guild_rank_name.to_string(), u8::from_str_radix(guild_rank_index, 10).ok()?));
                     }
 
@@ -137,7 +137,6 @@ impl CombatLogParser for WoWWOTLKParser {
                         participant.talents = strip_talent_specialization(&Some(talents.replace("}", "|")));
                     }
 
-                    self.participants.insert(unit_guid, participant);
                 } else if fail_str.starts_with("LOOT: ") {
                     let args: Vec<&str> = fail_str.trim_start_matches("LOOT: ").split('&').collect();
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
@@ -179,6 +178,17 @@ impl CombatLogParser for WoWWOTLKParser {
                                 "25 Player (Heroic)" => 6,
                                 _ => return None,
                             };
+                            self.bonus_messages.push(Message::new_parsed(
+                                timestamp as u64,
+                                0,
+                                MessageType::InstanceMap(InstanceMap {
+                                    map_id,
+                                    instance_id,
+                                    map_difficulty: difficulty_id,
+                                    unit: Unit { is_player: false, unit_id: 1 },
+                                }),
+                            ));
+                            /*
                             if args.len() >= 10 {
                                 for participant_unit_guid in args.iter().skip(9) {
                                     if let Ok(mut guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
@@ -199,6 +209,7 @@ impl CombatLogParser for WoWWOTLKParser {
                                     }
                                 }
                             }
+                             */
                         }
                     }
                 } else if fail_str.starts_with("PET_SUMMON: ") {
