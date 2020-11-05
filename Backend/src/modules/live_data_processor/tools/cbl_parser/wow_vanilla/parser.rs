@@ -127,7 +127,7 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_SPELL_CAST_PERFORM_UNKNOWN: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s])\.").unwrap();
 
             static ref RE_UNIT_DIE_DESTROYED: Regex = Regex::new(r"(.+[^\s]) (dies|is destroyed)\.").unwrap();
-            static ref RE_UNIT_SLAY_KILL: Regex = Regex::new(r"(.+[^\s]) is (slain|killed) by (.+[^\s])(!|\.)").unwrap();
+            static ref RE_UNIT_SLAY: Regex = Regex::new(r"(.+[^\s]) is slain by (.+[^\s])(!|\.)").unwrap();
 
             static ref RE_ZONE_INFO: Regex = Regex::new(r"ZONE_INFO: (.+[^\s])\&(\d+)").unwrap();
             static ref RE_LOOT: Regex = Regex::new(r"LOOT: (.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(\d+):(\d+):(\d+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.").unwrap();
@@ -913,11 +913,11 @@ impl CombatLogParser for WoWVanillaParser {
             return Some(vec![MessageType::Death(Death { cause: None, victim })]);
         }
 
-        if let Some(captures) = RE_UNIT_SLAY_KILL.captures(&content) {
+        if let Some(captures) = RE_UNIT_SLAY.captures(&content) {
             let victim = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
-            let cause = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let cause = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
             self.collect_participant(&victim, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&cause, captures.get(3)?.as_str(), event_ts);
+            self.collect_participant(&cause, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &victim, event_ts);
             self.collect_active_map(data, &cause, event_ts);
             return Some(vec![MessageType::Death(Death { cause: Some(cause), victim })]);
