@@ -67,6 +67,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
             content.push(parsed_str);
         }
     }
+    println!("{}", content.len());
     let content = content.join("\n");
 
     if server_id == -1 {
