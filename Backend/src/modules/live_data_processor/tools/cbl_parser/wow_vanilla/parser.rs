@@ -111,7 +111,8 @@ impl CombatLogParser for WoWVanillaParser {
 
             static ref RE_DAMAGE_SHIELD: Regex = Regex::new(r"(.+[^\s]) reflects (\d+) ([a-zA-Z]+) damage to (.+[^\s])\.").unwrap(); // Ability?
 
-            static ref RE_HEAL_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) (critically heals|heals) (.+[^\s]) for (\d+)\.").unwrap();
+            static ref RE_HEAL_HIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) heals (.+[^\s]) for (\d+)\.").unwrap();
+            static ref RE_HEAL_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) critically heals (.+[^\s]) for (\d+)\.").unwrap();
             static ref RE_GAIN: Regex = Regex::new(r"(.+[^\s]) gains (\d+) (Health|health|Mana|Rage|Energy|Happiness|Focus) from (.+[^\s])\s's (.+[^\s])\.").unwrap();
 
             // Somehow track the owner?
@@ -430,10 +431,42 @@ impl CombatLogParser for WoWVanillaParser {
         /*
          * Heal
          */
-        if let Some(captures) = RE_HEAL_HIT_OR_CRIT.captures(&content) {
+
+        if let Some(captures) = RE_HEAL_CRIT.captures(&content) {
             let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
-            let hit_mask = if captures.get(3)?.as_str() == "critically heals" { HitType::Crit as u32 } else { HitType::Hit as u32 };
+            let hit_mask = HitType::Crit as u32;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            let amount = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
+            self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
+            self.collect_active_map(data, &caster, event_ts);
+            self.collect_active_map(data, &target, event_ts);
+            let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
+
+            return Some(vec![
+                MessageType::SpellCast(SpellCast {
+                    caster: caster.clone(),
+                    target: Some(target.clone()),
+                    spell_id,
+                    hit_mask,
+                }),
+                MessageType::Heal(HealDone {
+                    caster,
+                    target,
+                    spell_id,
+                    total_heal: amount,
+                    effective_heal,
+                    absorb: 0,
+                    hit_mask,
+                }),
+            ]);
+        }
+
+        if let Some(captures) = RE_HEAL_HIT.captures(&content) {
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let hit_mask = HitType::Hit as u32;
             let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             let amount = u32::from_str_radix(captures.get(5)?.as_str(), 10).ok()?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
