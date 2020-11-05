@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 12
+RPLL.VERSION = 13
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -36,6 +36,7 @@ local GetSavedInstanceInfo = GetSavedInstanceInfo
 local unpack = unpack
 local GetCurrentMapAreaID = GetCurrentMapAreaID
 local setglobal = setglobal
+local NotifyInspect = NotifyInspect
 
 local SpellFailedCombatLogEvents = {
     "SPELL_FAILED_AFFECTING_COMBAT",
@@ -546,6 +547,7 @@ function RPLL:CollectUnit(unit)
     if UnitGUID(unit) ~= nil and UnitGUID(unit) == UnitGUID("player") then
         unit = "player"
     end
+    NotifyInspect(unit)
 
     local unit_guid = UnitGUID(unit)
     local unit_name = UnitName(unit)
@@ -571,34 +573,36 @@ function RPLL:CollectUnit(unit)
     end
 
     local talents = { "", "", "" };
-    for t = 1, 3 do
-        local numTalents = GetNumTalents(t, unit_guid ~= UnitGUID("player"));
-        -- Last one is missing?
-        for i = 1, numTalents do
-            local _, _, _, _, currRank = GetTalentInfo(t, i, unit_guid ~= UnitGUID("player"));
-            talents[t] = talents[t] .. currRank
-        end
-    end
-    talents = strjoin("}", talents[1], talents[2], talents[3])
-    if strlen(talents) <= 10 then
-        talents = nil
-    end
-
     local arena_teams = {}
-    for i = 1, 3 do
-        local team_name, team_size
-        if unit == "player" then
-            team_name, team_size = GetArenaTeam(i);
-        elseif unit == "target" then
-            team_name, team_size = GetInspectArenaTeamData(i);
+    if unit == "target" or unit == "player" then
+        for t = 1, 3 do
+            local numTalents = GetNumTalents(t, unit_guid ~= UnitGUID("player"));
+            -- Last one is missing?
+            for i = 1, numTalents do
+                local _, _, _, _, currRank = GetTalentInfo(t, i, unit_guid ~= UnitGUID("player"));
+                talents[t] = talents[t] .. currRank
+            end
+        end
+        talents = strjoin("}", talents[1], talents[2], talents[3])
+        if strlen(talents) <= 10 then
+            talents = nil
         end
 
-        if team_name ~= nil and team_size ~= nil then
-            arena_teams[team_size] = team_name
+        for i = 1, 3 do
+            local team_name, team_size
+            if unit == "player" then
+                team_name, team_size = GetArenaTeam(i);
+            elseif unit == "target" then
+                team_name, team_size = GetInspectArenaTeamData(i);
+            end
+
+            if team_name ~= nil and team_size ~= nil then
+                arena_teams[team_size] = team_name
+            end
         end
     end
 
-    RPLL:PushPet(unit_guid)
+    RPLL:PushPet(unit)
     RPLL:UpdatePlayer(unit_guid, unit_name, unit_race, unit_hero_class, unit_gender, guild_name, guild_rank_name, guild_rank_index, gear, talents, arena_teams)
 end
 
