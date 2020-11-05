@@ -101,7 +101,7 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_DAMAGE_SPELL_HIT_OR_CRIT_SCHOOL: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) (cr|h)its (.+[^\s]) for (\d+) ([a-zA-Z]+) damage\.\s?(.*)").unwrap();
             static ref RE_DAMAGE_PERIODIC: Regex = Regex::new(r"(.+[^\s]) suffers (\d+) ([a-zA-Z]+) damage from (.+[^\s])\s's (.+[^\s])\.\s?(.*)").unwrap();
             static ref RE_DAMAGE_SPELL_SPLIT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) causes (.+[^\s]) (\d+) damage\.\s?(.*)").unwrap();
-            static ref RE_DAMAGE_SPELL_MISS: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) misses (.+[^\s])\.").unwrap();
+            static ref RE_DAMAGE_SPELL_MISS: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) misse(s|d) (.+[^\s])\.").unwrap();
             static ref RE_DAMAGE_SPELL_BLOCK_PARRY_EVADE_DODGE_RESIST_DEFLECT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) was (blocked|parried|evaded|dodged|resisted|deflected) by (.+[^\s])\.").unwrap();
             static ref RE_DAMAGE_SPELL_ABSORB: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) is absorbed by (.+[^\s])\.").unwrap();
             static ref RE_DAMAGE_SPELL_ABSORB_SELF: Regex = Regex::new(r"(.+[^\s]) absorbs (.+[^\s])\s's (.+[^\s])\.").unwrap();
@@ -127,7 +127,7 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_SPELL_CAST_PERFORM_UNKNOWN: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s])\.").unwrap();
 
             static ref RE_UNIT_DIE_DESTROYED: Regex = Regex::new(r"(.+[^\s]) (dies|is destroyed)\.").unwrap();
-            static ref RE_UNIT_SLAY_KILL: Regex = Regex::new(r"(.+[^\s]) is (slain|killed) by (.+[^\s])!").unwrap();
+            static ref RE_UNIT_SLAY_KILL: Regex = Regex::new(r"(.+[^\s]) is (slain|killed) by (.+[^\s])(!|\.)").unwrap();
 
             static ref RE_ZONE_INFO: Regex = Regex::new(r"ZONE_INFO: (.+[^\s])\&(\d+)").unwrap();
             static ref RE_LOOT: Regex = Regex::new(r"LOOT: (.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(\d+):(\d+):(\d+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.").unwrap();
@@ -515,8 +515,8 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_AURA_FADE.captures(&content) {
-            let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
-            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(1)?.as_str())?;
             let caster = Unit { is_player: false, unit_id: 0 };
             self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &target, event_ts);
@@ -575,9 +575,9 @@ impl CombatLogParser for WoWVanillaParser {
         if let Some(captures) = RE_DAMAGE_SPELL_MISS.captures(&content) {
             let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
-            let victim = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let victim = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             self.collect_participant(&attacker, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&victim, captures.get(3)?.as_str(), event_ts);
+            self.collect_participant(&victim, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &attacker, event_ts);
             self.collect_active_map(data, &victim, event_ts);
 
@@ -874,10 +874,10 @@ impl CombatLogParser for WoWVanillaParser {
          */
         if let Some(captures) = RE_SPELL_CAST_PERFORM.captures(&content) {
             let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
-            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
-            let target = parse_unit(&mut self.cache_unit, data, captures.get(3)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
-            self.collect_participant(&target, captures.get(3)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
             self.collect_active_map(data, &target, event_ts);
 
@@ -891,7 +891,7 @@ impl CombatLogParser for WoWVanillaParser {
 
         if let Some(captures) = RE_SPELL_CAST_PERFORM_UNKNOWN.captures(&content) {
             let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
-            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
             self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &caster, event_ts);
 

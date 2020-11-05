@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 7
+RPLL.VERSION = 8
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -484,7 +484,7 @@ function RPLL:fix_combat_log_strings()
 		this:SendMessage("Your current DPSMate version is outdated and not compatible. Please get a version >= 130.")
 	end
 
-    AURAADDEDSELFHARMFUL = player_name.." is afflicted by %s."
+    AURAADDEDSELFHARMFUL = player_name.." is afflicted by %s (1)."
     AURAADDEDSELFHELPFUL = player_name.." gains %s."
     AURAAPPLICATIONADDEDSELFHARMFUL = player_name.." is afflicted by %s (%d)."
     AURAAPPLICATIONADDEDSELFHELPFUL = player_name.." gains %s (%d)."
