@@ -30,6 +30,7 @@ zip = "*"
 walkdir = "*"
 rust-lapper = "*"
 rustc-hash = "1.1.0"
+encoding_rs = "*"
 
 [dependencies.rocket_contrib]
 version = "*"

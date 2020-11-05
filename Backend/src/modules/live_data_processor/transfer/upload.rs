@@ -17,6 +17,7 @@ use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, Mult
 use std::io::{Read, Write};
 use std::fs::File;
 use time_util::now;
+use encoding_rs::{UTF_8};
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -61,7 +62,14 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     // There should only be the combat log in there
     let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
-    let content = std::str::from_utf8(&bytes).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let content;
+    let utf8_res = std::str::from_utf8(&bytes);
+    if utf8_res.is_err() {
+        let (result, _has_errors) = UTF_8.decode_without_bom_handling(&bytes);
+        content = (&result[..]).to_string();
+    } else {
+        content = utf8_res.unwrap().to_string();
+    }
 
     if server_id == -1 {
         return parse(
@@ -70,7 +78,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
             &mut *db_main,
             &data,
             &armory,
-            content,
+            &content,
             start_time.timestamp_millis() as u64,
             end_time.timestamp_millis() as u64,
             auth.0,
@@ -84,7 +92,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 &mut *db_main,
                 &data,
                 &armory,
-                content,
+                &content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
                 auth.0,
@@ -96,7 +104,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 &mut *db_main,
                 &data,
                 &armory,
-                content,
+                &content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
                 auth.0,
@@ -108,7 +116,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 &mut *db_main,
                 &data,
                 &armory,
-                content,
+                &content,
                 start_time.timestamp_millis() as u64,
                 end_time.timestamp_millis() as u64,
                 auth.0,

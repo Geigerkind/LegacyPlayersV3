@@ -32,6 +32,7 @@ extern crate grouping_by;
 extern crate rand;
 extern crate regex;
 extern crate rust_lapper;
+extern crate encoding_rs;
 
 use dotenv::dotenv;
 pub use rocket_contrib::databases::mysql;
