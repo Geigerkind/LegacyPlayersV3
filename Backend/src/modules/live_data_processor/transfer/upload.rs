@@ -17,7 +17,6 @@ use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, Mult
 use std::io::{Read, Write};
 use std::fs::File;
 use time_util::now;
-use encoding_rs::{UTF_8};
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -62,14 +61,13 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     // There should only be the combat log in there
     let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
-    let content;
-    let utf8_res = std::str::from_utf8(&bytes);
-    if utf8_res.is_err() {
-        let (result, _has_errors) = UTF_8.decode_without_bom_handling(&bytes);
-        content = (&result[..]).to_string();
-    } else {
-        content = utf8_res.unwrap().to_string();
+    let mut content = Vec::new();
+    for slice in bytes.split(|c| *c == 10) {
+        if let Ok(parsed_str) = std::str::from_utf8(slice) {
+            content.push(parsed_str);
+        }
     }
+    let content = content.join("\n");
 
     if server_id == -1 {
         return parse(
