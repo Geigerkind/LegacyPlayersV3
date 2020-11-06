@@ -178,6 +178,15 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         private settingsService: SettingsService,
         private instanceDataService: InstanceDataService
     ) {
+        for (const sample_data_set of [DataSet.Deaths, DataSet.Kills, DataSet.DispelsDone, DataSet.InterruptDone, DataSet.SpellStealDone]) {
+            this.chartDataSets.push({
+                data: [],
+                label: sample_data_set,
+                type: is_event_data_set(sample_data_set) ? "scatter" : number_to_chart_type(this.selected_chart_type),
+                pointStyle: get_point_style(sample_data_set)
+            });
+        }
+
         this.subscription = this.graphDataService.data_points.subscribe(([x_axis, data_sets]) => {
             this.chartLabels = x_axis;
             this.chartDataSets = [];

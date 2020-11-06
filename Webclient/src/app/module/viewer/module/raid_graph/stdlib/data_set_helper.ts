@@ -4,6 +4,7 @@ import {DataSet} from "../domain_value/data_set";
 function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
     switch (data_set) {
         case DataSet.Deaths: {
+            console.log("TEST")
             const death_icon = new Image();
             death_icon.src = "/assets/viewer/death_icon.png";
             return death_icon;
