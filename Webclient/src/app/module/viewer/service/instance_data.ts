@@ -164,6 +164,8 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[0] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+        if (this.isInitialized())
+            this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
     }
 
     public async set_source_filter(sources: Array<number>) {
@@ -187,6 +189,8 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[1] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+        if (this.isInitialized())
+            this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
     }
 
     public async set_target_filter(targets: Array<number>) {
@@ -210,6 +214,8 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[2] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+        if (this.isInitialized())
+            this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
     }
 
     public async set_ability_filter(abilities: Array<number>) {
@@ -233,6 +239,8 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[3] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+        if (this.isInitialized())
+            this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
     }
 
     public set instance_meta_id(instance_meta_id: number) {

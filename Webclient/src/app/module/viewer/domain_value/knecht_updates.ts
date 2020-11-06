@@ -4,5 +4,6 @@ export enum KnechtUpdates {
     Initialized = 2,
     WorkStart = 3,
     WorkEnd = 4,
-    WorkerInitialized = 5
+    WorkerInitialized = 5,
+    FilterInitialized = 6
 }
