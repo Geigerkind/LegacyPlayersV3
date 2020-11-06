@@ -373,7 +373,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get show_per_second(): boolean {
-        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20].includes(this.current_selection);
+        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26].includes(this.current_selection);
     }
 
 }
