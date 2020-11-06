@@ -1,5 +1,5 @@
 import {Event} from "../../../domain_value/event";
-import {get_unit_id, get_unit_owner, Unit} from "../../../domain_value/unit";
+import {get_unit_id, Unit} from "../../../domain_value/unit";
 import {group_by} from "../../../../../stdlib/group_by";
 import {se_aura_application} from "../../../extractor/sources";
 import {te_aura_application} from "../../../extractor/targets";

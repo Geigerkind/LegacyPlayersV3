@@ -7,7 +7,6 @@ import {te_interrupt} from "../../../extractor/targets";
 
 export function commit_interrupt(interrupts: Array<Interrupt>, interrupt_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<UnAuraOverviewRow>]]> {
     const newData = new Map<number, [Unit, Array<UnAuraOverviewRow>]>();
-
     const grouping = group_by(interrupts, (event) => get_unit_id(interrupt_unit_extraction(event)));
     // tslint:disable-next-line:forin
     for (const unit_id in grouping) {

@@ -15,7 +15,7 @@ export class RaidMeterInterrupt {
 
     async calculate(inverse: boolean): Promise<Array<[number, [Unit, Array<UnAuraOverviewRow>]]>> {
         if (inverse)
-            return commit_interrupt(this.data_filter.get_interrupts(true) as Array<Interrupt>, te_interrupt);
+            return commit_interrupt(this.data_filter.get_interrupts(false) as Array<Interrupt>, te_interrupt);
         return commit_interrupt(this.data_filter.get_interrupts(false) as Array<Interrupt>, se_interrupt);
     }
 }
