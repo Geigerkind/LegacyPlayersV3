@@ -35,6 +35,7 @@ import {DetailAbsorbService} from "../../../raid_detail_table/service/detail_abs
 import {DetailHealAndAbsorbService} from "../../../raid_detail_table/service/detail_heal_and_absorb";
 import {MeterAuraGainService} from "../../service/meter_aura_gain";
 import {AuraGainOverviewRow} from "../../domain_value/aura_gain_overview_row";
+import {get_unit_id} from "../../../../domain_value/unit";
 
 @Component({
     selector: "RaidMeter",
@@ -269,7 +270,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         } else if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
             return {
                 type: 8,
-                payload: () => from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp)).pipe(map(entries => entries.slice(0, 10)))
+                payload: () => {
+                    this.event_log_service.set_actor(true);
+                    const unit_id = get_unit_id((this.bars[subject_id] as DeathOverviewRow).murdered, false);
+                    return from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp))
+                        .pipe(map(entries => entries.filter(evt => evt.subject_id === unit_id).slice(0, 20)));
+                }
             };
         } else if ([19, 20].includes(this.current_selection)) {
             return {
