@@ -47,7 +47,7 @@ export class MeterGraphComponent {
     get_width_style(amount: number): string {
         const bar_fraction = this.get_weighted_bar_fraction(amount);
         if (!this.show_percent)
-            return "calc(max(0px, calc(" + (bar_fraction * 100).toString() + "%)))";
+            return "calc(max(0px, calc(" + bar_fraction.toString() + " * calc(100% - 25px))))";
         return "calc(max(0px, calc(" + bar_fraction.toString() + " * calc(100% - 85px))))";
     }
 
