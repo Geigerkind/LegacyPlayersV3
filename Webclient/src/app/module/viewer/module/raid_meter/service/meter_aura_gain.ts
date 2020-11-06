@@ -63,6 +63,9 @@ export class MeterAuraGainService implements OnDestroy {
             for (const row of rows) {
                 if (!this.abilities$.has(row.ability))
                     this.abilities$.set(row.ability, this.utilService.get_row_ability_subject(row.ability));
+                const caster_id = get_unit_id(row.caster, false);
+                if (!this.units$.has(caster_id))
+                    this.units$.set(caster_id, this.utilService.get_row_unit_subject(row.caster));
                 const target_id = get_unit_id(row.target, false);
                 if (!this.units$.has(target_id))
                     this.units$.set(target_id, this.utilService.get_row_unit_subject(row.target));

@@ -20,8 +20,8 @@ export function commit_aura_gain(aura_applications: Array<Event>, getter: (Event
             if (stack_amount > 0) {
                 rows.push({
                     timestamp: event[0],
-                    caster: se_aura_application(event),
-                    target: te_aura_application(event),
+                    caster: te_aura_application(event),
+                    target: se_aura_application(event),
                     ability: event[4]
                 });
             }

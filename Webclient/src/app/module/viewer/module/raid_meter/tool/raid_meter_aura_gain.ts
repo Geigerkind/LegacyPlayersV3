@@ -14,7 +14,7 @@ export class RaidMeterAuraGain {
 
     async calculate(inverse: boolean): Promise<Array<[number, [Unit, Array<AuraGainOverviewRow>]]>> {
         if (inverse)
-            return commit_aura_gain(this.data_filter.get_aura_applications(true), te_aura_application);
-        return commit_aura_gain(this.data_filter.get_aura_applications(false), se_aura_application);
+            return commit_aura_gain(this.data_filter.get_aura_applications(false), se_aura_application);
+        return commit_aura_gain(this.data_filter.get_aura_applications(true), te_aura_application);
     }
 }
