@@ -8,6 +8,7 @@ import {RaidMeterInterrupt} from "./raid_meter_interrupt";
 import {RaidMeterSpellSteal} from "./raid_meter_spell_steal";
 import {RaidMeterAuraUptime} from "./raid_meter_aura_uptime";
 import {RaidMeterAbsorb} from "./raid_meter_absorb";
+import {RaidMeterAuraGain} from "./raid_meter_aura_gain";
 
 export class RaidMeterKnecht {
 
@@ -20,6 +21,7 @@ export class RaidMeterKnecht {
     public spell_steal: RaidMeterSpellSteal;
     public aura_uptime: RaidMeterAuraUptime;
     public absorb: RaidMeterAbsorb;
+    public aura_gain: RaidMeterAuraGain;
 
     constructor(
         private data_filter: InstanceDataFilter
@@ -33,5 +35,6 @@ export class RaidMeterKnecht {
         this.spell_steal = new RaidMeterSpellSteal(data_filter);
         this.aura_uptime = new RaidMeterAuraUptime(data_filter);
         this.absorb = new RaidMeterAbsorb(data_filter);
+        this.aura_gain = new RaidMeterAuraGain(data_filter);
     }
 }

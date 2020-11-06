@@ -13,6 +13,7 @@ import {RaidEventLogKnecht} from "../module/raid_event_log/tool/raid_event_log_k
 import {Event} from "../domain_value/event";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {School} from "../domain_value/school";
+import {AuraGainOverviewRow} from "../module/raid_meter/domain_value/aura_gain_overview_row";
 
 export class Rechenknecht {
 
@@ -204,6 +205,13 @@ export class Rechenknecht {
         const meter_absorbed_damage = this.raid_meter_knecht.absorb.calculate();
         Rechenknecht.send_work_end();
         return meter_absorbed_damage;
+    }
+
+    async meter_aura_gain(inverse: boolean): Promise<Array<[number, [Unit, Array<AuraGainOverviewRow>]]>> {
+        Rechenknecht.send_work_start();
+        const meter_aura_gain = this.raid_meter_knecht.aura_gain.calculate(inverse);
+        Rechenknecht.send_work_end();
+        return meter_aura_gain;
     }
 
     /*

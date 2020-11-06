@@ -1,5 +1,4 @@
 import {Component, Input, OnDestroy, OnInit} from "@angular/core";
-import {UtilService} from "../../service/util";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {from, Subscription} from "rxjs";
 import {InstanceDataService} from "../../../../service/instance_data";
@@ -34,6 +33,8 @@ import {MeterAbsorbService} from "../../service/meter_absorb";
 import {MeterHealAndAbsorbService} from "../../service/meter_heal_and_absorb";
 import {DetailAbsorbService} from "../../../raid_detail_table/service/detail_absorb";
 import {DetailHealAndAbsorbService} from "../../../raid_detail_table/service/detail_heal_and_absorb";
+import {MeterAuraGainService} from "../../service/meter_aura_gain";
+import {AuraGainOverviewRow} from "../../domain_value/aura_gain_overview_row";
 
 @Component({
     selector: "RaidMeter",
@@ -50,6 +51,7 @@ import {DetailHealAndAbsorbService} from "../../../raid_detail_table/service/det
         MeterSpellStealService,
         MeterAuraUptimeService,
         MeterAbsorbService,
+        MeterAuraGainService,
         RaidMeterService,
         // Raid Detail Service
         DetailDamageService,
@@ -77,7 +79,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private subscription_ability_details: Subscription;
 
     private cookie_id: string;
-    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]> = [];
+    private current_data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]> = [];
     private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
     abilities: Map<number, RaidMeterSubject> = new Map();
     units: Map<number, RaidMeterSubject> = new Map();
@@ -115,6 +117,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 18, label_key: 'Spell steal received'},
         {value: 19, label_key: 'Source aura uptime'},
         {value: 20, label_key: 'Target aura uptime'},
+        {value: 25, label_key: 'Auras given'},
+        {value: 26, label_key: 'Auras gotten'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -203,7 +207,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     bar_clicked(bar: [number, number]): void {
-        if ([19, 20].includes(this.current_selection) && this.in_ability_mode)
+        if ([19, 20, 25, 26].includes(this.current_selection) && this.in_ability_mode)
             return;
 
         if (!this.in_ability_mode)
@@ -233,7 +237,23 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                             result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
                         }
                         return result.sort((left, right) => right[1] - left[1])
-                            .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"]);
+                            .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"])
+                            .slice(0, 10);
+                    }
+                };
+            } else if ([25, 26].includes(this.current_selection)) {
+                return {
+                    type: 5,
+                    payload: () => {
+                        const result = new Map<number, number>();
+                        for (const _row of this.current_data.find(([unit_id]) => unit_id === subject_id)[1]) {
+                            const row = _row as AuraGainOverviewRow;
+                            if (result.has(row.ability)) result.set(row.ability, result.get(row.ability) + 1)
+                            else result.set(row.ability, 1);
+                        }
+                        return [...result.entries()].sort((left, right) => right[1] - left[1])
+                            .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
+                            .slice(0, 10);
                     }
                 };
             } else {
@@ -243,6 +263,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         .filter(([unit_id, abilities]) => unit_id === subject_id))
                         .sort((left, right) => right[1] - left[1])
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
+                        .slice(0, 10)
                 };
             }
         } else if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
@@ -255,6 +276,15 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 type: 14,
                 expansion_id: 2, // TODO!
                 spell_id: subject_id
+            };
+        } else if ([25, 26].includes(this.current_selection)) {
+            return {
+                type: 15,
+                payload: () => this.current_data.reduce((acc, item) => [...acc, ...(item[1] as Array<AuraGainOverviewRow>)
+                    .filter(row => row.ability === subject_id)], []).sort((left, right) => right.timestamp - left.timestamp).slice(0, 10),
+                icon: new DelayedLabel(this.abilities.get(subject_id).icon), // TODO: Change to observable
+                abilities: this.abilities,
+                units: this.units
             };
         }
         return {
@@ -285,7 +315,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }, new Map())];
     }
 
-    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
+    private update_bars(rows: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
         // TODO: Refactor this mess
         this.current_data = rows;
         let result;
@@ -298,9 +328,19 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
                     result.push([spell_id, Math.min(100, frac_duration)]);
                 }
+            } else if ([25, 26].includes(this.current_selection)) {
+                const acc = new Map<number, number>();
+                for (const [, rows] of this.current_data) {
+                    for (const _row of rows) {
+                        const row = _row as AuraGainOverviewRow;
+                        if (acc.has(row.ability)) acc.set(row.ability, acc.get(row.ability) + 1)
+                        else acc.set(row.ability, 1);
+                    }
+                }
+                result = [...acc.entries()].sort((left, right) => right[1] - left[1]);
             } else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
-            if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
+            if ([11, 12, 13, 14, 15, 16, 17, 18, 25, 26].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
             } else if ([19, 20].includes(this.current_selection)) {
                 result = [];

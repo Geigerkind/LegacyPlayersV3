@@ -1,7 +1,6 @@
 import {InstanceDataFilter} from "../../../tool/instance_data_filter";
 import {Unit} from "../../../domain_value/unit";
 import {commit_aura_uptime} from "../stdlib/aura_uptime";
-import {se_aura_application} from "../../../extractor/sources";
 
 export class RaidMeterAuraUptime {
 

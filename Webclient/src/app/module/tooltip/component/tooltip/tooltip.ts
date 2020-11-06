@@ -87,6 +87,10 @@ export class TooltipComponent {
                     this.tooltipPayload.spell_id = args.spell_id;
                     this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
                 });
+            } else if (args.type === 15) {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
+                this.iconPath = args.icon.content;
             }
         });
     }

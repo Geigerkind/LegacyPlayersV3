@@ -15,6 +15,8 @@ import {MeterAuraUptimeService} from "./meter_aura_uptime";
 import {MeterAbsorbService} from "./meter_absorb";
 import {MeterHealAndAbsorbService} from "./meter_heal_and_absorb";
 import {RaidConfigurationSelectionService} from "../../raid_configuration_menu/service/raid_configuration_selection";
+import {MeterAuraGainService} from "./meter_aura_gain";
+import {AuraGainOverviewRow} from "../domain_value/aura_gain_overview_row";
 
 @Injectable({
     providedIn: "root",
@@ -23,7 +25,7 @@ export class RaidMeterService implements OnDestroy {
 
     private subscription_data: Subscription;
 
-    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>> = new BehaviorSubject([]);
+    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]>> = new BehaviorSubject([]);
     private abilities$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
     private units$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
 
@@ -41,6 +43,7 @@ export class RaidMeterService implements OnDestroy {
         private meter_aura_uptime_service: MeterAuraUptimeService,
         private meter_absorb_service: MeterAbsorbService,
         private meter_heal_and_absorb_service: MeterHealAndAbsorbService,
+        private meter_aura_gain_service: MeterAuraGainService,
         private raid_configuration_selection_service: RaidConfigurationSelectionService
     ) {
     }
@@ -49,7 +52,7 @@ export class RaidMeterService implements OnDestroy {
         this.subscription_data?.unsubscribe();
     }
 
-    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>> {
+    get data(): Observable<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]>> {
         return this.data$.asObservable();
     }
 
@@ -150,6 +153,11 @@ export class RaidMeterService implements OnDestroy {
                 this.subscription_data = this.meter_heal_and_absorb_service.get_data(selection === 24, this.abilities$.getValue(), this.units$.getValue())
                     .subscribe(data => this.commit(data));
                 break;
+            case 25:
+            case 26:
+                this.register_evt_type(6);
+                this.subscription_data = this.meter_aura_gain_service.get_data(selection === 26, this.abilities$.getValue(), this.units$.getValue())
+                    .subscribe(data => this.commit(data));
         }
 
         this.current_selection = selection;
@@ -160,7 +168,7 @@ export class RaidMeterService implements OnDestroy {
         this.last_event_type_selection.add(evt_type);
     }
 
-    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
+    private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
         this.abilities$.next(this.abilities$.getValue());
         this.units$.next(this.units$.getValue());
         this.data$.next(data);
