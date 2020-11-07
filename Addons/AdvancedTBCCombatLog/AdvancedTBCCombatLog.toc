@@ -1,4 +1,4 @@
-## Interface: 99999
+## Interface: 24300
 ## Title: AdvancedTBCCombatLog |cFFFF8080-Shino-|r
 ## Notes: Collects pets and armory information such as gear.
 ## Author: Shino
