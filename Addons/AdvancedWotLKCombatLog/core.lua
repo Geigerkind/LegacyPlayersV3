@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 13
+RPLL.VERSION = 14
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -37,6 +37,7 @@ local unpack = unpack
 local GetCurrentMapAreaID = GetCurrentMapAreaID
 local setglobal = setglobal
 local NotifyInspect = NotifyInspect
+local CanInspect = CanInspect
 
 local SpellFailedCombatLogEvents = {
     "SPELL_FAILED_AFFECTING_COMBAT",
@@ -445,6 +446,33 @@ RPLL.PLAYER_LOGOUT = function()
     RPLL_PlayerInformation = RPLL.PlayerInformation
 end
 
+RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
+RPLL.UNIT_INVENTORY_CHANGED = function(unit)
+    RPLL:CollectGear(unit)
+end
+
+RPLL:RegisterEvent("INSPECT_TALENT_READY")
+RPLL.INSPECT_TALENT_READY = function()
+    RPLL:CollectCurrentTalentsAndArenaTeams()
+end
+
+local inspect_queue = {}
+local inspect_queue_length = 0
+local inspect_queue_index = 1
+local inspect_queue_last_inspect = 0
+local inspect_timeout = 3 -- 3 seconds
+local inspect_in_progress = false
+function RPLL:OnUpdate()
+    if inspect_queue_length >= inspect_queue_index then
+        if not inspect_in_progress or time - inspect_queue_last_inspect >= inspect_timeout then
+            inspect_in_progress = true
+            inspect_queue_last_inspect = time()
+            NotifyInspect(inspect_queue[inspect_queue_index][1])
+            inspect_queue_index = inspect_queue_index + 1
+        end
+    end
+end
+
 function RPLL:RotateSpellFailedMessages()
     local result = ""
     if RPLL.ExtraMessageIndex <= RPLL.ExtraMessageLength then
@@ -479,7 +507,7 @@ function RPLL:SerializePlayerInformation()
             prep_value(val["arena_teams"][2]), prep_value(val["arena_teams"][3]), prep_value(val["arena_teams"][5]))
 end
 
-function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild_name, guild_rank_name, guild_rank_index, gear, talents, arena_teams)
+function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild_name, guild_rank_name, guild_rank_index)
     if unit_guid == nil or unit_name == nil then
         return
     end
@@ -512,6 +540,30 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
         info["guild_rank_name"] = guild_rank_name
         info["guild_rank_index"] = guild_rank_index
     end
+end
+
+function RPLL:CollectGear(unit)
+    local unit_guid = UnitGUID(unit)
+    if RPLL.PlayerInformation[unit_guid] == nil then
+        return
+    end
+
+    local info = RPLL.PlayerInformation[unit_guid]
+    local gear = {}
+    for i = 1, 19 do
+        local inv_link = GetInventoryItemLink(unit, i)
+        if inv_link == nil then
+            gear[i] = nil
+        else
+            local _, itemId, enchantId, jewelId1, jewelId2, jewelId3,
+            jewelId4, suffixId, uniqueId = strsplit(":", inv_link)
+            if itemId == nil then
+                gear[i] = nil
+            else
+                gear[i] = strjoin(":", itemId, enchantId, jewelId1, jewelId2, jewelId3, jewelId4, suffixId, uniqueId)
+            end
+        end
+    end
 
     if info["gear"] == nil then
         info["gear"] = {}
@@ -527,6 +579,43 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
 
         if any_item then
             info["gear"] = gear
+        end
+    end
+end
+
+function RPLL:CollectCurrentTalentsAndArenaTeams()
+    if inspect_queue_index - 1 > inspect_queue_length then
+        return
+    end
+    local current_inspect = inspect_queue[inspect_queue_index]
+    local unit = current_inspect[1]
+    local unit_guid = current_inspect[2]
+
+    local talents = { "", "", "" };
+    local arena_teams = {}
+    for t = 1, 3 do
+        local numTalents = GetNumTalents(t, unit_guid ~= UnitGUID("player"));
+        -- Last one is missing?
+        for i = 1, numTalents do
+            local _, _, _, _, currRank = GetTalentInfo(t, i, unit_guid ~= UnitGUID("player"));
+            talents[t] = talents[t] .. currRank
+        end
+    end
+    talents = strjoin("}", talents[1], talents[2], talents[3])
+    if strlen(talents) <= 10 then
+        talents = nil
+    end
+
+    for i = 1, 3 do
+        local team_name, team_size
+        if unit == "player" then
+            team_name, team_size = GetArenaTeam(i);
+        else
+            team_name, team_size = GetInspectArenaTeamData(i);
+        end
+
+        if team_name ~= nil and team_size ~= nil then
+            arena_teams[team_size] = team_name
         end
     end
 
@@ -547,63 +636,21 @@ function RPLL:CollectUnit(unit)
     if UnitGUID(unit) ~= nil and UnitGUID(unit) == UnitGUID("player") then
         unit = "player"
     end
-    NotifyInspect(unit)
 
     local unit_guid = UnitGUID(unit)
+    if CanInspect(unit) then
+        tinsert(inspect_queue, { unit, unit_guid })
+        inspect_queue_length = inspect_queue_length + 1
+    end
+
     local unit_name = UnitName(unit)
     local unit_race = UnitRace(unit)
     local unit_hero_class = UnitClass(unit)
     local unit_gender = UnitSex(unit)
     local guild_name, guild_rank_name, guild_rank_index = GetGuildInfo(unit)
 
-    local gear = {}
-    for i = 1, 19 do
-        local inv_link = GetInventoryItemLink(unit, i)
-        if inv_link == nil then
-            gear[i] = nil
-        else
-            local _, itemId, enchantId, jewelId1, jewelId2, jewelId3,
-            jewelId4, suffixId, uniqueId = strsplit(":", inv_link)
-            if itemId == nil then
-                gear[i] = nil
-            else
-                gear[i] = strjoin(":", itemId, enchantId, jewelId1, jewelId2, jewelId3, jewelId4, suffixId, uniqueId)
-            end
-        end
-    end
-
-    local talents = { "", "", "" };
-    local arena_teams = {}
-    if unit == "target" or unit == "player" then
-        for t = 1, 3 do
-            local numTalents = GetNumTalents(t, unit_guid ~= UnitGUID("player"));
-            -- Last one is missing?
-            for i = 1, numTalents do
-                local _, _, _, _, currRank = GetTalentInfo(t, i, unit_guid ~= UnitGUID("player"));
-                talents[t] = talents[t] .. currRank
-            end
-        end
-        talents = strjoin("}", talents[1], talents[2], talents[3])
-        if strlen(talents) <= 10 then
-            talents = nil
-        end
-
-        for i = 1, 3 do
-            local team_name, team_size
-            if unit == "player" then
-                team_name, team_size = GetArenaTeam(i);
-            elseif unit == "target" then
-                team_name, team_size = GetInspectArenaTeamData(i);
-            end
-
-            if team_name ~= nil and team_size ~= nil then
-                arena_teams[team_size] = team_name
-            end
-        end
-    end
-
     RPLL:PushPet(unit)
-    RPLL:UpdatePlayer(unit_guid, unit_name, unit_race, unit_hero_class, unit_gender, guild_name, guild_rank_name, guild_rank_index, gear, talents, arena_teams)
+    RPLL:UpdatePlayer(unit_guid, unit_name, unit_race, unit_hero_class, unit_gender, guild_name, guild_rank_name, guild_rank_index)
 end
 
 function RPLL:PushExtraMessage(prefix, msg)
@@ -612,9 +659,9 @@ function RPLL:PushExtraMessage(prefix, msg)
 end
 
 function RPLL:PushCurrentInstanceInfo()
-    if not IsInInstance() then
-        return
-    end
+    --if not IsInInstance() then
+    --    return
+    --end
 
     local name, type, difficultyIndex, difficultyName, maxPlayers, playerDifficulty = GetInstanceInfo()
     if type ~= nil and type ~= "none" then
@@ -642,6 +689,8 @@ function RPLL:PushCurrentInstanceInfo()
         end
 
         RPLL:PushExtraMessage("ZONE_INFO", strjoin("&", name, type, difficultyIndex, difficultyName, maxPlayers, playerDifficulty, GetCurrentMapAreaID(), prep_value(found_instance_id), unpack(participants)))
+    else
+        RPLL:PushExtraMessage("NONE_ZONE_INFO", "")
     end
 end
 
