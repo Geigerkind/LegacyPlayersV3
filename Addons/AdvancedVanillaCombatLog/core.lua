@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 9
+RPLL.VERSION = 10
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -44,10 +44,10 @@ local GetInventoryItemLink = GetInventoryItemLink
 local strfind = string.find
 local Unknown = UNKNOWN
 local LoggingCombat = LoggingCombat
-local pairs = pairs
 local time = time
 local GetPlayerBuff = GetPlayerBuff
 local GetRealZoneText = GetRealZoneText
+local date = date
 
 local RPLL_Tooltip = RPLL_Tooltip
 local RPLL_TooltipTextLeft1 = RPLL_TooltipTextLeft1
@@ -191,7 +191,7 @@ RPLL.UI_ERROR_MESSAGE = function(msg)
 end
 
 RPLL.CHAT_MSG_LOOT = function(msg)
-    tinsert(this.ExtraMessageQueue, "LOOT: "..msg)
+    tinsert(this.ExtraMessageQueue, "LOOT: "..date("%d.%m.%y %H:%M:%S").."&"..msg)
     this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
     this:IssueSpamWarning()
 end
@@ -246,7 +246,7 @@ function RPLL:QueueRaidIds()
     for i=1, GetNumSavedInstances() do
         local instance_name, instance_id = GetSavedInstanceInfo(i)
 		if zone == strlower(instance_name) then
-			tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..instance_name.."&"..instance_id)
+			tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..date("%d.%m.%y %H:%M:%S").."&"..instance_name.."&"..instance_id)
 			this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
 			found = true
 			break
@@ -254,7 +254,7 @@ function RPLL:QueueRaidIds()
     end
 
 	if found == false then
-		tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..zone.."&0")
+		tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..date("%d.%m.%y %H:%M:%S").."&"..zone.."&0")
 		this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
 	end
 end
@@ -743,6 +743,7 @@ function RPLL:grab_unit_information(unit)
         if info["last_update"] ~= nil and time() - info["last_update"] <= 10 then
             return
         end
+		info["last_update_date"] = date("%d.%m.%y %H:%M:%S")
         info["last_update"] = time()
         info["name"] = unit_name
 
@@ -866,12 +867,13 @@ function RPLL:rotate_combat_log_global_string()
     elseif this.RotationLength ~= 0 then
         local character = this.PlayerInformation[this.PlayerRotation[this.RotationIndex]]
 		if character ~= nil then
-			local result = "COMBATANT_INFO: "
+			local result = "COMBATANT_INFO: "..prep_value(character["last_update_date"]).."&"
 			local gear_str = prep_value(character["gear"][1])
 			for i=2, 19 do
 				gear_str = gear_str.."&"..prep_value(character["gear"][i])
 			end
-			local buff_str = prep_value(character["buffs"][0])
+			--local buff_str = prep_value(character["buffs"][0])
+			local buff_str = "nil"
 			for i=1, 15 do
 				buff_str = buff_str.."&nil"
 				--buff_str = buff_str.."&"..prep_value(character["buffs"][i])
