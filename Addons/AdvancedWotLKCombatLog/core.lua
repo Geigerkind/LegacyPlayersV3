@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 15
+RPLL.VERSION = 16
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -464,7 +464,7 @@ local inspect_timeout = 3 -- 3 seconds
 local inspect_in_progress = false
 function RPLL:OnUpdate()
     if inspect_queue_length >= inspect_queue_index then
-        if not inspect_in_progress or time - inspect_queue_last_inspect >= inspect_timeout then
+        if not inspect_in_progress or time() - inspect_queue_last_inspect >= inspect_timeout then
             inspect_in_progress = true
             inspect_queue_last_inspect = time()
             NotifyInspect(inspect_queue[inspect_queue_index][1])
@@ -587,9 +587,14 @@ function RPLL:CollectCurrentTalentsAndArenaTeams()
     if inspect_queue_index - 1 > inspect_queue_length then
         return
     end
-    local current_inspect = inspect_queue[inspect_queue_index]
+    local current_inspect = inspect_queue[inspect_queue_index - 1]
     local unit = current_inspect[1]
     local unit_guid = current_inspect[2]
+
+    if RPLL.PlayerInformation[unit_guid] == nil then
+        return
+    end
+    local info = RPLL.PlayerInformation[unit_guid]
 
     local talents = { "", "", "" };
     local arena_teams = {}
@@ -627,6 +632,8 @@ function RPLL:CollectCurrentTalentsAndArenaTeams()
     for team_size, team_name in pairs(arena_teams) do
         info["arena_teams"][team_size] = team_name
     end
+
+    inspect_in_progress = false
 end
 
 function RPLL:CollectUnit(unit)
