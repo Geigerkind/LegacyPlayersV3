@@ -648,15 +648,15 @@ impl CombatLogParser for WoWWOTLKParser {
         })
     }
 
-    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
+    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, -1000)],
-            16427 | 16428 | 16429 => vec![(65534, 0)],
+            15929 | 15930 => vec![(15928, -1000, 180000)],
+            16427 | 16428 | 16429 => vec![(65534, 0, 180000)],
             // Malygos
-            30084 | 30245 | 30249 => vec![(28859, 0)],
+            30084 | 30245 | 30249 => vec![(28859, 0, 180000)],
             // Norhrend Beasts
-            34796 => vec![(35144, 0), (34799, -1000)],
-            35144 | 34799 => vec![(34797, -1000)],
+            34796 => vec![(35144, 0, 180000), (34799, -1000, 180000)],
+            35144 | 34799 => vec![(34797, -1000, 180000)],
             _ => return None,
         })
     }
@@ -673,6 +673,10 @@ impl CombatLogParser for WoWWOTLKParser {
             34605 => vec![34564],
             _ => return None,
         })
+    }
+
+    fn get_ignore_after_death_ignore_abilities(&self, _entry: u32) -> Option<Vec<u32>> {
+        None
     }
 
     fn get_expansion_id(&self) -> u8 {

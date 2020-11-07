@@ -369,7 +369,7 @@ impl CombatLogParser for WoWRetailClassicParser {
         Some(match entry {
             15990 => -228000,
             12435 => -300000,
-            11583 => -140000,
+            11583 => -180000,
             65534 => -3000,
             _ => return None,
         })
@@ -384,17 +384,17 @@ impl CombatLogParser for WoWRetailClassicParser {
             // Razorgore
             12435 => 80000,
             // Nefarian
-            11583 => 80000,
+            11583 => 120000,
             _ => return None,
         })
     }
 
-    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
+    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, 0)],
-            16427 | 16428 | 16429 => vec![(65534, 0)],
-            12557 | 14456 | 12416 | 12422 | 12420 => vec![(12435, 0)],
-            14261 | 14262 | 14263 | 14264 | 14265 => vec![(11583, 0)],
+            15929 | 15930 => vec![(15928, 0, 180000)],
+            16427 | 16428 | 16429 => vec![(65534, 0, 180000)],
+            12557 | 14456 | 12416 | 12422 | 12420 => vec![(12435, 0, 240000)],
+            14261 | 14262 | 14263 | 14264 | 14265 => vec![(11583, 0, 180000)],
             _ => return None,
         })
     }
@@ -407,8 +407,15 @@ impl CombatLogParser for WoWRetailClassicParser {
             12557 | 14456 | 12416 | 12422 | 12420 => vec![12435],
             15667 => vec![15299],
             // Nefarian
-            14261 | 14262 | 14263 | 14264 | 14265 => vec![11583],
+            14261 | 14262 | 14263 | 14264 | 14265 | 10162 | 10163 => vec![11583],
             _ => return None,
+        })
+    }
+
+    fn get_ignore_after_death_ignore_abilities(&self, entry: u32) -> Option<Vec<u32>> {
+        Some(match entry {
+            14020 => vec![23169, 23155, 23315, 23316],
+            _ => return None
         })
     }
 

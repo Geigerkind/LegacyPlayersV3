@@ -123,6 +123,7 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_AURA_DISPEL: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) is removed\.").unwrap();
             static ref RE_AURA_INTERRUPT: Regex = Regex::new(r"(.+[^\s]) interrupts (.+[^\s])\s's (.+[^\s])\.").unwrap();
 
+            static ref RE_SPELL_CAST_PERFORM_DURABILITY: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s]) on (.+[^\s]): (.+)\.").unwrap();
             static ref RE_SPELL_CAST_PERFORM: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s]) on (.+[^\s])\.").unwrap();
             static ref RE_SPELL_CAST_PERFORM_UNKNOWN: Regex = Regex::new(r"(.+[^\s]) (casts|performs) (.+[^\s])\.").unwrap();
 
@@ -501,7 +502,7 @@ impl CombatLogParser for WoWVanillaParser {
             let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
             let stack_amount = u8::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
-            let caster = Unit { is_player: false, unit_id: 0 };
+            let caster = Unit { is_player: true, unit_id: 0 };
             self.collect_participant(&target, captures.get(1)?.as_str(), event_ts);
             self.collect_active_map(data, &target, event_ts);
 
@@ -517,7 +518,7 @@ impl CombatLogParser for WoWVanillaParser {
         if let Some(captures) = RE_AURA_FADE.captures(&content) {
             let target = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(1)?.as_str())?;
-            let caster = Unit { is_player: false, unit_id: 0 };
+            let caster = Unit { is_player: true, unit_id: 0 };
             self.collect_participant(&target, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &target, event_ts);
 
@@ -872,6 +873,23 @@ impl CombatLogParser for WoWVanillaParser {
         /*
          * Spell casts
          */
+        if let Some(captures) = RE_SPELL_CAST_PERFORM_DURABILITY.captures(&content) {
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
+            let target = parse_unit(&mut self.cache_unit, data, captures.get(4)?.as_str())?;
+            self.collect_participant(&caster, captures.get(1)?.as_str(), event_ts);
+            self.collect_participant(&target, captures.get(4)?.as_str(), event_ts);
+            self.collect_active_map(data, &caster, event_ts);
+            self.collect_active_map(data, &target, event_ts);
+
+            return Some(vec![MessageType::SpellCast(SpellCast {
+                caster,
+                target: Some(target),
+                spell_id,
+                hit_mask: HitType::Hit as u32,
+            })]);
+        }
+
         if let Some(captures) = RE_SPELL_CAST_PERFORM.captures(&content) {
             let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
@@ -940,6 +958,16 @@ impl CombatLogParser for WoWVanillaParser {
             let map_name = captures.get(1)?.as_str().to_string();
             let instance_id = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
             if let Some(map) = data.get_map_by_name(&map_name) {
+                self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
+                    map_id: map.id as u32,
+                    instance_id,
+                    map_difficulty: 0,
+                    unit: Unit {
+                        is_player: false,
+                        unit_id: 1,
+                    },
+                })));
+                /*
                 for (_, participant) in self.participants.iter() {
                     if event_ts - participant.last_seen <= 120000 {
                         self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
@@ -953,6 +981,7 @@ impl CombatLogParser for WoWVanillaParser {
                         })));
                     }
                 }
+                 */
             }
             return None;
         }
@@ -1052,7 +1081,7 @@ impl CombatLogParser for WoWVanillaParser {
          * Dispel, Steal and Interrupt
          */
         if let Some(captures) = RE_AURA_DISPEL.captures(&content) {
-            let un_aura_caster = Unit { is_player: false, unit_id: 0 };
+            let un_aura_caster = Unit { is_player: true, unit_id: 0 };
             let un_aura_spell_id = 42;
             let target = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let target_spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
@@ -1196,7 +1225,7 @@ impl CombatLogParser for WoWVanillaParser {
     }
 
     fn get_involved_character_builds(&self) -> Vec<(Option<u32>, u64, CharacterDto)> {
-        self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
+        let mut result = self.participants.iter().filter(|(_, participant)| participant.is_player).fold(Vec::new(), |mut acc, (_, participant)| {
             let gear_setups = &participant.gear_setups;
             if gear_setups.is_some() && !gear_setups.as_ref().unwrap().is_empty() {
                 for (ts, gear) in gear_setups.as_ref().unwrap().iter() {
@@ -1308,7 +1337,9 @@ impl CombatLogParser for WoWVanillaParser {
                 ));
             }
             acc
-        })
+        });
+        result.push((None, time_util::now() * 1000, CharacterDto { server_uid: 0, character_history: None }));
+        result
     }
 
     fn get_participants(&self) -> Vec<Participant> {
@@ -1323,7 +1354,7 @@ impl CombatLogParser for WoWVanillaParser {
         Some(match entry {
             15990 => -228000,
             12435 => -300000,
-            11583 => -140000,
+            11583 => -180000,
             65534 => -3000,
             // Thaddius
             15928 => -30000,
@@ -1340,17 +1371,17 @@ impl CombatLogParser for WoWVanillaParser {
             // Viscidius
             15299 => 80000,
             // Nefarian
-            11583 => 80000,
+            11583 => 120000,
             _ => return None,
         })
     }
 
-    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>> {
+    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64, i64)>> {
         Some(match entry {
-            15929 | 15930 => vec![(15928, -1000)],
-            16427 | 16428 | 16429 => vec![(65534, 0)],
-            12557 | 14456 | 12416 | 12422 | 12420 => vec![(12435, 0)],
-            14261 | 14262 | 14263 | 14264 | 14265 => vec![(11583, 0)],
+            15929 | 15930 => vec![(15928, -1000, 180000)],
+            16427 | 16428 | 16429 => vec![(65534, 0, 180000)],
+            12557 | 14456 | 12416 | 12422 | 12420 => vec![(12435, 0, 240000)],
+            14261 | 14262 | 14263 | 14264 | 14265 => vec![(11583, 0, 180000)],
             _ => return None,
         })
     }
@@ -1361,8 +1392,15 @@ impl CombatLogParser for WoWVanillaParser {
             16427 | 16429 | 16428 => vec![65534],
             15667 => vec![15299],
             // Nefarian
-            14261 | 14262 | 14263 | 14264 | 14265 => vec![11583],
+            14261 | 14262 | 14263 | 14264 | 14265 | 10162 | 10163 => vec![11583],
             _ => return None,
+        })
+    }
+
+    fn get_ignore_after_death_ignore_abilities(&self, entry: u32) -> Option<Vec<u32>> {
+        Some(match entry {
+            14020 => vec![23169, 23155, 23315, 23316],
+            _ => return None
         })
     }
 

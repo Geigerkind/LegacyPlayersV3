@@ -14,9 +14,10 @@ pub trait CombatLogParser {
     fn get_npc_appearance_offset(&self, entry: u32) -> Option<i64>;
     fn get_npc_timeout(&self, entry: u32) -> Option<u64>;
     // Source entry causes InCombat=True event for all resulting npc entries with an offset
-    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64)>>;
+    fn get_death_implied_npc_combat_state_and_offset(&self, entry: u32) -> Option<Vec<(u32, i64, i64)>>;
     // In combat of source npc implies in combat of resulting npcs
     fn get_in_combat_implied_npc_combat(&self, entry: u32) -> Option<Vec<u32>>;
+    fn get_ignore_after_death_ignore_abilities(&self, entry: u32) -> Option<Vec<u32>>;
     fn get_expansion_id(&self) -> u8;
     fn get_server_id(&self) -> Option<u32>;
     fn get_bonus_messages(&self) -> Option<Vec<Message>>;

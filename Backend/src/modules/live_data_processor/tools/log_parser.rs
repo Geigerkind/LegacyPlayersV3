@@ -96,7 +96,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut suggested_instances = Vec::new();
     for Message { message_type, timestamp, .. } in bonus_messages.iter() {
         if let MessageType::InstanceMap(map) = message_type {
-            instance_ids.insert((map.map_id as u16, if map.map_difficulty == 0 { None } else {Some(map.map_difficulty)} ), map.instance_id);
+            instance_ids.insert((map.map_id as u16, if map.map_difficulty == 0 { None } else { Some(map.map_difficulty) }), map.instance_id);
             suggested_instances.push((*timestamp, map.map_id as u16, map.map_difficulty));
         }
     }
@@ -106,7 +106,9 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
 
     let mut parsed_participants = parser.get_participants();
     let mut incombat_participant_helper = Participant::new(0xF13000FFFE000000, false, "CBT Helper".to_string(), 10000);
+    let mut unknown_participant = Participant::new(0, true, "Unknown".to_string(), 10000);
     incombat_participant_helper.active_intervals.push((10001, u64::MAX.rotate_right(2)));
+    unknown_participant.active_intervals.push((10001, u64::MAX.rotate_right(2)));
     parsed_participants.iter().for_each(|participant| {
         participant.active_intervals.iter().for_each(|(start, end)| {
             temp_intervals.push(Interval {
@@ -121,6 +123,12 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 val: (incombat_participant_helper.id, incombat_participant_helper.is_player),
             });
 
+            temp_intervals.push(Interval {
+                start: *start - 1000,
+                stop: *end + 1000,
+                val: (unknown_participant.id, unknown_participant.is_player),
+            });
+
             if participant.is_player {
                 player_temp_intervals.push(Interval {
                     start: *start - 1000,
@@ -131,6 +139,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         });
     });
     parsed_participants.push(incombat_participant_helper);
+    parsed_participants.push(unknown_participant);
 
     let participants_by_interval = Lapper::new(temp_intervals);
     let player_participants_by_interval = Lapper::new(player_temp_intervals);
@@ -212,10 +221,30 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         // We assume end if it dies or after a timeout
         match &message_type {
             MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
-                if !unit_died_recently.contains_key(&dmg.attacker.unit_id) || *timestamp - *unit_died_recently.get(&dmg.attacker.unit_id).unwrap() > 15000 {
-                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
+                static IN_COMBAT_DEATH_TIMEOUT: u64 = 180000;
+                static IN_COMBAT_DEATH_IGNORE_IMMEDIATE_TIMEOUT: u64 = 20000;
+                let mut ignore = false;
+                if unit_died_recently.contains_key(&dmg.attacker.unit_id) && *timestamp - *unit_died_recently.get(&dmg.attacker.unit_id).unwrap() < IN_COMBAT_DEATH_TIMEOUT {
+                    ignore = *timestamp - *unit_died_recently.get(&dmg.attacker.unit_id).unwrap() < IN_COMBAT_DEATH_IGNORE_IMMEDIATE_TIMEOUT;
+                    if let Some(entry) = dmg.attacker.unit_id.get_entry() {
+                        if let Some(ignore_abilities) = parser.get_ignore_after_death_ignore_abilities(entry) {
+                            ignore = ignore || ignore_abilities.into_iter().any(|ability_id| dmg.spell_id.contains(&ability_id));
+                        }
+                    }
                 }
-                if !unit_died_recently.contains_key(&dmg.victim.unit_id) || *timestamp - *unit_died_recently.get(&dmg.victim.unit_id).unwrap() > 15000 {
+                if !ignore {
+                    if unit_died_recently.contains_key(&dmg.victim.unit_id) && *timestamp - *unit_died_recently.get(&dmg.victim.unit_id).unwrap() < IN_COMBAT_DEATH_TIMEOUT {
+                        ignore = *timestamp - *unit_died_recently.get(&dmg.victim.unit_id).unwrap() < IN_COMBAT_DEATH_IGNORE_IMMEDIATE_TIMEOUT;
+                        if let Some(entry) = dmg.victim.unit_id.get_entry() {
+                            if let Some(ignore_abilities) = parser.get_ignore_after_death_ignore_abilities(entry) {
+                                ignore = ignore || ignore_abilities.into_iter().any(|ability_id| dmg.spell_id.contains(&ability_id));
+                            }
+                        }
+                    }
+                }
+
+                if !ignore {
+                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
                 }
             }
@@ -223,10 +252,10 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 if !death.victim.is_player {
                     if let Some(entry) = death.victim.unit_id.get_entry() {
                         if let Some(implied_npc_ids) = parser.get_death_implied_npc_combat_state_and_offset(entry) {
-                            for (npc_id, delay_ts) in implied_npc_ids {
+                            for (npc_id, delay_ts, lookahead_delay) in implied_npc_ids {
                                 if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
                                     if !participant.is_player && participant.id.get_entry().contains(&npc_id)
-                                        && participant.active_intervals.iter().any(|(start, end)| (start <= timestamp && end >= timestamp) || (*start <= *timestamp + 180000 && *end >= *timestamp + 180000)) {
+                                        && participant.active_intervals.iter().any(|(start, end)| (start <= timestamp && end >= timestamp) || ((*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp)) {
                                         return Some(participant.id);
                                     }
                                     None
