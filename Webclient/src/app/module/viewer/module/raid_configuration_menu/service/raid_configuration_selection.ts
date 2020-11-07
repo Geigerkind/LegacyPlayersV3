@@ -32,7 +32,7 @@ export class RaidConfigurationSelectionService implements OnDestroy {
 
     select_sources(sources: Array<number>): void {
         this.source_selection$.next(sources);
-        this.raidConfigurationService.update_source_filter(sources, true);
+        this.raidConfigurationService.update_source_filter(sources, true, false);
     }
 
     register_event_type(event_type: number): void {

@@ -21,6 +21,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     private subscription_sources: Subscription;
     private subscription_targets: Subscription;
     private subscription_abilities: Subscription;
+    private subscription_overwrite: Subscription;
 
     private subscription_source_selection: Subscription;
 
@@ -73,6 +74,14 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_abilities = this.raidConfigurationService.abilities.subscribe(abilities => this.handle_abilities(abilities, true));
         this.subscription_source_selection = this.raidConfigurationSelectionService.source_selection.subscribe(selection =>
             this.selected_items_sources = this.selected_items_sources.filter(item => selection.includes(item.id)));
+
+        this.subscription_overwrite = this.raidConfigurationService.selection_overwrite$.subscribe(stack_item => {
+            this.selected_items_categories = this.list_items_categories.filter(item => stack_item.categories.has(item.id));
+            this.selected_items_segments = this.list_items_segments.filter(item => stack_item.segments.has(item.id));
+            this.selected_items_sources = this.list_items_sources.filter(item => stack_item.sources.has(item.id));
+            this.selected_items_targets = this.list_items_targets.filter(item => stack_item.targets.has(item.id));
+            this.selected_items_abilities = this.list_items_abilities.filter(item => stack_item.abilities.has(item.id));
+        });
     }
 
     ngOnDestroy(): void {
@@ -82,6 +91,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription_targets?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_source_selection?.unsubscribe();
+        this.subscription_overwrite?.unsubscribe();
     }
 
     on_category_selection_updated(): void {
