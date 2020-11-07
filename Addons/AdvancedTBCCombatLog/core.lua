@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 13
+RPLL.VERSION = 14
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -681,21 +681,22 @@ function RPLL:PushCurrentInstanceInfo()
 
     local zone = strlower(GetRealZoneText())
     local found = false
+    local participants = {}
+    tinsert(participants, UnitGUID("player"))
+    for j = 1, GetNumRaidMembers() do
+        if UnitName("raid" .. j) then
+            tinsert(participants, UnitGUID("raid"..j))
+        end
+    end
+    for j = 1, GetNumPartyMembers() do
+        if UnitName("party" .. j) then
+            tinsert(participants, UnitGUID("party"..j))
+        end
+    end
+
     for i=1, GetNumSavedInstances() do
         local instance_name, instance_id = GetSavedInstanceInfo(i)
         if zone == strlower(instance_name) then
-            local participants = {}
-            tinsert(participants, UnitGUID("player"))
-            for j = 1, GetNumRaidMembers() do
-                if UnitName("raid" .. j) then
-                    tinsert(participants, UnitGUID("raid"..j))
-                end
-            end
-            for j = 1, GetNumPartyMembers() do
-                if UnitName("party" .. j) then
-                    tinsert(participants, UnitGUID("party"..j))
-                end
-            end
             RPLL:PushExtraMessage("ZONE_INFO", strjoin("&", instance_name, instance_id, unpack(participants)))
             found = true
             break
@@ -703,7 +704,7 @@ function RPLL:PushCurrentInstanceInfo()
     end
 
     if found == false then
-        RPLL:PushExtraMessage("NONE_ZONE_INFO", "")
+        RPLL:PushExtraMessage("ZONE_INFO", strjoin("&", zone, 0, unpack(participants)))
     end
 end
 
