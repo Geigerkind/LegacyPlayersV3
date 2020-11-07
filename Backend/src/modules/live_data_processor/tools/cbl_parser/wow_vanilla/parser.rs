@@ -13,6 +13,7 @@ use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
 use regex::Regex;
 use std::collections::HashMap;
+use chrono::NaiveDateTime;
 
 /*
 
@@ -130,8 +131,8 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_UNIT_DIE_DESTROYED: Regex = Regex::new(r"(.+[^\s]) (dies|is destroyed)\.").unwrap();
             static ref RE_UNIT_SLAY: Regex = Regex::new(r"(.+[^\s]) is slain by (.+[^\s])(!|\.)").unwrap();
 
-            static ref RE_ZONE_INFO: Regex = Regex::new(r"ZONE_INFO: (.+[^\s])\&(\d+)").unwrap();
-            static ref RE_LOOT: Regex = Regex::new(r"LOOT: (.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(\d+):(\d+):(\d+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.").unwrap();
+            static ref RE_ZONE_INFO: Regex = Regex::new(r"ZONE_INFO: ([^&]+)&(.+[^\s])\&(\d+)").unwrap();
+            static ref RE_LOOT: Regex = Regex::new(r"LOOT: ([^&]+)&(.+[^\s]) receives loot: \|c([a-zA-Z0-9]+)\|Hitem:(\d+):(\d+):(\d+):(\d+)\|h\[([a-zA-Z0-9\s']+)\]\|h\|rx(\d+)\.").unwrap();
 
             // Bugs?
             static ref RE_BUG_DAMAGE_SPELL_HIT_OR_CRIT: Regex = Regex::new(r"(.+[^\s])\s's (cr|h)its (.+[^\s]) for (\d+)\.\s?(.*)").unwrap();
@@ -945,20 +946,22 @@ impl CombatLogParser for WoWVanillaParser {
          * Misc
          */
         if let Some(captures) = RE_LOOT.captures(&content) {
-            let receiver = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
-            self.collect_participant(&receiver, captures.get(1)?.as_str(), event_ts);
+            let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+            let receiver = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+            self.collect_participant(&receiver, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &receiver, event_ts);
-            let item_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
-            let count = u32::from_str_radix(captures.get(8)?.as_str(), 10).ok()?;
-            self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::Loot(Loot { unit: receiver, item_id, count })));
+            let item_id = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
+            let count = u32::from_str_radix(captures.get(9)?.as_str(), 10).ok()?;
+            self.bonus_messages.push(Message::new_parsed(timestamp as u64, 0, MessageType::Loot(Loot { unit: receiver, item_id, count })));
             return None;
         }
 
         if let Some(captures) = RE_ZONE_INFO.captures(&content) {
-            let map_name = captures.get(1)?.as_str().to_string();
-            let instance_id = u32::from_str_radix(captures.get(2)?.as_str(), 10).ok()?;
+            let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+            let map_name = captures.get(2)?.as_str().to_string();
+            let instance_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
             if let Some(map) = data.get_map_by_name(&map_name) {
-                self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
+                self.bonus_messages.push(Message::new_parsed(timestamp as u64, 0, MessageType::InstanceMap(InstanceMap {
                     map_id: map.id as u32,
                     instance_id,
                     map_difficulty: 0,
@@ -992,14 +995,15 @@ impl CombatLogParser for WoWVanillaParser {
                 return None;
             }
 
-            let player_name = message_args[0];
-            let hero_class_local = message_args[1];
-            let race_local = message_args[2];
-            let gender_local = message_args[3];
-            let pet_name = message_args[4];
-            let guild_name = message_args[5];
-            let guild_rank_name = message_args[6];
-            let guild_rank_index = message_args[7];
+            let timestamp = NaiveDateTime::parse_from_str(message_args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+            let player_name = message_args[1];
+            let hero_class_local = message_args[2];
+            let race_local = message_args[3];
+            let gender_local = message_args[4];
+            let pet_name = message_args[5];
+            let guild_name = message_args[6];
+            let guild_rank_name = message_args[7];
+            let guild_rank_index = message_args[8];
 
             let unit_id = get_hashed_player_unit_id(player_name);
             let participant = self.participants.entry(unit_id).or_insert_with(|| Participant::new(unit_id, true, player_name.to_string(), event_ts));
@@ -1052,10 +1056,10 @@ impl CombatLogParser for WoWVanillaParser {
                 self.pet_owner.insert(pet_unit.unit_id, unit_id);
             }
 
-            if (8..27).into_iter().any(|i| message_args[i] != "nil") {
+            if (9..28).into_iter().any(|i| message_args[i] != "nil") {
                 let mut gear = Vec::with_capacity(19);
                 let gear_setups = participant.gear_setups.get_or_insert_with(Vec::new);
-                for arg in message_args.iter().take(27).skip(8) {
+                for arg in message_args.iter().take(28).skip(9) {
                     if *arg == "nil" {
                         gear.push(None);
                         continue;
@@ -1072,7 +1076,7 @@ impl CombatLogParser for WoWVanillaParser {
                         gear.push(Some((item_id, Some(enchant_id), None)));
                     }
                 }
-                gear_setups.push((event_ts, gear));
+                gear_setups.push((timestamp as u64, gear));
             }
             return None;
         }
