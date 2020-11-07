@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 16
+RPLL.VERSION = 17
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -539,6 +539,14 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
         info["guild_name"] = guild_name
         info["guild_rank_name"] = guild_rank_name
         info["guild_rank_index"] = guild_rank_index
+    end
+
+    if info["gear"] == nil then
+        info["gear"] = {}
+    end
+
+    if info["arena_teams"] == nil then
+        info["arena_teams"] = {}
     end
 end
 
