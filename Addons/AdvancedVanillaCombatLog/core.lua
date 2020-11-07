@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 8
+RPLL.VERSION = 9
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationIndex = 1
@@ -242,13 +242,21 @@ end
 
 function RPLL:QueueRaidIds()
 	local zone = strlower(GetRealZoneText())
+	local found = false
     for i=1, GetNumSavedInstances() do
         local instance_name, instance_id = GetSavedInstanceInfo(i)
 		if zone == strlower(instance_name) then
 			tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..instance_name.."&"..instance_id)
 			this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
+			found = true
+			break
 		end
     end
+
+	if found == false then
+		tinsert(this.ExtraMessageQueue, "ZONE_INFO: "..zone.."&0")
+		this.ExtraMessageQueueLength = this.ExtraMessageQueueLength + 1
+	end
 end
 
 local GlobalStrings = {
