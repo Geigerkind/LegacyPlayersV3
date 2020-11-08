@@ -46,7 +46,7 @@ export class ExportViewerService implements OnDestroy {
         this.tinyUrlService.set_tiny_url({
             type_id: 3,
             navigation_id: 9,
-            url_suffix: this.current_meta.instance_meta_id.toString() + "/" + this.viewer_mode.toLowerCase(),
+            url_suffix: this.routerService.url.replace("viewer/", ""),
             payload: {
                 instance_meta_id: this.current_meta.instance_meta_id,
                 selected_categories: [...this.raidConfigurationService.category_filter.values()],
