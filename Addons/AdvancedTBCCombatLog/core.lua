@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 14
+RPLL.VERSION = 15
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -623,6 +623,10 @@ function RPLL:CollectCurrentTalentsAndArenaTeams()
     local current_inspect = inspect_queue[inspect_queue_index - 1]
     local unit = current_inspect[1]
     local unit_guid = current_inspect[2]
+
+    if UnitGUID(unit) ~= unit_guid then
+        return
+    end
 
     if RPLL.PlayerInformation[unit_guid] == nil then
         return

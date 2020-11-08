@@ -55,11 +55,11 @@ export class RaidConfigurationService implements OnDestroy {
     private abilities$: BehaviorSubject<Array<EventAbility>> = new BehaviorSubject([]);
     private options$: BehaviorSubject<Array<RaidOption>> = new BehaviorSubject([]);
 
-    private category_filter: Set<number> = new Set();
-    private segment_filter: Set<number> = new Set();
-    private source_filter: Set<number> = new Set();
-    private target_filter: Set<number> = new Set();
-    private ability_filter: Set<number> = new Set();
+    category_filter: Set<number> = new Set();
+    segment_filter: Set<number> = new Set();
+    source_filter: Set<number> = new Set();
+    target_filter: Set<number> = new Set();
+    ability_filter: Set<number> = new Set();
 
     private current_mode: ViewerMode = ViewerMode.Base;
     private prev_category_filter: Set<number> = new Set();

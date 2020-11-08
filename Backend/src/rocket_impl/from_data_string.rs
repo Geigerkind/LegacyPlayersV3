@@ -8,7 +8,7 @@ pub struct RawString {
     pub content: String,
 }
 
-const LIMIT: u64 = 1024;
+const LIMIT: u64 = 32768;
 impl FromDataSimple for RawString {
     type Error = String;
 

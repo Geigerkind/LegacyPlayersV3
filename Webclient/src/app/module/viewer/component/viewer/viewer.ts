@@ -43,8 +43,9 @@ export class ViewerComponent implements OnDestroy {
             this.instanceDataService.instance_meta_id = this.instance_meta_id;
 
             const route_mode = params.get("mode") as ViewerMode;
-            if ([ViewerMode.Base, ViewerMode.Ability, ViewerMode.Detail, ViewerMode.EventLog].includes(route_mode))
+            if ([ViewerMode.Base, ViewerMode.Ability, ViewerMode.Detail, ViewerMode.EventLog].includes(route_mode)) {
                 this.current_mode = route_mode;
+            }
         });
         this.subscription_meta = this.instanceDataService.meta.subscribe(meta => {
             this.unitService.set_server_id(meta?.server_id);

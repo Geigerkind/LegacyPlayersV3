@@ -26,6 +26,7 @@ export class TinyUrlService {
         [6, ["/armory/character/:url_suffix", "table_filter_viewer_ranking_table"]],
         [7, ["/armory/guild/:url_suffix", "table_filter_guild_viewer_member"]],
         [8, ["/pve/ranking", "pve_ranking"]],
+        [9, ["/viewer/:url_suffix", "viewer_export::instance_meta_id"]]
     ]);
 
     private redirect_url$: Subject<string> = new Subject();
@@ -109,6 +110,11 @@ export class TinyUrlService {
             const table_tiny_url = payload as TinyUrl<RankingUrl>;
             this.settingsService.set(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[1], table_tiny_url.payload);
             this.redirect_url$.next(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[0]);
+        } else if (payload.type_id === 3) {
+            const table_tiny_url = payload as TinyUrl<any>;
+            this.settingsService.set(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[1].replace(":instance_meta_id", table_tiny_url.payload.instance_meta_id),
+                table_tiny_url.payload);
+            this.redirect_url$.next(TinyUrlService.NAVIGATION_META.get(table_tiny_url.navigation_id)[0].replace(":url_suffix", table_tiny_url.url_suffix));
         } else {
             this.failure$.next();
         }

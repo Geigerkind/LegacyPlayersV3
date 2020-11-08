@@ -40,7 +40,8 @@ SettingsService {
         "pve_ranking",
         "data_service_encounters",
         "table_filter_viewer_ranking_table",
-        "character_service_basic_characters"
+        "character_service_basic_characters",
+        "viewer_export"
     ];
 
     private ignoreSettings: Array<string> = [
@@ -80,7 +81,7 @@ SettingsService {
     }
 
     set_with_expiration(storage_key: string, value: any, days: number): void {
-        if (!this.settings.includes(storage_key))
+        if (!this.settings.includes(storage_key) && (!storage_key.includes(":") || !this.settings.includes(storage_key.split(":")[0])))
             throw new Error("Storage: " + storage_key + " was not predefined!");
         if (this.ignoreSettings.includes(storage_key))
             return;

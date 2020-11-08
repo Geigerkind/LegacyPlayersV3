@@ -52,6 +52,7 @@ export class InstanceDataService implements OnDestroy {
     private filter_initialized: Array<boolean> = [false, false, false, false];
     private init_worker_done: boolean = false;
     private filter_update_in_progress: number = 0;
+    private filter_initialized_fired: boolean = false;
 
     constructor(
         private apiService: APIService,
@@ -164,8 +165,10 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[0] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
-        if (this.isInitialized())
+        if (this.isInitialized() && !this.filter_initialized_fired) {
             this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
+            this.filter_initialized_fired = true;
+        }
     }
 
     public async set_source_filter(sources: Array<number>) {
@@ -189,8 +192,10 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[1] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
-        if (this.isInitialized())
+        if (this.isInitialized() && !this.filter_initialized_fired) {
             this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
+            this.filter_initialized_fired = true;
+        }
     }
 
     public async set_target_filter(targets: Array<number>) {
@@ -214,8 +219,10 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[2] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
-        if (this.isInitialized())
+        if (this.isInitialized() && !this.filter_initialized_fired) {
             this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
+            this.filter_initialized_fired = true;
+        }
     }
 
     public async set_ability_filter(abilities: Array<number>) {
@@ -239,8 +246,10 @@ export class InstanceDataService implements OnDestroy {
         this.filter_initialized[3] = true;
         if (this.filter_update_in_progress === 0)
             this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
-        if (this.isInitialized())
+        if (this.isInitialized() && !this.filter_initialized_fired) {
             this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
+            this.filter_initialized_fired = true;
+        }
     }
 
     public set instance_meta_id(instance_meta_id: number) {
