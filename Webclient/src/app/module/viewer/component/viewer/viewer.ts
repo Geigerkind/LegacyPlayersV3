@@ -9,12 +9,14 @@ import {RaidConfigurationService} from "../../module/raid_configuration_menu/ser
 import {Subscription} from "rxjs";
 import {UtilService} from "../../module/raid_meter/service/util";
 import {GraphDataService} from "../../module/raid_graph/service/graph_data";
+import {RaidMeterExportService} from "../../module/raid_meter/service/raid_meter_export";
 
 @Component({
     selector: "Viewer",
     templateUrl: "./viewer.html",
     styleUrls: ["./viewer.scss"],
     providers: [
+        RaidMeterExportService,
         RaidConfigurationService,
         RaidConfigurationSelectionService,
         GraphDataService,

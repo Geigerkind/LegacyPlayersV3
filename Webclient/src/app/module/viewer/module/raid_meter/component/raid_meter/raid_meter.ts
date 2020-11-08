@@ -36,6 +36,7 @@ import {DetailHealAndAbsorbService} from "../../../raid_detail_table/service/det
 import {MeterAuraGainService} from "../../service/meter_aura_gain";
 import {AuraGainOverviewRow} from "../../domain_value/aura_gain_overview_row";
 import {get_unit_id} from "../../../../domain_value/unit";
+import {RaidMeterExportService} from "../../service/raid_meter_export";
 
 @Component({
     selector: "RaidMeter",
@@ -131,7 +132,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         private raidMeterService: RaidMeterService,
         private raidDetailService: RaidDetailService,
-        private event_log_service: EventLogService
+        private event_log_service: EventLogService,
+        private raid_meter_export_service: RaidMeterExportService
     ) {
         this.subscription_activated_route = this.activatedRouteService.paramMap.subscribe(params => {
             const new_mode = params.get("mode") === ViewerMode.Ability;
@@ -149,10 +151,18 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             this.ability_details = details;
             this.update_bars(this.current_data);
         });
+        this.subscription.add(this.raid_meter_export_service.meter_selections$.subscribe(([id, selection]) => {
+            if (id === this.unique_id) {
+                this.current_selection = selection;
+                this.selection_changed(selection);
+            }
+            console.log(id, selection);
+        }));
     }
 
     ngOnInit(): void {
         this.cookie_id = "raid_meter_" + this.unique_id;
+        this.raidMeterService.unique_id = this.unique_id;
 
         if (this.settingsService.check(this.cookie_id)) {
             this.current_selection = this.settingsService.get(this.cookie_id);
@@ -196,6 +206,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             this.routerService.navigate(["/viewer/" + this.current_meta?.instance_meta_id + "/event_log/by_actor"]);
             return;
         }
+
+        this.raid_meter_export_service.setMeterSelection(this.unique_id, selection);
 
         this.current_data = [];
         this.bars = [];

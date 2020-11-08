@@ -8,11 +8,13 @@ import {EventSource} from "../../domain_value/event_source";
 import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
 import {EventAbility} from "../../domain_value/event_ability";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
+import {ExportViewerService} from "../../module/export_viewer/service/export_viewer";
 
 @Component({
     selector: "RaidConfigurationMenu",
     templateUrl: "./raid_configuration_menu.html",
-    styleUrls: ["./raid_configuration_menu.scss"]
+    styleUrls: ["./raid_configuration_menu.scss"],
+    providers: [ExportViewerService]
 })
 export class RaidConfigurationMenuComponent implements OnDestroy {
 

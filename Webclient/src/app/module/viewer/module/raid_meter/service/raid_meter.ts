@@ -32,6 +32,9 @@ export class RaidMeterService implements OnDestroy {
     private current_selection: number = -1;
     private last_event_type_selection: Set<number> = new Set();
 
+    // For the export functionality
+    unique_id: string;
+
     constructor(
         private meter_damage_service: MeterDamageService,
         private meter_heal_service: MeterHealService,

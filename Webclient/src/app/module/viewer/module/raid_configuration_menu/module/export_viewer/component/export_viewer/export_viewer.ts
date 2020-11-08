@@ -7,10 +7,7 @@ import {Subscription} from "rxjs";
 @Component({
     selector: "ExportViewer",
     templateUrl: "./export_viewer.html",
-    styleUrls: ["./export_viewer.scss"],
-    providers: [
-        ExportViewerService
-    ]
+    styleUrls: ["./export_viewer.scss"]
 })
 export class ExportViewerComponent implements OnDestroy {
 

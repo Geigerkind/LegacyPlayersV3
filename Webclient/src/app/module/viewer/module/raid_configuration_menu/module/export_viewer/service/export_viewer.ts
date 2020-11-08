@@ -9,6 +9,7 @@ import {RaidConfigurationService} from "../../../service/raid_configuration";
 import {SettingsService} from "../../../../../../../service/settings";
 import {KnechtUpdates} from "../../../../../domain_value/knecht_updates";
 import {GraphDataService} from "../../../../raid_graph/service/graph_data";
+import {RaidMeterExportService} from "../../../../raid_meter/service/raid_meter_export";
 
 @Injectable({
     providedIn: "root",
@@ -26,7 +27,8 @@ export class ExportViewerService implements OnDestroy {
         private tinyUrlService: TinyUrlService,
         private raidConfigurationService: RaidConfigurationService,
         private settingsService: SettingsService,
-        private graphDataService: GraphDataService
+        private graphDataService: GraphDataService,
+        private raidMeterExportService: RaidMeterExportService
     ) {
         this.subscription = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
         this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates]) => {
@@ -57,8 +59,7 @@ export class ExportViewerService implements OnDestroy {
                 graph_events: this.graphDataService.get_selected_events(),
                 graph_selected_source_auras: this.graphDataService.get_selected_source_auras(),
                 graph_selected_target_auras: this.graphDataService.get_selected_target_auras(),
-                meter1_selection: null,
-                meter2_selection: null
+                meter_selections: [...this.raidMeterExportService.meter_selections.entries()],
             }
         });
     }
@@ -89,6 +90,8 @@ export class ExportViewerService implements OnDestroy {
            source_auras: payload.graph_selected_source_auras,
            target_auras: payload.graph_selected_target_auras
         });
+        for (const selection of payload.meter_selections)
+            this.raidMeterExportService.meter_selections$.next(selection);
     }
 
     public setViewerMode(viewer_mode: ViewerMode): void {
