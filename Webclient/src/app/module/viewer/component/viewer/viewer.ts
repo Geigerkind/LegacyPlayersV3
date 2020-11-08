@@ -8,6 +8,7 @@ import {RaidConfigurationSelectionService} from "../../module/raid_configuration
 import {RaidConfigurationService} from "../../module/raid_configuration_menu/service/raid_configuration";
 import {Subscription} from "rxjs";
 import {UtilService} from "../../module/raid_meter/service/util";
+import {GraphDataService} from "../../module/raid_graph/service/graph_data";
 
 @Component({
     selector: "Viewer",
@@ -16,6 +17,7 @@ import {UtilService} from "../../module/raid_meter/service/util";
     providers: [
         RaidConfigurationService,
         RaidConfigurationSelectionService,
+        GraphDataService,
         InstanceDataService,
         UnitService,
         SpellService,

@@ -16,4 +16,16 @@ function number_to_chart_type(input: number) {
     return ChartType.Line;
 }
 
-export {number_to_chart_type};
+function chart_type_to_number(input: ChartType) {
+    switch (input) {
+        case ChartType.Line:
+            return 0;
+        case ChartType.Bar:
+            return 1;
+        case ChartType.Scatter:
+            return 2;
+    }
+    return 0;
+}
+
+export {number_to_chart_type, chart_type_to_number};

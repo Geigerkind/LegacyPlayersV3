@@ -8,6 +8,7 @@ import {ViewerMode} from "../../../../../domain_value/viewer_mode";
 import {RaidConfigurationService} from "../../../service/raid_configuration";
 import {SettingsService} from "../../../../../../../service/settings";
 import {KnechtUpdates} from "../../../../../domain_value/knecht_updates";
+import {GraphDataService} from "../../../../raid_graph/service/graph_data";
 
 @Injectable({
     providedIn: "root",
@@ -24,7 +25,8 @@ export class ExportViewerService implements OnDestroy {
         private instanceDataService: InstanceDataService,
         private tinyUrlService: TinyUrlService,
         private raidConfigurationService: RaidConfigurationService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        private graphDataService: GraphDataService
     ) {
         this.subscription = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
         this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates]) => {
@@ -50,6 +52,13 @@ export class ExportViewerService implements OnDestroy {
                 selected_sources: [...this.raidConfigurationService.source_filter.values()],
                 selected_targets: [...this.raidConfigurationService.target_filter.values()],
                 selected_abilities: [...this.raidConfigurationService.ability_filter.values()],
+                graph_mode: this.graphDataService.get_current_graph_mode(),
+                graph_data_sets: this.graphDataService.get_selected_data_sets(),
+                graph_events: this.graphDataService.get_selected_events(),
+                graph_selected_source_auras: this.graphDataService.get_selected_source_auras(),
+                graph_selected_target_auras: this.graphDataService.get_selected_target_auras(),
+                meter1_selection: null,
+                meter2_selection: null
             }
         });
     }
@@ -72,6 +81,13 @@ export class ExportViewerService implements OnDestroy {
             sources: new Set(payload.selected_sources),
             targets: new Set(payload.selected_targets),
             abilities: new Set(payload.selected_abilities)
+        });
+        this.graphDataService.overwrite_selection.next({
+           mode: payload.graph_mode,
+           data_sets: payload.graph_data_sets,
+           events: payload.graph_events,
+           source_auras: payload.graph_selected_source_auras,
+           target_auras: payload.graph_selected_target_auras
         });
     }
 

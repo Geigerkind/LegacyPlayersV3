@@ -11,6 +11,7 @@ import {SpellService} from "../../../service/spell";
 import {map} from "rxjs/operators";
 import {UtilService} from "../../raid_meter/service/util";
 import {get_absorb_data_points} from "../../../stdlib/absorb";
+import {ChartType, number_to_chart_type} from "../domain_value/chart_type";
 
 @Injectable({
     providedIn: "root",
@@ -35,6 +36,12 @@ export class GraphDataService implements OnDestroy {
 
     private source_meter_aura_uptime_service: MeterAuraUptimeService;
     private target_meter_aura_uptime_service: MeterAuraUptimeService;
+
+    // Helper for Export
+    private graph_mode: ChartType = ChartType.Line;
+    private selectedSourceAbilities: Array<number> = [];
+    private selectedTargetAbilities: Array<number> = [];
+    public overwrite_selection: Subject<any> = new Subject();
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -80,6 +87,38 @@ export class GraphDataService implements OnDestroy {
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
+    }
+
+    set_graph_mode(chart_type: number): void {
+        this.graph_mode = number_to_chart_type(chart_type);
+    }
+
+    get_current_graph_mode(): ChartType {
+        return this.graph_mode;
+    }
+
+    get_selected_data_sets(): Array<DataSet> {
+        return [...this.current_data.keys()].filter(dataset => !is_event_data_set(dataset));
+    }
+
+    get_selected_events(): Array<DataSet> {
+        return [...this.current_data.keys()].filter(dataset => is_event_data_set(dataset));
+    }
+
+    setSelectedSourceAbilities(abilities: Array<number>): void {
+        this.selectedSourceAbilities = [...abilities];
+    }
+
+    get_selected_source_auras(): Array<number> {
+        return this.selectedSourceAbilities;
+    }
+
+    setSelectedTargetAbilities(abilities: Array<number>): void {
+        this.selectedTargetAbilities = [...abilities];
+    }
+
+    get_selected_target_auras(): Array<number> {
+        return this.selectedTargetAbilities;
     }
 
     get data_points(): Observable<[Array<number>, Array<[DataSet, [Array<number>, Array<number>]]>]> {

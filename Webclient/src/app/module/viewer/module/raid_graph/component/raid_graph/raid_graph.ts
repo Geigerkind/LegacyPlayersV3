@@ -6,18 +6,16 @@ import {DataSet, is_event_data_set} from "../../domain_value/data_set";
 import {DateService} from "../../../../../../service/date";
 import {SettingsService} from "src/app/service/settings";
 import {Subscription} from "rxjs";
-import {number_to_chart_type} from "../../domain_value/chart_type";
+import {chart_type_to_number, number_to_chart_type} from "../../domain_value/chart_type";
 import {get_point_style} from "../../stdlib/data_set_helper";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
+import {auditTime} from "rxjs/operators";
 
 @Component({
     selector: "RaidGraph",
     templateUrl: "./raid_graph.html",
-    styleUrls: ["./raid_graph.scss"],
-    providers: [
-        GraphDataService
-    ]
+    styleUrls: ["./raid_graph.scss"]
 })
 export class RaidGraphComponent implements OnInit, OnDestroy {
 
@@ -207,6 +205,31 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         });
         this.subscription.add(this.graphDataService.source_abilities.subscribe(abilities => this.sourceAbilities = abilities));
         this.subscription.add(this.graphDataService.target_abilities.subscribe(abilities => this.targetAbilities = abilities));
+
+        // The delay is here "ensures" that source and target abilities had been loaded
+        this.subscription.add(this.graphDataService.overwrite_selection.pipe(auditTime(1000)).subscribe(filter => {
+            this.selectedDataSets = new Set(filter.data_sets);
+            const selected_data_sets = [];
+            for (const data_set of this.selectedDataSets) {
+                this.graphDataService.add_data_set(data_set);
+                selected_data_sets.push(this.dataSets.find(set => set.id === data_set));
+            }
+            this.dataSetsSelected = selected_data_sets;
+
+            this.selectedEvents = new Set(filter.events);
+            const selected_events = [];
+            for (const data_set of this.selectedEvents) {
+                this.graphDataService.add_data_set(data_set);
+                selected_events.push(this.events.find(set => set.id === data_set));
+            }
+            this.eventsSelected = selected_events;
+
+            this.selectedSourceAbilitiesChanged(this.sourceAbilities.filter(ability => filter.source_auras.includes(ability.id)));
+            this.selectedTargetAbilitiesChanged(this.targetAbilities.filter(ability => filter.target_auras.includes(ability.id)));
+
+            this.select_chart_type(chart_type_to_number(filter.mode));
+            this.save_selected();
+        }));
     }
 
     ngOnInit(): void {
@@ -272,6 +295,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     select_chart_type(chart_type: number): void {
         this.selected_chart_type = chart_type;
         this.graphDataService.update();
+        this.graphDataService.set_graph_mode(chart_type);
     }
 
     get tooltip(): any {
@@ -280,6 +304,16 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             if (!is_event_data_set(this.chartDataSets[i].label as DataSet))
                 result.push([this.chartDataSets[i].label, this.chartColors[i].backgroundColor]);
         return {type: 10, payload: result};
+    }
+
+    selectedTargetAbilitiesChanged(abilities: Array<any>): void {
+        this.selectedTargetAbilities = abilities;
+        this.graphDataService.setSelectedTargetAbilities(abilities.map(item => item.id));
+    }
+
+    selectedSourceAbilitiesChanged(abilities: Array<any>): void {
+        this.selectedSourceAbilities = abilities;
+        this.graphDataService.setSelectedSourceAbilities(abilities.map(item => item.id));
     }
 
     private save_selected(): void {
