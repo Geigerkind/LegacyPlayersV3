@@ -108,10 +108,12 @@ impl Server {
         for subject_id in self
             .non_committed_events
             .iter()
-            .filter(|(_subject_id, event)| event.front().expect("Should be initialized with at least one element").timestamp + 2000 < current_timestamp)
+            .filter(|(_subject_id, event)| event.front().expect("Should be initialized with at least one element").timestamp + 100 < current_timestamp)
             .map(|(subject_id, _event)| *subject_id)
             .collect::<Vec<u64>>()
         {
+            // TODO: Why do I find more events if this offset is low?
+            // TODO: WTF am I doing here?
             self.non_committed_events.remove(&subject_id);
         }
 
@@ -120,7 +122,7 @@ impl Server {
             loop {
                 let mut remove = false;
                 if let Some(front) = events.front() {
-                    remove = front.timestamp + 90000 < current_timestamp;
+                    remove = front.timestamp + 5000 < current_timestamp; // TODO: Currently we dont do live processing, hence this window can be smaller
                 }
                 if remove {
                     events.pop_front();
@@ -303,6 +305,7 @@ impl Server {
                     Some(spell_damage.damage_over_time),
                     member_id,
                 )?;
+
                 let total_damage = get_damage_components_total(&spell_damage.damage_components) as f64;
                 Ok(Event::new(
                     first_message.message_count,
@@ -702,19 +705,18 @@ impl Server {
         }
     }
 
-    fn find_matching_spell_cause(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit, victim: &Unit, message_count: u64, is_dot: Option<bool>, member_id: u32) -> Result<Event, EventParseFailureAction> {
+    fn find_matching_spell_cause(&self, spell_id: u32, subject_unit_id: u64, subject: &Unit, victim: &Unit, _message_count: u64, is_dot: Option<bool>, member_id: u32) -> Result<Event, EventParseFailureAction> {
         if let Some(unit_instance_id) = self.unit_instance_id.get(&subject_unit_id) {
             if let Some(committed_events) = self.recently_committed_spell_cast_and_aura_applications.get(&(*unit_instance_id, member_id)) {
                 if let Some(event_index) = committed_events.iter().rposition(|event| match &event.event {
                     EventType::SpellCast(spell_cast) => {
                         (is_dot.is_none() || is_dot.contains(&false))
-                            && message_count < event.message_count
                             && spell_cast.spell_id == spell_id
                             && event.subject == *subject
                             && (spell_cast.victim.is_none() || spell_cast.victim.contains(subject) || spell_cast.victim.contains(victim))
                     }
                     EventType::AuraApplication(aura_application) => {
-                        (is_dot.is_none() || is_dot.contains(&true)) && message_count > event.message_count && aura_application.spell_id == spell_id && event.subject == *victim && aura_application.caster == *subject
+                        (is_dot.is_none() || is_dot.contains(&true)) && aura_application.spell_id == spell_id && event.subject == *victim && aura_application.caster == *subject
                     }
                     _ => false,
                 }) {

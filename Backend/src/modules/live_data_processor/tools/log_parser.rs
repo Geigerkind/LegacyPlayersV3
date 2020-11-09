@@ -30,12 +30,14 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
 
             if let Some(message_types) = parser.parse_cbl_line(data, event_timestamp, meta[1].trim_end_matches('\r')) {
                 let mut message_count = (messages.len() + message_types.len()) as u64;
+                let mut msg_type_len = message_types.len() as u64;
                 for message_type in message_types {
                     message_count -= 1;
+                    msg_type_len -= 1;
                     messages.push(Message {
                         api_version: 0,
                         message_length: 0,
-                        timestamp: event_timestamp,
+                        timestamp: event_timestamp - msg_type_len,
                         message_count,
                         message_type,
                     });
@@ -176,7 +178,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 }
 
                 additional_messages.push(Message::new_parsed(
-                    (*timestamp as i64 + ts_offset) as u64,
+                    (*timestamp as i64 + ts_offset - 1000) as u64,
                     *message_count,
                     MessageType::InstanceMap(InstanceMap {
                         map_id: map_id as u32,
@@ -193,7 +195,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     additional_messages.push(Message {
                         api_version: 0,
                         message_length: 0,
-                        timestamp: *last_cbt_state + 1,
+                        timestamp: *last_cbt_state + 5,
                         message_count: *message_count,
                         message_type: MessageType::CombatState(CombatState { unit: Unit { is_player: *is_player, unit_id: *unit_id }, in_combat: false }),
                     });
@@ -201,7 +203,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 }
 
                 additional_messages.push(Message::new_parsed(
-                    *timestamp + 2,
+                    *timestamp + 500,
                     *message_count,
                     MessageType::InstanceMap(InstanceMap {
                         map_id: 0,
@@ -278,7 +280,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 additional_messages.push(Message {
                     api_version: 0,
                     message_length: 0,
-                    timestamp: *timestamp + 1,
+                    timestamp: *timestamp + 5,
                     message_count: *message_count,
                     message_type: MessageType::CombatState(CombatState { unit: death.victim.clone(), in_combat: false }),
                 });
@@ -410,7 +412,7 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
                     additional_messages.push(Message {
                         api_version: 0,
                         message_length: 0,
-                        timestamp: current_timestamp - (current_timestamp - last_update),
+                        timestamp: current_timestamp - (current_timestamp - last_update) + 10,
                         message_count: current_message_count,
                         message_type: MessageType::CombatState(CombatState {
                             unit: Unit { is_player: false, unit_id },
@@ -431,7 +433,7 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
                 additional_messages.push(Message {
                     api_version: 0,
                     message_length: 0,
-                    timestamp: current_timestamp - (current_timestamp - *last_update),
+                    timestamp: current_timestamp - (current_timestamp - *last_update) + 10,
                     message_count: current_message_count,
                     message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: false }),
                 });
@@ -439,7 +441,7 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
             additional_messages.push(Message {
                 api_version: 0,
                 message_length: 0,
-                timestamp: (current_timestamp as i64 + ts_offset) as u64,
+                timestamp: (current_timestamp as i64 + ts_offset - 10) as u64,
                 message_count: current_message_count,
                 message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: true }),
             });
@@ -449,7 +451,7 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
         additional_messages.push(Message {
             api_version: 0,
             message_length: 0,
-            timestamp: (current_timestamp as i64 + ts_offset) as u64,
+            timestamp: (current_timestamp as i64 + ts_offset - 10) as u64,
             message_count: current_message_count,
             message_type: MessageType::CombatState(CombatState { unit: unit.clone(), in_combat: true }),
         });
