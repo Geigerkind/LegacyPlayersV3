@@ -30,7 +30,11 @@ import {
     ae_spell_damage,
     ae_un_aura
 } from "../../../extractor/abilities";
-import {get_spell_components_total_amount, SpellComponent} from "../../../domain_value/damage";
+import {
+    get_spell_components_total_amount,
+    get_spell_components_total_amount_without_absorb,
+    SpellComponent
+} from "../../../domain_value/damage";
 import {school_mask_to_school_array} from "../../../domain_value/school";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {get_unit_id} from "../../../domain_value/unit";
@@ -278,7 +282,7 @@ export class EventLogService implements OnDestroy {
         return [combineLatest([subject, victim])
             .pipe(map((([subject_name, victim_name]) => {
                 const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[4]));
-                const damage_done = get_spell_components_total_amount(event[5]);
+                const damage_done = get_spell_components_total_amount_without_absorb(event[5]);
                 if (damage_done === 0)
                     return subject_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + " " + hit_type_str + " " + victim_name + " for " +
@@ -297,7 +301,7 @@ export class EventLogService implements OnDestroy {
         return [combineLatest([subject$, victim$, ability$])
             .pipe(map((([subject_name, victim_name, ability_name]) => {
                 const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]));
-                const damage_done = get_spell_components_total_amount(event[7]);
+                const damage_done = get_spell_components_total_amount_without_absorb(event[7]);
                 if (damage_done === 0)
                     return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " +
