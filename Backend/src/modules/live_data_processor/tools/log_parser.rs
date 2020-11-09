@@ -159,7 +159,6 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             };
 
             let mut new_participants: HashMap<u64, bool> = HashMap::new();
-            // TODO: This lapper does not seem to find all participants within that interval, it fails for large intervals
             for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 1000, *timestamp + 1000)
                 .filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
                 new_participants.insert(*unit_id, *is_player);

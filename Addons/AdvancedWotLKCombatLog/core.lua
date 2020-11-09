@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 19
+RPLL.VERSION = 20
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -688,8 +688,8 @@ function RPLL:PushCurrentInstanceInfo()
     if type ~= nil and type ~= "none" then
         local found_instance_id = nil
         for i = 1, GetNumSavedInstances() do
-            local instance_name, instance_id = GetSavedInstanceInfo(i)
-            if name == instance_name then
+            local instance_name, instance_id, _, _, _, _, _, _, _, instance_difficultyName = GetSavedInstanceInfo(i)
+            if name == instance_name and instance_difficultyName == difficultyName then
                 found_instance_id = instance_id
                 break
             end

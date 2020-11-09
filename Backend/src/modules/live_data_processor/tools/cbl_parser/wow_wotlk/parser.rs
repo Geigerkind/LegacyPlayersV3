@@ -178,6 +178,7 @@ impl CombatLogParser for WoWWOTLKParser {
                                 "25 Player (Heroic)" => 6,
                                 _ => return None,
                             };
+
                             self.bonus_messages.push(Message::new_parsed(
                                 timestamp as u64,
                                 0,
