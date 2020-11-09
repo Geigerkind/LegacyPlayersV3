@@ -34,7 +34,7 @@ export function commit_damage(melee_damage: Array<MeleeDamage>, spell_damage: Ar
         const abilities_data = newData.get(subject_id)[1];
         for (const event of grouping[unit_id]) {
             const spell_id = event[5];
-            const damage = event[7].length === 0 ? 0 : event[7][0][0];
+            const damage = get_spell_components_total_amount(event[7]);
 
             if (abilities_data.has(spell_id)) abilities_data.set(spell_id, abilities_data.get(spell_id) + damage);
             else abilities_data.set(spell_id, damage);
