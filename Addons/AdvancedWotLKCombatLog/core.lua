@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 18
+RPLL.VERSION = 19
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -7,6 +7,8 @@ RPLL.RotationIndex = 1
 RPLL.ExtraMessages = {}
 RPLL.ExtraMessageLength = 0
 RPLL.ExtraMessageIndex = 1
+
+local queued_pets = {}
 
 local strsplit = strsplit
 local strjoin = strjoin
@@ -722,6 +724,11 @@ function RPLL:PushPet(owner_unit)
     elseif strfind(owner_unit, "party") then
         pet_guid = UnitGUID("partypet" .. strsub(owner_unit, 6))
     end
+    if queued_pets[pet_guid] ~= nil then
+        return
+    end
+    queued_pets[pet_guid] = true
+
     if pet_guid ~= nil then
         local owner_guid = UnitGUID(owner_unit)
         RPLL:PushExtraMessage("PET_SUMMON", strjoin("&", owner_guid, pet_guid))
