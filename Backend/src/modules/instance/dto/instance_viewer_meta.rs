@@ -5,6 +5,7 @@ pub struct InstanceViewerMeta {
     pub instance_meta_id: u32,
     pub guild: Option<InstanceViewerGuild>,
     pub server_id: u32,
+    pub expansion_id: u8,
     pub map_id: u16,
     pub map_difficulty: Option<u8>,
     pub start_ts: u64,

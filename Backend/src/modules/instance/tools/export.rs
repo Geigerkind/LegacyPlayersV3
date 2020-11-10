@@ -12,10 +12,12 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::str::FromStr;
+use crate::modules::data::Data;
+use crate::modules::data::tools::RetrieveServer;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure>;
-    fn get_instance_meta(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
+    fn get_instance_meta(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
     fn get_instance_participants(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure>;
     fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure>;
 }
@@ -98,7 +100,7 @@ impl ExportInstance for Instance {
         Ok(vec![])
     }
 
-    fn get_instance_meta(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
+    fn get_instance_meta(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
         let instance_metas = self.instance_metas.read().unwrap();
         if let Some(instance_meta) = instance_metas.get(&instance_meta_id) {
             let guild = instance_meta.participants.find_instance_guild(db_main, armory, instance_meta.start_ts);
@@ -110,6 +112,7 @@ impl ExportInstance for Instance {
                 instance_meta_id,
                 guild: guild.map(|guild| InstanceViewerGuild { guild_id: guild.id, guild_name: guild.name }),
                 server_id: instance_meta.server_id,
+                expansion_id: data.get_server(instance_meta.server_id).unwrap().expansion_id,
                 map_id: instance_meta.map_id,
                 map_difficulty,
                 start_ts: instance_meta.start_ts,

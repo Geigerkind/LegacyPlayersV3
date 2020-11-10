@@ -292,7 +292,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         } else if ([19, 20].includes(this.current_selection)) {
             return {
                 type: 14,
-                expansion_id: 2, // TODO!
+                expansion_id: this.current_meta.expansion_id,
                 spell_id: subject_id
             };
         } else if ([25, 26].includes(this.current_selection)) {

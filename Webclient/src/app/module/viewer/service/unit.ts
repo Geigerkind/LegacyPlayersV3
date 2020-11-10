@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
 import {get_creature_entry, get_unit_id, get_unit_owner, is_creature, is_player, Unit} from "../domain_value/unit";
-import {combineLatest, Observable, of, zip} from "rxjs";
+import {combineLatest, Observable, of} from "rxjs";
 import {CharacterService} from "../../armory/service/character";
-import {concatMap, map} from "rxjs/operators";
+import {map} from "rxjs/operators";
 import {DataService} from "../../../service/data";
 import {NPC} from "../../../domain_value/data/npc";
 import {Localized} from "../../../domain_value/localized";
@@ -14,6 +14,7 @@ import {CONST_UNKNOWN_LABEL} from "../constant/viewer";
 export class UnitService {
 
     private server_id$: number;
+    private expansion_id$: number;
 
     constructor(
         private characterService: CharacterService,
@@ -23,6 +24,10 @@ export class UnitService {
 
     set_server_id(server_id: number): void {
         this.server_id$ = server_id;
+    }
+
+    set_expansion_id(expansion_id: number): void {
+        this.expansion_id$ = expansion_id;
     }
 
     get_unit_bg_color(unit: Unit, timestamp: number): Observable<string> {
@@ -98,12 +103,7 @@ export class UnitService {
 
         if (!this.server_id$)
             return of(undefined);
-        return this.dataService
-            .get_server_by_id(this.server_id$)
-            .pipe(concatMap(server => {
-                return !server ? of(undefined) : this.dataService
-                    .get_npc(server.expansion_id, npc_id);
-            }));
+        return this.dataService.get_npc(this.expansion_id$, npc_id);
     }
 
 }

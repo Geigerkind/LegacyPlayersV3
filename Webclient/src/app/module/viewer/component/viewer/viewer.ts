@@ -53,7 +53,9 @@ export class ViewerComponent implements OnDestroy {
         });
         this.subscription_meta = this.instanceDataService.meta.subscribe(meta => {
             this.unitService.set_server_id(meta?.server_id);
+            this.unitService.set_expansion_id(meta?.expansion_id);
             this.spellService.set_server_id(meta?.server_id);
+            this.spellService.set_expansion_id(meta?.expansion_id);
         });
     }
 

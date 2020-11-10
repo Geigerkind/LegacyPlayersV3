@@ -2,7 +2,7 @@ import {Injectable} from "@angular/core";
 import {Observable, of} from "rxjs";
 import {Localized} from "../../../domain_value/localized";
 import {BasicSpell} from "../../../domain_value/data/basic_spell";
-import {concatMap, map} from "rxjs/operators";
+import {map} from "rxjs/operators";
 import {DataService} from "../../../service/data";
 import {
     CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_ID_MH,
@@ -18,6 +18,7 @@ import {School} from "../domain_value/school";
 export class SpellService {
 
     private server_id$: number;
+    private expansion_id$: number;
 
     constructor(
         private dataService: DataService
@@ -63,6 +64,10 @@ export class SpellService {
         this.server_id$ = server_id;
     }
 
+    set_expansion_id(expansion_id: number): void {
+        this.expansion_id$ = expansion_id;
+    }
+
     get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell>> {
         if (spell_id === CONST_AUTO_ATTACK_ID)
             return of({
@@ -93,9 +98,7 @@ export class SpellService {
             });
         if (!this.server_id$)
             return of(this.dataService.unknown_basic_spell);
-        return this.dataService.get_server_by_id(this.server_id$)
-            .pipe(concatMap(server => !server ? of(this.dataService.unknown_basic_spell)
-                : this.dataService.get_localized_basic_spell(server.expansion_id, spell_id)));
+        return this.dataService.get_localized_basic_spell(this.expansion_id$, spell_id);
     }
 
     get_spell_name(spell_id: number): Observable<string> {

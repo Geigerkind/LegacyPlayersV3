@@ -62,12 +62,7 @@ export class LootService implements OnDestroy {
     }
 
     private get_basic_item(item_id: number): Observable<Localized<BasicItem> | undefined> {
-        return this.dataService
-            .get_server_by_id(this.current_meta.server_id)
-            .pipe(concatMap(server => {
-                return !server ? of(undefined) : this.dataService
-                    .get_localized_basic_item(server.expansion_id, item_id);
-            }));
+        return this.dataService.get_localized_basic_item(this.current_meta.expansion_id, item_id);
     }
 
     private create_loot(attempts: Array<InstanceViewerAttempt>, loot: Array<EventLoot>): Array<Loot> {

@@ -35,9 +35,7 @@ export class RaidLootComponent implements OnDestroy {
             this.loot = loot;
             this.lootEmpty.next(this.loot.length === 0);
         });
-        this.expansion_id = this.instanceDataService.meta
-            .pipe(concatMap(meta => !meta ? undefined : this.dataService.get_server_by_id(meta.server_id)),
-                map(server => server?.expansion_id));
+        this.expansion_id = this.instanceDataService.meta.pipe(map(meta => meta.expansion_id));
     }
 
     ngOnDestroy(): void {
