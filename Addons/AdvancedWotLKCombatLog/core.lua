@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 20
+RPLL.VERSION = 21
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -716,6 +716,10 @@ function RPLL:PushCurrentInstanceInfo()
 end
 
 function RPLL:PushPet(owner_unit)
+    if not IsInInstance() then
+        return
+    end
+
     local pet_guid = nil;
     if owner_unit == "player" then
         pet_guid = UnitGUID("pet")

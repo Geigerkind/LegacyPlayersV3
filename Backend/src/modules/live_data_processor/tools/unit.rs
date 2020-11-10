@@ -38,7 +38,6 @@ impl MapUnit for dto::Unit {
                 entry: self.unit_id.get_entry().ok_or(LiveDataProcessorFailure::InvalidInput)?,
                 owner: summons.get(&self.unit_id).cloned().map(Box::new),
             });
-            cache_unit.insert(self.unit_id, unit.clone());
             Ok(unit)
         }
     }
