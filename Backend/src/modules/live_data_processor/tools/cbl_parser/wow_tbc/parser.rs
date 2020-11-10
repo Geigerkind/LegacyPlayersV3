@@ -387,6 +387,8 @@ impl CombatLogParser for WoWTBCParser {
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
+                self.collect_participant(&owner, message_args[2], event_ts);
+                self.collect_participant(&unit, message_args[5], event_ts);
                 vec![MessageType::Summon(Summon { owner, unit })]
             }
             "UNIT_DIED" | "UNIT_DESTROYED" => {

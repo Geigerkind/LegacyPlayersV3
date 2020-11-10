@@ -209,6 +209,8 @@ impl CombatLogParser for WoWRetailClassicParser {
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..5]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[5..9]).unwrap_or_else(Unit::default);
+                self.collect_participant(&owner, message_args[1], message_args[2], event_ts);
+                self.collect_participant(&unit, message_args[5], message_args[6], event_ts);
                 vec![MessageType::Summon(Summon { owner, unit })]
             },
             "UNIT_DIED" | "UNIT_DESTROYED" => {

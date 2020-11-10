@@ -32,12 +32,23 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 let mut message_count = (messages.len() + message_types.len()) as u64;
                 let mut msg_type_len = message_types.len() as u64;
                 for message_type in message_types {
+                    let mut ts_offset = 0;
+                    if let MessageType::Summon(summon) = &message_type {
+                        if let Some(entry) = summon.unit.unit_id.get_entry() {
+                            match entry {
+                                // Order for Shaman Totems
+                                15439 | 15430 => ts_offset = 50,
+                                _ => {}
+                            };
+                        }
+                    }
+
                     message_count -= 1;
                     msg_type_len -= 1;
                     messages.push(Message {
                         api_version: 0,
                         message_length: 0,
-                        timestamp: event_timestamp - msg_type_len,
+                        timestamp: event_timestamp - msg_type_len - ts_offset,
                         message_count,
                         message_type,
                     });
