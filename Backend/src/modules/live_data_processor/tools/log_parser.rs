@@ -271,6 +271,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                                         *message_count - 1,
                                         &Unit { is_player: false, unit_id },
                                     );
+                                } else {
+                                    println!("{} not found", npc_id);
                                 }
                             }
                         }
