@@ -10,14 +10,15 @@ pub fn parse_trailer(trailer: &str) -> Vec<(Option<u32>, HitType)> {
             result.push((None, HitType::Crushing));
         } else if !ind_trailer.is_empty() {
             let parts = ind_trailer.split(' ').collect::<Vec<&str>>();
-            let amount = u32::from_str_radix(&parts[0], 10).unwrap();
-            let hit_type = match parts[1] {
-                "resisted" => HitType::PartialResist,
-                "blocked" => HitType::PartialBlock,
-                "absorbed" => HitType::PartialAbsorb,
-                _ => unreachable!(),
-            };
-            result.push((Some(amount), hit_type));
+            if let Ok(amount) = u32::from_str_radix(&parts[0], 10) {
+                let hit_type = match parts[1] {
+                    "resisted" => HitType::PartialResist,
+                    "blocked" => HitType::PartialBlock,
+                    "absorbed" => HitType::PartialAbsorb,
+                    _ => unreachable!(),
+                };
+                result.push((Some(amount), hit_type));
+            }
         }
     }
     result
