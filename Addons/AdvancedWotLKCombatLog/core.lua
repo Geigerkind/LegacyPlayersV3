@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 21
+RPLL.VERSION = 22
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -427,16 +427,16 @@ RPLL.PLAYER_ENTERING_WORLD = function()
             RPLL.ExtraMessages = {}
             RPLL.ExtraMessageLength = 0
             RPLL.ExtraMessageIndex = 1
-            print("Log nuked")
+            RPLL:SendMessage("Log nuked")
             RPLL:CollectUnit("player")
             RPLL:RAID_ROSTER_UPDATE()
             RPLL:PARTY_MEMBERS_CHANGED()
         else
-            print("LegacyPlayers: To nuke a log type: /rpll nuke!");
+            RPLL:SendMessage("LegacyPlayers: To nuke a log type: /rpll nuke!");
         end
     end
 
-    print("LegacyPlayers collector v" .. RPLL.VERSION .. " has been loaded. Type /rpll for help.")
+    RPLL:SendMessage("LegacyPlayers collector v" .. RPLL.VERSION .. " has been loaded. Type /rpll for help.")
 
     RPLL:CollectUnit("player")
     RPLL:RAID_ROSTER_UPDATE()
@@ -728,15 +728,21 @@ function RPLL:PushPet(owner_unit)
     elseif strfind(owner_unit, "party") then
         pet_guid = UnitGUID("partypet" .. strsub(owner_unit, 6))
     end
+
+    if pet_guid == nil then
+        return
+    end
+
     if queued_pets[pet_guid] ~= nil then
         return
     end
     queued_pets[pet_guid] = true
+    local owner_guid = UnitGUID(owner_unit)
+    RPLL:PushExtraMessage("PET_SUMMON", strjoin("&", owner_guid, pet_guid))
+end
 
-    if pet_guid ~= nil then
-        local owner_guid = UnitGUID(owner_unit)
-        RPLL:PushExtraMessage("PET_SUMMON", strjoin("&", owner_guid, pet_guid))
-    end
+function RPLL:SendMessage(msg)
+    DEFAULT_CHAT_FRAME:AddMessage("|cFFFF8080LegacyPlayers|r: "..msg)
 end
 
 function prep_value(val)
