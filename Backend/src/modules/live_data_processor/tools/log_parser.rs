@@ -255,6 +255,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
 
+                ignore = ignore || dmg.victim.unit_id == 0 || dmg.attacker.unit_id == 0;
                 if !ignore {
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
@@ -404,7 +405,11 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
          */
 
         if let Some(implied_in_combat_npc_ids) = parser.get_in_combat_implied_npc_combat(entry) {
-            for (unit_id, _) in last_combat_update.clone() {
+            for (unit_id, ts) in last_combat_update.clone() {
+                if current_timestamp - ts >= 60000 {
+                    continue;
+                }
+
                 for npc_id in &implied_in_combat_npc_ids {
                     if unit_id.get_entry().contains(npc_id) {
                         add_combat_event(parser, data, expansion_id, additional_messages, last_combat_update, current_timestamp, current_message_count, &Unit { is_player: false, unit_id });

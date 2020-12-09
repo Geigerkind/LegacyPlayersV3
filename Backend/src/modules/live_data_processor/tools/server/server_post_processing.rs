@@ -453,7 +453,7 @@ fn process_ranking(unit: &Unit, event: &Event, data: &Data, active_attempts: &mu
 
 fn commit_attempt(db_main: &mut (impl Execute + Select), instance_meta_id: u32, mut attempt: Attempt) {
     // Likely a false positive
-    if attempt.end_ts - attempt.start_ts <= 1000 {
+    if attempt.end_ts - attempt.start_ts <= 5000 {
         return;
     }
 

@@ -595,6 +595,8 @@ impl CombatLogParser for WoWTBCParser {
     fn get_npc_appearance_offset(&self, entry: u32) -> Option<i64> {
         Some(match entry {
             20060 | 20062 | 20063 | 20064 | 19622 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => -180000,
+            17257 => -120000,
+            17454 | 17256 => -3000,
             _ => return None,
         })
     }
@@ -602,6 +604,7 @@ impl CombatLogParser for WoWTBCParser {
     fn get_npc_timeout(&self, entry: u32) -> Option<u64> {
         Some(match entry {
             20060 | 20062 | 20063 | 20064 | 19622 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => 180000,
+            17257 => 180000,
             _ => return None,
         })
     }
