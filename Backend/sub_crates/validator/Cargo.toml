@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Tom Dymel <tom@dymel.dev>"]
 
 [dependencies]
-pwned = "*"
+pwned = "0.2.1"
 regex = "*"
 lazy_static = "*"
 
