@@ -1051,7 +1051,7 @@ impl CombatLogParser for WoWVanillaParser {
                 participant.guild_args = Some((guild_name.to_string(), guild_rank_name.to_string(), guild_rank_index));
             }
 
-            if pet_name != "nil" && pet_name.is_empty() {
+            if pet_name != "nil" && ! pet_name.is_empty() {
                 let pet_unit = parse_unit(&mut self.cache_unit, data, pet_name)?;
                 self.pet_owner.insert(pet_unit.unit_id, unit_id);
             }
