@@ -25,15 +25,15 @@ services:
     #  - ./../ModelViewer/textures/:/var/www/html/model_viewer/textures
     #  - ./../ModelViewer/viewer/:/var/www/html/model_viewer/viewer
     #  - ./../ModelViewer/bg.png:/var/www/html/model_viewer/bg.png
-    ports:
-    - '80:80'
-    - '443:443'
-    - '8080:8080'
+#    ports:
+#    - '80:80'
+#    - '443:443'
+#    - '8080:8080'
   postfix:
     network_mode: host
     build: ./postfix
-    ports:
-    - '25:25'
+#    ports:
+#    - '25:25'
     environment:
     - SMTP_SERVER=smtp.gmail.com
     - SMTP_USERNAME=jaylappdev@gmail.com
