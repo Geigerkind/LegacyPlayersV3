@@ -1051,7 +1051,7 @@ impl CombatLogParser for WoWVanillaParser {
                 participant.guild_args = Some((guild_name.to_string(), guild_rank_name.to_string(), guild_rank_index));
             }
 
-            if pet_name != "nil" {
+            if pet_name != "nil" && ! pet_name.is_empty() {
                 let pet_unit = parse_unit(&mut self.cache_unit, data, pet_name)?;
                 self.pet_owner.insert(pet_unit.unit_id, unit_id);
             }
@@ -1161,7 +1161,7 @@ impl CombatLogParser for WoWVanillaParser {
                     owner: Unit { is_player: true, unit_id: *owner_unit_id },
                     unit: Unit {
                         is_player: false,
-                        unit_id: 0xF14000FFFF000000 + (*pet_unit_id | 0x0000000000FFFFFF),
+                        unit_id: 0xF14000FFFF000000 + (*pet_unit_id & 0x0000000000FFFFFF),
                     },
                 }),
             ));
