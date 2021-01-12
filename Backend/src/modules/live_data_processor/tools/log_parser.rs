@@ -10,6 +10,7 @@ use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use rust_lapper::{Interval, Lapper};
 use std::collections::{BTreeSet, HashMap};
+use std::cmp::Ordering;
 
 pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
@@ -56,6 +57,15 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             }
         }
     }
+	
+    // Make sure all timestamps are in the correct order.
+    messages.sort_by(|left, right| {
+        let res = left.timestamp.cmp(&right.timestamp);
+        if res == Ordering::Equal {
+            let _result = left.message_count.cmp(&right.message_count);
+        }
+        res
+    });
 
     // Post processing step
     parser.do_message_post_processing(data, &mut messages);
