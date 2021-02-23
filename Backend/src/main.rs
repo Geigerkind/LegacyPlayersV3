@@ -4,7 +4,7 @@
 #![allow(clippy::ptr_arg)]
 #![allow(clippy::blocks_in_if_conditions)]
 #![allow(dead_code)]
-#![feature(proc_macro_hygiene, decl_macro, option_result_contains, vec_remove_item, test)]
+#![feature(proc_macro_hygiene, decl_macro, option_result_contains, test)]
 #![feature(with_options)]
 #![feature(box_patterns)]
 extern crate language;
