@@ -68,7 +68,7 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
     let mut rankings_dps = instance_rankings_dps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.damage, (B.end_ts - B.start_ts) as duration FROM instance_ranking_damage A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.damage, (B.end_ts - B.start_ts) as duration, B.instance_meta_id FROM instance_ranking_damage A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
@@ -81,6 +81,7 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
                         attempt_id: row.take(3).unwrap(),
                         amount: row.take(4).unwrap(),
                         duration: row.take(5).unwrap(),
+                        instance_meta_id: row.take(6).unwrap()
                     },
                 )
             },
@@ -99,7 +100,7 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
     let mut rankings_hps = instance_rankings_hps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.heal, (B.end_ts - B.start_ts) as duration FROM instance_ranking_heal A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.heal, (B.end_ts - B.start_ts) as duration, B.instance_meta_id FROM instance_ranking_heal A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
@@ -112,6 +113,7 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
                         attempt_id: row.take(3).unwrap(),
                         amount: row.take(4).unwrap(),
                         duration: row.take(5).unwrap(),
+                        instance_meta_id: row.take(6).unwrap()
                     },
                 )
             },
@@ -130,7 +132,7 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
     let mut rankings_tps = instance_rankings_tps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.threat, (B.end_ts - B.start_ts) as duration FROM instance_ranking_threat A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.threat, (B.end_ts - B.start_ts) as duration, B.instance_meta_id FROM instance_ranking_threat A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
@@ -143,6 +145,7 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
                         attempt_id: row.take(3).unwrap(),
                         amount: row.take(4).unwrap(),
                         duration: row.take(5).unwrap(),
+                        instance_meta_id: row.take(6).unwrap()
                     },
                 )
             },
