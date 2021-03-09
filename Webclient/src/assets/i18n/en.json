@@ -26,6 +26,7 @@
         "534": "Invalid Input!",
         "535": "Invalid characters used!",
         "536": "File is not valid UTF8!",
+        "537": "ZIP File not recognized!",
         "599": "An unknown error occurred!",
         "mail_confirm": "A confirmation mail has been send to you!",
         "reset_mail_confirm": "A mail has been send to the specified address!"

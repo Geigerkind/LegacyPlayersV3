@@ -8,7 +8,8 @@ use std::io::Cursor;
 pub enum LiveDataProcessorFailure {
     InvalidInput,
     DatabaseFailure(String),
-    FileIsNotUTF8
+    FileIsNotUTF8,
+    InvalidZipFile
 }
 
 impl Responder<'static> for LiveDataProcessorFailure {
@@ -27,6 +28,10 @@ impl Responder<'static> for LiveDataProcessorFailure {
                 body = "File is not UFT8!".to_owned();
                 Status::new(536, "FileIsNotUTF8")
             },
+            LiveDataProcessorFailure::InvalidZipFile => {
+                body = "Invalid input: ZIP file not recognized!".to_owned();
+                Status::new(537, "InvalidZipFile")
+            },
         };
         Response::build().status(status).sized_body(Cursor::new(body)).ok()
     }
@@ -38,7 +43,8 @@ impl OpenApiResponder<'static> for LiveDataProcessorFailure {
         let schema = gen.json_schema::<String>();
         add_schema_response(&mut responses, 534, "text/plain", schema.clone())?;
         add_schema_response(&mut responses, 535, "text/plain", schema.clone())?;
-        add_schema_response(&mut responses, 536, "text/plain", schema)?;
+        add_schema_response(&mut responses, 536, "text/plain", schema.clone())?;
+        add_schema_response(&mut responses, 537, "text/plain", schema)?;
         Ok(responses)
     }
 }
