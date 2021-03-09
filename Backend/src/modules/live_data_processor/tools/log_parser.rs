@@ -57,7 +57,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             }
         }
     }
-	
+
     // Make sure all timestamps are in the correct order.
     messages.sort_by(|left, right| {
         let res = left.timestamp.cmp(&right.timestamp);

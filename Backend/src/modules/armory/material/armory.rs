@@ -16,6 +16,7 @@ pub struct Armory {
     // Caches
     // TODO: Evict them at some point!
     pub cache_char_history: RwLock<HashMap<u32, CharacterHistory>>,
+    pub cache_char_name_to_id: RwLock<HashMap<String, Vec<u32>>>
 }
 
 impl Default for Armory {
@@ -24,6 +25,7 @@ impl Default for Armory {
             characters: RwLock::new(HashMap::new()),
             guilds: RwLock::new(HashMap::new()),
             cache_char_history: RwLock::new(HashMap::new()),
+            cache_char_name_to_id: RwLock::new(HashMap::new()),
         }
     }
 }
@@ -32,6 +34,18 @@ impl Armory {
     pub fn init(self, db_main: &mut impl Select) -> Self {
         self.characters.write().unwrap().init(db_main);
         self.guilds.write().unwrap().init(db_main);
+
+        {
+            let chars = self.characters.read().unwrap();
+            let mut cache = self.cache_char_name_to_id.write().unwrap();
+            for (char_id, character) in chars.iter().filter(|(_, character)| character.last_update.is_some()) {
+                let vec = cache.entry(character.last_update.as_ref().unwrap().character_name.clone()).or_insert_with(Vec::new);
+                if !vec.contains(char_id) {
+                    vec.push(*char_id);
+                }
+            }
+        }
+
         self
     }
 }

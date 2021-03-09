@@ -17,6 +17,15 @@ impl DeleteCharacter for Armory {
               "id" => id
             ),
         ) {
+            // TODO: Correct but inefficient!
+            let mut cache = self.cache_char_name_to_id.write().unwrap();
+            cache.clear();
+            for (char_id, character) in characters.iter().filter(|(_, character)| character.last_update.is_some()) {
+                let vec = cache.entry(character.last_update.as_ref().unwrap().character_name.clone()).or_insert_with(Vec::new);
+                if !vec.contains(char_id) {
+                    vec.push(*char_id);
+                }
+            }
             return characters.remove(&id).ok_or(ArmoryFailure::InvalidInput).map(|_| ());
         }
         Err(ArmoryFailure::Database("delete_character".to_owned()))
