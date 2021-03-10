@@ -47,14 +47,14 @@ impl GetCharacter for Armory {
         let characters = self.characters.read().unwrap();
         let cache = self.cache_char_name_to_id.read().unwrap();
 
-        cache.get(&character_name).and_then(|char_ids| Some(char_ids.iter().fold(Vec::new(), |mut acc, id| {
+        cache.get(&character_name).map(|char_ids| char_ids.iter().fold(Vec::new(), |mut acc, id| {
             if let Some(character) = characters.get(id) {
                 if character.last_update.is_some() {
                     acc.push(character.clone());
                 }
             }
             acc
-        }))).unwrap_or_else(Vec::new)
+        })).unwrap_or_else(Vec::new)
 /*
         let name = character_name.to_lowercase();
         characters

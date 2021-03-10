@@ -258,7 +258,7 @@ fn improved_acts() {
             // build iterators to iterate over values: from above we have classes with amounts, convert them into vectors of required size (by repeating values based on amount), do that both for guild_id and guild_name
             let id_classes = amounts_in_id_classes.iter().enumerate().fold(vec![], |accumulator, (i, amount)| [accumulator, vec![i; *amount as usize]].concat());
             let id_values = id_classes.iter().enumerate().map(|(i, id)| match id {
-                0 => 0 as u32,
+                0 => 0_u32,
                 1 => {
                     if test_requirement[7] == 1 {
                         i as u32

@@ -1420,10 +1420,8 @@ impl CombatLogParser for WoWVanillaParser {
         Some(self.bonus_messages.clone())
     }
 
-    fn get_npc_in_combat_offset(&self, entry: u32) -> Option<i64> {
-        Some(match entry {
-            _ => return None
-        })
+    fn get_npc_in_combat_offset(&self, _entry: u32) -> Option<i64> {
+        None
     }
 }
 

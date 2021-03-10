@@ -3,43 +3,45 @@
 #![allow(clippy::unused_unit)]
 #![allow(clippy::ptr_arg)]
 #![allow(clippy::blocks_in_if_conditions)]
+#![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::collapsible_if)]
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, test)]
 #![feature(with_options)]
 #![feature(box_patterns)]
+extern crate byteorder;
+extern crate chrono;
+extern crate dotenv;
+extern crate grouping_by;
 extern crate language;
+#[macro_use]
+extern crate lazy_static;
 extern crate mail;
 extern crate okapi;
+extern crate rand;
+extern crate regex;
 #[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
+extern crate rocket_multipart_form_data;
 #[macro_use]
 extern crate rocket_okapi;
-extern crate rocket_multipart_form_data;
+extern crate rust_lapper;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 extern crate str_util;
 extern crate time_util;
 extern crate validator;
-#[macro_use]
-extern crate lazy_static;
-extern crate byteorder;
-extern crate chrono;
-extern crate dotenv;
-extern crate grouping_by;
-extern crate rand;
-extern crate regex;
-extern crate rust_lapper;
 
 use dotenv::dotenv;
 pub use rocket_contrib::databases::mysql;
+use rocket_contrib::databases::mysql::Opts;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig, UrlObject};
 use rocket_prometheus::PrometheusMetrics;
 
 use crate::modules::{account, armory, data, instance, live_data_processor, tooltip, utility};
-use rocket_contrib::databases::mysql::Opts;
 
 #[cfg(test)]
 mod tests;
@@ -70,37 +72,39 @@ fn main() {
 
     let prometheus = PrometheusMetrics::new();
 
-    let mut swagger_ui_config = SwaggerUIConfig::default();
-    swagger_ui_config.urls = Some(vec![
-        UrlObject {
-            name: "Account".to_string(),
-            url: "/API/account/openapi.json".to_string(),
-        },
-        UrlObject {
-            name: "Data".to_string(),
-            url: "/API/data/openapi.json".to_string(),
-        },
-        UrlObject {
-            name: "Armory".to_string(),
-            url: "/API/armory/openapi.json".to_string(),
-        },
-        UrlObject {
-            name: "Tooltip".to_string(),
-            url: "/API/tooltip/openapi.json".to_string(),
-        },
-        UrlObject {
-            name: "Live Data Processor".to_string(),
-            url: "/API/live_data_processor/openapi.json".to_string(),
-        },
-        UrlObject {
-            name: "Instance".to_string(),
-            url: "/API/instance/openapi.json".to_string(),
-        },
-        UrlObject {
-            name: "Utility".to_string(),
-            url: "/API/utility/openapi.json".to_string(),
-        },
-    ]);
+    let swagger_ui_config = SwaggerUIConfig {
+        url: None,
+        urls: Some(vec![
+            UrlObject {
+                name: "Account".to_string(),
+                url: "/API/account/openapi.json".to_string(),
+            },
+            UrlObject {
+                name: "Data".to_string(),
+                url: "/API/data/openapi.json".to_string(),
+            },
+            UrlObject {
+                name: "Armory".to_string(),
+                url: "/API/armory/openapi.json".to_string(),
+            },
+            UrlObject {
+                name: "Tooltip".to_string(),
+                url: "/API/tooltip/openapi.json".to_string(),
+            },
+            UrlObject {
+                name: "Live Data Processor".to_string(),
+                url: "/API/live_data_processor/openapi.json".to_string(),
+            },
+            UrlObject {
+                name: "Instance".to_string(),
+                url: "/API/instance/openapi.json".to_string(),
+            },
+            UrlObject {
+                name: "Utility".to_string(),
+                url: "/API/utility/openapi.json".to_string(),
+            },
+        ]),
+    };
 
     rocket::ignite()
         .manage(account)

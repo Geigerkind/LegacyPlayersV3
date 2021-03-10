@@ -14,7 +14,7 @@ pub trait GuildViewer {
 
 impl GuildViewer for Armory {
     fn get_guild_view(&self, guild_id: u32) -> Result<GuildViewerDto, ArmoryFailure> {
-        let guild = self.get_guild(guild_id).ok_or_else(|| ArmoryFailure::InvalidInput)?;
+        let guild = self.get_guild(guild_id).ok_or(ArmoryFailure::InvalidInput)?;
         Ok(GuildViewerDto {
             guild_id,
             guild_name: guild.name,

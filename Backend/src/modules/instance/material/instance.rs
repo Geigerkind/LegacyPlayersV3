@@ -319,15 +319,15 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
 }
 
 trait Winner {
-    fn to_winner(self) -> Option<bool>;
+    fn to_winner(&self) -> Option<bool>;
 }
 
 impl Winner for u8 {
-    fn to_winner(self) -> Option<bool> {
+    fn to_winner(&self) -> Option<bool> {
         // TODO: Find out what these values mean!
-        if self == 0 {
+        if *self == 0 {
             return None;
-        } else if self == 1 {
+        } else if *self == 1 {
             return Some(true);
         }
         Some(false)
