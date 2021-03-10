@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 18
+RPLL.VERSION = 19
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -404,6 +404,7 @@ RPLL.PLAYER_ENTERING_WORLD = function()
     end
 
     UIErrorsFrame:Hide()
+    UIErrorsFrame.Show = function() end
     local player_name = UnitName("player")
 
     LOOT_ITEM_CREATED_SELF = player_name .. " creates: %sx1."
@@ -465,6 +466,11 @@ local inspect_queue_last_inspect = 0
 local inspect_timeout = 3 -- 3 seconds
 local inspect_in_progress = false
 function RPLL:OnUpdate()
+    -- Suppress Addon Error frame
+    if StaticPopup1 ~= nil and StaticPopup1:IsShown() ~= nil and strfind(StaticPopup1Text:GetText(), "AdvancedTBCCombatLog") ~= nil then
+        StaticPopup1:Hide()
+    end
+
     if inspect_queue_length >= inspect_queue_index then
         if not inspect_in_progress or time() - inspect_queue_last_inspect >= inspect_timeout then
             inspect_in_progress = true
