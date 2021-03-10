@@ -10,6 +10,10 @@ export function commit_aura_gain(aura_applications: Array<Event>, getter: (Event
 
     const grouping = group_by(aura_applications, (event) => get_unit_id(getter(event), false));
     for (const unit_id in grouping) {
+        if (!unit_id) {
+            continue;
+        }
+
         const subject_id = Number(unit_id);
         if (!newData.has(subject_id))
             newData.set(subject_id, [getter(grouping[unit_id][0]), []]);

@@ -35,7 +35,7 @@ export class ExportViewerService implements OnDestroy {
             if (updates.includes(KnechtUpdates.FilterInitialized)) {
                 this.import();
             }
-        }))
+        }));
     }
 
     ngOnDestroy(): void {

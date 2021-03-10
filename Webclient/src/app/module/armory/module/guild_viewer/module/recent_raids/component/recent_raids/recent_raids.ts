@@ -81,7 +81,7 @@ export class RecentRaidsComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: any): void {
-        if (changes.guild_name != this.guild_name || changes.server_id != this.server_id) {
+        if (changes.guild_name !== this.guild_name || changes.server_id !== this.server_id) {
             this.onFilter(this.last_filter);
         }
     }

@@ -259,9 +259,9 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     type: 5,
                     payload: () => {
                         const result = new Map<number, number>();
-                        for (const _row of this.current_data.find(([unit_id]) => unit_id === subject_id)[1]) {
-                            const row = _row as AuraGainOverviewRow;
-                            if (result.has(row.ability)) result.set(row.ability, result.get(row.ability) + 1)
+                        for (const int_row of this.current_data.find(([unit_id]) => unit_id === subject_id)[1]) {
+                            const row = int_row as AuraGainOverviewRow;
+                            if (result.has(row.ability)) result.set(row.ability, result.get(row.ability) + 1);
                             else result.set(row.ability, 1);
                         }
                         return [...result.entries()].sort((left, right) => right[1] - left[1])
@@ -348,10 +348,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 }
             } else if ([25, 26].includes(this.current_selection)) {
                 const acc = new Map<number, number>();
-                for (const [, rows] of this.current_data) {
-                    for (const _row of rows) {
-                        const row = _row as AuraGainOverviewRow;
-                        if (acc.has(row.ability)) acc.set(row.ability, acc.get(row.ability) + 1)
+                for (const [, i_rows] of this.current_data) {
+                    for (const int_row of i_rows) {
+                        const row = int_row as AuraGainOverviewRow;
+                        if (acc.has(row.ability)) acc.set(row.ability, acc.get(row.ability) + 1);
                         else acc.set(row.ability, 1);
                     }
                 }

@@ -25,7 +25,8 @@ export class RaidMeterService implements OnDestroy {
 
     private subscription_data: Subscription;
 
-    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]>> = new BehaviorSubject([]);
+    private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow>
+        | Array<[number, Array<[number, number]>]>]>> = new BehaviorSubject([]);
     private abilities$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
     private units$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
 
