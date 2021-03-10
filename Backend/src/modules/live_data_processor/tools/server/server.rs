@@ -32,6 +32,8 @@ impl Server {
             self.cleanup(msg.timestamp);
             self.push_non_committed_event(msg);
         }
+        self.test_for_committable_events(db_main, data, armory, member_id);
+        self.cleanup(last_ts);
         self.reset_instances(db_main, last_ts);
         self.perform_post_processing(db_main, data);
         println!("Done");

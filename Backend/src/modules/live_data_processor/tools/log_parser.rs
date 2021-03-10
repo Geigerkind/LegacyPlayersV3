@@ -315,6 +315,28 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         };
     }
 
+    // Artificially set in combat to false at the end for each in combat npc
+    for (entry, last_update_ts) in last_combat_update.iter() {
+        let last_in_combat_msg = additional_messages.iter().rev().find(|msg| match &msg.message_type {
+            MessageType::CombatState(state) => state.unit.unit_id == *entry,
+            _ => false
+        }).cloned();
+
+        if let Some(msg) = last_in_combat_msg {
+            if let MessageType::CombatState(state) = msg.message_type {
+                if state.in_combat {
+                    additional_messages.push(Message {
+                        api_version: 0,
+                        message_length: 0,
+                        timestamp: *last_update_ts + 100,
+                        message_count: messages.len() as u64 + 1,
+                        message_type: MessageType::CombatState(CombatState { unit: state.unit, in_combat: false }),
+                    });
+                }
+            }
+        }
+    }
+
     messages.append(&mut bonus_messages);
     messages.append(&mut additional_messages);
     if server_id == 4 || server_id == 5 {
