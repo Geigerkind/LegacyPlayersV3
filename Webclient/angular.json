@@ -45,7 +45,6 @@
                             "optimization": true,
                             "outputHashing": "bundles",
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": true,
                             "aot": true,
                             "extractLicenses": true,
