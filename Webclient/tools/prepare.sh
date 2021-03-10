@@ -13,4 +13,6 @@ for template in ${_WEBCLIENT_TEMPLATE_FILES[@]}; do
 
 done
 
-unzip -o ./../src/assets/wow_icon.zip -d ./../src/assets/
+if [ ! -d "./../src/assets/wow_icon" ]; then
+    unzip -o ./../src/assets/wow_icon.zip -d ./../src/assets/
+fi
