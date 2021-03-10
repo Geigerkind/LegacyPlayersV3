@@ -1419,6 +1419,12 @@ impl CombatLogParser for WoWVanillaParser {
     fn get_bonus_messages(&self) -> Option<Vec<Message>> {
         Some(self.bonus_messages.clone())
     }
+
+    fn get_npc_in_combat_offset(&self, entry: u32) -> Option<i64> {
+        Some(match entry {
+            _ => return None
+        })
+    }
 }
 
 fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>) -> Option<CharacterItemDto> {

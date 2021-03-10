@@ -404,15 +404,13 @@ fn is_in_remove_list(remove_unit: &BTreeSet<u64>, message_type: &MessageType) ->
 }
 
 fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8, additional_messages: &mut Vec<Message>, last_combat_update: &mut HashMap<u64, u64>, current_timestamp: u64, current_message_count: u64, unit: &Unit) {
-    let ts_offset: i64 = -1;
+    let mut ts_offset: i64 = -1;
     let mut timeout = 60000;
     let mut current_unit_is_boss = false;
     if let Some(entry) = unit.unit_id.get_entry() {
-        /*
-        if let Some(delay) = parser.get_npc_appearance_offset(entry) {
+        if let Some(delay) = parser.get_npc_in_combat_offset(entry) {
             ts_offset = delay;
         }
-         */
 
         if let Some(implied_in_combat_npc_ids) = parser.get_in_combat_implied_npc_combat(entry) {
             for (unit_id, ts) in last_combat_update.clone() {
