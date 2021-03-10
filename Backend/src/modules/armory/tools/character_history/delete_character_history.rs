@@ -22,6 +22,11 @@ impl DeleteCharacterHistory for Armory {
               "id" => character_history_id
             ),
         ) {
+            {
+                let mut cache_char_history = self.cache_char_history.write().unwrap();
+                cache_char_history.remove(&character_history_id);
+            }
+
             let mut character = characters.get_mut(&character_history.character_id).unwrap();
             let (hm_index, _) = character.history_moments.iter().enumerate().find(|(_index, history_moment)| history_moment.id == character_history_id).unwrap();
             character.history_moments.remove(hm_index);

@@ -36,7 +36,7 @@ impl CharacterHistory {
             && self.profession_skill_points1 == other.profession_skill_points1
             && self.profession_skill_points2 == other.profession_skill_points2
             && ((self.facial.is_none() && other.facial.is_none()) || (self.facial.is_some() && other.facial.is_some() && self.facial.as_ref().unwrap().deep_eq(other.facial.as_ref().unwrap())))
-            && self.timestamp == other.timestamp
+            //&& self.timestamp == other.timestamp
             && self.arena_teams.iter().all(|team| other.arena_teams.contains(team))
     }
 
