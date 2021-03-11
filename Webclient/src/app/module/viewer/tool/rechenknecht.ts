@@ -134,7 +134,7 @@ export class Rechenknecht {
     /*
      * RAID GRAPH
      */
-    async graph_data_set(data_set: DataSet): Promise<Array<[number, number]>> {
+    async graph_data_set(data_set: DataSet): Promise<Array<[number, number | Unit]>> {
         Rechenknecht.send_work_start();
         const result = this.raid_graph_knecht.get_data_set(data_set);
         Rechenknecht.send_work_end();

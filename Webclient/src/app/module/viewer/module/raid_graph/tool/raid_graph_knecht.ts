@@ -2,6 +2,9 @@ import {InstanceDataFilter} from "../../../tool/instance_data_filter";
 import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {Event} from "../../../domain_value/event";
 import {get_spell_components_total_amount} from "../../../domain_value/damage";
+import {Unit} from "../../../domain_value/unit";
+import {se_death} from "../../../extractor/sources";
+import {te_death} from "../../../extractor/targets";
 
 export class RaidGraphKnecht {
     private static readonly MAX_DATA_POINTS: number = 500;
@@ -44,21 +47,21 @@ export class RaidGraphKnecht {
         return data_points;
     }
 
-    private static feed_points(events: Array<Event>, extract_amount: (Event) => number): Array<[number, number]> {
+    private static feed_points(events: Array<Event>, extract_amount: (Event) => number | Unit): Array<[number, number | Unit]> {
         const result = [];
         for (const event of events)
             result.push([event[1], extract_amount(event)]);
         return result;
     }
 
-    async get_data_set(data_set: DataSet): Promise<Array<[number, number]>> {
+    async get_data_set(data_set: DataSet): Promise<Array<[number, number | Unit]>> {
         const data_points = this.extract_data_points(data_set);
         if (is_event_data_set(data_set))
             return data_points;
-        return RaidGraphKnecht.squash(data_points);
+        return RaidGraphKnecht.squash(data_points as Array<[number, number]>);
     }
 
-    private extract_data_points(data_set: DataSet): Array<[number, number]> {
+    private extract_data_points(data_set: DataSet): Array<[number, number | Unit]> {
         return (() => {
             switch (data_set) {
                 case DataSet.DamageDone:
@@ -81,7 +84,12 @@ export class RaidGraphKnecht {
                     return RaidGraphKnecht.feed_points(this.data_filter.get_threat(data_set === DataSet.ThreatTaken), (event) => event[8]);
                 case DataSet.Deaths:
                 case DataSet.Kills:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_deaths(data_set === DataSet.Kills), (event) => 1);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_deaths(data_set === DataSet.Kills), (event) => {
+                        if (data_set === DataSet.Kills) {
+                            return te_death(event);
+                        }
+                        return se_death(event);
+                    });
                 case DataSet.DispelsDone:
                 case DataSet.DispelsReceived:
                     return RaidGraphKnecht.feed_points(this.data_filter.get_dispels(data_set === DataSet.DispelsReceived), (event) => 1);

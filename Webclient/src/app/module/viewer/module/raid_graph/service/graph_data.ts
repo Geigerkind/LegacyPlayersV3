@@ -12,6 +12,7 @@ import {map} from "rxjs/operators";
 import {UtilService} from "../../raid_meter/service/util";
 import {get_absorb_data_points} from "../../../stdlib/absorb";
 import {ChartType, number_to_chart_type} from "../domain_value/chart_type";
+import {Unit} from "../../../domain_value/unit";
 
 @Injectable({
     providedIn: "root",
@@ -158,7 +159,7 @@ export class GraphDataService implements OnDestroy {
                 this.commit_data_set(data_set, RaidGraphKnecht.squash([
                     ...await this.instanceDataService.knecht_melee.graph_data_set(data_set),
                     ...await this.instanceDataService.knecht_spell_damage.graph_data_set(data_set)
-                ].sort((left, right) => left[0] - right[0])));
+                ].sort((left, right) => left[0] - right[0]) as Array<[number, number]>));
                 break;
             case DataSet.ThreatDone:
             case DataSet.ThreatTaken:
@@ -200,8 +201,7 @@ export class GraphDataService implements OnDestroy {
         }
     }
 
-    commit_data_set(data_set: DataSet, data_set_points: Array<[number, number]>): void {
-        console.log(data_set, data_set_points);
+    commit_data_set(data_set: DataSet, data_set_points: Array<[number, number | Unit]>): void {
         const data_points = this.current_data;
         const x_axis = new Array<number>();
         const y_axis = [];

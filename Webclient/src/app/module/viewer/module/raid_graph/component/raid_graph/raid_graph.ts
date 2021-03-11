@@ -25,6 +25,17 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     chartDataSets: Array<ChartDataSets> = [];
     chartLabels: any = [];
     chartOptions: ChartOptions = {
+        tooltips: {
+          callbacks: {
+              title: (item: Chart.ChartTooltipItem[], data: Chart.ChartData): string | string[] => {
+                  return this.dateService.toRPLLTimePrecise(Number(item[0].label));
+              },
+              label: (item: Chart.ChartTooltipItem, data: Chart.ChartData): string | string[] => {
+                  // @ts-ignore
+                  return !!data.datasets[item.datasetIndex].data[item.index].custom_label ? data.datasets[item.datasetIndex].data[item.index].custom_label : item.value;
+              }
+          }
+        },
         responsive: true,
         maintainAspectRatio: false,
         legend: {
@@ -190,8 +201,13 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             this.chartDataSets = [];
             for (const [data_set, [real_x_axis, real_y_axis]] of data_sets) {
                 const chart_points: Array<ChartPoint> = [];
-                for (let i = 0; i < real_x_axis.length; ++i)
-                    chart_points.push({x: real_x_axis[i], y: real_y_axis[i]});
+                for (let i = 0; i < real_x_axis.length; ++i) {
+                    if (is_event_data_set(data_set)) {
+                        chart_points.push({x: real_x_axis[i], y: real_y_axis[i], custom_label: "TODO"} as ChartPoint);
+                    } else {
+                        chart_points.push({x: real_x_axis[i], y: real_y_axis[i]} as ChartPoint);
+                    }
+                }
                 this.chartDataSets.push({
                     data: chart_points,
                     label: data_set,
