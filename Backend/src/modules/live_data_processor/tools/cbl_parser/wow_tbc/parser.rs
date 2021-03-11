@@ -1,8 +1,10 @@
 use crate::modules::armory::domain_value::GuildRank;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
+use crate::modules::armory::tools::strip_talent_specialization;
+use crate::modules::data::tools::RetrieveGem;
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::HitType;
-use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit, Loot, InstanceMap};
+use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, InstanceMap, Interrupt, Loot, Message, MessageType, SpellCast, Summon, UnAura, Unit};
 use crate::modules::live_data_processor::material::{ActiveMapVec, Participant, WoWTBCParser};
 use crate::modules::live_data_processor::tools::cbl_parser::combat_log_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_damage::parse_damage;
@@ -10,11 +12,9 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_heal:
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_miss::parse_miss;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_spell_args::parse_spell_args;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_unit::parse_unit;
+use crate::modules::live_data_processor::tools::GUID;
 use crate::util::hash_str::hash_str;
 use chrono::NaiveDateTime;
-use crate::modules::data::tools::RetrieveGem;
-use crate::modules::armory::tools::strip_talent_specialization;
-use crate::modules::live_data_processor::tools::GUID;
 use regex::Regex;
 
 impl CombatLogParser for WoWTBCParser {
@@ -136,8 +136,7 @@ impl CombatLogParser for WoWTBCParser {
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
                     let captures = RE_LOOT.captures(&args[1])?;
                     let unit_name = captures[1].to_string();
-                    let unit_guid = self.participants.iter()
-                        .find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
+                    let unit_guid = self.participants.iter().find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
                     let item_id = u32::from_str_radix(&captures[3], 10).ok()?;
                     let count = u32::from_str_radix(&captures[6], 10).ok()?;
                     self.bonus_messages.push(Message::new_parsed(
@@ -216,7 +215,7 @@ impl CombatLogParser for WoWTBCParser {
                     ));
                 }
                 return None;
-            }
+            },
             "SWING_DAMAGE" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -235,7 +234,7 @@ impl CombatLogParser for WoWTBCParser {
                     damage_over_time: false,
                     damage_components: vec![damage_component],
                 })]
-            }
+            },
             "SWING_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -253,7 +252,7 @@ impl CombatLogParser for WoWTBCParser {
                     damage_over_time: false,
                     damage_components: Vec::new(),
                 })]
-            }
+            },
             "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -282,7 +281,7 @@ impl CombatLogParser for WoWTBCParser {
                         damage_components: vec![damage_component],
                     }),
                 ]
-            }
+            },
             "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -310,7 +309,7 @@ impl CombatLogParser for WoWTBCParser {
                         damage_components: Vec::new(),
                     }),
                 ]
-            }
+            },
             "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -337,7 +336,7 @@ impl CombatLogParser for WoWTBCParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                 ]
-            }
+            },
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
@@ -361,7 +360,7 @@ impl CombatLogParser for WoWTBCParser {
                 }
 
                 result
-            }
+            },
             "SPELL_CAST_SUCCESS" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -383,18 +382,18 @@ impl CombatLogParser for WoWTBCParser {
                 }
 
                 result
-            }
+            },
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 self.collect_participant(&owner, message_args[2], event_ts);
                 self.collect_participant(&unit, message_args[5], event_ts);
                 vec![MessageType::Summon(Summon { owner, unit })]
-            }
+            },
             "UNIT_DIED" | "UNIT_DESTROYED" => {
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Death(Death { cause: None, victim })]
-            }
+            },
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -416,7 +415,7 @@ impl CombatLogParser for WoWTBCParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            }
+            },
             "SPELL_INTERRUPT" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -431,7 +430,7 @@ impl CombatLogParser for WoWTBCParser {
                     }),
                     MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
                 ]
-            }
+            },
             "SPELL_STOLEN" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -453,7 +452,7 @@ impl CombatLogParser for WoWTBCParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            }
+            },
             // TODO: Use more events
             // https://wow.gamepedia.com/COMBAT_LOG_EVENT?oldid=1585715
             _ => return None,
@@ -596,7 +595,7 @@ impl CombatLogParser for WoWTBCParser {
         Some(match entry {
             23215 | 23216 | 23218 | 23421 | 23523 | 23524 => -40000,
             22841 => -44000,
-            _ => return None
+            _ => return None,
         })
     }
 
@@ -646,7 +645,17 @@ impl CombatLogParser for WoWTBCParser {
                 (21273, -1000, 180000),
                 (21274, -1000, 180000),
             ],
-            20063 => vec![(19622, -1000, 180000), (20064, -1000, 180000), (21268, -1000, 180000), (21269, -1000, 180000), (21270, -1000, 180000), (21271, -1000, 180000), (21272, -1000, 180000), (21273, -1000, 180000), (21274, -1000, 180000)],
+            20063 => vec![
+                (19622, -1000, 180000),
+                (20064, -1000, 180000),
+                (21268, -1000, 180000),
+                (21269, -1000, 180000),
+                (21270, -1000, 180000),
+                (21271, -1000, 180000),
+                (21272, -1000, 180000),
+                (21273, -1000, 180000),
+                (21274, -1000, 180000),
+            ],
             20064 | 18545 | 21268 | 21269 | 21270 | 21271 | 21272 | 21273 | 21274 => vec![(19622, -1000, 180000)],
             _ => return None,
         })

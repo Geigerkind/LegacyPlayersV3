@@ -9,7 +9,7 @@ pub enum LiveDataProcessorFailure {
     InvalidInput,
     DatabaseFailure(String),
     FileIsNotUTF8,
-    InvalidZipFile
+    InvalidZipFile,
 }
 
 impl Responder<'static> for LiveDataProcessorFailure {

@@ -9,8 +9,8 @@ use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
 use rust_lapper::{Interval, Lapper};
-use std::collections::{BTreeSet, HashMap};
 use std::cmp::Ordering;
+use std::collections::{BTreeSet, HashMap};
 
 pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
@@ -39,7 +39,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                             match entry {
                                 // Order for Shaman Totems
                                 15439 | 15430 => ts_offset = 50,
-                                _ => {}
+                                _ => {},
                             };
                         }
                     }
@@ -182,8 +182,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             };
 
             let mut new_participants: HashMap<u64, bool> = HashMap::new();
-            for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 1000, *timestamp + 1000)
-                .filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
+            for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 1000, *timestamp + 1000).filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
                 new_participants.insert(*unit_id, *is_player);
             }
 
@@ -218,7 +217,10 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                         message_length: 0,
                         timestamp: *last_cbt_state + 5,
                         message_count: *message_count,
-                        message_type: MessageType::CombatState(CombatState { unit: Unit { is_player: *is_player, unit_id: *unit_id }, in_combat: false }),
+                        message_type: MessageType::CombatState(CombatState {
+                            unit: Unit { is_player: *is_player, unit_id: *unit_id },
+                            in_combat: false,
+                        }),
                     });
                     last_combat_update.remove(unit_id);
                 }
@@ -270,15 +272,20 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
                 }
-            }
+            },
             MessageType::Death(death) => {
                 if !death.victim.is_player {
                     if let Some(entry) = death.victim.unit_id.get_entry() {
                         if let Some(implied_npc_ids) = parser.get_death_implied_npc_combat_state_and_offset(entry) {
                             for (npc_id, delay_ts, lookahead_delay) in implied_npc_ids {
                                 if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
-                                    if !participant.is_player && participant.id.get_entry().contains(&npc_id)
-                                        && participant.active_intervals.iter().any(|(start, end)| (start <= timestamp && end >= timestamp) || ((*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp)) {
+                                    if !participant.is_player
+                                        && participant.id.get_entry().contains(&npc_id)
+                                        && participant
+                                            .active_intervals
+                                            .iter()
+                                            .any(|(start, end)| (start <= timestamp && end >= timestamp) || ((*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp))
+                                    {
                                         return Some(participant.id);
                                     }
                                     None
@@ -310,17 +317,21 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 });
                 last_combat_update.remove(&death.victim.unit_id);
                 unit_died_recently.insert(death.victim.unit_id, *timestamp);
-            }
-            _ => {}
+            },
+            _ => {},
         };
     }
 
     // Artificially set in combat to false at the end for each in combat npc
     for (entry, last_update_ts) in last_combat_update.iter() {
-        let last_in_combat_msg = additional_messages.iter().rev().find(|msg| match &msg.message_type {
-            MessageType::CombatState(state) => state.unit.unit_id == *entry,
-            _ => false
-        }).cloned();
+        let last_in_combat_msg = additional_messages
+            .iter()
+            .rev()
+            .find(|msg| match &msg.message_type {
+                MessageType::CombatState(state) => state.unit.unit_id == *entry,
+                _ => false,
+            })
+            .cloned();
 
         if let Some(msg) = last_in_combat_msg {
             if let MessageType::CombatState(state) = msg.message_type {
@@ -358,43 +369,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        }
+        },
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        }
+        },
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        }
+        },
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        }
+        },
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        }
+        },
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        }
+        },
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        }
+        },
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        }
+        },
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        }
+        },
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        }
-        _ => {}
+        },
+        _ => {},
     };
 }
 

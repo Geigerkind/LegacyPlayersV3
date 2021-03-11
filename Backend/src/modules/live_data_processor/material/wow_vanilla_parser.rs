@@ -1,5 +1,5 @@
 use crate::modules::data::Data;
-use crate::modules::live_data_processor::dto::{Unit, Message};
+use crate::modules::live_data_processor::dto::{Message, Unit};
 use crate::modules::live_data_processor::material::{ActiveMapMap, CollectActiveMap, Participant};
 use std::collections::HashMap;
 
@@ -26,7 +26,7 @@ impl WoWVanillaParser {
             pet_owner: Default::default(),
             cache_unit: Default::default(),
             cache_spell_id: Default::default(),
-            bonus_messages: Default::default()
+            bonus_messages: Default::default(),
         }
     }
 

@@ -11,9 +11,9 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_t
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_unit::parse_unit;
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
+use chrono::NaiveDateTime;
 use regex::Regex;
 use std::collections::HashMap;
-use chrono::NaiveDateTime;
 
 /*
 
@@ -961,15 +961,16 @@ impl CombatLogParser for WoWVanillaParser {
             let map_name = captures.get(2)?.as_str().to_string();
             let instance_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
             if let Some(map) = data.get_map_by_name(&map_name) {
-                self.bonus_messages.push(Message::new_parsed(timestamp as u64, 0, MessageType::InstanceMap(InstanceMap {
-                    map_id: map.id as u32,
-                    instance_id,
-                    map_difficulty: 0,
-                    unit: Unit {
-                        is_player: false,
-                        unit_id: 1,
-                    },
-                })));
+                self.bonus_messages.push(Message::new_parsed(
+                    timestamp as u64,
+                    0,
+                    MessageType::InstanceMap(InstanceMap {
+                        map_id: map.id as u32,
+                        instance_id,
+                        map_difficulty: 0,
+                        unit: Unit { is_player: false, unit_id: 1 },
+                    }),
+                ));
                 /*
                 for (_, participant) in self.participants.iter() {
                     if event_ts - participant.last_seen <= 120000 {
@@ -1051,7 +1052,7 @@ impl CombatLogParser for WoWVanillaParser {
                 participant.guild_args = Some((guild_name.to_string(), guild_rank_name.to_string(), guild_rank_index));
             }
 
-            if pet_name != "nil" && ! pet_name.is_empty() {
+            if pet_name != "nil" && !pet_name.is_empty() {
                 let pet_unit = parse_unit(&mut self.cache_unit, data, pet_name)?;
                 self.pet_owner.insert(pet_unit.unit_id, unit_id);
             }
@@ -1122,32 +1123,32 @@ impl CombatLogParser for WoWVanillaParser {
                 MessageType::MeleeDamage(damage_done) | MessageType::SpellDamage(damage_done) => {
                     correct_pet_unit(data, &mut damage_done.attacker, &self.pet_owner);
                     correct_pet_unit(data, &mut damage_done.victim, &self.pet_owner);
-                }
+                },
                 MessageType::InstanceMap(instance_map) => correct_pet_unit(data, &mut instance_map.unit, &self.pet_owner),
                 MessageType::Interrupt(interrupt) => correct_pet_unit(data, &mut interrupt.target, &self.pet_owner),
                 MessageType::Dispel(dispel) => correct_pet_unit(data, &mut dispel.target, &self.pet_owner),
                 MessageType::SpellSteal(spell_steal) => {
                     correct_pet_unit(data, &mut spell_steal.un_aura_caster, &self.pet_owner);
                     correct_pet_unit(data, &mut spell_steal.target, &self.pet_owner);
-                }
+                },
                 MessageType::SpellCast(spell_cast) => {
                     correct_pet_unit(data, &mut spell_cast.caster, &self.pet_owner);
                     if let Some(target) = spell_cast.target.as_mut() {
                         correct_pet_unit(data, target, &self.pet_owner);
                     }
-                }
+                },
                 MessageType::AuraApplication(aura_app) => correct_pet_unit(data, &mut aura_app.target, &self.pet_owner),
                 MessageType::Heal(heal) => {
                     correct_pet_unit(data, &mut heal.caster, &self.pet_owner);
                     correct_pet_unit(data, &mut heal.target, &self.pet_owner);
-                }
+                },
                 MessageType::Death(death) => {
                     correct_pet_unit(data, &mut death.victim, &self.pet_owner);
                     if let Some(cause) = death.cause.as_mut() {
                         correct_pet_unit(data, cause, &self.pet_owner);
                     }
-                }
-                _ => {}
+                },
+                _ => {},
             };
         }
 
@@ -1198,15 +1199,15 @@ impl CombatLogParser for WoWVanillaParser {
                                 matching_spell_cast = None;
                             }
                         }
-                    }
-                    _ => {}
+                    },
+                    _ => {},
                 };
             }
 
             if let Some(Message {
-                            message_type: MessageType::SpellCast(spell_cast),
-                            ..
-                        }) = matching_spell_cast.as_ref()
+                message_type: MessageType::SpellCast(spell_cast),
+                ..
+            }) = matching_spell_cast.as_ref()
             {
                 if let Some(last_message_index) = last_dispel_index {
                     let last_message = messages.get_mut(last_message_index).unwrap();
@@ -1404,7 +1405,7 @@ impl CombatLogParser for WoWVanillaParser {
     fn get_ignore_after_death_ignore_abilities(&self, entry: u32) -> Option<Vec<u32>> {
         Some(match entry {
             14020 => vec![23169, 23155, 23315, 23316],
-            _ => return None
+            _ => return None,
         })
     }
 

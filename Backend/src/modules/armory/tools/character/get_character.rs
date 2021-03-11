@@ -47,22 +47,27 @@ impl GetCharacter for Armory {
         let characters = self.characters.read().unwrap();
         let cache = self.cache_char_name_to_id.read().unwrap();
 
-        cache.get(&character_name).map(|char_ids| char_ids.iter().fold(Vec::new(), |mut acc, id| {
-            if let Some(character) = characters.get(id) {
-                if character.last_update.is_some() {
-                    acc.push(character.clone());
-                }
-            }
-            acc
-        })).unwrap_or_else(Vec::new)
-/*
-        let name = character_name.to_lowercase();
-        characters
-            .iter()
-            .filter(|(_, character)| character.last_update.is_some() && character.last_update.as_ref().unwrap().character_name.to_lowercase().contains(&name))
-            .map(|(_, character)| character.clone())
-            .collect()
- */
+        cache
+            .get(&character_name)
+            .map(|char_ids| {
+                char_ids.iter().fold(Vec::new(), |mut acc, id| {
+                    if let Some(character) = characters.get(id) {
+                        if character.last_update.is_some() {
+                            acc.push(character.clone());
+                        }
+                    }
+                    acc
+                })
+            })
+            .unwrap_or_else(Vec::new)
+        /*
+               let name = character_name.to_lowercase();
+               characters
+                   .iter()
+                   .filter(|(_, character)| character.last_update.is_some() && character.last_update.as_ref().unwrap().character_name.to_lowercase().contains(&name))
+                   .map(|(_, character)| character.clone())
+                   .collect()
+        */
     }
 
     fn get_character_by_name(&self, server_id: u32, character_name: String) -> Option<Character> {

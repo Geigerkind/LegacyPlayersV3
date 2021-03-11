@@ -1,6 +1,7 @@
 use rocket::State;
 use rocket_contrib::json::Json;
 
+use crate::modules::armory::dto::GuildViewerMemberDto;
 use crate::modules::{
     armory::{
         dto::{ArmoryFailure, GuildViewerDto},
@@ -9,16 +10,13 @@ use crate::modules::{
     },
     data::{tools::RetrieveServer, Data},
 };
-use crate::modules::armory::dto::GuildViewerMemberDto;
 
 #[openapi]
 #[get("/guild_view/<server_name>/<guild_name>")]
 pub fn get_guild_view(me: State<Armory>, data: State<Data>, server_name: String, guild_name: String) -> Result<Json<GuildViewerDto>, ArmoryFailure> {
-    data.get_server_by_name(server_name).ok_or(ArmoryFailure::InvalidInput).and_then(|server| {
-        me.get_guild_by_name(server.id, guild_name)
-            .ok_or(ArmoryFailure::InvalidInput)
-            .and_then(|guild| me.get_guild_view(guild.id).map(Json))
-    })
+    data.get_server_by_name(server_name)
+        .ok_or(ArmoryFailure::InvalidInput)
+        .and_then(|server| me.get_guild_by_name(server.id, guild_name).ok_or(ArmoryFailure::InvalidInput).and_then(|guild| me.get_guild_view(guild.id).map(Json)))
 }
 
 #[openapi]

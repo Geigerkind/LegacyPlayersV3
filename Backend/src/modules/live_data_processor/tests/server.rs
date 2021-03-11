@@ -90,7 +90,7 @@ fn parse_spell_damage() {
                 }],
                 damage_over_time: false,
             }),
-        }
+        },
     ];
 
     // Act + Assert
@@ -99,63 +99,57 @@ fn parse_spell_damage() {
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 1);
     assert_eq!(server.committed_events.get(&(caster_instance_id, member_id)).unwrap().len(), 2);
 
-    let messages = vec![
-        Message {
-            message_count: 5,
-            api_version: 0,
-            message_length: 0,
-            timestamp: 5,
-            message_type: MessageType::SpellCast(SpellCast {
-                caster: Unit { is_player: false, unit_id: caster_unit_id },
-                target: Some(Unit { is_player: false, unit_id: target_unit_id }),
-                spell_id: 26,
-                hit_mask: 7,
-            }),
-        }
-    ];
+    let messages = vec![Message {
+        message_count: 5,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 5,
+        message_type: MessageType::SpellCast(SpellCast {
+            caster: Unit { is_player: false, unit_id: caster_unit_id },
+            target: Some(Unit { is_player: false, unit_id: target_unit_id }),
+            spell_id: 26,
+            hit_mask: 7,
+        }),
+    }];
 
     let parse_result2 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result2.is_ok());
     assert_eq!(server.non_committed_events.get(&caster_unit_id).unwrap().len(), 2);
 
-    let messages = vec![
-        Message {
-            message_count: 6,
-            api_version: 0,
-            message_length: 0,
-            timestamp: 75,
-            message_type: MessageType::SpellCast(SpellCast {
-                caster: Unit { is_player: false, unit_id: target_unit_id },
-                target: Some(Unit {
-                    is_player: false,
-                    unit_id: 0xF140000000000000 + 22,
-                }),
-                spell_id: 22,
-                hit_mask: 1,
+    let messages = vec![Message {
+        message_count: 6,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 75,
+        message_type: MessageType::SpellCast(SpellCast {
+            caster: Unit { is_player: false, unit_id: target_unit_id },
+            target: Some(Unit {
+                is_player: false,
+                unit_id: 0xF140000000000000 + 22,
             }),
-        }
-    ];
+            spell_id: 22,
+            hit_mask: 1,
+        }),
+    }];
 
     let parse_result3 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result3.is_ok());
 
-    let messages = vec![
-        Message {
-            message_count: 7,
-            api_version: 0,
-            message_length: 0,
-            timestamp: 75,
-            message_type: MessageType::SpellCast(SpellCast {
-                caster: Unit { is_player: false, unit_id: target_unit_id },
-                target: Some(Unit {
-                    is_player: false,
-                    unit_id: 0xF140000000000000 + 22,
-                }),
-                spell_id: 22,
-                hit_mask: 1,
+    let messages = vec![Message {
+        message_count: 7,
+        api_version: 0,
+        message_length: 0,
+        timestamp: 75,
+        message_type: MessageType::SpellCast(SpellCast {
+            caster: Unit { is_player: false, unit_id: target_unit_id },
+            target: Some(Unit {
+                is_player: false,
+                unit_id: 0xF140000000000000 + 22,
             }),
-        }
-    ];
+            spell_id: 22,
+            hit_mask: 1,
+        }),
+    }];
 
     let parse_result4 = server.parse_events(&mut conn, &armory, &data, messages, member_id);
     assert!(parse_result4.is_ok());

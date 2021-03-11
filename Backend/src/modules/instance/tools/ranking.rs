@@ -77,10 +77,18 @@ pub fn create_ranking_export(rankings: &HashMap<u32, HashMap<u32, Vec<RankingRes
 }
 
 fn helper_get_best_ranking(ranking: &Vec<RankingResult>) -> RankingResult {
-    ranking.iter().fold(RankingResult { instance_meta_id: 0, attempt_id: 0, amount: 0, duration: 1 }, |best, ranking_result| {
-        if (best.amount as f64 / best.duration as f64) < (ranking_result.amount as f64 / ranking_result.duration as f64) {
-            return ranking_result.clone();
-        }
-        best
-    })
+    ranking.iter().fold(
+        RankingResult {
+            instance_meta_id: 0,
+            attempt_id: 0,
+            amount: 0,
+            duration: 1,
+        },
+        |best, ranking_result| {
+            if (best.amount as f64 / best.duration as f64) < (ranking_result.amount as f64 / ranking_result.duration as f64) {
+                return ranking_result.clone();
+            }
+            best
+        },
+    )
 }

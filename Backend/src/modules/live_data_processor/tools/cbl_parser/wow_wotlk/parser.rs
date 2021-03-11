@@ -1,8 +1,10 @@
 use crate::modules::armory::domain_value::GuildRank;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
+use crate::modules::armory::tools::strip_talent_specialization;
+use crate::modules::data::tools::RetrieveGem;
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::domain_value::HitType;
-use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, Interrupt, Message, MessageType, SpellCast, Summon, UnAura, Unit, Loot, InstanceMap};
+use crate::modules::live_data_processor::dto::{AuraApplication, DamageDone, Death, HealDone, InstanceMap, Interrupt, Loot, Message, MessageType, SpellCast, Summon, UnAura, Unit};
 use crate::modules::live_data_processor::material::{ActiveMapVec, Participant, WoWWOTLKParser};
 use crate::modules::live_data_processor::tools::cbl_parser::combat_log_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_tbc::parse_spell_args;
@@ -10,12 +12,10 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_dam
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_heal;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_miss;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_wotlk::parse_unit;
+use crate::modules::live_data_processor::tools::GUID;
 use crate::util::hash_str::hash_str;
 use chrono::NaiveDateTime;
 use regex::Regex;
-use crate::modules::live_data_processor::tools::GUID;
-use crate::modules::armory::tools::strip_talent_specialization;
-use crate::modules::data::tools::RetrieveGem;
 
 impl CombatLogParser for WoWWOTLKParser {
     fn parse_cbl_line(&mut self, data: &Data, event_ts: u64, content: &str) -> Option<Vec<MessageType>> {
@@ -136,14 +136,12 @@ impl CombatLogParser for WoWWOTLKParser {
                     if talents != "nil" {
                         participant.talents = strip_talent_specialization(&Some(talents.replace("}", "|")));
                     }
-
                 } else if fail_str.starts_with("LOOT: ") {
                     let args: Vec<&str> = fail_str.trim_start_matches("LOOT: ").split('&').collect();
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
                     let captures = RE_LOOT.captures(&args[1])?;
                     let unit_name = captures[1].to_string();
-                    let unit_guid = self.participants.iter()
-                        .find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
+                    let unit_guid = self.participants.iter().find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
                     let item_id = u32::from_str_radix(&captures[3], 10).ok()?;
                     let count = u32::from_str_radix(&captures[6], 10).ok()?;
                     self.bonus_messages.push(Message::new_parsed(
@@ -240,7 +238,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     ));
                 }
                 return None;
-            }
+            },
             "SWING_DAMAGE" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -258,7 +256,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     damage_over_time: false,
                     damage_components: vec![damage_component],
                 })]
-            }
+            },
             "SWING_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -276,7 +274,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     damage_over_time: false,
                     damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                 })]
-            }
+            },
             "SPELL_DAMAGE" | "SPELL_PERIODIC_DAMAGE" | "RANGE_DAMAGE" | "DAMAGE_SHIELD" | "DAMAGE_SPLIT" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -304,7 +302,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         damage_components: vec![damage_component],
                     }),
                 ]
-            }
+            },
             "SPELL_MISSED" | "SPELL_PERIODIC_MISSED" | "RANGE_MISSED" | "DAMAGE_SHIELD_MISSED" => {
                 let attacker = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -332,7 +330,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         damage_components: damage_component.map(|comp| vec![comp]).unwrap_or_else(Vec::new),
                     }),
                 ]
-            }
+            },
             "SPELL_HEAL" | "SPELL_PERIODIC_HEAL" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -358,7 +356,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                 ]
-            }
+            },
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
@@ -382,7 +380,7 @@ impl CombatLogParser for WoWWOTLKParser {
                 }
 
                 result
-            }
+            },
             "SPELL_CAST_SUCCESS" => {
                 let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -404,19 +402,19 @@ impl CombatLogParser for WoWWOTLKParser {
                 }
 
                 result
-            }
+            },
             "SPELL_SUMMON" => {
                 let owner = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let unit = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 self.collect_participant(&owner, message_args[2], event_ts);
                 self.collect_participant(&unit, message_args[5], event_ts);
                 vec![MessageType::Summon(Summon { owner, unit })]
-            }
+            },
             "UNIT_DIED" | "UNIT_DESTROYED" => {
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 self.collect_participant(&victim, message_args[5], event_ts);
                 vec![MessageType::Death(Death { cause: None, victim })]
-            }
+            },
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -438,7 +436,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            }
+            },
             "SPELL_INTERRUPT" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -453,7 +451,7 @@ impl CombatLogParser for WoWWOTLKParser {
                     }),
                     MessageType::Interrupt(Interrupt { target, interrupted_spell_id }),
                 ]
-            }
+            },
             "SPELL_STOLEN" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -475,7 +473,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         un_aura_amount: 1,
                     }),
                 ]
-            }
+            },
             // TODO: Use more events
             // https://wow.gamepedia.com/index.php?title=COMBAT_LOG_EVENT&oldid=2561876
             _ => return None,

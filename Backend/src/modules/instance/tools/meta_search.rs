@@ -186,13 +186,13 @@ impl MetaSearch for Instance {
             .filter_map(|rated_arena| {
                 if let InstanceMeta {
                     instance_specific:
-                    MetaType::RatedArena {
-                        winner,
-                        team1,
-                        team2,
-                        team1_change,
-                        team2_change,
-                    },
+                        MetaType::RatedArena {
+                            winner,
+                            team1,
+                            team2,
+                            team1_change,
+                            team2_change,
+                        },
                     ..
                 } = rated_arena
                 {

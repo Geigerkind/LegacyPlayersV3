@@ -20,7 +20,6 @@ impl RetrieveGem for Data {
             return None;
         }
 
-        self.gems.get(expansion_id as usize - 2).and_then(|map| map.iter()
-            .find(|(_, gem)| gem.enchant_id == enchant_id).map(|(_, gem)| gem.clone()))
+        self.gems.get(expansion_id as usize - 2).and_then(|map| map.iter().find(|(_, gem)| gem.enchant_id == enchant_id).map(|(_, gem)| gem.clone()))
     }
 }

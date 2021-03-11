@@ -417,7 +417,7 @@ impl CombatLogParser for WoWRetailClassicParser {
     fn get_ignore_after_death_ignore_abilities(&self, entry: u32) -> Option<Vec<u32>> {
         Some(match entry {
             14020 => vec![23169, 23155, 23315, 23316],
-            _ => return None
+            _ => return None,
         })
     }
 

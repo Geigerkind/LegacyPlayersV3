@@ -16,7 +16,7 @@ pub struct Armory {
     // Caches
     // TODO: Evict them at some point!
     pub cache_char_history: RwLock<HashMap<u32, CharacterHistory>>,
-    pub cache_char_name_to_id: RwLock<HashMap<String, Vec<u32>>>
+    pub cache_char_name_to_id: RwLock<HashMap<String, Vec<u32>>>,
 }
 
 impl Default for Armory {
