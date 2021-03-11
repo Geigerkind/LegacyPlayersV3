@@ -101,14 +101,4 @@ jobs:
           key: ubuntu-latest-target-${{ steps.toolchain.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Execute tests
-        run: make coverage_test
-
-      - name: Measuring code coverage
-        run: make coverage_build
-
-      - name: Uploading coverage data
-        uses: codecov/codecov-action@v1
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./lcov.info
+        run: make test
