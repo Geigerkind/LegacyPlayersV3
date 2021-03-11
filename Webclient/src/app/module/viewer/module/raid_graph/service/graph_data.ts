@@ -166,11 +166,7 @@ export class GraphDataService implements OnDestroy {
                 break;
             case DataSet.Deaths:
             case DataSet.Kills:
-                // TODO: ?
-                this.commit_data_set(data_set, [
-                    ...await this.instanceDataService.knecht_melee.graph_data_set(data_set),
-                    ...await this.instanceDataService.knecht_spell_damage.graph_data_set(data_set)
-                ].sort((left, right) => left[0] - right[0]));
+                this.commit_data_set(data_set, await this.instanceDataService.knecht_melee.graph_data_set(data_set));
                 break;
             case DataSet.TotalHealingDone:
             case DataSet.TotalHealingTaken:
@@ -205,6 +201,7 @@ export class GraphDataService implements OnDestroy {
     }
 
     commit_data_set(data_set: DataSet, data_set_points: Array<[number, number]>): void {
+        console.log(data_set, data_set_points);
         const data_points = this.current_data;
         const x_axis = new Array<number>();
         const y_axis = [];
