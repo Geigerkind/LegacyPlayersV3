@@ -85,6 +85,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
 
     let server_id = server_id?;
 
+    println!("Start Char processing");
     let mut remove_unit = BTreeSet::new();
     let mut replace_unit_id = HashMap::new();
     for (retail_server_id, timestamp, character_dto) in parser.get_involved_character_builds() {
@@ -112,6 +113,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             let _result = armory.set_character(db_main, server_id, character_dto, timestamp);
         }
     }
+    println!("Stop Char processing");
 
     // Pre-fill instance ids
     let mut bonus_messages = parser.get_bonus_messages().unwrap_or_else(Vec::new);

@@ -26,6 +26,7 @@ impl SetCharacter for Armory {
             return Err(character_id_res.err().unwrap());
         }
         let character_id = character_id_res.unwrap();
+        let current_character = self.get_character(character_id).unwrap();
 
         // Set the character history
         if update_character.character_history.is_some() {
@@ -33,15 +34,18 @@ impl SetCharacter for Armory {
             if character_history_res.is_err() {
                 return Err(character_history_res.err().unwrap());
             }
+            let char_history = character_history_res.unwrap();
 
-            // TODO: This is correct but completely inefficient!
-            let chars = self.characters.read().unwrap();
             let mut cache = self.cache_char_name_to_id.write().unwrap();
-            cache.clear();
-            for (char_id, character) in chars.iter().filter(|(_, character)| character.last_update.is_some()) {
-                let vec = cache.entry(character.last_update.as_ref().unwrap().character_name.clone()).or_insert_with(Vec::new);
-                if !vec.contains(char_id) {
-                    vec.push(*char_id);
+            let vec = cache.entry(char_history.character_name.clone()).or_insert_with(Vec::new);
+            if !vec.contains(&char_history.character_id) {
+                vec.push(char_history.character_id);
+            }
+            // Invalidate old entry
+            if let Some(history) = current_character.last_update {
+                let vec = cache.entry(history.character_name.clone()).or_insert_with(Vec::new);
+                if let Some(index) = vec.iter().position(|char_id| *char_id == character_id) {
+                    vec.remove(index);
                 }
             }
         }

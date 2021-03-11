@@ -17,13 +17,14 @@ impl DeleteCharacter for Armory {
               "id" => id
             ),
         ) {
-            // TODO: Correct but inefficient!
-            let mut cache = self.cache_char_name_to_id.write().unwrap();
-            cache.clear();
-            for (char_id, character) in characters.iter().filter(|(_, character)| character.last_update.is_some()) {
-                let vec = cache.entry(character.last_update.as_ref().unwrap().character_name.clone()).or_insert_with(Vec::new);
-                if !vec.contains(char_id) {
-                    vec.push(*char_id);
+            {
+                let current_character = characters.get(&id).unwrap();
+                if let Some(history) = &current_character.last_update {
+                    let mut cache = self.cache_char_name_to_id.write().unwrap();
+                    let vec = cache.get_mut(&history.character_name).unwrap();
+                    if let Some(index) = vec.iter().position(|char_id| *char_id == id) {
+                        vec.remove(index);
+                    }
                 }
             }
             return characters.remove(&id).ok_or(ArmoryFailure::InvalidInput).map(|_| ());
