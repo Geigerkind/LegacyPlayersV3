@@ -5,7 +5,7 @@
 <div id="table_wrapper" (wheel)="scrolled($event)">
     <table>
         <tbody>
-            <tr *ngFor="let entry of (event_log_entries | async)">
+            <tr *ngFor="let entry of event_log_entries">
                 <td>[{{dateService.toRPLLTimePreciseLong(entry.timestamp)}}]</td>
                 <td>{{entry.event_message | async}}</td>
             </tr>

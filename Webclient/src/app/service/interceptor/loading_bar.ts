@@ -1,13 +1,14 @@
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
 import {Observable, throwError} from "rxjs";
 import {LoadingBarService} from "../loading_bar";
-import {catchError, finalize, map} from "rxjs/operators";
-import { Injectable } from "@angular/core";
+import {catchError, map} from "rxjs/operators";
+import {Injectable} from "@angular/core";
 
 @Injectable()
 export class LoadingBarInterceptor implements HttpInterceptor {
 
-    constructor(private loadingBarService: LoadingBarService) {}
+    constructor(private loadingBarService: LoadingBarService) {
+    }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         if (!req.url.toLowerCase().includes("/api/"))

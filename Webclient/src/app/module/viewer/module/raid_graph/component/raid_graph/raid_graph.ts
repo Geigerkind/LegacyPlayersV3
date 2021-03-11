@@ -235,6 +235,10 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // tslint:disable-next-line:variable-name
         this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_updates, _ev_types]) => {
+            if (knecht_updates.includes(KnechtUpdates.FilterChanged)) {
+                this.chartDataSets = [];
+            }
+
             if (knecht_updates.includes(KnechtUpdates.FilterInitialized)) {
                 this.selectedDataSets = new Set(this.settingsService.get_or_set("viewer_raid_graph_datasets", []));
                 const selected_data_sets = [];

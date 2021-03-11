@@ -1,6 +1,8 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {RaidMeterSubject} from "../../domain_value/raid_meter_subject";
 import {of} from "rxjs";
+import {LoadingBarService} from "../../../../service/loading_bar";
+import {auditTime} from "rxjs/operators";
 
 @Component({
     selector: "MeterGraph",
@@ -14,8 +16,17 @@ export class MeterGraphComponent {
     @Input() per_second_duration: number = 1;
     @Input() show_per_second: boolean = true;
     @Input() show_percent: boolean = true;
+    @Input() show_loading: boolean = false;
 
     @Output() bar_clicked: EventEmitter<[number, number]> = new EventEmitter();
+
+    isLoading: boolean = false;
+
+    constructor(
+        loadingBarService: LoadingBarService
+    ) {
+        loadingBarService.loading.subscribe(loading => this.isLoading = loading);
+    }
 
     get_total(): number {
         return this.bars.reduce((acc, bar) => acc + bar[1], 0);

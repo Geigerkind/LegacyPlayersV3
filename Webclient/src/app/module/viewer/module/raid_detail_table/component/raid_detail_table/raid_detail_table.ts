@@ -10,6 +10,8 @@ import {DetailHealService} from "../../service/detail_heal";
 import {DetailThreatService} from "../../service/detail_threat";
 import {DetailAbsorbService} from "../../service/detail_absorb";
 import {DetailHealAndAbsorbService} from "../../service/detail_heal_and_absorb";
+import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
+import {InstanceDataService} from "../../../../service/instance_data";
 
 @Component({
     selector: "RaidDetailTable",
@@ -26,6 +28,7 @@ import {DetailHealAndAbsorbService} from "../../service/detail_heal_and_absorb";
 })
 export class RaidDetailTableComponent implements OnDestroy {
 
+    private subscription: Subscription;
     private subscription_abilities: Subscription;
     private subscription_ability_details: Subscription;
 
@@ -55,7 +58,8 @@ export class RaidDetailTableComponent implements OnDestroy {
     constructor(
         private activatedRouteService: ActivatedRoute,
         private raidDetailService: RaidDetailService,
-        private router_service: Router
+        private router_service: Router,
+        private instanceDataService: InstanceDataService
     ) {
         this.subscription_abilities = this.raidDetailService.abilities.subscribe(abilities => this.abilities = abilities);
         this.subscription_ability_details = this.raidDetailService.ability_details.subscribe(ability_details => this.ability_details = ability_details);
@@ -66,9 +70,15 @@ export class RaidDetailTableComponent implements OnDestroy {
             this.current_ability_selection = Number(params.get("spell_id"));
             this.raidDetailService.select(this.current_meter_selection);
         });
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(([updates,]) => {
+            if (updates.includes(KnechtUpdates.FilterChanged)) {
+                this.ability_details = [];
+            }
+        });
     }
 
     ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
         this.subscription_abilities?.unsubscribe();
         this.subscription_ability_details?.unsubscribe();
     }
@@ -76,7 +86,7 @@ export class RaidDetailTableComponent implements OnDestroy {
     get current_ability_details(): Array<DetailRow> {
         const details = this.ability_details.find(([ability, i_details]) => ability === this.current_ability_selection);
         if (details === undefined) {
-            if (this.abilities.length > 0) {
+            if (this.abilities.length > 0 && this.ability_details.length > 0) {
                 this.current_ability_selection = this.abilities[0].value;
                 this.adjust_path();
                 return this.current_ability_details;

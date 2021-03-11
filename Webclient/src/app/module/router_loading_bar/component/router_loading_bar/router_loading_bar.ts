@@ -15,8 +15,7 @@ export class RouterLoadingBarComponent implements OnDestroy {
     displayBar = false;
 
     constructor(private loadingBarService: LoadingBarService) {
-        this.subscription = this.loadingBarService.loading
-            .pipe(auditTime(50)).subscribe(state => this.displayBar = state);
+        this.subscription = this.loadingBarService.loading.subscribe(state => this.displayBar = state);
     }
 
     ngOnDestroy(): void {
