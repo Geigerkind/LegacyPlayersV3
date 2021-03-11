@@ -61,7 +61,7 @@ impl RetrieveActiveMap for ActiveMapVec {
         let mut chosen_map = None;
         for active_map in self.iter() {
             for (start, end) in active_map.intervals.iter() {
-                if *start - 1000 <= current_timestamp && *end + 1000 >= current_timestamp {
+                if *start - 5000 <= current_timestamp && *end + 5000 >= current_timestamp {
                     chosen_map = Some(active_map);
                     break;
                 }
@@ -97,7 +97,7 @@ impl RetrieveActiveMap for ActiveMapVec {
 
             if difficulty_id.is_none() {
                 if player_participants
-                    .find(current_timestamp - 30000, current_timestamp + 30000)
+                    .find(current_timestamp - 40000, current_timestamp + 40000)
                     .fold(BTreeSet::new(), |mut acc, Interval { val: unit_id, .. }| {
                         acc.insert(*unit_id);
                         acc

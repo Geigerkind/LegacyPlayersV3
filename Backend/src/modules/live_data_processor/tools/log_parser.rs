@@ -469,7 +469,9 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
         current_unit_is_boss = data.get_npc(expansion_id, entry).map(|npc| npc.is_boss).contains(&true);
         if current_unit_is_boss {
             for (unit_id, last_update) in last_combat_update.clone() {
-                if unit_id.get_entry().contains(&entry) && current_timestamp - last_update >= timeout {
+                // Due to the delay ts, current_timestamp can be < last_update.
+                // TODO: Look into it if the delay ts makes sense at all.
+                if unit_id.get_entry().contains(&entry) && current_timestamp > last_update && current_timestamp - last_update >= timeout {
                     additional_messages.push(Message {
                         api_version: 0,
                         message_length: 0,
