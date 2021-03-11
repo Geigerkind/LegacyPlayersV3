@@ -5,6 +5,7 @@
 #![allow(clippy::blocks_in_if_conditions)]
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::collapsible_if)]
+#![allow(clippy::from_str_radix_10)]
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, test)]
 #![feature(with_options)]
