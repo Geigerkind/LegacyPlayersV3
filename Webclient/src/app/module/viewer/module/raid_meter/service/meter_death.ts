@@ -65,7 +65,20 @@ export class MeterDeathService implements OnDestroy {
                     this.units$.set(subject_id, this.utilService.get_row_unit_subject(subject));
                 if (!result.has(subject_id))
                     result.set(subject_id, death_overview_rows);
-                else result.get(subject_id).push(...death_overview_rows);
+                else {
+                    const existing_rows = result.get(subject_id);
+                    for (const row of death_overview_rows) {
+                        const existing_row = existing_rows.find(i_row => i_row.timestamp === row.timestamp && i_row.murdered[0] === row.murdered[0]);
+                        if (!!existing_row) {
+                            if (existing_row.killing_blow.timestamp > row.killing_blow.timestamp) {
+                                existing_row.killing_blow = row.killing_blow;
+                                existing_row.murder = row.murder;
+                            }
+                        } else {
+                            existing_rows.push(row);
+                        }
+                    }
+                }
                 for (const row of death_overview_rows) {
                     if (!this.abilities$.has(row.killing_blow.ability_id))
                         this.abilities$.set(row.killing_blow.ability_id, this.utilService.get_row_ability_subject(row.killing_blow.ability_id));

@@ -7,5 +7,6 @@ export interface DeathOverviewRow {
     killing_blow: {
         ability_id: number;
         amount: number;
+        timestamp: number;
     };
 }

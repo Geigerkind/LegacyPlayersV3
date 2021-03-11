@@ -6,7 +6,7 @@ import {se_death, se_melee_damage, se_spell_damage} from "../../../extractor/sou
 import {get_spell_components_total_amount} from "../../../domain_value/damage";
 import {te_death} from "../../../extractor/targets";
 
-function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
+export function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
                       spell_damage: Array<SpellDamage>, melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit,
                       death_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<DeathOverviewRow>]]> {
     const newData = new Map<number, [Unit, Array<DeathOverviewRow>]>();
@@ -26,6 +26,7 @@ function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
             let found_spell_min_ts = Number.MAX_VALUE;
             let amount = 0;
             let pot_murder;
+            let kb_ts;
 
             const event_subject_id = get_unit_id(se_death(event), false);
             for (const md_event of melee_damage) {
@@ -41,6 +42,7 @@ function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
                         found_spell_min_ts = difference;
                         amount = kb_amount;
                         pot_murder = se_melee_damage(md_event);
+                        kb_ts = md_event[1];
                     }
                     break;
                 }
@@ -59,6 +61,7 @@ function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
                         found_spell_min_ts = difference;
                         amount = kb_amount;
                         pot_murder = se_spell_damage(sd_event);
+                        kb_ts = sd_event[1];
                     }
                     break;
                 }
@@ -79,7 +82,8 @@ function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
                     murdered: se_death(event),
                     killing_blow: {
                         ability_id: spell_id,
-                        amount
+                        amount,
+                        timestamp: kb_ts
                     }
                 });
             }
@@ -89,5 +93,3 @@ function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
     // @ts-ignore
     return [...newData.entries()];
 }
-
-export {commit_death};
