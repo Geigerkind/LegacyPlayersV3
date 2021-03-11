@@ -18,6 +18,12 @@ impl MessageParser for Vec<u8> {
         let message_count = byte_reader::read_u64(&self[11..19]).unwrap();
         let message_type = self[1].to_message_type(&self[19..])?;
 
-        Ok(Message { api_version, message_length, timestamp, message_count, message_type })
+        Ok(Message {
+            api_version,
+            message_length,
+            timestamp,
+            message_count,
+            message_type,
+        })
     }
 }
