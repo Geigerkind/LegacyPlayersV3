@@ -70,7 +70,7 @@ export class RaidDetailTableComponent implements OnDestroy {
             this.current_ability_selection = Number(params.get("spell_id"));
             this.raidDetailService.select(this.current_meter_selection);
         });
-        this.subscription = this.instanceDataService.knecht_updates.subscribe(([updates,]) => {
+        this.subscription = this.instanceDataService.knecht_updates.subscribe(([updates, ]) => {
             if (updates.includes(KnechtUpdates.FilterChanged)) {
                 this.ability_details = [];
             }

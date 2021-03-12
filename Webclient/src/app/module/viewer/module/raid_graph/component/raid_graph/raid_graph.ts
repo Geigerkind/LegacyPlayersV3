@@ -27,10 +27,10 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     chartOptions: ChartOptions = {
         tooltips: {
           callbacks: {
-              title: (item: Chart.ChartTooltipItem[], data: Chart.ChartData): string | string[] => {
+              title: (item: Array<Chart.ChartTooltipItem>, data: Chart.ChartData): string | Array<string> => {
                   return this.dateService.toRPLLTimePrecise(Number(item[0].label));
               },
-              label: (item: Chart.ChartTooltipItem, data: Chart.ChartData): string | string[] => {
+              label: (item: Chart.ChartTooltipItem, data: Chart.ChartData): string | Array<string> => {
                   // @ts-ignore
                   return !!data.datasets[item.datasetIndex].data[item.index].custom_label ? data.datasets[item.datasetIndex].data[item.index].custom_label : item.value;
               }

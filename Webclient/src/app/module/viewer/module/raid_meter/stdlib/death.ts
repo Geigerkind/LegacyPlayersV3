@@ -7,8 +7,8 @@ import {get_spell_components_total_amount} from "../../../domain_value/damage";
 import {te_death} from "../../../extractor/targets";
 
 export function commit_death(deaths: Array<Event>, melee_damage: Array<MeleeDamage>,
-                      spell_damage: Array<SpellDamage>, melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit,
-                      death_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<DeathOverviewRow>]]> {
+                             spell_damage: Array<SpellDamage>, melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit,
+                             death_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<DeathOverviewRow>]]> {
     const newData = new Map<number, [Unit, Array<DeathOverviewRow>]>();
 
     const grouping = group_by(deaths, (event) => get_unit_id(death_unit_extraction(event), false));

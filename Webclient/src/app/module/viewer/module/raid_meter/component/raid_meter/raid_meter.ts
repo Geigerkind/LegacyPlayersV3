@@ -158,7 +158,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 this.selection_changed(selection);
             }
         }));
-        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates,]) => {
+        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates, ]) => {
            if (updates.includes(KnechtUpdates.FilterChanged)) {
                this.bars = [];
            }

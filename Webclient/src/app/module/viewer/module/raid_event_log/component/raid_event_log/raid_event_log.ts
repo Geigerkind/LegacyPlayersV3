@@ -39,7 +39,7 @@ export class RaidEventLogComponent implements OnDestroy {
             this.eventLogService.offset_changed.next(this.current_offset);
             this.eventLogService.set_actor(params.get("actor") === "to_actor");
         }));
-        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates,]) => {
+        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates, ]) => {
             if (updates.includes(KnechtUpdates.FilterChanged)) {
                 this.event_log_entries = [];
                 this.current_offset = 0;
