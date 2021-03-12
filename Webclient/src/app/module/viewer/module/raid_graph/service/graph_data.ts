@@ -23,8 +23,8 @@ export class GraphDataService implements OnDestroy {
     private subscription_absorb_done: Subscription;
 
     private subscription: Subscription;
-    private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>]]>]> = new BehaviorSubject([[], []]);
-    private current_data: Map<DataSet, [Array<number>, Array<number>]> = new Map();
+    private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>]]>]> = new BehaviorSubject([[], []]);
+    private current_data: Map<DataSet, [Array<number>, Array<number>, Array<Unit>]> = new Map();
 
     private UNUSED_abilities$: Map<number, RaidMeterSubject> = new Map();
     private UNUSED_units$: Map<number, RaidMeterSubject> = new Map();
@@ -122,7 +122,7 @@ export class GraphDataService implements OnDestroy {
         return this.selectedTargetAbilities;
     }
 
-    get data_points(): Observable<[Array<number>, Array<[DataSet, [Array<number>, Array<number>]]>]> {
+    get data_points(): Observable<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>]]>]> {
         return this.data_points$.asObservable();
     }
 
@@ -205,12 +205,16 @@ export class GraphDataService implements OnDestroy {
         const data_points = this.current_data;
         const x_axis = new Array<number>();
         const y_axis = [];
+        const units = [];
         for (const [x, y] of data_set_points) {
             x_axis.push(x);
             y_axis.push(y);
+            if (is_event_data_set(data_set)) {
+                units.push(y);
+            }
         }
 
-        data_points.set(data_set, [x_axis, y_axis]);
+        data_points.set(data_set, [x_axis, y_axis, units]);
         const res_x_axis = this.compute_x_axis();
         const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
         this.data_points$.next([res_x_axis, res_xy_data_sets]);
@@ -229,7 +233,7 @@ export class GraphDataService implements OnDestroy {
         }
     }
 
-    private compute_dataset_xy_axis(normalized_x_axis: Array<number>): Array<[DataSet, [Array<number>, Array<number>]]> {
+    private compute_dataset_xy_axis(normalized_x_axis: Array<number>): Array<[DataSet, [Array<number>, Array<number>, Array<Unit>]]> {
         const data_points = this.current_data;
         const max_value = [...data_points.entries()].filter(([data_set, points]) => !is_event_data_set(data_set))
             .map(([set, [x, y]]) => y)
@@ -239,7 +243,7 @@ export class GraphDataService implements OnDestroy {
             return [...data_points.entries()];
 
         const result = [];
-        for (const [data_set, [timestamps, values]] of data_points.entries()) {
+        for (const [data_set, [timestamps, values, units]] of data_points.entries()) {
             const last_ts = normalized_x_axis[0];
             let current_timestamps_index = 0;
             let current_timestamps_ts = timestamps[0];
@@ -263,7 +267,7 @@ export class GraphDataService implements OnDestroy {
                 for (let i = 0; i < res_values.length; ++i)
                     res_values[i] = max_value;
             }
-            result.push([data_set, [data_set_res, res_values]]);
+            result.push([data_set, [data_set_res, res_values, units]]);
         }
         return result;
     }

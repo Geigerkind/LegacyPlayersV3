@@ -11,6 +11,9 @@ import {get_point_style} from "../../stdlib/data_set_helper";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
 import {auditTime} from "rxjs/operators";
+import {UnitService} from "../../../../service/unit";
+import {CONST_UNKNOWN_LABEL} from "../../../../constant/viewer";
+import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
 
 @Component({
     selector: "RaidGraph",
@@ -26,15 +29,15 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     chartLabels: any = [];
     chartOptions: ChartOptions = {
         tooltips: {
-          callbacks: {
-              title: (item: Array<Chart.ChartTooltipItem>, data: Chart.ChartData): string | Array<string> => {
-                  return this.dateService.toRPLLTimePrecise(Number(item[0].label));
-              },
-              label: (item: Chart.ChartTooltipItem, data: Chart.ChartData): string | Array<string> => {
-                  // @ts-ignore
-                  return !!data.datasets[item.datasetIndex].data[item.index].custom_label ? data.datasets[item.datasetIndex].data[item.index].custom_label : item.value;
-              }
-          }
+            callbacks: {
+                title: (item: Array<Chart.ChartTooltipItem>, data: Chart.ChartData): string | Array<string> => {
+                    return this.dateService.toRPLLTimePrecise(Number(item[0].label));
+                },
+                label: (item: Chart.ChartTooltipItem, data: Chart.ChartData): string | Array<string> => {
+                    // @ts-ignore
+                    return !!data.datasets[item.datasetIndex].data[item.index].custom_label ? data.datasets[item.datasetIndex].data[item.index].custom_label.toString() : item.value;
+                }
+            }
         },
         responsive: true,
         maintainAspectRatio: false,
@@ -185,7 +188,8 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         public graphDataService: GraphDataService,
         private dateService: DateService,
         private settingsService: SettingsService,
-        private instanceDataService: InstanceDataService
+        private instanceDataService: InstanceDataService,
+        private unitService: UnitService
     ) {
         for (const sample_data_set of [DataSet.Deaths, DataSet.Kills, DataSet.DispelsDone, DataSet.InterruptDone, DataSet.SpellStealDone]) {
             this.chartDataSets.push({
@@ -199,11 +203,15 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         this.subscription = this.graphDataService.data_points.subscribe(([x_axis, data_sets]) => {
             this.chartLabels = x_axis;
             this.chartDataSets = [];
-            for (const [data_set, [real_x_axis, real_y_axis]] of data_sets) {
+            for (const [data_set, [real_x_axis, real_y_axis, evt_units]] of data_sets) {
                 const chart_points: Array<ChartPoint> = [];
                 for (let i = 0; i < real_x_axis.length; ++i) {
                     if (is_event_data_set(data_set)) {
-                        chart_points.push({x: real_x_axis[i], y: real_y_axis[i], custom_label: "TODO"} as ChartPoint);
+                        chart_points.push({
+                            x: real_x_axis[i],
+                            y: real_y_axis[i],
+                            custom_label: !!evt_units[i] ? new DelayedLabel(this.unitService.get_unit_name(evt_units[i], real_x_axis[i])) : CONST_UNKNOWN_LABEL
+                        } as ChartPoint);
                     } else {
                         chart_points.push({x: real_x_axis[i], y: real_y_axis[i]} as ChartPoint);
                     }

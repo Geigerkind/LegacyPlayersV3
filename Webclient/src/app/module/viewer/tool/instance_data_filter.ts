@@ -54,7 +54,11 @@ export class InstanceDataFilter {
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
         let result = container.filter(event => this.segment_intervals$.find(interval => {
             return interval[0] <= event[1] && interval[1] >= event[1];
-        }) !== undefined).filter(event => filter_source.has(source_extraction(event)));
+        }) !== undefined).filter(event => {
+            const unit_id = source_extraction(event);
+            if (unit_id === 0) return true;
+            return filter_source.has(unit_id);
+        });
         if (!!target_extraction)
             result = result.filter(event => {
                 const unit_id = target_extraction(event);

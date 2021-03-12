@@ -353,6 +353,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     messages.append(&mut bonus_messages);
     messages.append(&mut additional_messages);
     if server_id == 4 || server_id == 5 {
+        // Dont remove unknown unit
+        remove_unit.remove(&0);
         messages = messages
             .into_iter()
             .filter(|msg| !is_in_remove_list(&remove_unit, &msg.message_type))
@@ -363,6 +365,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             .collect();
     }
     messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
+
     Some((server_id, messages))
 }
 
