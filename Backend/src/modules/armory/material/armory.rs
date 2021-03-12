@@ -39,7 +39,7 @@ impl Armory {
             let chars = self.characters.read().unwrap();
             let mut cache = self.cache_char_name_to_id.write().unwrap();
             for (char_id, character) in chars.iter().filter(|(_, character)| character.last_update.is_some()) {
-                let vec = cache.entry(character.last_update.as_ref().unwrap().character_name.clone()).or_insert_with(Vec::new);
+                let vec = cache.entry(character.last_update.as_ref().unwrap().character_name.clone().to_lowercase()).or_insert_with(Vec::new);
                 if !vec.contains(char_id) {
                     vec.push(*char_id);
                 }

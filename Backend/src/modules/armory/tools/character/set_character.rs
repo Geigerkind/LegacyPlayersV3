@@ -43,7 +43,7 @@ impl SetCharacter for Armory {
             }
             // Invalidate old entry
             if let Some(history) = current_character.last_update {
-                let vec = cache.entry(history.character_name).or_insert_with(Vec::new);
+                let vec = cache.entry(history.character_name.to_lowercase()).or_insert_with(Vec::new);
                 if let Some(index) = vec.iter().position(|char_id| *char_id == character_id) {
                     vec.remove(index);
                 }

@@ -46,9 +46,7 @@ impl GetCharacter for Armory {
     fn get_characters_by_name(&self, character_name: String) -> Vec<Character> {
         let characters = self.characters.read().unwrap();
         let cache = self.cache_char_name_to_id.read().unwrap();
-
-        cache
-            .get(&character_name)
+        cache.get(&character_name.to_lowercase())
             .map(|char_ids| {
                 char_ids.iter().fold(Vec::new(), |mut acc, id| {
                     if let Some(character) = characters.get(id) {
@@ -60,14 +58,6 @@ impl GetCharacter for Armory {
                 })
             })
             .unwrap_or_else(Vec::new)
-        /*
-               let name = character_name.to_lowercase();
-               characters
-                   .iter()
-                   .filter(|(_, character)| character.last_update.is_some() && character.last_update.as_ref().unwrap().character_name.to_lowercase().contains(&name))
-                   .map(|(_, character)| character.clone())
-                   .collect()
-        */
     }
 
     fn get_character_by_name(&self, server_id: u32, character_name: String) -> Option<Character> {

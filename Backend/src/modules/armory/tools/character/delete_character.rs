@@ -21,7 +21,7 @@ impl DeleteCharacter for Armory {
                 let current_character = characters.get(&id).unwrap();
                 if let Some(history) = &current_character.last_update {
                     let mut cache = self.cache_char_name_to_id.write().unwrap();
-                    let vec = cache.get_mut(&history.character_name).unwrap();
+                    let vec = cache.get_mut(&history.character_name.to_lowercase()).unwrap();
                     if let Some(index) = vec.iter().position(|char_id| *char_id == id) {
                         vec.remove(index);
                     }
