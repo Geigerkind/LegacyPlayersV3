@@ -1,31 +1,43 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {iterable_map} from "../../../stdlib/iterable_higher_order";
 import {
     se_aura_application,
     se_combat_state,
-    se_death, se_heal, se_interrupt,
-    se_loot, se_melee_damage,
+    se_death,
+    se_heal,
+    se_interrupt,
+    se_loot,
+    se_melee_damage,
     se_position,
     se_power,
-    se_spell_cast, se_spell_damage, se_summon, se_threat, se_threat_wipe, se_un_aura
+    se_spell_cast,
+    se_spell_damage,
+    se_summon,
+    se_threat,
+    se_threat_wipe,
+    se_un_aura
 } from "../extractor/sources";
 import {
     te_aura_application,
-    te_death, te_heal,
+    te_death,
+    te_heal,
     te_interrupt,
     te_melee_damage,
-    te_spell_cast, te_spell_damage,
-    te_summon, te_threat,
+    te_spell_cast,
+    te_spell_damage,
+    te_summon,
+    te_threat,
     te_un_aura
 } from "../extractor/targets";
 import {
-    ae_aura_application, ae_heal,
+    ae_aura_application,
+    ae_heal,
     ae_interrupt,
     ae_melee_damage,
     ae_spell_cast,
-    ae_spell_damage, ae_threat,
+    ae_spell_damage,
+    ae_threat,
     ae_un_aura
 } from "../extractor/abilities";
 
@@ -56,7 +68,7 @@ export class InstanceDataFilter {
             return interval[0] <= event[1] && interval[1] >= event[1];
         }) !== undefined).filter(event => {
             const unit_id = source_extraction(event);
-            if (unit_id === 0) return true;
+            // if (unit_id === 0) return true;
             return filter_source.has(unit_id);
         });
         if (!!target_extraction)

@@ -3,8 +3,8 @@ import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {Event} from "../../../domain_value/event";
 import {get_spell_components_total_amount} from "../../../domain_value/damage";
 import {Unit} from "../../../domain_value/unit";
-import {se_death} from "../../../extractor/sources";
-import {te_death} from "../../../extractor/targets";
+import {se_death, se_interrupt, se_un_aura} from "../../../extractor/sources";
+import {te_interrupt, te_un_aura} from "../../../extractor/targets";
 
 export class RaidGraphKnecht {
     private static readonly MAX_DATA_POINTS: number = 500;
@@ -84,21 +84,31 @@ export class RaidGraphKnecht {
                     return RaidGraphKnecht.feed_points(this.data_filter.get_threat(data_set === DataSet.ThreatTaken), (event) => event[8]);
                 case DataSet.Deaths:
                 case DataSet.Kills:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_deaths(data_set === DataSet.Kills), (event) => {
-                        if (data_set === DataSet.Kills) {
-                            return te_death(event);
-                        }
-                        return se_death(event);
-                    });
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_deaths(data_set === DataSet.Kills), (event) => se_death(event));
                 case DataSet.DispelsDone:
                 case DataSet.DispelsReceived:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_dispels(data_set === DataSet.DispelsReceived), (event) => 1);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_dispels(data_set === DataSet.DispelsReceived), (event) => {
+                        if (data_set === DataSet.DispelsReceived) {
+                            return te_un_aura(event);
+                        }
+                        return se_un_aura(event);
+                    });
                 case DataSet.InterruptDone:
                 case DataSet.InterruptReceived:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_interrupts(data_set === DataSet.InterruptReceived), (event) => 1);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_interrupts(data_set === DataSet.InterruptReceived), (event) => {
+                        if (data_set === DataSet.InterruptReceived) {
+                            return te_interrupt(event);
+                        }
+                        return se_interrupt(event);
+                    });
                 case DataSet.SpellStealDone:
                 case DataSet.SpellStealReceived:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_spell_steals(data_set === DataSet.SpellStealReceived), (event) => 1);
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_spell_steals(data_set === DataSet.SpellStealReceived), (event) => {
+                        if (data_set === DataSet.SpellStealReceived) {
+                            return te_un_aura(event);
+                        }
+                        return se_un_aura(event);
+                    });
             }
             return [];
         })().sort((left, right) => left[0] - right[0]);
