@@ -161,9 +161,11 @@ impl CharacterViewer for Armory {
 
     fn get_character_viewer(&self, db_main: &mut impl Select, data: &Data, language_id: u8, character_id: u32) -> Result<CharacterViewerDto, ArmoryFailure> {
         let character = self.get_character(character_id);
+        println!("Test 1");
         if character.is_none() || character.as_ref().unwrap().last_update.is_none() {
             return Err(ArmoryFailure::InvalidInput);
         }
+        println!("Test 2");
         self.get_character_viewer_by_history_id(db_main, data, language_id, character.unwrap().last_update.unwrap().id, character_id)
     }
 
