@@ -37,16 +37,18 @@ impl SetCharacter for Armory {
             let char_history = character_history_res.unwrap();
 
             let mut cache = self.cache_char_name_to_id.write().unwrap();
-            let vec = cache.entry(char_history.character_name.clone()).or_insert_with(Vec::new);
-            if !vec.contains(&char_history.character_id) {
-                vec.push(char_history.character_id);
-            }
             // Invalidate old entry
             if let Some(history) = current_character.last_update {
                 let vec = cache.entry(history.character_name.to_lowercase()).or_insert_with(Vec::new);
                 if let Some(index) = vec.iter().position(|char_id| *char_id == character_id) {
                     vec.remove(index);
                 }
+            }
+
+            // Add new entry
+            let vec = cache.entry(char_history.character_name.clone()).or_insert_with(Vec::new);
+            if !vec.contains(&char_history.character_id) {
+                vec.push(char_history.character_id);
             }
         }
 
