@@ -165,6 +165,8 @@ function deployBackend {
 }
 
 function deployModelGenerator {
+  pip install selenium
+  pip install flask
   cp /root/${REPOSITORY_NAME}/ModelViewer/viewer/* /home/rpll/ModelViewer/viewer/
   cp /root/${REPOSITORY_NAME}/ModelViewer/model_generator.py /home/rpll/ModelViewer/
   chown -R rpll /home/rpll/ModelViewer
