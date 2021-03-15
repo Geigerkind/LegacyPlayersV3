@@ -46,7 +46,7 @@ impl SetCharacter for Armory {
             }
 
             // Add new entry
-            let vec = cache.entry(char_history.character_name.clone()).or_insert_with(Vec::new);
+            let vec = cache.entry(char_history.character_name.to_lowercase()).or_insert_with(Vec::new);
             if !vec.contains(&char_history.character_id) {
                 vec.push(char_history.character_id);
             }
