@@ -196,8 +196,8 @@ impl CharacterViewer for Armory {
                         };
                     }
 
-                    if inventory_type == InventoryType::Tabard {
-                        return None; // No point showing tabard if its just blank anyway
+                    if item.id == 5976 {
+                        return None; // No point showing guild tabard if its just blank anyway
                     }
 
                     if inventory_type == InventoryType::Ranged {
