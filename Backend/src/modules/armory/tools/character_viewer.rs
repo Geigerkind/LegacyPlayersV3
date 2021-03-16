@@ -196,6 +196,10 @@ impl CharacterViewer for Armory {
                         };
                     }
 
+                    if inventory_type == InventoryType::Tabard {
+                        return None; // No point showing tabard if its just blank anyway
+                    }
+
                     if inventory_type == InventoryType::Ranged {
                         return None; // We dont show ranged
                     }
