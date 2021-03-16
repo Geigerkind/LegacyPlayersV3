@@ -110,7 +110,6 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
             }
-            println!("{} => {:?}", timestamp, character_dto);
             let _result = armory.set_character(db_main, server_id, character_dto, timestamp);
         }
     }
