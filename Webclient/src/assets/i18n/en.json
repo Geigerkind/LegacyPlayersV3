@@ -361,5 +361,7 @@
         "set_failure": "Something went wrong",
         "set_success": "Url saved to your clipboard",
         "not_found": "Url was not found"
+    },
+    "TalentViewer": {
     }
 }

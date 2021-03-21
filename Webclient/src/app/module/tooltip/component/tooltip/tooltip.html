@@ -20,3 +20,7 @@
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>
+<ng-container *ngIf="!!tooltipArgs?.comment">
+    <br />
+    {{tooltipArgs.comment}}
+</ng-container>

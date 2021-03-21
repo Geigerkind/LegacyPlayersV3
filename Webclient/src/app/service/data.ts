@@ -14,6 +14,7 @@ import {BasicItem} from "../domain_value/data/basic_item";
 import {BasicSpell} from "../domain_value/data/basic_spell";
 import {Encounter} from "../domain_value/data/encounter";
 import {CONST_UNKNOWN_LABEL} from "../module/viewer/constant/viewer";
+import {SelectOption} from "../template/input/select_input/domain_value/select_option";
 
 @Injectable({
     providedIn: "root",
@@ -101,6 +102,14 @@ export class DataService implements OnDestroy {
 
     ngOnDestroy(): void {
         this.subscriptions?.unsubscribe();
+    }
+
+    get expansions(): Array<SelectOption> {
+        return [
+            { label_key: "Vanilla (1.12.1)", value: 1 },
+            { label_key: "TBC (2.4.3)", value: 2 },
+            { label_key: "WotLK (3.3.5)", value: 3 },
+        ];
     }
 
     get servers(): Observable<Array<AvailableServer>> {
