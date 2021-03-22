@@ -66,7 +66,7 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     hasDependencyTopOfIt(talent: Talent): boolean {
-        for (let i = 0; i <= talent.row_index; ++i) {
+        for (let i = 0; i < talent.row_index; ++i) {
             const c_talent = this.talent_tree[i][talent.column_index];
             if (!c_talent.is_filler && !!c_talent.points_to && c_talent.points_to.row_index >= talent.row_index
                 && c_talent.points_to.column_index === talent.column_index) {
@@ -112,7 +112,7 @@ export class TalentTabComponent implements OnInit, OnChanges {
         for (let i = 0; i < this.talent_tree.length; ++i) {
             for (let j = 0; j < 4; ++j) {
                 const c_talent = this.talent_tree[i][j];
-                if (!c_talent.is_filler && c_talent.points_spend > 0) {
+                if (!!c_talent && !c_talent.is_filler && c_talent.points_spend > 0) {
                     max_row_with_points = i;
                 }
             }
