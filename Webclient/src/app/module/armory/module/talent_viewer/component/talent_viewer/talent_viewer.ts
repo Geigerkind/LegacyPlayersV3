@@ -1579,6 +1579,557 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]],
+            ])],
+            // Rogue
+            [4, new Map([
+                [1, ["Assassination", [
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 0,
+                            spell_id: [14162, 14163, 14164],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_eviscerate"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [14144, 14148],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_fiegndead"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [14138, 14139, 14140, 14141, 14142],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_racial_bloodrage",
+                            points_to: {row_index: 2, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [14156, 14160, 14161],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_disembowel"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [14158, 14159],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_deathscream"
+                        },
+                        {is_filler: true, row_index: 1, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 3,
+                            spell_id: [14165, 14166, 14167],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_slicedice"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [14179],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_warrior_decisivestrike"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [14168, 14169],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_warrior_riposte"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [14128, 14132, 14135, 14136, 14137],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_criticalstrike"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [16513, 16514, 16515, 16719, 16720],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_rogue_feigndeath"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [14113, 14114, 14115, 14116, 14117],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_poisons"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [14177],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_ice_lament",
+                            points_to: {row_index: 5, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [14174, 14175, 14176],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_kidneyshot"
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 1,
+                            spell_id: [14186, 14190, 14193, 14194, 14195],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_chilltouch"
+                        },
+                        {is_filler: true, row_index: 5, column_index: 2},
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [14983],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_earthbindtotem"
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [2, ["Combat", [
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 0,
+                            spell_id: [13741, 13793, 13792],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_gouge"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [13732, 13863],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_ritualofsacrifice"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [13712, 13788, 13789, 13790, 13791],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_invisibilty"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [13733, 13865, 13866],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_backstab"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [13713, 13853, 13854, 13855, 13856],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_parry",
+                            points_to: {row_index: 2, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [13705, 13832, 13843, 13844, 13845],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_marksmanship",
+                            points_to: {row_index: 4, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [13742, 13872],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowward"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [14251],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_warrior_challange"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [13743, 13875],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_rogue_sprint"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [13754, 13867],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_kick"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [13706, 13804, 13805, 13806, 13807],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_weapon_shortblade_05"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [13715, 13848, 13849, 13851, 13852],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_dualwield"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [13709, 13800, 13801, 13802, 13803],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_mace_01"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [13877],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_warrior_punishingblow",
+                            points_to: {row_index: 5, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [13960, 13961, 13962, 13963, 13964],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_sword_27"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [13707, 13966, 13967, 13868, 13869],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_gauntlets_04"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 1,
+                            spell_id: [30919, 30920],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_blessingofstrength"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [18427, 18428, 18429],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_racial_avatar"
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [13750],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowworddominate"
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [3, ["Subtlety", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [13958, 13970, 13971, 13972, 13973],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_charm"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [14057, 14072, 14073, 14074, 14075],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_warrior_warcry"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [30892, 30893],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_rogue_feint"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [13981, 14066],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_magic_lesserinvisibilty"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [13975, 14062, 14063, 14064, 14065],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_magic_lesserinvisibilty"
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [13976, 13979, 13980],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_fumble"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [14278],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_curse"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [14079, 14080, 14081],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_ambush"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [13983, 14070, 14071],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_mirrorimage"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [14076, 14094, 14095],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_sap"
+                        },
+                        // Fuck this arrow around the corner
+                        {is_filler: true, row_index: 3, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [14171, 14172, 14173],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "inv_sword_17",
+                            points_to: {row_index: 4, column_index: 3}
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [30894, 30895],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_ambush"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [14185],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_antishadow",
+                            points_to: {row_index: 6, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [14082, 14083],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_summonsuccubus"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [16511],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_lifedrain"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [30902, 30903, 30904, 30905, 30906],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_lifedrain"
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [14183],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_possession"
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
             ])]
         ])]
     ]);
