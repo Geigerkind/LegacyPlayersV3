@@ -1162,6 +1162,16 @@ export class TalentViewerComponent {
         return TalentViewerComponent.points_per_expansion.get(this.selected_expansion);
     }
 
+    expansionChanged(expansion: number): void {
+        this.selected_expansion = expansion;
+        this.configurationChanged();
+    }
+
+    heroClassChanged(hero_class_id: number): void {
+        this.selected_hero_class = hero_class_id;
+        this.configurationChanged();
+    }
+
     talentTreeChanged(tab_index: number, tree: Array<Array<Talent>>): void {
         let points_spend = 0;
         let new_point_dist = [];
@@ -1173,6 +1183,18 @@ export class TalentViewerComponent {
                 }
         this.points_spend_per_tab[tab_index - 1] = points_spend;
         this.pre_selection[tab_index - 1] = new_point_dist;
+        this.replaceUrl();
+    }
+
+    private configurationChanged(): void {
+        this.pre_selection = [[0], [0], [0]];
+        this.tree_tab1 = this.getTabTree(1);
+        this.tree_tab2 = this.getTabTree(2);
+        this.tree_tab3 = this.getTabTree(3);
+        this.replaceUrl();
+    }
+
+    private replaceUrl(): void {
         this.router.navigate(["/armory/talents/" + this.selected_expansion.toString()
         + "/" + this.selected_hero_class.toString()
         + "/" + this.pre_selection[0].map(x => x.toString()).join("")
