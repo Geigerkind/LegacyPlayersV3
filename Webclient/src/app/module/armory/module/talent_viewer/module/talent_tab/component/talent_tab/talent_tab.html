@@ -9,7 +9,7 @@
                 <TalentIcon [talent]="talent" (talentChange)="talentChanged($event)"
                             [expansion_id]="expansion_id"
                             [is_horizontal_arrow_filler]="hasArrowPointerLeftToRight(talent)"
-                            [is_vertical_arrow_filler]="hasArrowPointerTopToBottom(talent)"
+                            [is_vertical_arrow_filler]="hasDependencyTopOfIt(talent)"
                             [can_spend_points]="canSpendPoints(talent)"
                             [can_retrieve_points]="canRetrievePoints(talent)"
                             [is_grayed_out]="isGrayedOut(talent)"
@@ -25,7 +25,7 @@
             <TalentArrow [vertical]="true"
                          [is_filler]="!hasDependencyTopOfIt(talent_tree[talent.row_index + 1][talent.column_index])"
                          [arrow_is_golden]="is_arrow_golden(talent)"
-                         [arrow_has_pointer]="hasArrowPointerTopToBottom(talent)"
+                         [arrow_has_pointer]="hasArrowPointerTopToBottom(talent_tree[talent.row_index + 1][talent.column_index])"
                          *ngFor="let talent of row; let i = index"></TalentArrow>
         </div>
     </ng-container>

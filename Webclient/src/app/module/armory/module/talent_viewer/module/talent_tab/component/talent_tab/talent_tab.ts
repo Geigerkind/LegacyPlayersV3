@@ -77,9 +77,17 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     hasArrowPointerTopToBottom(talent: Talent): boolean {
-        return ((!talent.is_filler && !!talent.points_to && talent.points_to.row_index == talent.row_index + 1)
-            || this.hasDependencyTopOfIt(talent)) && (talent.is_filler
-            || (!!talent.points_to && talent.points_to.row_index === talent.row_index + 1));
+        if (!talent.is_filler && !!talent.points_to && talent.points_to.row_index == talent.row_index + 1)
+            return true;
+
+        if (!this.hasDependencyTopOfIt(talent))
+            return false;
+
+        let dependency = this.findDependency(talent);
+        if (!dependency)
+            return false;
+
+        return dependency.points_to.row_index === talent.row_index && dependency.points_to.column_index === talent.column_index;
     }
 
     findDependency(talent: Talent): Talent {
