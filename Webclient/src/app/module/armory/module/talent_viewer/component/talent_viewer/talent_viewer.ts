@@ -577,8 +577,500 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]],
-            ]),
-            ]])]
+            ])],
+            // Paladin
+            [2, new Map([
+                [1, ["Holy", [
+                    [
+                        { is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [20262, 20263, 20264, 20265, 20266],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_golemthunderclap"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [20257, 20258, 20259, 20260, 20261],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_sleep"
+                        },
+                        { is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 1, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [20205, 20206, 20207, 20209, 20208],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_arcane_blink"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [20224, 20225, 20330, 20331, 20332],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_thunderbolt"
+                        },
+                        { is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [20237, 20238, 20239],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_holybolt"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [26573],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_innerfire"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [20234, 20235],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_layonhands"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [9453, 25836],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_unyieldingfaith"
+                        },
+                    ],
+                    [
+                        { is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [20210, 20212, 20213, 20214, 20215],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_greaterheal",
+                            points_to: {row_index: 4, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [20244, 20245],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_sealofwisdom"
+                        },
+                        { is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [20216],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_heal",
+                            points_to: {row_index: 6, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [20359, 20360, 20361],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_healingaura"
+                        },
+                        { is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 5, column_index: 0},
+                        { is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [5923, 5924, 5925, 5926, 25829],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_power"
+                        },
+                        { is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [20473],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_searinglight"
+                        },
+                        { is_filler: true, row_index: 6, column_index: 2},
+                        { is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [2, ["Protection", [
+                    [
+                        { is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [20138, 20139, 20140, 20141, 20142],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_devotionaura"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [20127, 20130, 20135, 20136, 20137],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_defend",
+                            points_to: {row_index: 2, column_index: 2}
+                        },
+                        { is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [20189, 20192, 20193],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_ambush"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [20174, 20175],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_sealofprotection"
+                        },
+                        { is_filler: true, row_index: 1, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 3,
+                            spell_id: [20143, 20144, 20145, 20146, 20147],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_devotion"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [20217],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_magic_magearmor"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [20468, 20469, 20470],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_sealoffury"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [20148, 20149, 20150],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "inv_shield_06"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [20096, 20097, 20098, 20099, 20100],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_magic_lesserinvisibilty"
+                        },
+                    ],
+                    [
+                        { is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [20487, 20488, 20489],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_sealofmight"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [20254, 20255, 20256],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_mindsooth"
+                        },
+                        { is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [20911],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_lightningshield",
+                            points_to: {row_index: 6, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [20177, 20179, 20181, 20180, 20182],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_blessingofstrength"
+                        },
+                        { is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 5, column_index: 0},
+                        { is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [20196, 20197, 20198, 20199, 20200],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_sword_20"
+                        },
+                        { is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [20925],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_blessingofprotection"
+                        },
+                        { is_filler: true, row_index: 6, column_index: 2},
+                        { is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [3, ["Retribution", [
+                    [
+                        { is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [20042, 20045, 20046, 20047, 20048],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_fistofjustice"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [20101, 20102, 20103, 20104, 20105],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_frost_windwalkon"
+                        },
+                        { is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [25956, 25957],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_righteousfury"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [20335, 20336, 20337],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_holysmite"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [20060, 20061, 20062, 20063, 20064],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_parry"
+                        },
+                        { is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [9452, 26016, 26021],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_vindication"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [20117, 20118, 20119, 20120, 20121],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_retributionaura",
+                            points_to: {row_index: 5, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [20375],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_warrior_innerrage"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [26022, 26023],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_persuitofjustice"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [9799, 25988],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_eyeforaneye"
+                        },
+                        { is_filler: true, row_index: 3, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [20091, 20092],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_auraoflight"
+                        },
+                        { is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [20111, 20112, 20113],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "inv_hammer_04"
+                        },
+                        { is_filler: true, row_index: 4, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [20218],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_mindvision"
+                        },
+                        { is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 1,
+                            spell_id: [20049, 20056, 20057, 20058, 20059],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_racial_avatar"
+                        },
+                        { is_filler: true, row_index: 5, column_index: 2},
+                        { is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        { is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [20066],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_prayerofhealing"
+                        },
+                        { is_filler: true, row_index: 6, column_index: 2},
+                        { is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]]
+            ])]
+        ])]
     ]);
 
     private static points_per_expansion: Map<number, number> = new Map([
