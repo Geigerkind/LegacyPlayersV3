@@ -11,7 +11,7 @@ export class TalentTabComponent implements OnInit, OnChanges {
     @Input() tab_label: string;
     @Input() i_talent_tree: Array<Array<Talent>>;
     @Input() expansion_id: number;
-    @Output() points_changed: EventEmitter<number> = new EventEmitter();
+    @Output() talent_tree_changed: EventEmitter<Array<Array<Talent>>> = new EventEmitter();
 
     points_spend: number = 0;
     talent_tree: Array<Array<Talent>> = [];
@@ -21,10 +21,12 @@ export class TalentTabComponent implements OnInit, OnChanges {
 
     ngOnInit(): void {
         this.talent_tree = this.i_talent_tree;
+        this.talentChanged(this.talent_tree[0][0]);
     }
 
     ngOnChanges(): void {
         this.talent_tree = this.i_talent_tree;
+        this.talentChanged(this.talent_tree[0][0]);
     }
 
     talentChanged(talent: Talent): void {
@@ -36,8 +38,10 @@ export class TalentTabComponent implements OnInit, OnChanges {
                 result += talent.is_filler ? 0 : talent.points_spend;
             }
         }
-        this.points_spend = result;
-        this.points_changed.next(result);
+        if (result !== this.points_spend) {
+            this.points_spend = result;
+            this.talent_tree_changed.next(this.talent_tree);
+        }
     }
 
     hasDependencyLeftOfIt(talent: Talent): boolean {
@@ -165,6 +169,6 @@ export class TalentTabComponent implements OnInit, OnChanges {
                 if (!this.talent_tree[i][j].is_filler)
                     this.talent_tree[i][j].points_spend = 0;
         this.points_spend = 0;
-        this.points_changed.next(0);
+        this.talent_tree_changed.next(this.talent_tree);
     }
 }

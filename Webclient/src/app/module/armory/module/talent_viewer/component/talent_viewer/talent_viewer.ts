@@ -4,6 +4,7 @@ import {HeroClass} from "../../../../../../domain_value/hero_class";
 import {DataService} from "../../../../../../service/data";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {Talent} from "../../module/talent_tab/value_object/talent";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
     selector: "TalentViewer",
@@ -48,7 +49,7 @@ export class TalentViewerComponent {
                             max_points: 3,
                             points_spend: 0,
                             icon: "ability_gouge",
-                            points_to: { row_index: 2, column_index: 2}
+                            points_to: {row_index: 2, column_index: 2}
                         },
                         {is_filler: true, row_index: 0, column_index: 3}
                     ],
@@ -70,7 +71,7 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_nature_enchantarmor",
-                            points_to: { row_index: 2, column_index: 1}
+                            points_to: {row_index: 2, column_index: 1}
                         },
                         {is_filler: true, row_index: 1, column_index: 2},
                         {
@@ -582,7 +583,7 @@ export class TalentViewerComponent {
             [2, new Map([
                 [1, ["Holy", [
                     [
-                        { is_filler: true, row_index: 0, column_index: 0},
+                        {is_filler: true, row_index: 0, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 0,
@@ -601,10 +602,10 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_sleep"
                         },
-                        { is_filler: true, row_index: 0, column_index: 3},
+                        {is_filler: true, row_index: 0, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 1, column_index: 0},
+                        {is_filler: true, row_index: 1, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 1,
@@ -623,7 +624,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "ability_thunderbolt"
                         },
-                        { is_filler: true, row_index: 1, column_index: 3},
+                        {is_filler: true, row_index: 1, column_index: 3},
                     ],
                     [
                         {
@@ -664,7 +665,7 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        { is_filler: true, row_index: 3, column_index: 0},
+                        {is_filler: true, row_index: 3, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 3,
@@ -684,10 +685,10 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_sealofwisdom"
                         },
-                        { is_filler: true, row_index: 3, column_index: 3},
+                        {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 4, column_index: 0},
+                        {is_filler: true, row_index: 4, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 4,
@@ -707,11 +708,11 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_healingaura"
                         },
-                        { is_filler: true, row_index: 4, column_index: 3},
+                        {is_filler: true, row_index: 4, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 5, column_index: 0},
-                        { is_filler: true, row_index: 5, column_index: 1},
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
                             row_index: 5,
@@ -721,10 +722,10 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_power"
                         },
-                        { is_filler: true, row_index: 5, column_index: 3},
+                        {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 6, column_index: 0},
+                        {is_filler: true, row_index: 6, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 6,
@@ -734,13 +735,13 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_searinglight"
                         },
-                        { is_filler: true, row_index: 6, column_index: 2},
-                        { is_filler: true, row_index: 6, column_index: 3},
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]],
                 [2, ["Protection", [
                     [
-                        { is_filler: true, row_index: 0, column_index: 0},
+                        {is_filler: true, row_index: 0, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 0,
@@ -760,7 +761,7 @@ export class TalentViewerComponent {
                             icon: "ability_defend",
                             points_to: {row_index: 2, column_index: 2}
                         },
-                        { is_filler: true, row_index: 0, column_index: 3},
+                        {is_filler: true, row_index: 0, column_index: 3},
                     ],
                     [
                         {
@@ -781,7 +782,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_sealofprotection"
                         },
-                        { is_filler: true, row_index: 1, column_index: 2},
+                        {is_filler: true, row_index: 1, column_index: 2},
                         {
                             is_filler: false,
                             row_index: 1,
@@ -831,7 +832,7 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        { is_filler: true, row_index: 3, column_index: 0},
+                        {is_filler: true, row_index: 3, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 3,
@@ -850,10 +851,10 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_mindsooth"
                         },
-                        { is_filler: true, row_index: 3, column_index: 3},
+                        {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 4, column_index: 0},
+                        {is_filler: true, row_index: 4, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 4,
@@ -873,11 +874,11 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_blessingofstrength"
                         },
-                        { is_filler: true, row_index: 4, column_index: 3},
+                        {is_filler: true, row_index: 4, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 5, column_index: 0},
-                        { is_filler: true, row_index: 5, column_index: 1},
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
                             row_index: 5,
@@ -887,10 +888,10 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "inv_sword_20"
                         },
-                        { is_filler: true, row_index: 5, column_index: 3},
+                        {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 6, column_index: 0},
+                        {is_filler: true, row_index: 6, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 6,
@@ -900,13 +901,13 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_blessingofprotection"
                         },
-                        { is_filler: true, row_index: 6, column_index: 2},
-                        { is_filler: true, row_index: 6, column_index: 3},
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]],
                 [3, ["Retribution", [
                     [
-                        { is_filler: true, row_index: 0, column_index: 0},
+                        {is_filler: true, row_index: 0, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 0,
@@ -925,7 +926,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_frost_windwalkon"
                         },
-                        { is_filler: true, row_index: 0, column_index: 3},
+                        {is_filler: true, row_index: 0, column_index: 3},
                     ],
                     [
                         {
@@ -955,7 +956,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "ability_parry"
                         },
-                        { is_filler: true, row_index: 1, column_index: 3},
+                        {is_filler: true, row_index: 1, column_index: 3},
                     ],
                     [
                         {
@@ -1006,7 +1007,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_eyeforaneye"
                         },
-                        { is_filler: true, row_index: 3, column_index: 1},
+                        {is_filler: true, row_index: 3, column_index: 1},
                         {
                             is_filler: false,
                             row_index: 3,
@@ -1016,7 +1017,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_auraoflight"
                         },
-                        { is_filler: true, row_index: 3, column_index: 3},
+                        {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
                         {
@@ -1028,7 +1029,7 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "inv_hammer_04"
                         },
-                        { is_filler: true, row_index: 4, column_index: 1},
+                        {is_filler: true, row_index: 4, column_index: 1},
                         {
                             is_filler: false,
                             row_index: 4,
@@ -1038,10 +1039,10 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_mindvision"
                         },
-                        { is_filler: true, row_index: 4, column_index: 3},
+                        {is_filler: true, row_index: 4, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 5,
@@ -1051,11 +1052,11 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "ability_racial_avatar"
                         },
-                        { is_filler: true, row_index: 5, column_index: 2},
-                        { is_filler: true, row_index: 5, column_index: 3},
+                        {is_filler: true, row_index: 5, column_index: 2},
+                        {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        { is_filler: true, row_index: 6, column_index: 0},
+                        {is_filler: true, row_index: 6, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 6,
@@ -1065,8 +1066,8 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_prayerofhealing"
                         },
-                        { is_filler: true, row_index: 6, column_index: 2},
-                        { is_filler: true, row_index: 6, column_index: 3},
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]]
             ])]
@@ -1074,18 +1075,25 @@ export class TalentViewerComponent {
     ]);
 
     private static points_per_expansion: Map<number, number> = new Map([
-       [1, 51],
-       [2, 61],
-       [3, 71]
+        [1, 51],
+        [2, 61],
+        [3, 71]
     ]);
 
     private points_spend_per_tab: [number, number, number] = [0, 0, 0];
+    private pre_selection: [Array<number>, Array<number>, Array<number>] = [[0], [0], [0]];
 
     selected_expansion: number = 1;
     selected_hero_class: number = 1;
 
+    tree_tab1: Array<Array<Talent>> = [];
+    tree_tab2: Array<Array<Talent>> = [];
+    tree_tab3: Array<Array<Talent>> = [];
+
     constructor(
-        private dataService: DataService
+        private dataService: DataService,
+        private activatedRoute: ActivatedRoute,
+        private router: Router
     ) {
         this.expansions = this.dataService.expansions;
         this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
@@ -1093,14 +1101,57 @@ export class TalentViewerComponent {
                 value: hero_class.base.id,
                 label_key: hero_class.localization
             })));
+
+        this.tree_tab1 = this.getTabTree(1);
+        this.tree_tab2 = this.getTabTree(2);
+        this.tree_tab3 = this.getTabTree(3);
+
+        activatedRoute.paramMap.subscribe(params => {
+            if (!params.has("expansion_id"))
+                return;
+            const spec_1 = params.get("spec_1");
+            const spec_2 = params.get("spec_2");
+            const spec_3 = params.get("spec_3");
+
+            this.pre_selection = [[], [], []];
+            for (let i = 0; i < spec_1.length; ++i)
+                this.pre_selection[0].push(Number(spec_1[i]));
+
+            for (let i = 0; i < spec_2.length; ++i)
+                this.pre_selection[1].push(Number(spec_2[i]));
+
+            for (let i = 0; i < spec_3.length; ++i)
+                this.pre_selection[2].push(Number(spec_3[i]));
+
+            this.selected_expansion = Number(params.get("expansion_id"));
+            this.selected_hero_class = Number(params.get("hero_class_id"));
+
+            this.tree_tab1 = this.getTabTree(1);
+            this.tree_tab2 = this.getTabTree(2);
+            this.tree_tab3 = this.getTabTree(3);
+        });
     }
 
     get points_spend(): number {
         return this.points_spend_per_tab[0] + this.points_spend_per_tab[1] + this.points_spend_per_tab[2];
     }
 
-    getTabTree(tab_index: number): Array<Array<Talent>> {
-        return TalentViewerComponent.talent_specs.get(this.selected_expansion).get(this.selected_hero_class).get(tab_index)[1];
+    private getTabTree(tab_index: number): Array<Array<Talent>> {
+        const tree = TalentViewerComponent.talent_specs.get(this.selected_expansion).get(this.selected_hero_class).get(tab_index)[1];
+        // Initialize
+        let pre_selection_index = 0;
+        for (let i = 0; i < tree.length; ++i) {
+            for (let j = 0; j < 4; ++j) {
+                if (pre_selection_index >= this.pre_selection[tab_index - 1].length)
+                    return tree;
+                const talent = tree[i][j];
+                if (!talent.is_filler) {
+                    talent.points_spend = Math.min(this.pre_selection[tab_index - 1][pre_selection_index], talent.max_points);
+                    ++pre_selection_index;
+                }
+            }
+        }
+        return tree;
     }
 
     getTabLabel(tab_index: number): string {
@@ -1111,8 +1162,22 @@ export class TalentViewerComponent {
         return TalentViewerComponent.points_per_expansion.get(this.selected_expansion);
     }
 
-    pointsChanged(tab_index: number, amount: number): void {
-        this.points_spend_per_tab[tab_index - 1] = amount;
+    talentTreeChanged(tab_index: number, tree: Array<Array<Talent>>): void {
+        let points_spend = 0;
+        let new_point_dist = [];
+        for (let i = 0; i < tree.length; ++i)
+            for (let j = 0; j < 4; ++j)
+                if (!tree[i][j].is_filler) {
+                    points_spend += tree[i][j].points_spend;
+                    new_point_dist.push(tree[i][j].points_spend);
+                }
+        this.points_spend_per_tab[tab_index - 1] = points_spend;
+        this.pre_selection[tab_index - 1] = new_point_dist;
+        this.router.navigate(["/armory/talents/" + this.selected_expansion.toString()
+        + "/" + this.selected_hero_class.toString()
+        + "/" + this.pre_selection[0].map(x => x.toString()).join("")
+        + "/" + this.pre_selection[1].map(x => x.toString()).join("")
+        + "/" + this.pre_selection[2].map(x => x.toString()).join("")], {replaceUrl: true})
     }
 
 }
