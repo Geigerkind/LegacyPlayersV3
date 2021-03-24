@@ -6,7 +6,7 @@ export interface Talent {
     icon?: string;
     max_points?: number;
     points_spend?: number;
-    points_to?: {
+    parent?: {
         row_index: number;
         column_index: number;
     };

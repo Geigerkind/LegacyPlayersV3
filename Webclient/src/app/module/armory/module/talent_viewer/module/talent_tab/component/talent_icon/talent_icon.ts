@@ -15,7 +15,8 @@ export class TalentIconComponent {
     @Input() can_spend_points: boolean;
     @Input() can_retrieve_points: boolean;
     @Input() is_grayed_out: boolean;
-    @Input() is_arrow_golden: boolean = false;
+    @Input() is_vertical_arrow_golden: boolean = false;
+    @Input() is_horizontal_arrow_golden: boolean = false;
 
     @Output() talentChange: EventEmitter<Talent> = new EventEmitter();
 

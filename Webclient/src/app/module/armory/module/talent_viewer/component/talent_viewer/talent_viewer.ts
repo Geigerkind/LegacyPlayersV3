@@ -49,7 +49,6 @@ export class TalentViewerComponent {
                             max_points: 3,
                             points_spend: 0,
                             icon: "ability_gouge",
-                            points_to: {row_index: 2, column_index: 2}
                         },
                         {is_filler: true, row_index: 0, column_index: 3}
                     ],
@@ -71,7 +70,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_nature_enchantarmor",
-                            points_to: {row_index: 2, column_index: 1}
                         },
                         {is_filler: true, row_index: 1, column_index: 2},
                         {
@@ -101,7 +99,8 @@ export class TalentViewerComponent {
                             spell_id: [12296],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_holy_blessingofstamina"
+                            icon: "spell_holy_blessingofstamina",
+                            parent: {row_index: 1, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -111,7 +110,7 @@ export class TalentViewerComponent {
                             max_points: 3,
                             points_spend: 0,
                             icon: "ability_backstab",
-                            points_to: {row_index: 3, column_index: 2}
+                            parent: {row_index: 0, column_index: 2},
                         },
                         {is_filler: true, row_index: 2, column_index: 3},
                     ],
@@ -133,7 +132,8 @@ export class TalentViewerComponent {
                             spell_id: [16493, 16494],
                             max_points: 2,
                             points_spend: 0,
-                            icon: "ability_searingarrow"
+                            icon: "ability_searingarrow",
+                            parent: {row_index: 2, column_index: 2}
                         },
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
@@ -155,7 +155,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "ability_rogue_slicedice",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -207,7 +206,8 @@ export class TalentViewerComponent {
                             spell_id: [12294],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_warrior_savageblow"
+                            icon: "ability_warrior_savageblow",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -323,7 +323,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_shadow_unholyfrenzy",
-                            points_to: {row_index: 5, column_index: 2}
                         },
                         {is_filler: true, row_index: 3, column_index: 3}
                     ],
@@ -345,7 +344,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "spell_shadow_deathpact",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {is_filler: true, row_index: 4, column_index: 2},
                         {
@@ -376,7 +374,8 @@ export class TalentViewerComponent {
                             spell_id: [12319, 12971, 12972, 12973, 12974],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "ability_ghoulfrenzy"
+                            icon: "ability_ghoulfrenzy",
+                            parent: {row_index: 3, column_index: 2}
                         },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
@@ -389,7 +388,8 @@ export class TalentViewerComponent {
                             spell_id: [23881],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_nature_bloodlust"
+                            icon: "spell_nature_bloodlust",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -406,7 +406,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "inv_shield_06",
-                            points_to: {row_index: 2, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -428,7 +427,6 @@ export class TalentViewerComponent {
                             max_points: 2,
                             points_spend: 0,
                             icon: "ability_racial_bloodrage",
-                            points_to: {row_index: 2, column_index: 0}
                         },
                         {is_filler: true, row_index: 1, column_index: 1},
                         {
@@ -458,7 +456,8 @@ export class TalentViewerComponent {
                             spell_id: [12975],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_holy_ashestoashes"
+                            icon: "spell_holy_ashestoashes",
+                            parent: {row_index: 1, column_index: 0}
                         },
                         {
                             is_filler: false,
@@ -467,7 +466,8 @@ export class TalentViewerComponent {
                             spell_id: [12945, 12307, 12944],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_defend"
+                            icon: "ability_defend",
+                            parent: {row_index: 0, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -536,7 +536,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "ability_thunderbolt",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -572,7 +571,8 @@ export class TalentViewerComponent {
                             spell_id: [23922],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "inv_shield_05"
+                            icon: "inv_shield_05",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -674,7 +674,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_holy_greaterheal",
-                            points_to: {row_index: 4, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -697,7 +696,7 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "spell_holy_heal",
-                            points_to: {row_index: 6, column_index: 1}
+                            parent: {row_index: 3, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -733,7 +732,8 @@ export class TalentViewerComponent {
                             spell_id: [20473],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_holy_searinglight"
+                            icon: "spell_holy_searinglight",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -759,7 +759,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_defend",
-                            points_to: {row_index: 2, column_index: 2}
                         },
                         {is_filler: true, row_index: 0, column_index: 3},
                     ],
@@ -819,7 +818,8 @@ export class TalentViewerComponent {
                             spell_id: [20148, 20149, 20150],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "inv_shield_06"
+                            icon: "inv_shield_06",
+                            parent: {row_index: 0, column_index: 2}
                         },
                         {
                             is_filler: false,
@@ -863,7 +863,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "spell_nature_lightningshield",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -899,7 +898,8 @@ export class TalentViewerComponent {
                             spell_id: [20925],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_holy_blessingofprotection"
+                            icon: "spell_holy_blessingofprotection",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -976,7 +976,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_holy_retributionaura",
-                            points_to: {row_index: 5, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -1050,7 +1049,8 @@ export class TalentViewerComponent {
                             spell_id: [20049, 20056, 20057, 20058, 20059],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "ability_racial_avatar"
+                            icon: "ability_racial_avatar",
+                            parent: {row_index: 2, column_index: 1}
                         },
                         {is_filler: true, row_index: 5, column_index: 2},
                         {is_filler: true, row_index: 5, column_index: 3},
@@ -1183,7 +1183,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "inv_misc_monsterclaw_04",
-                            points_to: {row_index: 5, column_index: 2}
                         },
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
@@ -1205,7 +1204,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "ability_devour",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {is_filler: true, row_index: 4, column_index: 2},
                         {
@@ -1228,7 +1226,8 @@ export class TalentViewerComponent {
                             spell_id: [19621, 19622, 19623, 19624, 19625],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "inv_misc_monsterclaw_03"
+                            icon: "inv_misc_monsterclaw_03",
+                            parent: {row_index: 3, column_index: 2}
                         },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
@@ -1241,7 +1240,8 @@ export class TalentViewerComponent {
                             spell_id: [19574],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_druid_ferociousbite"
+                            icon: "ability_druid_ferociousbite",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -1289,7 +1289,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_searingarrow",
-                            points_to: {row_index: 3, column_index: 2}
                         },
                         {is_filler: true, row_index: 1, column_index: 3},
                     ],
@@ -1341,7 +1340,8 @@ export class TalentViewerComponent {
                             spell_id: [19485, 19487, 19488, 19489, 19490],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "ability_piercedamage"
+                            icon: "ability_piercedamage",
+                            parent: {row_index: 1, column_index: 2}
                         },
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
@@ -1363,7 +1363,6 @@ export class TalentViewerComponent {
                             max_points: 3,
                             points_spend: 0,
                             icon: "ability_upgrademoonglaive",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -1399,7 +1398,8 @@ export class TalentViewerComponent {
                             spell_id: [19506],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_trueshot"
+                            icon: "ability_trueshot",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -1493,7 +1493,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "ability_whirlwind",
-                            points_to: {row_index: 4, column_index: 2}
                         },
                         {is_filler: true, row_index: 2, column_index: 3},
                     ],
@@ -1537,7 +1536,6 @@ export class TalentViewerComponent {
                             max_points: 3,
                             points_spend: 0,
                             icon: "spell_holy_blessingofstamina",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -1546,7 +1544,8 @@ export class TalentViewerComponent {
                             spell_id: [19306],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_warrior_challange"
+                            icon: "ability_warrior_challange",
+                            parent: {row_index: 2, column_index: 2}
                         },
                         {is_filler: true, row_index: 4, column_index: 3},
                     ],
@@ -1573,7 +1572,8 @@ export class TalentViewerComponent {
                             spell_id: [19386],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "inv_spear_02"
+                            icon: "inv_spear_02",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -1610,7 +1610,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_racial_bloodrage",
-                            points_to: {row_index: 2, column_index: 2}
                         },
                         {is_filler: true, row_index: 0, column_index: 3},
                     ],
@@ -1670,7 +1669,8 @@ export class TalentViewerComponent {
                             spell_id: [14128, 14132, 14135, 14136, 14137],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "ability_criticalstrike"
+                            icon: "ability_criticalstrike",
+                            parent: {row_index: 0, column_index: 2}
                         },
                         {is_filler: true, row_index: 2, column_index: 3},
                     ],
@@ -1706,7 +1706,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "spell_ice_lament",
-                            points_to: {row_index: 5, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -1728,7 +1727,8 @@ export class TalentViewerComponent {
                             spell_id: [14186, 14190, 14193, 14194, 14195],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "spell_shadow_chilltouch"
+                            icon: "spell_shadow_chilltouch",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 5, column_index: 2},
                         {is_filler: true, row_index: 5, column_index: 3},
@@ -1797,7 +1797,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_parry",
-                            points_to: {row_index: 2, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -1828,7 +1827,8 @@ export class TalentViewerComponent {
                             spell_id: [14251],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_warrior_challange"
+                            icon: "ability_warrior_challange",
+                            parent: {row_index: 1, column_index: 1}
                         },
                         {is_filler: true, row_index: 2, column_index: 2},
                         {
@@ -1889,7 +1889,6 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "ability_warrior_punishingblow",
-                            points_to: {row_index: 5, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -1919,7 +1918,8 @@ export class TalentViewerComponent {
                             spell_id: [30919, 30920],
                             max_points: 2,
                             points_spend: 0,
-                            icon: "spell_holy_blessingofstrength"
+                            icon: "spell_holy_blessingofstrength",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -2059,7 +2059,6 @@ export class TalentViewerComponent {
                             max_points: 3,
                             points_spend: 0,
                             icon: "inv_sword_17",
-                            points_to: {row_index: 4, column_index: 3}
                         },
                     ],
                     [
@@ -2080,7 +2079,6 @@ export class TalentViewerComponent {
                             max_points: 2,
                             points_spend: 0,
                             icon: "spell_shadow_antishadow",
-                            points_to: {row_index: 6, column_index: 1}
                         },
                         {
                             is_filler: false,
@@ -2098,7 +2096,8 @@ export class TalentViewerComponent {
                             spell_id: [16511],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_shadow_lifedrain"
+                            icon: "spell_shadow_lifedrain",
+                            parent: {row_index: 3, column_index: 3}
                         },
                     ],
                     [
@@ -2124,7 +2123,526 @@ export class TalentViewerComponent {
                             spell_id: [14183],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_shadow_possession"
+                            icon: "spell_shadow_possession",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+            ])],
+            // Priest
+            [5, new Map([
+                [1, ["Discipline", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [14522, 14788, 14789, 14790, 14791],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_magic_magearmor"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [14524, 14525, 14526, 14527, 14528],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_wand_01"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [14523, 14784, 14785, 14786, 14787],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_manaregentotem"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [14749, 14767],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_wordfortitude"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [14748, 14768, 14769],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_powerwordshield"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 3,
+                            spell_id: [14531, 14774],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_nature_tranquility"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 2, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [14751],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_frost_windwalkon"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [14521, 14776, 14777],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_sleep",
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [14747, 14770, 14771],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_innerfire"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [14520, 14780, 14781, 14782, 14783],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_hibernation"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [14750, 14772],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_manaburn"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [18551, 18552, 18553, 18554, 18555],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_enchantarmor",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [14752],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_divinespirit",
+                            parent: {row_index: 2, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [18544, 18547, 18548, 18549, 18550],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_slowingtotem"
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [10060],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_powerinfusion",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [2, ["Holy", [
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 0,
+                            spell_id: [14913, 15012],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_healingfocus"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [14908, 15020, 17191],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_renew"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [14889, 15008, 15009, 15010, 15011],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_sealofsalvation"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 1, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [27900, 27901, 27902, 27903, 27904],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_spellwarding"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [18530, 18531, 18533, 18534, 18535],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_sealofwrath",
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [15237],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_holynova",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [27811, 27815, 27816],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_blessedrecovery",
+                        },
+                        {is_filler: true, row_index: 2, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [14892, 15362, 15363],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_layonhands",
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [27789, 27790],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_purify",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [14912, 15013, 15014],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_holy_heal02",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [14909, 15017],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_searinglightpriest",
+                            parent: {row_index: 1, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [14911, 15018],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_holy_prayerofhealing02",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [20711],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "inv_enchant_essenceeternallarge",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [14901, 15028, 15029, 15030, 15031],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_spiritualguidence",
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [14898, 15349, 15354, 15355, 15356],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_moonglow",
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [724],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_holy_summonlightwell",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [3, ["Shadow", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [15270, 15335, 15336, 15337, 15338],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_requiem",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [15268, 15323, 15324, 15325, 15326],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_gathershadows",
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [15318, 15272, 15320],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowward",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [15275, 15317],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowwordpain",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [15260, 15327, 15328, 15329, 15330],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_burningspirit",
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [15392, 15448],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_psychicscream",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [15273, 15312, 15313, 15314, 15316],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_unholyfrenzy",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [15407],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_siphonmana",
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [15274, 15311],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_magic_lesserinvisibilty",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [17322, 17323, 17325],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_chilltouch",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [15257, 15331, 15332, 15333, 15334],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_blackplague",
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [15487],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_impphaseshift",
+                            parent: {row_index: 2, column_index: 0}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [15286],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_unsummonbuilding",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [27839, 27840],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_improvedvampiricembrace",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [15259, 15307, 15308, 15309, 15310],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_twilight",
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [15473],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowform",
+                            parent: {row_index: 4, column_index: 1}
                         },
                         {is_filler: true, row_index: 6, column_index: 2},
                         {is_filler: true, row_index: 6, column_index: 3},
@@ -2144,7 +2662,9 @@ export class TalentViewerComponent {
     private pre_selection: [Array<number>, Array<number>, Array<number>] = [[0], [0], [0]];
 
     selected_expansion: number = 1;
+    saved_expansion: number = 1;
     selected_hero_class: number = 1;
+    saved_hero_class: number = 1;
 
     tree_tab1: Array<Array<Talent>> = [];
     tree_tab2: Array<Array<Talent>> = [];
@@ -2183,8 +2703,11 @@ export class TalentViewerComponent {
             for (let i = 0; i < spec_3.length; ++i)
                 this.pre_selection[2].push(Number(spec_3[i]));
 
-            this.selected_expansion = Number(params.get("expansion_id"));
-            this.selected_hero_class = Number(params.get("hero_class_id"));
+            this.saved_expansion = Number(params.get("expansion_id"));
+            this.saved_hero_class = Number(params.get("hero_class_id"));
+
+            this.selected_expansion = this.saved_expansion;
+            this.selected_hero_class = this.saved_hero_class;
 
             this.tree_tab1 = this.getTabTree(1);
             this.tree_tab2 = this.getTabTree(2);
@@ -2224,12 +2747,16 @@ export class TalentViewerComponent {
 
     expansionChanged(expansion: number): void {
         this.selected_expansion = expansion;
-        this.configurationChanged();
+        if (expansion !== this.saved_expansion) {
+            this.configurationChanged();
+        }
     }
 
     heroClassChanged(hero_class_id: number): void {
         this.selected_hero_class = hero_class_id;
-        this.configurationChanged();
+        if (hero_class_id !== this.saved_hero_class) {
+            this.configurationChanged();
+        }
     }
 
     talentTreeChanged(tab_index: number, tree: Array<Array<Talent>>): void {

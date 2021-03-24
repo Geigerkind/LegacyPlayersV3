@@ -45,10 +45,10 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     hasDependencyLeftOfIt(talent: Talent): boolean {
-        for (let i = 0; i < talent.column_index; ++i) {
+        for (let i = talent.column_index; i < 4; ++i) {
             const c_talent = this.talent_tree[talent.row_index][i];
-            if (!c_talent.is_filler && !!c_talent.points_to && c_talent.points_to.row_index === talent.row_index
-                && c_talent.points_to.column_index >= talent.column_index) {
+            if (!c_talent.is_filler && !!c_talent.parent && c_talent.parent.row_index === talent.row_index
+                && c_talent.parent.column_index < talent.column_index) {
                 return true;
             }
         }
@@ -56,24 +56,14 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     hasArrowPointerLeftToRight(talent: Talent): boolean {
-        if (!!talent.points_to && talent.points_to.row_index === talent.row_index && talent.points_to.column_index > talent.column_index)
-            return false;
-
-        for (let i = talent.column_index; i < 4; ++i) {
-            const c_talent = this.talent_tree[talent.row_index][i];
-            if (this.hasDependencyLeftOfIt(c_talent)) {
-                return true;
-            }
-        }
-
-        return false;
+        return !!talent.parent && talent.parent.row_index === talent.row_index && talent.parent.column_index < talent.column_index;
     }
 
     hasDependencyTopOfIt(talent: Talent): boolean {
-        for (let i = 0; i < talent.row_index; ++i) {
+        for (let i = talent.row_index; i < this.talent_tree.length; ++i) {
             const c_talent = this.talent_tree[i][talent.column_index];
-            if (!c_talent.is_filler && !!c_talent.points_to && c_talent.points_to.row_index >= talent.row_index
-                && c_talent.points_to.column_index === talent.column_index) {
+            if (!c_talent.is_filler && !!c_talent.parent && c_talent.parent.row_index <= talent.row_index
+                && c_talent.parent.column_index === talent.column_index) {
                 return true;
             }
         }
@@ -81,36 +71,20 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     hasArrowPointerTopToBottom(talent: Talent): boolean {
-        if (!talent.is_filler && !!talent.points_to && talent.points_to.row_index == talent.row_index + 1)
-            return true;
-
-        if (!this.hasDependencyTopOfIt(talent))
-            return false;
-
-        let dependency = this.findDependency(talent);
-        if (!dependency)
-            return false;
-
-        return dependency.points_to.row_index === talent.row_index && dependency.points_to.column_index === talent.column_index;
+        return !!talent.parent && talent.parent.row_index < talent.row_index && talent.parent.column_index === talent.column_index;
     }
 
     findDependency(talent: Talent): Talent {
         if (this.hasDependencyLeftOfIt(talent)) {
-            if (talent.is_filler && talent.column_index < 3)
+            if (!!talent.parent && talent.parent.row_index === talent.row_index && talent.parent.column_index < talent.column_index)
+                return this.talent_tree[talent.parent.row_index][talent.parent.column_index];
+            if (talent.column_index < 3)
                 return this.findDependency(this.talent_tree[talent.row_index][talent.column_index + 1]);
-            for (let i = 0; i < talent.column_index; ++i) {
-                let current_talent = this.talent_tree[talent.row_index][i];
-                if (!!current_talent.points_to && current_talent.points_to.row_index === talent.row_index && current_talent.points_to.column_index === talent.column_index)
-                    return current_talent;
-            }
         } else if (this.hasDependencyTopOfIt(talent)) {
-            if (talent.is_filler && talent.row_index < this.talent_tree.length - 1)
+            if (!!talent.parent && talent.parent.row_index < talent.row_index && talent.parent.column_index === talent.column_index)
+                return this.talent_tree[talent.parent.row_index][talent.parent.column_index];
+            if (talent.row_index < this.talent_tree.length - 1)
                 return this.findDependency(this.talent_tree[talent.row_index + 1][talent.column_index]);
-            for (let i = 0; i < talent.row_index; ++i) {
-                let current_talent = this.talent_tree[i][talent.column_index];
-                if (!!current_talent.points_to && current_talent.points_to.row_index === talent.row_index && current_talent.points_to.column_index === talent.column_index)
-                    return current_talent;
-            }
         }
         return undefined;
     }
@@ -131,36 +105,61 @@ export class TalentTabComponent implements OnInit, OnChanges {
         }
 
         let points_spend_this_row_and_below = 0;
+        let dependent_ability_has_points = false;
         for (let i = 0; i <= talent.row_index; ++i) {
             for (let j = 0; j < 4; ++j) {
                 const c_talent = this.talent_tree[i][j];
                 if (!c_talent.is_filler && c_talent.points_spend > 0) {
                     points_spend_this_row_and_below += c_talent.points_spend;
+
+                    if (!!c_talent.parent && c_talent.parent.row_index === talent.row_index
+                        && c_talent.parent.column_index === talent.column_index) {
+                        dependent_ability_has_points = true;
+                    }
                 }
             }
         }
 
+
         return (max_row_with_points === talent.row_index
             || max_row_with_points === talent.row_index - 1 || points_spend_this_row_and_below > (talent.row_index + 1) * 5)
-            && (!talent.points_to || this.talent_tree[talent.points_to.row_index][talent.points_to.column_index].points_spend === 0);
+            && !dependent_ability_has_points;
     }
 
     isGrayedOut(talent: Talent): boolean {
         const dependency = this.findDependency(talent);
-        return this.points_spend < talent.row_index * 5 || (!!dependency && dependency.points_spend < dependency.max_points);
+        return this.points_spend < talent.row_index * 5 || (!!dependency
+            && (dependency.row_index !== talent.row_index || dependency.column_index !== talent.column_index)
+            && dependency.points_spend < dependency.max_points);
     }
 
-    is_arrow_golden(talent: Talent): boolean {
+    is_arrow_golden(talent: Talent, vertical: boolean): boolean {
         if (!talent)
             return false;
 
-        if (!!talent.points_to) {
-            return !this.isGrayedOut(this.talent_tree[talent.points_to.row_index][talent.points_to.column_index]);
-        }
         let dependency = this.findDependency(talent);
         if (!dependency)
             return false;
-        return !this.isGrayedOut(this.talent_tree[dependency.points_to.row_index][dependency.points_to.column_index]);
+
+        if (dependency.row_index <= talent.row_index && vertical) {
+            for (let i = talent.row_index; i < this.talent_tree.length; ++i) {
+                const c_talent = this.talent_tree[i][talent.column_index];
+                if (!c_talent.is_filler && !!c_talent.parent && c_talent.parent.row_index === dependency.row_index && c_talent.parent.column_index === dependency.column_index) {
+                    return !this.isGrayedOut(c_talent);
+                }
+            }
+        }
+
+        if (dependency.column_index <= talent.column_index && !vertical) {
+            for (let i = talent.column_index; i < 4; ++i) {
+                const c_talent = this.talent_tree[talent.row_index][i];
+                if (!c_talent.is_filler && !!c_talent.parent && c_talent.parent.row_index === dependency.row_index && c_talent.parent.column_index === dependency.column_index) {
+                    return !this.isGrayedOut(c_talent);
+                }
+            }
+        }
+
+        return false;
     }
 
     resetTalents(): void {
@@ -170,5 +169,9 @@ export class TalentTabComponent implements OnInit, OnChanges {
                     this.talent_tree[i][j].points_spend = 0;
         this.points_spend = 0;
         this.talent_tree_changed.next(this.talent_tree);
+    }
+
+    isVerticalArrowFiller(talent: Talent): boolean {
+        return !this.hasDependencyTopOfIt(talent) || (!!talent.parent && !this.hasDependencyTopOfIt(this.talent_tree[talent.row_index + 1][talent.column_index]))
     }
 }
