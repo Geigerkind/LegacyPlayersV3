@@ -2648,6 +2648,12 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]],
+            ])],
+            // Shaman
+            [7, new Map([
+                [1, ["Elemental", []]],
+                [2, ["Enhancement", []]],
+                [3, ["Restoration", []]],
             ])]
         ])]
     ]);
@@ -2657,6 +2663,17 @@ export class TalentViewerComponent {
         [2, 61],
         [3, 71]
     ]);
+
+    private static non_existing_combinations: Array<[number, number]> = [
+        [1, 6],
+        [2, 6],
+        [1, 10],
+        [2, 10],
+        [3, 10],
+        [1, 12],
+        [2, 12],
+        [3, 12],
+    ];
 
     private points_spend_per_tab: [number, number, number] = [0, 0, 0];
     private pre_selection: [Array<number>, Array<number>, Array<number>] = [[0], [0], [0]];
@@ -2720,6 +2737,9 @@ export class TalentViewerComponent {
     }
 
     private getTabTree(tab_index: number): Array<Array<Talent>> {
+        if (!this.combinationExists)
+            return [];
+
         const tree = TalentViewerComponent.talent_specs.get(this.selected_expansion).get(this.selected_hero_class).get(tab_index)[1];
         // Initialize
         let pre_selection_index = 0;
@@ -2787,6 +2807,12 @@ export class TalentViewerComponent {
         + "/" + this.pre_selection[0].map(x => x.toString()).join("")
         + "/" + this.pre_selection[1].map(x => x.toString()).join("")
         + "/" + this.pre_selection[2].map(x => x.toString()).join("")], {replaceUrl: true})
+    }
+
+    get combinationExists(): boolean {
+        return TalentViewerComponent.non_existing_combinations
+            .find(([exp, hero_class]) => exp === this.selected_expansion
+                && hero_class === this.selected_hero_class) === undefined;
     }
 
 }

@@ -4,10 +4,17 @@
     <span>{{points_spend}}/{{pointsPerExpansion}}</span>
 </div>
 <div class="talent_container">
-    <TalentTab [i_talent_tree]="tree_tab1" [tab_label]="getTabLabel(1)"
-               [expansion_id]="selected_expansion" (talent_tree_changed)="talentTreeChanged(1, $event)"></TalentTab>
-    <TalentTab [i_talent_tree]="tree_tab2" [tab_label]="getTabLabel(2)"
-               [expansion_id]="selected_expansion" (talent_tree_changed)="talentTreeChanged(2, $event)"></TalentTab>
-    <TalentTab [i_talent_tree]="tree_tab3" [tab_label]="getTabLabel(3)"
-               [expansion_id]="selected_expansion" (talent_tree_changed)="talentTreeChanged(3, $event)"></TalentTab>
+    <ng-container *ngIf="!combinationExists">
+        <div id="doesNotExistNote">
+            This expansion / class combination does not exist.
+        </div>
+    </ng-container>
+    <ng-container *ngIf="combinationExists">
+        <TalentTab [i_talent_tree]="tree_tab1" [tab_label]="getTabLabel(1)"
+                   [expansion_id]="selected_expansion" (talent_tree_changed)="talentTreeChanged(1, $event)"></TalentTab>
+        <TalentTab [i_talent_tree]="tree_tab2" [tab_label]="getTabLabel(2)"
+                   [expansion_id]="selected_expansion" (talent_tree_changed)="talentTreeChanged(2, $event)"></TalentTab>
+        <TalentTab [i_talent_tree]="tree_tab3" [tab_label]="getTabLabel(3)"
+                   [expansion_id]="selected_expansion" (talent_tree_changed)="talentTreeChanged(3, $event)"></TalentTab>
+    </ng-container>
 </div>
