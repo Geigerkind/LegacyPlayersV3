@@ -175,6 +175,7 @@ export class TalentTabComponent implements OnInit, OnChanges {
         const current_dependency = this.findDependency(talent);
         const lookahead_dependency = this.findDependency(this.talent_tree[talent.row_index + 1][talent.column_index]);
         return !this.hasDependencyTopOfIt(talent) || (!!talent.parent && !this.hasDependencyTopOfIt(this.talent_tree[talent.row_index + 1][talent.column_index]))
-            || (!!lookahead_dependency && (lookahead_dependency.row_index !== current_dependency.row_index || lookahead_dependency.column_index !== current_dependency.column_index));
+            || (!!lookahead_dependency && (lookahead_dependency.row_index !== current_dependency.row_index || lookahead_dependency.column_index !== current_dependency.column_index)
+                && (lookahead_dependency.row_index !== talent.row_index || lookahead_dependency.column_index !== talent.column_index));
     }
 }
