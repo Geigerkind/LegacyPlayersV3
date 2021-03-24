@@ -3690,6 +3690,1069 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 6, column_index: 3},
                     ]
                 ]]],
+            ])],
+            // Warlock
+            [9, new Map([
+                [1, ["Afflication", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [18174, 18175, 18176, 18177, 18178],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_unsummonbuilding"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [17810, 17811, 17812, 17813, 17814],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_abominationexplosion"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [18179, 18180, 18181],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_curseofmannoroth"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [18213, 18372],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_haunting"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [18182, 18183],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_burningspirit"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 3,
+                            spell_id: [17804, 17805, 17806, 17807, 17808],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_lifedrain02"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [18827, 18829, 18830],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_curseofsargeras"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [17783, 17784, 17785, 17786, 17787],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_fingerofdeath"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [18288],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_contagion"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [18218, 18219],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_callofbone"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [18094, 18095],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_twilight"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [17864, 18393],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_siphonmana"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [18265],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_requiem"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [18223],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_grimward",
+                            parent: {row_index: 2, column_index: 2}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [18310, 18311, 18312, 18313],
+                            max_points: 4,
+                            points_spend: 0,
+                            icon: "spell_shadow_grimward",
+                            parent: {row_index: 4, column_index: 2}
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 1,
+                            spell_id: [18271, 18272, 18273, 18274, 18275],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadetruesight",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 5, column_index: 2},
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [18220],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_darkritual",
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [2, ["Demonology", [
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 0,
+                            spell_id: [18692, 18693],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "inv_stone_04",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [18694, 18695, 18696],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_summonimp",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [18697, 18698, 18699, 18700, 18701],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_metamorphosis",
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [18703, 18704],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_lifedrain",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [18705, 18706, 18707],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_summonvoidwalker",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [18731, 18743, 18744, 18745, 18746],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_magicalsentry",
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [18754, 18755, 18756],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_shadow_summonsuccubus",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [18708],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_removecurse",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [18748, 18749, 18750, 18751, 18752],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_antishadow",
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [18709, 18710],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_impphaseshift",
+                            parent: {row_index: 2, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [18769, 18770, 18771, 18772, 18773],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowworddominate",
+                        },
+                        {is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [18821, 18822, 18823, 18824, 18825],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_enslavedemon",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [18788],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_psychicscream",
+                        },
+                        {is_filler: true, row_index: 4, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [18767, 18768],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "inv_ammo_firetar",
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [23785, 23822, 23823, 23824, 23825],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowpact",
+                            parent: {row_index: 3, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [19028],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_gathershadows",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [18774, 18775],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "inv_misc_gem_sapphire_01",
+                        },
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [3, ["Destruction", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [17793, 17796, 17801, 17802, 17803],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowbolt",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [17778, 17779, 17780, 17781, 17782],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_windsofwoe",
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 1, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [17788, 17789, 17790, 17791, 17792],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_shadow_deathpact",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [18119, 18120, 18121, 18122, 18123],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_fire",
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [18126, 18127],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_fire_firebolt",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [18128, 18129],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_curse",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [18130, 18131, 18132, 18133, 18134],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_flameshock",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [17877],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_scourgebuild",
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [18135, 18136],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_fire_lavaspawn",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [17917, 17918],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_corpseexplode",
+                        },
+                        {is_filler: true, row_index: 3, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [17927, 17929, 17930, 17931, 17932],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_soulburn",
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [18096, 18073],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_fire_volcano",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [17815, 17833, 17834, 17835, 17836],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_immolation",
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [17959],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_shadow_shadowwordpain",
+                            parent: {row_index: 2, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [17954, 17955, 17956, 17957, 17958],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_immolation",
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [17962],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_fire_fireball",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+            ])],
+            // Druid
+            [11, new Map([
+                [1, ["Balance", [
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 0,
+                            spell_id: [16814, 16815, 16816, 16817, 16818],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_abolishmagic"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [16689],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_natureswrath"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [17245, 17247, 17248, 17249],
+                            max_points: 4,
+                            points_spend: 0,
+                            icon: "spell_nature_natureswrath",
+                            parent: {row_index: 0, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [16918, 16919, 16920],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_stranglevines"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [16821, 16822, 16823, 16824, 16825],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_starfall"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [16902, 16903, 16904, 16905, 16906],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_staff_01"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 3,
+                            spell_id: [16833, 16834, 16835],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_wispsplode"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [16836, 16839, 16840],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_thorns"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [16864],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_crystalball"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [16819, 16820],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_nature_naturetouchgrow"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [16909, 16910, 16911, 16912, 16913],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_purge",
+                            parent: {row_index: 1, column_index: 1}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [16850, 16923, 16924, 16925, 16926],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_arcane_starfire"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 1,
+                            spell_id: [16880],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_naturesblessing"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [16845, 16846, 16847],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_sentinal"
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 1,
+                            spell_id: [16896, 16897, 16899, 16900, 16901],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_moonglow",
+                            parent: {row_index: 4, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 5, column_index: 2},
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [24858],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_forceofnature"
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [2, ["Feral Combat", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [16934, 16935, 16936, 16937, 16938],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_hunter_pet_hyena"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [16858, 16859, 16860, 16861, 16862],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_druid_demoralizingroar"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [16947, 16948, 16949, 16950, 16951],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_ambush"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [16940, 16941],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_druid_bash"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [16929, 16930, 16931, 16932, 16933],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_misc_pelt_bear_03"
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 0,
+                            spell_id: [17002, 24866],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_nature_spiritwolf"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [16979],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_hunter_pet_bear"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [16942, 16943, 16944],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "inv_misc_monsterclaw_04"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 0,
+                            spell_id: [16966, 16968],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_shadow_vampiricaura"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [16972, 16974, 16975],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_pet_cat"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 2,
+                            spell_id: [16952, 16954],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_ghoulfrenzy",
+                            parent: {row_index: 2, column_index: 2}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [16958, 16961],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_racial_cannibalize",
+                            parent: {row_index: 2, column_index: 2}
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [16998, 16999],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_druid_ravage"
+                        },
+                        {is_filler: true, row_index: 4, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [16857],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_faeriefire"
+                        },
+                        {is_filler: true, row_index: 4, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 1,
+                            spell_id: [17003, 17004, 17005, 17006, 24894],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_blessingofagility",
+                            parent: {row_index: 3, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 5, column_index: 2},
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [17007],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_unyeildingstamina"
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
+                [3, ["Restoration", [
+                    [
+                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 1,
+                            spell_id: [17050, 17051, 17053, 17054, 17055],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_regeneration"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 2,
+                            spell_id: [17056, 17058, 17059, 17060, 17061],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_blessingofstamina"
+                        },
+                        {is_filler: true, row_index: 0, column_index: 3},
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [17069, 17070, 17071, 17072, 17073],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_healingtouch"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
+                            spell_id: [17063, 17065, 17066, 17067, 17068],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_healingwavegreater"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 2,
+                            spell_id: [17079, 17082],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_druid_enrage"
+                        },
+                        {is_filler: true, row_index: 1, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 2, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 1,
+                            spell_id: [17106, 17107, 17108],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_frost_windwalkon"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [5570],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_insectswarm"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 3,
+                            spell_id: [17118, 17119, 17120, 17121, 17122],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_eyeoftheowl"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [24968, 24969, 24970, 24971, 24972],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_holy_elunesgrace"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [17111, 17112, 17113],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_rejuvenation"
+                        },
+                    ],
+                    [
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [17116],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_ravenform",
+                            parent: {row_index: 1, column_index: 0}
+                        },
+                        {is_filler: true, row_index: 4, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 2,
+                            spell_id: [17104, 24943, 24944, 24945, 24946],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_protectionformnature",
+                            parent: {row_index: 2, column_index: 2}
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [17123, 17124],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_nature_tranquility"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 5, column_index: 0},
+                        {is_filler: true, row_index: 5, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [17074, 17075, 17076, 17077, 17078],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_nature_tranquility"
+                        },
+                        {is_filler: true, row_index: 5, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 1,
+                            spell_id: [18562],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "inv_relics_idolofrejuvenation",
+                            parent: {row_index: 3, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 6, column_index: 2},
+                        {is_filler: true, row_index: 6, column_index: 3},
+                    ]
+                ]]],
             ])]
         ])]
     ]);
