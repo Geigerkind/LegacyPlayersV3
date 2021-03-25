@@ -1867,7 +1867,8 @@ export class TalentViewerComponent {
                             spell_id: [13715, 13848, 13849, 13851, 13852],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "ability_dualwield"
+                            icon: "ability_dualwield",
+                            parent: {row_index: 1, column_index: 2}
                         },
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
@@ -2049,17 +2050,16 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "ability_sap"
                         },
-                        // Fuck this arrow around the corner
-                        {is_filler: true, row_index: 3, column_index: 2},
                         {
                             is_filler: false,
                             row_index: 3,
-                            column_index: 3,
+                            column_index: 2,
                             spell_id: [14171, 14172, 14173],
                             max_points: 3,
                             points_spend: 0,
                             icon: "inv_sword_17",
                         },
+                        {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
                         {
@@ -2097,7 +2097,7 @@ export class TalentViewerComponent {
                             max_points: 1,
                             points_spend: 0,
                             icon: "spell_shadow_lifedrain",
-                            parent: {row_index: 3, column_index: 3}
+                            parent: {row_index: 3, column_index: 2}
                         },
                     ],
                     [
@@ -3234,10 +3234,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 2,
                             column_index: 1,
-                            spell_id: [11242, 11467, 11469],
+                            spell_id: [11242, 12467, 12469],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "spell_nature_abolishmagic"
+                            icon: "spell_nature_wispsplode"
                         },
                         {
                             is_filler: false,

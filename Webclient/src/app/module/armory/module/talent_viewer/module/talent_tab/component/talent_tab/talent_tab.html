@@ -15,9 +15,11 @@
                             [is_grayed_out]="isGrayedOut(talent)"
                             [is_vertical_arrow_golden]="is_arrow_golden(talent, true)"
                             [is_horizontal_arrow_golden]="is_arrow_golden(talent, false)"
+                            [is_diagonal_arrow_filler]="is_diagonal_arrow_filler(talent)"
+                            [is_diagonal_arrow_golden]="is_diagonal_arrow_golden(talent)"
                 ></TalentIcon>
                 <TalentArrow
-                    [is_filler]="!hasDependencyLeftOfIt(talent_tree[talent.row_index][talent.column_index + 1])"
+                    [is_filler]="isHorizontalFiller(talent)"
                     [arrow_is_golden]="is_arrow_golden(talent, false)" [arrow_has_pointer]="hasArrowPointerLeftToRight(talent_tree[talent.row_index][talent.column_index + 1])"
                     *ngIf="i < 3"></TalentArrow>
             </ng-container>

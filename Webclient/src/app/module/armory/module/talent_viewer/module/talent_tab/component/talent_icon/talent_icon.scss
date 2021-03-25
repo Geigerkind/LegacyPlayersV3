@@ -29,8 +29,38 @@ $size: 50px;
         margin-top: 20px;
     }
 
+    .diagonal_arrow_filler {
+        position: relative;
+        height: 100%;
+        width: 100%;
+
+        div:nth-child(1) {
+            position: absolute;
+            background: $tdc_accent;
+            width: calc(50% + 5px);
+            height: 10px;
+            top: 20px;
+            left: 0;
+        }
+
+        div:nth-child(2) {
+            position: absolute;
+            background: $tdc_accent;
+            width: 10px;
+            height: calc(50% - 5px);
+            left: 20px;
+            top: 30px;
+        }
+    }
+
     .golden_arrow {
-        background: $gold !important;
+        &:not(.diagonal_arrow_filler) {
+            background: $gold !important;
+        }
+
+        div {
+            background: $gold !important;
+        }
     }
 }
 
