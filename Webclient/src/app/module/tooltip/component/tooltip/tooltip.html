@@ -17,6 +17,7 @@
 <SpellTooltip [spell_tooltip]="tooltipPayload" *ngIf="tooltipType === 14"></SpellTooltip>
 <ViewerAuraGainTooltip [abilities$]="tooltipArgs.abilities" [units$]="tooltipArgs.units" [payload]="tooltipPayload()"
                        *ngIf="tooltipType === 15"></ViewerAuraGainTooltip>
+<TalentSpellTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 16"></TalentSpellTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>

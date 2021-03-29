@@ -56,11 +56,4 @@ export class TalentIconComponent {
         return !this.talent.is_filler && this.talent.points_spend === this.talent.max_points;
     }
 
-    get tooltipSpellId(): number {
-        if (this.talent.points_spend === this.talent.max_points) {
-            return this.talent.spell_id[this.talent.max_points - 1];
-        }
-        return this.talent.spell_id[this.talent.points_spend];
-    }
-
 }

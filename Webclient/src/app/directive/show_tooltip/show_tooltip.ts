@@ -36,8 +36,12 @@ export class ShowTooltipDirective implements OnDestroy {
 
     @HostListener('click', ["$event"])
     onClick(event: any): void {
-        if (!this.isMobile())
+        if (!this.isMobile()) {
+            if (this.tooltipArgs.type === 16) {
+                this.visibility$.next([true, [event.clientX, event.clientY]]);
+            }
             return;
+        }
 
         if (!this.clicked) this.tooltipControllerService.showTooltip(this.tooltipArgs, true, event.clientX, event.clientY);
         else this.tooltipControllerService.hideTooltip();

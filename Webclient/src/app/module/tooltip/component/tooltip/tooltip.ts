@@ -91,6 +91,24 @@ export class TooltipComponent {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
                 this.iconPath = args.icon.content;
+            } else if (args.type === 16) {
+                this.tooltipService.loadSpellTooltip(args.expansion_id, args.spell_ids[args.index === args.spell_ids.length ? args.spell_ids.length - 1 : (args.index === 0 ? 0 : args.index - 1)], result => {
+                    if (args.index < args.spell_ids.length && args.index != 0) {
+                        this.tooltipService.loadSpellTooltip(args.expansion_id, args.spell_ids[args.index], result2 => {
+                            this.tooltipType = args.type;
+                            this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
+                            this.tooltipPayload = {"r1": result, "r2": result2};
+                            this.tooltipPayload.spell_ids = args.spell_ids;
+                            this.tooltipPayload.points_spend = args.index;
+                        });
+                    } else {
+                        this.tooltipType = args.type;
+                        this.iconPath = "/assets/wow_icon/" + result.icon + ".jpg";
+                        this.tooltipPayload = {"r1": result, "r2": undefined};
+                        this.tooltipPayload.spell_ids = args.spell_ids;
+                        this.tooltipPayload.points_spend = args.index;
+                    }
+                });
             }
         });
     }

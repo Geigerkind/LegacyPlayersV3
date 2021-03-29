@@ -71,7 +71,8 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     hasArrowPointerTopToBottom(talent: Talent): boolean {
-        return !!talent.parent && talent.parent.row_index < talent.row_index && (talent.parent.column_index === talent.column_index || talent.parent.column_index === talent.column_index - 1);
+        return !!talent.parent && talent.parent.row_index < talent.row_index
+            && (talent.parent.column_index === talent.column_index || talent.parent.column_index === talent.column_index - 1);
     }
 
     findDependency(talent: Talent): Talent {

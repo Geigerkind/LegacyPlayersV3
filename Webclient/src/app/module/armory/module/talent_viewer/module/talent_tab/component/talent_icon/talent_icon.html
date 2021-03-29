@@ -1,5 +1,5 @@
 <div class="icon" *ngIf="!talent.is_filler"
-     [showTooltip]="{type: 14, expansion_id: expansion_id, spell_id: tooltipSpellId, comment: 'Spend points with \'Left Click\'.\nRetrieve Points with \'Shift + Left Click\'.'}"
+     [showTooltip]="{type: 16, expansion_id: expansion_id, spell_ids: talent.spell_id, index: talent.points_spend}"
      (click)="on_click($event)"
      [class.grayed_out]="is_grayed_out"
      [class.green_border]="has_green_border()"
