@@ -5218,7 +5218,7 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 8, column_index: 0},
                         {
                             is_filler: false,
-                            row_index: 6,
+                            row_index: 8,
                             column_index: 1,
                             spell_id: [29801],
                             max_points: 1,
