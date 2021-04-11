@@ -6908,10 +6908,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 3,
-                            spell_id: [14165, 14166, 14167],
+                            spell_id: [13733, 13865, 13866],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_rogue_slicedice"
+                            icon: "ability_backstab"
                         },
                     ],
                     [
@@ -6968,7 +6968,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [31208, 31209],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_rogue_fleetfooted",
+                        },
                         {
                             is_filler: false,
                             row_index: 4,
@@ -6987,7 +6995,15 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "ability_rogue_kidneyshot"
                         },
-                        {is_filler: true, row_index: 4, column_index: 3},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [31244, 31245],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_rogue_quickrecovery"
+                        },
                     ],
                     [
                         {is_filler: true, row_index: 5, column_index: 0},
@@ -7001,7 +7017,15 @@ export class TalentViewerComponent {
                             icon: "spell_shadow_chilltouch",
                             parent: {row_index: 4, column_index: 1}
                         },
-                        {is_filler: true, row_index: 5, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [31226, 31227],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_creature_poison_06",
+                        },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
@@ -7015,8 +7039,45 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_earthbindtotem"
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [31380, 31382, 31383, 31384, 31385],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_rogue_deadenednerves"
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {is_filler: true, row_index: 7, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 2,
+                            spell_id: [31233, 31239, 31240, 31241, 31242],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_rogue_findweakness"
+                        },
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [1329],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_rogue_shadowstrikes",
+                            parent: {row_index: 6, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
                 [2, ["Combat", [
@@ -7055,10 +7116,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 0,
-                            spell_id: [13733, 13865, 13866],
+                            spell_id: [14165, 14166, 14167],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_backstab"
+                            icon: "ability_rogue_slicedice"
                         },
                         {
                             is_filler: false,
@@ -7077,7 +7138,6 @@ export class TalentViewerComponent {
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_marksmanship",
-                            points_to: {row_index: 4, column_index: 2}
                         },
                         {is_filler: true, row_index: 1, column_index: 3},
                     ],
@@ -7182,7 +7242,15 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 0,
+                            spell_id: [31124, 31126],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_rogue_bladetwisting"
+                        },
                         {
                             is_filler: false,
                             row_index: 5,
@@ -7205,7 +7273,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [31122, 31123],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_warrior_revenge"
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -7215,8 +7291,45 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_shadow_shadowworddominate"
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [31130, 31131],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_rogue_nervesofsteel"
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {is_filler: true, row_index: 7, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 2,
+                            spell_id: [35541, 35550, 35551, 35552, 35553],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "inv_weapon_shortblade_38"
+                        },
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [32601],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_rogue_surpriseattack",
+                            parent: {row_index: 6, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
                 [3, ["Subtlety", [
@@ -7256,10 +7369,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 1,
-                            spell_id: [13981, 14066],
+                            spell_id: [14076, 14094],
                             max_points: 2,
                             points_spend: 0,
-                            icon: "spell_magic_lesserinvisibilty"
+                            icon: "ability_sap"
                         },
                         {
                             is_filler: false,
@@ -7316,10 +7429,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 3,
                             column_index: 1,
-                            spell_id: [14076, 14094, 14095],
-                            max_points: 3,
+                            spell_id: [13981, 14066],
+                            max_points: 2,
                             points_spend: 0,
-                            icon: "ability_sap"
+                            icon: "spell_magic_lesserinvisibilty"
                         },
                         {
                             is_filler: false,
@@ -7372,7 +7485,15 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 0,
+                            spell_id: [31221, 31222, 31223],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_masterofsubtlety"
+                        },
                         {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
@@ -7386,7 +7507,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [31211, 31212, 31213],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_envelopingshadows",
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -7397,8 +7526,45 @@ export class TalentViewerComponent {
                             icon: "spell_shadow_possession",
                             parent: {row_index: 4, column_index: 1}
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [31228, 31229, 31230],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_rogue_cheatdeath",
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 1,
+                            spell_id: [31216, 31217, 31218, 31219, 31220],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_rogue_sinistercalling",
+                            parent: {row_index: 6, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 7, column_index: 2},
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [36554],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_rogue_shadowstep",
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
             ])],
