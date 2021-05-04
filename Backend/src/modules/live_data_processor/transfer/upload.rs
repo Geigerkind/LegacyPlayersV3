@@ -29,15 +29,15 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
 
     let mut multipart_form_data = MultipartFormData::parse(content_type, form_data, options).unwrap();
 
-    let mut start_time_raw_fields = multipart_form_data.raw.remove("start_time").ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let mut start_time_raw_fields = multipart_form_data.raw.remove("start_time").ok_or(LiveDataProcessorFailure::InvalidStartTime)?;
     let start_time_raw_field = start_time_raw_fields.remove(0);
-    let start_time_raw = std::str::from_utf8(&start_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let start_time = NaiveDateTime::parse_from_str(&start_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let start_time_raw = std::str::from_utf8(&start_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidStartTime)?;
+    let start_time = NaiveDateTime::parse_from_str(&start_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidStartTime)?;
 
-    let mut end_time_raw_fields = multipart_form_data.raw.remove("end_time").ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let mut end_time_raw_fields = multipart_form_data.raw.remove("end_time").ok_or(LiveDataProcessorFailure::InvalidEndTime)?;
     let end_time_raw_field = end_time_raw_fields.remove(0);
-    let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
-    let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidInput)?;
+    let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidEndTime)?;
+    let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidEndTime)?;
 
     let mut server_id_raw_fields = multipart_form_data.raw.remove("server_id").ok_or(LiveDataProcessorFailure::InvalidInput)?;
     let RawField { raw: server_id_raw, .. } = server_id_raw_fields.remove(0);
@@ -49,7 +49,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
         return Err(LiveDataProcessorFailure::InvalidInput);
     }
     let reader = std::io::Cursor::new(raw.as_slice());
-    let mut zip = zip::ZipArchive::new(reader).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let mut zip = zip::ZipArchive::new(reader).map_err(|_| LiveDataProcessorFailure::InvalidZipFile)?;
 
     let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
     if std::fs::create_dir_all(&format!("{}/zips", storage_path)).is_ok() {
@@ -59,7 +59,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     }
 
     // There should only be the combat log in there
-    let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidInput)?;
+    let file = zip.by_index(0).map_err(|_| LiveDataProcessorFailure::InvalidZipFile)?;
     let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
     let mut content = Vec::new();
     for slice in bytes.split(|c| *c == 10) {
