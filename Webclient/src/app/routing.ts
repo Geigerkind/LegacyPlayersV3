@@ -32,6 +32,7 @@ const routes: Routes = [
         loadChildren: () => import("./module/confirm/module").then(m => m.ConfirmModule),
     },
     {path: "armory", loadChildren: () => import("./module/armory/module").then(m => m.ArmoryModule)},
+    {path: "tools", loadChildren: () => import("./module/tools/module").then(m => m.ToolsModule)},
     {path: "pve", loadChildren: () => import("./module/pve/module").then(m => m.PveModule)},
     {path: "pvp", loadChildren: () => import("./module/pvp/module").then(m => m.PvpModule)},
     {path: "privacy", loadChildren: () => import("./module/privacy/module").then(m => m.PrivacyModule)},

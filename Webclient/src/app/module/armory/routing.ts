@@ -17,14 +17,6 @@ const routes: Routes = [{
             path: "guild/:server_name/:guild_name",
             loadChildren: () => import("./module/guild_viewer/module").then(m => m.GuildViewerModule)
         },
-        {
-            path: "talents",
-            loadChildren: () => import("./module/talent_viewer/module").then(m => m.TalentViewerModule)
-        },
-        {
-            path: "talents/:expansion_id/:hero_class_id/:spec_1/:spec_2/:spec_3",
-            loadChildren: () => import("./module/talent_viewer/module").then(m => m.TalentViewerModule)
-        }
     ]
 }];
 

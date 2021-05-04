@@ -37,14 +37,12 @@ export class NavigationBarComponent implements OnInit {
          */
     ];
 
-    /*
-        itemsTools = [
-            ["/tools/", "NavigationBar.tools.title"],
-            ["/tools/talent_calc/", "NavigationBar.tools.talent_calc"],
-            ["/tools/rp_calc/", "NavigationBar.tools.rp_calc"],
-            ["/tools/char_design/", "NavigationBar.tools.char_design"],
-        ];
-    */
+    itemsTools = [
+        ["/tools/", "NavigationBar.tools.title"],
+        ["/tools/talents/", "NavigationBar.tools.talent_calc"],
+        // ["/tools/rp_calc/", "NavigationBar.tools.rp_calc"],
+        // ["/tools/char_design/", "NavigationBar.tools.char_design"],
+    ];
 
     itemsContribute = [
         ["/contribute/", "NavigationBar.contribute.title"],
