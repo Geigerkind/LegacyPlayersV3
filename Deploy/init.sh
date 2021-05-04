@@ -196,11 +196,14 @@ function initServer {
   cp /root/${REPOSITORY_NAME}/Deploy/conf/backup_db.timer /etc/systemd/system/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/certbot_renew.service /etc/systemd/system/
   cp /root/${REPOSITORY_NAME}/Deploy/conf/certbot_renew.timer /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/restart_backend.service /etc/systemd/system/
+  cp /root/${REPOSITORY_NAME}/Deploy/conf/restart_backend.timer /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable backend.service
   systemctl enable model_generator.service
   systemctl enable deploy.service
   systemctl enable backup_db.timer
+  systemctl enable restart_backend.timer
   systemctl enable certbot_renew.timer
   systemctl enable fail2ban
   systemctl start fail2ban
