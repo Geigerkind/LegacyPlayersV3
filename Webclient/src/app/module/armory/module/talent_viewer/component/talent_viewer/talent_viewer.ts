@@ -9010,16 +9010,16 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_wispsplode"
                         },
+                        {is_filler: true, row_index: 2, column_index: 2},
                         {
                             is_filler: false,
                             row_index: 2,
-                            column_index: 2,
+                            column_index: 3,
                             spell_id: [28574],
                             max_points: 1,
                             points_spend: 0,
                             icon: "spell_arcane_arcaneresilience"
                         },
-                        {is_filler: true, row_index: 2, column_index: 3},
                     ],
                     [
                         {
@@ -9052,7 +9052,15 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [31569, 31570],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_arcane_blink"
+                        },
                         {
                             is_filler: false,
                             row_index: 4,
@@ -9062,20 +9070,27 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_enchantarmor"
                         },
+                        {is_filler: true, row_index: 4, column_index: 2},
                         {
                             is_filler: false,
                             row_index: 4,
-                            column_index: 2,
+                            column_index: 3,
                             spell_id: [11232, 12500, 12501, 12502, 12503],
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_shadow_charm",
-                            parent: {row_index: 2, column_index: 2}
                         },
-                        {is_filler: true, row_index: 4, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 0,
+                            spell_id: [31574, 31575],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_arcane_prismaticcloak",
+                        },
                         {
                             is_filler: false,
                             row_index: 5,
@@ -9086,11 +9101,28 @@ export class TalentViewerComponent {
                             icon: "spell_shadow_teleport",
                             parent: {row_index: 4, column_index: 1}
                         },
-                        {is_filler: true, row_index: 5, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [31571, 31572, 31573],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_arcane_arcanepotency",
+                            parent: {row_index: 1, column_index: 2}
+                        },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [31579, 31582, 31583],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_starfall",
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -9101,8 +9133,44 @@ export class TalentViewerComponent {
                             icon: "spell_nature_lightning",
                             parent: {row_index: 5, column_index: 1}
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [35578, 35581],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_arcane_arcanetorrent",
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 1,
+                            spell_id: [31584, 31585, 31586, 31587, 31588],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_arcane_mindmastery",
+                        },
+                        {is_filler: true, row_index: 7, column_index: 2},
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [31589],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_slow",
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
                 [2, ["Fire", [
@@ -9227,7 +9295,15 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [31638, 31639, 31640],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_fire_playingwithfire",
+                        },
                         {
                             is_filler: false,
                             row_index: 4,
@@ -9250,7 +9326,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 4, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 0,
+                            spell_id: [31641, 31642],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_fire_burningspeed",
+                        },
                         {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
@@ -9264,7 +9348,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [34293, 34295, 34296],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_fire_burnout",
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -9275,8 +9367,45 @@ export class TalentViewerComponent {
                             icon: "spell_fire_sealoffire",
                             parent: {row_index: 4, column_index: 1}
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [31679, 31680],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_fire_moltenblood",
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {is_filler: true, row_index: 7, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 2,
+                            spell_id: [31656, 31657, 31658, 31659, 31660],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_fire_flamebolt",
+                        },
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [31661],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "inv_misc_head_dragon_01",
+                            parent: {row_index: 6, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
                 [3, ["Frost", [
@@ -9410,7 +9539,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [31667, 31668, 31669],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_frost_frozencore",
+                        },
                         {
                             is_filler: false,
                             row_index: 4,
@@ -9418,7 +9555,7 @@ export class TalentViewerComponent {
                             spell_id: [11958],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_frost_frost",
+                            icon: "spell_frost_wizardmark",
                         },
                         {
                             is_filler: false,
@@ -9432,7 +9569,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 4, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 0,
+                            spell_id: [31670, 31672],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_frost_icefloes",
+                        },
                         {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
@@ -9457,8 +9602,44 @@ export class TalentViewerComponent {
                             icon: "spell_ice_lament",
                             parent: {row_index: 4, column_index: 1}
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [31674, 31675, 31676, 31677, 31678],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_frost_arcticwinds",
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 1,
+                            spell_id: [31682, 31683, 31684, 31685, 31686],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "spell_frost_frostbolt02",
+                        },
+                        {is_filler: true, row_index: 7, column_index: 2},
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [31687],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_frost_summonwaterelemental_2",
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
             ])],
