@@ -77,33 +77,7 @@ export class TalentsComponent {
         return 0;
     }
 
-    get hashTalents(): string {
-        const talents = this.talents.description;
-        const heroClassId = this.hero_class_id;
-        const postVanilla = this.expansion_id > 1;
-        if (talents === "")
-            return "";
-
-        const encArr: string = "0zMcmVokRsaqbdrfwihuGINALpTjnyxtgevElBCDFHJKOPQSUWXYZ123456789";
-        let bc: string = "";
-        for (const talentSubStr of talents.split('|')) {
-            const buffer = talentSubStr.replace(/0+$/g, '') + '0';
-            const bf: Array<number> = [0, 0];
-            for (let be = 0; be < buffer.length; be += 2) {
-                for (let bd = 0; bd < 2; ++bd)
-                    bf[bd] = Number(buffer[be + bd]);
-                bc += encArr.charAt(bf[0] * 6 + bf[1]);
-            }
-            bc = bc.replace(/0+$/g, '');
-
-            if (buffer.length + (buffer.length % 2) < talentSubStr.length)
-                bc += 'Z';
-        }
-
-        let newHeroClassId = this.getClassTranslation(heroClassId);
-        if (postVanilla)
-            newHeroClassId += 20;
-
-        return encArr.charAt(this.convertClassId(newHeroClassId) * 3) + bc;
+    get talentLink(): string {
+        return this.talents.description.replace("|", "/").replace("|", "/")
     }
 }
