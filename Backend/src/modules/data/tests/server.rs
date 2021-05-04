@@ -12,6 +12,7 @@ fn get_server() {
         owner: None,
         patch: "1.12.1".to_string(),
         retail_id: None,
+        archived: false
     };
     {
         let mut servers = data.servers.write().unwrap();
@@ -25,6 +26,7 @@ fn get_server() {
     assert_eq!(server_res.expansion_id, server.expansion_id);
     assert_eq!(server_res.name, server.name);
     assert_eq!(server_res.patch, server.patch);
+    assert_eq!(server_res.archived, server.archived);
     let no_server = data.get_server(0);
     assert!(no_server.is_none());
 }

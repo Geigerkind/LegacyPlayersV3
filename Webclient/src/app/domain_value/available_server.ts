@@ -4,4 +4,5 @@ export interface AvailableServer {
     name: string;
     patch: string;
     is_retail: boolean;
+    archived: boolean;
 }

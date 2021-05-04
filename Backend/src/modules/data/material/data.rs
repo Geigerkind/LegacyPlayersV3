@@ -239,6 +239,7 @@ impl Init for HashMap<u32, Server> {
                 owner: row.take_opt(3).unwrap().ok(),
                 patch: row.take(4).unwrap(),
                 retail_id: row.take_opt(5).unwrap().ok(),
+                archived: row.take(6).unwrap()
             })
             .into_iter()
             .for_each(|result| {

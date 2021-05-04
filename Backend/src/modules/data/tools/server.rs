@@ -41,12 +41,13 @@ impl RetrieveServer for Data {
 
     fn set_internal_retail_server(&self, db_main: &mut (impl Execute + Select), server_name: String, expansion_id: u8, patch: String, retail_id: u32) -> Server {
         db_main.execute_wparams(
-            "INSERT INTO data_server (`expansion_id`, `server_name`, `patch`, `retail_id`) VALUES (:expansion_id, :server_name, :patch, :retail_id)",
+            "INSERT INTO data_server (`expansion_id`, `server_name`, `patch`, `retail_id`, `archived`) VALUES (:expansion_id, :server_name, :patch, :retail_id, :archived)",
             params!(
                 "expansion_id" => expansion_id,
                 "server_name" => server_name,
                 "patch" => patch,
-                "retail_id" => Some(retail_id)
+                "retail_id" => Some(retail_id),
+                "archived" => 0
             ),
         );
         self.reload_server(db_main);

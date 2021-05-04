@@ -6,4 +6,5 @@ pub struct Server {
     pub owner: Option<u32>,
     pub patch: String,
     pub retail_id: Option<u32>,
+    pub archived: bool
 }
