@@ -4734,7 +4734,7 @@ export class TalentViewerComponent {
                             spell_id: [17074, 17075, 17076, 17077, 17078],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "spell_nature_tranquility"
+                            icon: "spell_nature_resistnature"
                         },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
@@ -10384,29 +10384,21 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 1,
-                            spell_id: [16821, 16822, 16823, 16824, 16825],
-                            max_points: 5,
-                            points_spend: 0,
-                            icon: "spell_nature_starfall"
-                        },
-                        {
-                            is_filler: false,
-                            row_index: 1,
-                            column_index: 2,
-                            spell_id: [16902, 16903, 16904, 16905, 16906],
-                            max_points: 5,
+                            spell_id: [16902, 16903],
+                            max_points: 2,
                             points_spend: 0,
                             icon: "inv_staff_01"
                         },
                         {
                             is_filler: false,
                             row_index: 1,
-                            column_index: 3,
-                            spell_id: [16833, 16834, 16835],
-                            max_points: 3,
+                            column_index: 2,
+                            spell_id: [16821, 16822],
+                            max_points: 2,
                             points_spend: 0,
-                            icon: "spell_nature_wispsplode"
+                            icon: "spell_nature_starfall"
                         },
+                        {is_filler: true, row_index: 1, column_index: 3},
                     ],
                     [
                         {
@@ -10423,10 +10415,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 2,
                             column_index: 2,
-                            spell_id: [16864],
+                            spell_id: [5570],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "spell_nature_crystalball"
+                            icon: "spell_nature_insectswarm"
                         },
                         {
                             is_filler: false,
@@ -10454,15 +10446,23 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 3,
                             column_index: 2,
-                            spell_id: [16850, 16923, 16924, 16925, 16926],
-                            max_points: 5,
+                            spell_id: [16850, 16923, 16924],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "spell_arcane_starfire"
                         },
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 4, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 0,
+                            spell_id: [33589, 33590, 33591],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_lunarguidance"
+                        },
                         {
                             is_filler: false,
                             row_index: 4,
@@ -10495,11 +10495,27 @@ export class TalentViewerComponent {
                             icon: "spell_nature_moonglow",
                             parent: {row_index: 4, column_index: 1}
                         },
-                        {is_filler: true, row_index: 5, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [33592, 33596],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_balanceofpower"
+                        },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [33597, 33599, 33956],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_dreamstate"
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -10509,8 +10525,44 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_forceofnature"
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [33600, 33601, 33602],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_faeriefire"
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 1,
+                            spell_id: [33603, 33604, 33605, 33606, 33607],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_druid_twilightswrath"
+                        },
+                        {is_filler: true, row_index: 7, column_index: 2},
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [33831],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_druid_forceofnature"
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
                 [2, ["Feral Combat", [
@@ -10541,8 +10593,8 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 0,
-                            spell_id: [16947, 16948, 16949, 16950, 16951],
-                            max_points: 5,
+                            spell_id: [16947, 16948, 16949],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "ability_ambush"
                         },
@@ -10559,8 +10611,8 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 2,
-                            spell_id: [16929, 16930, 16931, 16932, 16933],
-                            max_points: 5,
+                            spell_id: [16929, 16930, 16931],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "inv_misc_pelt_bear_03"
                         },
@@ -10619,22 +10671,13 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 3,
                             column_index: 2,
-                            spell_id: [16952, 16954],
-                            max_points: 2,
-                            points_spend: 0,
-                            icon: "ability_ghoulfrenzy",
-                            parent: {row_index: 2, column_index: 2}
-                        },
-                        {
-                            is_filler: false,
-                            row_index: 3,
-                            column_index: 3,
                             spell_id: [16958, 16961],
                             max_points: 2,
                             points_spend: 0,
                             icon: "ability_racial_cannibalize",
                             parent: {row_index: 2, column_index: 2}
                         },
+                        {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
                         {
@@ -10656,7 +10699,15 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_faeriefire"
                         },
-                        {is_filler: true, row_index: 4, column_index: 3},
+                        {
+                            is_filler: false,
+                            row_index: 4,
+                            column_index: 3,
+                            spell_id: [33872, 33873],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_druid_healinginstincts"
+                        },
                     ],
                     [
                         {is_filler: true, row_index: 5, column_index: 0},
@@ -10670,11 +10721,27 @@ export class TalentViewerComponent {
                             icon: "spell_holy_blessingofagility",
                             parent: {row_index: 3, column_index: 1}
                         },
-                        {is_filler: true, row_index: 5, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 2,
+                            spell_id: [33853, 33855, 33856],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_enrage"
+                        },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [33851, 33852, 33957],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_primaltenacity"
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -10684,8 +10751,46 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_nature_unyeildingstamina"
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [34297, 34300],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_nature_unyeildingstamina",
+                            parent: {row_index: 6, column_index: 1}
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {is_filler: true, row_index: 7, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 2,
+                            spell_id: [33859, 33866, 33867, 33868, 33869],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_druid_predatoryinstincts"
+                        },
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [33917],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_druid_mangle2",
+                            parent: {row_index: 6, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
                 [3, ["Restoration", [
@@ -10734,19 +10839,18 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 2,
-                            spell_id: [17079, 17082],
-                            max_points: 2,
+                            spell_id: [16833, 16834, 16835],
+                            max_points: 3,
                             points_spend: 0,
-                            icon: "ability_druid_enrage"
+                            icon: "spell_nature_wispsplode"
                         },
                         {is_filler: true, row_index: 1, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 2, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 2,
-                            column_index: 1,
+                            column_index: 0,
                             spell_id: [17106, 17107, 17108],
                             max_points: 3,
                             points_spend: 0,
@@ -10755,21 +10859,22 @@ export class TalentViewerComponent {
                         {
                             is_filler: false,
                             row_index: 2,
-                            column_index: 2,
-                            spell_id: [5570],
-                            max_points: 1,
-                            points_spend: 0,
-                            icon: "spell_nature_insectswarm"
-                        },
-                        {
-                            is_filler: false,
-                            row_index: 2,
-                            column_index: 3,
+                            column_index: 1,
                             spell_id: [17118, 17119, 17120, 17121, 17122],
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_eyeoftheowl"
                         },
+                        {
+                            is_filler: false,
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [16864],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "spell_nature_crystalball"
+                        },
+                        {is_filler: true, row_index: 2, column_index: 3},
                     ],
                     [
                         {is_filler: true, row_index: 3, column_index: 0},
@@ -10782,16 +10887,16 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "spell_holy_elunesgrace"
                         },
-                        {is_filler: true, row_index: 3, column_index: 2},
                         {
                             is_filler: false,
                             row_index: 3,
-                            column_index: 3,
+                            column_index: 2,
                             spell_id: [17111, 17112, 17113],
                             max_points: 3,
                             points_spend: 0,
                             icon: "spell_nature_rejuvenation"
                         },
+                        {is_filler: true, row_index: 3, column_index: 3},
                     ],
                     [
                         {
@@ -10804,17 +10909,16 @@ export class TalentViewerComponent {
                             icon: "spell_nature_ravenform",
                             parent: {row_index: 1, column_index: 0}
                         },
-                        {is_filler: true, row_index: 4, column_index: 1},
                         {
                             is_filler: false,
                             row_index: 4,
-                            column_index: 2,
+                            column_index: 1,
                             spell_id: [17104, 24943, 24944, 24945, 24946],
                             max_points: 5,
                             points_spend: 0,
                             icon: "spell_nature_protectionformnature",
-                            parent: {row_index: 2, column_index: 2}
                         },
+                        {is_filler: true, row_index: 4, column_index: 2},
                         {
                             is_filler: false,
                             row_index: 4,
@@ -10826,7 +10930,15 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
-                        {is_filler: true, row_index: 5, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 5,
+                            column_index: 0,
+                            spell_id: [33879, 33880],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_druid_empoweredtouch"
+                        },
                         {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
@@ -10835,12 +10947,20 @@ export class TalentViewerComponent {
                             spell_id: [17074, 17075, 17076, 17077, 17078],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "spell_nature_tranquility"
+                            icon: "spell_nature_resistnature"
                         },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 6, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 0,
+                            spell_id: [34151, 34152, 34153],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "spell_nature_giftofthewaterspirit"
+                        },
                         {
                             is_filler: false,
                             row_index: 6,
@@ -10851,8 +10971,44 @@ export class TalentViewerComponent {
                             icon: "inv_relics_idolofrejuvenation",
                             parent: {row_index: 3, column_index: 1}
                         },
-                        {is_filler: true, row_index: 6, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 6,
+                            column_index: 2,
+                            spell_id: [33881, 33882, 33883],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_naturalperfection"
+                        },
                         {is_filler: true, row_index: 6, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 7, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 1,
+                            spell_id: [33886, 33887, 33888, 33889, 33890],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_druid_empoweredrejuvination"
+                        },
+                        {is_filler: true, row_index: 7, column_index: 2},
+                        {is_filler: true, row_index: 7, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 1,
+                            spell_id: [33891],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_druid_treeoflife"
+                        },
+                        {is_filler: true, row_index: 8, column_index: 2},
+                        {is_filler: true, row_index: 8, column_index: 3},
                     ]
                 ]]],
             ])]
