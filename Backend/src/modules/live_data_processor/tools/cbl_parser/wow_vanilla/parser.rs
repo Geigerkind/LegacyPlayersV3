@@ -1377,6 +1377,8 @@ impl CombatLogParser for WoWVanillaParser {
             15299 => 80000,
             // Nefarian
             11583 => 120000,
+            // Gothik the Harvester
+            16060 => 80000,
             _ => return None,
         })
     }
@@ -1393,6 +1395,7 @@ impl CombatLogParser for WoWVanillaParser {
 
     fn get_in_combat_implied_npc_combat(&self, entry: u32) -> Option<Vec<u32>> {
         Some(match entry {
+            16124 | 16125 | 16126 | 16127 | 16148 | 16149 | 16150 => vec![16060],
             12557 | 14456 | 12416 | 12422 | 12420 => vec![12435],
             16427 | 16429 | 16428 => vec![65534],
             15667 => vec![15299],
