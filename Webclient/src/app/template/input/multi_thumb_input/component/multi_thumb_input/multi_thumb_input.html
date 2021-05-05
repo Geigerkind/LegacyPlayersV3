@@ -1,4 +1,6 @@
 <div class="progress_bar" #progress_bar>
     <div class="slider" id="slider0" #slider0 (mousedown)="onMouseDown(0)"></div>
     <div class="slider" id="slider1" #slider1 (mousedown)="onMouseDown(1)"></div>
+    <div id="label_left">{{ label_left | translate }}</div>
+    <div id="label_right">{{ label_right | translate }}</div>
 </div>

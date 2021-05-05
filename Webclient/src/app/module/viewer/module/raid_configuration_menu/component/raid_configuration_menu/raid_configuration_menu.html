@@ -35,11 +35,12 @@
     <MultiSelect placeholder="Abilities" [(selectedItems)]="selected_items_abilities"
                  [dropdownList]="list_items_abilities"
                  [enableCheckAll]="true" (items_changed_by_action)="on_ability_selection_updated()"></MultiSelect>
-    <MultiThumbInput [reference_start]="time_slider_reference_start" [reference_end]="time_slider_reference_end"
-                     [reference_slider0]="time_slider_start_reference"
-                     [reference_slider1]="time_slider_end_reference"
-                     (slider0_output)="timeBoundariesUpdated(true, $event)"
-                     (slider1_output)="timeBoundariesUpdated(false, $event)"></MultiThumbInput>
+    <MultiThumbInput label_left="Start" label_right="End"
+        [reference_start]="time_slider_reference_start" [reference_end]="time_slider_reference_end"
+        [reference_slider0]="time_slider_start_reference"
+        [reference_slider1]="time_slider_end_reference"
+        (slider0_output)="timeBoundariesUpdated(true, $event)"
+        (slider1_output)="timeBoundariesUpdated(false, $event)"></MultiThumbInput>
 
     <!--
     <MultiSelect placeholder="Options"></MultiSelect>

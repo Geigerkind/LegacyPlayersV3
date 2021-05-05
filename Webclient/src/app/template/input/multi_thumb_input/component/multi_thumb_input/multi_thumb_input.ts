@@ -11,6 +11,8 @@ export class MultiThumbInputComponent implements OnChanges {
     @ViewChild("slider0", {static: true}) slider0: ElementRef;
     @ViewChild("slider1", {static: true}) slider1: ElementRef;
 
+    @Input() label_left: string = "";
+    @Input() label_right: string = "";
     @Input() reference_start: number = 0;
     @Input() reference_end: number = 1;
     @Input() reference_slider0: number = 0;
