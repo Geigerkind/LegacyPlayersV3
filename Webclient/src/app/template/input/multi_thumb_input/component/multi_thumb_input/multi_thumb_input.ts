@@ -27,8 +27,8 @@ export class MultiThumbInputComponent implements OnChanges {
     ngOnChanges(changes: any): void {
         let prev_ref_start: number = !!changes.reference_start?.previousValue ? changes.reference_start.previousValue : this.reference_start;
         let prev_ref_end: number = !!changes.reference_end?.previousValue ? changes.reference_end.previousValue : this.reference_end;
-        let ref_slider0_pos: number = !!changes.reference_slider0 ? changes.reference_slider0.currentValue : this.currentSliderPosition[0] * (prev_ref_end - prev_ref_start);
-        let ref_slider1_pos: number = !!changes.reference_slider1 ? changes.reference_slider1.currentValue : this.currentSliderPosition[0] * (prev_ref_end - prev_ref_start);
+        let ref_slider0_pos: number = !!changes.reference_slider0 ? (changes.reference_slider0.currentValue - this.reference_start) : this.currentSliderPosition[0] * (prev_ref_end - prev_ref_start);
+        let ref_slider1_pos: number = !!changes.reference_slider1 ? (changes.reference_slider1.currentValue - this.reference_start) : this.currentSliderPosition[1] * (prev_ref_end - prev_ref_start);
         this.currentSliderPosition[0] = ref_slider0_pos / (this.reference_end - this.reference_start);
         this.currentSliderPosition[1] = ref_slider1_pos / (this.reference_end - this.reference_start);
         this.slider0.nativeElement.style.left = (100 * this.currentSliderPosition[0]) + "%";

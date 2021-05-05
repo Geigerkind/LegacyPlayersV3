@@ -60,6 +60,7 @@ export class RaidConfigurationService implements OnDestroy {
     source_filter: Set<number> = new Set();
     target_filter: Set<number> = new Set();
     ability_filter: Set<number> = new Set();
+    time_boundaries: [number, number] = [0, 1];
 
     private current_mode: ViewerMode = ViewerMode.Base;
 
@@ -103,6 +104,7 @@ export class RaidConfigurationService implements OnDestroy {
                 this.instanceDataService.set_source_filter([...this.source_filter.values()]);
                 this.instanceDataService.set_target_filter([...this.target_filter.values()]);
                 this.instanceDataService.set_ability_filter([...this.ability_filter.values()]);
+                this.instanceDataService.set_time_boundaries(this.time_boundaries)
             }
             if (knecht_updates.includes(KnechtUpdates.FilterInitialized)) {
                 history.replaceState({
@@ -233,6 +235,14 @@ export class RaidConfigurationService implements OnDestroy {
             return;
         this.ability_filter = new Set(selected_abilities);
         this.instanceDataService.set_ability_filter(selected_abilities);
+        if (update_stack) this.filter_updated$.next(push_history);
+    }
+
+    update_time_boundaries(boundaries: [number, number], update_stack: boolean = false, push_history: boolean = true): void {
+        if (this.time_boundaries[0] === boundaries[0] && this.time_boundaries[1] === boundaries[1])
+            return;
+        this.time_boundaries = boundaries;
+        this.instanceDataService.set_time_boundaries(boundaries);
         if (update_stack) this.filter_updated$.next(push_history);
     }
 

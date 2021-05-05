@@ -25,8 +25,8 @@
 
     padding: 0.5 * $spacing 0.5 * $spacing;
 
-    MultiSelect {
-        width: calc(20% - (2/5) * #{$spacing});
+    MultiSelect, MultiThumbInput {
+        width: calc(16.5% - (2/6) * #{$spacing});
         margin-right: 0.5 * $spacing;
         float: left;
 
@@ -36,7 +36,11 @@
     }
 
     @media (max-width: 1100px) {
-        MultiSelect, SelectInput {
+        MultiThumbInput {
+            margin-top: 0.5 * $spacing;
+        }
+
+        MultiSelect, SelectInput, MultiThumbInput {
             margin-right: 0.5 * $spacing;
             margin-bottom: 0.5 * $spacing;
             width: calc(33.3% - 0.5 * #{$spacing});
@@ -49,11 +53,11 @@
     }
 
     @media (max-width: 600px) {
-        SelectInput {
+        SelectInput, MultiThumbInput {
             margin-top: 0.5 * $spacing;
         }
 
-        MultiSelect, SelectInput {
+        MultiSelect, SelectInput, MultiThumbInput {
             margin-right: 0;
             margin-bottom: 0.5 * $spacing;
             width: 100%;

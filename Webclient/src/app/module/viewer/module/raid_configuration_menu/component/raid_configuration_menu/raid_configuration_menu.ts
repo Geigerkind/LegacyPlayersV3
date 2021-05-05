@@ -64,6 +64,11 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     segments_additional_button: Array<AdditionalButton> = [];
 
+    time_slider_reference_start: number = 0;
+    time_slider_reference_end: number = 1;
+    time_slider_start_reference: number = 0;
+    time_slider_end_reference: number = 1;
+
     constructor(
         private raidConfigurationService: RaidConfigurationService,
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
@@ -105,6 +110,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     on_segment_selection_updated(): void {
         this.use_default_filter_segments = false;
         this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(segment => segment.id), true);
+        this.update_start_end_time_slider_boundaries();
     }
 
     on_source_selection_updated(): void {
@@ -164,7 +170,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 label: segment.label.toString() + " - " + this.dateService.toTimeSpan(segment.duration) + " - "
                     + (segment.is_kill ? "Kill" : "Attempt") + " - " + this.dateService.toRPLLTime(segment.start_ts),
                 encounter_id: segment.encounter_id,
-                is_kill: segment.is_kill
+                is_kill: segment.is_kill,
+                start_ts: segment.start_ts,
+                duration: segment.duration
             });
         }
 
@@ -186,6 +194,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
         if (this.use_default_filter_segments && update_filter)
             this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(item => item.id));
+        this.update_start_end_time_slider_boundaries();
     }
 
     private async handle_sources(sources: Array<EventSource>, update_filter: boolean) {
@@ -292,5 +301,36 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             }
             return result;
         }
+    }
+
+    private update_start_end_time_slider_boundaries(): void {
+        let new_ref_start: number = Number.MAX_VALUE;
+        let new_ref_end: number = Number.MIN_VALUE;
+        for (const segment of this.selected_items_segments) {
+            let actual_segment = this.list_items_segments.find(item => item.id === segment.id);
+            if (actual_segment.start_ts < new_ref_start) {
+                new_ref_start = actual_segment.start_ts;
+            }
+            if (actual_segment.start_ts + actual_segment.duration > new_ref_end) {
+                new_ref_end = actual_segment.start_ts + actual_segment.duration;
+            }
+        }
+
+        if (new_ref_start != Number.MAX_VALUE && new_ref_end != Number.MIN_VALUE && (new_ref_start != this.time_slider_reference_start || new_ref_end != this.time_slider_reference_end)) {
+            this.time_slider_reference_start = new_ref_start;
+            this.time_slider_start_reference = new_ref_start;
+            this.time_slider_reference_end = new_ref_end;
+            this.time_slider_end_reference = new_ref_end;
+            this.raidConfigurationService.update_time_boundaries([this.time_slider_start_reference, this.time_slider_end_reference], true);
+        }
+    }
+
+    timeBoundariesUpdated(is_start: boolean, time: number): void {
+        if (is_start) {
+            this.time_slider_start_reference = time;
+        } else {
+            this.time_slider_end_reference = time;
+        }
+        this.raidConfigurationService.update_time_boundaries([this.time_slider_start_reference, this.time_slider_end_reference], true);
     }
 }

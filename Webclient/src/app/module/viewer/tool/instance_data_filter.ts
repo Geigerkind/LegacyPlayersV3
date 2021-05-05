@@ -47,6 +47,7 @@ export class InstanceDataFilter {
     private source_filter$: Set<number> = new Set();
     private target_filter$: Set<number> = new Set();
     private ability_filter$: Set<number> = new Set();
+    private time_boundaries$: [number, number] = [0, 1];
 
     private data_loader: InstanceDataLoader;
     private cache: Map<string, Array<Event>> = new Map();
@@ -64,7 +65,8 @@ export class InstanceDataFilter {
 
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
-        let result = container.filter(event => this.segment_intervals$.find(interval => {
+        let result = container.filter(event => this.time_boundaries$[0] <= event[1] && this.time_boundaries$[1] >= event[1]);
+        result = result.filter(event => this.segment_intervals$.find(interval => {
             return interval[0] <= event[1] && interval[1] >= event[1];
         }) !== undefined).filter(event => {
             const unit_id = source_extraction(event);
@@ -111,6 +113,13 @@ export class InstanceDataFilter {
             this.cache = new Map();
             this.ability_filter$ = new Set(abilities);
         }
+    }
+
+    async set_time_boundaries(boundaries: [number, number]): Promise<void> {
+        if (this.time_boundaries$[0] === boundaries[0] && this.time_boundaries$[1] === boundaries[1])
+            return;
+        this.cache = new Map();
+        this.time_boundaries$ = boundaries;
     }
 
     async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {

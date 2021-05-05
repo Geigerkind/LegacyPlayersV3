@@ -252,6 +252,33 @@ export class InstanceDataService implements OnDestroy {
         }
     }
 
+    public async set_time_boundaries(boundaries: [number, number]) {
+        if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        ++this.filter_update_in_progress;
+        const promisses = [];
+        promisses.push(this.knecht_melee.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_misc.set_time_boundaries(boundaries));
+        // promisses.push(this.knecht_replay.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_spell_damage.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_heal.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_un_aura.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_threat.set_time_boundaries(boundaries));
+        // promisses.push(this.knecht_spell_cast.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_aura.set_time_boundaries(boundaries));
+
+        for (const prom of promisses)
+            await prom;
+
+        --this.filter_update_in_progress;
+        this.filter_initialized[3] = true;
+        if (this.filter_update_in_progress === 0)
+            this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
+        if (this.isInitialized() && !this.filter_initialized_fired) {
+            this.knecht_updates$.next([KnechtUpdates.FilterInitialized, []]);
+            this.filter_initialized_fired = true;
+        }
+    }
+
     public set instance_meta_id(instance_meta_id: number) {
         if (!!this.instance_meta_id$)
             return;

@@ -245,6 +245,13 @@ export class Rechenknecht {
         await abilityFilter;
     }
 
+    async set_time_boundaries(boundaries: [number, number]): Promise<void> {
+        Rechenknecht.send_work_start();
+        const resultFilter = this.data_filter.set_time_boundaries(boundaries);
+        Rechenknecht.send_work_end();
+        await resultFilter;
+    }
+
     async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         Rechenknecht.send_work_start();
         const sources = this.data_filter.get_sources();

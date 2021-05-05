@@ -7,6 +7,7 @@ import {GeneralInputModule} from "../../../../template/input/general_input/modul
 import {ClickOutsideDirectiveModule} from "../../../../directive/click_outside/module";
 import {RouterModule} from "@angular/router";
 import {ExportViewerModule} from "./module/export_viewer/module";
+import {MultiThumbInputModule} from "../../../../template/input/multi_thumb_input/module";
 
 @NgModule({
     declarations: [RaidConfigurationMenuComponent],
@@ -17,7 +18,8 @@ import {ExportViewerModule} from "./module/export_viewer/module";
         GeneralInputModule,
         ClickOutsideDirectiveModule,
         RouterModule,
-        ExportViewerModule
+        ExportViewerModule,
+        MultiThumbInputModule
     ],
     exports: [RaidConfigurationMenuComponent]
 })
