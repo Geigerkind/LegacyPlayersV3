@@ -204,16 +204,21 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             this.chartLabels = x_axis;
             this.chartDataSets = [];
             for (const [data_set, [real_x_axis, real_y_axis, evt_units]] of data_sets) {
-                const chart_points: Array<ChartPoint> = [];
-                for (let i = 0; i < real_x_axis.length; ++i) {
-                    if (is_event_data_set(data_set)) {
+                let chart_points = [];
+                if (is_event_data_set(data_set)) {
+                    for (let i = 0; i < real_x_axis.length; ++i) {
                         chart_points.push({
                             x: real_x_axis[i],
                             y: real_y_axis[i],
                             custom_label: !!evt_units[i] ? new DelayedLabel(this.unitService.get_unit_name(evt_units[i], real_x_axis[i])) : CONST_UNKNOWN_LABEL
                         } as ChartPoint);
+                    }
+                } else {
+                    if (this.selected_chart_type === 1) {
+                        chart_points = this.fit_bar_chart_data_to_x_axis(x_axis, real_x_axis, real_y_axis);
                     } else {
-                        chart_points.push({x: real_x_axis[i], y: real_y_axis[i]} as ChartPoint);
+                        for (let i = 0; i < real_x_axis.length; ++i)
+                            chart_points.push({x: real_x_axis[i], y: real_y_axis[i]} as ChartPoint);
                     }
                 }
                 this.chartDataSets.push({
@@ -347,5 +352,19 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     private save_selected(): void {
         this.settingsService.set("viewer_raid_graph_datasets", [...this.selectedDataSets.values()]);
         this.settingsService.set("viewer_raid_graph_events", [...this.selectedEvents.values()]);
+    }
+
+    private fit_bar_chart_data_to_x_axis(x_axis, data_x, data_y): Array<number> {
+        const result_y = [];
+        let data_count = 0;
+        for (let i=0; i<x_axis.length - 1; ++i) {
+            if (x_axis[i + 1] > data_x[data_count]) {
+                result_y.push(data_y[data_count]);
+                ++data_count;
+            } else {
+                result_y.push(0);
+            }
+        }
+        return result_y;
     }
 }
