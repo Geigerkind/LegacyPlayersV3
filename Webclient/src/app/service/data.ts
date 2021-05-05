@@ -41,7 +41,7 @@ export class DataService implements OnDestroy {
     private difficulties$: BehaviorSubject<Array<Localized<Difficulty>>>;
 
     private cache_basic_spell: Map<number, Map<number, Localized<BasicSpell>>> = new Map();
-    private cache_basic_item: Map<number, Map<number, Localized<BasicItem>>> = new Map();
+    private cache_basic_item: Map<number, Map<number, BehaviorSubject<Localized<BasicItem>>>> = new Map();
     private cache_npc: Map<number, Map<number, Localized<NPC>>> = new Map();
 
     private cache_encounters: Array<Localized<Encounter>>;
@@ -189,20 +189,15 @@ export class DataService implements OnDestroy {
 
     get_localized_basic_item(expansion_id: number, item_id: number): Observable<Localized<BasicItem>> {
         if (this.cache_basic_item.get(expansion_id).has(item_id))
-            return of(this.cache_basic_item.get(expansion_id).get(item_id));
-        this.cache_basic_item.get(expansion_id).set(item_id, this.get_unknown_basic_item(item_id));
-        const subject = new Subject<Localized<BasicItem>>();
+            return this.cache_basic_item.get(expansion_id).get(item_id);
+        const subject = new BehaviorSubject<Localized<BasicItem>>(this.get_unknown_basic_item(item_id));
+        this.cache_basic_item.get(expansion_id).set(item_id, subject);
 
         this.apiService.get(DataService.URL_DATA_BASIC_ITEM_LOCALIZED
                 .replace(":expansion_id", expansion_id.toString())
                 .replace(":item_id", item_id.toString()),
             item => {
-                this.cache_basic_item.get(expansion_id).set(item_id, item);
                 subject.next(item);
-            }, reason => {
-                if (reason.status === 404)
-                    this.cache_basic_item.get(expansion_id).set(item_id, this.get_unknown_basic_item(item_id));
-                subject.next(this.get_unknown_basic_item(item_id));
             });
 
         return subject;

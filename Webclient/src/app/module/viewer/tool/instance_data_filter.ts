@@ -58,17 +58,21 @@ export class InstanceDataFilter {
 
     private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => number, target_extraction: (Event) => number,
                          multi_ability_extraction: (Event) => Array<number>, single_ability_extraction: (Event) => number,
-                         inverse_filter: boolean = false): Array<Event> {
+                         inverse_filter: boolean = false, skip_time_and_attempt_filter: boolean = false): Array<Event> {
         const cache_key = event_type.toString() + (inverse_filter ? "1" : "0");
         if (this.cache.has(cache_key))
             return this.cache.get(cache_key);
 
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
-        let result = container.filter(event => this.time_boundaries$[0] <= event[1] && this.time_boundaries$[1] >= event[1]);
-        result = result.filter(event => this.segment_intervals$.find(interval => {
-            return interval[0] <= event[1] && interval[1] >= event[1];
-        }) !== undefined).filter(event => {
+        let result = container;
+        if (!skip_time_and_attempt_filter) {
+            result = result.filter(event => this.time_boundaries$[0] <= event[1] && this.time_boundaries$[1] >= event[1]);
+            result = result.filter(event => this.segment_intervals$.find(interval => {
+                return interval[0] <= event[1] && interval[1] >= event[1];
+            }) !== undefined);
+        }
+        result = result.filter(event => {
             const unit_id = source_extraction(event);
             // if (unit_id === 0) return true;
             return filter_source.has(unit_id);
@@ -155,7 +159,7 @@ export class InstanceDataFilter {
     get_loot(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
         return this.apply_filter(3, this.data_loader.loot, (evt) => get_unit_id(se_loot(evt), false),
-            undefined, undefined, undefined, inverse_filter);
+            undefined, undefined, undefined, inverse_filter, true);
     }
 
     get_positions(inverse_filter: boolean = false): Array<Event> {

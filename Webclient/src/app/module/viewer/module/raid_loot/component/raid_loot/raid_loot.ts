@@ -41,4 +41,9 @@ export class RaidLootComponent implements OnDestroy {
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
     }
+
+    isFilteredGroupEmpty(items): boolean {
+        console.log(items);
+        return false;
+    }
 }
