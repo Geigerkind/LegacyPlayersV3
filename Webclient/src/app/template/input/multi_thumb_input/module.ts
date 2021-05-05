@@ -1,17 +1,15 @@
 import {NgModule} from "@angular/core";
 import {TranslateModule} from "@ngx-translate/core";
+import {MultiThumbInputComponent} from "./component/multi_thumb_input/multi_thumb_input";
 import {CommonModule} from "@angular/common";
-import {HomeComponent} from "./component/home/home";
-import {HomeRouting} from "./routing";
 
 @NgModule({
-    declarations: [HomeComponent],
+    declarations: [MultiThumbInputComponent],
     imports: [
         CommonModule,
         TranslateModule,
-        HomeRouting,
     ],
-    exports: [HomeComponent]
+    exports: [MultiThumbInputComponent]
 })
-export class HomeModule {
+export class MultiThumbInputModule {
 }
