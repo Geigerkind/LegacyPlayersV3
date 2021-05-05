@@ -97,7 +97,7 @@ export class SpellService {
                 }
             });
         if (!this.server_id$)
-            return of(this.dataService.unknown_basic_spell);
+            return of(this.dataService.unknown_basic_spell(-1));
         return this.dataService.get_localized_basic_spell(this.expansion_id$, spell_id);
     }
 

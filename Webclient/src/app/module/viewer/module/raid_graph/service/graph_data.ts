@@ -23,8 +23,8 @@ export class GraphDataService implements OnDestroy {
     private subscription_absorb_done: Subscription;
 
     private subscription: Subscription;
-    private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>]]>]> = new BehaviorSubject([[], []]);
-    private current_data: Map<DataSet, [Array<number>, Array<number>, Array<Unit>]> = new Map();
+    private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>, Array<Array<[number, number]>>]]>]> = new BehaviorSubject([[], []]);
+    private current_data: Map<DataSet, [Array<number>, Array<number>, Array<Unit>, Array<Array<[number, number]>>]> = new Map();
 
     private UNUSED_abilities$: Map<number, RaidMeterSubject> = new Map();
     private UNUSED_units$: Map<number, RaidMeterSubject> = new Map();
@@ -122,7 +122,7 @@ export class GraphDataService implements OnDestroy {
         return this.selectedTargetAbilities;
     }
 
-    get data_points(): Observable<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>]]>]> {
+    get data_points(): Observable<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>, Array<Array<[number, number]>>]]>]> {
         return this.data_points$.asObservable();
     }
 
@@ -156,10 +156,10 @@ export class GraphDataService implements OnDestroy {
         switch (data_set) {
             case DataSet.DamageDone:
             case DataSet.DamageTaken:
-                this.commit_data_set(data_set, RaidGraphKnecht.squash([
+                this.commit_data_set(data_set, RaidGraphKnecht.__squash([
                     ...await this.instanceDataService.knecht_melee.graph_data_set(data_set),
                     ...await this.instanceDataService.knecht_spell_damage.graph_data_set(data_set)
-                ].sort((left, right) => left[0] - right[0]) as Array<[number, number]>));
+                ].sort((left, right) => left[0] - right[0]) as Array<[number, number, Array<[number, number]>]>));
                 break;
             case DataSet.ThreatDone:
             case DataSet.ThreatTaken:
@@ -201,75 +201,39 @@ export class GraphDataService implements OnDestroy {
         }
     }
 
-    commit_data_set(data_set: DataSet, data_set_points: Array<[number, number | Unit]>): void {
+    commit_data_set(data_set: DataSet, data_set_points: Array<[number, number | Unit, Array<[number, number]>]>): void {
         const data_points = this.current_data;
         const x_axis = new Array<number>();
         const y_axis = [];
         const units = [];
-        for (const [x, y] of data_set_points) {
+        const ab_arr_dmg = []
+        for (const [x, y, ab_arr] of data_set_points) {
             x_axis.push(x);
             y_axis.push(y);
             if (is_event_data_set(data_set)) {
                 units.push(y);
+            } else {
+                ab_arr_dmg.push(ab_arr)
             }
         }
 
-        data_points.set(data_set, [x_axis, y_axis, units]);
+        data_points.set(data_set, [x_axis, y_axis, units, ab_arr_dmg]);
         const res_x_axis = this.compute_x_axis();
-        const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
-        this.data_points$.next([res_x_axis, res_xy_data_sets]);
+        // const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
+        this.data_points$.next([res_x_axis, [...data_points.entries()]]);
     }
 
     remove_data_set(data_set: DataSet): void {
         this.current_data.delete(data_set);
         const res_x_axis = this.compute_x_axis();
-        const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
-        this.data_points$.next([res_x_axis, res_xy_data_sets]);
+        //const res_xy_data_sets = this.compute_dataset_xy_axis(res_x_axis);
+        this.data_points$.next([res_x_axis, [...this.current_data.entries()]]);
 
         switch (data_set) {
             case DataSet.AbsorbDone:
                 this.subscription_absorb_done?.unsubscribe();
                 break;
         }
-    }
-
-    private compute_dataset_xy_axis(normalized_x_axis: Array<number>): Array<[DataSet, [Array<number>, Array<number>, Array<Unit>]]> {
-        const data_points = this.current_data;
-        const max_value = [...data_points.entries()].filter(([data_set, points]) => !is_event_data_set(data_set))
-            .map(([set, [x, y]]) => y)
-            .reduce((acc, y) => Math.max(acc, ...y), 0) * 0.75;
-
-        if (normalized_x_axis.length < 2)
-            return [...data_points.entries()];
-
-        const result = [];
-        for (const [data_set, [timestamps, values, units]] of data_points.entries()) {
-            const last_ts = normalized_x_axis[0];
-            let current_timestamps_index = 0;
-            let current_timestamps_ts = timestamps[0];
-            const data_set_res = [];
-            for (let i = 1; i < normalized_x_axis.length; ++i) {
-                const current_ts = normalized_x_axis[i];
-                while (current_timestamps_index < timestamps.length) {
-                    if (current_ts < current_timestamps_ts)
-                        break;
-                    if (Math.abs(current_timestamps_ts - current_ts) < Math.abs(current_timestamps_ts - last_ts))
-                        data_set_res.push(current_ts);
-                    else data_set_res.push(last_ts);
-                    ++current_timestamps_index;
-                    current_timestamps_ts = timestamps[current_timestamps_index];
-                }
-                if (current_timestamps_index === timestamps.length)
-                    break;
-            }
-            const res_values = [...values];
-            if (is_event_data_set(data_set)) {
-                for (let i = 0; i < res_values.length; ++i)
-                    res_values[i] = max_value;
-            }
-            result.push([data_set, [data_set_res, res_values, units]]);
-        }
-        return result;
     }
 
     private compute_x_axis(): Array<number> {

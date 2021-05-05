@@ -4,9 +4,14 @@ export class DelayedLabel {
 
     private subscription: Subscription;
     private observers: any = [];
+    private prefix;
     content: string = "Unknown";
 
-    constructor(content: Observable<string>) {
+    constructor(content: Observable<string>, prefix: string = undefined) {
+        if (!!prefix) {
+            this.prefix = prefix;
+        }
+
         this.subscription = content.subscribe(result => {
             this.content = result;
             if (result !== "Unknown") {
@@ -17,6 +22,9 @@ export class DelayedLabel {
     }
 
     toString(): any {
+        if (!!this.prefix) {
+            return this.prefix + ": " + this.content;
+        }
         return this.content;
     }
 

@@ -13,7 +13,7 @@ import {Difficulty} from "../domain_value/difficulty";
 import {BasicItem} from "../domain_value/data/basic_item";
 import {BasicSpell} from "../domain_value/data/basic_spell";
 import {Encounter} from "../domain_value/data/encounter";
-import {CONST_UNKNOWN_LABEL} from "../module/viewer/constant/viewer";
+import {CONST_AUTO_ATTACK_LABEL, CONST_UNKNOWN_LABEL} from "../module/viewer/constant/viewer";
 import {SelectOption} from "../template/input/select_input/domain_value/select_option";
 
 @Injectable({
@@ -95,7 +95,7 @@ export class DataService implements OnDestroy {
                         pending_basic_spells.delete(spell.base.id);
                     }
                     for (const [, subject] of pending_basic_spells.entries())
-                        subject.next(this.unknown_basic_spell);
+                        subject.next(this.unknown_basic_spell(-1));
                 }, reason => {});
         }));
     }
@@ -209,11 +209,15 @@ export class DataService implements OnDestroy {
             return pending[1];
         if (this.cache_basic_spell.get(expansion_id).has(spell_id))
             return of(this.cache_basic_spell.get(expansion_id).get(spell_id));
-        this.cache_basic_spell.get(expansion_id).set(spell_id, this.unknown_basic_spell);
+        this.cache_basic_spell.get(expansion_id).set(spell_id, this.unknown_basic_spell(spell_id));
 
         const subject = new Subject<Localized<BasicSpell>>();
-        this.pending_basic_spells.push([spell_id, subject]);
-        this.lazy_basic_spells$.next(expansion_id);
+        if (spell_id > 0) {
+            this.pending_basic_spells.push([spell_id, subject]);
+            this.lazy_basic_spells$.next(expansion_id);
+        } else {
+            return of(this.unknown_basic_spell(spell_id));
+        }
 
         /*
         this.apiService.get(DataService.URL_DATA_BASIC_SPELL_LOCALIZED
@@ -255,9 +259,9 @@ export class DataService implements OnDestroy {
             .pipe(map(encounters => encounters.find(encounter => encounter.base.id === encounter_id)));
     }
 
-    get unknown_basic_spell(): Localized<BasicSpell> {
+    unknown_basic_spell(spell_id: number): Localized<BasicSpell> {
         return {
-            localization: CONST_UNKNOWN_LABEL,
+            localization: spell_id === 0 ? CONST_AUTO_ATTACK_LABEL : CONST_UNKNOWN_LABEL,
             base: {
                 school: 1,
                 icon: "inv_misc_questionmark",
