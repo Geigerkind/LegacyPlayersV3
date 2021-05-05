@@ -70,10 +70,10 @@ export function detail_row_post_processing(ability_details: any): Array<[number,
 
 export const DETAIL_CATEGORIES = [
     HitType.None,
+    HitType.Glancing,
     HitType.Hit,
     HitType.Crushing,
     HitType.Crit,
-    HitType.Glancing,
     HitType.Parry,
     HitType.Dodge,
     HitType.Miss,
