@@ -12,7 +12,7 @@ use rust_lapper::{Interval, Lapper};
 use std::cmp::Ordering;
 use std::collections::{BTreeSet, HashMap};
 
-pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, end_parse: u64) -> Option<(u32, Vec<Message>)> {
+pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, _end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
 
     // Pre processing
@@ -25,9 +25,11 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         }
         if let Ok(timestamp) = NaiveDateTime::parse_from_str(&format!("{}/{}", current_year, meta[0]), "%Y/%m/%d %H:%M:%S%.3f") {
             let event_timestamp = timestamp.timestamp_millis() as u64;
+            /*
             if event_timestamp < start_parse || event_timestamp > end_parse {
                 continue;
             }
+             */
 
             if let Some(message_types) = parser.parse_cbl_line(data, event_timestamp, meta[1].trim_end_matches('\r')) {
                 let mut message_count = (messages.len() + message_types.len()) as u64;

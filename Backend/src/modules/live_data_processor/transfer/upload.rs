@@ -10,7 +10,6 @@ use crate::modules::live_data_processor::tools::ProcessMessages;
 use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::util::database::{Execute, Select};
 use crate::MainDb;
-use chrono::NaiveDateTime;
 use rocket::http::ContentType;
 use rocket::{Data, State};
 use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
@@ -24,11 +23,12 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     let mut options = MultipartFormDataOptions::new();
     options.allowed_fields.push(MultipartFormDataField::bytes("payload").size_limit(40 * 1024 * 1024 * 1024));
     options.allowed_fields.push(MultipartFormDataField::bytes("server_id").size_limit(1024));
-    options.allowed_fields.push(MultipartFormDataField::bytes("start_time").size_limit(1024));
-    options.allowed_fields.push(MultipartFormDataField::bytes("end_time").size_limit(1024));
+    //options.allowed_fields.push(MultipartFormDataField::bytes("start_time").size_limit(1024));
+    //options.allowed_fields.push(MultipartFormDataField::bytes("end_time").size_limit(1024));
 
     let mut multipart_form_data = MultipartFormData::parse(content_type, form_data, options).unwrap();
 
+    /*
     let mut start_time_raw_fields = multipart_form_data.raw.remove("start_time").ok_or(LiveDataProcessorFailure::InvalidStartTime)?;
     let start_time_raw_field = start_time_raw_fields.remove(0);
     let start_time_raw = std::str::from_utf8(&start_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidStartTime)?;
@@ -38,6 +38,11 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     let end_time_raw_field = end_time_raw_fields.remove(0);
     let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidEndTime)?;
     let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidEndTime)?;
+     */
+
+    // The filtering functionality was removed
+    let start_time_in_ms: u64 = time_util::now() * 1000;
+    let end_time_in_ms: u64 = time_util::now() * 1000;
 
     let mut server_id_raw_fields = multipart_form_data.raw.remove("server_id").ok_or(LiveDataProcessorFailure::InvalidInput)?;
     let RawField { raw: server_id_raw, .. } = server_id_raw_fields.remove(0);
@@ -77,8 +82,8 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
             &data,
             &armory,
             &content,
-            start_time.timestamp_millis() as u64,
-            end_time.timestamp_millis() as u64,
+            start_time_in_ms,
+            end_time_in_ms,
             auth.0,
         );
     } else {
@@ -91,8 +96,8 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 &data,
                 &armory,
                 &content,
-                start_time.timestamp_millis() as u64,
-                end_time.timestamp_millis() as u64,
+                start_time_in_ms,
+                end_time_in_ms,
                 auth.0,
             );
         } else if server.expansion_id == 2 {
@@ -103,8 +108,8 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 &data,
                 &armory,
                 &content,
-                start_time.timestamp_millis() as u64,
-                end_time.timestamp_millis() as u64,
+                start_time_in_ms,
+                end_time_in_ms,
                 auth.0,
             );
         } else if server.expansion_id == 3 {
@@ -115,8 +120,8 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 &data,
                 &armory,
                 &content,
-                start_time.timestamp_millis() as u64,
-                end_time.timestamp_millis() as u64,
+                start_time_in_ms,
+                end_time_in_ms,
                 auth.0,
             );
         }

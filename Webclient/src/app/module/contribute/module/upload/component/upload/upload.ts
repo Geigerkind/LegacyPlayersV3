@@ -1,17 +1,18 @@
-import {Component, ElementRef, OnDestroy, ViewChild} from "@angular/core";
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {UploadService} from "../../service/upload";
 import {Severity} from "../../../../../../domain_value/severity";
 import {NotificationService} from "../../../../../../service/notification";
 import {DateService} from "../../../../../../service/date";
 import {DataService} from "../../../../../../service/data";
 import {Subscription} from "rxjs";
+import {SettingsService} from "../../../../../../service/settings";
 
 @Component({
     selector: "Upload",
     templateUrl: "./upload.html",
     styleUrls: ["./upload.scss"]
 })
-export class UploadComponent implements OnDestroy {
+export class UploadComponent implements OnDestroy, OnInit {
 
     private subscription: Subscription;
 
@@ -27,7 +28,8 @@ export class UploadComponent implements OnDestroy {
         private uploadService: UploadService,
         private notification_service: NotificationService,
         private date_service: DateService,
-        private data_service: DataService
+        private data_service: DataService,
+        private settingsService: SettingsService
     ) {
         const start = new Date();
         start.setUTCHours(-24, 1, 0, 0);
@@ -45,8 +47,14 @@ export class UploadComponent implements OnDestroy {
                     return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
                 });
             this.server.push({value: -1, label_key: "Retail Classic"});
-            this.selected_server_id = this.server[0]?.value;
         });
+
+    }
+
+    ngOnInit(): void {
+        if (this.settingsService.check("upload_last_server")) {
+            this.selected_server_id = Number(this.settingsService.get("upload_last_server"));
+        }
     }
 
     ngOnDestroy(): void {
@@ -59,8 +67,8 @@ export class UploadComponent implements OnDestroy {
             this.notification_service.propagate(Severity.Info, "Uploading...");
             const formData = new FormData();
             formData.append('server_id', this.selected_server_id.toString());
-            formData.append('start_time', this.selected_start_date);
-            formData.append('end_time', this.selected_end_date);
+            // formData.append('start_time', this.selected_start_date);
+            // formData.append('end_time', this.selected_end_date);
             formData.append('payload', this.upload_file.nativeElement.files[0]);
             this.uploadService.upload_file(formData, () => {
                 this.notification_service.propagate(Severity.Success, "Your log has been uploaded!");
@@ -70,5 +78,10 @@ export class UploadComponent implements OnDestroy {
                 this.disableSubmit = false;
             });
         }
+    }
+
+    selectedServerIdChanges(server_id: number): void {
+        this.selected_server_id = server_id;
+        this.settingsService.set("upload_last_server", server_id);
     }
 }

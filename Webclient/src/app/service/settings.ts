@@ -41,7 +41,8 @@ SettingsService {
         "data_service_encounters",
         "table_filter_viewer_ranking_table",
         "character_service_basic_characters",
-        "viewer_export"
+        "viewer_export",
+        "upload_last_server"
     ];
 
     private ignoreSettings: Array<string> = [

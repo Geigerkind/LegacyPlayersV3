@@ -9,6 +9,7 @@
         "429": "Too many requests!",
         "500": "This is a bug! Contact Shino!",
         "502": "Backend server is down!",
+        "504": "The request timed out!",
         "520": "Invalid credentials!",
         "521": "Invalid mail!",
         "522": "Invalid nickname!",
@@ -327,7 +328,7 @@
             "step5": "5. Log out after the raid, otherwise the log may be lost.",
             "step6": "6. Zip the WoWCombatLog.txt, e.g. using 7zip. Please note that rar is not zip.",
             "step7": "7. Upload it on the upload page: ",
-            "step8": "8. Make sure that you select the correct server and a valid time frame. If you are not sure just select an enclosing time frame, e.g. from 2010 to 2030.",
+            "step8": "8. Make sure that you select the correct server.",
             "step9": "9. After the log has been uploaded, it can take up to a minute until it is shown in the raid list. Additionally, you can find your uploads in your account panel."
         }
     },
