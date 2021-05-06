@@ -339,7 +339,7 @@ impl CombatLogParser for WoWWOTLKParser {
                 self.collect_participant(&caster, message_args[2], event_ts);
                 self.collect_participant(&target, message_args[5], event_ts);
                 self.collect_participant_class(&caster, spell_id);
-                vec![
+                let mut result = vec![
                     MessageType::SpellCast(SpellCast {
                         caster: caster.clone(),
                         target: Some(target.clone()),
@@ -347,15 +347,20 @@ impl CombatLogParser for WoWWOTLKParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                     MessageType::Heal(HealDone {
-                        caster,
-                        target,
+                        caster: caster.clone(),
+                        target: target.clone(),
                         spell_id,
                         total_heal: amount,
                         effective_heal: amount - overhealing,
                         absorb,
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
-                ]
+                ];
+
+                if self.is_owner_binding_pet_ability(spell_id) {
+                    result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
+                }
+                result
             },
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
@@ -376,7 +381,7 @@ impl CombatLogParser for WoWWOTLKParser {
                 })];
 
                 if self.is_owner_binding_pet_ability(spell_id) {
-                    result.push(MessageType::Summon(Summon { owner: target, unit: caster }));
+                    result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
                 }
 
                 result

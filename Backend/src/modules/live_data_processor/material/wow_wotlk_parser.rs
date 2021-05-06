@@ -94,7 +94,7 @@ impl WoWWOTLKParser {
 
     pub fn is_owner_binding_pet_ability(&self, spell_id: u32) -> bool {
         lazy_static! {
-            static ref ABILITIES: BTreeSet<u32> = [25228, 27046, 43771, 6991, 48990, 43771].iter().cloned().collect();
+            static ref ABILITIES: BTreeSet<u32> = [25228, 27046, 43771, 6991, 48990, 43771, 54181, 52858, 53434].iter().cloned().collect();
         }
         ABILITIES.contains(&spell_id)
     }

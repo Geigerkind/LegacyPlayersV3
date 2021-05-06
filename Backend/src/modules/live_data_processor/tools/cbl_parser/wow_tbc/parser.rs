@@ -319,7 +319,7 @@ impl CombatLogParser for WoWTBCParser {
                 self.collect_participant(&target, message_args[5], event_ts);
                 self.collect_participant_class(&caster, spell_id);
                 let effective_heal = self.participants.get_mut(&target.unit_id).unwrap().attribute_heal(amount);
-                vec![
+                let mut result = vec![
                     MessageType::SpellCast(SpellCast {
                         caster: caster.clone(),
                         target: Some(target.clone()),
@@ -327,15 +327,20 @@ impl CombatLogParser for WoWTBCParser {
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
                     MessageType::Heal(HealDone {
-                        caster,
-                        target,
+                        caster: caster.clone(),
+                        target: target.clone(),
                         spell_id,
                         total_heal: amount,
                         effective_heal,
                         absorb: 0,
                         hit_mask: if is_crit { HitType::Crit as u32 } else { HitType::Hit as u32 },
                     }),
-                ]
+                ];
+
+                if self.is_owner_binding_pet_ability(spell_id) {
+                    result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
+                }
+                result
             },
             // "SPELL_AURA_APPLIED_DOSE" | "SPELL_AURA_REMOVED_DOSE"
             "SPELL_AURA_APPLIED" | "SPELL_AURA_REMOVED" => {
@@ -356,7 +361,7 @@ impl CombatLogParser for WoWTBCParser {
                 })];
 
                 if self.is_owner_binding_pet_ability(spell_id) {
-                    result.push(MessageType::Summon(Summon { owner: target, unit: caster }));
+                    result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
                 }
 
                 result
