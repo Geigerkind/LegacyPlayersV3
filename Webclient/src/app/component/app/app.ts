@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit(): void {
         this.set_cookie_banner(!this.settingsService.check("cookieDecisions"));
-        // this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
+        this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
     }
 
     set_cookie_banner(state: boolean): void {
@@ -35,17 +35,18 @@ export class AppComponent implements OnInit {
     }
 
     private configure_google_analytics(cookieDecisions: any): void {
+        /*
         if (!cookieDecisions || !cookieDecisions.other[0]) {
             if (this.googleAnalyticsSubscription) {
                 this.googleAnalyticsSubscription.unsubscribe();
             }
             return;
-        }
+        }*/
 
-        gtag("config", "UA-154652526-1");
+        gtag("config", "UA-107735472-1");
         this.googleAnalyticsSubscription = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && (window as any).ga) {
-                (window as any).ga("create", "UA-154652526-1", "auto");
+                (window as any).ga("create", "UA-107735472-1", "auto");
                 (window as any).ga("set", "anonymizeIp", true);
                 (window as any).ga("set", "allowAdFeatures", false);
                 (window as any).ga("set", "page", event.urlAfterRedirects);
