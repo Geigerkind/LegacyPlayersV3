@@ -225,14 +225,18 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
 
             for (const [data_set, [real_x_axis, real_y_axis, evt_units, ab_dmg_arr]] of data_sets) {
                 if (is_event_data_set(data_set)) {
-                    // TODO: This shouldnt work! Also apply fitting function?
-                    let chart_points = [];
-                    for (let i = 0; i < real_x_axis.length; ++i) {
-                        chart_points.push({
-                            x: real_x_axis[i],
-                            y: max_value,
-                            custom_label: !!evt_units[i] ? new DelayedLabel(this.unitService.get_unit_name(evt_units[i], real_x_axis[i])) : CONST_UNKNOWN_LABEL
-                        } as ChartPoint);
+                    let fitted_data = this.fit_data_to_x_axis(x_axis, real_x_axis, Array(real_x_axis.length).fill(max_value));
+                    let chart_points = Array(x_axis.length);
+                    let orig_data_set_index = 0;
+                    for (let i = 0; i < fitted_data.length; ++i) {
+                        chart_points[i] = {
+                            x: x_axis[i],
+                            y: fitted_data[i] > 0 ? fitted_data[i] : null,
+                            custom_label: fitted_data[i] !== max_value ? "" : (!!evt_units[orig_data_set_index] ? new DelayedLabel(this.unitService.get_unit_name(evt_units[orig_data_set_index], real_x_axis[orig_data_set_index])) : CONST_UNKNOWN_LABEL),
+                        } as ChartPoint;
+                        if (fitted_data[i] === max_value) {
+                            ++orig_data_set_index;
+                        }
                     }
                     this.chartDataSets.push({
                         data: chart_points,
