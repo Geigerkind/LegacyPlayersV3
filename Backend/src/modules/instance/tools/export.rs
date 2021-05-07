@@ -54,7 +54,13 @@ impl ExportInstance for Instance {
             }
 
             let reader = File::open(format!("{}/{}/{}.zip", storage_path, server_id, instance_meta_id)).unwrap();
-            let mut zip = zip::ZipArchive::new(reader).unwrap();
+            let zip = zip::ZipArchive::new(reader);
+            if zip.is_err() {
+                // Can happen if the zip file wants to be read before its ready
+                return Err(InstanceFailure::Unknown);
+            }
+            let mut zip = zip.unwrap();
+
             for i in 0..zip.len() {
                 let file = zip.by_index(i).unwrap();
                 let evt_type = u8::from_str_radix(file.name(), 10).unwrap();
