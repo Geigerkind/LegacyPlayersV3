@@ -7,6 +7,7 @@ pub use self::wow_retail_classic_parser::WoWRetailClassicParser;
 pub use self::wow_tbc_parser::WoWTBCParser;
 pub use self::wow_vanilla_parser::WoWVanillaParser;
 pub use self::wow_wotlk_parser::WoWWOTLKParser;
+pub use self::interval_bucket::IntervalBucket;
 
 mod attempt;
 mod live_data_processor;
@@ -18,3 +19,4 @@ mod wow_retail_classic_parser;
 mod wow_tbc_parser;
 mod wow_vanilla_parser;
 mod wow_wotlk_parser;
+mod interval_bucket;

@@ -1,9 +1,10 @@
-use crate::modules::data::tools::RetrieveNPC;
+use std::collections::HashMap;
+
 use crate::modules::data::Data;
+use crate::modules::data::tools::RetrieveNPC;
 use crate::modules::live_data_processor::dto::Unit;
+use crate::modules::live_data_processor::material::{IntervalBucket, Participant};
 use crate::modules::live_data_processor::tools::GUID;
-use rust_lapper::{Interval, Lapper};
-use std::collections::{BTreeSet, HashMap};
 
 pub type ActiveMapMap = HashMap<u16, ActiveMap>;
 pub type ActiveMapVec = Vec<ActiveMap>;
@@ -53,11 +54,11 @@ impl CollectActiveMap for ActiveMapMap {
 }
 
 pub trait RetrieveActiveMap {
-    fn get_current_active_map(&self, suggested_instances: &Vec<(u64, u16, u8)>, player_participants: &Lapper<u64, u64>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)>;
+    fn get_current_active_map(&self, suggested_instances: &Vec<(u64, u16, u8)>, player_participants: &IntervalBucket<Participant>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)>;
 }
 
 impl RetrieveActiveMap for ActiveMapVec {
-    fn get_current_active_map(&self, suggested_instances: &Vec<(u64, u16, u8)>, player_participants: &Lapper<u64, u64>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)> {
+    fn get_current_active_map(&self, suggested_instances: &Vec<(u64, u16, u8)>, player_participants: &IntervalBucket<Participant>, expansion_id: u8, current_timestamp: u64) -> Option<(u16, Option<u8>)> {
         let mut chosen_map = None;
         for active_map in self.iter() {
             for (start, end) in active_map.intervals.iter() {
@@ -96,15 +97,7 @@ impl RetrieveActiveMap for ActiveMapVec {
             }
 
             if difficulty_id.is_none() {
-                if player_participants
-                    .find(current_timestamp - 40000, current_timestamp + 40000)
-                    .fold(BTreeSet::new(), |mut acc, Interval { val: unit_id, .. }| {
-                        acc.insert(*unit_id);
-                        acc
-                    })
-                    .len()
-                    >= 13
-                {
+                if player_participants.find_unique_ids_within_range(current_timestamp as i64 - 40000, current_timestamp as i64 + 40000).len() >= 13 {
                     difficulty_id = Some(4);
                 } else {
                     difficulty_id = Some(3);

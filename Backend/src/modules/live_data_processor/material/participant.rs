@@ -1,5 +1,7 @@
 #![allow(clippy::type_complexity)]
 
+use crate::modules::live_data_processor::material::interval_bucket::UniqueBucketId;
+
 #[derive(Debug, Clone)]
 pub struct Participant {
     pub id: u64,
@@ -41,12 +43,15 @@ impl Participant {
     // Assumes that now > last_seen
     pub fn add_participation_point(&mut self, now: u64) {
         static PARTICIPATION_TIMEOUT: u64 = 5 * 60000;
-        if now - self.last_seen <= PARTICIPATION_TIMEOUT {
-            self.active_intervals.last_mut().unwrap().1 = now;
-        } else {
-            self.active_intervals.push((now, now));
+        if now > self.last_seen {
+            if now - self.last_seen <= PARTICIPATION_TIMEOUT {
+                self.active_intervals.last_mut().unwrap().1 = now;
+            } else {
+                self.active_intervals.last_mut().unwrap().1 = self.last_seen + 30000;
+                self.active_intervals.push((now, now));
+            }
+            self.last_seen = now;
         }
-        self.last_seen = now;
     }
 
     pub fn attribute_damage(&mut self, damage: u32) {
@@ -63,5 +68,11 @@ impl Participant {
             effective_heal = heal;
         }
         effective_heal
+    }
+}
+
+impl UniqueBucketId for Participant {
+    fn get_unique_bucket_id(&self) -> u64 {
+        self.id
     }
 }

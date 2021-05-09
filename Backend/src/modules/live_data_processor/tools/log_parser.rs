@@ -3,12 +3,11 @@ use crate::modules::armory::Armory;
 use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
 use crate::modules::data::Data;
 use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit};
-use crate::modules::live_data_processor::material::{Participant, RetrieveActiveMap};
+use crate::modules::live_data_processor::material::{Participant, RetrieveActiveMap, IntervalBucket};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
 use chrono::{Datelike, NaiveDateTime};
-use rust_lapper::{Interval, Lapper};
 use std::cmp::Ordering;
 use std::collections::{BTreeSet, HashMap};
 
@@ -128,48 +127,28 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         }
     }
 
-    let mut temp_intervals = Vec::with_capacity(4000);
-    let mut player_temp_intervals = Vec::with_capacity(1000);
+    let msg_start = messages[0].timestamp;
+    let msg_end = messages[messages.len() - 1].timestamp;
+    let mut participants_by_interval = IntervalBucket::new(msg_start as i64, msg_end as i64, 300000);
+    let mut player_participants_by_interval = IntervalBucket::new(msg_start as i64, msg_end as i64, 300000);
 
     let mut parsed_participants = parser.get_participants();
-    let mut incombat_participant_helper = Participant::new(0xF13000FFFE000000, false, "CBT Helper".to_string(), 10000);
-    let mut unknown_participant = Participant::new(0, true, "Unknown".to_string(), 10000);
-    incombat_participant_helper.active_intervals.push((10001, u64::MAX.rotate_right(2)));
-    unknown_participant.active_intervals.push((10001, u64::MAX.rotate_right(2)));
+    let incombat_participant_helper = Participant::new(0xF13000FFFE000000, false, "CBT Helper".to_string(), 10000);
+    let unknown_participant = Participant::new(0, true, "Unknown".to_string(), 10000);
+    participants_by_interval.insert(msg_start as i64, msg_end as i64, incombat_participant_helper.clone());
+    participants_by_interval.insert(msg_start as i64, msg_end as i64, unknown_participant.clone());
+    player_participants_by_interval.insert(msg_start as i64, msg_end as i64, unknown_participant.clone());
+
     parsed_participants.iter().for_each(|participant| {
         participant.active_intervals.iter().for_each(|(start, end)| {
-            temp_intervals.push(Interval {
-                start: *start - 1000,
-                stop: *end + 1000,
-                val: (participant.id, participant.is_player),
-            });
-
-            temp_intervals.push(Interval {
-                start: *start - 1000,
-                stop: *end + 1000,
-                val: (incombat_participant_helper.id, incombat_participant_helper.is_player),
-            });
-
-            temp_intervals.push(Interval {
-                start: *start - 1000,
-                stop: *end + 1000,
-                val: (unknown_participant.id, unknown_participant.is_player),
-            });
-
+            participants_by_interval.insert(*start as i64, *end as i64, participant.clone());
             if participant.is_player {
-                player_temp_intervals.push(Interval {
-                    start: *start - 1000,
-                    stop: *end + 1000,
-                    val: participant.id,
-                });
+                player_participants_by_interval.insert(*start as i64, *end as i64, participant.clone());
             }
         });
     });
     parsed_participants.push(incombat_participant_helper);
     parsed_participants.push(unknown_participant);
-
-    let participants_by_interval = Lapper::new(temp_intervals);
-    let player_participants_by_interval = Lapper::new(player_temp_intervals);
     let active_maps = parser.get_active_maps();
 
     let mut current_map = None;
@@ -185,13 +164,13 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 participants.clear();
             };
 
-            let mut new_participants: HashMap<u64, bool> = HashMap::new();
-            for Interval { val: (unit_id, is_player), .. } in participants_by_interval.find(*timestamp - 1000, *timestamp + 1000).filter(|Interval { val: (unit_id, _), .. }| !participants.contains_key(unit_id)) {
-                new_participants.insert(*unit_id, *is_player);
+            let mut new_participants: HashMap<u64, (bool, i64, i64)> = HashMap::new();
+            for (unit_id, start, end) in participants_by_interval.find_unique_ids(*timestamp as i64).iter().filter(|(unit_id, _, _)| !participants.contains_key(unit_id)) {
+                new_participants.insert(*unit_id, (participants_by_interval.value_map.get(unit_id).unwrap().is_player, *start, *end));
             }
 
             let instance_id = *instance_ids.entry((map_id, difficulty)).or_insert_with(rand::random::<u32>);
-            for (unit_id, is_player) in new_participants {
+            for (unit_id, (is_player, start, _end)) in new_participants {
                 let mut ts_offset: i64 = -1;
                 if !is_player {
                     if let Some(entry) = unit_id.get_entry() {
@@ -202,7 +181,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 }
 
                 additional_messages.push(Message::new_parsed(
-                    (*timestamp as i64 + ts_offset - 1000) as u64,
+                    (start + ts_offset - 1000) as u64,
                     *message_count,
                     MessageType::InstanceMap(InstanceMap {
                         map_id: map_id as u32,
