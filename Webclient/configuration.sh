@@ -27,7 +27,7 @@ WEBCLIENT_META_KEYWORDS="WoW raid logs armory pvp metrics"
 WEBCLIENT_META_DESCRIPTION="LegacyPlayers is a community driven project to establish a platform where people playing on all kind of expansions of World of Warcraft can share raid logs, PvP logs and armory data. It aims to persist all data of all coming and going private servers, as well as to provide easy access to them."
 WEBCLIENT_META_THEME_COLOR="#303030"
 
-WEBCLIENT_GOOGLE_ANALYTICS_TOKEN="UA-154652526-1"
+WEBCLIENT_GOOGLE_ANALYTICS_TOKEN="UA-107735472-1"
 
 WEBCLIENT_MANIFEST_START_URL="\\/"
 
