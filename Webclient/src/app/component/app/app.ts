@@ -14,7 +14,7 @@ declare var gtag;
 export class AppComponent implements OnInit, OnChanges {
     public show_cookie_banner = false;
     title = "LegacyPlayers";
-    private googleAnalyticsSubscription: Subscription;
+    private googleAnalyticsSubscription: Subscription
 
     constructor(
         private settingsService: SettingsService,
@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, OnChanges {
     }
 
     private configure_google_analytics(cookieDecisions: any): void {
-        if (!gtag)
+        if (!gtag || !!this.googleAnalyticsSubscription)
             return;
 
         /*
