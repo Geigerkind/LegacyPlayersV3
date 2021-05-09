@@ -653,6 +653,8 @@ impl CombatLogParser for WoWWOTLKParser {
             34797 => 120000,
             // Anub
             34564 => 80000,
+            // Lich King
+            36597 | 38153 => 180000,
             _ => return None,
         })
     }
