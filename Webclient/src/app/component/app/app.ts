@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnChanges, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {SettingsService} from "../../service/settings";
@@ -11,7 +11,7 @@ declare var gtag;
     templateUrl: "./app.html",
     styleUrls: ["./app.scss"]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnChanges {
     public show_cookie_banner = false;
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription;
@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
         private translationService: TranslationService,
         private router: Router
     ) {
-        // this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
+        this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
         (window as any).addEventListener("beforeinstallprompt", (e) => () => this.prompt_for_pwa(e));
     }
 
@@ -30,11 +30,18 @@ export class AppComponent implements OnInit {
         this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
     }
 
+    ngOnChanges(): void {
+        this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
+    }
+
     set_cookie_banner(state: boolean): void {
         this.show_cookie_banner = state;
     }
 
     private configure_google_analytics(cookieDecisions: any): void {
+        if (!gtag)
+            return;
+
         /*
         if (!cookieDecisions || !cookieDecisions.other[0]) {
             if (this.googleAnalyticsSubscription) {
