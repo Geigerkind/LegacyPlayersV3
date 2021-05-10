@@ -40,6 +40,11 @@ ng-multiselect-dropdown {
                 background: lighten($tdc_darker, 3%);
                 box-shadow: none;
 
+                .item1:first-child {
+                    max-height: 200px;
+                    overflow-y: auto;
+                }
+
                 .multiselect-item-checkbox {
                     div {
                         color: $font_default !important;

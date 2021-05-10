@@ -90,8 +90,9 @@ export class MultiSelectComponent implements OnInit, OnDestroy {
 
     private addCollectionButton(): void {
         const collection_button_ul = this.element.__ngContext__[0].children[0].children[0].children[1].children[0];
+        const ul_copy = this.element.__ngContext__[0].children[0].children[0].children[1].children[0].cloneNode(false);
         this.additional_button_checkboxes.clear();
-        if (collection_button_ul.children.length > 0) {
+        if (collection_button_ul.children.length > 1) {
             const first_child = collection_button_ul.children[0];
             first_child.style.padding = "6px 10px";
             first_child.style.borderBottom = "none";
@@ -112,9 +113,16 @@ export class MultiSelectComponent implements OnInit, OnDestroy {
                 this.additional_button_checkboxes.set(button.id, clone.children[0]);
                 collection_button_ul.appendChild(clone);
             }
-            collection_button_ul.children[collection_button_ul.children.length - 1].style.borderBottom = "1px solid #ccc";
             collection_button_ul.children[collection_button_ul.children.length - 1].style.paddingBottom = "12px";
-            collection_button_ul.appendChild(last_child);
+            if (last_child.className.includes("filter-textbox")) {
+                last_child.style.borderBottom = "1px solid #ccc";
+                last_child.style.borderTop = "1px solid #ccc";
+                last_child.style.paddingBottom = "12px";
+                ul_copy.appendChild(last_child);
+                this.element.__ngContext__[0].children[0].children[0].children[1].insertBefore(ul_copy, this.element.__ngContext__[0].children[0].children[0].children[1].children[1]);
+            } else {
+                collection_button_ul.appendChild(last_child);
+            }
             this.check_if_additional_buttons_are_selected();
         }
     }
