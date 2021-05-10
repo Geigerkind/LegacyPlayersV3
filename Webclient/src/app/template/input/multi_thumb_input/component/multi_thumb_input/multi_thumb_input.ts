@@ -17,6 +17,8 @@ export class MultiThumbInputComponent implements OnChanges {
     @Input() reference_end: number = 1;
     @Input() reference_slider0: number = 0;
     @Input() reference_slider1: number = 1;
+    @Input() reference_label_function: any = (_args, input) => input.toString();
+    @Input() reference_label_args: any;
 
     @Output() slider0_output: EventEmitter<number> = new EventEmitter();
     @Output() slider1_output: EventEmitter<number> = new EventEmitter();
@@ -33,8 +35,8 @@ export class MultiThumbInputComponent implements OnChanges {
         let ref_slider1_pos: number = !!changes.reference_slider1 ? (changes.reference_slider1.currentValue - this.reference_start) : this.currentSliderPosition[1] * (prev_ref_end - prev_ref_start);
         this.currentSliderPosition[0] = ref_slider0_pos / (this.reference_end - this.reference_start);
         this.currentSliderPosition[1] = ref_slider1_pos / (this.reference_end - this.reference_start);
-        this.slider0.nativeElement.style.left = (100 * this.currentSliderPosition[0]) + "%";
-        this.slider1.nativeElement.style.left = (100 * this.currentSliderPosition[1]) + "%";
+        this.slider0.nativeElement.style.left = "calc(calc(100% - 16px) * " + this.currentSliderPosition[0] + ")";
+        this.slider1.nativeElement.style.left = "calc(calc(100% - 16px) * " + this.currentSliderPosition[1] + ")";
     }
 
     onMouseDown(slider_index: number): void {
@@ -67,7 +69,7 @@ export class MultiThumbInputComponent implements OnChanges {
             }
         }
 
-        this.current_slider.nativeElement.style.left = (100 * new_slider_percent) + "%";
+        this.current_slider.nativeElement.style.left = "calc(calc(100% - 16px) * " + new_slider_percent + ")";
         this.currentSliderPosition[this.movingSliderIndex] = new_slider_percent;
         this.lastPosition = event;
     }
@@ -91,6 +93,18 @@ export class MultiThumbInputComponent implements OnChanges {
 
     get progress_bar_length(): number {
         return this.progress_bar.nativeElement.clientWidth;
+    }
+
+    get label_slider_left(): string {
+        return this.reference_label_function(this.reference_label_args, this.reference_start + (this.reference_end - this.reference_start) * this.currentSliderPosition[0]);
+    }
+
+    get label_slider_right(): string {
+        return this.reference_label_function(this.reference_label_args, this.reference_start + (this.reference_end - this.reference_start) * this.currentSliderPosition[1]);
+    }
+
+    get is_moving(): boolean {
+        return this.movingSliderIndex >= 0;
     }
 
 }

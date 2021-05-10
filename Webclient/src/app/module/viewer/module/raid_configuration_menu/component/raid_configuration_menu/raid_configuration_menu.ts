@@ -72,7 +72,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     constructor(
         private raidConfigurationService: RaidConfigurationService,
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
-        private dateService: DateService
+        public dateService: DateService,
     ) {
         this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories, true));
         this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments, true));
@@ -332,5 +332,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             this.time_slider_end_reference = time;
         }
         this.raidConfigurationService.update_time_boundaries([this.time_slider_start_reference, this.time_slider_end_reference], true);
+    }
+
+    multi_thumb_label_function(dateService: DateService, timestamp: number): string {
+        return dateService.toRPLLTime(timestamp)
     }
 }

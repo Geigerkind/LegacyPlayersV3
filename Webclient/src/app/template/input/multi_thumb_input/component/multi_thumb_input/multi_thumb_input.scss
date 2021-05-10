@@ -25,6 +25,20 @@
     background: $tdc_darker;
 }
 
+.slider_popup {
+    position: absolute;
+    height: 20px;
+    width: 100px;
+    top: -30px;
+    left: -42px;
+    border-radius: 3px 3px 3px 3px;
+    border: 1px solid $tdc_accent;
+    background: $tdc_darker;
+    z-index: 20;
+    text-align: center;
+    user-select: none;
+}
+
 #slider0 {
     left: 0;
 }
