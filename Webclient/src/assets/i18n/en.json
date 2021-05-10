@@ -378,5 +378,10 @@
         "not_found": "Url was not found"
     },
     "TalentViewer": {
+    },
+    "Ranking": {
+        "encounter": "Select encounter",
+        "classes": "Select class",
+        "servers": "Select server"
     }
 }
