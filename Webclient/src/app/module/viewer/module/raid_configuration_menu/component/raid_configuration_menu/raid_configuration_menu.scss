@@ -77,7 +77,7 @@
     }
 }
 
-.menu_button, ExportViewer {
+.menu_button, ExportViewer, #download_button {
     position: absolute;
     right: -41px;
 
@@ -131,6 +131,17 @@ ExportViewer {
         cursor: pointer;
         opacity: 1;
     }
+}
+
+#download_button {
+    top: 312px;
+    height: 36px;
+
+    &:hover {
+        cursor: pointer;
+        opacity: 1;
+    }
+
 }
 
 .replay_btn {

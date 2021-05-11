@@ -41,6 +41,7 @@ const routes: Routes = [
     {path: "contribute", loadChildren: () => import("./module/contribute/module").then(m => m.ContributeModule)},
     {path: "viewer", loadChildren: () => import("./module/viewer/module").then(m => m.ViewerModule)},
     {path: "tiny_url/:link", loadChildren: () => import("./module/tiny_url/module").then(m => m.TinyUrlModule)},
+    {path: "playground", loadChildren: () => import("./module/playground/module").then(m => m.PlaygroundModule)},
 ];
 
 @NgModule({
