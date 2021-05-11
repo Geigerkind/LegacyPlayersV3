@@ -4,6 +4,34 @@
 <Tooltip id="global_tooltip"></Tooltip>
 <NavigationBar></NavigationBar>
 <main>
-    <router-outlet></router-outlet>
+    <div id="left_bar" *ngIf="!isMobile && false">
+        <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
+    </div>
+    <div id="center_bar" *ngIf="!isMobile">
+        <div id="top_layer" *ngIf="false">
+            <div class="vm-placement" data-id="609a80924e36631764632061"></div>
+        </div>
+        <div id="center_layer">
+            <router-outlet></router-outlet>
+        </div>
+        <div id="bottom_layer">
+            <div class="vm-placement" data-id="609a809e4e36631764632063"></div>
+            <div class="vm-placement" data-id="609a80769ddea76a9b42dd08" style="display:none"></div>
+        </div>
+    </div>
+    <div id="center_bar_mobile" *ngIf="isMobile">
+        <div id="top_layer">
+            <div class="vm-placement" data-id="609a80ac4e36631764632065"></div>
+        </div>
+        <div id="center_layer">
+            <router-outlet></router-outlet>
+        </div>
+        <div id="bottom_layer">
+            <div class="vm-placement" data-id="609a807e4e3663176463205d"></div>
+        </div>
+    </div>
+    <div id="right_bar" *ngIf="!isMobile">
+        <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
+    </div>
 </main>
 <FooterBar (consent)="set_cookie_banner(true)"></FooterBar>

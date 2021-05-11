@@ -68,4 +68,8 @@ export class AppComponent implements OnInit, OnChanges {
         e.prompt();
         this.settingsService.set("PWA_PROMPT", true);
     }
+
+    get isMobile(): boolean {
+        return navigator.userAgent.toLowerCase().includes("mobile");
+    }
 }
