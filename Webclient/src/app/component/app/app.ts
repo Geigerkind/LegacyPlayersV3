@@ -16,6 +16,8 @@ export class AppComponent implements OnInit, OnChanges {
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription
 
+    enable_ads: boolean = false;
+
     constructor(
         private settingsService: SettingsService,
         private translationService: TranslationService,
