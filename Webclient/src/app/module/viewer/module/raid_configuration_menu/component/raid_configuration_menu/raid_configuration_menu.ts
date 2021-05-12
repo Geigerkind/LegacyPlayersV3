@@ -95,7 +95,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         });
 
         this.instanceDataService.meta.subscribe(meta => {
-           this.upload_id = meta.upload_id;
+            if (!!meta) {
+               this.upload_id = meta.upload_id;
+           }
         });
     }
 
