@@ -3,7 +3,7 @@
     <SelectInput [(value)]="selections_current_selection" (valueChange)="select()" [options]="selections" [themed]="true"></SelectInput>
     <MultiSelect [(selectedItems)]="encounters_selected_items" [dropdownList]="encounters" (select_all)="select()"
                  (item_deselected)="select()" (item_selected)="select()" [additional_button]="additional_encounter_button" [enableCheckAll]="true"
-                 (deselect_all)="select()" placeholder="Ranking.encounter"></MultiSelect>
+                 (deselect_all)="select()" placeholder="Ranking.encounter" (items_changed_by_action)="select()"></MultiSelect>
     <MultiSelect [(selectedItems)]="classes_selected_items" [dropdownList]="classes" [allowSearchFilter]="true" [enableCheckAll]="true"
                  (select_all)="select()" placeholder="Ranking.classes"
                  (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>
