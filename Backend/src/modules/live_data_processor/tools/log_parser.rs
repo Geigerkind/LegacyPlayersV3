@@ -259,7 +259,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
 
-                ignore = ignore || dmg.victim.unit_id == 0 || dmg.attacker.unit_id == 0;
+                ignore = ignore || dmg.victim.unit_id == 0 || dmg.attacker.unit_id == 0 || dmg.spell_id.contains(&72273) || dmg.spell_id.contains(&72550);
                 if !ignore {
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
