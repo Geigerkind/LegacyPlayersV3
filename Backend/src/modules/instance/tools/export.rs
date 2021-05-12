@@ -124,6 +124,7 @@ impl ExportInstance for Instance {
                 start_ts: instance_meta.start_ts,
                 end_ts: instance_meta.end_ts,
                 expired: instance_meta.expired,
+                upload_id: instance_meta.upload_id
             });
         }
         Err(InstanceFailure::InvalidInput)

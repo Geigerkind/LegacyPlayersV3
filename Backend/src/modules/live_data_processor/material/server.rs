@@ -65,7 +65,7 @@ impl Server {
         // Load active instances
         db_main
             .select_wparams(
-                "SELECT id, start_ts, map_id, instance_id, uploaded_user FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
+                "SELECT A.id, start_ts, map_id, instance_id, B.member_id, upload_id FROM instance_meta A JOIN instance_uploads B ON A.upload_id = B.id WHERE expired IS NULL AND server_id=:server_id",
                 |mut row| UnitInstance {
                     instance_meta_id: row.take(0).unwrap(),
                     entered: row.take(1).unwrap(),
@@ -73,6 +73,7 @@ impl Server {
                     instance_id: row.take(3).unwrap(),
                     uploaded_user: row.take(4).unwrap(),
                     ready_to_zip: false,
+                    upload_id: row.take(5).unwrap()
                 },
                 params!("server_id" => self.server_id),
             )
@@ -85,7 +86,7 @@ impl Server {
         // Load current_event_id count
         db_main
             .select_wparams(
-                "SELECT instance_id, last_event_id, uploaded_user FROM instance_meta WHERE expired IS NULL AND server_id=:server_id",
+                "SELECT instance_id, last_event_id, B.member_id FROM instance_meta A JOIN instance_uploads B ON A.upload_id = B.id WHERE expired IS NULL AND server_id=:server_id",
                 |mut row| (row.take::<u32, usize>(0).unwrap(), row.take::<u32, usize>(1).unwrap(), row.take::<u32, usize>(2).unwrap()),
                 params!("server_id" => self.server_id),
             )

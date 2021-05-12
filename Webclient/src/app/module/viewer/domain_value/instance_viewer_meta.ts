@@ -10,4 +10,5 @@ export interface InstanceViewerMeta {
     start_ts: number;
     end_ts: number | null;
     expired: number | null;
+    upload_id: number;
 }

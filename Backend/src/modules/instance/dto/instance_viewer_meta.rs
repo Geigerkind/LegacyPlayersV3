@@ -11,4 +11,5 @@ pub struct InstanceViewerMeta {
     pub start_ts: u64,
     pub end_ts: Option<u64>,
     pub expired: Option<u64>,
+    pub upload_id: u32,
 }

@@ -11,4 +11,5 @@ pub struct InstanceMeta {
     pub participants: Vec<u32>,
     pub instance_specific: MetaType,
     pub uploaded_user: u32,
+    pub upload_id: u32
 }

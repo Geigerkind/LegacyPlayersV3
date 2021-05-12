@@ -9,6 +9,7 @@ import {RaidConfigurationSelectionService} from "../../service/raid_configuratio
 import {EventAbility} from "../../domain_value/event_ability";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
 import {ExportViewerService} from "../../module/export_viewer/service/export_viewer";
+import {InstanceDataService} from "../../../../service/instance_data";
 
 @Component({
     selector: "RaidConfigurationMenu",
@@ -69,10 +70,13 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
     time_slider_start_reference: number = 0;
     time_slider_end_reference: number = 1;
 
+    upload_id: number = 0;
+
     constructor(
         private raidConfigurationService: RaidConfigurationService,
         private raidConfigurationSelectionService: RaidConfigurationSelectionService,
         public dateService: DateService,
+        private instanceDataService: InstanceDataService
     ) {
         this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories, true));
         this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments, true));
@@ -88,6 +92,10 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             this.selected_items_sources = this.list_items_sources.filter(item => stack_item.sources.has(item.id));
             this.selected_items_targets = this.list_items_targets.filter(item => stack_item.targets.has(item.id));
             this.selected_items_abilities = this.list_items_abilities.filter(item => stack_item.abilities.has(item.id));
+        });
+
+        this.instanceDataService.meta.subscribe(meta => {
+           this.upload_id = meta.upload_id;
         });
     }
 

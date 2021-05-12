@@ -196,7 +196,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // Raids
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty, A.uploaded_user FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty, C.member_id, A.upload_id FROM instance_meta A JOIN instance_raid B ON A.id = B.instance_meta_id JOIN instance_uploads C ON A.upload_id = C.id",
             |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
@@ -209,6 +209,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     map_difficulty: row.take::<u8, usize>(6).unwrap(),
                 },
                 uploaded_user: row.take(7).unwrap(),
+                upload_id: row.take(8).unwrap(),
             },
         )
         .into_iter()
@@ -220,7 +221,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // TODO: Rename team_change1 to team1_change
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2, A.uploaded_user FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.team_id1, B.team_id2, B.team_change1, B.team_change2, C.member_id, A.upload_id FROM instance_meta A JOIN instance_rated_arena B ON A.id = B.instance_meta_id JOIN instance_uploads C ON A.upload_id = C.id",
             |mut row| {
                 (
                     row.take::<u32, usize>(0).unwrap(),
@@ -235,11 +236,12 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     row.take::<i32, usize>(9).unwrap(),
                     row.take::<i32, usize>(10).unwrap(),
                     row.take::<u32, usize>(11).unwrap(),
+                    row.take::<u32, usize>(12).unwrap(),
                 )
             },
         )
         .into_iter()
-        .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change, uploaded_user)| {
+        .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change, uploaded_user, upload_id)| {
             instance_metas.insert(
                 instance_meta_id,
                 InstanceMeta {
@@ -258,6 +260,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                         team2_change,
                     },
                     uploaded_user,
+                    upload_id
                 },
             );
         });
@@ -265,7 +268,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // Skirmishes
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, A.uploaded_user FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, C.member_id, A.upload_id FROM instance_meta A JOIN instance_skirmish B ON A.id = B.instance_meta_id JOIN instance_uploads C ON A.upload_id = C.id",
             |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
@@ -278,6 +281,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     winner: row.take::<u8, usize>(6).unwrap().to_winner(),
                 },
                 uploaded_user: row.take(7).unwrap(),
+                upload_id: row.take(8).unwrap(),
             },
         )
         .into_iter()
@@ -288,7 +292,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
     // Battlegrounds
     db_main
         .select(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde, A.uploaded_user FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id",
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, B.score_alliance, B.score_horde, C.member_id, A.upload_id FROM instance_meta A JOIN instance_battleground B ON A.id = B.instance_meta_id JOIN instance_uploads C ON A.upload_id = C.id",
             |mut row| InstanceMeta {
                 instance_meta_id: row.take(0).unwrap(),
                 server_id: row.take(1).unwrap(),
@@ -303,6 +307,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>
                     score_horde: row.take(8).unwrap(),
                 },
                 uploaded_user: row.take(9).unwrap(),
+                upload_id: row.take(10).unwrap(),
             },
         )
         .into_iter()

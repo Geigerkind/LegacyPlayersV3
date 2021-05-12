@@ -1,21 +1,23 @@
+use std::fs::File;
+use std::io::{Read, Write};
+
+use rocket::{Data, State};
+use rocket::http::ContentType;
+use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
+
+use crate::MainDb;
 use crate::modules::account::guard::Authenticate;
 use crate::modules::armory::Armory;
-use crate::modules::data::tools::RetrieveServer;
 use crate::modules::data::Data as DataMaterial;
+use crate::modules::data::tools::RetrieveServer;
 use crate::modules::live_data_processor::dto::LiveDataProcessorFailure;
+use crate::modules::live_data_processor::LiveDataProcessor;
 use crate::modules::live_data_processor::material::{WoWRetailClassicParser, WoWTBCParser, WoWVanillaParser, WoWWOTLKParser};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::log_parser::parse_cbl;
 use crate::modules::live_data_processor::tools::ProcessMessages;
-use crate::modules::live_data_processor::LiveDataProcessor;
+use crate::params;
 use crate::util::database::{Execute, Select};
-use crate::MainDb;
-use rocket::http::ContentType;
-use rocket::{Data, State};
-use rocket_multipart_form_data::{MultipartFormData, MultipartFormDataField, MultipartFormDataOptions, RawField};
-use std::fs::File;
-use std::io::{Read, Write};
-use time_util::now;
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -56,9 +58,16 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     let reader = std::io::Cursor::new(raw.as_slice());
     let mut zip = zip::ZipArchive::new(reader).map_err(|_| LiveDataProcessorFailure::InvalidZipFile)?;
 
+    // Create Upload Id
+    let upload_time = time_util::now();
+    let upload_params = params!("member_id" => auth.0, "ts" => upload_time);
+    db_main.0.execute_wparams("INSERT INTO `instance_uploads` (`member_id`, `timestamp`) VALUES (:member_id, :ts)", upload_params.clone());
+    let upload_id: u32 = db_main.0.select_wparams_value("SELECT id FROM `instance_uploads` WHERE `member_id`=:member_id AND `timestamp`=:ts",
+                                                        |mut row| row.take::<u32, usize>(0).unwrap(), upload_params).unwrap();
+
     let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
     if std::fs::create_dir_all(&format!("{}/zips", storage_path)).is_ok() {
-        if let Ok(mut saved_zip) = File::create(&format!("{}/zips/{}_{}_{}.zip", storage_path, auth.0, server_id, now())) {
+        if let Ok(mut saved_zip) = File::create(&format!("{}/zips/upload_{}.zip", storage_path, upload_id)) {
             let _ = saved_zip.write_all(&raw);
         }
     }
@@ -85,6 +94,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
             start_time_in_ms,
             end_time_in_ms,
             auth.0,
+            upload_id
         );
     } else {
         let server = data.get_server(server_id as u32).unwrap();
@@ -99,6 +109,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 start_time_in_ms,
                 end_time_in_ms,
                 auth.0,
+                upload_id
             );
         } else if server.expansion_id == 2 {
             return parse(
@@ -111,6 +122,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 start_time_in_ms,
                 end_time_in_ms,
                 auth.0,
+                upload_id
             );
         } else if server.expansion_id == 3 {
             return parse(
@@ -123,6 +135,7 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
                 start_time_in_ms,
                 end_time_in_ms,
                 auth.0,
+                upload_id
             );
         }
     }
@@ -130,9 +143,9 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     Err(LiveDataProcessorFailure::InvalidInput)
 }
 
-fn parse(me: &LiveDataProcessor, mut parser: impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &DataMaterial, armory: &Armory, content: &str, start_time: u64, end_time: u64, member_id: u32) -> Result<(), LiveDataProcessorFailure> {
+fn parse(me: &LiveDataProcessor, mut parser: impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &DataMaterial, armory: &Armory, content: &str, start_time: u64, end_time: u64, member_id: u32, upload_id: u32) -> Result<(), LiveDataProcessorFailure> {
     if let Some((server_id, messages)) = parse_cbl(&mut parser, &mut *db_main, data, armory, content, start_time, end_time) {
-        return me.process_messages(&mut *db_main, server_id as u32, &armory, &data, messages, member_id);
+        return me.process_messages(&mut *db_main, server_id as u32, &armory, &data, messages, member_id, upload_id);
     }
     Err(LiveDataProcessorFailure::InvalidInput)
 }

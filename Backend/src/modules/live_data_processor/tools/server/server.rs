@@ -9,7 +9,7 @@ use crate::modules::live_data_processor::dto::{get_damage_components_total, Comb
 use crate::modules::live_data_processor::dto::{LiveDataProcessorFailure, Message, MessageType};
 use crate::modules::live_data_processor::material::Server;
 use crate::modules::live_data_processor::tools::server::{try_parse_dispel, try_parse_interrupt, try_parse_spell_steal};
-use crate::modules::live_data_processor::tools::{MapUnit, GUID};
+use crate::modules::live_data_processor::tools::MapUnit;
 use crate::modules::live_data_processor::{domain_value, dto};
 use crate::params;
 use crate::util::database::{Execute, Select};
@@ -19,7 +19,7 @@ use std::collections::{BTreeSet, VecDeque};
 use time_util::now;
 
 impl Server {
-    pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, data: &Data, messages: Vec<Message>, member_id: u32) -> Result<(), LiveDataProcessorFailure> {
+    pub fn parse_events(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, data: &Data, messages: Vec<Message>, member_id: u32, upload_id: u32) -> Result<(), LiveDataProcessorFailure> {
         println!("Start");
         if messages.is_empty() {
             return Ok(());
@@ -27,7 +27,7 @@ impl Server {
 
         let last_ts = messages.last().unwrap().timestamp;
         for msg in messages {
-            self.extract_meta_information(db_main, armory, &msg, member_id);
+            self.extract_meta_information(db_main, armory, &msg, member_id, upload_id);
             self.test_for_committable_events(db_main, data, armory, member_id);
             self.cleanup(msg.timestamp);
             self.push_non_committed_event(msg);
@@ -471,7 +471,7 @@ impl Server {
         }
     }
 
-    fn extract_meta_information(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, message: &Message, member_id: u32) {
+    fn extract_meta_information(&mut self, db_main: &mut (impl Select + Execute), armory: &Armory, message: &Message, member_id: u32, upload_id: u32) {
         match &message.message_type {
             MessageType::Summon(Summon { owner, unit }) => {
                 let summoner = owner.to_unit_add_implicit(&mut self.cache_unit, db_main, armory, self.server_id, &self.summons);
@@ -486,7 +486,7 @@ impl Server {
 
                 // These are raids
                 if let 249 | 309 | 409 | 469 | 509 | 531 | 532 | 533 | 534 | 544 | 548 | 550 | 564 | 565 | 568 | 580 | 603 | 615 | 616 | 624 | 631 | 649 | 724 = *map_id {
-                    if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id) {
+                    if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id, upload_id) {
                         // Vanilla does usually not set difficulty for raids correctly
                         // Nor does TBC
                         let map_difficulty = match *map_id {
@@ -543,12 +543,12 @@ impl Server {
                 }
             },
             MessageType::InstancePvPStartUnratedArena(dto::InstanceStart { map_id, instance_id }) => {
-                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id) {
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id, upload_id) {
                     db_main.execute_wparams("INSERT INTO instance_skirmish (`instance_meta_id`) VALUES (:instance_meta_id)", params!("instance_meta_id" => instance_meta_id));
                 }
             },
             MessageType::InstancePvPStartRatedArena(dto::InstanceStartRatedArena { map_id, instance_id, team_id1, team_id2 }) => {
-                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id) {
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id, upload_id) {
                     if let Some(team1) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id1) {
                         if let Some(team2) = armory.get_arena_team_by_uid(db_main, self.server_id, *team_id2) {
                             db_main.execute_wparams(
@@ -564,7 +564,7 @@ impl Server {
                 }
             },
             MessageType::InstancePvPStartBattleground(dto::InstanceStart { map_id, instance_id }) => {
-                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id) {
+                if let Some(instance_meta_id) = self.create_instance_meta(db_main, message.timestamp, *instance_id, *map_id, member_id, upload_id) {
                     db_main.execute_wparams("INSERT INTO instance_battleground (`instance_meta_id`) VALUES (:instance_meta_id)", params!("instance_meta_id" => instance_meta_id));
                 }
             },
@@ -629,28 +629,28 @@ impl Server {
         }
     }
 
-    fn create_instance_meta(&mut self, db_main: &mut (impl Execute + Select), start_ts: u64, instance_id: u32, map_id: u32, member_id: u32) -> Option<u32> {
+    fn create_instance_meta(&mut self, db_main: &mut (impl Execute + Select), start_ts: u64, instance_id: u32, map_id: u32, member_id: u32, upload_id: u32) -> Option<u32> {
         if !self.active_instances.contains_key(&(instance_id, member_id)) {
             // Maybe sanity check, if active instance already exists, before?
             if db_main.execute_wparams(
-                "INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`, `uploaded_user`) VALUES (:server_id, :start_ts, :instance_id, :map_id, :member_id)",
+                "INSERT INTO instance_meta (`server_id`, `start_ts`, `instance_id`, `map_id`, `upload_id`) VALUES (:server_id, :start_ts, :instance_id, :map_id, :upload_id)",
                 params!(
                 "server_id" => self.server_id,
                 "start_ts" => start_ts,
                 "instance_id" => instance_id,
                 "map_id" => map_id as u16,
-                "member_id" => member_id
+                "upload_id" => upload_id
                 ),
             ) {
                 let instance_meta_id = db_main
                     .select_wparams_value(
-                        "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND uploaded_user=:member_id AND expired IS NULL",
+                        "SELECT id FROM instance_meta WHERE server_id=:server_id AND instance_id=:instance_id AND map_id=:map_id AND upload_id=:upload_id AND expired IS NULL",
                         |mut row| row.take::<u32, usize>(0).unwrap(),
                         params!(
                         "server_id" => self.server_id,
                         "instance_id" => instance_id,
                         "map_id" => map_id as u16,
-                        "member_id" => member_id
+                        "upload_id" => upload_id
                         ),
                     )
                     .expect("Should exist and DB shouldn't have gone away");
@@ -664,6 +664,7 @@ impl Server {
                         instance_id,
                         uploaded_user: member_id,
                         ready_to_zip: false,
+                        upload_id
                     },
                 );
 

@@ -19,7 +19,7 @@ impl DeleteInstance for Instance {
         );
         if let Some(server_id) = server_id {
             if db_main.execute_wparams(
-                "DELETE FROM instance_meta WHERE id=:instance_meta_id AND uploaded_user=:member_id",
+                "DELETE A FROM instance_meta A JOIN instance_uploads B ON A.upload_id = B.id WHERE A.id=:instance_meta_id AND B.member_id=:member_id",
                 params!(
                     "instance_meta_id" => instance_meta_id,
                     "member_id" => member_id
