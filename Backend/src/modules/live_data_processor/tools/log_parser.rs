@@ -156,6 +156,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut last_combat_update = HashMap::new();
     let mut unit_died_recently = HashMap::new();
     let mut additional_messages = Vec::with_capacity(20000);
+    let mut unit_last_instance_leave = HashMap::new();
+
     for Message { timestamp, message_count, message_type, .. } in messages.iter() {
         // Insert Instance Map Messages
         if let Some((map_id, difficulty)) = active_maps.get_current_active_map(&suggested_instances, &player_participants_by_interval, expansion_id, *timestamp) {
@@ -180,8 +182,13 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     }
                 }
 
+                let mut join_instance_ts = (start + ts_offset - 1000) as u64;
+                if let Some(last_leave_ts) = unit_last_instance_leave.get(&unit_id) {
+                    join_instance_ts = join_instance_ts.max(*last_leave_ts + 1);
+                }
+
                 additional_messages.push(Message::new_parsed(
-                    (start + ts_offset - 1000) as u64,
+                    join_instance_ts,
                     *message_count,
                     MessageType::InstanceMap(InstanceMap {
                         map_id: map_id as u32,
@@ -207,6 +214,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     });
                     last_combat_update.remove(unit_id);
                 }
+
+                unit_last_instance_leave.insert(*unit_id, *timestamp + 500);
 
                 additional_messages.push(Message::new_parsed(
                     *timestamp + 500,
@@ -256,6 +265,14 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
                 }
             },
+            MessageType::Heal(heal_done) => {
+                if heal_done.target.unit_id.get_entry().contains(&36789) {
+                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &heal_done.target);
+                }
+                if heal_done.caster.unit_id.get_entry().contains(&36789) {
+                    add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &heal_done.caster);
+                }
+            }
             MessageType::Death(death) => {
                 if !death.victim.is_player {
                     if let Some(entry) = death.victim.unit_id.get_entry() {

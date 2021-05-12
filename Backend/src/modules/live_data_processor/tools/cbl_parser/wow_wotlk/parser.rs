@@ -653,6 +653,10 @@ impl CombatLogParser for WoWWOTLKParser {
             34797 => 120000,
             // Anub
             34564 => 80000,
+            // Lady Deathwhisper
+            36855 => 80000,
+            // Valithria Dreamwalker
+            36789 => 120000,
             // Lich King
             36597 | 38153 => 180000,
             _ => return None,
@@ -682,6 +686,9 @@ impl CombatLogParser for WoWWOTLKParser {
             30084 | 30245 | 30249 => vec![28859],
             // Anub Swarm Scarabs
             34605 => vec![34564],
+            // Lady Deathwhisper
+            37890 | 37949 | 38009 | 38010 | 38135 | 38136 | 38222 => vec![36855],
+            36791 | 37863 | 37868 | 37886 | 37907 | 37934 => vec![36789],
             _ => return None,
         })
     }
