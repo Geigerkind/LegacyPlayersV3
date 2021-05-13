@@ -560,10 +560,9 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
 
 fn find_casting_unit(parser: &impl CombatLogParser, ability_id: u32, last_combat_update: &mut HashMap<u64, u64>, timestamp: u64) -> Option<Unit> {
     let npc_id = parser.get_ability_caster(ability_id)?;
-    for (unit_id, last_cbt) in last_combat_update {
-        if unit_id.get_entry().contains(&npc_id) && timestamp - *last_cbt <= 120000 {
-            return Some(Unit { is_player: false, unit_id: *unit_id });
-        }
-    }
-    None
+    let mut potential_candidates = last_combat_update.iter()
+        .filter(|(unit_id, last_cbt)| unit_id.get_entry().contains(&npc_id) && timestamp - *last_cbt <= 120000)
+        .collect::<Vec<(&u64, &u64)>>();
+    potential_candidates.sort_by(|left, right| right.1.cmp(left.1));
+    potential_candidates.first().map(|(unit_id, _)| Unit { is_player: false, unit_id: **unit_id })
 }
