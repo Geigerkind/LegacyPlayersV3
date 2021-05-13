@@ -719,6 +719,7 @@ impl CombatLogParser for WoWWOTLKParser {
     fn get_ability_caster(&self, ability_id: u32) -> Option<u32> {
         Some(match ability_id {
             63884 => 33288,
+            64125 => 33983,
             _ => return None
         })
     }
