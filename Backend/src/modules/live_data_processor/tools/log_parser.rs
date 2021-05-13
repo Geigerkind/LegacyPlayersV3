@@ -1,15 +1,17 @@
-use crate::modules::armory::tools::{GetCharacter, SetCharacter};
+use std::cmp::Ordering;
+use std::collections::{BTreeSet, HashMap};
+
+use chrono::{Datelike, NaiveDateTime};
+
 use crate::modules::armory::Armory;
-use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
+use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::data::Data;
+use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
 use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit};
-use crate::modules::live_data_processor::material::{Participant, RetrieveActiveMap, IntervalBucket};
+use crate::modules::live_data_processor::material::{IntervalBucket, Participant, RetrieveActiveMap};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
-use chrono::{Datelike, NaiveDateTime};
-use std::cmp::Ordering;
-use std::collections::{BTreeSet, HashMap};
 
 pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, _end_parse: u64) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
@@ -40,7 +42,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                             match entry {
                                 // Order for Shaman Totems
                                 15439 | 15430 => ts_offset = 50,
-                                _ => {},
+                                _ => {}
                             };
                         }
                     }
@@ -158,7 +160,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut additional_messages = Vec::with_capacity(20000);
     let mut unit_last_instance_leave = HashMap::new();
 
-    for Message { timestamp, message_count, message_type, .. } in messages.iter() {
+    for Message { timestamp, message_count, message_type, .. } in messages.iter_mut() {
         // Insert Instance Map Messages
         if let Some((map_id, difficulty)) = active_maps.get_current_active_map(&suggested_instances, &player_participants_by_interval, expansion_id, *timestamp) {
             if !current_map.contains(&(map_id, difficulty)) {
@@ -235,7 +237,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         // Insert Combat Start/End Events
         // We assume CBT Start when we see it doing sth
         // We assume end if it dies or after a timeout
-        match &message_type {
+        match message_type {
             MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
                 static IN_COMBAT_DEATH_TIMEOUT: u64 = 180000;
                 static IN_COMBAT_DEATH_IGNORE_IMMEDIATE_TIMEOUT: u64 = 20000;
@@ -264,13 +266,34 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.attacker);
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &dmg.victim);
                 }
-            },
+
+                if dmg.attacker.unit_id == 0 {
+                    if let Some(spell_id) = dmg.spell_id {
+                        if let Some(unit) = find_casting_unit(parser, spell_id, &mut last_combat_update, *timestamp) {
+                            dmg.attacker = unit;
+                        }
+                    }
+                }
+            }
             MessageType::Heal(heal_done) => {
                 if heal_done.target.unit_id.get_entry().contains(&36789) {
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &heal_done.target);
                 }
                 if heal_done.caster.unit_id.get_entry().contains(&36789) {
                     add_combat_event(parser, data, expansion_id, &mut additional_messages, &mut last_combat_update, *timestamp, *message_count, &heal_done.caster);
+                }
+
+                if heal_done.caster.unit_id == 0 {
+                    if let Some(unit) = find_casting_unit(parser, heal_done.spell_id, &mut last_combat_update, *timestamp) {
+                        heal_done.caster = unit;
+                    }
+                }
+            }
+            MessageType::AuraApplication(aura_app) => {
+                if aura_app.caster.unit_id == 0 {
+                    if let Some(unit) = find_casting_unit(parser, aura_app.spell_id, &mut last_combat_update, *timestamp) {
+                        aura_app.caster = unit;
+                    }
                 }
             }
             MessageType::Death(death) => {
@@ -283,9 +306,9 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                                         && participant.id.get_entry().contains(&npc_id)
                                         && participant.id != death.victim.unit_id
                                         && participant
-                                            .active_intervals
-                                            .iter()
-                                            .any(|(start, end)| (*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp)
+                                        .active_intervals
+                                        .iter()
+                                        .any(|(start, end)| (*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp)
                                     {
                                         return Some(participant.id);
                                     }
@@ -329,8 +352,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 });
                 last_combat_update.remove(&death.victim.unit_id);
                 unit_died_recently.insert(death.victim.unit_id, *timestamp);
-            },
-            _ => {},
+            }
+            _ => {}
         };
     }
 
@@ -384,43 +407,43 @@ fn replace_ids(replace_unit_id: &HashMap<u64, u64>, message_type: &mut MessageTy
         MessageType::SpellDamage(dmg) | MessageType::MeleeDamage(dmg) => {
             replace_id(replace_unit_id, &mut dmg.attacker);
             replace_id(replace_unit_id, &mut dmg.victim);
-        },
+        }
         MessageType::Heal(heal) => {
             replace_id(replace_unit_id, &mut heal.caster);
             replace_id(replace_unit_id, &mut heal.target);
-        },
+        }
         MessageType::Death(death) => {
             replace_id(replace_unit_id, &mut death.victim);
-        },
+        }
         MessageType::AuraApplication(aura) => {
             replace_id(replace_unit_id, &mut aura.caster);
             replace_id(replace_unit_id, &mut aura.target);
-        },
+        }
         // Aura Cast always None
         MessageType::SpellSteal(un_aura) | MessageType::Dispel(un_aura) => {
             replace_id(replace_unit_id, &mut un_aura.un_aura_caster);
             replace_id(replace_unit_id, &mut un_aura.target);
-        },
+        }
         MessageType::Interrupt(interrupt) => {
             replace_id(replace_unit_id, &mut interrupt.target);
-        },
+        }
         MessageType::SpellCast(cast) => {
             replace_id(replace_unit_id, &mut cast.caster);
             if let Some(target) = &mut cast.target {
                 replace_id(replace_unit_id, target);
             }
-        },
+        }
         MessageType::Summon(summon) => {
             replace_id(replace_unit_id, &mut summon.unit);
             replace_id(replace_unit_id, &mut summon.owner);
-        },
+        }
         MessageType::CombatState(cbt) => {
             replace_id(replace_unit_id, &mut cbt.unit);
-        },
+        }
         MessageType::InstanceMap(map) => {
             replace_id(replace_unit_id, &mut map.unit);
-        },
-        _ => {},
+        }
+        _ => {}
     };
 }
 
@@ -533,4 +556,14 @@ fn add_combat_event(parser: &impl CombatLogParser, data: &Data, expansion_id: u8
         });
         last_combat_update.insert(unit.unit_id, current_timestamp);
     }
+}
+
+fn find_casting_unit(parser: &impl CombatLogParser, ability_id: u32, last_combat_update: &mut HashMap<u64, u64>, timestamp: u64) -> Option<Unit> {
+    let npc_id = parser.get_ability_caster(ability_id)?;
+    for (unit_id, last_cbt) in last_combat_update {
+        if unit_id.get_entry().contains(&npc_id) && timestamp - *last_cbt <= 120000 {
+            return Some(Unit { is_player: false, unit_id: *unit_id });
+        }
+    }
+    None
 }

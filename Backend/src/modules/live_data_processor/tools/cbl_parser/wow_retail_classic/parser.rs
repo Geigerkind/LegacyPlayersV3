@@ -436,6 +436,10 @@ impl CombatLogParser for WoWRetailClassicParser {
     fn get_npc_in_combat_offset(&self, _entry: u32) -> Option<i64> {
         None
     }
+
+    fn get_ability_caster(&self, _ability_id: u32) -> Option<u32> {
+        None
+    }
 }
 
 fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>) -> Option<CharacterItemDto> {

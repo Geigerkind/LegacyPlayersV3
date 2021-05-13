@@ -22,4 +22,5 @@ pub trait CombatLogParser {
     fn get_server_id(&self) -> Option<u32>;
     fn get_bonus_messages(&self) -> Option<Vec<Message>>;
     fn get_npc_in_combat_offset(&self, entry: u32) -> Option<i64>;
+    fn get_ability_caster(&self, ability_id: u32) -> Option<u32>;
 }

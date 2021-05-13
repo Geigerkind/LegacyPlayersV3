@@ -715,6 +715,13 @@ impl CombatLogParser for WoWWOTLKParser {
     fn get_npc_in_combat_offset(&self, _entry: u32) -> Option<i64> {
         None
     }
+
+    fn get_ability_caster(&self, ability_id: u32) -> Option<u32> {
+        Some(match ability_id {
+            63884 => 33288,
+            _ => return None
+        })
+    }
 }
 
 fn create_character_item_dto(item: &Option<(u32, Option<u32>, Option<Vec<Option<u32>>>)>) -> Option<CharacterItemDto> {
