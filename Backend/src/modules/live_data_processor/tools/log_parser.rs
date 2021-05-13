@@ -281,15 +281,29 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                                 if let Some(unit_id) = parsed_participants.iter().find_map(|participant| {
                                     if !participant.is_player
                                         && participant.id.get_entry().contains(&npc_id)
+                                        && participant.id != death.victim.unit_id
                                         && participant
                                             .active_intervals
                                             .iter()
-                                            .any(|(start, end)| (start <= timestamp && end >= timestamp) || ((*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp))
+                                            .any(|(start, end)| (*start as i64 - lookahead_delay) as u64 <= *timestamp && *end >= *timestamp)
                                     {
                                         return Some(participant.id);
                                     }
                                     None
                                 }) {
+                                    if let Some((map_id, difficulty)) = current_map {
+                                        let instance_id = *instance_ids.entry((map_id, difficulty)).or_insert_with(rand::random::<u32>);
+                                        additional_messages.push(Message::new_parsed(
+                                            (*timestamp as i64 + delay_ts - 1) as u64,
+                                            *message_count - 2,
+                                            MessageType::InstanceMap(InstanceMap {
+                                                map_id: map_id as u32,
+                                                instance_id,
+                                                map_difficulty: difficulty.unwrap_or(0),
+                                                unit: Unit { is_player: false, unit_id },
+                                            }),
+                                        ));
+                                    }
                                     add_combat_event(
                                         parser,
                                         data,
@@ -300,8 +314,6 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                                         *message_count - 1,
                                         &Unit { is_player: false, unit_id },
                                     );
-                                } else {
-                                    println!("{} not found", npc_id);
                                 }
                             }
                         }

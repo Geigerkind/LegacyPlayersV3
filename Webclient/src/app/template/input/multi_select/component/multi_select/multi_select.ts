@@ -120,8 +120,6 @@ export class MultiSelectComponent implements OnInit, OnDestroy {
                 last_child.style.paddingBottom = "12px";
                 ul_copy.appendChild(last_child);
                 this.element.__ngContext__[0].children[0].children[0].children[1].insertBefore(ul_copy, this.element.__ngContext__[0].children[0].children[0].children[1].children[1]);
-            } else {
-                collection_button_ul.appendChild(last_child);
             }
             this.check_if_additional_buttons_are_selected();
         }

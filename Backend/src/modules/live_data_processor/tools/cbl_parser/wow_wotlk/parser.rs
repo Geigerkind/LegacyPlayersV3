@@ -645,7 +645,8 @@ impl CombatLogParser for WoWWOTLKParser {
             // Malygos
             28859 => 120000,
             // Yogg-Saron
-            33288 => 55000,
+            33288 => 120000,
+            33136 | 33134 => 90000,
             // Thaddius
             15928 => 80000,
             // Northrend Beasts
@@ -672,6 +673,8 @@ impl CombatLogParser for WoWWOTLKParser {
             // Norhrend Beasts
             34796 => vec![(35144, -2000, 180000), (34799, -2000, 180000)],
             35144 | 34799 => vec![(34797, -2000, 180000)],
+            // Yogg-Saron
+            33136 | 33134 => vec![(33288, -2000, 180000), (33136, -10000, 120000)],
             _ => return None,
         })
     }
@@ -679,7 +682,7 @@ impl CombatLogParser for WoWWOTLKParser {
     fn get_in_combat_implied_npc_combat(&self, entry: u32) -> Option<Vec<u32>> {
         Some(match entry {
             // Yogg-Saron Npcs
-            33966 | 33983 | 33985 | 33988 | 33990 => vec![33288],
+            33966 | 33983 | 33985 | 33988 | 33990 | 33136 | 33134 | 33890 | 33943 => vec![33288],
             // Kel'thuzad
             16427 | 16429 | 16428 => vec![65534],
             // Malygos

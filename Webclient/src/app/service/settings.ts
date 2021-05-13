@@ -117,7 +117,7 @@ SettingsService {
     }
 
     get(storage_key: string): any {
-        return this[storage_key].payload;
+        return this[storage_key]?.payload;
     }
 
     check(storage_key: string): boolean {
