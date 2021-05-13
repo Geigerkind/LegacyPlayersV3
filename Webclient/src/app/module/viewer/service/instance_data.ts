@@ -54,6 +54,9 @@ export class InstanceDataService implements OnDestroy {
     private filter_update_in_progress: number = 0;
     private filter_initialized_fired: boolean = false;
 
+    private current_intervals: Array<[number, number]> = [];
+    private boundaries: [number, number] = [0, 1];
+
     constructor(
         private apiService: APIService,
         private loading_bar_service: LoadingBarService
@@ -145,7 +148,8 @@ export class InstanceDataService implements OnDestroy {
     public async set_segment_intervals(intervals: Array<[number, number]>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
         ++this.filter_update_in_progress;
-        this.attempt_total_duration$.next(intervals.reduce((acc, interval) => acc + interval[1] - interval[0], 0));
+        this.current_intervals = intervals;
+        this.update_total_duration();
 
         const promisses = [];
         promisses.push(this.knecht_melee.set_segment_intervals(intervals));
@@ -255,6 +259,9 @@ export class InstanceDataService implements OnDestroy {
     public async set_time_boundaries(boundaries: [number, number]) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
         ++this.filter_update_in_progress;
+        this.boundaries = boundaries;
+        this.update_total_duration();
+
         const promisses = [];
         promisses.push(this.knecht_melee.set_time_boundaries(boundaries));
         promisses.push(this.knecht_misc.set_time_boundaries(boundaries));
@@ -447,6 +454,10 @@ export class InstanceDataService implements OnDestroy {
 
     public get attempt_total_duration(): Observable<number> {
         return this.attempt_total_duration$.asObservable();
+    }
+
+    private update_total_duration(): void {
+        this.attempt_total_duration$.next(Math.min(this.current_intervals.reduce((acc, interval) => acc + interval[1] - interval[0], 0), this.boundaries[1] - this.boundaries[0]));
     }
 
 }
