@@ -54,6 +54,7 @@ export class ExportViewerService implements OnDestroy {
                 selected_sources: [...this.raidConfigurationService.source_filter.values()],
                 selected_targets: [...this.raidConfigurationService.target_filter.values()],
                 selected_abilities: [...this.raidConfigurationService.ability_filter.values()],
+                selected_boundaries: [this.raidConfigurationService.time_boundaries[0], this.raidConfigurationService.time_boundaries[1]],
                 graph_mode: this.graphDataService.get_current_graph_mode(),
                 graph_data_sets: this.graphDataService.get_selected_data_sets(),
                 graph_events: this.graphDataService.get_selected_events(),
@@ -75,13 +76,15 @@ export class ExportViewerService implements OnDestroy {
         this.raidConfigurationService.update_source_filter(payload.selected_sources);
         this.raidConfigurationService.update_target_filter(payload.selected_targets);
         this.raidConfigurationService.update_ability_filter(payload.selected_abilities);
+        this.raidConfigurationService.update_time_boundaries(payload.boundaries);
         this.raidConfigurationService.selection_overwrite$.next({
             viewer_mode: this.viewer_mode,
             categories: new Set(payload.selected_categories),
             segments: new Set(payload.selected_segments),
             sources: new Set(payload.selected_sources),
             targets: new Set(payload.selected_targets),
-            abilities: new Set(payload.selected_abilities)
+            abilities: new Set(payload.selected_abilities),
+            boundaries: [payload.selected_boundaries[0], payload.selected_boundaries[1]]
         });
         this.graphDataService.overwrite_selection.next({
            mode: payload.graph_mode,

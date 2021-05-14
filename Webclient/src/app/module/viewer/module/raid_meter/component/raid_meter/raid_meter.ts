@@ -3,7 +3,7 @@ import {SelectOption} from "../../../../../../template/input/select_input/domain
 import {from, Subscription} from "rxjs";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {ViewerMode} from "../../../../domain_value/viewer_mode";
 import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
 import {RaidConfigurationSelectionService} from "../../../raid_configuration_menu/service/raid_configuration_selection";
@@ -230,7 +230,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
         if (!this.in_ability_mode)
             this.raidConfigurationSelectionService.select_sources([bar[0]]);
-        this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)]);
+        this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)], { skipLocationChange: true } as NavigationExtras);
     }
 
     private get_bar_tooltip(subject_id: number): any {

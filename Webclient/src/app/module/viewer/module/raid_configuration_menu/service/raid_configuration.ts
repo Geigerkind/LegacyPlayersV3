@@ -15,7 +15,7 @@ import {SpellService} from "../../../service/spell";
 import {DataService} from "../../../../../service/data";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {ViewerMode} from "../../../domain_value/viewer_mode";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, NavigationBehaviorOptions, NavigationExtras, Router} from "@angular/router";
 import {iterable_map, iterable_some} from "../../../../../stdlib/iterable_higher_order";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import DataIntervalTree from "node-interval-tree";
@@ -27,6 +27,7 @@ export interface FilterStackItem {
     sources: Set<number>;
     targets: Set<number>;
     abilities: Set<number>;
+    boundaries: [number, number];
 }
 
 @Injectable({
@@ -74,6 +75,9 @@ export class RaidConfigurationService implements OnDestroy {
     private current_event_types: Set<number> = new Set();
 
     public selection_overwrite$: Subject<FilterStackItem> = new Subject();
+    public boundaries_updated$: Subject<[number, number]> = new Subject();
+
+    private history_state: number = 0;
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -104,31 +108,35 @@ export class RaidConfigurationService implements OnDestroy {
                 this.instanceDataService.set_source_filter([...this.source_filter.values()]);
                 this.instanceDataService.set_target_filter([...this.target_filter.values()]);
                 this.instanceDataService.set_ability_filter([...this.ability_filter.values()]);
-                this.instanceDataService.set_time_boundaries(this.time_boundaries)
+                this.instanceDataService.set_time_boundaries(this.time_boundaries);
             }
             if (knecht_updates.includes(KnechtUpdates.FilterInitialized)) {
-                history.replaceState({
+                const state = {
                     viewer_mode: this.current_mode,
                     categories: new Set([...this.category_filter.values()]),
                     segments: new Set([...this.segment_filter.values()]),
                     sources: new Set(this.source_filter),
                     targets: new Set(this.target_filter),
-                    abilities: new Set(this.ability_filter)
-                }, "LegacyPlayers - Filter History", this.router_service.url);
+                    abilities: new Set(this.ability_filter),
+                    boundaries: [this.time_boundaries[0], this.time_boundaries[1]]
+                };
+                this.router_service.navigate([this.router_service.url.split('?')[0]], { state: state, queryParams: { history_state: this.history_state++ } } as NavigationExtras);
             }
         }));
 
         this.subscription.add(this.activated_route_service.paramMap.subscribe(params => this.current_mode = params.get("mode") as ViewerMode));
-        this.subscription.add(this.filter_updated$.pipe(debounceTime(100)).subscribe(push_history => {
+        this.subscription.add(this.filter_updated$.pipe(debounceTime(100)).subscribe((push_history) => {
             if (push_history) {
-                history.pushState({
+                const state = {
                     viewer_mode: this.current_mode,
                     categories: new Set([...this.category_filter.values()]),
                     segments: new Set([...this.segment_filter.values()]),
                     sources: new Set(this.source_filter),
                     targets: new Set(this.target_filter),
-                    abilities: new Set(this.ability_filter)
-                }, "LegacyPlayers - Filter History", this.router_service.url);
+                    abilities: new Set(this.ability_filter),
+                    boundaries: [this.time_boundaries[0], this.time_boundaries[1]]
+                };
+                this.router_service.navigate([this.router_service.url.split('?')[0]], { state: state, queryParams: { history_state: this.history_state++ } } as NavigationExtras);
             }
         }));
 
@@ -140,7 +148,9 @@ export class RaidConfigurationService implements OnDestroy {
                 this.update_source_filter([...last_stack_entry.sources.values()]);
                 this.update_target_filter([...last_stack_entry.targets.values()]);
                 this.update_ability_filter([...last_stack_entry.abilities.values()]);
+                this.update_time_boundaries([last_stack_entry.boundaries[0], last_stack_entry.boundaries[1]]);
                 this.selection_overwrite$.next(last_stack_entry);
+                this.boundaries_updated$.next(last_stack_entry.boundaries);
             }
         };
     }

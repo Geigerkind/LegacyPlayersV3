@@ -95,9 +95,13 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         });
 
         this.instanceDataService.meta.subscribe(meta => {
-            if (!!meta) {
+            if (!!meta)
                this.upload_id = meta.upload_id;
-           }
+        });
+
+        this.raidConfigurationService.boundaries_updated$.subscribe(boundaries => {
+            this.time_slider_start_reference = boundaries[0];
+            this.time_slider_end_reference = boundaries[1];
         });
     }
 
