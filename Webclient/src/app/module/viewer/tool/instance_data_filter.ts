@@ -58,7 +58,7 @@ export class InstanceDataFilter {
 
     private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => number, target_extraction: (Event) => number,
                          multi_ability_extraction: (Event) => Array<number>, single_ability_extraction: (Event) => number,
-                         inverse_filter: boolean = false, skip_time_and_attempt_filter: boolean = false): Array<Event> {
+                         inverse_filter: boolean = false, skip_time_and_attempt_filter: boolean = false, skip_target_filter: boolean = false): Array<Event> {
         const cache_key = event_type.toString() + (inverse_filter ? "1" : "0");
         if (this.cache.has(cache_key))
             return this.cache.get(cache_key);
@@ -72,18 +72,22 @@ export class InstanceDataFilter {
                 return interval[0] <= event[1] && interval[1] >= event[1];
             }) !== undefined);
         }
-        result = result.filter(event => {
-            const unit_id = source_extraction(event);
-            // if (unit_id === 0) return true;
-            return filter_source.has(unit_id);
-        });
-        if (!!target_extraction)
+        if (!(inverse_filter && skip_target_filter)) {
             result = result.filter(event => {
-                const unit_id = target_extraction(event);
-                if (unit_id === 0)
-                    return true;
-                return filter_target.has(unit_id);
+                const unit_id = source_extraction(event);
+                // if (unit_id === 0) return true;
+                return filter_source.has(unit_id);
             });
+        }
+        if (!(!inverse_filter && skip_target_filter)) {
+            if (!!target_extraction)
+                result = result.filter(event => {
+                    const unit_id = target_extraction(event);
+                    if (unit_id === 0)
+                        return true;
+                    return filter_target.has(unit_id);
+                });
+        }
         if (!!multi_ability_extraction)
             result = result.filter(event => multi_ability_extraction(event).every(ability => this.ability_filter$.has(ability)));
         if (!!single_ability_extraction)
@@ -210,16 +214,16 @@ export class InstanceDataFilter {
             (evt) => get_unit_id(te_summon(evt), false), undefined, undefined, inverse_filter);
     }
 
-    get_melee_damage(inverse_filter: boolean = false): Array<Event> {
+    get_melee_damage(inverse_filter: boolean = false, skip_target_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
         return this.apply_filter(12, this.data_loader.melee_damage, (evt) => get_unit_id(se_melee_damage(evt)),
-            (evt) => get_unit_id(te_melee_damage(evt), false), undefined, ae_melee_damage, inverse_filter);
+            (evt) => get_unit_id(te_melee_damage(evt), false), undefined, ae_melee_damage, inverse_filter, false, skip_target_filter);
     }
 
-    get_spell_damage(inverse_filter: boolean = false): Array<Event> {
+    get_spell_damage(inverse_filter: boolean = false, skip_target_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
         return this.apply_filter(13, this.data_loader.spell_damage, (evt) => get_unit_id(se_spell_damage(evt)),
-            (evt) => get_unit_id(te_spell_damage(evt), false), undefined, ae_spell_damage, inverse_filter);
+            (evt) => get_unit_id(te_spell_damage(evt), false), undefined, ae_spell_damage, inverse_filter, false, skip_target_filter);
     }
 
     get_heal(inverse_filter: boolean = false): Array<Event> {

@@ -12,6 +12,6 @@ export class RaidMeterAbsorb {
     }
 
     async calculate(): Promise<Array<[number, [Unit, Array<[number, number, number, Array<School>]>]]>> {
-        return commit_absorb_damages(this.data_filter.get_melee_damage(true), this.data_filter.get_spell_damage(true), te_melee_damage, te_spell_damage);
+        return commit_absorb_damages(this.data_filter.get_melee_damage(true, true), this.data_filter.get_spell_damage(true, true), te_melee_damage, te_spell_damage);
     }
 }

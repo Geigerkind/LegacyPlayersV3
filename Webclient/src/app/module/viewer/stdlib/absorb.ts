@@ -1,6 +1,6 @@
 import {InstanceDataService} from "../service/instance_data";
 import {get_unit_id, Unit} from "../domain_value/unit";
-import {ALL_SCHOOLS, School, school_mask_to_school_array} from "../domain_value/school";
+import {ALL_SCHOOLS, School} from "../domain_value/school";
 
 export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = new Map([
     // Power Word: Shield
