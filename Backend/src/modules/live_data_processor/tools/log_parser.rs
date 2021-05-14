@@ -7,7 +7,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::data::Data;
 use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
-use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit};
+use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit, SpellCast};
 use crate::modules::live_data_processor::material::{IntervalBucket, Participant, RetrieveActiveMap};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
@@ -159,6 +159,8 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut unit_died_recently = HashMap::new();
     let mut additional_messages = Vec::with_capacity(20000);
     let mut unit_last_instance_leave = HashMap::new();
+    let mut pom_owner = HashMap::new();
+    let mut looking_for_new_pom_owner = None;
 
     for Message { timestamp, message_count, message_type, .. } in messages.iter_mut() {
         // Insert Instance Map Messages
@@ -271,6 +273,16 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                     if let Some(spell_id) = dmg.spell_id {
                         if let Some(unit) = find_casting_unit(parser, spell_id, &mut last_combat_update, *timestamp) {
                             dmg.attacker = unit;
+                            additional_messages.push(Message::new_parsed(
+                                *timestamp - 1,
+                                *message_count - 1,
+                                MessageType::SpellCast(SpellCast {
+                                    caster: dmg.attacker.clone(),
+                                    target: Some(dmg.victim.clone()),
+                                    spell_id,
+                                    hit_mask: dmg.hit_mask,
+                                }),
+                            ));
                         }
                     }
                 }
@@ -286,11 +298,58 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 if heal_done.caster.unit_id == 0 {
                     if let Some(unit) = find_casting_unit(parser, heal_done.spell_id, &mut last_combat_update, *timestamp) {
                         heal_done.caster = unit;
+                        additional_messages.push(Message::new_parsed(
+                            *timestamp - 1,
+                            *message_count - 1,
+                            MessageType::SpellCast(SpellCast {
+                                caster: heal_done.caster.clone(),
+                                target: Some(heal_done.target.clone()),
+                                spell_id: heal_done.spell_id,
+                                hit_mask: heal_done.hit_mask,
+                            }),
+                        ));
                     }
+                }
+
+                if heal_done.spell_id == 33110 {
+                    if let Some(owner_unit_id) = pom_owner.get(&heal_done.caster.unit_id).cloned() {
+                        pom_owner.remove(&heal_done.caster.unit_id);
+                        looking_for_new_pom_owner = Some(owner_unit_id);
+                        heal_done.caster = Unit { unit_id: owner_unit_id, is_player: true };
+                        additional_messages.push(Message::new_parsed(
+                            *timestamp - 1,
+                            *message_count - 1,
+                            MessageType::SpellCast(SpellCast {
+                                caster: heal_done.caster.clone(),
+                                target: Some(heal_done.target.clone()),
+                                spell_id: heal_done.spell_id,
+                                hit_mask: heal_done.hit_mask,
+                            }),
+                        ));
+                    }
+                }
+            }
+            MessageType::SpellCast(spell_cast) => {
+                if spell_cast.spell_id == 33076 {
+                    pom_owner.insert(spell_cast.target.as_ref().unwrap().unit_id, spell_cast.caster.unit_id);
                 }
             }
             MessageType::AuraApplication(aura_app) => {
                 if aura_app.caster.unit_id == 0 {
+                    if aura_app.spell_id == 41635 {
+                        if aura_app.delta == 1 {
+                            if let Some(pom_owner_unit_id) = looking_for_new_pom_owner {
+                                pom_owner.insert(aura_app.target.unit_id, pom_owner_unit_id);
+                                aura_app.caster = Unit { is_player: true, unit_id: pom_owner_unit_id };
+                                looking_for_new_pom_owner = None;
+                            }
+                        } else if aura_app.delta == -1 {
+                            if let Some(owner_unit_id) = pom_owner.get(&aura_app.target.unit_id).cloned() {
+                                aura_app.caster = Unit { is_player: true, unit_id: owner_unit_id };
+                            }
+                        }
+                    }
+
                     if let Some(unit) = find_casting_unit(parser, aura_app.spell_id, &mut last_combat_update, *timestamp) {
                         aura_app.caster = unit;
                     }
