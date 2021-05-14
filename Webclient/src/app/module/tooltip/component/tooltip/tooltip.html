@@ -25,3 +25,6 @@
     <br />
     {{tooltipArgs.comment}}
 </ng-container>
+<ng-container *ngIf="tooltipType === 999">
+    {{tooltipPayload | translate}}
+</ng-container>

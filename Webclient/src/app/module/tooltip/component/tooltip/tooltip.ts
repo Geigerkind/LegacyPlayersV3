@@ -109,6 +109,9 @@ export class TooltipComponent {
                         this.tooltipPayload.points_spend = args.index;
                     }
                 });
+            } else {
+                this.tooltipType = args.type;
+                this.tooltipPayload = args.payload;
             }
         });
     }
