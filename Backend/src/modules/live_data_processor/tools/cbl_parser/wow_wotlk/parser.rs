@@ -720,6 +720,7 @@ impl CombatLogParser for WoWWOTLKParser {
         Some(match ability_id {
             63884 => 33288,
             64125 => 33983,
+            55601 => 16011,
             _ => return None
         })
     }
