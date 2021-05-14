@@ -62,17 +62,17 @@ impl ExportInstance for Instance {
             let mut zip = zip.unwrap();
 
             for i in 0..zip.len() {
-                let file = zip.by_index(i).unwrap();
+                let mut file = zip.by_index(i).unwrap();
                 let evt_type = u8::from_str_radix(file.name(), 10).unwrap();
-                let bytes = file.bytes().filter_map(|byte| byte.ok()).collect::<Vec<u8>>();
-                if let Ok(content) = std::str::from_utf8(&bytes) {
-                    let lines = content.lines().collect::<Vec<&str>>();
-                    let mut events = Vec::with_capacity(lines.len());
-                    for segment in lines {
+                let mut content = String::with_capacity(file.size() as usize);
+                let read_result = file.read_to_string(&mut content);
+                if read_result.is_ok() {
+                    let mut events = Vec::with_capacity(50000);
+                    for segment in content.lines() {
                         let id = u32::from_str(&segment[1..segment.find(',').expect("Must exist if data is not broken")]).expect("First element is the id");
                         events.push((id, segment.to_owned()));
                     }
-                    instance_exports.insert((instance_meta_id, evt_type), Cachable::new(events.clone()));
+                    instance_exports.insert((instance_meta_id, evt_type), Cachable::new(events));
                 } else {
                     instance_exports.insert((instance_meta_id, evt_type), Cachable::new(Vec::new()));
                 }
