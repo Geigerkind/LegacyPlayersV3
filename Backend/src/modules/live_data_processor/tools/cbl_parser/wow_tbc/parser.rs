@@ -458,6 +458,21 @@ impl CombatLogParser for WoWTBCParser {
                     }),
                 ]
             },
+            "SPELL_ENERGIZE" => {
+                let caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
+                let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
+                let spell_id = parse_spell_args(&message_args[7..10])?;
+                self.collect_participant(&caster, message_args[2], event_ts);
+                self.collect_participant(&target, message_args[5], event_ts);
+                self.collect_active_map(data, &caster, event_ts);
+                self.collect_active_map(data, &target, event_ts);
+
+                let mut result = vec![];
+                if self.is_owner_binding_pet_ability(spell_id) {
+                    result.push(MessageType::Summon(Summon { owner: caster, unit: target }));
+                }
+                result
+            }
             // TODO: Use more events
             // https://wow.gamepedia.com/COMBAT_LOG_EVENT?oldid=1585715
             _ => return None,
