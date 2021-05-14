@@ -61,10 +61,13 @@ export class RankingService {
                         })
                 );
         }
-        this.rankings$.next([...new_rankings.entries()].map(([character_id, [character_meta, amounts]]) => {
-            const result = amounts.reduce(([count, acc], amount) => [++count, acc + amount], [0, 0]);
-            return {character_id, character_meta, amount: Number((result[1] / result[0]))};
-        }).sort((left, right) => right.amount - left.amount));
+        this.rankings$.next([...new_rankings.entries()]
+            .filter(([_character_id, [_character_meta, amounts]]) =>
+                amounts.filter(am => am > 0).length === this.current_encounter_ids$.length)
+            .map(([character_id, [character_meta, amounts]]) => {
+                const result = amounts.reduce(([count, acc], amount) => [++count, acc + amount], [0, 0]);
+                return {character_id, character_meta, amount: Number((result[1] / result[0]))};
+            }).sort((left, right) => right.amount - left.amount));
     }
 
     private get current_mode_data(): Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> {
