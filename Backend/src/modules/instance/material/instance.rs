@@ -117,6 +117,9 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
     let already_calculated_speed_runs: Vec<u32> = speed_runs.iter().map(|speed_run| speed_run.instance_meta_id).collect();
 
     for (instance_meta_id, attempts) in kill_attempts.1.iter().filter(|(im_id, _)| !already_calculated_speed_runs.contains(*im_id)) {
+        if !instance_metas.contains_key(instance_meta_id) {
+            continue;
+        }
         let instance_meta = instance_metas.get(instance_meta_id).unwrap();
         let has_killed_all_encounters = instance_encounters.get(&instance_meta.map_id).unwrap()
             .iter().all(|encounter_id| attempts.iter().any(|attempt| attempt.encounter_id == *encounter_id));
