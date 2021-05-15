@@ -31,14 +31,9 @@ impl Default for Armory {
 }
 
 impl Armory {
-    pub fn init(self, db_main: &mut impl Select, guild_only: bool) -> Self {
-        self.guilds.write().unwrap().init(db_main);
-
-        if guild_only {
-           return self;
-        }
-
+    pub fn init(self, db_main: &mut impl Select) -> Self {
         self.characters.write().unwrap().init(db_main);
+        self.guilds.write().unwrap().init(db_main);
         {
             let chars = self.characters.read().unwrap();
             let mut cache = self.cache_char_name_to_id.write().unwrap();
