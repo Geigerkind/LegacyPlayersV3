@@ -65,7 +65,7 @@ fn main() {
 
     let account = account::Account::default().init(&mut conn);
     let data = data::Data::default().init(&mut conn);
-    let armory = armory::Armory::default().init(&mut conn);
+    let armory = armory::Armory::default().init(&mut conn, false);
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
     let instance = instance::Instance::default().init(instance_conn);

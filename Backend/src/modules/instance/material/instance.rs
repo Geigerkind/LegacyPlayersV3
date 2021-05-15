@@ -50,7 +50,8 @@ impl Instance {
         let instance_kill_attempts_clone = Arc::clone(&self.instance_kill_attempts);
         let speed_runs_clone = Arc::clone(&self.speed_runs);
         std::thread::spawn(move || {
-            let armory = Armory::default();
+            let mut armory_counter = 1;
+            let mut armory = Armory::default().init(&mut db_main, true);
             let mut instance_encounters = HashMap::new();
             instance_encounters.insert(409, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
             instance_encounters.insert(249, vec![11]);
@@ -89,6 +90,11 @@ impl Instance {
                                      Arc::clone(&speed_runs_clone),
                                      &instance_encounters,
                                      &mut db_main, &armory);
+
+                if armory_counter % 60 == 0 {
+                    armory = Armory::default().init(&mut db_main, true);
+                }
+                armory_counter += 1;
                 std::thread::sleep(std::time::Duration::from_secs(5));
             }
         });
