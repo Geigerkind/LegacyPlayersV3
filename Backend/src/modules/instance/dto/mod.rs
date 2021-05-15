@@ -15,6 +15,7 @@ pub use self::rated_arena_search_filter::RatedArenaSearchFilter;
 pub use self::responder_raw_json::*;
 pub use self::search_arena_team::SearchArenaTeam;
 pub use self::skirmish_search_filter::SkirmishSearchFilter;
+pub use self::speed_run::SpeedRun;
 
 mod battleground_search_filter;
 mod instance_failure;
@@ -33,3 +34,4 @@ mod rated_arena_search_filter;
 mod responder_raw_json;
 mod search_arena_team;
 mod skirmish_search_filter;
+mod speed_run;

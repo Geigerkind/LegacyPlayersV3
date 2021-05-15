@@ -68,7 +68,7 @@ fn main() {
     let armory = armory::Armory::default().init(&mut conn);
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
-    let instance = instance::Instance::default().init(instance_conn, &armory);
+    let instance = instance::Instance::default().init(instance_conn);
     let utility = utility::Utility::default();
 
     let prometheus = PrometheusMetrics::new();
@@ -291,6 +291,7 @@ fn main() {
                 instance::transfer::ranking::get_instance_ranking_tps,
                 instance::transfer::ranking::get_character_ranking,
                 instance::transfer::delete::delete_instance,
+                instance::transfer::speed_run::get_speed_runs
             ],
         )
         .mount("/API/utility", routes_with_openapi![utility::transfer::tiny_url::get_tiny_url, utility::transfer::tiny_url::set_tiny_url])
