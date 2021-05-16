@@ -42,7 +42,8 @@ SettingsService {
         "table_filter_viewer_ranking_table",
         "character_service_basic_characters",
         "viewer_export",
-        "upload_last_server"
+        "upload_last_server",
+        "pve_speed_run"
     ];
 
     private ignoreSettings: Array<string> = [

@@ -130,14 +130,15 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
 
         let start = attempts.iter().map(|attempt| attempt.start_ts).min().unwrap();
         let end = attempts.iter().map(|attempt| attempt.end_ts).max().unwrap();
-        let guild_id = instance_meta.participants
+        let (guild_id, guild_name) = instance_meta.participants
             .find_instance_guild(db_main, armory, instance_meta.end_ts.unwrap_or(instance_meta.start_ts))
-            .map(|guild| guild.id);
+            .map(|guild| (guild.id, guild.name)).unwrap_or((0, "Pug Raid".to_string()));
 
         speed_runs.push(SpeedRun {
             instance_meta_id: *instance_meta_id,
             map_id: instance_meta.map_id,
             guild_id,
+            guild_name,
             server_id: instance_meta.server_id,
             duration: end - start,
         });

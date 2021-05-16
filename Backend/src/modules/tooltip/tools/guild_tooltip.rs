@@ -9,6 +9,14 @@ pub trait RetrieveGuildTooltip {
 
 impl RetrieveGuildTooltip for Tooltip {
     fn get_guild(&self, armory: &Armory, guild_id: u32) -> Result<GuildTooltip, TooltipFailure> {
+        if guild_id == 0 {
+            return Ok(GuildTooltip {
+                guild_id,
+                guild_name: "Pug Raid".to_string(),
+                num_member: 0
+            });
+        }
+
         let guild = armory.get_guild(guild_id);
         if guild.is_none() {
             return Err(TooltipFailure::InvalidInput);

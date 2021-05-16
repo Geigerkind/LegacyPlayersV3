@@ -17,6 +17,8 @@ export class MeterGraphComponent {
     @Input() show_per_second: boolean = true;
     @Input() show_percent: boolean = true;
     @Input() show_loading: boolean = false;
+    @Input() bar_label_function: (args: any, amount: number) => string;
+    @Input() bar_label_args: any;
 
     @Output() bar_clicked: EventEmitter<[number, number]> = new EventEmitter();
 
@@ -63,6 +65,8 @@ export class MeterGraphComponent {
     }
 
     get_amount(amount: number): string {
+        if (!!this.bar_label_function)
+            return this.bar_label_function(this.bar_label_args, amount);
         if (amount % 1 === 0)
             return amount.toString();
         return amount.toFixed(1);

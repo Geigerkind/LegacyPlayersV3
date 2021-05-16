@@ -26,7 +26,8 @@ export class TinyUrlService {
         [6, ["/armory/character/:url_suffix", "table_filter_viewer_ranking_table"]],
         [7, ["/armory/guild/:url_suffix", "table_filter_guild_viewer_member"]],
         [8, ["/pve/ranking", "pve_ranking"]],
-        [9, ["/viewer/:url_suffix", "viewer_export::instance_meta_id"]]
+        [9, ["/viewer/:url_suffix", "viewer_export::instance_meta_id"]],
+        [10, ["/pve/speed_run", "pve_speed_run"]],
     ]);
 
     private redirect_url$: Subject<string> = new Subject();
