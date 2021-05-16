@@ -19,6 +19,7 @@ export class MeterGraphComponent {
     @Input() show_loading: boolean = false;
     @Input() bar_label_function: (args: any, amount: number) => string;
     @Input() bar_label_args: any;
+    @Input() invert: boolean = false;
 
     @Output() bar_clicked: EventEmitter<[number, number]> = new EventEmitter();
 
@@ -35,11 +36,17 @@ export class MeterGraphComponent {
     }
 
     get_weighted_bar_fraction(amount: number): number {
-        return amount / this.bars.reduce((acc, bar) => bar[1] > acc ? bar[1] : acc, 0);
+        const frac = amount / this.bars.reduce((acc, bar) => bar[1] > acc ? bar[1] : acc, 0);
+        if (this.invert)
+            return 1 - frac;
+        return frac;
     }
 
     get_fraction(amount: number): number {
-        return amount / this.get_total();
+        const frac = amount / this.get_total();
+        if (this.invert)
+            return 1 - frac;
+        return frac;
     }
 
     get_dps(amount: number): number {
