@@ -95,10 +95,11 @@ impl RetrieveCharacterTooltip for Tooltip {
 
 fn add_item(data: &Data, expansion_id: u8, language_id: u8, vec: &mut Vec<CharacterTooltipItem>, item: &Option<CharacterItem>) {
     if let Some(character_item) = item {
-        let item_template = data.get_item(expansion_id, character_item.item_id).unwrap();
-        vec.push(CharacterTooltipItem {
-            name: data.get_localization(language_id, item_template.localization_id).unwrap().content,
-            quality: item_template.quality,
-        });
+        if let Some(item_template) = data.get_item(expansion_id, character_item.item_id) {
+            vec.push(CharacterTooltipItem {
+                name: data.get_localization(language_id, item_template.localization_id).unwrap().content,
+                quality: item_template.quality,
+            });
+        }
     }
 }
