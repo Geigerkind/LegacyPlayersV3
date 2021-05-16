@@ -95,6 +95,7 @@ impl Instance {
                 }
                 armory_counter += 1;
                 std::thread::sleep(std::time::Duration::from_secs(5));
+                println!("Heart beat");
             }
         });
         self

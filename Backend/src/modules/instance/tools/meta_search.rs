@@ -38,7 +38,8 @@ impl MetaSearch for Instance {
                 } = raid
                 {
                     if filter.map_difficulty.apply_filter(map_difficulty) {
-                        let guild = raid.participants.find_instance_guild(db_main, armory, raid.start_ts).map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name });
+                        let guild = raid.participants.find_instance_guild(db_main, armory, raid.start_ts)
+                            .map(|guild| SearchGuildDto { guild_id: guild.id, name: guild.name });
                         if filter.guild.apply_filter(guild.as_ref().map(|guild| guild.name.clone())) {
                             return Some(MetaRaidSearch {
                                 instance_meta_id: raid.instance_meta_id,
