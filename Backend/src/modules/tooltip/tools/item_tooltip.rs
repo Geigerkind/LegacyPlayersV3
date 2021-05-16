@@ -115,7 +115,8 @@ impl RetrieveItemTooltip for Tooltip {
 
         let mut item_effects = data
             .get_item_effect(expansion_id, item_id)
-            .map(|inner_item_effects| inner_item_effects.iter().map(|item_effect| data.get_localized_spell_description(expansion_id, language_id, item_effect.spell_id).unwrap()).collect());
+            .map(|inner_item_effects| inner_item_effects.iter().filter_map(|item_effect|
+                data.get_localized_spell_description(expansion_id, language_id, item_effect.spell_id)).collect());
 
         if item_stats.is_some() {
             let inner_item_stats = item_stats.as_ref().unwrap();

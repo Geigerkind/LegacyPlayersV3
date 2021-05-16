@@ -88,10 +88,9 @@ impl Instance {
                 calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
                                      Arc::clone(&instance_kill_attempts_clone),
                                      Arc::clone(&speed_runs_clone),
-                                     &instance_encounters,
-                                     &mut db_main, &armory);
+                                     &instance_encounters, &mut db_main, &armory);
 
-                if armory_counter % 60 == 0 {
+                if armory_counter % 90 == 0 {
                     armory = Armory::default().init(&mut db_main);
                 }
                 armory_counter += 1;
