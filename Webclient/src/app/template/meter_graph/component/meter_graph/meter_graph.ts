@@ -36,17 +36,13 @@ export class MeterGraphComponent {
     }
 
     get_weighted_bar_fraction(amount: number): number {
-        const frac = amount / this.bars.reduce((acc, bar) => bar[1] > acc ? bar[1] : acc, 0);
         if (this.invert)
-            return 1 - frac;
-        return frac;
+            return (this.bars.reduce((acc, bar) => bar[1] < acc ? bar[1] : acc, Number.MAX_VALUE) / amount);
+        return amount / this.bars.reduce((acc, bar) => bar[1] > acc ? bar[1] : acc, 0);
     }
 
     get_fraction(amount: number): number {
-        const frac = amount / this.get_total();
-        if (this.invert)
-            return 1 - frac;
-        return frac;
+        return amount / this.get_total();
     }
 
     get_dps(amount: number): number {
