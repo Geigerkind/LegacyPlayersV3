@@ -68,7 +68,7 @@ impl SpellDescription for Data {
                     let inner_spell = inner_spell_res.unwrap();
                     temp_res = temp_res.replace(&format!("${}d1", capture[1].to_string()), &format_duration(&self.dictionary, language_id, inner_spell.duration.abs() as u32));
                     temp_res = temp_res.replace(&format!("${}d", capture[1].to_string()), &format_duration(&self.dictionary, language_id, inner_spell.duration.abs() as u32));
-                    let inner_spell_effects = self.get_spell_effects(expansion_id, inner_spell_id).unwrap();
+                    let inner_spell_effects = self.get_spell_effects(expansion_id, inner_spell_id)?;
                     for (i, ise_item) in inner_spell_effects.iter().enumerate() {
                         temp_res = temp_res.replace(&format!("${}s{}", capture[1].to_string(), i + 1), &ise_item.points_upper.abs().to_string());
                         temp_res = temp_res.replace(&format!("${{${}m{}/-1000}}.1", capture[1].to_string(), i + 1), &format!("{:.1}", (ise_item.points_upper as f64 / 1000.0).abs()));

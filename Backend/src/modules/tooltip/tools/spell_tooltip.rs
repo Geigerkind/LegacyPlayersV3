@@ -33,7 +33,7 @@ impl RetrieveSpellTooltip for Tooltip {
             subtext: data.get_localization(language_id, spell.subtext_localization_id).unwrap().content,
             spell_cost,
             range: spell.range_max,
-            description: data.get_localized_spell_description(expansion_id, language_id, spell_id).unwrap(),
+            description: data.get_localized_spell_description(expansion_id, language_id, spell_id).unwrap_or("?! ERROR ?!".to_owned()),
         })
     }
 }
