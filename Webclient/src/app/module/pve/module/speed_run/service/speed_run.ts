@@ -38,7 +38,7 @@ export class SpeedRunService {
 
     commit(): void {
         const result = this.speed_runs_internal.filter(speed_run => speed_run.map_id === this.current_map_id$ && this.current_server_ids$.includes(speed_run.server_id))
-            .sort((left, right) => right.duration - left.duration);
+            .sort((left, right) => left.duration - right.duration);
         this.speed_runs$.next(result);
     }
 
