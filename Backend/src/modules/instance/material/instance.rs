@@ -281,7 +281,7 @@ fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<V
     let mut instance_exports = instance_exports.write().unwrap();
     for instance_meta_id in instance_exports
         .iter()
-        .filter(|(_, cachable)| cachable.get_last_access() + 3600 < now)
+        .filter(|(_, cachable)| cachable.get_last_access() + 300 < now)
         .map(|(instance_meta_id, _)| *instance_meta_id)
         .collect::<Vec<(u32, u8)>>()
     {
