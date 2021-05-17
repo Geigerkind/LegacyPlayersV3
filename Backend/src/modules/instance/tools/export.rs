@@ -26,7 +26,7 @@ impl ExportInstance for Instance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure> {
         let (server_id, expired) = {
             let instance_metas = self.instance_metas.read().unwrap();
-            let instance_meta = instance_metas.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
+            let instance_meta = instance_metas.1.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
             (instance_meta.server_id, instance_meta.expired)
         };
 
@@ -108,7 +108,7 @@ impl ExportInstance for Instance {
 
     fn get_instance_meta(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure> {
         let instance_metas = self.instance_metas.read().unwrap();
-        if let Some(instance_meta) = instance_metas.get(&instance_meta_id) {
+        if let Some(instance_meta) = instance_metas.1.get(&instance_meta_id) {
             let guild = instance_meta.participants.find_instance_guild(db_main, armory, instance_meta.start_ts);
             let map_difficulty = match instance_meta.instance_specific {
                 MetaType::Raid { map_difficulty } => Some(map_difficulty),
@@ -132,7 +132,7 @@ impl ExportInstance for Instance {
 
     fn get_instance_participants(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure> {
         let instance_metas = self.instance_metas.read().unwrap();
-        if let Some(instance_meta) = instance_metas.get(&instance_meta_id) {
+        if let Some(instance_meta) = instance_metas.1.get(&instance_meta_id) {
             return Ok(instance_meta
                 .participants
                 .iter()
@@ -162,7 +162,7 @@ impl ExportInstance for Instance {
     fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure> {
         let expired = {
             let instance_metas = self.instance_metas.read().unwrap();
-            let instance_meta = instance_metas.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
+            let instance_meta = instance_metas.1.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
             instance_meta.expired
         };
 

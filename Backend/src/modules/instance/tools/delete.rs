@@ -1,4 +1,3 @@
-use crate::modules::armory::Armory;
 use crate::modules::instance::dto::InstanceFailure;
 use crate::modules::instance::Instance;
 use crate::params;
@@ -6,11 +5,11 @@ use crate::util::database::{Execute, Select};
 use std::fs;
 
 pub trait DeleteInstance {
-    fn delete_instance(&self, db_main: &mut (impl Execute + Select), armory: &Armory, instance_meta_id: u32, member_id: u32) -> Result<(), InstanceFailure>;
+    fn delete_instance(&self, db_main: &mut (impl Execute + Select), instance_meta_id: u32, member_id: u32) -> Result<(), InstanceFailure>;
 }
 
 impl DeleteInstance for Instance {
-    fn delete_instance(&self, db_main: &mut (impl Execute + Select), armory: &Armory, instance_meta_id: u32, member_id: u32) -> Result<(), InstanceFailure> {
+    fn delete_instance(&self, db_main: &mut (impl Execute + Select), instance_meta_id: u32, member_id: u32) -> Result<(), InstanceFailure> {
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set");
         let server_id: Option<u32> = db_main.select_wparams_value(
             "SELECT server_id FROM instance_meta WHERE id=:instance_meta_id",
@@ -25,7 +24,7 @@ impl DeleteInstance for Instance {
                     "member_id" => member_id
                 ),
             ) {
-                self.update_instance_meta(db_main, armory);
+                self.delete_instance_meta(instance_meta_id);
                 let _ = fs::remove_dir_all(&format!("{}/{}/{}", storage_path, server_id, instance_meta_id));
                 let _ = fs::remove_file(&format!("{}/{}/{}.zip", storage_path, server_id, instance_meta_id));
                 return Ok(());
