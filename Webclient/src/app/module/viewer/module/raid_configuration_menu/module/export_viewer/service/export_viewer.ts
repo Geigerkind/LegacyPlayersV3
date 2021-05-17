@@ -76,7 +76,7 @@ export class ExportViewerService implements OnDestroy {
         this.raidConfigurationService.update_source_filter(payload.selected_sources);
         this.raidConfigurationService.update_target_filter(payload.selected_targets);
         this.raidConfigurationService.update_ability_filter(payload.selected_abilities);
-        this.raidConfigurationService.update_time_boundaries(payload.boundaries);
+        this.raidConfigurationService.update_time_boundaries(payload.selected_boundaries);
         this.raidConfigurationService.selection_overwrite$.next({
             viewer_mode: this.viewer_mode,
             categories: new Set(payload.selected_categories),
@@ -87,11 +87,11 @@ export class ExportViewerService implements OnDestroy {
             boundaries: [payload.selected_boundaries[0], payload.selected_boundaries[1]]
         });
         this.graphDataService.overwrite_selection.next({
-           mode: payload.graph_mode,
-           data_sets: payload.graph_data_sets,
-           events: payload.graph_events,
-           source_auras: payload.graph_selected_source_auras,
-           target_auras: payload.graph_selected_target_auras
+            mode: payload.graph_mode,
+            data_sets: payload.graph_data_sets,
+            events: payload.graph_events,
+            source_auras: payload.graph_selected_source_auras,
+            target_auras: payload.graph_selected_target_auras,
         });
         for (const selection of payload.meter_selections)
             this.raidMeterExportService.meter_selections$.next(selection);

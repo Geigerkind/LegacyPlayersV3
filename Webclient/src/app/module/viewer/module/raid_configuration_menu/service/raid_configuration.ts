@@ -15,7 +15,7 @@ import {SpellService} from "../../../service/spell";
 import {DataService} from "../../../../../service/data";
 import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {ViewerMode} from "../../../domain_value/viewer_mode";
-import {ActivatedRoute, NavigationBehaviorOptions, NavigationExtras, Router} from "@angular/router";
+import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {iterable_map, iterable_some} from "../../../../../stdlib/iterable_higher_order";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import DataIntervalTree from "node-interval-tree";
@@ -120,7 +120,10 @@ export class RaidConfigurationService implements OnDestroy {
                     abilities: new Set(this.ability_filter),
                     boundaries: [this.time_boundaries[0], this.time_boundaries[1]]
                 };
-                this.router_service.navigate([this.router_service.url.split('?')[0]], { state: state, queryParams: { history_state: this.history_state++ } } as NavigationExtras);
+                this.router_service.navigate([this.router_service.url.split('?')[0]], {
+                    state: state,
+                    queryParams: {history_state: this.history_state++}
+                } as NavigationExtras);
             }
         }));
 
@@ -136,7 +139,10 @@ export class RaidConfigurationService implements OnDestroy {
                     abilities: new Set(this.ability_filter),
                     boundaries: [this.time_boundaries[0], this.time_boundaries[1]]
                 };
-                this.router_service.navigate([this.router_service.url.split('?')[0]], { state: state, queryParams: { history_state: this.history_state++ } } as NavigationExtras);
+                this.router_service.navigate([this.router_service.url.split('?')[0]], {
+                    state: state,
+                    queryParams: {history_state: this.history_state++}
+                } as NavigationExtras);
             }
         }));
 
