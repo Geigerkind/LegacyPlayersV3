@@ -9,6 +9,7 @@ import {DataService} from "../../../../../../service/data";
 import {DateService} from "../../../../../../service/date";
 import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
 import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
+import {Router} from "@angular/router";
 
 @Component({
     selector: "SpeedKill",
@@ -42,6 +43,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
         private dataService: DataService,
         private speedKillService: SpeedKillService,
         public dateService: DateService,
+        private routerService: Router
     ) {
         this.speedKillService.speed_kills.subscribe(speed_kills => {
             this.bars = [];
@@ -76,7 +78,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
     }
 
     bar_clicked(bar: [number, number]): void {
-
+        this.routerService.navigate(["/viewer/" + bar[0].toString() + "/base"]);
     }
 
     select(): void {

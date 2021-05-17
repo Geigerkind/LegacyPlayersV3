@@ -9,6 +9,7 @@ import {of, Subscription} from "rxjs";
 import {SpeedRunService} from "../../service/speed_run";
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DateService} from "../../../../../../service/date";
+import {Router} from "@angular/router";
 
 @Component({
     selector: "SpeedRun",
@@ -42,6 +43,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
         private dataService: DataService,
         private speedRunService: SpeedRunService,
         public dateService: DateService,
+        private routerService: Router
     ) {
         this.speedRunService.speed_runs.subscribe(speed_runs => {
             this.bars = [];
@@ -76,7 +78,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
     }
 
     bar_clicked(bar: [number, number]): void {
-
+        this.routerService.navigate(["/viewer/" + bar[0].toString() + "/base"]);
     }
 
     select(): void {

@@ -9,6 +9,7 @@ import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
 import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
+import {Router} from "@angular/router";
 
 @Component({
     selector: "Ranking",
@@ -228,7 +229,7 @@ export class RankingComponent implements OnInit, OnDestroy {
         private settingsService: SettingsService,
         private rankingService: RankingService,
         private dataService: DataService,
-        private tinyUrlService: TinyUrlService
+        private tinyUrlService: TinyUrlService,
     ) {
         this.subscription_rankings = this.rankingService.rankings.subscribe(entries => {
             for (const row of entries) {
@@ -288,7 +289,6 @@ export class RankingComponent implements OnInit, OnDestroy {
     }
 
     bar_clicked(bar: [number, number]): void {
-
     }
 
     select(): void {
