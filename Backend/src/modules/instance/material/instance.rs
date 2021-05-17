@@ -52,6 +52,40 @@ impl Instance {
         std::thread::spawn(move || {
             let mut armory_counter = 1;
             let mut armory = Armory::default().init(&mut db_main);
+
+            loop {
+                evict_attempts_cache(Arc::clone(&instance_attempts_arc_clone));
+                evict_export_cache(Arc::clone(&instance_exports_arc_clone));
+                update_instance_kill_attempts(Arc::clone(&instance_kill_attempts_clone), &mut db_main);
+                update_instance_metas(Arc::clone(&instance_metas_arc_clone), &mut db_main, &armory);
+                update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main);
+                update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main);
+                update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
+                calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
+                                     Arc::clone(&instance_kill_attempts_clone),
+                                     Arc::clone(&speed_runs_clone),&mut db_main, &armory);
+
+                if armory_counter % 30 == 0 {
+                    armory = Armory::default().init(&mut db_main);
+                }
+                armory_counter += 1;
+                std::thread::sleep(std::time::Duration::from_secs(15));
+            }
+        });
+        self
+    }
+
+    pub fn update_instance_meta(&self, db_main: &mut impl Select, armory: &Armory) {
+        update_instance_metas(Arc::clone(&self.instance_metas), db_main, armory);
+    }
+}
+
+fn calculate_speed_runs(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
+                        instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>,
+                        speed_runs: Arc<RwLock<Vec<SpeedRun>>>,
+                        db_main: &mut impl Select, armory: &Armory) {
+    lazy_static! {
+        static ref INSTANCE_ENCOUNTERS: HashMap<u16, Vec<u32>> = {
             let mut instance_encounters = HashMap::new();
             instance_encounters.insert(409, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
             instance_encounters.insert(249, vec![11]);
@@ -76,40 +110,10 @@ impl Instance {
             instance_encounters.insert(649, vec![128, 129, 130, 131, 132]);
             instance_encounters.insert(631, vec![133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144]);
             instance_encounters.insert(724, vec![145]);
-
-            loop {
-                evict_attempts_cache(Arc::clone(&instance_attempts_arc_clone));
-                evict_export_cache(Arc::clone(&instance_exports_arc_clone));
-                update_instance_kill_attempts(Arc::clone(&instance_kill_attempts_clone), &mut db_main);
-                update_instance_metas(Arc::clone(&instance_metas_arc_clone), &mut db_main, &armory);
-                update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main);
-                update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main);
-                update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
-                calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
-                                     Arc::clone(&instance_kill_attempts_clone),
-                                     Arc::clone(&speed_runs_clone),
-                                     &instance_encounters, &mut db_main, &armory);
-
-                if armory_counter % 30 == 0 {
-                    armory = Armory::default().init(&mut db_main);
-                }
-                armory_counter += 1;
-                std::thread::sleep(std::time::Duration::from_secs(15));
-            }
-        });
-        self
+            instance_encounters
+        };
     }
 
-    pub fn update_instance_meta(&self, db_main: &mut impl Select, armory: &Armory) {
-        update_instance_metas(Arc::clone(&self.instance_metas), db_main, armory);
-    }
-}
-
-fn calculate_speed_runs(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
-                        instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>,
-                        speed_runs: Arc<RwLock<Vec<SpeedRun>>>,
-                        instance_encounters: &HashMap<u16, Vec<u32>>,
-                        db_main: &mut impl Select, armory: &Armory) {
     let kill_attempts = instance_kill_attempts.read().unwrap();
     let instance_metas = instance_metas.read().unwrap();
     let mut speed_runs = speed_runs.write().unwrap();
@@ -120,7 +124,7 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
             continue;
         }
         let instance_meta = instance_metas.get(instance_meta_id).unwrap();
-        let has_killed_all_encounters = instance_encounters.get(&instance_meta.map_id).unwrap()
+        let has_killed_all_encounters = INSTANCE_ENCOUNTERS.get(&instance_meta.map_id).unwrap()
             .iter().all(|encounter_id| attempts.iter().any(|attempt| attempt.encounter_id == *encounter_id));
 
         if !has_killed_all_encounters {

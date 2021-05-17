@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct InstanceAttempt {
     pub attempt_id: u32,
     pub encounter_id: u32,

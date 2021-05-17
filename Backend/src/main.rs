@@ -291,7 +291,8 @@ fn main() {
                 instance::transfer::ranking::get_instance_ranking_tps,
                 instance::transfer::ranking::get_character_ranking,
                 instance::transfer::delete::delete_instance,
-                instance::transfer::speed_run::get_speed_runs
+                instance::transfer::speed_run::get_speed_runs,
+                instance::transfer::speed_kill::get_speed_kills,
             ],
         )
         .mount("/API/utility", routes_with_openapi![utility::transfer::tiny_url::get_tiny_url, utility::transfer::tiny_url::set_tiny_url])
