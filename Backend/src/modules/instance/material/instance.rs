@@ -5,7 +5,7 @@ use crate::material::Cachable;
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::instance::domain_value::{InstanceAttempt, InstanceMeta, MetaType};
-use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedRun};
+use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedRun, SpeedKill};
 use crate::params;
 use crate::util::database::Select;
 use crate::modules::instance::tools::FindInstanceGuild;
@@ -15,6 +15,7 @@ pub struct Instance {
     pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>,
     pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
     pub speed_runs: Arc<RwLock<Vec<SpeedRun>>>,
+    pub speed_kills: Arc<RwLock<Vec<SpeedKill>>>,
 
     // encounter_id => character_id => Vec<Ranking>
     pub instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>,
@@ -35,6 +36,7 @@ impl Default for Instance {
             instance_rankings_tps: Arc::new(RwLock::new((0, HashMap::new()))),
             instance_kill_attempts: Arc::new(RwLock::new((0, HashMap::new()))),
             speed_runs: Arc::new(RwLock::new(Vec::new())),
+            speed_kills: Arc::new(RwLock::new(Vec::new())),
         }
     }
 }
@@ -48,7 +50,8 @@ impl Instance {
         let instance_rankings_hps_arc_clone = Arc::clone(&self.instance_rankings_hps);
         let instance_rankings_tps_arc_clone = Arc::clone(&self.instance_rankings_tps);
         let instance_kill_attempts_clone = Arc::clone(&self.instance_kill_attempts);
-        let speed_runs_clone = Arc::clone(&self.speed_runs);
+        let speed_runs_arc_clone = Arc::clone(&self.speed_runs);
+        let speed_kills_arc_clone = Arc::clone(&self.speed_kills);
         std::thread::spawn(move || {
             let mut armory_counter = 1;
             let mut armory = Armory::default().init(&mut db_main);
@@ -63,7 +66,10 @@ impl Instance {
                 update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
                 calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
                                      Arc::clone(&instance_kill_attempts_clone),
-                                     Arc::clone(&speed_runs_clone),&mut db_main, &armory);
+                                     Arc::clone(&speed_runs_arc_clone),&mut db_main, &armory);
+                calculate_speed_kills(Arc::clone(&instance_metas_arc_clone),
+                                     Arc::clone(&instance_kill_attempts_clone),
+                                     Arc::clone(&speed_kills_arc_clone),&mut db_main, &armory);
 
                 if armory_counter % 30 == 0 {
                     armory = Armory::default().init(&mut db_main);
@@ -145,6 +151,38 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
             server_id: instance_meta.server_id,
             duration: end - start,
         });
+    }
+}
+
+fn calculate_speed_kills(instance_metas: Arc<RwLock<HashMap<u32, InstanceMeta>>>,
+                        instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>,
+                        speed_kills: Arc<RwLock<Vec<SpeedKill>>>,
+                        db_main: &mut impl Select, armory: &Armory) {
+    let kill_attempts = instance_kill_attempts.read().unwrap();
+    let instance_metas = instance_metas.read().unwrap();
+    let mut speed_kills = speed_kills.write().unwrap();
+    let already_calculated_speed_kills: Vec<u32> = speed_kills.iter().map(|speed_kill| speed_kill.attempt_id).collect();
+
+    for (instance_meta_id, attempts) in kill_attempts.1.iter() {
+        if !instance_metas.contains_key(instance_meta_id) {
+            continue;
+        }
+        let instance_meta = instance_metas.get(instance_meta_id).unwrap();
+        let (guild_id, guild_name) = instance_meta.participants
+            .find_instance_guild(db_main, armory, instance_meta.end_ts.unwrap_or(instance_meta.start_ts))
+            .map(|guild| (guild.id, guild.name)).unwrap_or((0, "Pug Raid".to_string()));
+
+        for attempt in attempts.iter().filter(|attempt| !already_calculated_speed_kills.contains(&attempt.attempt_id)) {
+            speed_kills.push(SpeedKill {
+                instance_meta_id: *instance_meta_id,
+                attempt_id: attempt.attempt_id,
+                encounter_id: attempt.encounter_id,
+                guild_id,
+                guild_name: guild_name.clone(),
+                server_id: instance_meta.server_id,
+                duration: attempt.end_ts - attempt.start_ts,
+            });
+        }
     }
 }
 
