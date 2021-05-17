@@ -8,6 +8,7 @@ const routes: Routes = [
             {path: "", loadChildren: () => import("./module/search/module").then(m => m.SearchModule)},
             {path: "ranking", loadChildren: () => import("./module/ranking/module").then(m => m.RankingModule)},
             {path: "speed_run", loadChildren: () => import("./module/speed_run/module").then(m => m.SpeedRunModule)},
+            {path: "speed_kill", loadChildren: () => import("./module/speed_kill/module").then(m => m.SpeedKillModule)},
         ]
     }
 ];

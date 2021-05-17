@@ -28,6 +28,7 @@ export class TinyUrlService {
         [8, ["/pve/ranking", "pve_ranking"]],
         [9, ["/viewer/:url_suffix", "viewer_export::instance_meta_id"]],
         [10, ["/pve/speed_run", "pve_speed_run"]],
+        [11, ["/pve/speed_kill", "pve_speed_kill"]],
     ]);
 
     private redirect_url$: Subject<string> = new Subject();

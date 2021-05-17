@@ -43,7 +43,8 @@ SettingsService {
         "character_service_basic_characters",
         "viewer_export",
         "upload_last_server",
-        "pve_speed_run"
+        "pve_speed_run",
+        "pve_speed_kill",
     ];
 
     private ignoreSettings: Array<string> = [
