@@ -195,8 +195,11 @@ impl Init for HashMap<u32, Character> {
         )
         .into_iter()
         .for_each(|result| {
-            let character = self.get_mut(&result.character_id).unwrap();
-            character.last_update = Some(result);
+            // TOCTOU currently here
+            if self.contains_key(&result.character_id) {
+                let character = self.get_mut(&result.character_id).unwrap();
+                character.last_update = Some(result);
+            }
         });
     }
 }

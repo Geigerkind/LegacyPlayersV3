@@ -90,12 +90,11 @@ impl Instance {
                                      Arc::clone(&speed_runs_clone),
                                      &instance_encounters, &mut db_main, &armory);
 
-                if armory_counter % 90 == 0 {
+                if armory_counter % 30 == 0 {
                     armory = Armory::default().init(&mut db_main);
                 }
                 armory_counter += 1;
-                std::thread::sleep(std::time::Duration::from_secs(5));
-                println!("Heart beat");
+                std::thread::sleep(std::time::Duration::from_secs(15));
             }
         });
         self

@@ -132,25 +132,25 @@ impl CharacterViewer for Armory {
                 .collect(),
             gear: CharacterViewerGearDto {
                 gear_id: character_history.character_info.gear.id,
-                head: character_history.character_info.gear.head.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                neck: character_history.character_info.gear.neck.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                shoulder: character_history.character_info.gear.shoulder.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                back: character_history.character_info.gear.back.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                chest: character_history.character_info.gear.chest.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                shirt: character_history.character_info.gear.shirt.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                tabard: character_history.character_info.gear.tabard.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                wrist: character_history.character_info.gear.wrist.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                main_hand: character_history.character_info.gear.main_hand.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                off_hand: character_history.character_info.gear.off_hand.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                ternary_hand: character_history.character_info.gear.ternary_hand.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                glove: character_history.character_info.gear.glove.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                belt: character_history.character_info.gear.belt.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                leg: character_history.character_info.gear.leg.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                boot: character_history.character_info.gear.boot.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                ring1: character_history.character_info.gear.ring1.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                ring2: character_history.character_info.gear.ring2.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                trinket1: character_history.character_info.gear.trinket1.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
-                trinket2: character_history.character_info.gear.trinket2.as_ref().map(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                head: character_history.character_info.gear.head.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                neck: character_history.character_info.gear.neck.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                shoulder: character_history.character_info.gear.shoulder.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                back: character_history.character_info.gear.back.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                chest: character_history.character_info.gear.chest.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                shirt: character_history.character_info.gear.shirt.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                tabard: character_history.character_info.gear.tabard.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                wrist: character_history.character_info.gear.wrist.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                main_hand: character_history.character_info.gear.main_hand.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                off_hand: character_history.character_info.gear.off_hand.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                ternary_hand: character_history.character_info.gear.ternary_hand.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                glove: character_history.character_info.gear.glove.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                belt: character_history.character_info.gear.belt.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                leg: character_history.character_info.gear.leg.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                boot: character_history.character_info.gear.boot.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                ring1: character_history.character_info.gear.ring1.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                ring2: character_history.character_info.gear.ring2.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                trinket1: character_history.character_info.gear.trinket1.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
+                trinket2: character_history.character_info.gear.trinket2.as_ref().and_then(|inner| character_item_to_character_item_viewer_dto(data, server.expansion_id, inner)),
             },
             profession1,
             profession2,
@@ -220,11 +220,11 @@ impl CharacterViewer for Armory {
     }
 }
 
-fn character_item_to_character_item_viewer_dto(data: &Data, expansion_id: u8, character_item: &CharacterItem) -> CharacterViewerItemDto {
-    let item = data.get_item(expansion_id, character_item.item_id).unwrap();
-    CharacterViewerItemDto {
+fn character_item_to_character_item_viewer_dto(data: &Data, expansion_id: u8, character_item: &CharacterItem) -> Option<CharacterViewerItemDto> {
+    let item = data.get_item(expansion_id, character_item.item_id)?;
+    Some(CharacterViewerItemDto {
         item_id: character_item.item_id,
         quality: item.quality,
         icon: data.get_icon(item.icon).unwrap().name,
-    }
+    })
 }
