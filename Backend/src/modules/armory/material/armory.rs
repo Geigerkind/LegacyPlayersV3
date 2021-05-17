@@ -76,7 +76,11 @@ impl Init for HashMap<u32, Character> {
             (id, timestamp, character_id)
         })
         .into_iter()
-        .for_each(|result| self.get_mut(&result.2).unwrap().history_moments.push(HistoryMoment { id: result.0, timestamp: result.1 }));
+        .for_each(|result| {
+            if self.contains_key(&result.2) {
+                self.get_mut(&result.2).unwrap().history_moments.push(HistoryMoment { id: result.0, timestamp: result.1 });
+            }
+        });
 
         // Load the actual newest character history data
         db.select(
