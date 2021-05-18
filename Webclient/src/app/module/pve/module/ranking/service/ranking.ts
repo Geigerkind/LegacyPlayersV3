@@ -44,7 +44,7 @@ export class RankingService {
     }
 
     private commit() {
-        const new_rankings = new Map<number, [RankingCharacterMeta, Array<number>]>();
+        const new_rankings = new Map<number, [RankingCharacterMeta, Array<Array<number>>]>();
         if (this.current_selection$ === 1) {
             this.current_mode_data
                 .filter(([npc_id, char_rankings]) => this.current_encounter_ids$.includes(npc_id))
@@ -53,8 +53,10 @@ export class RankingService {
                         .filter(([character_id, meta, rankings]) => this.current_server_ids$.includes(meta.server_id)
                             && this.current_hero_class_ids$.includes(meta.hero_class_id))
                         .map(([character_id, meta, rankings]) => {
-                            const best_result = rankings.reduce((best, ranking) =>
-                                Math.max(best, (ranking.amount * 1000) / ranking.duration), 0);
+                            const best_result = rankings.reduce((best, ranking) => {
+                                const ranking_result = (ranking.amount * 1000) / ranking.duration;
+                                return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id];
+                            }, [0, 0, 0]);
                             if (!new_rankings.has(character_id))
                                 new_rankings.set(character_id, [meta, []]);
                             new_rankings.get(character_id)[1].push(best_result);
@@ -63,10 +65,16 @@ export class RankingService {
         }
         this.rankings$.next([...new_rankings.entries()]
             .filter(([_character_id, [_character_meta, amounts]]) =>
-                amounts.filter(am => am > 0).length === this.current_encounter_ids$.length)
-            .map(([character_id, [character_meta, amounts]]) => {
-                const result = amounts.reduce(([count, acc], amount) => [++count, acc + amount], [0, 0]);
-                return {character_id, character_meta, amount: Number((result[1] / result[0]))};
+                amounts.filter(am => am[0] > 0).length === this.current_encounter_ids$.length)
+            .map(([character_id, [character_meta, ranking_results]]) => {
+                const result = ranking_results.reduce(([count, acc], amount) => [++count, acc + amount[0]], [0, 0]);
+                return {
+                    character_id,
+                    character_meta,
+                    amount: Number((result[1] / result[0])),
+                    instance_meta_ids: ranking_results.map(rr => rr[1]),
+                    attempt_ids: ranking_results.map(rr => rr[2])
+                };
             }).sort((left, right) => right.amount - left.amount));
     }
 

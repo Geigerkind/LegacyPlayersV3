@@ -29,6 +29,7 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     bar_subjects: Map<number, RaidMeterSubject> = new Map();
     bar_tooltips: Map<number, any> = new Map();
+    bar_meta_information: Map<number, any> = new Map();
     bars: Array<[number, number | string]> = [];
 
     modes_current_selection: number = 1;
@@ -230,6 +231,7 @@ export class RankingComponent implements OnInit, OnDestroy {
         private rankingService: RankingService,
         private dataService: DataService,
         private tinyUrlService: TinyUrlService,
+        private routerService: Router
     ) {
         this.subscription_rankings = this.rankingService.rankings.subscribe(entries => {
             for (const row of entries) {
@@ -240,6 +242,7 @@ export class RankingComponent implements OnInit, OnDestroy {
                     name: of(row.character_meta.name)
                 });
                 this.bar_tooltips.set(row.character_id, {type: 1, character_id: row.character_id});
+                this.bar_meta_information.set(row.character_id, [row.instance_meta_ids, row.attempt_ids]);
             }
             this.bars = entries.map(row => [row.character_id, row.amount]);
         });
@@ -289,6 +292,7 @@ export class RankingComponent implements OnInit, OnDestroy {
     }
 
     bar_clicked(bar: [number, number]): void {
+        this.routerService.navigate(["/viewer/" + this.bar_meta_information.get(bar[0])[0][0].toString() + "/base"]);
     }
 
     select(): void {
