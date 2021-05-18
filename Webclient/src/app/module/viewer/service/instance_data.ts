@@ -10,6 +10,7 @@ import {Rechenknecht} from "../tool/rechenknecht";
 import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {LoadingBarService} from "../../../service/loading_bar";
 import {debounceTime} from "rxjs/operators";
+import {CommunicationEvent} from "../domain_value/communication_event";
 
 @Injectable({
     providedIn: "root",
@@ -56,6 +57,8 @@ export class InstanceDataService implements OnDestroy {
 
     private current_intervals: Array<[number, number]> = [];
     private boundaries: [number, number] = [0, 1];
+
+    communicator: Subject<[CommunicationEvent, any]> = new Subject();
 
     constructor(
         private apiService: APIService,

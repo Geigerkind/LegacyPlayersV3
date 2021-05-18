@@ -10,6 +10,7 @@ import {EventAbility} from "../../domain_value/event_ability";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
 import {ExportViewerService} from "../../module/export_viewer/service/export_viewer";
 import {InstanceDataService} from "../../../../service/instance_data";
+import {CommunicationEvent} from "../../../../domain_value/communication_event";
 
 @Component({
     selector: "RaidConfigurationMenu",
@@ -135,6 +136,15 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             this.time_slider_start_reference = stack_item.boundaries[0];
             this.time_slider_end_reference = stack_item.boundaries[1];
         });
+
+        this.subscription_overwrite.add(this.instanceDataService.communicator.subscribe(([com_event, payload]) => {
+            if (com_event === CommunicationEvent.GraphBoundaries) {
+                const time_frame = this.time_slider_end_reference - this.time_slider_start_reference;
+                this.time_slider_end_reference = this.time_slider_start_reference + payload[1] * time_frame;
+                this.time_slider_start_reference = this.time_slider_start_reference + payload[0] * time_frame;
+                this.raidConfigurationService.update_time_boundaries([this.time_slider_start_reference, this.time_slider_end_reference], true);
+            }
+        }));
 
         this.instanceDataService.meta.subscribe(meta => {
             if (!!meta)

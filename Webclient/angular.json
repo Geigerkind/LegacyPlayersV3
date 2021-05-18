@@ -35,6 +35,8 @@
                         "scripts": [],
                         "allowedCommonJsDependencies": [
                             "chart.js",
+                            "hammerjs",
+                            "chartjs-plugin-zoom",
                             "node-interval-tree"
                         ],
                         "webWorkerTsConfig": "tsconfig.worker.json",

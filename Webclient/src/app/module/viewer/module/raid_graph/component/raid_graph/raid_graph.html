@@ -19,15 +19,16 @@
     <div class="question_mark" [showTooltip]="tooltip">?</div>
 </div>
 <div class="graph_container" *ngIf="this.chartDataSets.length > 0">
-    <canvas baseChart
-            [datasets]="chartDataSets"
-            [labels]="chartLabels"
-            [options]="chartOptions"
-            [colors]="chartColors"
-            chartType="line"
-            [plugins]="chartPlugins"
-            (chartHover)="chartHovered($event)"
-            (chartClick)="chartClicked($event)">
+    <canvas
+        id="graph_cont"
+        baseChart
+        [datasets]="chartDataSets"
+        [labels]="chartLabels"
+        [options]="chartOptions"
+        [colors]="chartColors"
+        chartType="line"
+        (chartHover)="chartHovered($event)"
+        (chartClick)="chartClicked($event)">
     </canvas>
 </div>
 <div class="aura_uptime_container" *ngIf="selectedSourceAbilities.length > 0">

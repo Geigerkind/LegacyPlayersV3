@@ -19,6 +19,7 @@ import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {iterable_map, iterable_some} from "../../../../../stdlib/iterable_higher_order";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import DataIntervalTree from "node-interval-tree";
+import {CommunicationEvent} from "../../../domain_value/communication_event";
 
 export interface FilterStackItem {
     viewer_mode: ViewerMode;

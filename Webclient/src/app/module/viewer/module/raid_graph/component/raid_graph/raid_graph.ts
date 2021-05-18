@@ -15,6 +15,8 @@ import {UnitService} from "../../../../service/unit";
 import {CONST_UNKNOWN_LABEL} from "../../../../constant/viewer";
 import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
 import {DataService} from "../../../../../../service/data";
+import "chartjs-plugin-zoom";
+import {CommunicationEvent} from "../../../../domain_value/communication_event";
 
 @Component({
     selector: "RaidGraph",
@@ -25,6 +27,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
 
     private subscription: Subscription;
     private subscription_events: Subscription;
+    private zoom_boundaries = [undefined, undefined];
 
     chartDataSets: Array<ChartDataSets> = [];
     chartLabels: any = [];
@@ -82,6 +85,22 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         },
         animation: {
             duration: 0
+        },
+        plugins: {
+            zoom: {
+                zoom: {
+                    enabled: true,
+                    drag: true,
+                    mode: 'x',
+                    sensitivity: 1,
+                    onZoomComplete: () => {
+                        if (!!this.zoom_boundaries[0] && !!this.zoom_boundaries[1]) {
+                            this.instanceDataService.communicator.next([CommunicationEvent.GraphBoundaries, [...this.zoom_boundaries]]);
+                            this.zoom_boundaries = [undefined, undefined];
+                        }
+                    }
+                }
+            }
         }
     };
 
@@ -136,7 +155,6 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             borderColor: '#c7735d',
         }
     ];
-    chartPlugins = [];
 
     dataSets = [
         {id: DataSet.DamageDone, label: "Damage done"},
@@ -274,6 +292,30 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
 
             this.graph_min = Math.min(...x_axis);
             this.graph_max = Math.max(...x_axis);
+
+            setTimeout(() => {
+                const canvas = window.document.getElementById("graph_cont");
+                if (!!canvas && !canvas.onmousemove) {
+                    let chart;
+                    for (let i = (canvas as any).__ngContext__.length - 1; i >= 0; --i) {
+                        if (!!(canvas as any).__ngContext__[i].chart) {
+                            chart = (canvas as any).__ngContext__[i].chart;
+                            break;
+                        }
+                    }
+
+                    if (!!chart) {
+                        canvas.addEventListener("mousemove", () => {
+                            const offset_left = chart.scales["x-axis-0"].left;
+                            const offset_right = chart.scales["x-axis-0"].right;
+                            if (!!chart.$zoom._dragZoomStart)
+                                this.zoom_boundaries[0] = Math.max(0, chart.$zoom._dragZoomStart.layerX - offset_left) / offset_right;
+                            if (!!chart.$zoom._dragZoomEnd)
+                                this.zoom_boundaries[1] = Math.min(offset_right, chart.$zoom._dragZoomEnd.layerX) / offset_right;
+                        });
+                    }
+                }
+            }, 1000);
         });
         this.subscription.add(this.graphDataService.source_abilities.subscribe(abilities => this.sourceAbilities = abilities));
         this.subscription.add(this.graphDataService.target_abilities.subscribe(abilities => this.targetAbilities = abilities));
@@ -400,7 +442,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     private fit_data_to_x_axis(x_axis, data_x, data_y): Array<number> {
         const result_y = Array(x_axis.length).fill(0);
         let data_count = 0;
-        for (let i=0; i<x_axis.length - 1; ++i) {
+        for (let i = 0; i < x_axis.length - 1; ++i) {
             if (x_axis[i + 1] > data_x[data_count]) {
                 result_y[i] = data_y[data_count++];
             }
