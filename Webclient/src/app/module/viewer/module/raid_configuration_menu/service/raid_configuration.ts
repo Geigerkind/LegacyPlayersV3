@@ -330,13 +330,14 @@ export class RaidConfigurationService implements OnDestroy {
         // TODO: Optimize!
         for (const source of sources)
             result.push(combineLatest([this.unitService.get_unit_name(source, this.current_meta.end_ts ?? this.current_meta.start_ts),
-                this.unitService.is_unit_boss(source)])
-                .pipe(map(([label, is_boss]) => {
+                this.unitService.is_unit_boss(source), this.unitService.get_unit_hero_class_id(source, this.current_meta.end_ts ?? this.current_meta.start_ts)])
+                .pipe(map(([label, is_boss, hero_class_id]) => {
                     return {
                         id: get_unit_id(source, false),
                         label,
                         is_player: is_player(source, false),
-                        is_boss
+                        is_boss,
+                        hero_class_id
                     };
                 })));
         zip(...result).pipe(takeUntil(this.nextSources.asObservable())).subscribe(update => this.sources$.next(update));
@@ -348,13 +349,14 @@ export class RaidConfigurationService implements OnDestroy {
         // TODO: Optimize!
         for (const target of targets)
             result.push(combineLatest([this.unitService.get_unit_name(target, this.current_meta.end_ts ?? this.current_meta.start_ts),
-                this.unitService.is_unit_boss(target)])
-                .pipe(map(([label, is_boss]) => {
+                this.unitService.is_unit_boss(target), this.unitService.get_unit_hero_class_id(target, this.current_meta.end_ts ?? this.current_meta.start_ts)])
+                .pipe(map(([label, is_boss, hero_class_id]) => {
                     return {
                         id: get_unit_id(target, false),
                         label,
                         is_player: is_player(target, false),
-                        is_boss
+                        is_boss,
+                        hero_class_id
                     };
                 })));
         zip(...result).pipe(takeUntil(this.nextTargets.asObservable())).subscribe(update => this.targets$.next(update));

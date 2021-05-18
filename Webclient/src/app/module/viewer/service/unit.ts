@@ -30,6 +30,17 @@ export class UnitService {
         this.expansion_id$ = expansion_id;
     }
 
+    get_unit_hero_class_id(unit: Unit, timestamp: number): Observable<number> {
+        if (!!unit) {
+            if (is_player(unit, false)) {
+                return this.characterService
+                    .get_basic_character_by_id(get_unit_id(unit, false), timestamp)
+                    .pipe(map(character => character.hero_class_id));
+            }
+        }
+        return of(0);
+    }
+
     get_unit_bg_color(unit: Unit, timestamp: number): Observable<string> {
         if (!!unit) {
             if (is_player(unit, false)) {

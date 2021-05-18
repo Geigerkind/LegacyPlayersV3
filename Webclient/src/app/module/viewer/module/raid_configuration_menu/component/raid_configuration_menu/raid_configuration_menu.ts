@@ -50,16 +50,56 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     sources_additional_button: Array<AdditionalButton> = [
         {
-            id: 1, label: "All Players", list_selection_callback: (button, selected_list, current_list, checked) =>
+            id: -1, label: "All Players", list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_player)
         },
         {
-            id: 2, label: "All Creatures", list_selection_callback: (button, selected_list, current_list, checked) =>
+            id: -2, label: "All Creatures", list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => !item.is_player)
         },
         {
-            id: 3, label: "All Bosses", list_selection_callback: (button, selected_list, current_list, checked) =>
+            id: -3, label: "All Bosses", list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_boss)
+        },
+        {
+            id: -4, label: "All Warriors", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 1)
+        },
+        {
+            id: -5, label: "All Paladins", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 2)
+        },
+        {
+            id: -6, label: "All Hunter", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 3)
+        },
+        {
+            id: -7, label: "All Rogues", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 4)
+        },
+        {
+            id: -8, label: "All Priests", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 5)
+        },
+        {
+            id: -9, label: "All Death Knights", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 6)
+        },
+        {
+            id: -10, label: "All Shamans", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 7)
+        },
+        {
+            id: -11, label: "All Mages", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 8)
+        },
+        {
+            id: -12, label: "All Warlocks", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 9)
+        },
+        {
+            id: -13, label: "All Druids", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 11)
         },
     ];
 
@@ -232,6 +272,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 label: source.label.toString(),
                 is_player: source.is_player,
                 is_boss: source.is_boss,
+                hero_class_id: source.hero_class_id
             };
             new_list_items.push(list_item);
             if (this.use_default_filter_sources && source.is_player)
@@ -260,6 +301,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 label: target.label.toString(),
                 is_player: target.is_player,
                 is_boss: target.is_boss,
+                hero_class_id: target.hero_class_id
             };
             new_list_items.push(list_item);
 
@@ -293,7 +335,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
             if (this.use_default_filter_abilities)
                 new_selected_items.push(list_item);
-
         }
 
         if (!this.use_default_filter_abilities) {
