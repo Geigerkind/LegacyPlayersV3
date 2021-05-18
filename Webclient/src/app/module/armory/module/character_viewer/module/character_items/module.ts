@@ -16,7 +16,7 @@ import {RouterModule} from "@angular/router";
         IconModule,
         ItemIconModule,
         SelectInputModule,
-        RouterModule
+        RouterModule,
     ],
     exports: [CharacterItemsComponent]
 })

@@ -1,6 +1,6 @@
 <div class="talent_navbar">
-    <SelectInput [value]="selected_expansion" (valueChange)="expansionChanged($event)" [options]="expansions"></SelectInput>
-    <SelectInput [value]="selected_hero_class" (valueChange)="heroClassChanged($event)" [options]="hero_classes"></SelectInput>
+    <SelectInput [value]="selected_expansion" (valueChange)="expansionChanged($event)" [options]="expansions" [themed]="true"></SelectInput>
+    <SelectInput [value]="selected_hero_class" (valueChange)="heroClassChanged($event)" [options]="hero_classes" [themed]="true"></SelectInput>
     <span>{{points_spend}}/{{pointsPerExpansion}}</span>
 </div>
 <div class="talent_container">
