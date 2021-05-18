@@ -92,6 +92,8 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             this.selected_items_sources = this.list_items_sources.filter(item => stack_item.sources.has(item.id));
             this.selected_items_targets = this.list_items_targets.filter(item => stack_item.targets.has(item.id));
             this.selected_items_abilities = this.list_items_abilities.filter(item => stack_item.abilities.has(item.id));
+            this.time_slider_start_reference = stack_item.boundaries[0];
+            this.time_slider_end_reference = stack_item.boundaries[1];
         });
 
         this.instanceDataService.meta.subscribe(meta => {
