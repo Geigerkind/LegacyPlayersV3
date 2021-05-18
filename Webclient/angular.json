@@ -22,7 +22,6 @@
                         "main": "src/main.ts",
                         "polyfills": "src/polyfills.ts",
                         "tsConfig": "tsconfig.app.json",
-                        "aot": true,
                         "assets": [
                             "src/favicon.ico",
                             "src/assets",
@@ -38,17 +37,20 @@
                             "chart.js",
                             "node-interval-tree"
                         ],
-                        "webWorkerTsConfig": "tsconfig.worker.json"
+                        "webWorkerTsConfig": "tsconfig.worker.json",
+                        "vendorChunk": true,
+                        "extractLicenses": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "optimization": false,
+                        "namedChunks": true
                     },
                     "configurations": {
                         "production": {
                             "optimization": true,
                             "outputHashing": "bundles",
                             "sourceMap": false,
-                            "namedChunks": true,
-                            "aot": true,
                             "extractLicenses": true,
-                            "vendorChunk": true,
                             "buildOptimizer": true,
                             "budgets": [
                                 {
