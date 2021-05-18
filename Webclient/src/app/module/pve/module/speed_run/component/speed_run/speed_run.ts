@@ -48,9 +48,11 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
         this.speedRunService.speed_runs.subscribe(speed_runs => {
             this.bars = [];
             for (const speed_run of speed_runs) {
-                this.bar_tooltips.set(speed_run.instance_meta_id, { type: 3, guild_id: speed_run.guild_id });
-                this.bar_subjects.set(speed_run.instance_meta_id, { id: speed_run.guild_id, name: of(speed_run.guild_name),
-                    color_class: of("hero_class_bg_1"), icon: of("/assets/wow_icon/inv_misc_questionmark.jpg") } as RaidMeterSubject);
+                this.bar_tooltips.set(speed_run.instance_meta_id, {type: 3, guild_id: speed_run.guild_id});
+                this.bar_subjects.set(speed_run.instance_meta_id, {
+                    id: speed_run.guild_id, name: of(speed_run.guild_name),
+                    color_class: of("hero_class_bg_1"), icon: of("/assets/wow_icon/inv_misc_questionmark.jpg")
+                } as RaidMeterSubject);
                 this.bars.push([speed_run.instance_meta_id, speed_run.duration]);
             }
         });
@@ -58,9 +60,10 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscriptions = this.dataService.servers.subscribe(servers => {
-            this.servers = servers.map(server => {
-                return {id: server.id, label: server.name + " (" + server.patch + ")"};
-            });
+            this.servers = servers.sort((left, right) => left.expansion_id - right.expansion_id)
+                .map(server => {
+                    return {id: server.id, label: server.name + " (" + server.patch + ")"};
+                });
             this.finished_loading[0] = servers.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         });

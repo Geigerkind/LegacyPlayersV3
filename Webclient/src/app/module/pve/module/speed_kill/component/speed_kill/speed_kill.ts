@@ -48,9 +48,11 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
         this.speedKillService.speed_kills.subscribe(speed_kills => {
             this.bars = [];
             for (const speed_kill of speed_kills) {
-                this.bar_tooltips.set(speed_kill.instance_meta_id, { type: 3, guild_id: speed_kill.guild_id });
-                this.bar_subjects.set(speed_kill.instance_meta_id, { id: speed_kill.guild_id, name: of(speed_kill.guild_name),
-                    color_class: of("hero_class_bg_1"), icon: of("/assets/wow_icon/inv_misc_questionmark.jpg") } as RaidMeterSubject);
+                this.bar_tooltips.set(speed_kill.instance_meta_id, {type: 3, guild_id: speed_kill.guild_id});
+                this.bar_subjects.set(speed_kill.instance_meta_id, {
+                    id: speed_kill.guild_id, name: of(speed_kill.guild_name),
+                    color_class: of("hero_class_bg_1"), icon: of("/assets/wow_icon/inv_misc_questionmark.jpg")
+                } as RaidMeterSubject);
                 this.bars.push([speed_kill.instance_meta_id, speed_kill.duration]);
             }
         });
@@ -58,16 +60,18 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscriptions = this.dataService.servers.subscribe(servers => {
-            this.servers = servers.map(server => {
-                return {id: server.id, label: server.name + " (" + server.patch + ")"};
-            });
+            this.servers = servers.sort((left, right) => left.expansion_id - right.expansion_id)
+                .map(server => {
+                    return {id: server.id, label: server.name + " (" + server.patch + ")"};
+                });
             this.finished_loading[0] = servers.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         });
         this.subscriptions.add(this.dataService.encounters.subscribe(encounters => {
-            this.encounters = encounters.map(encounter => {
-                return {value: encounter.base.id, label_key: encounter.localization};
-            });
+            this.encounters = encounters.sort((left, right) => left.base.map_id - right.base.map_id)
+                .map(encounter => {
+                    return {value: encounter.base.id, label_key: encounter.localization};
+                });
             this.finished_loading[1] = encounters.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         }));

@@ -250,9 +250,10 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscription_servers = this.dataService.servers.subscribe(servers => {
-            this.servers = servers.map(server => {
-                return {id: server.id, label: server.name + " (" + server.patch + ")"};
-            });
+            this.servers = servers.sort((left, right) => left.expansion_id - right.expansion_id)
+                .map(server => {
+                    return {id: server.id, label: server.name + " (" + server.patch + ")"};
+                });
             this.finished_loading[0] = servers.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         });
