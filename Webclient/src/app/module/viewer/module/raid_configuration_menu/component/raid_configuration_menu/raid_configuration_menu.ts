@@ -146,6 +146,16 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
 
     private update_additional_segment_buttons(): void {
         const additional_button = [];
+        additional_button.push({
+            id: -1, label: "All Kill Attempts", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_kill)
+        });
+
+        additional_button.push({
+            id: -2, label: "All Wipe Attempts", list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => !item.is_kill)
+        });
+
         for (const cat_item of this.selected_items_categories) {
             additional_button.push({
                 id: cat_item.id,
