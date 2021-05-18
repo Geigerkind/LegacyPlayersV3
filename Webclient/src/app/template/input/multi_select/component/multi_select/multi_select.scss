@@ -24,6 +24,7 @@ ng-multiselect-dropdown {
                 span:last-child {
                     margin-left: auto;
                     display: flex;
+                    margin-right: 12px;
 
                     span:last-child {
                         margin-top: 5px;
@@ -51,6 +52,10 @@ ng-multiselect-dropdown {
                         &:hover {
                             color: $highlight !important;
                         }
+                    }
+
+                    &:hover {
+                        background: lighten($tdc_darker, 3%) !important;
                     }
                 }
             }
