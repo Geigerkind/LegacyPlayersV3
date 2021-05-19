@@ -4,7 +4,7 @@ if [ "${MYSQL_UP}" -le 1 ]; then
 fi
 
 DB_PASSWORD=$(cat /root/Keys/db_password)
-OFFSET=$((cat /root/DB_BACKUPS/current_offset))
+OFFSET=$(($(cat /root/DB_BACKUPS/current_offset)))
 LOG_1_PREV=${OFFSET}
 LOG_1_NEXT=$((OFFSET + 1))
 LOG_2_PREV=$((OFFSET + 6))
