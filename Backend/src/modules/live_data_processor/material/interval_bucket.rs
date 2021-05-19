@@ -32,13 +32,17 @@ impl Bucket {
 
     pub fn find_within_range(&self, start: i64, end: i64) -> Vec<(u64, i64, i64)> {
         if start <= self.start && end >= self.end {
-            return self.content.keys().map(|key| (*key, start, end)).collect();
-        } else if self.start < start {
-            return self.content.iter().filter_map(|(unique_id, intervals)| intervals.iter()
-                .find(|(_, end)| *end >= start).map(|(start, end)| (*unique_id, *start, *end))).collect();
+            self.content.keys().map(|key| (*key, start, end)).collect()
+        } else if self.start <= start && end >= self.end {
+            self.content.iter().filter_map(|(unique_id, intervals)| intervals.iter()
+                .find(|(_, end)| *end >= start).map(|(start, end)| (*unique_id, *start, *end))).collect()
+        } else if start <= self.start && self.end >= end {
+            self.content.iter().filter_map(|(unique_id, intervals)| intervals.iter()
+                .find(|(start, _)| *start <= end).map(|(start, end)| (*unique_id, *start, *end))).collect()
+        } else {
+            self.content.iter().filter_map(|(unique_id, intervals)| intervals.iter()
+                .find(|(i_start, i_end)| *i_start <= end && *i_end >= start).map(|(start, end)| (*unique_id, *start, *end))).collect()
         }
-        self.content.iter().filter_map(|(unique_id, intervals)| intervals.iter()
-            .find(|(start, _)| *start <= end).map(|(start, end)| (*unique_id, *start, *end))).collect()
     }
 }
 
@@ -97,7 +101,7 @@ impl<T: UniqueBucketId> IntervalBucket<T> {
             for (unique_id, start, end) in self.buckets[bucket_index].find_within_range(start, end) {
                 let entry = result.entry(unique_id).or_insert((start, end));
                 entry.0 = entry.0.min(start);
-                entry.1 = entry.1.min(end);
+                entry.1 = entry.1.max(end);
             }
         }
         result.iter().fold(Vec::with_capacity(result.len()), |mut acc, (unique_id, (start, end))| {

@@ -18,7 +18,7 @@ import {ViewerMode} from "../../../domain_value/viewer_mode";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {iterable_map, iterable_some} from "../../../../../stdlib/iterable_higher_order";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
-import DataIntervalTree from "node-interval-tree";
+import {IntervalBucket} from "../../../../../stdlib/interval_bucket";
 
 export interface FilterStackItem {
     viewer_mode: ViewerMode;
@@ -39,9 +39,9 @@ export class RaidConfigurationService implements OnDestroy {
 
     private current_meta: InstanceViewerMeta;
 
-    private current_source_intervals: DataIntervalTree<number> = new DataIntervalTree();
-    private current_target_intervals: DataIntervalTree<number> = new DataIntervalTree();
-    private current_ability_intervals: DataIntervalTree<number> = new DataIntervalTree();
+    private current_source_intervals: IntervalBucket = new IntervalBucket(0, 1, 1);
+    private current_target_intervals: IntervalBucket = new IntervalBucket(0, 1, 1);
+    private current_ability_intervals: IntervalBucket = new IntervalBucket(0, 1, 1);
 
     private current_source_map: Map<number, Unit> = new Map();
     private current_target_map: Map<number, Unit> = new Map();
@@ -399,19 +399,19 @@ export class RaidConfigurationService implements OnDestroy {
     private update_filter(): void {
         const sources = new Set();
         for (const [start, end] of this.current_filtered_intervals) {
-            for (const source_id of this.current_source_intervals.search(start, end))
+            for (const [source_id] of this.current_source_intervals.find_within_range(start, end))
                 sources.add(source_id);
         }
 
         const targets = new Set();
         for (const [start, end] of this.current_filtered_intervals) {
-            for (const target_id of this.current_target_intervals.search(start, end))
+            for (const [target_id] of this.current_target_intervals.find_within_range(start, end))
                 targets.add(target_id);
         }
 
         const abilities: Set<number> = new Set();
         for (const [start, end] of this.current_filtered_intervals) {
-            for (const ability_id of this.current_ability_intervals.search(start, end))
+            for (const [ability_id] of this.current_ability_intervals.find_within_range(start, end))
                 if (iterable_some(this.current_ability_map.get(ability_id).values(), (evt_type) => this.current_event_types.has(evt_type)))
                     abilities.add(ability_id);
         }
@@ -450,7 +450,9 @@ export class RaidConfigurationService implements OnDestroy {
         ability_prom.push([this.instanceDataService.knecht_aura.get_abilities(), [6]]);
 
         // Performance: Adding it here initially is extremely expensive!
-        const source_intervals = new DataIntervalTree<number>();
+
+
+        const source_intervals = new IntervalBucket(this.current_meta.start_ts, this.current_meta.end_ts, 180000);
         for (const [prom] of source_prom) {
             const subjects = await prom;
             for (const [subject_id, [subject, intervals]] of subjects) {
@@ -462,7 +464,7 @@ export class RaidConfigurationService implements OnDestroy {
         }
         this.current_source_intervals = source_intervals;
 
-        const target_intervals = new DataIntervalTree<number>();
+        const target_intervals = new IntervalBucket(this.current_meta.start_ts, this.current_meta.end_ts, 180000);
         for (const [prom] of target_prom) {
             const subjects = await prom;
             for (const [subject_id, [subject, intervals]] of subjects) {
@@ -474,7 +476,7 @@ export class RaidConfigurationService implements OnDestroy {
         }
         this.current_target_intervals = target_intervals;
 
-        const ability_intervals = new DataIntervalTree<number>();
+        const ability_intervals = new IntervalBucket(this.current_meta.start_ts, this.current_meta.end_ts, 180000);
         for (const [prom, evt_types] of ability_prom) {
             const subjects = await prom;
             for (const [subject_id, [_, intervals]] of subjects) {
