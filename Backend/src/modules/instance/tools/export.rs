@@ -13,7 +13,6 @@ use crate::util::database::Select;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use std::time::Instant;
 
 pub trait ExportInstance {
     fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<String>, InstanceFailure>;
