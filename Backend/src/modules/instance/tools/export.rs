@@ -13,17 +13,17 @@ use crate::util::database::Select;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use std::str::FromStr;
+use std::time::Instant;
 
 pub trait ExportInstance {
-    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure>;
+    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<String>, InstanceFailure>;
     fn get_instance_meta(&self, db_main: &mut impl Select, data: &Data, armory: &Armory, instance_meta_id: u32) -> Result<InstanceViewerMeta, InstanceFailure>;
     fn get_instance_participants(&self, db_main: &mut impl Select, armory: &Armory, instance_meta_id: u32) -> Result<Vec<InstanceViewerParticipant>, InstanceFailure>;
     fn get_instance_attempts(&self, db_main: &mut impl Select, instance_meta_id: u32) -> Result<Vec<InstanceViewerAttempt>, InstanceFailure>;
 }
 
 impl ExportInstance for Instance {
-    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<(u32, String)>, InstanceFailure> {
+    fn export_instance_event_type(&self, instance_meta_id: u32, event_type: u8) -> Result<Vec<String>, InstanceFailure> {
         let (server_id, expired) = {
             let instance_metas = self.instance_metas.read().unwrap();
             let instance_meta = instance_metas.1.get(&instance_meta_id).ok_or(InstanceFailure::InvalidInput)?;
@@ -67,12 +67,7 @@ impl ExportInstance for Instance {
                 let mut content = String::with_capacity(file.size() as usize);
                 let read_result = file.read_to_string(&mut content);
                 if read_result.is_ok() {
-                    let mut events = Vec::with_capacity(50000);
-                    for segment in content.lines() {
-                        let id = u32::from_str(&segment[1..segment.find(',').expect("Must exist if data is not broken")]).expect("First element is the id");
-                        events.push((id, segment.to_owned()));
-                    }
-                    instance_exports.insert((instance_meta_id, evt_type), Cachable::new(events));
+                    instance_exports.insert((instance_meta_id, evt_type), Cachable::new(content.lines().into_iter().map(|itm| itm.to_owned()).collect::<Vec<String>>()));
                 } else {
                     instance_exports.insert((instance_meta_id, evt_type), Cachable::new(Vec::new()));
                 }
@@ -86,21 +81,6 @@ impl ExportInstance for Instance {
 
             if let Some(cached) = instance_exports.get(&(instance_meta_id, event_type)) {
                 return Ok(cached.get_cached());
-            }
-        } else {
-            let event_path = format!("{}/{}/{}/{}", storage_path, server_id, instance_meta_id, event_type);
-            if let Ok(file_content) = std::fs::read_to_string(event_path) {
-                let lines = file_content.lines().collect::<Vec<&str>>();
-                let mut events = Vec::with_capacity(lines.len());
-                for segment in lines {
-                    let id = u32::from_str(&segment[1..segment.find(',').expect("Must exist if data is not broken")]).expect("First element is the id");
-                    events.push((id, segment.to_owned()));
-                }
-
-                let mut instance_exports = self.instance_exports.write().unwrap();
-                instance_exports.insert((instance_meta_id, event_type), Cachable::new(events.clone()));
-
-                return Ok(events);
             }
         }
         Ok(vec![])

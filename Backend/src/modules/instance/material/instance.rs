@@ -12,7 +12,7 @@ use crate::modules::instance::tools::FindInstanceGuild;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
-    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>,
+    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<String>>>>>,
     pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
     pub speed_runs: Arc<RwLock<Vec<SpeedRun>>>,
     pub speed_kills: Arc<RwLock<Vec<SpeedKill>>>,
@@ -319,7 +319,7 @@ fn evict_attempts_cache(instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<
     }
 }
 
-fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>) {
+fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<String>>>>>) {
     let now = time_util::now();
     let mut instance_exports = instance_exports.write().unwrap();
     for instance_meta_id in instance_exports

@@ -24,8 +24,8 @@ import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
-    private static readonly BATCH_SIZE: number = 50000;
-    private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/:instance_meta_id/:event_type/:last_event_id";
+    private static readonly BATCH_SIZE: number = 5000000;
+    private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/events/:instance_meta_id/:event_type";
 
     public spell_casts: Array<Event> = [];
     public aura_applications: Array<Event> = [];
@@ -195,9 +195,7 @@ export class InstanceDataLoader {
                 this.new_data_event_types.add(event_type);
                 this.newData$.next();
             }
-            if (result.length < InstanceDataLoader.BATCH_SIZE)
-                resolve();
-            else setTimeout(() => load_non_blocking(resolve), 100);
+            resolve();
         };
         return new Promise<void>((resolve, reject) => load_non_blocking(resolve));
     }
@@ -205,7 +203,6 @@ export class InstanceDataLoader {
     private async load_instance_data(event_type: number, last_event_id: number): Promise<Array<Event>> {
         return await (await fetch(InstanceDataLoader.INSTANCE_EXPORT_URL
             .replace(":instance_meta_id", this.instance_meta_id.toString())
-            .replace(":event_type", event_type.toString())
-            .replace(":last_event_id", last_event_id.toString()))).json();
+            .replace(":event_type", event_type.toString()))).json();
     }
 }
