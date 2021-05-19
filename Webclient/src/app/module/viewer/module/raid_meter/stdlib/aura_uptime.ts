@@ -91,79 +91,68 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
 }
 
 export function flatten_aura_uptime_to_spell_map(data: Array<[number, Array<[number, Array<[number, number]>]>]>): Array<[number, Array<[number, number]>]> {
-    const result = [];
     const ability_intervals = new Map<number, Array<[number, number]>>();
     for (const [unit_id, abilities] of data) {
-        // @ts-ignore
         for (const [spell_id, intervals] of abilities) {
-            // @ts-ignore
             if (!ability_intervals.has(spell_id)) ability_intervals.set(spell_id, intervals);
-            else { // @ts-ignore
-                ability_intervals.set(spell_id, [...ability_intervals.get(spell_id), ...intervals]);
+            else {
+                const ab_intervals = ability_intervals.get(spell_id);
+                ab_intervals.push(...intervals);
             }
         }
     }
-    // @ts-ignore
+    const result = Array(ability_intervals.size);
+    let arr_count = 0;
     for (let [spell_id, intervals] of ability_intervals) {
-        intervals = intervals.sort((left, right) => left[1] - right[1]);
-        let previous_intervals = [intervals[0]];
-        for (let i = 1; i < intervals.length; ++i) {
-            let current_interval = intervals[i];
-            let new_intervals = [];
-            for (let m = previous_intervals.length - 1; m >= 0; --m) {
-                const previous_interval = previous_intervals[m];
-                if (previous_interval[1] < current_interval[0]) {
-                    new_intervals = previous_intervals;
-                    new_intervals.push(current_interval);
-                    break;
-                } else {
-                    const new_interval: [number, number] = [previous_interval[0], current_interval[1]];
-                    new_intervals.push(new_interval);
-                    current_interval = new_interval;
-                }
+        intervals = intervals.sort((left, right) => left[0] - right[0]);
+        const consolidated_intervals = [[intervals[0][0], intervals[0][1]]];
+        let cons_int_count = 0;
+        for (let i=1; i<intervals.length; ++i) {
+            const [start, end] = intervals[i];
+            const [c_start, c_end] = consolidated_intervals[cons_int_count];
+            if (c_start >= end || c_end >= start) {
+                consolidated_intervals[cons_int_count][0] = Math.min(consolidated_intervals[cons_int_count][0], start);
+                consolidated_intervals[cons_int_count][1] = Math.max(consolidated_intervals[cons_int_count][1], end);
+            } else {
+                consolidated_intervals.push([start, end]);
+                ++cons_int_count;
             }
-            previous_intervals = new_intervals.sort((left, right) => left[1] - right[1]);
         }
-        result.push([spell_id, previous_intervals]);
+        result[arr_count++] = [spell_id, consolidated_intervals];
     }
     return result;
 }
 
 export function flatten_aura_uptime_to_subject_map(data: Array<[number, Array<[number, Array<[number, number]>]>]>): Array<[number, Array<[number, number]>]> {
-    const result = [];
     const unit_intervals = new Map<number, Array<[number, number]>>();
     for (const [unit_id, abilities] of data) {
-        // @ts-ignore
         for (const [spell_id, intervals] of abilities) {
-            // @ts-ignore
             if (!unit_intervals.has(unit_id)) unit_intervals.set(unit_id, intervals);
-            else { // @ts-ignore
-                unit_intervals.set(unit_id, [...unit_intervals.get(unit_id), ...intervals]);
+            else {
+                const intervals = unit_intervals.get(unit_id);
+                intervals.push(...intervals);
             }
         }
     }
-    // @ts-ignore
+
+    const result = Array(unit_intervals.size);
+    let arr_count = 0;
     for (let [unit_id, intervals] of unit_intervals) {
-        intervals = intervals.sort((left, right) => left[1] - right[1]);
-        let previous_intervals = [intervals[0]];
-        for (let i = 1; i < intervals.length; ++i) {
-            let current_interval = intervals[i];
-            let new_intervals = [];
-            for (let m = previous_intervals.length - 1; m >= 0; --m) {
-                const previous_interval = previous_intervals[m];
-                if (previous_interval[1] < current_interval[0]) {
-                    new_intervals = previous_intervals;
-                    new_intervals.push(current_interval);
-                    break;
-                } else {
-                    const new_interval: [number, number] = [previous_interval[0], current_interval[1]];
-                    new_intervals.push(new_interval);
-                    current_interval = new_interval;
-                }
+        intervals = intervals.sort((left, right) => left[0] - right[0]);
+        const consolidated_intervals = [[intervals[0][0], intervals[0][1]]];
+        let cons_int_count = 0;
+        for (let i=1; i<intervals.length; ++i) {
+            const [start, end] = intervals[i];
+            const [c_start, c_end] = consolidated_intervals[cons_int_count];
+            if (c_start >= end || c_end >= start) {
+                consolidated_intervals[cons_int_count][0] = Math.min(consolidated_intervals[cons_int_count][0], start);
+                consolidated_intervals[cons_int_count][1] = Math.max(consolidated_intervals[cons_int_count][1], end);
+            } else {
+                consolidated_intervals.push([start, end]);
+                ++cons_int_count;
             }
-            previous_intervals = new_intervals.sort((left, right) => left[1] - right[1]);
         }
-        result.push([unit_id, previous_intervals]);
+        result[arr_count++] = [unit_id, consolidated_intervals];
     }
     return result;
 }
