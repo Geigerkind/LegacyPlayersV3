@@ -8,10 +8,10 @@ use rocket::State;
 use rocket_contrib::json::Json;
 
 #[openapi(skip)]
-#[get("/export/events/<instance_meta_id>/<event_type>")]
-pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8) -> Result<RawJson, InstanceFailure> {
+#[get("/export/<instance_meta_id>/<event_type>/<last_event_id>")]
+pub fn get_instance_event_type(me: State<Instance>, instance_meta_id: u32, event_type: u8, last_event_id: u32) -> Result<RawJson, InstanceFailure> {
     me.export_instance_event_type(instance_meta_id, event_type)
-        .map(|events| events.join(","))
+        .map(|events| events.into_iter().filter(|(id, _)| *id > last_event_id).take(75000).map(|(_, data)| data).collect::<Vec<String>>().join(","))
         .map(|res| RawJson("[".to_owned() + &res + "]"))
 }
 
