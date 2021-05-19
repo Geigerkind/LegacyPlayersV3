@@ -24,7 +24,7 @@ import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
-    private static readonly BATCH_SIZE: number = 75000;
+    private static readonly BATCH_SIZE: number = 50000;
     private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/:instance_meta_id/:event_type/:last_event_id";
 
     public spell_casts: Array<Event> = [];
