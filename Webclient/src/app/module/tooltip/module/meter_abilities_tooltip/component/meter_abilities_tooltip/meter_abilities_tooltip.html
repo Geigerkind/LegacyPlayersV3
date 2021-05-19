@@ -3,12 +3,14 @@
         <tr>
             <td>Ability</td>
             <td>Amount</td>
+            <td>%</td>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let row of payload">
             <td>{{row[0] | async}}</td>
             <td>{{format_number(row[1])}}</td>
+            <td>{{get_percent(row[1])}}%</td>
         </tr>
     </tbody>
 </table>

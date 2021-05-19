@@ -13,6 +13,15 @@
                 font-weight: 900;
                 font-size: 16px;
                 padding: 0.25 * $spacing 0.25 * $spacing;
+                text-align: center;
+            }
+
+            td:first-child {
+                text-align: left;
+            }
+
+            td:last-child {
+                text-align: right;
             }
         }
     }
@@ -31,7 +40,7 @@
                 background: lighten($tdc_darker, 3%);
             }
 
-            td:last-child{
+            td:last-child, td:nth-child(2) {
                 text-align: right;
             }
         }

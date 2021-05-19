@@ -14,4 +14,7 @@ export class MeterAbilitiesTooltipComponent {
         return number_str.toLocaleString("en-US");
     }
 
+    get_percent(amount: number): string {
+        return (100 * amount / this.payload.reduce((acc, value) => acc + value[1], 0)).toFixed(1);
+    }
 }
