@@ -12,10 +12,13 @@ export class DetailRowComponent {
 
     @Input() detail_row: DetailRow;
 
-
     open_compenents(): void {
         if (this.detail_row.components.length === 0)
             return;
         this.show_components = !this.show_components;
+    }
+
+    format_number(number_str: number | string): string {
+        return number_str.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
     }
 }

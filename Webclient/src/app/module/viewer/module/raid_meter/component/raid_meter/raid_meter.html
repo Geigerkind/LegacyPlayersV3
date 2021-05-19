@@ -4,10 +4,10 @@
                      [options]="options" [themed]="true"></SelectInput>
         <div class="total_and_dps">
             <ng-container *ngIf="![19, 20].includes(current_selection)">
-                {{total.toFixed(1)}}
+                {{format_number(total.toFixed(1))}}
             </ng-container>
             <ng-container *ngIf="show_per_second">
-                ({{total_ps.toFixed(1)}}/s)
+                ({{format_number(total_ps.toFixed(1))}}/s)
             </ng-container>
         </div>
     </div>

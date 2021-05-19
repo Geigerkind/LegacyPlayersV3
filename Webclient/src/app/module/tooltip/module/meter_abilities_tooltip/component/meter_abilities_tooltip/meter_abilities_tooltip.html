@@ -8,7 +8,7 @@
     <tbody>
         <tr *ngFor="let row of payload">
             <td>{{row[0] | async}}</td>
-            <td>{{row[1]}}</td>
+            <td>{{format_number(row[1])}}</td>
         </tr>
     </tbody>
 </table>

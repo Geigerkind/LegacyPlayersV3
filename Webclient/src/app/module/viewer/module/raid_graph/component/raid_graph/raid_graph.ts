@@ -39,7 +39,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                 },
                 label: (item: Chart.ChartTooltipItem, data: Chart.ChartData): string | Array<string> => {
                     // @ts-ignore
-                    return !!data.datasets[item.datasetIndex].data[item.index].custom_label ? data.datasets[item.datasetIndex].data[item.index].custom_label.toString() : item.value;
+                    return !!data.datasets[item.datasetIndex].data[item.index].custom_label ? data.datasets[item.datasetIndex].data[item.index].custom_label.toString() : this.format_number(item.value);
                 }
             }
         },
@@ -469,5 +469,9 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
             }
         }
         return [...result_y.entries()];
+    }
+
+    format_number(number_str: number | string): string {
+        return number_str.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
     }
 }

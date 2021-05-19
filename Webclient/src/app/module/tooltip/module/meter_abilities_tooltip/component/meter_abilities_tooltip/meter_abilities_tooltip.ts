@@ -10,4 +10,8 @@ export class MeterAbilitiesTooltipComponent {
 
     @Input() payload: Array<[Observable<string>, number]>;
 
+    format_number(number_str: number): string {
+        return number_str.toLocaleString("en-US");
+    }
+
 }

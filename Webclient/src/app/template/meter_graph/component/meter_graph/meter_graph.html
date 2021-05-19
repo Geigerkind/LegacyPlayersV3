@@ -12,7 +12,7 @@
                     </div>
                     <div class="bar_label_right">
                         <span>{{get_amount(bar[1])}}</span>
-                        <span *ngIf="show_per_second">{{get_dps(bar[1]).toFixed(1)}}/s</span>
+                        <span *ngIf="show_per_second">{{format_dps(bar[1])}}/s</span>
                     </div>
                 </div>
                 <div class="bar_bg_color {{get_bar_subject(bar[0]).color_class | async}}"></div>

@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {RaidMeterSubject} from "../../domain_value/raid_meter_subject";
 import {of} from "rxjs";
 import {LoadingBarService} from "../../../../service/loading_bar";
-import {auditTime} from "rxjs/operators";
 
 @Component({
     selector: "MeterGraph",
@@ -71,7 +70,11 @@ export class MeterGraphComponent {
         if (!!this.bar_label_function)
             return this.bar_label_function(this.bar_label_args, amount);
         if (amount % 1 === 0)
-            return amount.toString();
-        return amount.toFixed(1);
+            return amount.toLocaleString('en-US');
+        return amount.toFixed(1).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    }
+
+    format_dps(amount: number): string {
+        return this.get_dps(amount).toFixed(1).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
     }
 }

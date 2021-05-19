@@ -399,4 +399,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26].includes(this.current_selection);
     }
 
+    format_number(number_str: string): string {
+        return number_str.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    }
+
 }

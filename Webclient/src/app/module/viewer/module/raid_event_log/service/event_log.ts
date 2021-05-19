@@ -324,8 +324,8 @@ export class EventLogService implements OnDestroy {
                 if (event[8] === 0)
                     return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
                 return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " +
-                    event[9] + this.get_mitigation_localization(event[10], 0, 0) +
-                    (overheal > 0 ? " (" + overheal + " overheal)." : ".");
+                    this.format_number(event[9]) + this.get_mitigation_localization(event[10], 0, 0) +
+                    (overheal > 0 ? " (" + this.format_number(overheal) + " overheal)." : ".");
             }))), subject_id];
     }
 
@@ -380,18 +380,22 @@ export class EventLogService implements OnDestroy {
     }
 
     private get_spell_component_localization(component: SpellComponent): string {
-        return component[0] + " (" + school_mask_to_school_array(component[1]).map(school => school.toLowerCase()).join(", ") + ")" +
+        return this.format_number(component[0]) + " (" + school_mask_to_school_array(component[1]).map(school => school.toLowerCase()).join(", ") + ")" +
             this.get_mitigation_localization(component[2], component[3], component[4]);
     }
 
     private get_mitigation_localization(absorb: number, resist: number, block: number): string {
         const mitigation_str = [];
         if (absorb > 0)
-            mitigation_str.push("(" + absorb + " absorbed)");
+            mitigation_str.push("(" + this.format_number(absorb) + " absorbed)");
         if (resist > 0)
-            mitigation_str.push("(" + resist + " resisted)");
+            mitigation_str.push("(" + this.format_number(resist) + " resisted)");
         if (block > 0)
-            mitigation_str.push("(" + block + " blocked)");
+            mitigation_str.push("(" + this.format_number(block) + " blocked)");
         return mitigation_str.length > 0 ? " " + mitigation_str.join(" ") : "";
+    }
+
+    format_number(number_str: number | string): string {
+        return number_str.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
     }
 }
