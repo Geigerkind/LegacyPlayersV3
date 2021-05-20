@@ -158,10 +158,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 this.selection_changed(selection);
             }
         }));
-        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates, ]) => {
-           if (updates.includes(KnechtUpdates.FilterChanged)) {
-               this.bars = [];
-           }
+        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates,]) => {
+            if (updates.includes(KnechtUpdates.FilterChanged)) {
+                this.bars = [];
+            }
         }));
     }
 
@@ -230,93 +230,105 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
         if (!this.in_ability_mode)
             this.raidConfigurationSelectionService.select_sources([bar[0]]);
-        this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)], { skipLocationChange: true } as NavigationExtras);
+        this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)], {skipLocationChange: true} as NavigationExtras);
     }
 
     private get_bar_tooltip(subject_id: number): any {
+        let type;
+        let payload;
+        let specifics = {};
+
         if (!this.in_ability_mode) {
-            // TODO: Refactor condition
             if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
-                return {
-                    type: [13, 14].includes(this.current_selection) ? 9 : ([15, 16].includes(this.current_selection) ? 12 : ([17, 18].includes(this.current_selection) ? 13 : 7)),
-                    payload: () => this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10),
+                if ([13, 14].includes(this.current_selection)) {
+                    type = 9;
+                } else if ([15, 16].includes(this.current_selection)) {
+                    type = 12;
+                } else if ([17, 18].includes(this.current_selection)) {
+                    type = 13;
+                } else {
+                    type = 7;
+                }
+                payload = () => this.current_data.find(entry => entry[0] === subject_id)[1].slice(0, 10);
+                specifics = {
                     abilities: this.abilities,
-                    units: this.units
+                    units: this.units,
                 };
             } else if ([19, 20].includes(this.current_selection)) {
-                return {
-                    type: 5,
-                    payload: () => {
-                        const result = [];
-                        // @ts-ignore
-                        for (const [spell_id, intervals] of flatten_aura_uptime_to_spell_map(this.current_data
-                            .filter(([unit_id, abilities]) => unit_id === subject_id))) {
-                            const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
-                            result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
-                        }
-                        return result.sort((left, right) => right[1] - left[1])
-                            .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"])
-                            .slice(0, 10);
+                type = 5;
+                payload = () => {
+                    const result = [];
+                    // @ts-ignore
+                    for (const [spell_id, intervals] of flatten_aura_uptime_to_spell_map(this.current_data
+                        .filter(([unit_id, abilities]) => unit_id === subject_id))) {
+                        const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
+                        result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
                     }
+                    return result.sort((left, right) => right[1] - left[1])
+                        .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"])
+                        .slice(0, 10);
                 };
             } else if ([25, 26].includes(this.current_selection)) {
-                return {
-                    type: 5,
-                    payload: () => {
-                        const result = new Map<number, number>();
-                        for (const int_row of this.current_data.find(([unit_id]) => unit_id === subject_id)[1]) {
-                            const row = int_row as AuraGainOverviewRow;
-                            if (result.has(row.ability)) result.set(row.ability, result.get(row.ability) + 1);
-                            else result.set(row.ability, 1);
-                        }
-                        return [...result.entries()].sort((left, right) => right[1] - left[1])
-                            .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
-                            .slice(0, 10);
+                type = 5;
+                payload = () => {
+                    const result = new Map<number, number>();
+                    for (const int_row of this.current_data.find(([unit_id]) => unit_id === subject_id)[1]) {
+                        const row = int_row as AuraGainOverviewRow;
+                        if (result.has(row.ability)) result.set(row.ability, result.get(row.ability) + 1);
+                        else result.set(row.ability, 1);
                     }
+                    return [...result.entries()].sort((left, right) => right[1] - left[1])
+                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
+                        .slice(0, 10);
                 };
             } else {
-                return {
-                    type: 5,
-                    payload: () => this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
-                        .filter(([unit_id, abilities]) => unit_id === subject_id))
-                        .sort((left, right) => right[1] - left[1])
-                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
-                        .slice(0, 10)
-                };
+                type = 5;
+                payload = () => this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
+                    .filter(([unit_id, abilities]) => unit_id === subject_id))
+                    .sort((left, right) => right[1] - left[1])
+                    .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
+                    .slice(0, 10);
             }
-        } else if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
-            return {
-                type: 8,
-                payload: () => {
+        } else {
+            if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
+                type = 8;
+                payload = () => {
                     this.event_log_service.set_actor(true);
                     const unit_id = get_unit_id((this.bars[subject_id] as DeathOverviewRow).murdered, false);
                     return from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp))
                         .pipe(map(entries => entries.filter(evt => evt.subject_id === unit_id).slice(0, 20)));
-                }
-            };
-        } else if ([19, 20].includes(this.current_selection)) {
-            return {
-                type: 14,
-                expansion_id: this.current_meta.expansion_id,
-                spell_id: subject_id
-            };
-        } else if ([25, 26].includes(this.current_selection)) {
-            return {
-                type: 15,
-                payload: () => this.current_data.reduce((acc, item) => [...acc, ...(item[1] as Array<AuraGainOverviewRow>)
-                    .filter(row => row.ability === subject_id)], []).sort((left, right) => right.timestamp - left.timestamp).slice(0, 10),
-                icon: new DelayedLabel(this.abilities.get(subject_id).icon), // TODO: Change to observable
-                abilities: this.abilities,
-                units: this.units
-            };
+                };
+            } else if ([19, 20].includes(this.current_selection)) {
+                type = 14;
+                specifics = {
+                    spell_id: subject_id,
+                    expansion_id: this.current_meta?.expansion_id,
+                };
+            } else if ([25, 26].includes(this.current_selection)) {
+                type = 15;
+                payload = () => this.current_data.reduce((acc, item) => [...acc, ...(item[1] as Array<AuraGainOverviewRow>)
+                    .filter(row => row.ability === subject_id)], []).sort((left, right) => right.timestamp - left.timestamp).slice(0, 10);
+                specifics = {
+                    abilities: this.abilities,
+                    units: this.units,
+                    icon: new DelayedLabel(this.abilities.get(subject_id).icon)
+                };
+            } else {
+                type = 6;
+                payload = () => {
+                    const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
+                    return !payload ? undefined : payload[1].map(([hit_type, detail_row]) => detail_row);
+                };
+                specifics = {
+                    icon: new DelayedLabel(this.abilities.get(subject_id).icon)
+                };
+            }
         }
+
         return {
-            type: 6,
-            payload: () => {
-                const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
-                return !payload ? undefined : payload[1].map(([hit_type, detail_row]) => detail_row);
-            },
-            icon: new DelayedLabel(this.abilities.get(subject_id).icon) // TODO: Change to observable
+            type,
+            payload,
+            ...specifics
         };
     }
 
