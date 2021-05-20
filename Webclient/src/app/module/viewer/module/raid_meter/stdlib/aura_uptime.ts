@@ -129,8 +129,8 @@ export function flatten_aura_uptime_to_subject_map(data: Array<[number, Array<[n
         for (const [spell_id, intervals] of abilities) {
             if (!unit_intervals.has(unit_id)) unit_intervals.set(unit_id, intervals);
             else {
-                const intervals = unit_intervals.get(unit_id);
-                intervals.push(...intervals);
+                const un_intervals = unit_intervals.get(unit_id);
+                intervals.push(...un_intervals);
             }
         }
     }
