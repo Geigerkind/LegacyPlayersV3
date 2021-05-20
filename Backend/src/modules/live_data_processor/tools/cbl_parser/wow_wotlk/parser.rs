@@ -660,6 +660,8 @@ impl CombatLogParser for WoWWOTLKParser {
             36789 => 120000,
             // Lich King
             36597 | 38153 => 180000,
+            // Noth the Plaguebringer
+            15954 => 120000,
             _ => return None,
         })
     }
@@ -692,6 +694,8 @@ impl CombatLogParser for WoWWOTLKParser {
             // Lady Deathwhisper
             37890 | 37949 | 38009 | 38010 | 38135 | 38136 | 38222 => vec![36855],
             36791 | 37863 | 37868 | 37886 | 37907 | 37934 => vec![36789],
+            // Noth the Plaguebringer
+            16981 | 16983 => vec![15954],
             _ => return None,
         })
     }
