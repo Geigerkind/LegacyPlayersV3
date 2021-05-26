@@ -176,17 +176,18 @@ impl CombatLogParser for WoWWOTLKParser {
                                 "25 Player (Heroic)" => 6,
                                 _ => return None,
                             };
-
-                            self.bonus_messages.push(Message::new_parsed(
-                                timestamp as u64,
-                                0,
-                                MessageType::InstanceMap(InstanceMap {
-                                    map_id,
-                                    instance_id,
-                                    map_difficulty: difficulty_id,
-                                    unit: Unit { is_player: false, unit_id: 1 },
-                                }),
-                            ));
+                            if instance_id > 0 {
+                                self.bonus_messages.push(Message::new_parsed(
+                                    timestamp as u64,
+                                    0,
+                                    MessageType::InstanceMap(InstanceMap {
+                                        map_id,
+                                        instance_id,
+                                        map_difficulty: difficulty_id,
+                                        unit: Unit { is_player: false, unit_id: 1 },
+                                    }),
+                                ));
+                            }
                             /*
                             if args.len() >= 10 {
                                 for participant_unit_guid in args.iter().skip(9) {

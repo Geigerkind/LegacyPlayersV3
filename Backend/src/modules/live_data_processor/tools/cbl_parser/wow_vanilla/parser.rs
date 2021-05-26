@@ -1,19 +1,21 @@
+use std::collections::HashMap;
+
+use chrono::NaiveDateTime;
+use regex::Regex;
+
 use crate::modules::armory::domain_value::GuildRank;
 use crate::modules::armory::dto::{CharacterDto, CharacterGearDto, CharacterGuildDto, CharacterHistoryDto, CharacterInfoDto, CharacterItemDto, GuildDto};
-use crate::modules::data::tools::{RetrieveMap, RetrieveNPC};
 use crate::modules::data::Data;
+use crate::modules::data::tools::{RetrieveMap, RetrieveNPC};
 use crate::modules::live_data_processor::domain_value::{HitType, School};
 use crate::modules::live_data_processor::dto::{AuraApplication, DamageComponent, DamageDone, Death, HealDone, InstanceMap, Interrupt, Loot, Message, MessageType, SpellCast, Summon, UnAura, Unit};
 use crate::modules::live_data_processor::material::{ActiveMapVec, Participant, WoWVanillaParser};
+use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::hashed_unit_id::get_hashed_player_unit_id;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_spell_args::parse_spell_args;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_trailer::parse_trailer;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_unit::parse_unit;
-use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
-use chrono::NaiveDateTime;
-use regex::Regex;
-use std::collections::HashMap;
 
 /*
 
@@ -960,18 +962,19 @@ impl CombatLogParser for WoWVanillaParser {
             let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
             let map_name = captures.get(2)?.as_str().to_string();
             let instance_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
-            if let Some(map) = data.get_map_by_name(&map_name) {
-                self.bonus_messages.push(Message::new_parsed(
-                    timestamp as u64,
-                    0,
-                    MessageType::InstanceMap(InstanceMap {
-                        map_id: map.id as u32,
-                        instance_id,
-                        map_difficulty: 0,
-                        unit: Unit { is_player: false, unit_id: 1 },
-                    }),
-                ));
-                /*
+            if instance_id > 0 {
+                if let Some(map) = data.get_map_by_name(&map_name) {
+                    self.bonus_messages.push(Message::new_parsed(
+                        timestamp as u64,
+                        0,
+                        MessageType::InstanceMap(InstanceMap {
+                            map_id: map.id as u32,
+                            instance_id,
+                            map_difficulty: 0,
+                            unit: Unit { is_player: false, unit_id: 1 },
+                        }),
+                    ));
+                    /*
                 for (_, participant) in self.participants.iter() {
                     if event_ts - participant.last_seen <= 120000 {
                         self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
@@ -986,6 +989,7 @@ impl CombatLogParser for WoWVanillaParser {
                     }
                 }
                  */
+                }
             }
             return None;
         }
@@ -1123,32 +1127,32 @@ impl CombatLogParser for WoWVanillaParser {
                 MessageType::MeleeDamage(damage_done) | MessageType::SpellDamage(damage_done) => {
                     correct_pet_unit(data, &mut damage_done.attacker, &self.pet_owner);
                     correct_pet_unit(data, &mut damage_done.victim, &self.pet_owner);
-                },
+                }
                 MessageType::InstanceMap(instance_map) => correct_pet_unit(data, &mut instance_map.unit, &self.pet_owner),
                 MessageType::Interrupt(interrupt) => correct_pet_unit(data, &mut interrupt.target, &self.pet_owner),
                 MessageType::Dispel(dispel) => correct_pet_unit(data, &mut dispel.target, &self.pet_owner),
                 MessageType::SpellSteal(spell_steal) => {
                     correct_pet_unit(data, &mut spell_steal.un_aura_caster, &self.pet_owner);
                     correct_pet_unit(data, &mut spell_steal.target, &self.pet_owner);
-                },
+                }
                 MessageType::SpellCast(spell_cast) => {
                     correct_pet_unit(data, &mut spell_cast.caster, &self.pet_owner);
                     if let Some(target) = spell_cast.target.as_mut() {
                         correct_pet_unit(data, target, &self.pet_owner);
                     }
-                },
+                }
                 MessageType::AuraApplication(aura_app) => correct_pet_unit(data, &mut aura_app.target, &self.pet_owner),
                 MessageType::Heal(heal) => {
                     correct_pet_unit(data, &mut heal.caster, &self.pet_owner);
                     correct_pet_unit(data, &mut heal.target, &self.pet_owner);
-                },
+                }
                 MessageType::Death(death) => {
                     correct_pet_unit(data, &mut death.victim, &self.pet_owner);
                     if let Some(cause) = death.cause.as_mut() {
                         correct_pet_unit(data, cause, &self.pet_owner);
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             };
         }
 
@@ -1199,15 +1203,15 @@ impl CombatLogParser for WoWVanillaParser {
                                 matching_spell_cast = None;
                             }
                         }
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 };
             }
 
             if let Some(Message {
-                message_type: MessageType::SpellCast(spell_cast),
-                ..
-            }) = matching_spell_cast.as_ref()
+                            message_type: MessageType::SpellCast(spell_cast),
+                            ..
+                        }) = matching_spell_cast.as_ref()
             {
                 if let Some(last_message_index) = last_dispel_index {
                     let last_message = messages.get_mut(last_message_index).unwrap();
