@@ -151,6 +151,7 @@ export class RaidMeterService implements OnDestroy {
                 this.register_evt_type(6);
                 this.subscription_data = this.meter_aura_gain_service.get_data(selection === 26)
                     .subscribe(data => this.commit(data));
+                break;
         }
 
         this.current_selection = selection;

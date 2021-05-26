@@ -1,6 +1,6 @@
 import {Component, Input, OnDestroy, OnInit} from "@angular/core";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
-import {from, Subscription} from "rxjs";
+import {from, Subject, Subscription} from "rxjs";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {SettingsService} from "src/app/service/settings";
 import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
@@ -22,7 +22,7 @@ import {DetailDamageService} from "../../../raid_detail_table/service/detail_dam
 import {DetailHealService} from "../../../raid_detail_table/service/detail_heal";
 import {DetailThreatService} from "../../../raid_detail_table/service/detail_threat";
 import {EventLogService} from "../../../raid_event_log/service/event_log";
-import {debounceTime, map} from "rxjs/operators";
+import {auditTime, debounceTime, map} from "rxjs/operators";
 import {MeterInterruptService} from "../../service/meter_interrupt";
 import {MeterSpellStealService} from "../../service/meter_spell_steal";
 import {MeterAuraUptimeService} from "../../service/meter_aura_uptime";
@@ -81,10 +81,11 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     private ability_details: Array<[number, Array<[number, Array<[HitType, DetailRow]>]>]> = [];
     private target_summary: Array<[number, Array<[number, number]>]> = [];
 
+    private update_bars$: Subject<void> = new Subject();
+
     abilities: Map<number, SpellBasicInformation> = new Map();
     units: Map<number, UnitBasicInformation> = new Map();
     bar_tooltips: Map<number, any> = new Map();
-
 
     in_ability_mode: boolean = false;
 
@@ -147,11 +148,14 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         });
         this.subscription.add(this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000));
         this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
-        this.subscription.add(this.raidMeterService.data.pipe(debounceTime(25)).subscribe(rows => this.update_bars(rows)));
+        this.subscription.add(this.raidMeterService.data.subscribe(rows => {
+            this.current_data = rows;
+            this.update_bars$.next();
+        }));
         this.subscription.add(this.raidDetailService.target_summary.subscribe(target_summary => this.target_summary = target_summary));
-        this.subscription.add(this.raidDetailService.ability_details.pipe(debounceTime(25)).subscribe(details => {
+        this.subscription.add(this.raidDetailService.ability_details.subscribe(details => {
             this.ability_details = details;
-            this.update_bars(this.current_data);
+            this.update_bars$.next();
         }));
         this.subscription.add(this.raid_meter_export_service.meter_selections$.subscribe(([id, selection]) => {
             if (id === this.unique_id) {
@@ -164,6 +168,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 this.bars = [];
             }
         }));
+        this.subscription.add(this.update_bars$.pipe(auditTime(100)).subscribe(() => this.update_bars(this.current_data)));
     }
 
     ngOnInit(): void {

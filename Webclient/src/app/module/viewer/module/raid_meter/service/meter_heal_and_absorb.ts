@@ -40,8 +40,8 @@ export class MeterHealAndAbsorbService implements OnDestroy {
             this.initialize();
         } else if (this.current_mode !== mode) {
             this.current_mode = mode;
-            this.merge_data();
         }
+        this.merge_data();
         return this.data$.asObservable();
     }
 
@@ -59,11 +59,11 @@ export class MeterHealAndAbsorbService implements OnDestroy {
                 this.absorb_data = data;
                 this.merge_meters();
             });
-        this.subscription = this.meter_heal_service.get_data(HealMode.Effective, this.current_mode)
+        this.subscription.add(this.meter_heal_service.get_data(HealMode.Effective, this.current_mode)
             .subscribe(data => {
                 this.heal_data = data;
                 this.merge_meters();
-            });
+            }));
     }
 
     private merge_meters(): void {
