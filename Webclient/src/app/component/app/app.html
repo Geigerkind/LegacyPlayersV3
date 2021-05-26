@@ -20,12 +20,19 @@
             </div>
             <div id="bottom_layer">
                 <div class="vm-placement" data-id="609a809e4e36631764632063"></div>
+                <div [class.ad_hidden]="!enough_bottom_space">
+                    <div class="vm-placement" data-id="609a809e4e36631764632063"></div>
+                </div>
             </div>
         </div>
         <div id="right_bar">
             <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
-            <div [class.ad_hidden]="!is_on_viewer_site" class="vm-placement" data-id="609a80894e3663176463205f"></div>
-            <div [class.ad_hidden]="!is_on_viewer_site" class="vm-placement" data-id="609a80894e3663176463205f"></div>
+            <div [class.ad_hidden]="!is_on_viewer_site">
+                <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
+            </div>
+            <div [class.ad_hidden]="!is_on_viewer_site">
+                <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
+            </div>
         </div>
     </ng-container>
     <ng-container *ngIf="isMobile && enable_ads">

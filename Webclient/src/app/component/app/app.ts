@@ -18,6 +18,7 @@ export class AppComponent implements OnInit, OnChanges {
 
     enable_ads: boolean = true;
     is_on_viewer_site: boolean = false;
+    enough_bottom_space: boolean = false;
 
     constructor(
         private settingsService: SettingsService,
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit, OnChanges {
 
         this.router.events.subscribe(event => {
            this.is_on_viewer_site = this.router.url.includes("viewer/");
+           this.enough_bottom_space = document.getElementById("bottom_layer").clientWidth >= 2000;
         });
     }
 
