@@ -174,8 +174,8 @@ export function update_resist_summary_row(resist_summary_row: ResistSummaryRow, 
     resist_summary_row.max = Math.max(max, resist_summary_row.max);
 }
 
-export function update_detail_row_content(comp_content: DetailRowContent, amount: number, resist: number, block: number, absorb: number, percent_0: number, percent_0_min: number,
-                                          percent_0_max: number): void {
+export function update_detail_row_content(comp_content: DetailRowContent, amount: number, resist: number, block: number,
+                                          absorb: number, percent_0: number, percent_0_min: number, percent_0_max: number): void {
     ++comp_content.count;
     comp_content.amount += amount;
     comp_content.resist += resist;
@@ -189,6 +189,84 @@ export function update_detail_row_content(comp_content: DetailRowContent, amount
         comp_content.resist_summary.percent_0.min = Math.min(percent_0_min, comp_content.resist_summary.percent_0.min);
         comp_content.resist_summary.percent_0.max = Math.max(percent_0_max, comp_content.resist_summary.percent_0.max);
     }
+}
+
+export function merge_detail_rows(dr1: Array<DetailRow>, dr2: Array<DetailRow>): Array<DetailRow> {
+    const result = dr1.map(dr => copy_detail_row(dr));
+    for (const dr of dr2) {
+        const dr_ht = result.find((i_dr) => i_dr.hit_type === dr.hit_type);
+        if (dr_ht === undefined) result.push(copy_detail_row(dr));
+        else merge_detail_row(dr_ht, dr);
+    }
+
+    const total_amount = result.reduce((acc, dr) => acc + dr.content.amount, 0);
+    const total_count = result.reduce((acc, dr) => acc + dr.content.count, 0);
+    for (const dr of result) {
+        dr.content.amount_percent = dr.content.amount / total_amount;
+        dr.content.count_percent = dr.content.count / total_count;
+    }
+    return result;
+}
+
+export function merge_detail_row(dr1: DetailRow, dr2: DetailRow): void {
+    merge_detail_row_content(dr1.content, dr2.content);
+    const components = [...dr1.components];
+    for (const drc of dr2.components) {
+        const drc_sc = components.find((comp) => comp.school === drc.school);
+        if (drc_sc === undefined) components.push(drc);
+        else merge_detail_row_content(drc_sc.content, drc.content);
+    }
+    dr1.components = components;
+
+    const total_amount = components.reduce((acc, {content}) => acc + content.amount, 0);
+    const total_count = components.reduce((acc, {content}) => acc + content.count, 0);
+    for (const {content} of components) {
+        content.count_percent = content.count / total_count;
+        content.amount_percent = content.amount / total_amount;
+    }
+}
+
+export function merge_detail_row_content(drc1: DetailRowContent, drc2: DetailRowContent): void {
+    drc1.count += drc2.count;
+    drc1.resist += drc2.resist;
+    drc1.amount += drc2.amount;
+    drc1.count_percent += drc2.count_percent;
+    drc1.amount_percent += drc2.amount_percent;
+    drc1.min = Math.min(drc1.min, drc2.min);
+    drc1.max = Math.max(drc1.max, drc2.max);
+    drc1.absorb += drc2.absorb;
+    drc1.block += drc2.block;
+    drc1.average = drc1.amount / drc1.count;
+    merge_resist_summary_row(drc1.resist_summary.percent_0, drc2.resist_summary.percent_0);
+    merge_resist_summary_row(drc1.resist_summary.percent_25, drc2.resist_summary.percent_25);
+    merge_resist_summary_row(drc1.resist_summary.percent_50, drc2.resist_summary.percent_50);
+    merge_resist_summary_row(drc1.resist_summary.percent_75, drc2.resist_summary.percent_75);
+
+    const total_amount = drc1.resist_summary.percent_0.amount
+        + drc1.resist_summary.percent_25.amount
+        + drc1.resist_summary.percent_50.amount
+        + drc1.resist_summary.percent_75.amount;
+    drc1.resist_summary.percent_0.amount_percent = drc1.resist_summary.percent_0.amount / total_amount;
+    drc1.resist_summary.percent_25.amount_percent = drc1.resist_summary.percent_25.amount / total_amount;
+    drc1.resist_summary.percent_50.amount_percent = drc1.resist_summary.percent_50.amount / total_amount;
+    drc1.resist_summary.percent_75.amount_percent = drc1.resist_summary.percent_75.amount / total_amount;
+
+    const total_count = drc1.resist_summary.percent_0.count
+        + drc1.resist_summary.percent_25.count
+        + drc1.resist_summary.percent_50.count
+        + drc1.resist_summary.percent_75.count;
+    drc1.resist_summary.percent_0.count_percent = drc1.resist_summary.percent_0.count / total_count;
+    drc1.resist_summary.percent_25.count_percent = drc1.resist_summary.percent_25.count / total_count;
+    drc1.resist_summary.percent_50.count_percent = drc1.resist_summary.percent_50.count / total_count;
+    drc1.resist_summary.percent_75.count_percent = drc1.resist_summary.percent_75.count / total_count;
+}
+
+export function merge_resist_summary_row(rsr1: ResistSummaryRow, rsr2: ResistSummaryRow): void {
+    rsr1.min = Math.min(rsr1.min, rsr2.min);
+    rsr1.max = Math.max(rsr1.max, rsr2.max);
+    rsr1.amount += rsr2.amount;
+    rsr1.count += rsr2.count;
+    rsr1.average = rsr1.amount / rsr1.count;
 }
 
 export function create_resist_summary_row(): ResistSummaryRow {
@@ -222,5 +300,34 @@ export function create_detail_row_content(): DetailRowContent {
             percent_75: create_resist_summary_row(),
             percent_100: create_resist_summary_row(),
         } as ResistSummary
+    };
+}
+
+export function copy_detail_row(dr: DetailRow): DetailRow {
+    return {
+        hit_type: dr.hit_type,
+        content: {
+            ...dr.content,
+            resist_summary: {
+                percent_0: { ...dr.content.resist_summary.percent_0 },
+                percent_25: { ...dr.content.resist_summary.percent_25 },
+                percent_50: { ...dr.content.resist_summary.percent_50 },
+                percent_75: { ...dr.content.resist_summary.percent_75 },
+            }
+        },
+        components: dr.components.map(({school, content}) => {
+            return {
+                school,
+                content: {
+                    ...content,
+                    resist_summary: {
+                        percent_0: { ...content.resist_summary.percent_0 },
+                        percent_25: { ...content.resist_summary.percent_25 },
+                        percent_50: { ...content.resist_summary.percent_50 },
+                        percent_75: { ...content.resist_summary.percent_75 },
+                    }
+                }
+            };
+        })
     };
 }

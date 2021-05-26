@@ -4,7 +4,7 @@
 <CharacterTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 1"></CharacterTooltip>
 <ItemTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 2 || tooltipType === 4"></ItemTooltip>
 <GuildTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 3"></GuildTooltip>
-<MeterAbilitiesTooltip [payload]="tooltipPayload()" *ngIf="tooltipType === 5"></MeterAbilitiesTooltip>
+<MeterAbilitiesTooltip [payload]="tooltipPayload()" [target_summary]="tooltipArgs.target_summary()" *ngIf="tooltipType === 5"></MeterAbilitiesTooltip>
 <DetailTable [current_ability_details]="tooltipPayload()" *ngIf="tooltipType === 6"></DetailTable>
 <DeathsOverview [death_overview_rows]="tooltipPayload()" *ngIf="tooltipType === 7"
                 [abilities]="tooltipArgs.abilities" [units]="tooltipArgs.units"></DeathsOverview>
@@ -18,6 +18,7 @@
 <ViewerAuraGainTooltip [abilities$]="tooltipArgs.abilities" [units$]="tooltipArgs.units" [payload]="tooltipPayload()"
                        *ngIf="tooltipType === 15"></ViewerAuraGainTooltip>
 <TalentSpellTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 16"></TalentSpellTooltip>
+<AuraMeterAbilitiesTooltip [payload]="tooltipPayload()" *ngIf="tooltipType === 17"></AuraMeterAbilitiesTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>

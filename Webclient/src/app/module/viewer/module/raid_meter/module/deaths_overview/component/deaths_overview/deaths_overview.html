@@ -8,9 +8,9 @@
     <div class="body">
         <div class="row" *ngFor="let row of death_overview_rows; index as i" [routerLink]="routerLink" [showTooltip]="get_tooltip(i)">
             <div class="td">{{dateService.toRPLLTime(row.timestamp)}}</div>
-            <div class="td">{{get_unit_name(row.murder) | async}}</div>
-            <div class="td">{{get_unit_name(row.murdered) | async}}</div>
-            <div class="td">{{(get_ability_name(row.killing_blow.ability_id) | async) + " (" + row.killing_blow.amount + ")"}}</div>
+            <div class="td">{{get_unit_name(row.murder)}}</div>
+            <div class="td">{{get_unit_name(row.murdered)}}</div>
+            <div class="td">{{(get_ability_name(row.killing_blow.ability_id)) + " (" + row.killing_blow.amount + ")"}}</div>
         </div>
     </div>
 </div>

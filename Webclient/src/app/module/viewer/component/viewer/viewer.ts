@@ -7,7 +7,6 @@ import {SpellService} from "../../service/spell";
 import {RaidConfigurationSelectionService} from "../../module/raid_configuration_menu/service/raid_configuration_selection";
 import {RaidConfigurationService} from "../../module/raid_configuration_menu/service/raid_configuration";
 import {Subscription} from "rxjs";
-import {UtilService} from "../../module/raid_meter/service/util";
 import {GraphDataService} from "../../module/raid_graph/service/graph_data";
 import {RaidMeterExportService} from "../../module/raid_meter/service/raid_meter_export";
 
@@ -22,8 +21,7 @@ import {RaidMeterExportService} from "../../module/raid_meter/service/raid_meter
         GraphDataService,
         InstanceDataService,
         UnitService,
-        SpellService,
-        UtilService
+        SpellService
     ]
 })
 export class ViewerComponent implements OnDestroy {

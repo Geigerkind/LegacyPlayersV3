@@ -7,12 +7,10 @@ import {ActivatedRoute, NavigationExtras, Router} from "@angular/router";
 import {ViewerMode} from "../../../../domain_value/viewer_mode";
 import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
 import {RaidConfigurationSelectionService} from "../../../raid_configuration_menu/service/raid_configuration_selection";
-import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {RaidMeterService} from "../../service/raid_meter";
 import {RaidDetailService} from "../../../raid_detail_table/service/raid_detail";
 import {HitType} from "../../../../domain_value/hit_type";
 import {DetailRow} from "../../../raid_detail_table/domain_value/detail_row";
-import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
 import {DeathOverviewRow} from "../../module/deaths_overview/domain_value/death_overview_row";
 import {UnAuraOverviewRow} from "../../module/un_aura_overview/domain_value/un_aura_overview_row";
 import {MeterDamageService} from "../../service/meter_damage";
@@ -38,6 +36,9 @@ import {AuraGainOverviewRow} from "../../domain_value/aura_gain_overview_row";
 import {get_unit_id} from "../../../../domain_value/unit";
 import {RaidMeterExportService} from "../../service/raid_meter_export";
 import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
+import {UnitBasicInformation, UnitService} from "../../../../service/unit";
+import {SpellBasicInformation, SpellService} from "../../../../service/spell";
+import {merge_detail_rows} from "../../../raid_detail_table/stdlib/util";
 
 @Component({
     selector: "RaidMeter",
@@ -74,18 +75,14 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     @Input() unique_id: string;
 
     private subscription: Subscription;
-    private subscription_total_duration: Subscription;
-    private subscription_activated_route: Subscription;
-    private subscription_meta: Subscription;
-    private subscription_abilities: Subscription;
-    private subscription_units: Subscription;
-    private subscription_ability_details: Subscription;
 
     private cookie_id: string;
     private current_data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]> = [];
-    private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
-    abilities: Map<number, RaidMeterSubject> = new Map();
-    units: Map<number, RaidMeterSubject> = new Map();
+    private ability_details: Array<[number, Array<[number, Array<[HitType, DetailRow]>]>]> = [];
+    private target_summary: Array<[number, Array<[number, number]>]> = [];
+
+    abilities: Map<number, SpellBasicInformation> = new Map();
+    units: Map<number, UnitBasicInformation> = new Map();
     bar_tooltips: Map<number, any> = new Map();
 
 
@@ -134,24 +131,28 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         private raidMeterService: RaidMeterService,
         private raidDetailService: RaidDetailService,
         private event_log_service: EventLogService,
-        private raid_meter_export_service: RaidMeterExportService
+        private raid_meter_export_service: RaidMeterExportService,
+        private unitService: UnitService,
+        private spellService: SpellService,
     ) {
-        this.subscription_activated_route = this.activatedRouteService.paramMap.subscribe(params => {
+        this.units = this.unitService.units;
+        this.abilities = this.spellService.spells;
+
+        this.subscription = this.activatedRouteService.paramMap.subscribe(params => {
             const new_mode = params.get("mode") === ViewerMode.Ability;
             if (this.in_ability_mode !== new_mode) {
                 this.in_ability_mode = new_mode;
                 this.update_bars(this.current_data);
             }
         });
-        this.subscription_total_duration = this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000);
-        this.subscription_meta = this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
-        this.subscription_abilities = this.raidMeterService.abilities.subscribe(abilities => this.abilities = abilities);
-        this.subscription_units = this.raidMeterService.units.subscribe(units => this.units = units);
-        this.subscription = this.raidMeterService.data.pipe(debounceTime(25)).subscribe(rows => this.update_bars(rows));
-        this.subscription_ability_details = this.raidDetailService.ability_details.pipe(debounceTime(25)).subscribe(details => {
+        this.subscription.add(this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000));
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
+        this.subscription.add(this.raidMeterService.data.pipe(debounceTime(25)).subscribe(rows => this.update_bars(rows)));
+        this.subscription.add(this.raidDetailService.target_summary.subscribe(target_summary => this.target_summary = target_summary));
+        this.subscription.add(this.raidDetailService.ability_details.pipe(debounceTime(25)).subscribe(details => {
             this.ability_details = details;
             this.update_bars(this.current_data);
-        });
+        }));
         this.subscription.add(this.raid_meter_export_service.meter_selections$.subscribe(([id, selection]) => {
             if (id === this.unique_id) {
                 this.current_selection = selection;
@@ -179,15 +180,9 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
-        this.subscription_total_duration?.unsubscribe();
-        this.subscription_activated_route?.unsubscribe();
-        this.subscription_meta?.unsubscribe();
-        this.subscription_abilities?.unsubscribe();
-        this.subscription_units?.unsubscribe();
-        this.subscription_ability_details?.unsubscribe();
     }
 
-    get bar_subjects(): Map<number, RaidMeterSubject> {
+    get bar_subjects(): Map<number, UnitBasicInformation | SpellBasicInformation> {
         if (this.in_ability_mode)
             return this.abilities;
         return this.units;
@@ -255,7 +250,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     units: this.units,
                 };
             } else if ([19, 20].includes(this.current_selection)) {
-                type = 5;
+                type = 17;
                 payload = () => {
                     const result = [];
                     // @ts-ignore
@@ -265,11 +260,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         result.push([this.abilities.get(spell_id).name, Math.min(100, frac_duration)]);
                     }
                     return result.sort((left, right) => right[1] - left[1])
-                        .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"])
-                        .slice(0, 10);
+                        .slice(0, 10)
+                        .map(([spell_name, amount]) => [spell_name, amount.toFixed(1) + "%"]);
+
                 };
             } else if ([25, 26].includes(this.current_selection)) {
-                type = 5;
+                type = 17;
                 payload = () => {
                     const result = new Map<number, number>();
                     for (const int_row of this.current_data.find(([unit_id]) => unit_id === subject_id)[1]) {
@@ -278,16 +274,26 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         else result.set(row.ability, 1);
                     }
                     return [...result.entries()].sort((left, right) => right[1] - left[1])
-                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
-                        .slice(0, 10);
+                        .slice(0, 10)
+                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount]);
                 };
             } else {
                 type = 5;
-                payload = () => this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
-                    .filter(([unit_id, abilities]) => unit_id === subject_id))
-                    .sort((left, right) => right[1] - left[1])
-                    .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount])
-                    .slice(0, 10);
+                payload = () => {
+                    const ab_details = this.ability_details.find(([unit_id, ab_det]) => unit_id === subject_id);
+                    return this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
+                        .filter(([unit_id, abilities]) => unit_id === subject_id))
+                        .sort((left, right) => right[1] - left[1])
+                        .slice(0, 10)
+                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount,
+                            ab_details[1].find(([i_ability_id,]) => i_ability_id === ability_id)[1]]);
+                };
+                specifics = {
+                    target_summary: () => this.target_summary.find(([se_unit_id,]) => se_unit_id === subject_id)[1]
+                        .sort((left, right) => right[1] - left[1])
+                        .slice(0, 5)
+                        .map(([unit_id, amount]) => [this.units.get(unit_id)?.name, amount])
+                };
             }
         } else {
             if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection)) {
@@ -311,16 +317,16 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                 specifics = {
                     abilities: this.abilities,
                     units: this.units,
-                    icon: new DelayedLabel(this.abilities.get(subject_id).icon)
+                    icon: this.abilities.get(subject_id).icon
                 };
             } else {
                 type = 6;
-                payload = () => {
-                    const payload = this.ability_details.find(([i_ability_id, i_details]) => i_ability_id === subject_id);
-                    return !payload ? undefined : payload[1].map(([hit_type, detail_row]) => detail_row);
-                };
+                const result = this.ability_details.reduce((acc, [i_unit_id, i_details]) =>
+                    merge_detail_rows(acc, i_details.filter(([i_ability_id,]) => i_ability_id === subject_id)
+                        .reduce((i_acc, [i_ab_id, i_ht_a_dr]) => merge_detail_rows(i_acc, i_ht_a_dr.map(([i_ht, i_dr]) => i_dr)), [])), []);
+                payload = () => result;
                 specifics = {
-                    icon: new DelayedLabel(this.abilities.get(subject_id).icon)
+                    icon: this.abilities.get(subject_id).icon
                 };
             }
         }
@@ -397,7 +403,6 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
         // Bar tooltips
         if ([11, 12, 13, 14, 15, 16, 17, 18].includes(this.current_selection) && this.in_ability_mode) {
-            // @ts-ignore
             for (const [row_index, row] of this.bars.entries())
                 this.bar_tooltips.set(row_index, this.get_bar_tooltip(row_index));
         } else {

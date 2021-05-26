@@ -8,9 +8,9 @@
     <div class="body">
         <div class="row" *ngFor="let row of payload; index as i">
             <div class="td">{{dateService.toRPLLTimePrecise(row.timestamp)}}</div>
-            <div class="td">{{get_unit_name(row.caster) | async}}</div>
-            <div class="td">{{get_unit_name(row.target) | async}}</div>
-            <div class="td">{{get_ability_name(row.ability) | async}}</div>
+            <div class="td">{{get_unit_name(row.caster)}}</div>
+            <div class="td">{{get_unit_name(row.target)}}</div>
+            <div class="td">{{get_ability_name(row.ability)}}</div>
         </div>
     </div>
 </div>

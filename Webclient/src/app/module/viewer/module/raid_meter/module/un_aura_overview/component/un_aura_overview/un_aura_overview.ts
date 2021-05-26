@@ -22,15 +22,15 @@ export class UnAuraOverviewComponent {
     ) {
     }
 
-    get_unit_name(unit: Unit): Observable<string> {
+    get_unit_name(unit: Unit): string {
         if (!this.units)
-            return of(CONST_UNKNOWN_LABEL);
+            return CONST_UNKNOWN_LABEL;
         return this.units.get(get_unit_id(unit, false))?.name;
     }
 
-    get_ability_name(spell_id: number): Observable<string> {
+    get_ability_name(spell_id: number): string {
         if (!this.abilities)
-            return of(CONST_UNKNOWN_LABEL);
+            return CONST_UNKNOWN_LABEL;
         return this.abilities.get(spell_id)?.name;
     }
 }

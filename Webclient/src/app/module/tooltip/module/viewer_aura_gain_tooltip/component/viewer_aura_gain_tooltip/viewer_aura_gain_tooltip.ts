@@ -3,7 +3,6 @@ import {AuraGainOverviewRow} from "../../../../../viewer/module/raid_meter/domai
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DateService} from "../../../../../../service/date";
 import {get_unit_id, Unit} from "../../../../../viewer/domain_value/unit";
-import {Observable, of} from "rxjs";
 import {CONST_UNKNOWN_LABEL} from "../../../../../viewer/constant/viewer";
 
 @Component({
@@ -22,15 +21,15 @@ export class ViewerAuraGainTooltipComponent {
     ) {
     }
 
-    get_unit_name(unit: Unit): Observable<string> {
+    get_unit_name(unit: Unit): string {
         if (!this.units$)
-            return of(CONST_UNKNOWN_LABEL);
+            return CONST_UNKNOWN_LABEL;
         return this.units$.get(get_unit_id(unit, false))?.name;
     }
 
-    get_ability_name(spell_id: number): Observable<string> {
+    get_ability_name(spell_id: number): string {
         if (!this.abilities$)
-            return of(CONST_UNKNOWN_LABEL);
+            return CONST_UNKNOWN_LABEL;
         return this.abilities$.get(spell_id)?.name;
     }
 

@@ -110,25 +110,49 @@ export class Rechenknecht {
     /*
      * RAID DETAIL
      */
-    async detail_damage(inverse: boolean): Promise<Array<[number, Array<[HitType, DetailRow]>]>> {
+    async detail_damage(inverse: boolean): Promise<Array<[number, Array<[number, Array<[HitType, DetailRow]>]>]>> {
         Rechenknecht.send_work_start();
         const detailDamage = this.raid_detail_knecht.damage.calculate(inverse);
         Rechenknecht.send_work_end();
         return detailDamage;
     }
 
-    async detail_heal(heal_mode: HealMode, inverse: boolean): Promise<Array<[number, Array<[HitType, DetailRow]>]>> {
+    async detail_heal(heal_mode: HealMode, inverse: boolean): Promise<Array<[number, Array<[number, Array<[HitType, DetailRow]>]>]>> {
         Rechenknecht.send_work_start();
         const detailHeal = this.raid_detail_knecht.heal.calculate(heal_mode, inverse);
         Rechenknecht.send_work_end();
         return detailHeal;
     }
 
-    async detail_threat(inverse: boolean): Promise<Array<[number, Array<[HitType, DetailRow]>]>> {
+    async detail_threat(inverse: boolean): Promise<Array<[number, Array<[number, Array<[HitType, DetailRow]>]>]>> {
         Rechenknecht.send_work_start();
         const detailThreat = this.raid_detail_knecht.threat.calculate(inverse);
         Rechenknecht.send_work_end();
         return detailThreat;
+    }
+
+    /*
+     * Tooltip
+     */
+    async damage_target_summary(inverse: boolean): Promise<Array<[number, Array<[number, number]>]>> {
+        Rechenknecht.send_work_start();
+        const result = this.raid_detail_knecht.damage.calculate_summary(inverse);
+        Rechenknecht.send_work_end();
+        return result;
+    }
+
+    async heal_target_summary(heal_mode: HealMode, inverse: boolean): Promise<Array<[number, Array<[number, number]>]>> {
+        Rechenknecht.send_work_start();
+        const result = this.raid_detail_knecht.heal.calculate_summary(heal_mode, inverse);
+        Rechenknecht.send_work_end();
+        return result;
+    }
+
+    async threat_target_summary(inverse: boolean): Promise<Array<[number, Array<[number, number]>]>> {
+        Rechenknecht.send_work_start();
+        const result = this.raid_detail_knecht.threat.calculate_summary(inverse);
+        Rechenknecht.send_work_end();
+        return result;
     }
 
     /*
@@ -200,7 +224,7 @@ export class Rechenknecht {
         return meter_aura_uptime;
     }
 
-    async meter_absorbed_damage(): Promise<Array<[number, [Unit, Array<[number, number, number, Array<School>]>]]>> {
+    async meter_absorbed_damage(): Promise<Array<[number, Array<[number, number, number, Array<School>]>]>> {
         Rechenknecht.send_work_start();
         const meter_absorbed_damage = this.raid_meter_knecht.absorb.calculate();
         Rechenknecht.send_work_end();

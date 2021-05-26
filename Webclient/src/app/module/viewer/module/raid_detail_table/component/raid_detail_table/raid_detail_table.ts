@@ -12,6 +12,7 @@ import {DetailAbsorbService} from "../../service/detail_absorb";
 import {DetailHealAndAbsorbService} from "../../service/detail_heal_and_absorb";
 import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
 import {InstanceDataService} from "../../../../service/instance_data";
+import {merge_detail_rows} from "../../stdlib/util";
 
 @Component({
     selector: "RaidDetailTable",
@@ -32,7 +33,7 @@ export class RaidDetailTableComponent implements OnDestroy {
     private subscription_abilities: Subscription;
     private subscription_ability_details: Subscription;
 
-    private ability_details: Array<[number, Array<[HitType, DetailRow]>]> = [];
+    private ability_details: Array<[number, Array<[number, Array<[HitType, DetailRow]>]>]> = [];
     abilities: Array<SelectOption> = [];
 
     current_meter_selection: number = 1;
@@ -71,9 +72,8 @@ export class RaidDetailTableComponent implements OnDestroy {
             this.raidDetailService.select(this.current_meter_selection);
         });
         this.subscription = this.instanceDataService.knecht_updates.subscribe(([updates, ]) => {
-            if (updates.includes(KnechtUpdates.FilterChanged)) {
+            if (updates.includes(KnechtUpdates.FilterChanged))
                 this.ability_details = [];
-            }
         });
     }
 
@@ -84,8 +84,10 @@ export class RaidDetailTableComponent implements OnDestroy {
     }
 
     get current_ability_details(): Array<DetailRow> {
-        const details = this.ability_details.find(([ability, i_details]) => ability === this.current_ability_selection);
-        if (details === undefined) {
+        const has_ability = this.ability_details.some(([unit_id, ab_details]) =>
+            ab_details.some(([ability_id, i_details]) => ability_id === this.current_ability_selection));
+
+        if (!has_ability) {
             if (this.abilities.length > 0 && this.ability_details.length > 0) {
                 this.current_ability_selection = this.abilities[0].value;
                 this.adjust_path();
@@ -93,7 +95,13 @@ export class RaidDetailTableComponent implements OnDestroy {
             }
             return [];
         }
-        return details[1].map(([hit_type, detail_row]) => detail_row);
+
+        return this.ability_details.reduce((acc, [unit_id, ab_details]) => {
+            const detail_rows = ab_details.find(([ability_id, dr]) => ability_id === this.current_ability_selection);
+            if (detail_rows === undefined)
+                return acc;
+            return merge_detail_rows(acc, detail_rows[1].map(([ht, dr]) => dr));
+        }, []);
     }
 
     change_ability_selection(selection: number): void {

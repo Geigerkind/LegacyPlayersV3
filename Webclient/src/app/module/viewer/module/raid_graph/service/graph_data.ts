@@ -5,14 +5,13 @@ import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {RaidGraphKnecht} from "../tool/raid_graph_knecht";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import {MeterAuraUptimeService} from "../../raid_meter/service/meter_aura_uptime";
-import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {flatten_aura_uptime_to_spell_map} from "../../raid_meter/stdlib/aura_uptime";
 import {SpellService} from "../../../service/spell";
 import {map} from "rxjs/operators";
-import {UtilService} from "../../raid_meter/service/util";
 import {get_absorb_data_points} from "../../../stdlib/absorb";
 import {ChartType, number_to_chart_type} from "../domain_value/chart_type";
 import {Unit} from "../../../domain_value/unit";
+import {UnitService} from "../../../service/unit";
 
 @Injectable({
     providedIn: "root",
@@ -25,9 +24,6 @@ export class GraphDataService implements OnDestroy {
     private subscription: Subscription;
     private data_points$: BehaviorSubject<[Array<number>, Array<[DataSet, [Array<number>, Array<number>, Array<Unit>, Array<Array<[number, number]>>]]>]> = new BehaviorSubject([[], []]);
     private current_data: Map<DataSet, [Array<number>, Array<number>, Array<Unit>, Array<Array<[number, number]>>]> = new Map();
-
-    private UNUSED_abilities$: Map<number, RaidMeterSubject> = new Map();
-    private UNUSED_units$: Map<number, RaidMeterSubject> = new Map();
 
     private source_ability_intervals: Array<[number, Array<[number, number]>]> = [];
     private target_ability_intervals: Array<[number, Array<[number, number]>]> = [];
@@ -47,7 +43,8 @@ export class GraphDataService implements OnDestroy {
     constructor(
         private instanceDataService: InstanceDataService,
         private spell_service: SpellService,
-        private util_service: UtilService
+        private unitService: UnitService,
+        private spellService: SpellService
     ) {
         this.subscription = this.instanceDataService.knecht_updates.subscribe(([knecht_updates, _]) => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem))) {
@@ -56,10 +53,10 @@ export class GraphDataService implements OnDestroy {
             }
         });
 
-        this.source_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, util_service);
-        this.target_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, util_service);
+        this.source_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, unitService, spellService);
+        this.target_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, unitService, spellService);
 
-        this.subscription.add(this.source_meter_aura_uptime_service.get_data(false, this.UNUSED_abilities$, this.UNUSED_units$).subscribe(data => {
+        this.subscription.add(this.source_meter_aura_uptime_service.get_data(false).subscribe(data => {
             this.source_ability_intervals = flatten_aura_uptime_to_spell_map(data);
             const observables = this.source_ability_intervals
                 .map(([spell_id, intervals]) => this.spell_service.get_localized_basic_spell(spell_id)
@@ -72,7 +69,7 @@ export class GraphDataService implements OnDestroy {
             zip(...observables).subscribe(abilities => this.source_abilities$.next(abilities));
         }));
 
-        this.subscription.add(this.target_meter_aura_uptime_service.get_data(true, this.UNUSED_abilities$, this.UNUSED_units$).subscribe(data => {
+        this.subscription.add(this.target_meter_aura_uptime_service.get_data(true).subscribe(data => {
             this.target_ability_intervals = flatten_aura_uptime_to_spell_map(data);
             const observables = this.target_ability_intervals
                 .map(([spell_id, intervals]) => this.spell_service.get_localized_basic_spell(spell_id)
@@ -187,14 +184,14 @@ export class GraphDataService implements OnDestroy {
                 break;
             case DataSet.AbsorbDone:
             case DataSet.AbsorbTaken:
-                this.commit_data_set(data_set, RaidGraphKnecht.squash((await get_absorb_data_points(data_set === DataSet.AbsorbTaken, this.instanceDataService))
-                    .reduce((acc, [subject_id, [subject, points]]) => [...acc, ...points.map(([spell_id, ts, amount]) => [ts, amount])], [])
+                this.commit_data_set(data_set, RaidGraphKnecht.squash((await get_absorb_data_points(data_set === DataSet.AbsorbTaken, this.instanceDataService))[0]
+                    .reduce((acc, [subject_id, ab_arr]) => ab_arr.reduce((i_acc, [ability_id, points]) => [...i_acc, ...points], acc), [])
                     .sort((left, right) => left[0] - right[0])));
                 break;
             case DataSet.HealAndAbsorbDone:
             case DataSet.HealAndAbsorbTaken:
-                this.commit_data_set(data_set, RaidGraphKnecht.squash([...(await get_absorb_data_points(data_set === DataSet.HealAndAbsorbTaken, this.instanceDataService))
-                    .reduce((acc, [subject_id, [subject, points]]) => [...acc, ...points.map(([spell_id, ts, amount]) => [ts, amount])], []),
+                this.commit_data_set(data_set, RaidGraphKnecht.squash([...(await get_absorb_data_points(data_set === DataSet.HealAndAbsorbTaken, this.instanceDataService))[0]
+                    .reduce((acc, [subject_id, ab_arr]) => ab_arr.reduce((i_acc, [ability_id, points]) => [...i_acc, ...points], acc), []),
                     ...await this.instanceDataService.knecht_heal.graph_data_set(data_set === DataSet.HealAndAbsorbDone ? DataSet.EffectiveHealingDone : DataSet.EffectiveHealingTaken)]
                     .sort((left, right) => left[0] - right[0])));
                 break;

@@ -53,9 +53,9 @@ export class MeterGraphComponent {
             return this.bar_subjects.get(subject_id);
         return {
             id: subject_id,
-            name: of("Unknown"),
-            color_class: of("hero_class_bg_1"),
-            icon: of("/assets/wow_icon/inv_misc_questionmark.jpg")
+            name: "Unknown",
+            color_class: "hero_class_bg_1",
+            icon: "/assets/wow_icon/inv_misc_questionmark.jpg"
         };
     }
 

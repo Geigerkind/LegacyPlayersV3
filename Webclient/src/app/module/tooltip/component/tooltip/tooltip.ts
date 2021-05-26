@@ -50,6 +50,7 @@ export class TooltipComponent {
             } else if (args.type === 5) {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;
+                this.tooltipArgs = args;
             } else if (args.type === 6) {
                 this.tooltipType = args.type;
                 this.tooltipPayload = args.payload;

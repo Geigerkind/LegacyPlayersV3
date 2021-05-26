@@ -1,11 +1,11 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {InstanceDataService} from "../../../service/instance_data";
-import {UtilService} from "./util";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import {AuraGainOverviewRow} from "../domain_value/aura_gain_overview_row";
-import {get_unit_id} from "../../../domain_value/unit";
+import {SpellService} from "../../../service/spell";
+import {UnitService} from "../../../service/unit";
+import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 
 @Injectable({
     providedIn: "root",
@@ -15,26 +15,25 @@ export class MeterAuraGainService implements OnDestroy {
     private subscription: Subscription;
 
     private data$: BehaviorSubject<Array<[number, Array<AuraGainOverviewRow>]>> = new BehaviorSubject([]);
-    private abilities$: Map<number, RaidMeterSubject>;
-    private units$: Map<number, RaidMeterSubject>;
 
     private initialized: boolean = false;
     private current_mode: boolean = false;
+    private current_meta: InstanceViewerMeta;
 
     constructor(
         private instanceDataService: InstanceDataService,
-        private utilService: UtilService
+        private spellService: SpellService,
+        private unitService: UnitService
     ) {
+        this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
     }
 
-    get_data(mode: boolean, abilities: Map<number, RaidMeterSubject>, units: Map<number, RaidMeterSubject>): Observable<Array<[number, Array<AuraGainOverviewRow>]>> {
+    get_data(mode: boolean): Observable<Array<[number, Array<AuraGainOverviewRow>]>> {
         if (!this.initialized) {
-            this.abilities$ = abilities;
-            this.units$ = units;
             this.current_mode = mode;
             this.initialize();
         } else if (this.current_mode !== mode) {
@@ -58,17 +57,11 @@ export class MeterAuraGainService implements OnDestroy {
         const data_set = await this.instanceDataService.knecht_aura.meter_aura_gain(this.current_mode);
         const result = [];
         for (const [subject_id, [subject, rows]] of data_set) {
-            if (!this.units$.has(subject_id))
-                this.units$.set(subject_id, this.utilService.get_row_unit_subject(subject));
+            this.unitService.get_unit_basic_information(subject, this.current_meta.end_ts ?? this.current_meta.start_ts);
             for (const row of rows) {
-                if (!this.abilities$.has(row.ability))
-                    this.abilities$.set(row.ability, this.utilService.get_row_ability_subject(row.ability));
-                const caster_id = get_unit_id(row.caster, false);
-                if (!this.units$.has(caster_id))
-                    this.units$.set(caster_id, this.utilService.get_row_unit_subject(row.caster));
-                const target_id = get_unit_id(row.target, false);
-                if (!this.units$.has(target_id))
-                    this.units$.set(target_id, this.utilService.get_row_unit_subject(row.target));
+                this.spellService.get_spell_basic_information(row.ability);
+                this.unitService.get_unit_basic_information(row.caster, this.current_meta.end_ts ?? this.current_meta.start_ts);
+                this.unitService.get_unit_basic_information(row.target, this.current_meta.end_ts ?? this.current_meta.start_ts);
             }
             result.push([subject_id, rows]);
         }

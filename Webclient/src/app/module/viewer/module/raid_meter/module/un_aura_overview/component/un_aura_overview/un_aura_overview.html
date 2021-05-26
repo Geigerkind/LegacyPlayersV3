@@ -9,10 +9,10 @@
     <div class="body">
         <div class="row" *ngFor="let row of un_aura_overview_rows; index as i">
             <div class="td">{{dateService.toRPLLTimePrecise(row.timestamp)}}</div>
-            <div class="td">{{get_unit_name(row.caster) | async}}</div>
-            <div class="td">{{get_unit_name(row.target) | async}}</div>
-            <div class="td">{{get_ability_name(row.caster_spell_id) | async}}</div>
-            <div class="td">{{get_ability_name(row.target_spell_id) | async}}</div>
+            <div class="td">{{get_unit_name(row.caster)}}</div>
+            <div class="td">{{get_unit_name(row.target)}}</div>
+            <div class="td">{{get_ability_name(row.caster_spell_id)}}</div>
+            <div class="td">{{get_ability_name(row.target_spell_id)}}</div>
         </div>
     </div>
 </div>

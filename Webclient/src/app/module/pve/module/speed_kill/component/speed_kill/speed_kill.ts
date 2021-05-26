@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
 import {SpeedKillService} from "../../service/speed_kill";
-import {of, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {SettingsService} from "../../../../../../service/settings";
@@ -50,8 +50,8 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
             for (const speed_kill of speed_kills) {
                 this.bar_tooltips.set(speed_kill.instance_meta_id, {type: 3, guild_id: speed_kill.guild_id});
                 this.bar_subjects.set(speed_kill.instance_meta_id, {
-                    id: speed_kill.guild_id, name: of(speed_kill.guild_name),
-                    color_class: of("hero_class_bg_1"), icon: of("/assets/wow_icon/inv_misc_questionmark.jpg")
+                    id: speed_kill.guild_id, name: speed_kill.guild_name,
+                    color_class: "hero_class_bg_1", icon: "/assets/wow_icon/inv_misc_questionmark.jpg"
                 } as RaidMeterSubject);
                 this.bars.push([speed_kill.instance_meta_id, speed_kill.duration]);
             }

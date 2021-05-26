@@ -2,15 +2,39 @@ import {Injectable} from "@angular/core";
 import {Observable, of} from "rxjs";
 import {Localized} from "../../../domain_value/localized";
 import {BasicSpell} from "../../../domain_value/data/basic_spell";
-import {map} from "rxjs/operators";
+import {map, share} from "rxjs/operators";
 import {DataService} from "../../../service/data";
 import {
-    CONST_AUTO_ATTACK_ID, CONST_AUTO_ATTACK_ID_MH,
+    CONST_AUTO_ATTACK_ID,
+    CONST_AUTO_ATTACK_ID_MH,
     CONST_AUTO_ATTACK_ID_OH,
-    CONST_AUTO_ATTACK_LABEL, CONST_AUTO_ATTACK_LABEL_MH,
-    CONST_AUTO_ATTACK_LABEL_OH
+    CONST_AUTO_ATTACK_LABEL,
+    CONST_AUTO_ATTACK_LABEL_MH,
+    CONST_AUTO_ATTACK_LABEL_OH,
+    CONST_UNKNOWN_LABEL
 } from "../constant/viewer";
 import {School} from "../domain_value/school";
+import {first_matching_primary_school} from "../../../stdlib/spell";
+
+export interface SpellBasicInformation {
+    id: number;
+    name: string;
+    icon: string;
+    color_class: string;
+    schools: Array<School>;
+    basic_info: BasicSpell;
+}
+
+function default_spell_basic_information(): SpellBasicInformation {
+    return {
+        id: -1,
+        name: CONST_UNKNOWN_LABEL,
+        icon: "inv_misc_questionmark",
+        color_class: "spell_school_bg_0",
+        schools: [School.Physical],
+        basic_info: undefined
+    };
+}
 
 @Injectable({
     providedIn: "root",
@@ -19,10 +43,36 @@ export class SpellService {
 
     private server_id$: number;
     private expansion_id$: number;
+    private spells$: Map<number, SpellBasicInformation> = new Map();
 
     constructor(
         private dataService: DataService
     ) {
+        this.spells$.set(-1, default_spell_basic_information());
+        this.spells$.set(CONST_AUTO_ATTACK_ID, {
+            id: CONST_AUTO_ATTACK_ID,
+            name: CONST_AUTO_ATTACK_LABEL,
+            icon: "/assets/wow_icon/inv_sword_04.jpg",
+            color_class: "spell_school_bg_0",
+            schools: [School.Physical],
+            basic_info: undefined
+        });
+        this.spells$.set(CONST_AUTO_ATTACK_ID_OH, {
+            id: CONST_AUTO_ATTACK_ID_OH,
+            name: CONST_AUTO_ATTACK_LABEL_OH,
+            icon: "/assets/wow_icon/inv_sword_04.jpg",
+            color_class: "spell_school_bg_0",
+            schools: [School.Physical],
+            basic_info: undefined
+        });
+        this.spells$.set(CONST_AUTO_ATTACK_ID_MH, {
+            id: CONST_AUTO_ATTACK_ID_MH,
+            name: CONST_AUTO_ATTACK_LABEL_MH,
+            icon: "/assets/wow_icon/inv_sword_04.jpg",
+            color_class: "spell_school_bg_0",
+            schools: [School.Physical],
+            basic_info: undefined
+        });
     }
 
     static parse_school_mask(school_mask: number): Array<School> {
@@ -68,46 +118,38 @@ export class SpellService {
         this.expansion_id$ = expansion_id;
     }
 
+    get spells(): Map<number, SpellBasicInformation> {
+        return this.spells$;
+    }
+
+    get_spell_basic_information(spell_id: number): Observable<SpellBasicInformation> {
+        if (this.spells$.has(spell_id))
+            return of(this.spells$.get(spell_id));
+        const spell_basic_info = default_spell_basic_information();
+        spell_basic_info.id = spell_id;
+        const res = this.get_localized_basic_spell(spell_id)
+            .pipe(share(), map(spell => {
+                spell_basic_info.name = spell.localization;
+                spell_basic_info.icon = "/assets/wow_icon/" + spell?.base.icon + ".jpg";
+                spell_basic_info.schools = SpellService.parse_school_mask(spell.base.school);
+                spell_basic_info.color_class = "spell_school_bg_" + first_matching_primary_school(spell?.base.school);
+                spell_basic_info.basic_info = spell.base;
+                return spell_basic_info;
+            }));
+        res.subscribe(spell => {
+            this.spells$.set(spell.id, spell);
+        });
+        return res;
+    }
+
     get_localized_basic_spell(spell_id: number): Observable<Localized<BasicSpell>> {
-        if (spell_id === CONST_AUTO_ATTACK_ID)
-            return of({
-                localization: CONST_AUTO_ATTACK_LABEL,
-                base: {
-                    id: CONST_AUTO_ATTACK_ID,
-                    icon: "inv_sword_04",
-                    school: 0
-                }
-            });
-        else if (spell_id === CONST_AUTO_ATTACK_ID_OH)
-            return of({
-                localization: CONST_AUTO_ATTACK_LABEL_OH,
-                base: {
-                    id: CONST_AUTO_ATTACK_ID_OH,
-                    icon: "inv_sword_04",
-                    school: 0
-                }
-            });
-        else if (spell_id === CONST_AUTO_ATTACK_ID_MH)
-            return of({
-                localization: CONST_AUTO_ATTACK_LABEL_MH,
-                base: {
-                    id: CONST_AUTO_ATTACK_ID_MH,
-                    icon: "inv_sword_04",
-                    school: 0
-                }
-            });
         if (!this.server_id$)
             return of(this.dataService.unknown_basic_spell(-1));
         return this.dataService.get_localized_basic_spell(this.expansion_id$, spell_id);
     }
 
     get_spell_name(spell_id: number): Observable<string> {
-        return this.get_localized_basic_spell(spell_id)
-            .pipe(map(spell => spell.localization));
-    }
-
-    get_spell_school_mask(spell_id: number): Observable<Array<School>> {
-        return this.get_localized_basic_spell(spell_id)
-            .pipe(map(spell => SpellService.parse_school_mask(spell.base.school)));
+        return this.get_spell_basic_information(spell_id)
+            .pipe(map(spell => spell.name));
     }
 }

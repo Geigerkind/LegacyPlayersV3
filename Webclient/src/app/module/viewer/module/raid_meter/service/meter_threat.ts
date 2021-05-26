@@ -1,9 +1,10 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {InstanceDataService} from "../../../service/instance_data";
-import {UtilService} from "./util";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
+import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
+import {UnitService} from "../../../service/unit";
+import {SpellService} from "../../../service/spell";
 
 @Injectable({
     providedIn: "root",
@@ -13,26 +14,25 @@ export class MeterThreatService implements OnDestroy {
     private subscription: Subscription;
 
     private data$: BehaviorSubject<Array<[number, Array<[number, number]>]>> = new BehaviorSubject([]);
-    private abilities$: Map<number, RaidMeterSubject>;
-    private units$: Map<number, RaidMeterSubject>;
 
     private initialized: boolean = false;
     private current_mode: boolean = false;
+    private current_meta: InstanceViewerMeta;
 
     constructor(
         private instanceDataService: InstanceDataService,
-        private utilService: UtilService
+        private unitService: UnitService,
+        private spellService: SpellService
     ) {
+        this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
     }
 
-    get_data(mode: boolean, abilities: Map<number, RaidMeterSubject>, units: Map<number, RaidMeterSubject>): Observable<Array<[number, Array<[number, number]>]>> {
+    get_data(mode: boolean): Observable<Array<[number, Array<[number, number]>]>> {
         if (!this.initialized) {
-            this.abilities$ = abilities;
-            this.units$ = units;
             this.current_mode = mode;
             this.initialize();
         } else if (this.current_mode !== mode) {
@@ -57,14 +57,12 @@ export class MeterThreatService implements OnDestroy {
 
         const result1 = await this.instanceDataService.knecht_threat.meter_threat(this.current_mode);
         for (const [subject_id, [subject, abilities]] of result1) {
-            if (!this.units$.has(subject_id))
-                this.units$.set(subject_id, this.utilService.get_row_unit_subject(subject));
+            this.unitService.get_unit_basic_information(subject, this.current_meta.end_ts ?? this.current_meta.start_ts);
             if (!result.has(subject_id))
                 result.set(subject_id, new Map());
             const ability_map = result.get(subject_id);
             for (const [ability_id, amount] of abilities) {
-                if (!this.abilities$.has(ability_id))
-                    this.abilities$.set(ability_id, this.utilService.get_row_ability_subject(ability_id));
+                this.spellService.get_spell_basic_information(ability_id);
                 ability_map.set(ability_id, amount);
             }
         }

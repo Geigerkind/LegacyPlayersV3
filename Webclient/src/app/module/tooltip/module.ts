@@ -16,6 +16,7 @@ import {DetailTableModule} from "../viewer/module/raid_detail_table/module/detai
 import {SpellTooltipModule} from "./module/spell_tooltip/module";
 import {ViewerAuraGainTooltipModule} from "./module/viewer_aura_gain_tooltip/module";
 import {TalentSpellTooltipModule} from "./module/talent_spell_tooltip/module";
+import {AuraMeterAbilitiesTooltipModule} from "./module/aura_meter_abilities_tooltip/module";
 
 @NgModule({
     declarations: [TooltipComponent],
@@ -34,7 +35,8 @@ import {TalentSpellTooltipModule} from "./module/talent_spell_tooltip/module";
         DetailTableModule,
         SpellTooltipModule,
         ViewerAuraGainTooltipModule,
-        TalentSpellTooltipModule
+        TalentSpellTooltipModule,
+        AuraMeterAbilitiesTooltipModule
     ],
     exports: [TooltipComponent],
     providers: [TooltipService]

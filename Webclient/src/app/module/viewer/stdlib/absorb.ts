@@ -1,5 +1,5 @@
 import {InstanceDataService} from "../service/instance_data";
-import {get_unit_id, Unit} from "../domain_value/unit";
+import {get_unit_id} from "../domain_value/unit";
 import {ALL_SCHOOLS, School} from "../domain_value/school";
 
 export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = new Map([
@@ -159,16 +159,21 @@ export const ABSORBING_SPELL_IDS: Map<number, [Array<School>, Array<School>]> = 
 ]);
 
 // TODO: How to deal with several active absorb spells?
-export async function get_absorb_data_points(current_mode: boolean, instance_data_service: InstanceDataService): Promise<Array<[number, [Unit, Array<[number, number, number]>]]>> {
-    const aura_uptime = await instance_data_service.knecht_aura.meter_aura_uptime(current_mode);
-    const absorb_melee = await instance_data_service.knecht_melee.meter_absorbed_damage();
-    const absorb_spell = await instance_data_service.knecht_spell_damage.meter_absorbed_damage();
+export async function get_absorb_data_points(current_mode: boolean, instance_data_service: InstanceDataService): Promise<[Array<[number, Array<[number, Array<[number, number]>]>]>, Array<[number, Array<[number, number]>]>]> {
+    const aura_uptime_job = instance_data_service.knecht_aura.meter_aura_uptime(current_mode);
+    const absorb_melee_job = instance_data_service.knecht_melee.meter_absorbed_damage();
+    const absorb_spell_job = instance_data_service.knecht_spell_damage.meter_absorbed_damage();
+
+    const aura_uptime = await aura_uptime_job;
+    const absorb_melee = await absorb_melee_job;
+    const absorb_spell = await absorb_spell_job;
 
     const result = new Map();
+    const target_summary = new Map();
 
     const aura_uptime_map = new Map(aura_uptime);
     for (const data_set of [absorb_melee, absorb_spell]) {
-        for (const [subject_id, [subject, absorbs]] of data_set) {
+        for (const [subject_id, absorbs] of data_set) {
             if (!aura_uptime_map.has(subject_id))
                 continue;
             const subject_intervals = new Map(aura_uptime_map.get(subject_id)[1]);
@@ -181,15 +186,29 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                     let found = false;
                     for (const [start, end, start_aura_app_unit, end_aura_app_unit] of uptime_intervals) {
                         if ((start === undefined || start - 500 <= timestamp) && (end === undefined || end + 500 >= timestamp)) {
+                            const start_unit_id = get_unit_id(start_aura_app_unit, false);
                             if (current_mode) {
-                                if (!result.has(subject_id))
-                                    result.set(subject_id, [subject, []]);
-                                result.get(subject_id)[1].push([absorb_spell_id, timestamp, amount]);
+                                if (!result.has(subject_id)) {
+                                    result.set(subject_id, new Map());
+                                    target_summary.set(subject_id, new Map());
+                                }
+                                if (!target_summary.get(subject_id).has(start_unit_id))
+                                    target_summary.get(subject_id).set(start_unit_id, 0);
+                                if (!result.get(subject_id).has(absorb_spell_id))
+                                    result.get(subject_id).set(absorb_spell_id, []);
+                                result.get(subject_id).get(absorb_spell_id).push([timestamp, amount]);
+                                target_summary.get(subject_id).set(start_unit_id, target_summary.get(subject_id).get(start_unit_id) + amount);
                             } else {
-                                const start_unit_id = get_unit_id(start_aura_app_unit, false);
-                                if (!result.has(start_unit_id))
-                                    result.set(start_unit_id, [start_aura_app_unit, []]);
-                                result.get(start_unit_id)[1].push([absorb_spell_id, timestamp, amount]);
+                                if (!result.has(start_unit_id)) {
+                                    result.set(start_unit_id, new Map());
+                                    target_summary.set(start_unit_id, new Map());
+                                }
+                                if (!target_summary.get(start_unit_id).has(subject_id))
+                                    target_summary.get(start_unit_id).set(subject_id, 0);
+                                if (!result.get(start_unit_id).has(absorb_spell_id))
+                                    result.get(start_unit_id).set(absorb_spell_id, []);
+                                result.get(start_unit_id).get(absorb_spell_id).push([timestamp, amount]);
+                                target_summary.get(start_unit_id).set(subject_id, target_summary.get(start_unit_id).get(subject_id) + amount);
                             }
                             found = true;
                             break;
@@ -201,9 +220,11 @@ export async function get_absorb_data_points(current_mode: boolean, instance_dat
                     }
                 }
             }
+
+
         }
     }
 
-    // @ts-ignore
-    return [...result.entries()];
+    return [[...result.entries()].map(([unit_id, ab_map]) => [unit_id, [...ab_map.entries()]]),
+        [...target_summary.entries()].map(([unit_id, tar_amount]) => [unit_id, [...tar_amount.entries()]])]
 }

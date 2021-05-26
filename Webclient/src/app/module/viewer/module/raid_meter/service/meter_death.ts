@@ -1,11 +1,11 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {InstanceDataService} from "../../../service/instance_data";
-import {UtilService} from "./util";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
-import {get_unit_id} from "../../../domain_value/unit";
+import {UnitService} from "../../../service/unit";
+import {SpellService} from "../../../service/spell";
+import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 
 @Injectable({
     providedIn: "root",
@@ -15,26 +15,25 @@ export class MeterDeathService implements OnDestroy {
     private subscription: Subscription;
 
     private data$: BehaviorSubject<Array<[number, Array<DeathOverviewRow>]>> = new BehaviorSubject([]);
-    private abilities$: Map<number, RaidMeterSubject>;
-    private units$: Map<number, RaidMeterSubject>;
 
     private initialized: boolean = false;
     private current_mode: boolean = false;
+    private current_meta: InstanceViewerMeta;
 
     constructor(
         private instanceDataService: InstanceDataService,
-        private utilService: UtilService
+        private unitService: UnitService,
+        private spellService: SpellService
     ) {
+        this.instanceDataService.meta.subscribe(meta => this.current_meta = meta);
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
     }
 
-    get_data(mode: boolean, abilities: Map<number, RaidMeterSubject>, units: Map<number, RaidMeterSubject>): Observable<Array<[number, Array<DeathOverviewRow>]>> {
+    get_data(mode: boolean): Observable<Array<[number, Array<DeathOverviewRow>]>> {
         if (!this.initialized) {
-            this.abilities$ = abilities;
-            this.units$ = units;
             this.current_mode = mode;
             this.initialize();
         } else if (this.current_mode !== mode) {
@@ -61,8 +60,7 @@ export class MeterDeathService implements OnDestroy {
         const result2 = await this.instanceDataService.knecht_spell_damage.meter_death(this.current_mode);
         for (const data_set of [result1, result2]) {
             for (const [subject_id, [subject, death_overview_rows]] of data_set) {
-                if (!this.units$.has(subject_id))
-                    this.units$.set(subject_id, this.utilService.get_row_unit_subject(subject));
+                this.unitService.get_unit_basic_information(subject, this.current_meta.end_ts ?? this.current_meta.start_ts);
                 if (!result.has(subject_id))
                     result.set(subject_id, death_overview_rows);
                 else {
@@ -80,16 +78,9 @@ export class MeterDeathService implements OnDestroy {
                     }
                 }
                 for (const row of death_overview_rows) {
-                    if (!this.abilities$.has(row.killing_blow.ability_id))
-                        this.abilities$.set(row.killing_blow.ability_id, this.utilService.get_row_ability_subject(row.killing_blow.ability_id));
-
-                    const murder_subject_id = get_unit_id(row.murder, false);
-                    if (!this.units$.has(murder_subject_id))
-                        this.units$.set(murder_subject_id, this.utilService.get_row_unit_subject(row.murder));
-
-                    const murdered_subject_id = get_unit_id(row.murdered, false);
-                    if (!this.units$.has(murdered_subject_id))
-                        this.units$.set(murdered_subject_id, this.utilService.get_row_unit_subject(row.murdered));
+                    this.spellService.get_spell_basic_information(row.killing_blow.ability_id);
+                    this.unitService.get_unit_basic_information(row.murder, this.current_meta.end_ts ?? this.current_meta.start_ts);
+                    this.unitService.get_unit_basic_information(row.murdered, this.current_meta.end_ts ?? this.current_meta.start_ts);
                 }
             }
         }

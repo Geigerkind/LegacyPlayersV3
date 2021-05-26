@@ -3,7 +3,7 @@ import {RankingService} from "../../service/ranking";
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {SettingsService} from "../../../../../../service/settings";
-import {of, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {DataService} from "../../../../../../service/data";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
@@ -236,10 +236,10 @@ export class RankingComponent implements OnInit, OnDestroy {
         this.subscription_rankings = this.rankingService.rankings.subscribe(entries => {
             for (const row of entries) {
                 this.bar_subjects.set(row.character_id, {
-                    color_class: of("hero_class_bg_" + row.character_meta.hero_class_id.toString()),
-                    icon: of("/assets/wow_hero_classes/c" + row.character_meta.hero_class_id.toString() + ".png"),
+                    color_class: "hero_class_bg_" + row.character_meta.hero_class_id.toString(),
+                    icon: "/assets/wow_hero_classes/c" + row.character_meta.hero_class_id.toString() + ".png",
                     id: row.character_id,
-                    name: of(row.character_meta.name)
+                    name: row.character_meta.name
                 });
                 this.bar_tooltips.set(row.character_id, {type: 1, character_id: row.character_id});
                 this.bar_meta_information.set(row.character_id, [row.instance_meta_ids, row.attempt_ids]);

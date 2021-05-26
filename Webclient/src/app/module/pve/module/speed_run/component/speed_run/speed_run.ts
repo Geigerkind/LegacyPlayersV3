@@ -5,7 +5,7 @@ import {SettingsService} from "../../../../../../service/settings";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {DataService} from "../../../../../../service/data";
-import {of, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {SpeedRunService} from "../../service/speed_run";
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DateService} from "../../../../../../service/date";
@@ -50,8 +50,10 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
             for (const speed_run of speed_runs) {
                 this.bar_tooltips.set(speed_run.instance_meta_id, {type: 3, guild_id: speed_run.guild_id});
                 this.bar_subjects.set(speed_run.instance_meta_id, {
-                    id: speed_run.guild_id, name: of(speed_run.guild_name),
-                    color_class: of("hero_class_bg_1"), icon: of("/assets/wow_icon/inv_misc_questionmark.jpg")
+                    id: speed_run.guild_id,
+                    name: speed_run.guild_name,
+                    color_class: "hero_class_bg_1",
+                    icon: "/assets/wow_icon/inv_misc_questionmark.jpg"
                 } as RaidMeterSubject);
                 this.bars.push([speed_run.instance_meta_id, speed_run.duration]);
             }

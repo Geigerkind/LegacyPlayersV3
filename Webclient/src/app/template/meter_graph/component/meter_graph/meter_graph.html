@@ -8,16 +8,16 @@
                     <div class="gray_bg_bar"></div>
                     <div class="bar_label_left">
                         <span>{{i+1}}.</span>
-                        <span>{{get_bar_subject(bar[0]).name | async}}</span>
+                        <span>{{get_bar_subject(bar[0]).name}}</span>
                     </div>
                     <div class="bar_label_right">
                         <span>{{get_amount(bar[1])}}</span>
                         <span *ngIf="show_per_second">{{format_dps(bar[1])}}/s</span>
                     </div>
                 </div>
-                <div class="bar_bg_color {{get_bar_subject(bar[0]).color_class | async}}"></div>
+                <div class="bar_bg_color {{get_bar_subject(bar[0]).color_class}}"></div>
             </div>
-            <div class="icon" style="background-image: url({{get_bar_subject(bar[0]).icon | async}})"></div>
+            <div class="icon" style="background-image: url({{get_bar_subject(bar[0]).icon}})"></div>
             <div class="label_right" *ngIf="show_percent">
                 <span>{{(get_fraction(bar[1])*100).toFixed(1)}}%</span>
             </div>

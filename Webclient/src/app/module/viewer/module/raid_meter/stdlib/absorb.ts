@@ -7,8 +7,9 @@ import {School, school_mask_to_school_array} from "../../../domain_value/school"
 import {ae_spell_damage} from "../../../extractor/abilities";
 
 export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: Array<Event>,
-                                      melee_unit_extraction: (Event) => Unit, spell_unit_extraction: (Event) => Unit): Array<[number, [Unit, Array<[number, number, number, Array<School>]>]]> {
-    const newData = new Map<number, [Unit, Array<[number, number, number, Array<School>]>]>();
+                                      melee_unit_extraction: (Event) => Unit,
+                                      spell_unit_extraction: (Event) => Unit): Array<[number, Array<[number, number, number, Array<School>]>]> {
+    const newData = new Map<number, Array<[number, number, number, Array<School>]>>();
 
     // Melee Damage
     // @ts-ignore
@@ -26,11 +27,11 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
                 const absorb = component[2];
                 if (absorb === 0)
                     continue;
-                result.push([CONST_AUTO_ATTACK_ID, event[1], absorb, school_mask_to_school_array(component[2])]);
+                result.push([CONST_AUTO_ATTACK_ID, event[1], absorb, school_mask_to_school_array(component[2]), ]);
             }
         }
         if (result.length > 0)
-            newData.set(subject_id, [melee_unit_extraction(grouping[unit_id][0]), result]);
+            newData.set(subject_id, result);
     }
 
     // Spell Damage
@@ -39,9 +40,9 @@ export function commit_absorb_damages(melee_damage: Array<Event>, spell_damage: 
     for (const unit_id in grouping) {
         const subject_id = Number(unit_id);
         if (!newData.has(subject_id))
-            newData.set(subject_id, [spell_unit_extraction(grouping[unit_id][0]), []]);
+            newData.set(subject_id, []);
 
-        const absorbs = newData.get(subject_id)[1];
+        const absorbs = newData.get(subject_id);
         for (const event of grouping[unit_id]) {
             const spell_id = ae_spell_damage(event);
             const hit_mask = hit_mask_to_hit_type_array(event[6]);

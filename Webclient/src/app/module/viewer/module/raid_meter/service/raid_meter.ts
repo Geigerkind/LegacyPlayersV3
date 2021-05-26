@@ -1,7 +1,5 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
-import {RaidMeterSubject} from "../../../../../template/meter_graph/domain_value/raid_meter_subject";
-import {HealMode} from "../../../domain_value/heal_mode";
 import {DeathOverviewRow} from "../module/deaths_overview/domain_value/death_overview_row";
 import {UnAuraOverviewRow} from "../module/un_aura_overview/domain_value/un_aura_overview_row";
 import {MeterDamageService} from "./meter_damage";
@@ -17,6 +15,7 @@ import {MeterHealAndAbsorbService} from "./meter_heal_and_absorb";
 import {RaidConfigurationSelectionService} from "../../raid_configuration_menu/service/raid_configuration_selection";
 import {MeterAuraGainService} from "./meter_aura_gain";
 import {AuraGainOverviewRow} from "../domain_value/aura_gain_overview_row";
+import {HealMode} from "../../../domain_value/heal_mode";
 
 @Injectable({
     providedIn: "root",
@@ -27,8 +26,6 @@ export class RaidMeterService implements OnDestroy {
 
     private data$: BehaviorSubject<Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow>
         | Array<[number, Array<[number, number]>]>]>> = new BehaviorSubject([]);
-    private abilities$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
-    private units$: BehaviorSubject<Map<number, RaidMeterSubject>> = new BehaviorSubject(new Map());
 
     private current_selection: number = -1;
     private last_event_type_selection: Set<number> = new Set();
@@ -60,14 +57,6 @@ export class RaidMeterService implements OnDestroy {
         return this.data$.asObservable();
     }
 
-    get abilities(): Observable<Map<number, RaidMeterSubject>> {
-        return this.abilities$.asObservable();
-    }
-
-    get units(): Observable<Map<number, RaidMeterSubject>> {
-        return this.units$.asObservable();
-    }
-
     select(selection: number): void {
         if (this.current_selection === selection)
             return;
@@ -82,31 +71,31 @@ export class RaidMeterService implements OnDestroy {
             case 2:
                 this.register_evt_type(13);
                 this.register_evt_type(12);
-                this.subscription_data = this.meter_damage_service.get_data(selection === 2, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_damage_service.get_data(selection === 2)
                     .subscribe(data => this.commit(data));
                 break;
             case 3:
             case 4:
                 this.register_evt_type(14);
-                this.subscription_data = this.meter_heal_service.get_data(HealMode.Total, selection === 4, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_service.get_data(HealMode.Total, selection === 4)
                     .subscribe(data => this.commit(data));
                 break;
             case 5:
             case 6:
                 this.register_evt_type(14);
-                this.subscription_data = this.meter_heal_service.get_data(HealMode.Effective, selection === 6, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_service.get_data(HealMode.Effective, selection === 6)
                     .subscribe(data => this.commit(data));
                 break;
             case 7:
             case 8:
                 this.register_evt_type(14);
-                this.subscription_data = this.meter_heal_service.get_data(HealMode.Overheal, selection === 8, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_service.get_data(HealMode.Overheal, selection === 8)
                     .subscribe(data => this.commit(data));
                 break;
             case 9:
             case 10:
                 this.register_evt_type(15);
-                this.subscription_data = this.meter_threat_service.get_data(selection === 10, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_threat_service.get_data(selection === 10)
                     .subscribe(data => this.commit(data));
                 break;
             case 11:
@@ -115,37 +104,37 @@ export class RaidMeterService implements OnDestroy {
                 this.register_evt_type(13);
                 this.register_evt_type(12);
                 this.register_evt_type(1);
-                this.subscription_data = this.meter_death_service.get_data(selection === 12, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_death_service.get_data(selection === 12)
                     .subscribe(data => this.commit(data));
                 break;
             case 13:
             case 14:
                 this.register_evt_type(9);
-                this.subscription_data = this.meter_dispel_service.get_data(selection === 14, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_dispel_service.get_data(selection === 14)
                     .subscribe(data => this.commit(data));
                 break;
             case 15:
             case 16:
                 this.register_evt_type(7);
-                this.subscription_data = this.meter_interrupt_service.get_data(selection === 16, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_interrupt_service.get_data(selection === 16)
                     .subscribe(data => this.commit(data));
                 break;
             case 17:
             case 18:
                 this.register_evt_type(8);
-                this.subscription_data = this.meter_spell_steal_service.get_data(selection === 18, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_spell_steal_service.get_data(selection === 18)
                     .subscribe(data => this.commit(data));
                 break;
             case 19:
             case 20:
                 this.register_evt_type(6);
-                this.subscription_data = this.meter_aura_uptime_service.get_data(selection === 20, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_aura_uptime_service.get_data(selection === 20)
                     .subscribe(data => this.commit(data));
                 break;
             case 21:
             case 22:
                 this.register_evt_type(6);
-                this.subscription_data = this.meter_absorb_service.get_data(selection === 22, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_absorb_service.get_data(selection === 22)
                     .subscribe(data => this.commit(data));
                 break;
             case 23:
@@ -154,13 +143,13 @@ export class RaidMeterService implements OnDestroy {
                 this.register_evt_type(13);
                 this.register_evt_type(12);
                 this.register_evt_type(6);
-                this.subscription_data = this.meter_heal_and_absorb_service.get_data(selection === 24, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_heal_and_absorb_service.get_data(selection === 24)
                     .subscribe(data => this.commit(data));
                 break;
             case 25:
             case 26:
                 this.register_evt_type(6);
-                this.subscription_data = this.meter_aura_gain_service.get_data(selection === 26, this.abilities$.getValue(), this.units$.getValue())
+                this.subscription_data = this.meter_aura_gain_service.get_data(selection === 26)
                     .subscribe(data => this.commit(data));
         }
 
@@ -173,8 +162,6 @@ export class RaidMeterService implements OnDestroy {
     }
 
     private commit(data: Array<[number, Array<[number, number] | DeathOverviewRow | UnAuraOverviewRow | AuraGainOverviewRow> | Array<[number, Array<[number, number]>]>]>): void {
-        this.abilities$.next(this.abilities$.getValue());
-        this.units$.next(this.units$.getValue());
         this.data$.next(data);
     }
 }
