@@ -1108,13 +1108,21 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         if let Some(captures) = RE_AURA_INTERRUPT.captures(&content) {
-            // let un_aura_caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?
+            let un_aura_caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
             let target = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
             let interrupted_spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(3)?.as_str())?;
             self.collect_participant(&target, captures.get(2)?.as_str(), event_ts);
             self.collect_active_map(data, &target, event_ts);
 
-            return Some(vec![MessageType::Interrupt(Interrupt { target, interrupted_spell_id })]);
+            return Some(vec![
+                MessageType::SpellCast(SpellCast {
+                    caster: un_aura_caster,
+                    target: Some(target.clone()),
+                    spell_id: 2139, // Must always be counter spell
+                    hit_mask: HitType::Hit as u32,
+                }),
+                MessageType::Interrupt(Interrupt { target, interrupted_spell_id })
+            ]);
         }
 
         None
