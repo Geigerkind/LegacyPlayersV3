@@ -17,6 +17,7 @@ export class AppComponent implements OnInit, OnChanges {
     private googleAnalyticsSubscription: Subscription
 
     enable_ads: boolean = true;
+    is_on_viewer_site: boolean = false;
 
     constructor(
         private settingsService: SettingsService,
@@ -25,6 +26,10 @@ export class AppComponent implements OnInit, OnChanges {
     ) {
         this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
         (window as any).addEventListener("beforeinstallprompt", (e) => () => this.prompt_for_pwa(e));
+
+        this.router.events.subscribe(event => {
+           this.is_on_viewer_site = this.router.url.includes("viewer/");
+        });
     }
 
     ngOnInit(): void {

@@ -24,6 +24,7 @@
         </div>
         <div id="right_bar">
             <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
+            <div [class.ad_hidden]="!is_on_viewer_site" class="vm-placement" data-id="609a80894e3663176463205f"></div>
         </div>
     </ng-container>
     <ng-container *ngIf="isMobile && enable_ads">
