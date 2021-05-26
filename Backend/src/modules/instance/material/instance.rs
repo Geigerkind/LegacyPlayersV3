@@ -360,7 +360,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
         )
         .into_iter()
         .for_each(|result| {
-            instance_metas.0 = result.instance_meta_id;
+            instance_metas.0 = if result.instance_meta_id > 50 { result.instance_meta_id - 50 } else { 0 }; // Always load previous 50 raids
             instance_metas.1.insert(result.instance_meta_id, result);
         });
 
