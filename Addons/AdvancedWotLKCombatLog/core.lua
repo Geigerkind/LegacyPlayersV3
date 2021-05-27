@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 23
+RPLL.VERSION = 24
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -349,6 +349,10 @@ end
 RPLL:RegisterEvent("UPDATE_INSTANCE_INFO")
 RPLL.UPDATE_INSTANCE_INFO = function()
     LoggingCombat(IsInInstance("player"))
+    RPLL:PushCurrentInstanceInfo()
+end
+RPLL:RegisterEvent("PLAYER_REGEN_ENABLED")
+RPLL.PLAYER_REGEN_ENABLED = function()
     RPLL:PushCurrentInstanceInfo()
 end
 
