@@ -95,7 +95,10 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                     sensitivity: 1,
                     onZoomComplete: () => {
                         if (!!this.zoom_boundaries[0] && !!this.zoom_boundaries[1]) {
-                            this.instanceDataService.communicator.next([CommunicationEvent.GraphBoundaries, [...this.zoom_boundaries]]);
+                            if (this.zoom_boundaries[0] <= this.zoom_boundaries[1])
+                                this.instanceDataService.communicator.next([CommunicationEvent.GraphBoundaries, [...this.zoom_boundaries]]);
+                            else
+                                this.instanceDataService.communicator.next([CommunicationEvent.GraphBoundaries, [this.zoom_boundaries[1], this.zoom_boundaries[0]]]);
                             this.zoom_boundaries = [undefined, undefined];
                         }
                     }
@@ -309,9 +312,9 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                             const offset_left = chart.scales["x-axis-0"].left;
                             const offset_right = chart.scales["x-axis-0"].right;
                             if (!!chart.$zoom._dragZoomStart)
-                                this.zoom_boundaries[0] = Math.max(0, chart.$zoom._dragZoomStart.layerX - offset_left) / offset_right;
+                                this.zoom_boundaries[0] = Math.min(offset_right, Math.max(0, chart.$zoom._dragZoomStart.layerX - offset_left)) / offset_right;
                             if (!!chart.$zoom._dragZoomEnd)
-                                this.zoom_boundaries[1] = Math.min(offset_right, chart.$zoom._dragZoomEnd.layerX) / offset_right;
+                                this.zoom_boundaries[1] = Math.min(offset_right, Math.max(0, chart.$zoom._dragZoomEnd.layerX - offset_left)) / offset_right;
                         });
                     }
                 }
