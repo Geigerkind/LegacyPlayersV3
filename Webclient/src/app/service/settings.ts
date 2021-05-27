@@ -15,6 +15,7 @@ SettingsService {
         "cookieDecisions",
         "PWA_PROMPT",
         "API_TOKEN",
+        "ACCOUNT_INFORMATION",
         "table_filter_armory_search",
         "table_filter_guild_viewer_member",
         "table_filter_guild_recent_raids_search",

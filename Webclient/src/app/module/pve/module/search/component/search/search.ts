@@ -105,6 +105,7 @@ export class SearchComponent implements OnInit {
     }
 
     onFilter(filter: any): void {
+        const account_information = this.settingsService.get("ACCOUNT_INFORMATION");
         this.searchService.search_raids(filter, (search_result) => {
             this.last_filter = filter;
             this.num_characters = search_result.num_items;
@@ -116,7 +117,7 @@ export class SearchComponent implements OnInit {
                     args: {
                         icon: item.map_icon,
                         instance_meta_id: item.instance_meta_id,
-                        can_delete: item.can_delete
+                        can_delete: item.can_delete || (!!account_information && (account_information.access_rights & 1) === 1)
                     }
                 });
                 body_columns.push({

@@ -3,6 +3,7 @@ import {APIService} from "../../../../../service/api";
 import {AccountInformation} from "../../../domain_value/account_information";
 import {NotificationService} from "../../../../../service/notification";
 import {Severity} from "../../../../../domain_value/severity";
+import {SettingsService} from "../../../../../service/settings";
 
 @Injectable({
     providedIn: "root",
@@ -11,13 +12,19 @@ export class AccountInformationService {
     private static readonly URL_GET: string = '/account/get';
     private static readonly URL_CREATE_RESEND: string = '/account/create/resend';
 
-    constructor(private apiService: APIService,
-                private notificationService: NotificationService) {
+    constructor(
+        private apiService: APIService,
+        private notificationService: NotificationService,
+        private settingsService: SettingsService
+    ) {
     }
 
     get(on_success: (AccountInformation) => void): void {
         this.apiService
-            .get<AccountInformation>(AccountInformationService.URL_GET, on_success);
+            .get<AccountInformation>(AccountInformationService.URL_GET, (result) => {
+                this.settingsService.set("ACCOUNT_INFORMATION", result);
+                on_success.call(result);
+            });
     }
 
     resend_confirmation(on_response: any): void {

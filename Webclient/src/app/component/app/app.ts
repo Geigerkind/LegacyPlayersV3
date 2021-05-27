@@ -3,6 +3,8 @@ import {NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {SettingsService} from "../../service/settings";
 import {TranslationService} from "../../service/translation";
+import {APIService} from "../../service/api";
+import {AccountInformation} from "../../module/account/domain_value/account_information";
 
 declare var gtag;
 
@@ -12,6 +14,9 @@ declare var gtag;
     styleUrls: ["./app.scss"]
 })
 export class AppComponent implements OnInit, OnChanges {
+    private static readonly URL_ACCOUNT_GET: string = '/account/get';
+
+
     public show_cookie_banner = false;
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription
@@ -23,7 +28,8 @@ export class AppComponent implements OnInit, OnChanges {
     constructor(
         private settingsService: SettingsService,
         private translationService: TranslationService,
-        private router: Router
+        private router: Router,
+        private apiService: APIService
     ) {
         this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
         (window as any).addEventListener("beforeinstallprompt", (e) => () => this.prompt_for_pwa(e));
@@ -37,6 +43,7 @@ export class AppComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         this.set_cookie_banner(!this.settingsService.check("cookieDecisions"));
         this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
+        this.retrieve_account_information();
     }
 
     ngOnChanges(): void {
@@ -80,5 +87,13 @@ export class AppComponent implements OnInit, OnChanges {
 
     get isMobile(): boolean {
         return navigator.userAgent.toLowerCase().includes("mobile");
+    }
+
+    private retrieve_account_information(): void {
+        if (this.settingsService.check("API_TOKEN")) {
+            this.apiService.get<AccountInformation>(AppComponent.URL_ACCOUNT_GET, (result) => {
+                this.settingsService.set("ACCOUNT_INFORMATION", result);
+            });
+        }
     }
 }

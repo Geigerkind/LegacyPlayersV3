@@ -16,9 +16,13 @@ impl DeleteInstance for Instance {
             |mut row| row.take::<u32, usize>(0).unwrap(),
             params!("instance_meta_id" => instance_meta_id),
         );
+
         if let Some(server_id) = server_id {
             if db_main.execute_wparams(
-                "DELETE A FROM instance_meta A JOIN instance_uploads B ON A.upload_id = B.id WHERE A.id=:instance_meta_id AND B.member_id=:member_id",
+                "DELETE A FROM instance_meta A \
+                JOIN instance_uploads B ON A.upload_id = B.id \
+                JOIN account_member C ON (B.member_id = C.id OR (C.access_rights & 1) = 1) \
+                WHERE A.id=:instance_meta_id AND B.member_id=:member_id",
                 params!(
                     "instance_meta_id" => instance_meta_id,
                     "member_id" => member_id
