@@ -152,7 +152,7 @@ impl CombatLogParser for WoWTBCParser {
                 } else if fail_str.starts_with("ZONE_INFO: ") {
                     let args: Vec<&str> = fail_str.trim_start_matches("ZONE_INFO: ").split('&').collect();
                     let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
-                    let instance_id = u32::from_str_radix(args[2], 10).ok()?;
+                    let instance_id = u32::from_str_radix(args[2], 10).unwrap_or(0);
                     let map_id = match args[1] {
                         "Karazhan" => 532,
                         "Magtheridon's Lair" => 544,
@@ -165,18 +165,16 @@ impl CombatLogParser for WoWTBCParser {
                         "The Sunwell" => 580,
                         _ => return None,
                     };
-                    if instance_id > 0 {
-                        self.bonus_messages.push(Message::new_parsed(
-                            timestamp as u64,
-                            0,
-                            MessageType::InstanceMap(InstanceMap {
-                                map_id,
-                                instance_id,
-                                map_difficulty: 0,
-                                unit: Unit { is_player: false, unit_id: 1 },
-                            }),
-                        ));
-                    }
+                    self.bonus_messages.push(Message::new_parsed(
+                        timestamp as u64,
+                        0,
+                        MessageType::InstanceMap(InstanceMap {
+                            map_id,
+                            instance_id,
+                            map_difficulty: 0,
+                            unit: Unit { is_player: false, unit_id: 1 },
+                        }),
+                    ));
                     /*
                     if args.len() >= 3 {
                         for participant_unit_guid in args.iter().skip(2) {

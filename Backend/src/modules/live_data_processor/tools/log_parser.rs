@@ -119,12 +119,16 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     println!("Stop Char processing");
 
     // Pre-fill instance ids
-    let mut bonus_messages = parser.get_bonus_messages().unwrap_or_else(Vec::new);
+    let bonus_messages = parser.get_bonus_messages().unwrap_or_else(Vec::new);
     let mut instance_ids = HashMap::new();
     let mut suggested_instances = Vec::new();
     for Message { message_type, timestamp, .. } in bonus_messages.iter() {
         if let MessageType::InstanceMap(map) = message_type {
-            instance_ids.insert((map.map_id as u16, if map.map_difficulty == 0 { None } else { Some(map.map_difficulty) }), map.instance_id);
+            let instance_id = if map.instance_id == 0 { rand::random::<u32>() } else { map.instance_id };
+            let instance_key = (map.map_id as u16, if map.map_difficulty == 0 { None } else { Some(map.map_difficulty) });
+            if map.instance_id > 0 || !instance_ids.contains_key(&instance_key) {
+                instance_ids.insert(instance_key, instance_id);
+            }
             suggested_instances.push((*timestamp, map.map_id as u16, map.map_difficulty));
         }
     }
@@ -442,7 +446,12 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         }
     }
 
-    messages.append(&mut bonus_messages);
+    messages.append(&mut bonus_messages.into_iter().filter(|msg| {
+        match &msg.message_type {
+            MessageType::InstanceMap(map) => map.instance_id > 0,
+            _ => true
+        }
+    }).collect());
     messages.append(&mut additional_messages);
     if server_id == 4 || server_id == 5 {
         // Dont remove unknown unit

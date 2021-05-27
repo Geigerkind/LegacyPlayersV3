@@ -962,34 +962,32 @@ impl CombatLogParser for WoWVanillaParser {
             let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
             let map_name = captures.get(2)?.as_str().to_string();
             let instance_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
-            if instance_id > 0 {
-                if let Some(map) = data.get_map_by_name(&map_name) {
-                    self.bonus_messages.push(Message::new_parsed(
-                        timestamp as u64,
-                        0,
-                        MessageType::InstanceMap(InstanceMap {
-                            map_id: map.id as u32,
-                            instance_id,
-                            map_difficulty: 0,
-                            unit: Unit { is_player: false, unit_id: 1 },
-                        }),
-                    ));
-                    /*
-                for (_, participant) in self.participants.iter() {
-                    if event_ts - participant.last_seen <= 120000 {
-                        self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
-                            map_id: map.id as u32,
-                            instance_id,
-                            map_difficulty: 0,
-                            unit: Unit {
-                                is_player: participant.is_player,
-                                unit_id: participant.id,
-                            },
-                        })));
-                    }
+            if let Some(map) = data.get_map_by_name(&map_name) {
+                self.bonus_messages.push(Message::new_parsed(
+                    timestamp as u64,
+                    0,
+                    MessageType::InstanceMap(InstanceMap {
+                        map_id: map.id as u32,
+                        instance_id,
+                        map_difficulty: 0,
+                        unit: Unit { is_player: false, unit_id: 1 },
+                    }),
+                ));
+                /*
+            for (_, participant) in self.participants.iter() {
+                if event_ts - participant.last_seen <= 120000 {
+                    self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
+                        map_id: map.id as u32,
+                        instance_id,
+                        map_difficulty: 0,
+                        unit: Unit {
+                            is_player: participant.is_player,
+                            unit_id: participant.id,
+                        },
+                    })));
                 }
-                 */
-                }
+            }
+             */
             }
             return None;
         }
