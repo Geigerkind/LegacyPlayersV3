@@ -230,6 +230,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
 
         if (!this.in_ability_mode)
             this.raidConfigurationSelectionService.select_sources([bar[0]]);
+        else
+            this.raidConfigurationSelectionService.update_stack();
         this.routerService.navigate(['/viewer/' + this.current_meta?.instance_meta_id + '/' + this.get_router_link(bar)], {skipLocationChange: true} as NavigationExtras);
     }
 

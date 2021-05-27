@@ -54,4 +54,8 @@ export class RaidConfigurationSelectionService implements OnDestroy {
             this.active_event_types.set(event_type, current_amount - 1);
         this.event_type_selection_changed.next();
     }
+
+    update_stack(): void {
+        this.raidConfigurationService.update_stack();
+    }
 }

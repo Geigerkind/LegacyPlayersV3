@@ -501,5 +501,9 @@ export class RaidConfigurationService implements OnDestroy {
         }
     }
 
+    public update_stack(): void {
+        this.filter_updated$.next(true);
+    }
+
 }
 
