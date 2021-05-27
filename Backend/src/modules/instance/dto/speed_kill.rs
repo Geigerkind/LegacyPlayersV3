@@ -7,4 +7,5 @@ pub struct SpeedKill {
     pub guild_name: String,
     pub server_id: u32,
     pub duration: u64,
+    pub difficulty_id: u8
 }

@@ -3,6 +3,9 @@
                  [themed]="true"></SelectInput>
     <SelectInput [(value)]="maps_current_selection" (valueChange)="select()" [options]="maps"
                  [themed]="true"></SelectInput>
+    <MultiSelect [(selectedItems)]="difficulties_selected_items" [dropdownList]="difficulties" [allowSearchFilter]="false"
+                 (select_all)="select()" placeholder="Ranking.difficulties"
+                 (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>
     <MultiSelect [(selectedItems)]="servers_selected_items" [dropdownList]="servers" [allowSearchFilter]="true"
                  (select_all)="select()" placeholder="Ranking.servers"
                  (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>

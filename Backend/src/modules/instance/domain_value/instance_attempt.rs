@@ -4,5 +4,6 @@ pub struct InstanceAttempt {
     pub encounter_id: u32,
     pub start_ts: u64,
     pub end_ts: u64,
-    pub is_kill: bool
+    pub is_kill: bool,
+    pub difficulty_id: u8,
 }

@@ -5,10 +5,10 @@ use crate::material::Cachable;
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::GetArenaTeam;
 use crate::modules::instance::domain_value::{InstanceAttempt, InstanceMeta, MetaType};
-use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedRun, SpeedKill};
+use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedKill, SpeedRun};
+use crate::modules::instance::tools::FindInstanceGuild;
 use crate::params;
 use crate::util::database::Select;
-use crate::modules::instance::tools::FindInstanceGuild;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
@@ -67,10 +67,10 @@ impl Instance {
                 update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
                 calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
                                      Arc::clone(&instance_kill_attempts_clone),
-                                     Arc::clone(&speed_runs_arc_clone),&mut db_main, &armory);
+                                     Arc::clone(&speed_runs_arc_clone), &mut db_main, &armory);
                 calculate_speed_kills(Arc::clone(&instance_metas_arc_clone),
-                                     Arc::clone(&instance_kill_attempts_clone),
-                                     Arc::clone(&speed_kills_arc_clone),&mut db_main, &armory);
+                                      Arc::clone(&instance_kill_attempts_clone),
+                                      Arc::clone(&speed_kills_arc_clone), &mut db_main, &armory);
 
                 if armory_counter % 30 == 0 {
                     armory = Armory::default().init(&mut db_main);
@@ -132,10 +132,14 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMe
             continue;
         }
         let instance_meta = instance_metas.1.get(instance_meta_id).unwrap();
+        if attempts.len() == 0 {
+            continue;
+        }
+
         let has_killed_all_encounters = INSTANCE_ENCOUNTERS.get(&instance_meta.map_id).unwrap()
             .iter().all(|encounter_id| attempts.iter().any(|attempt| attempt.encounter_id == *encounter_id));
-
-        if !has_killed_all_encounters {
+        let all_difficulties_are_same = attempts.iter().all(|attempt| attempt.difficulty_id == attempts[0].difficulty_id);
+        if !has_killed_all_encounters || !all_difficulties_are_same {
             continue;
         }
 
@@ -152,14 +156,15 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMe
             guild_name,
             server_id: instance_meta.server_id,
             duration: end - start,
+            difficulty_id: attempts[0].difficulty_id
         });
     }
 }
 
 fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
-                        instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>,
-                        speed_kills: Arc<RwLock<Vec<SpeedKill>>>,
-                        db_main: &mut impl Select, armory: &Armory) {
+                         instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>,
+                         speed_kills: Arc<RwLock<Vec<SpeedKill>>>,
+                         db_main: &mut impl Select, armory: &Armory) {
     let kill_attempts = instance_kill_attempts.read().unwrap();
     let instance_metas = instance_metas.read().unwrap();
     let mut speed_kills = speed_kills.write().unwrap();
@@ -183,6 +188,7 @@ fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 guild_name: guild_name.clone(),
                 server_id: instance_meta.server_id,
                 duration: attempt.end_ts - attempt.start_ts,
+                difficulty_id: attempt.difficulty_id
             });
         }
     }
@@ -190,7 +196,9 @@ fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
 
 fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>, db_main: &mut impl Select) {
     let mut kill_attempts = instance_kill_attempts.write().unwrap();
-    db_main.select_wparams("SELECT A.instance_meta_id, A.id, A.encounter_id, A.start_ts, A.end_ts FROM instance_attempt A WHERE A.is_kill = 1 AND A.id > :saved_attempt_id ORDER BY A.id",
+    db_main.select_wparams("SELECT A.instance_meta_id, A.id, A.encounter_id, A.start_ts, A.end_ts, B.map_difficulty FROM instance_attempt A \
+    JOIN instance_raid B ON A.instance_meta_id = B.instance_meta_id \
+    WHERE A.is_kill = 1 AND A.id > :saved_attempt_id ORDER BY A.id",
                            |mut row|
                                (row.take::<u32, usize>(0).unwrap(), InstanceAttempt {
                                    attempt_id: row.take(1).unwrap(),
@@ -198,6 +206,7 @@ fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMa
                                    start_ts: row.take(3).unwrap(),
                                    end_ts: row.take(4).unwrap(),
                                    is_kill: true,
+                                   difficulty_id: row.take(5).unwrap()
                                }), params!("saved_attempt_id" => kill_attempts.0))
         .into_iter()
         .for_each(|(instance_meta_id, instance_attempt)| {
@@ -211,7 +220,11 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
     let mut rankings_dps = instance_rankings_dps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.damage, (B.end_ts - B.start_ts) as duration, B.instance_meta_id FROM instance_ranking_damage A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id \
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.damage, \
+            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty FROM instance_ranking_damage A \
+            JOIN instance_attempt B ON A.attempt_id = B.id \
+            JOIN instance_raid C ON B.instance_meta_id = C.instance_meta_id \
+            WHERE A.id > :last_queried_id \
              ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
@@ -226,6 +239,7 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
                         amount: row.take(4).unwrap(),
                         duration: row.take(5).unwrap(),
                         instance_meta_id: row.take(6).unwrap(),
+                        difficulty_id: row.take(7).unwrap(),
                     },
                 )
             },
@@ -244,8 +258,11 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
     let mut rankings_hps = instance_rankings_hps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.heal, (B.end_ts - B.start_ts) as duration, B.instance_meta_id FROM instance_ranking_heal A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id ORDER \
-             BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.heal, \
+            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty FROM instance_ranking_heal A \
+            JOIN instance_attempt B ON A.attempt_id = B.id \
+            JOIN instance_raid C ON B.instance_meta_id = C.instance_meta_id \
+            WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
@@ -259,6 +276,7 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
                         amount: row.take(4).unwrap(),
                         duration: row.take(5).unwrap(),
                         instance_meta_id: row.take(6).unwrap(),
+                        difficulty_id: row.take(7).unwrap(),
                     },
                 )
             },
@@ -277,8 +295,11 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
     let mut rankings_tps = instance_rankings_tps.write().unwrap();
     db_main
         .select_wparams(
-            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.threat, (B.end_ts - B.start_ts) as duration, B.instance_meta_id FROM instance_ranking_threat A JOIN instance_attempt B ON A.attempt_id = B.id WHERE A.id > :last_queried_id \
-             ORDER BY A.id",
+            "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.threat, \
+            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty FROM instance_ranking_threat A \
+            JOIN instance_attempt B ON A.attempt_id = B.id \
+            JOIN instance_raid C ON B.instance_meta_id = C.instance_meta_id \
+            WHERE A.id > :last_queried_id ORDER BY A.id",
             |mut row| {
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
@@ -292,6 +313,7 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
                         amount: row.take(4).unwrap(),
                         duration: row.take(5).unwrap(),
                         instance_meta_id: row.take(6).unwrap(),
+                        difficulty_id: row.take(7).unwrap(),
                     },
                 )
             },
@@ -356,7 +378,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(7).unwrap(),
                 upload_id: row.take(8).unwrap(),
-            }, params.clone()
+            }, params.clone(),
         )
         .into_iter()
         .for_each(|result| {
@@ -389,7 +411,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                     row.take::<u32, usize>(11).unwrap(),
                     row.take::<u32, usize>(12).unwrap(),
                 )
-            }, params.clone()
+            }, params.clone(),
         )
         .into_iter()
         .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change, uploaded_user, upload_id)| {
@@ -436,7 +458,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(7).unwrap(),
                 upload_id: row.take(8).unwrap(),
-            }, params.clone()
+            }, params.clone(),
         )
         .into_iter()
         .for_each(|result| {
@@ -466,7 +488,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(9).unwrap(),
                 upload_id: row.take(10).unwrap(),
-            }, params.clone()
+            }, params.clone(),
         )
         .into_iter()
         .for_each(|result| {

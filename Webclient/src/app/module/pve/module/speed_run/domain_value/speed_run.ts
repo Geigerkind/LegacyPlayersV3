@@ -5,4 +5,5 @@ export interface SpeedRun {
     guild_name: string;
     server_id: number;
     duration: number;
+    difficulty_id: number;
 }

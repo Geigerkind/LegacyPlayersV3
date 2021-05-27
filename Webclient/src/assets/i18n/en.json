@@ -382,6 +382,7 @@
     "Ranking": {
         "encounter": "Select encounter",
         "classes": "Select class",
-        "servers": "Select server"
+        "servers": "Select server",
+        "difficulties": "Select difficulties"
     }
 }

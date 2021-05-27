@@ -20,7 +20,7 @@ import {Router} from "@angular/router";
 export class SpeedKillComponent implements OnInit, OnDestroy {
 
     private subscriptions: Subscription;
-    private finished_loading: [boolean, boolean] = [false, false];
+    private finished_loading: [boolean, boolean, boolean] = [false, false, false];
 
     selections_current_selection: number = 1;
     selections: Array<SelectOption> = [
@@ -32,6 +32,9 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
 
     servers_selected_items: Array<any> = [];
     servers: Array<any> = [];
+
+    difficulties_selected_items: Array<any> = [];
+    difficulties: Array<any> = [];
 
     bar_subjects: Map<number, RaidMeterSubject> = new Map();
     bar_tooltips: Map<number, any> = new Map();
@@ -75,6 +78,14 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
             this.finished_loading[1] = encounters.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         }));
+        this.subscriptions.add(this.dataService.difficulties.subscribe(difficulties => {
+            this.difficulties = difficulties.sort((left, right) => left.base.id - right.base.id)
+                .map(difficulty => {
+                    return {id: difficulty.base.id, label: difficulty.localization};
+                });
+            this.finished_loading[2] = difficulties.length > 0;
+            if (this.finished_loading.every(item => item)) this.init_ranking();
+        }));
     }
 
     ngOnDestroy(): void {
@@ -90,7 +101,9 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
             return;
 
         const selection_params = [this.selections_current_selection,
-            this.encounters_current_selection, this.servers_selected_items.map(item => item.id)];
+            this.encounters_current_selection,
+            this.servers_selected_items.map(item => item.id),
+            this.difficulties_selected_items.map(item => item.id)];
         // @ts-ignore
         this.speedKillService.select(...selection_params);
         this.settingsService.set("pve_speed_kill", selection_params);
@@ -115,6 +128,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
             this.selections_current_selection = selection_params[0];
             this.encounters_current_selection = selection_params[1];
             this.servers_selected_items = this.servers.filter(item => selection_params[2].includes(item.id));
+            this.difficulties_selected_items = this.difficulties.filter(item => selection_params[3].includes(item.id));
         }
         this.select();
     }

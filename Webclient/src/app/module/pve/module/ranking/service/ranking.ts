@@ -24,6 +24,7 @@ export class RankingService {
     private current_encounter_ids$: Array<number> = [];
     private current_hero_class_ids$: Array<number> = [];
     private current_server_ids$: Array<number> = [];
+    private current_difficulty_ids$: Array<number> = [];
 
     constructor(
         private apiService: APIService
@@ -34,12 +35,13 @@ export class RankingService {
         return this.rankings$.asObservable();
     }
 
-    select(mode: number, selection: number, encounter_ids: Array<number>, hero_class_ids: Array<number>, server_ids: Array<number>): void {
+    select(mode: number, selection: number, encounter_ids: Array<number>, hero_class_ids: Array<number>, server_ids: Array<number>, difficulty_ids: Array<number>): void {
         this.current_mode$ = mode;
         this.current_selection$ = selection;
         this.current_encounter_ids$ = encounter_ids;
         this.current_hero_class_ids$ = hero_class_ids;
         this.current_server_ids$ = server_ids;
+        this.current_difficulty_ids$ = difficulty_ids;
         this.load_current_mode();
     }
 
@@ -53,10 +55,12 @@ export class RankingService {
                         .filter(([character_id, meta, rankings]) => this.current_server_ids$.includes(meta.server_id)
                             && this.current_hero_class_ids$.includes(meta.hero_class_id))
                         .map(([character_id, meta, rankings]) => {
-                            const best_result = rankings.reduce((best, ranking) => {
-                                const ranking_result = (ranking.amount * 1000) / ranking.duration;
-                                return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id];
-                            }, [0, 0, 0]);
+                            const best_result = rankings
+                                .filter(ranking => this.current_difficulty_ids$.includes(ranking.difficulty_id))
+                                .reduce((best, ranking) => {
+                                    const ranking_result = (ranking.amount * 1000) / ranking.duration;
+                                    return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id];
+                                }, [0, 0, 0]);
                             if (!new_rankings.has(character_id))
                                 new_rankings.set(character_id, [meta, []]);
                             new_rankings.get(character_id)[1].push(best_result);

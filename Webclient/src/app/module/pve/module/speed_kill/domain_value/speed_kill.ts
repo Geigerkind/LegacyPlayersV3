@@ -6,4 +6,5 @@ export interface SpeedKill {
     duration: number;
     guild_id: number;
     guild_name: string;
+    difficulty_id: number;
 }
