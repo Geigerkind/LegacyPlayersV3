@@ -3,4 +3,5 @@ export interface AccountInformation {
     mail: string;
     mail_confirmed: boolean;
     nickname: string;
+    access_rights: number;
 }

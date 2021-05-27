@@ -202,8 +202,8 @@ export function merge_detail_rows(dr1: Array<DetailRow>, dr2: Array<DetailRow>):
     const total_amount = result.reduce((acc, dr) => acc + dr.content.amount, 0);
     const total_count = result.reduce((acc, dr) => acc + dr.content.count, 0);
     for (const dr of result) {
-        dr.content.amount_percent = dr.content.amount / total_amount;
-        dr.content.count_percent = dr.content.count / total_count;
+        dr.content.amount_percent = 100 * (dr.content.amount / total_amount);
+        dr.content.count_percent = 100 * (dr.content.count / total_count);
     }
     return result;
 }
@@ -221,8 +221,8 @@ export function merge_detail_row(dr1: DetailRow, dr2: DetailRow): void {
     const total_amount = components.reduce((acc, {content}) => acc + content.amount, 0);
     const total_count = components.reduce((acc, {content}) => acc + content.count, 0);
     for (const {content} of components) {
-        content.count_percent = content.count / total_count;
-        content.amount_percent = content.amount / total_amount;
+        content.count_percent = 100 * (content.count / total_count);
+        content.amount_percent = 100 * (content.amount / total_amount);
     }
 }
 
@@ -255,10 +255,10 @@ export function merge_detail_row_content(drc1: DetailRowContent, drc2: DetailRow
         + drc1.resist_summary.percent_25.count
         + drc1.resist_summary.percent_50.count
         + drc1.resist_summary.percent_75.count;
-    drc1.resist_summary.percent_0.count_percent = drc1.resist_summary.percent_0.count / total_count;
-    drc1.resist_summary.percent_25.count_percent = drc1.resist_summary.percent_25.count / total_count;
-    drc1.resist_summary.percent_50.count_percent = drc1.resist_summary.percent_50.count / total_count;
-    drc1.resist_summary.percent_75.count_percent = drc1.resist_summary.percent_75.count / total_count;
+    drc1.resist_summary.percent_0.count_percent = 100 * (drc1.resist_summary.percent_0.count / total_count);
+    drc1.resist_summary.percent_25.count_percent = 100 * (drc1.resist_summary.percent_25.count / total_count);
+    drc1.resist_summary.percent_50.count_percent = 100 * (drc1.resist_summary.percent_50.count / total_count);
+    drc1.resist_summary.percent_75.count_percent = 100 * (drc1.resist_summary.percent_75.count / total_count);
 }
 
 export function merge_resist_summary_row(rsr1: ResistSummaryRow, rsr2: ResistSummaryRow): void {
