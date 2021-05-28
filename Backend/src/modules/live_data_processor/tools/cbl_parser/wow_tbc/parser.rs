@@ -34,8 +34,8 @@ impl CombatLogParser for WoWTBCParser {
                     let unit_guid = u64::from_str_radix(args[1].trim_start_matches("0x"), 16).ok()?;
 
                     let unit_name = args[2].to_string();
-                    let race = args[3];
-                    let hero_class = args[4];
+                    let race = args[3].to_lowercase();
+                    let hero_class = args[4].to_lowercase();
                     let gender = args[5];
                     let guild_name = args[6];
                     let guild_rank_name = args[7];
@@ -49,34 +49,35 @@ impl CombatLogParser for WoWTBCParser {
                     let mut participant = self.participants.entry(unit_guid).or_insert_with(|| Participant::new(unit_guid, true, unit_name, 0));
 
                     if race != "nil" && participant.race_id.is_none() {
-                        participant.race_id = Some(match race {
-                            "Human" => 1,
-                            "Orc" => 2,
-                            "Dwarf" => 3,
-                            "Night Elf" => 4,
-                            "NightElf" => 4,
-                            "Undead" => 5,
-                            "Scourge" => 5,
-                            "Tauren" => 6,
-                            "Gnome" => 7,
-                            "Troll" => 8,
-                            "Blood Elf" => 10,
-                            "Draenei" => 11,
+                        participant.race_id = Some(match race.as_str() {
+                            "human" => 1,
+                            "orc" => 2,
+                            "dwarf" => 3,
+                            "night elf" => 4,
+                            "nightelf" => 4,
+                            "undead" => 5,
+                            "scourge" => 5,
+                            "tauren" => 6,
+                            "gnome" => 7,
+                            "troll" => 8,
+                            "blood elf" => 10,
+                            "bloodelf" => 10,
+                            "draenei" => 11,
                             _ => return None,
                         });
                     }
 
                     if hero_class != "nil" && participant.hero_class_id.is_none() {
-                        participant.hero_class_id = Some(match hero_class {
-                            "Warrior" => 1,
-                            "Paladin" => 2,
-                            "Hunter" => 3,
-                            "Rogue" => 4,
-                            "Priest" => 5,
-                            "Shaman" => 7,
-                            "Mage" => 8,
-                            "Warlock" => 9,
-                            "Druid" => 11,
+                        participant.hero_class_id = Some(match hero_class.as_str() {
+                            "warrior" => 1,
+                            "paladin" => 2,
+                            "hunter" => 3,
+                            "rogue" => 4,
+                            "priest" => 5,
+                            "shaman" => 7,
+                            "mage" => 8,
+                            "warlock" => 9,
+                            "druid" => 11,
                             _ => return None,
                         });
                     }
@@ -132,88 +133,97 @@ impl CombatLogParser for WoWTBCParser {
                     if talents != "nil" {
                         participant.talents = strip_talent_specialization(&Some(talents.replace("}", "|")));
                     }
-                } else if fail_str.starts_with("LOOT: ") {
-                    let args: Vec<&str> = fail_str.trim_start_matches("LOOT: ").split('&').collect();
-                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
-                    let captures = RE_LOOT.captures(&args[1])?;
-                    let unit_name = captures[1].to_string();
-                    let unit_guid = self.participants.iter().find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
-                    let item_id = u32::from_str_radix(&captures[3], 10).ok()?;
-                    let count = u32::from_str_radix(&captures[6], 10).ok()?;
-                    self.bonus_messages.push(Message::new_parsed(
-                        timestamp as u64,
-                        0,
-                        MessageType::Loot(Loot {
-                            unit: Unit { is_player: true, unit_id: unit_guid },
-                            item_id,
-                            count,
-                        }),
-                    ));
-                } else if fail_str.starts_with("ZONE_INFO: ") {
-                    let args: Vec<&str> = fail_str.trim_start_matches("ZONE_INFO: ").split('&').collect();
-                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
-                    let instance_id = u32::from_str_radix(args[2], 10).unwrap_or(0);
-                    let map_id = match args[1] {
-                        "Karazhan" => 532,
-                        "Magtheridon's Lair" => 544,
-                        "Gruul's Lair" => 565,
-                        "Coilfang: Serpentshrine Cavern" => 548,
-                        "Serpentshrine Cavern" => 548,
-                        "Tempest Keep" => 550,
-                        "Black Temple" => 564,
-                        "The Battle for Mount Hyjal" => 534,
-                        "The Sunwell" => 580,
-                        _ => return None,
+                } else {
+                    let content_vec = if fail_str.starts_with("CONSOLIDATED: ") {
+                        fail_str.trim_start_matches("CONSOLIDATED: ").split('{').collect::<Vec<&str>>()
+                    } else {
+                        vec![fail_str.as_str()]
                     };
-                    self.bonus_messages.push(Message::new_parsed(
-                        timestamp as u64,
-                        0,
-                        MessageType::InstanceMap(InstanceMap {
-                            map_id,
-                            instance_id,
-                            map_difficulty: 0,
-                            unit: Unit { is_player: false, unit_id: 1 },
-                        }),
-                    ));
-                    /*
-                    if args.len() >= 3 {
-                        for participant_unit_guid in args.iter().skip(2) {
-                            if let Ok(guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
-                                self.bonus_messages.push(Message::new_parsed(
-                                    timestamp as u64,
-                                    0,
-                                    MessageType::InstanceMap(InstanceMap {
-                                        map_id,
-                                        instance_id,
-                                        map_difficulty: 0,
-                                        unit: Unit { is_player: true, unit_id: guid },
-                                    }),
-                                ));
+                    for i_content in content_vec {
+                        if i_content.starts_with("LOOT: ") {
+                            let args: Vec<&str> = i_content.trim_start_matches("LOOT: ").split('&').collect();
+                            let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                            let captures = RE_LOOT.captures(&args[1])?;
+                            let unit_name = captures[1].to_string();
+                            let unit_guid = self.participants.iter().find_map(|(guid, participant)| if participant.name == unit_name { Some(*guid) } else { None })?;
+                            let item_id = u32::from_str_radix(&captures[3], 10).ok()?;
+                            let count = u32::from_str_radix(&captures[6], 10).ok()?;
+                            self.bonus_messages.push(Message::new_parsed(
+                                timestamp as u64,
+                                0,
+                                MessageType::Loot(Loot {
+                                    unit: Unit { is_player: true, unit_id: unit_guid },
+                                    item_id,
+                                    count,
+                                }),
+                            ));
+                        } else if i_content.starts_with("ZONE_INFO: ") {
+                            let args: Vec<&str> = i_content.trim_start_matches("ZONE_INFO: ").split('&').collect();
+                            let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                            let instance_id = u32::from_str_radix(args[2], 10).unwrap_or(0);
+                            let map_id = match args[1] {
+                                "Karazhan" => 532,
+                                "Magtheridon's Lair" => 544,
+                                "Gruul's Lair" => 565,
+                                "Coilfang: Serpentshrine Cavern" => 548,
+                                "Serpentshrine Cavern" => 548,
+                                "Tempest Keep" => 550,
+                                "Black Temple" => 564,
+                                "The Battle for Mount Hyjal" => 534,
+                                "The Sunwell" => 580,
+                                _ => return None,
+                            };
+                            self.bonus_messages.push(Message::new_parsed(
+                                timestamp as u64,
+                                0,
+                                MessageType::InstanceMap(InstanceMap {
+                                    map_id,
+                                    instance_id,
+                                    map_difficulty: 0,
+                                    unit: Unit { is_player: false, unit_id: 1 },
+                                }),
+                            ));
+                            /*
+                        if args.len() >= 3 {
+                            for participant_unit_guid in args.iter().skip(2) {
+                                if let Ok(guid) = u64::from_str_radix(participant_unit_guid.trim_start_matches("0x"), 16) {
+                                    self.bonus_messages.push(Message::new_parsed(
+                                        timestamp as u64,
+                                        0,
+                                        MessageType::InstanceMap(InstanceMap {
+                                            map_id,
+                                            instance_id,
+                                            map_difficulty: 0,
+                                            unit: Unit { is_player: true, unit_id: guid },
+                                        }),
+                                    ));
+                                }
                             }
                         }
-                    }
-                     */
-                } else if fail_str.starts_with("PET_SUMMON: ") {
-                    let args: Vec<&str> = fail_str.trim_start_matches("PET_SUMMON: ").split('&').collect();
-                    let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
-                    let owner_guid = u64::from_str_radix(args[1].trim_start_matches("0x"), 16).ok()?;
-                    let mut pet_guid = u64::from_str_radix(args[2].trim_start_matches("0x"), 16).ok()?;
-                    if pet_guid.is_pet() {
-                        let mut new_unit_id = pet_guid;
-                        new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
-                        new_unit_id |= 0x000000FFFF000000;
-                        new_unit_id |= 0xF140000000000000;
-                        pet_guid = new_unit_id;
-                    }
+                         */
+                        } else if i_content.starts_with("PET_SUMMON: ") {
+                            let args: Vec<&str> = i_content.trim_start_matches("PET_SUMMON: ").split('&').collect();
+                            let timestamp = NaiveDateTime::parse_from_str(args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                            let owner_guid = u64::from_str_radix(args[1].trim_start_matches("0x"), 16).ok()?;
+                            let mut pet_guid = u64::from_str_radix(args[2].trim_start_matches("0x"), 16).ok()?;
+                            if pet_guid.is_pet() {
+                                let mut new_unit_id = pet_guid;
+                                new_unit_id = (new_unit_id & 0x000000FFFF000000).rotate_right(24);
+                                new_unit_id |= 0x000000FFFF000000;
+                                new_unit_id |= 0xF140000000000000;
+                                pet_guid = new_unit_id;
+                            }
 
-                    self.bonus_messages.push(Message::new_parsed(
-                        timestamp as u64,
-                        1,
-                        MessageType::Summon(Summon {
-                            owner: Unit { is_player: true, unit_id: owner_guid },
-                            unit: Unit { is_player: false, unit_id: pet_guid },
-                        }),
-                    ));
+                            self.bonus_messages.push(Message::new_parsed(
+                                timestamp as u64,
+                                1,
+                                MessageType::Summon(Summon {
+                                    owner: Unit { is_player: true, unit_id: owner_guid },
+                                    unit: Unit { is_player: false, unit_id: pet_guid },
+                                }),
+                            ));
+                        }
+                    }
                 }
                 return None;
             }
