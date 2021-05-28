@@ -2,20 +2,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\..\..\FrameXML\UI.xsd">
 
-    <Frame name="RPLL">
+    <Frame name="RPLL_HELPER">
         <Scripts>
             <OnEvent>
                 this[event](arg1,arg2,arg3,arg4)
             </OnEvent>
         </Scripts>
     </Frame>
-
-    <GameTooltip name="RPLL_Tooltip" frameStrata="TOOLTIP" hidden="false" parent="UIParent" inherits="GameTooltipTemplate">
-        <Scripts>
-            <Onload>
-                this:SetOwner(WorldFrame, "ANCHOR_NONE")
-            </Onload>
-        </Scripts>
-    </GameTooltip>
 
 </Ui>

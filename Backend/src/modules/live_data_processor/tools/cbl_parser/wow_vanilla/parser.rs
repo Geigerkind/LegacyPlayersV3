@@ -16,6 +16,7 @@ use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_s
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_trailer::parse_trailer;
 use crate::modules::live_data_processor::tools::cbl_parser::wow_vanilla::parse_unit::parse_unit;
 use crate::modules::live_data_processor::tools::GUID;
+use crate::modules::armory::tools::strip_talent_specialization;
 
 /*
 
@@ -983,6 +984,20 @@ impl CombatLogParser for WoWVanillaParser {
                 }
                 continue;
             }
+
+            if i_content.starts_with("PET: ") {
+                let message_args = content.trim_start_matches("PET: ").split('&').collect::<Vec<&str>>();
+                let _timestamp = NaiveDateTime::parse_from_str(message_args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                let player_name = message_args[1];
+                let pet_name = message_args[2];
+
+                let unit_id = get_hashed_player_unit_id(player_name);
+                if pet_name != "nil" && !pet_name.is_empty() {
+                    let pet_unit = parse_unit(&mut self.cache_unit, data, pet_name)?;
+                    self.pet_owner.insert(pet_unit.unit_id, unit_id);
+                }
+                continue;
+            }
         }
 
         if content.starts_with("COMBATANT_INFO:") {
@@ -993,8 +1008,8 @@ impl CombatLogParser for WoWVanillaParser {
 
             let timestamp = NaiveDateTime::parse_from_str(message_args[0], "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
             let player_name = message_args[1];
-            let hero_class_local = message_args[2];
-            let race_local = message_args[3];
+            let hero_class_local = message_args[2].to_lowercase();
+            let race_local = message_args[3].to_lowercase();
             let gender_local = message_args[4];
             let pet_name = message_args[5];
             let guild_name = message_args[6];
@@ -1004,15 +1019,15 @@ impl CombatLogParser for WoWVanillaParser {
             let unit_id = get_hashed_player_unit_id(player_name);
             let participant = self.participants.entry(unit_id).or_insert_with(|| Participant::new(unit_id, true, player_name.to_string(), event_ts));
             if participant.hero_class_id.is_none() {
-                participant.hero_class_id = Some(match hero_class_local {
-                    "Warrior" => 1,
-                    "Paladin" => 2,
-                    "Hunter" => 3,
-                    "Rogue" => 4,
-                    "Priest" => 5,
-                    "Shaman" => 7,
-                    "Mage" => 8,
-                    "Warlock" => 9,
+                participant.hero_class_id = Some(match hero_class_local.as_str() {
+                    "warrior" => 1,
+                    "paladin" => 2,
+                    "hunter" => 3,
+                    "rogue" => 4,
+                    "priest" => 5,
+                    "shaman" => 7,
+                    "mage" => 8,
+                    "warlock" => 9,
                     "Druid" => 11,
                     _ => return None,
                 });
@@ -1027,17 +1042,17 @@ impl CombatLogParser for WoWVanillaParser {
             }
 
             if participant.race_id.is_none() {
-                participant.race_id = Some(match race_local {
-                    "Human" => 1,
-                    "Orc" => 2,
-                    "Dwarf" => 3,
-                    "Night Elf" => 4,
-                    "NightElf" => 4,
-                    "Undead" => 5,
-                    "Scourge" => 5,
-                    "Tauren" => 6,
-                    "Gnome" => 7,
-                    "Troll" => 8,
+                participant.race_id = Some(match race_local.as_str() {
+                    "human" => 1,
+                    "orc" => 2,
+                    "dwarf" => 3,
+                    "night elf" => 4,
+                    "nightelf" => 4,
+                    "undead" => 5,
+                    "scourge" => 5,
+                    "tauren" => 6,
+                    "gnome" => 7,
+                    "troll" => 8,
                     _ => return None,
                 });
             }
@@ -1074,6 +1089,11 @@ impl CombatLogParser for WoWVanillaParser {
                 }
                 gear_setups.push((timestamp as u64, gear));
             }
+
+            if message_args[28] != "nil" && message_args[28].contains("}") {
+                participant.talents = strip_talent_specialization(&Some(message_args[28].replace("}", "|")));
+            }
+
             return None;
         }
 
