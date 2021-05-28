@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 12
+RPLL.VERSION = 13
 RPLL.MAX_MESSAGE_LENGTH = 500
 RPLL.CONSOLIDATE_CHARACTER = "{"
 RPLL.MESSAGE_PREFIX = "RPLL_HELPER_"
@@ -33,6 +33,7 @@ RPLL:RegisterEvent("CHAT_MSG_LOOT")
 RPLL:RegisterEvent("PLAYER_AURAS_CHANGED")
 
 RPLL:RegisterEvent("CHAT_MSG_ADDON")
+RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
 
 local tinsert = table.insert
 local UnitName = UnitName
@@ -121,6 +122,10 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             this.RotationQueueLength = this.RotationQueueLength + 1
         end
     end
+end
+
+RPLL.UNIT_INVENTORY_CHANGED = function(unit)
+    this:grab_unit_information(unit)
 end
 
 RPLL.ZONE_CHANGED_NEW_AREA = function()
