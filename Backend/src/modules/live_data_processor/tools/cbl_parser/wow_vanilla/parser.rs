@@ -782,7 +782,7 @@ impl CombatLogParser for WoWVanillaParser {
         }
 
         /*
-         * Melee Damage continud
+         * Melee Damage continued
          */
         if let Some(captures) = RE_DAMAGE_MISS.captures(&content) {
             let attacker = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
@@ -947,49 +947,42 @@ impl CombatLogParser for WoWVanillaParser {
         /*
          * Misc
          */
-        if let Some(captures) = RE_LOOT.captures(&content) {
-            let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
-            let receiver = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
-            self.collect_participant(&receiver, captures.get(2)?.as_str(), event_ts);
-            self.collect_active_map(data, &receiver, event_ts);
-            let item_id = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
-            let count = u32::from_str_radix(captures.get(9)?.as_str(), 10).ok()?;
-            self.bonus_messages.push(Message::new_parsed(timestamp as u64, 0, MessageType::Loot(Loot { unit: receiver, item_id, count })));
-            return None;
-        }
+        let content_vec = if content.starts_with("CONSOLIDATED: ") {
+            content.trim_start_matches("CONSOLIDATED: ").split('{').collect::<Vec<&str>>()
+        } else {
+            vec![content]
+        };
 
-        if let Some(captures) = RE_ZONE_INFO.captures(&content) {
-            let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
-            let map_name = captures.get(2)?.as_str().to_string();
-            let instance_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
-            if let Some(map) = data.get_map_by_name(&map_name) {
-                self.bonus_messages.push(Message::new_parsed(
-                    timestamp as u64,
-                    0,
-                    MessageType::InstanceMap(InstanceMap {
-                        map_id: map.id as u32,
-                        instance_id,
-                        map_difficulty: 0,
-                        unit: Unit { is_player: false, unit_id: 1 },
-                    }),
-                ));
-                /*
-            for (_, participant) in self.participants.iter() {
-                if event_ts - participant.last_seen <= 120000 {
-                    self.bonus_messages.push(Message::new_parsed(event_ts, 0, MessageType::InstanceMap(InstanceMap {
-                        map_id: map.id as u32,
-                        instance_id,
-                        map_difficulty: 0,
-                        unit: Unit {
-                            is_player: participant.is_player,
-                            unit_id: participant.id,
-                        },
-                    })));
+        for i_content in content_vec {
+            if let Some(captures) = RE_LOOT.captures(&i_content) {
+                let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                let receiver = parse_unit(&mut self.cache_unit, data, captures.get(2)?.as_str())?;
+                self.collect_participant(&receiver, captures.get(2)?.as_str(), event_ts);
+                self.collect_active_map(data, &receiver, event_ts);
+                let item_id = u32::from_str_radix(captures.get(4)?.as_str(), 10).ok()?;
+                let count = u32::from_str_radix(captures.get(9)?.as_str(), 10).ok()?;
+                self.bonus_messages.push(Message::new_parsed(timestamp as u64, 0, MessageType::Loot(Loot { unit: receiver, item_id, count })));
+                continue;
+            }
+
+            if let Some(captures) = RE_ZONE_INFO.captures(&i_content) {
+                let timestamp = NaiveDateTime::parse_from_str(captures.get(1)?.as_str(), "%d.%m.%y %H:%M:%S").ok()?.timestamp_millis();
+                let map_name = captures.get(2)?.as_str().to_string();
+                let instance_id = u32::from_str_radix(captures.get(3)?.as_str(), 10).ok()?;
+                if let Some(map) = data.get_map_by_name(&map_name) {
+                    self.bonus_messages.push(Message::new_parsed(
+                        timestamp as u64,
+                        0,
+                        MessageType::InstanceMap(InstanceMap {
+                            map_id: map.id as u32,
+                            instance_id,
+                            map_difficulty: 0,
+                            unit: Unit { is_player: false, unit_id: 1 },
+                        }),
+                    ));
                 }
+                continue;
             }
-             */
-            }
-            return None;
         }
 
         if content.starts_with("COMBATANT_INFO:") {

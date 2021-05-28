@@ -1,9 +1,12 @@
 local RPLL = RPLL
-RPLL.VERSION = 10
+RPLL.VERSION = 11
+RPLL.MAX_MESSAGE_LENGTH = 500
+RPLL.CONSOLIDATE_CHARACTER = "{"
+
 RPLL.PlayerInformation = {}
-RPLL.PlayerRotation = {}
-RPLL.RotationIndex = 1
-RPLL.RotationLength = 0
+RPLL.PlayerRotationQueue = {}
+RPLL.RotationQueueIndex = 1
+RPLL.RotationQueueLength = 0
 RPLL.ExtraMessageQueue = {}
 RPLL.ExtraMessageQueueIndex = 1
 RPLL.ExtraMessageQueueLength = 0
@@ -87,7 +90,7 @@ RPLL.PLAYER_ENTERING_WORLD = function()
         RPLL_PlayerInformation = {}
     end
     this.PlayerInformation = RPLL_PlayerInformation
-	this.PlayerRotation, this.RotationLength = this:Build_RotationTable()
+	this.PlayerRotationQueue, this.RotationQueueLength = this:Build_RotationTable()
 
     this:grab_unit_information("player")
     this:RAID_ROSTER_UPDATE()
@@ -736,11 +739,9 @@ function RPLL:grab_unit_information(unit)
     if UnitIsPlayer(unit) and unit_name ~= nil and unit_name ~= Unknown then
         if this.PlayerInformation[unit_name] == nil then
             this.PlayerInformation[unit_name] = {}
-            tinsert(this.PlayerRotation, unit_name)
-            this.RotationLength = this.RotationLength + 1
         end
         local info = this.PlayerInformation[unit_name]
-        if info["last_update"] ~= nil and time() - info["last_update"] <= 10 then
+        if info["last_update"] ~= nil and time() - info["last_update"] <= 30 then
             return
         end
 		info["last_update_date"] = date("%d.%m.%y %H:%M:%S")
@@ -840,6 +841,9 @@ function RPLL:grab_unit_information(unit)
                 info["buffs"][i] = aura
             end
         end
+
+		tinsert(this.PlayerRotationQueue, unit_name)
+		this.RotationQueueLength = this.RotationQueueLength + 1
     end
 end
 
@@ -858,14 +862,25 @@ function RPLL:Build_RotationTable()
 	return rotation_table, table_length
 end
 
-local player_rotations_done = 0
 function RPLL:rotate_combat_log_global_string()
     if this.ExtraMessageQueueLength >= this.ExtraMessageQueueIndex then
-        SPELLFAILCASTSELF = this.ExtraMessageQueue[this.ExtraMessageQueueIndex]
-        SPELLFAILPERFORMSELF = this.ExtraMessageQueue[this.ExtraMessageQueueIndex]
-        this.ExtraMessageQueueIndex = this.ExtraMessageQueueIndex + 1
-    elseif this.RotationLength ~= 0 then
-        local character = this.PlayerInformation[this.PlayerRotation[this.RotationIndex]]
+		local consolidate_count = 1
+		local current_result = "CONSOLIDATED: "..this.ExtraMessageQueue[this.ExtraMessageQueueIndex]
+		for i=this.ExtraMessageQueueIndex+1, this.ExtraMessageQueueLength do
+			local pot_new_result = current_result..this.CONSOLIDATE_CHARACTER..this.ExtraMessageQueue[i]
+			if strlen(pot_new_result) < this.MAX_MESSAGE_LENGTH then
+				current_result = pot_new_result
+				consolidate_count = consolidate_count + 1
+			else
+				break
+			end
+		end
+
+        SPELLFAILCASTSELF = current_result
+        SPELLFAILPERFORMSELF = current_result
+        this.ExtraMessageQueueIndex = this.ExtraMessageQueueIndex + consolidate_count
+    elseif this.RotationQueueLength ~= 0 then
+        local character = this.PlayerInformation[this.PlayerRotationQueue[this.RotationQueueIndex]]
 		if character ~= nil then
 			local result = "COMBATANT_INFO: "..prep_value(character["last_update_date"]).."&"
 			local gear_str = prep_value(character["gear"][1])
@@ -883,13 +898,8 @@ function RPLL:rotate_combat_log_global_string()
 			SPELLFAILCASTSELF = result
 			SPELLFAILPERFORMSELF = result
 		end
-        if this.RotationIndex + 1 > this.RotationLength then
-            this.RotationIndex = 1
-        else
-            this.RotationIndex = this.RotationIndex + 1
-        end
-        if player_rotations_done < this.RotationLength then
-            player_rotations_done = player_rotations_done + 1
+        if this.RotationQueueIndex + 1 > this.RotationQueueLength then
+            this.RotationQueueIndex = 1
         end
     else
         SPELLFAILCASTSELF = "NONE"
@@ -910,7 +920,7 @@ function RPLL:IssueSpamWarning()
         return
     end
 
-    local messages_todo = this.ExtraMessageQueueLength - this.ExtraMessageQueueIndex + this.RotationLength - player_rotations_done
+    local messages_todo = this.ExtraMessageQueueLength - this.ExtraMessageQueueIndex + this.RotationQueueLength - this.RotationQueueIndex
     if messages_todo >= 10 and time() - last_spam_warning >= 60 then
         this:SendMessage("There are "..messages_todo.." messages that have not been written to the CombatLog yet.")
         this:SendMessage("These messages are of utmost importance to upload correct logs.")
