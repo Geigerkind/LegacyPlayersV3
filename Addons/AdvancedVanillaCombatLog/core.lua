@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 13
+RPLL.VERSION = 14
 RPLL.MAX_MESSAGE_LENGTH = 500
 RPLL.CONSOLIDATE_CHARACTER = "{"
 RPLL.MESSAGE_PREFIX = "RPLL_HELPER_"
@@ -103,7 +103,7 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             player_info["name"] = split[1]
             player_info["race"] = split[2]
             player_info["hero_class"] = split[3]
-            player_info["gender"] = split[4]
+            player_info["sex"] = split[4]
             if split[5] ~= "nil" then
                 player_info["guild_name"] = split[5]
                 player_info["guild_rank_name"] = split[6]
