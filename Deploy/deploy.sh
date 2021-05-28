@@ -178,9 +178,11 @@ function deployAddons {
   rm /var/www/html/AdvancedTBCCombatLog.zip
   rm /var/www/html/AdvancedWotLKCombatLog.zip
   zip -r AdvancedVanillaCombatLog.zip ./AdvancedVanillaCombatLog
+  zip -r AdvancedVanillaCombatLog_Helper.zip ./AdvancedVanillaCombatLog_Helper
   zip -r AdvancedTBCCombatLog.zip ./AdvancedTBCCombatLog
   zip -r AdvancedWotLKCombatLog.zip ./AdvancedWotLKCombatLog
   mv AdvancedVanillaCombatLog.zip /var/www/html/
+  mv AdvancedVanillaCombatLog_Helper.zip /var/www/html/
   mv AdvancedTBCCombatLog.zip /var/www/html/
   mv AdvancedWotLKCombatLog.zip /var/www/html/
 }

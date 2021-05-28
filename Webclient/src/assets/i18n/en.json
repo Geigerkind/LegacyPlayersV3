@@ -323,13 +323,14 @@
             "title": "Step by step guide to contribue",
             "step1": "1. Create an account and log into the account. (Accounts from the old version dont work)",
             "step2": "2. Install the AddOn for your respective expansion, listed above.",
-            "step3": "3. Prior to the raid, delete the WoWCombatLog.txt.",
-            "step4": "4. Log in and collect a raid, the addon will start collecting automatically.",
-            "step5": "5. Log out after the raid, otherwise the log may be lost.",
-            "step6": "6. Zip the WoWCombatLog.txt, e.g. using 7zip. Please note that rar is not zip.",
-            "step7": "7. Upload it on the upload page: ",
-            "step8": "8. Make sure that you select the correct server.",
-            "step9": "9. After the log has been uploaded, it can take up to a minute until it is shown in the raid list. Additionally, you can find your uploads in your account panel."
+            "step3": "3. Let everyone else install the Helper AddOn to improve the accuracy.",
+            "step4": "4. Prior to the raid, delete the WoWCombatLog.txt.",
+            "step5": "5. Log in and collect a raid, the addon will start collecting automatically.",
+            "step6": "6. Log out after the raid, otherwise the log may be lost.",
+            "step7": "7. Zip the WoWCombatLog.txt, e.g. using 7zip. Please note that rar is not zip.",
+            "step8": "8. Upload it on the upload page: ",
+            "step9": "9. Make sure that you select the correct server.",
+            "step10": "10. After the log has been uploaded, it can take up to a minute until it is shown in the raid list. Additionally, you can find your uploads in your account panel."
         }
     },
     "PvE": {
