@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 21
+RPLL.VERSION = 22
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -493,15 +493,22 @@ end
 function RPLL:RotateSpellFailedMessages()
     local result = ""
     if RPLL.ExtraMessageIndex <= RPLL.ExtraMessageLength then
-        result = RPLL.ExtraMessages[RPLL.ExtraMessageIndex]
-        RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + 1
-    elseif RPLL.RotationLength ~= 0 then
-        result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation()
-        if RPLL.RotationIndex + 1 > RPLL.RotationLength then
-            RPLL.RotationIndex = 1
-        else
-            RPLL.RotationIndex = RPLL.RotationIndex + 1
+        local consolidate_count = 1
+        local current_result = "CONSOLIDATED: " .. RPLL.ExtraMessageQueue[RPLL.ExtraMessageQueueIndex]
+        for i = RPLL.ExtraMessageQueueIndex + 1, RPLL.ExtraMessageQueueLength do
+            local pot_new_result = current_result .. RPLL.CONSOLIDATE_CHARACTER .. RPLL.ExtraMessageQueue[i]
+            if strlen(pot_new_result) < RPLL.MAX_MESSAGE_LENGTH then
+                current_result = pot_new_result
+                consolidate_count = consolidate_count + 1
+            else
+                break
+            end
         end
+        result = current_result
+        RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + consolidate_count
+    elseif RPLL.RotationIndex <= RPLL.RotationLength then
+        result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation()
+        RPLL.RotationIndex = RPLL.RotationIndex + 1
     else
         result = "NONE"
     end
@@ -564,6 +571,11 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
 
     if info["arena_teams"] == nil then
         info["arena_teams"] = {}
+    end
+
+    if not RPLL:PlayerIsQueued(unit_guid) then
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
     end
 end
 
@@ -631,6 +643,11 @@ function RPLL:CollectGear(unit)
             info["gear"] = gear
         end
     end
+
+    if not RPLL:PlayerIsQueued(unit_guid) then
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
+    end
 end
 
 function RPLL:CollectCurrentTalentsAndArenaTeams()
@@ -688,6 +705,20 @@ function RPLL:CollectCurrentTalentsAndArenaTeams()
     end
 
     inspect_in_progress = false
+
+    if not RPLL:PlayerIsQueued(unit_guid) then
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
+    end
+end
+
+function RPLL:PlayerIsQueued(unit_guid)
+    for i=RPLL.RotationIndex, RPLL.RotationLength do
+        if RPLL.PlayerRotation[i] == unit_guid then
+            return true
+        end
+    end
+    return false
 end
 
 function RPLL:PushExtraMessage(prefix, msg)

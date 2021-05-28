@@ -573,10 +573,9 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
         info["arena_teams"] = {}
     end
 
-    if info["last_updated_time"] == nil or time() - info["last_updated_time"] >= 15 then
+    if not RPLL:PlayerIsQueued(unit_guid) then
         tinsert(RPLL.PlayerRotation, unit_guid)
         RPLL.RotationLength = RPLL.RotationLength + 1
-        info["last_updated_time"] = time()
     end
 end
 
@@ -620,10 +619,9 @@ function RPLL:CollectGear(unit)
         end
     end
 
-    if info["last_updated_time"] == nil or time() - info["last_updated_time"] >= 15 then
+    if not RPLL:PlayerIsQueued(unit_guid) then
         tinsert(RPLL.PlayerRotation, unit_guid)
         RPLL.RotationLength = RPLL.RotationLength + 1
-        info["last_updated_time"] = time()
     end
 end
 
@@ -681,12 +679,21 @@ function RPLL:CollectCurrentTalentsAndArenaTeams()
         info["arena_teams"][team_size] = team_name
     end
 
-    if info["last_updated_time"] == nil or time() - info["last_updated_time"] >= 15 then
+    inspect_in_progress = false
+
+    if not RPLL:PlayerIsQueued(unit_guid) then
         tinsert(RPLL.PlayerRotation, unit_guid)
         RPLL.RotationLength = RPLL.RotationLength + 1
-        info["last_updated_time"] = time()
     end
-    inspect_in_progress = false
+end
+
+function RPLL:PlayerIsQueued(unit_guid)
+    for i=RPLL.RotationIndex, RPLL.RotationLength do
+        if RPLL.PlayerRotation[i] == unit_guid then
+            return true
+        end
+    end
+    return false
 end
 
 function RPLL:CollectUnit(unit)
