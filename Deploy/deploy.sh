@@ -175,16 +175,23 @@ function deployModelGenerator {
 function deployAddons {
   cd /root/${REPOSITORY_NAME}/Addons
   rm /var/www/html/AdvancedVanillaCombatLog.zip
+  rm /var/www/html/AdvancedVanillaCombatLog_Helper.zip
   rm /var/www/html/AdvancedTBCCombatLog.zip
+  rm /var/www/html/AdvancedTBCCombatLog_Helper.zip
   rm /var/www/html/AdvancedWotLKCombatLog.zip
+  rm /var/www/html/AdvancedWotLKCombatLog_Helper.zip
   zip -r AdvancedVanillaCombatLog.zip ./AdvancedVanillaCombatLog
   zip -r AdvancedVanillaCombatLog_Helper.zip ./AdvancedVanillaCombatLog_Helper
   zip -r AdvancedTBCCombatLog.zip ./AdvancedTBCCombatLog
+  zip -r AdvancedTBCCombatLog_Helper.zip ./AdvancedTBCCombatLog_Helper
   zip -r AdvancedWotLKCombatLog.zip ./AdvancedWotLKCombatLog
+  zip -r AdvancedWotLKCombatLog_Helper.zip ./AdvancedWotLKCombatLog_Helper
   mv AdvancedVanillaCombatLog.zip /var/www/html/
   mv AdvancedVanillaCombatLog_Helper.zip /var/www/html/
   mv AdvancedTBCCombatLog.zip /var/www/html/
+  mv AdvancedTBCCombatLog_Helper.zip /var/www/html/
   mv AdvancedWotLKCombatLog.zip /var/www/html/
+  mv AdvancedWotLKCombatLog_Helper.zip /var/www/html/
 }
 
 function updateConfigs {
