@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 20
+RPLL.VERSION = 21
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -315,6 +315,11 @@ local SpellFailedCombatLogEvents = {
     "ERR_OUT_OF_RUNES",
     "ERR_OUT_OF_RUNIC_POWER",
 }
+
+RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
+RPLL.UNIT_INVENTORY_CHANGED = function(unit)
+    RPLL:CollectUnit(unit)
+end
 
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL.UPDATE_MOUSEOVER_UNIT = function()

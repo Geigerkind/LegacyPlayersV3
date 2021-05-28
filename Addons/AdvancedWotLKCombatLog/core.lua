@@ -1,5 +1,7 @@
 local RPLL = RPLL
-RPLL.VERSION = 24
+RPLL.VERSION = 25
+RPLL.MAX_MESSAGE_LENGTH = 300
+
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -316,6 +318,11 @@ local SpellFailedCombatLogEvents = {
     "ERR_OUT_OF_RUNIC_POWER",
 }
 
+RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
+RPLL.UNIT_INVENTORY_CHANGED = function(unit)
+    RPLL:CollectUnit(unit)
+end
+
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL.UPDATE_MOUSEOVER_UNIT = function()
     RPLL:CollectUnit("mouseover")
@@ -488,15 +495,22 @@ end
 function RPLL:RotateSpellFailedMessages()
     local result = ""
     if RPLL.ExtraMessageIndex <= RPLL.ExtraMessageLength then
-        result = RPLL.ExtraMessages[RPLL.ExtraMessageIndex]
-        RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + 1
-    elseif RPLL.RotationLength ~= 0 then
-        result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation()
-        if RPLL.RotationIndex + 1 > RPLL.RotationLength then
-            RPLL.RotationIndex = 1
-        else
-            RPLL.RotationIndex = RPLL.RotationIndex + 1
+        local consolidate_count = 1
+        local current_result = "CONSOLIDATED: " .. RPLL.ExtraMessageQueue[RPLL.ExtraMessageQueueIndex]
+        for i = RPLL.ExtraMessageQueueIndex + 1, RPLL.ExtraMessageQueueLength do
+            local pot_new_result = current_result .. RPLL.CONSOLIDATE_CHARACTER .. RPLL.ExtraMessageQueue[i]
+            if strlen(pot_new_result) < RPLL.MAX_MESSAGE_LENGTH then
+                current_result = pot_new_result
+                consolidate_count = consolidate_count + 1
+            else
+                break
+            end
         end
+        result = current_result
+        RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + consolidate_count
+    elseif RPLL.RotationIndex <= RPLL.RotationLength then
+        result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation()
+        RPLL.RotationIndex = RPLL.RotationIndex + 1
     else
         result = "NONE"
     end
@@ -526,8 +540,6 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
 
     if RPLL.PlayerInformation[unit_guid] == nil then
         RPLL.PlayerInformation[unit_guid] = {}
-        tinsert(RPLL.PlayerRotation, unit_guid)
-        RPLL.RotationLength = RPLL.RotationLength + 1
     end
 
     local info = RPLL.PlayerInformation[unit_guid]
@@ -559,6 +571,12 @@ function RPLL:UpdatePlayer(unit_guid, unit_name, race, hero_class, gender, guild
 
     if info["arena_teams"] == nil then
         info["arena_teams"] = {}
+    end
+
+    if info["last_updated_time"] == nil or time() - info["last_updated_time"] >= 15 then
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
+        info["last_updated_time"] = time()
     end
 end
 
@@ -600,6 +618,12 @@ function RPLL:CollectGear(unit)
         if any_item then
             info["gear"] = gear
         end
+    end
+
+    if info["last_updated_time"] == nil or time() - info["last_updated_time"] >= 15 then
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
+        info["last_updated_time"] = time()
     end
 end
 
@@ -657,6 +681,11 @@ function RPLL:CollectCurrentTalentsAndArenaTeams()
         info["arena_teams"][team_size] = team_name
     end
 
+    if info["last_updated_time"] == nil or time() - info["last_updated_time"] >= 15 then
+        tinsert(RPLL.PlayerRotation, unit_guid)
+        RPLL.RotationLength = RPLL.RotationLength + 1
+        info["last_updated_time"] = time()
+    end
     inspect_in_progress = false
 end
 
