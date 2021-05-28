@@ -575,11 +575,6 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
     end
 end
 
-RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
-RPLL.UNIT_INVENTORY_CHANGED = function(unit)
-    RPLL:CollectUnit(unit)
-end
-
 RPLL:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 RPLL.UPDATE_MOUSEOVER_UNIT = function()
     RPLL:CollectUnit("mouseover")
