@@ -37,8 +37,8 @@ impl CombatLogParser for WoWWOTLKParser {
                     }
 
                     let unit_name = args[2].to_string();
-                    let race = args[3];
-                    let hero_class = args[4];
+                    let race = args[3].to_lowercase();
+                    let hero_class = args[4].to_lowercase();
                     let gender = args[5];
                     let guild_name = args[6];
                     let guild_rank_name = args[7];
@@ -52,35 +52,37 @@ impl CombatLogParser for WoWWOTLKParser {
                     let mut participant = self.participants.entry(unit_guid).or_insert_with(|| Participant::new(unit_guid, true, unit_name, 0));
 
                     if race != "nil" && participant.race_id.is_none() {
-                        participant.race_id = Some(match race {
-                            "Human" => 1,
-                            "Orc" => 2,
-                            "Dwarf" => 3,
-                            "Night Elf" => 4,
-                            "NightElf" => 4,
-                            "Undead" => 5,
-                            "Scourge" => 5,
-                            "Tauren" => 6,
-                            "Gnome" => 7,
-                            "Troll" => 8,
-                            "Blood Elf" => 10,
-                            "Draenei" => 11,
+                        participant.race_id = Some(match race.as_str() {
+                            "human" => 1,
+                            "orc" => 2,
+                            "dwarf" => 3,
+                            "night elf" => 4,
+                            "nightelf" => 4,
+                            "undead" => 5,
+                            "scourge" => 5,
+                            "tauren" => 6,
+                            "gnome" => 7,
+                            "troll" => 8,
+                            "blood elf" => 10,
+                            "bloodelf" => 10,
+                            "draenei" => 11,
                             _ => return None,
                         });
                     }
 
                     if hero_class != "nil" && participant.hero_class_id.is_none() {
-                        participant.hero_class_id = Some(match hero_class {
-                            "Warrior" => 1,
-                            "Paladin" => 2,
-                            "Hunter" => 3,
-                            "Rogue" => 4,
-                            "Priest" => 5,
-                            "Death Knight" => 6,
-                            "Shaman" => 7,
-                            "Mage" => 8,
-                            "Warlock" => 9,
-                            "Druid" => 11,
+                        participant.hero_class_id = Some(match hero_class.as_str() {
+                            "warrior" => 1,
+                            "paladin" => 2,
+                            "hunter" => 3,
+                            "rogue" => 4,
+                            "priest" => 5,
+                            "death knight" => 6,
+                            "deathknight" => 6,
+                            "shaman" => 7,
+                            "mage" => 8,
+                            "warlock" => 9,
+                            "druid" => 11,
                             _ => return None,
                         });
                     }

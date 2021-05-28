@@ -1,5 +1,8 @@
 local RPLL = RPLL
 RPLL.VERSION = 22
+RPLL.MAX_MESSAGE_LENGTH = 300
+RPLL.CONSOLIDATE_CHARACTER = "{"
+
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
 RPLL.RotationLength = 0
@@ -7,8 +10,6 @@ RPLL.RotationIndex = 1
 RPLL.ExtraMessages = {}
 RPLL.ExtraMessageLength = 0
 RPLL.ExtraMessageIndex = 1
-
-local queued_pets = {}
 
 local strsplit = strsplit
 local strjoin = strjoin
@@ -384,7 +385,7 @@ RPLL.CHAT_MSG_LOOT = function(msg)
     if not IsInInstance() then
         return
     end
-    RPLL:PushExtraMessage("LOOT", strjoin("&", msg))
+    RPLL:PushExtraMessage("LOOT", msg)
 end
 
 RPLL:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -594,8 +595,8 @@ function RPLL:CollectUnit(unit)
     end
 
     local unit_name = UnitName(unit)
-    local unit_race = UnitRace(unit)
-    local unit_hero_class = UnitClass(unit)
+    local _, unit_race = UnitRace(unit)
+    local _, unit_hero_class = UnitClass(unit)
     local unit_gender = UnitSex(unit)
     local guild_name, guild_rank_name, guild_rank_index = GetGuildInfo(unit)
 
@@ -778,10 +779,6 @@ function RPLL:PushPet(owner_unit)
         return
     end
 
-    if queued_pets[pet_guid] ~= nil then
-        return
-    end
-    queued_pets[pet_guid] = true
     local owner_guid = UnitGUID(owner_unit)
     RPLL:PushExtraMessage("PET_SUMMON", strjoin("&", owner_guid, pet_guid))
 end

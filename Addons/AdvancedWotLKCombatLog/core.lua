@@ -1,6 +1,8 @@
 local RPLL = RPLL
-RPLL.VERSION = 25
+RPLL.VERSION = 27
 RPLL.MAX_MESSAGE_LENGTH = 300
+RPLL.MESSAGE_PREFIX = "RPLL_H_"
+RPLL.CONSOLIDATE_CHARACTER = "{"
 
 RPLL.PlayerInformation = {}
 RPLL.PlayerRotation = {}
@@ -9,8 +11,7 @@ RPLL.RotationIndex = 1
 RPLL.ExtraMessages = {}
 RPLL.ExtraMessageLength = 0
 RPLL.ExtraMessageIndex = 1
-
-local queued_pets = {}
+RPLL.Synchronizers = {}
 
 local strsplit = strsplit
 local strjoin = strjoin
@@ -318,6 +319,262 @@ local SpellFailedCombatLogEvents = {
     "ERR_OUT_OF_RUNIC_POWER",
 }
 
+RPLL:RegisterEvent("CHAT_MSG_ADDON")
+RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
+    if strfind(prefix, RPLL.MESSAGE_PREFIX) ~= nil then
+        RPLL.Synchronizers[sender] = true
+        if strfind(prefix, "LOOT") ~= nil then
+            tinsert(RPLL.ExtraMessages, "LOOT: " .. date("%d.%m.%y %H:%M:%S") .. "&" .. msg)
+            RPLL.ExtraMessageLength = RPLL.ExtraMessageLength + 1
+        elseif strfind(prefix, "PET") ~= nil then
+            tinsert(RPLL.ExtraMessages, "PET_SUMMON: " .. date("%d.%m.%y %H:%M:%S") .. "&" .. msg)
+            RPLL.ExtraMessageLength = RPLL.ExtraMessageLength + 1
+        elseif strfind(prefix, "CBT_I_1") ~= nil then
+            local unit_guid, unit_name, race, hero_class, gender, g_name, g_rank_name, g_rank_index = strsplit("&", msg)
+            if unit_guid == "nil" or unit_name == "nil" or race == "nil" or gender == "nil" or hero_class == "nil" then
+                return
+            end
+
+            if RPLL.PlayerInformation[unit_guid] == nil then
+                RPLL.PlayerInformation[unit_guid] = {}
+            end
+
+            local player_info = RPLL.PlayerInformation[unit_guid]
+
+            player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
+            player_info["last_updated_time"] = time()
+            player_info["unit_guid"] = unit_guid
+            player_info["unit_name"] = unit_name
+            player_info["race"] = race
+            player_info["hero_class"] = hero_class
+            player_info["gender"] = gender
+            if player_info["gear"] == nil then
+                player_info["gear"] = {}
+            end
+            if player_info["arena_teams"] == nil then
+                player_info["arena_teams"] = {}
+            end
+
+            if g_name ~= "nil" then
+                player_info["guild_name"] = g_name
+                player_info["guild_rank_name"] = g_rank_name
+                player_info["guild_rank_index"] = g_rank_index
+            end
+
+            if not RPLL:PlayerIsQueued(unit_guid) then
+                tinsert(RPLL.PlayerRotation, sender)
+                RPLL.RotationLength = RPLL.RotationLength + 1
+            end
+        elseif strfind(prefix, "CBT_I_2") ~= nil then
+            local unit_guid, talents, team1, team2, team3 = strsplit("&", msg)
+            if unit_guid == "nil" or talents == "nil" then
+                return
+            end
+
+            if RPLL.PlayerInformation[unit_guid] == nil then
+                RPLL.PlayerInformation[unit_guid] = {}
+            end
+
+            local player_info = RPLL.PlayerInformation[unit_guid]
+            if player_info["gear"] == nil then
+                player_info["gear"] = {}
+            end
+            if player_info["arena_teams"] == nil then
+                player_info["arena_teams"] = {}
+            end
+
+            player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
+            player_info["last_updated_time"] = time()
+            player_info["unit_guid"] = unit_guid
+            player_info["talents"] = talents
+            if team1 ~= "nil" then
+                player_info["arena_teams"][2] = team1
+            end
+            if team2 ~= "nil" then
+                player_info["arena_teams"][3] = team2
+            end
+            if team3 ~= "nil" then
+                player_info["arena_teams"][5] = team3
+            end
+
+            if not RPLL:PlayerIsQueued(unit_guid) then
+                tinsert(RPLL.PlayerRotation, sender)
+                RPLL.RotationLength = RPLL.RotationLength + 1
+            end
+        elseif strfind(prefix, "CBT_I_3") ~= nil then
+            local unit_guid, gear_str = strsplit("&", msg)
+            if unit_guid == "nil" or gear_str == "nil" then
+                return
+            end
+
+            if RPLL.PlayerInformation[unit_guid] == nil then
+                RPLL.PlayerInformation[unit_guid] = {}
+            end
+
+            local player_info = RPLL.PlayerInformation[unit_guid]
+            if player_info["arena_teams"] == nil then
+                player_info["arena_teams"] = {}
+            end
+
+            player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
+            player_info["last_updated_time"] = time()
+            player_info["unit_guid"] = unit_guid
+
+            if player_info["gear"] == nil then
+                player_info["gear"] = {}
+            end
+            local p1, p2, p3, p4, p5 = strsplit("}", gear_str)
+            if p1 ~= "nil" then
+                player_info["gear"][1] = p1
+            end
+            if p2 ~= "nil" then
+                player_info["gear"][2] = p2
+            end
+            if p3 ~= "nil" then
+                player_info["gear"][3] = p3
+            end
+            if p4 ~= "nil" then
+                player_info["gear"][4] = p4
+            end
+            if p5 ~= "nil" then
+                player_info["gear"][5] = p5
+            end
+
+            if not RPLL:PlayerIsQueued(unit_guid) then
+                tinsert(RPLL.PlayerRotation, sender)
+                RPLL.RotationLength = RPLL.RotationLength + 1
+            end
+        elseif strfind(prefix, "CBT_I_4") ~= nil then
+            local unit_guid, gear_str = strsplit("&", msg)
+            if unit_guid == "nil" or gear_str == "nil" then
+                return
+            end
+
+            if RPLL.PlayerInformation[unit_guid] == nil then
+                RPLL.PlayerInformation[unit_guid] = {}
+            end
+
+            local player_info = RPLL.PlayerInformation[unit_guid]
+
+            if player_info["arena_teams"] == nil then
+                player_info["arena_teams"] = {}
+            end
+
+            player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
+            player_info["last_updated_time"] = time()
+            player_info["unit_guid"] = unit_guid
+
+            if player_info["gear"] == nil then
+                player_info["gear"] = {}
+            end
+            local p1, p2, p3, p4, p5 = strsplit("}", gear_str)
+            if p1 ~= "nil" then
+                player_info["gear"][6] = p1
+            end
+            if p2 ~= "nil" then
+                player_info["gear"][7] = p2
+            end
+            if p3 ~= "nil" then
+                player_info["gear"][8] = p3
+            end
+            if p4 ~= "nil" then
+                player_info["gear"][9] = p4
+            end
+            if p5 ~= "nil" then
+                player_info["gear"][10] = p5
+            end
+
+            if not RPLL:PlayerIsQueued(unit_guid) then
+                tinsert(RPLL.PlayerRotation, sender)
+                RPLL.RotationLength = RPLL.RotationLength + 1
+            end
+        elseif strfind(prefix, "CBT_I_5") ~= nil then
+            local unit_guid, gear_str = strsplit("&", msg)
+            if unit_guid == "nil" or gear_str == "nil" then
+                return
+            end
+
+            if RPLL.PlayerInformation[unit_guid] == nil then
+                RPLL.PlayerInformation[unit_guid] = {}
+            end
+
+            local player_info = RPLL.PlayerInformation[unit_guid]
+            if player_info["arena_teams"] == nil then
+                player_info["arena_teams"] = {}
+            end
+
+            player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
+            player_info["last_updated_time"] = time()
+            player_info["unit_guid"] = unit_guid
+
+            if player_info["gear"] == nil then
+                player_info["gear"] = {}
+            end
+            local p1, p2, p3, p4, p5 = strsplit("}", gear_str)
+            if p1 ~= "nil" then
+                player_info["gear"][11] = p1
+            end
+            if p2 ~= "nil" then
+                player_info["gear"][12] = p2
+            end
+            if p3 ~= "nil" then
+                player_info["gear"][13] = p3
+            end
+            if p4 ~= "nil" then
+                player_info["gear"][14] = p4
+            end
+            if p5 ~= "nil" then
+                player_info["gear"][15] = p5
+            end
+
+            if not RPLL:PlayerIsQueued(unit_guid) then
+                tinsert(RPLL.PlayerRotation, sender)
+                RPLL.RotationLength = RPLL.RotationLength + 1
+            end
+        elseif strfind(prefix, "CBT_I_6") ~= nil then
+            local unit_guid, gear_str = strsplit("&", msg)
+            if unit_guid == "nil" or gear_str == "nil" then
+                return
+            end
+
+            if RPLL.PlayerInformation[unit_guid] == nil then
+                RPLL.PlayerInformation[unit_guid] = {}
+            end
+
+            local player_info = RPLL.PlayerInformation[unit_guid]
+            if player_info["arena_teams"] == nil then
+                player_info["arena_teams"] = {}
+            end
+
+            player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
+            player_info["last_updated_time"] = time()
+            player_info["unit_guid"] = unit_guid
+
+            if player_info["gear"] == nil then
+                player_info["gear"] = {}
+            end
+            local p1, p2, p3, p4 = strsplit("}", gear_str)
+            if p1 ~= "nil" then
+                player_info["gear"][16] = p1
+            end
+            if p2 ~= "nil" then
+                player_info["gear"][17] = p2
+            end
+            if p3 ~= "nil" then
+                player_info["gear"][18] = p3
+            end
+            if p4 ~= "nil" then
+                player_info["gear"][19] = p4
+            end
+
+            if not RPLL:PlayerIsQueued(unit_guid) then
+                tinsert(RPLL.PlayerRotation, sender)
+                RPLL.RotationLength = RPLL.RotationLength + 1
+            end
+        end
+    end
+end
+
 RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
 RPLL.UNIT_INVENTORY_CHANGED = function(unit)
     RPLL:CollectUnit(unit)
@@ -383,10 +640,10 @@ end
 
 RPLL:RegisterEvent("CHAT_MSG_LOOT")
 RPLL.CHAT_MSG_LOOT = function(msg)
-    if not IsInInstance() then
+    if not IsInInstance() or RPLL:ContainsSynchronizer(msg) then
         return
     end
-    RPLL:PushExtraMessage("LOOT", strjoin("&", msg))
+    RPLL:PushExtraMessage("LOOT", msg)
 end
 
 RPLL:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -462,7 +719,7 @@ end
 
 RPLL:RegisterEvent("UNIT_INVENTORY_CHANGED")
 RPLL.UNIT_INVENTORY_CHANGED = function(unit)
-    RPLL:CollectGear(unit)
+    RPLL:CollectUnit(unit)
 end
 
 RPLL:RegisterEvent("INSPECT_TALENT_READY")
@@ -492,13 +749,26 @@ function RPLL:OnUpdate()
     end
 end
 
+function RPLL:ContainsSynchronizer(msg)
+    if msg == nil then
+        return true
+    end
+
+    for key, val in pairs(RPLL.Synchronizers) do
+        if strfind(msg, key) ~= nil then
+            return true
+        end
+    end
+    return false
+end
+
 function RPLL:RotateSpellFailedMessages()
     local result = ""
     if RPLL.ExtraMessageIndex <= RPLL.ExtraMessageLength then
         local consolidate_count = 1
-        local current_result = "CONSOLIDATED: " .. RPLL.ExtraMessageQueue[RPLL.ExtraMessageQueueIndex]
-        for i = RPLL.ExtraMessageQueueIndex + 1, RPLL.ExtraMessageQueueLength do
-            local pot_new_result = current_result .. RPLL.CONSOLIDATE_CHARACTER .. RPLL.ExtraMessageQueue[i]
+        local current_result = "CONSOLIDATED: " .. RPLL.ExtraMessages[RPLL.ExtraMessageIndex]
+        for i = RPLL.ExtraMessageIndex + 1, RPLL.ExtraMessageLength do
+            local pot_new_result = current_result .. RPLL.CONSOLIDATE_CHARACTER .. RPLL.ExtraMessages[i]
             if strlen(pot_new_result) < RPLL.MAX_MESSAGE_LENGTH then
                 current_result = pot_new_result
                 consolidate_count = consolidate_count + 1
@@ -703,6 +973,10 @@ function RPLL:CollectUnit(unit)
     if UnitGUID(unit) ~= nil and UnitGUID(unit) == UnitGUID("player") then
         unit = "player"
     end
+    local unit_name = UnitName(unit)
+    if RPLL:ContainsSynchronizer(unit_name) then
+        return
+    end
 
     local unit_guid = UnitGUID(unit)
     if CanInspect(unit) then
@@ -710,14 +984,14 @@ function RPLL:CollectUnit(unit)
         inspect_queue_length = inspect_queue_length + 1
     end
 
-    local unit_name = UnitName(unit)
-    local unit_race = UnitRace(unit)
-    local unit_hero_class = UnitClass(unit)
+    local _, unit_race = UnitRace(unit)
+    local _, unit_hero_class = UnitClass(unit)
     local unit_gender = UnitSex(unit)
     local guild_name, guild_rank_name, guild_rank_index = GetGuildInfo(unit)
 
     RPLL:PushPet(unit)
     RPLL:UpdatePlayer(unit_guid, unit_name, unit_race, unit_hero_class, unit_gender, guild_name, guild_rank_name, guild_rank_index)
+    RPLL:CollectGear(unit)
 end
 
 function RPLL:PushExtraMessage(prefix, msg)
@@ -779,10 +1053,6 @@ function RPLL:PushPet(owner_unit)
         return
     end
 
-    if queued_pets[pet_guid] ~= nil then
-        return
-    end
-    queued_pets[pet_guid] = true
     local owner_guid = UnitGUID(owner_unit)
     RPLL:PushExtraMessage("PET_SUMMON", strjoin("&", owner_guid, pet_guid))
 end
