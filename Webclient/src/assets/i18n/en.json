@@ -207,6 +207,9 @@
         },
         "queue": {
             "title": "Queue"
+        },
+        "donate": {
+            "patreon": "Patreon"
         }
     },
     "Account": {

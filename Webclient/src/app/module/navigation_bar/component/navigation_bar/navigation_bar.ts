@@ -48,6 +48,11 @@ export class NavigationBarComponent implements OnInit {
         ["/contribute/", "NavigationBar.contribute.title"],
         ["/contribute/upload", "NavigationBar.contribute.upload"]
     ];
+
+    itemsDonate = [
+        ["https://www.patreon.com/ShinoLegacyPlayers", "NavigationBar.donate.patreon", true],
+    ];
+
     /*
         itemsQueue = [
             ["/queue/", "NavigationBar.queue.title"]
