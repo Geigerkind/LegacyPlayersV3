@@ -1,5 +1,5 @@
 local RPLL_HELPER = RPLL_HELPER
-RPLL_HELPER.VERSION = 1
+RPLL_HELPER.VERSION = 2
 RPLL_HELPER.MESSAGE_PREFIX = "RPLL_H_"
 RPLL_HELPER.PlayerInfo = {}
 
@@ -110,7 +110,6 @@ RPLL_HELPER.INSPECT_TALENT_READY = function()
         inspect_pending = false
         inspect_ready = true
         RPLL_HELPER:grab_player_information()
-        RPLL_HELPER:SendMessage("INSPECTING!")
         inspect_ready = false
     end
 end
