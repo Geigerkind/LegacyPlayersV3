@@ -29,7 +29,6 @@
     position: absolute;
     height: 20px;
     width: 100px;
-    top: -30px;
     left: -42px;
     border-radius: 3px 3px 3px 3px;
     border: 1px solid $tdc_accent;
@@ -37,6 +36,14 @@
     z-index: 20;
     text-align: center;
     user-select: none;
+
+    &#spop0 {
+        bottom: -30px;
+    }
+
+    &#spop1 {
+        top: -30px;
+    }
 }
 
 #slider0 {
