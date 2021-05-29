@@ -21,7 +21,7 @@ export class AppComponent implements OnInit, OnChanges {
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription
 
-    enable_ads: boolean = true;
+    enable_ads: boolean = false;
     is_on_viewer_site: boolean = false;
     enough_bottom_space: boolean = false;
 
@@ -36,7 +36,8 @@ export class AppComponent implements OnInit, OnChanges {
 
         this.router.events.subscribe(event => {
            this.is_on_viewer_site = this.router.url.includes("viewer/");
-           this.enough_bottom_space = document.getElementById("bottom_layer").clientWidth >= 2000;
+           const ad_element = document.getElementById("bottom_layer");
+           this.enough_bottom_space = !!ad_element && ad_element.clientWidth >= 2000;
         });
     }
 
@@ -93,6 +94,7 @@ export class AppComponent implements OnInit, OnChanges {
         if (this.settingsService.check("API_TOKEN")) {
             this.apiService.get<AccountInformation>(AppComponent.URL_ACCOUNT_GET, (result) => {
                 this.settingsService.set("ACCOUNT_INFORMATION", result);
+                this.enable_ads = !(((result as AccountInformation).access_rights & 2) == 2);
             });
         }
     }
