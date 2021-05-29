@@ -3,7 +3,8 @@
                  [themed]="true"></SelectInput>
     <SelectInput [(value)]="encounters_current_selection" (valueChange)="select()" [options]="encounters"
                  [themed]="true"></SelectInput>
-    <MultiSelect [(selectedItems)]="difficulties_selected_items" [dropdownList]="difficulties" [allowSearchFilter]="false"
+    <MultiSelect [(selectedItems)]="difficulties_selected_items" [dropdownList]="difficulties"
+                 [allowSearchFilter]="false"
                  (select_all)="select()" placeholder="Ranking.difficulties"
                  (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>
     <MultiSelect [(selectedItems)]="servers_selected_items" [dropdownList]="servers" [allowSearchFilter]="true"
@@ -16,4 +17,5 @@
 </div>
 <MeterGraph [bars]="bars" [bar_subjects]="bar_subjects" [bar_tooltips]="bar_tooltips" [show_per_second]="false"
             [show_percent]="false" (bar_clicked)="bar_clicked($event)" [bar_label_function]="bar_label_function"
-            [bar_label_args]="dateService" [invert]="true"></MeterGraph>
+            [bar_label_args]="dateService" [invert]="true" [delete_label]="is_deletable"
+            (delete_clicked)="delete_clicked($event)"></MeterGraph>

@@ -11,9 +11,9 @@ use rocket_okapi::{gen::OpenApiGenerator, response::OpenApiResponder, util::add_
 use crate::modules::account::{tools::Token, Account};
 use crate::MainDb;
 
-pub struct Authenticate(pub u32);
+pub struct IsModerator(pub u32);
 
-impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
+impl<'a, 'r> FromRequest<'a, 'r> for IsModerator {
     type Error = ();
 
     fn from_request(req: &'a Request<'r>) -> request::Outcome<Self, ()> {
@@ -40,19 +40,26 @@ impl<'a, 'r> FromRequest<'a, 'r> for Authenticate {
             return Failure((Status::Unauthorized, ()));
         }
 
-        Success(Authenticate(validation.unwrap()))
+        let member_id = validation.unwrap();
+        let member_map = acc_res.member.read().unwrap();
+        let member = member_map.get(&member_id).unwrap();
+        if (member.access_rights & 1) == 0 {
+            return Failure((Status::Unauthorized, ()));
+        }
+
+        Success(IsModerator(member_id))
     }
 }
 
 // This implementation is required from OpenAPI, it does nothing here
 // and is not supposed to be used!
-impl Responder<'static> for Authenticate {
+impl Responder<'static> for IsModerator {
     fn respond_to(self, _: &Request) -> Result<Response<'static>, Status> {
         Response::build().status(Status::Unauthorized).ok()
     }
 }
 
-impl OpenApiResponder<'static> for Authenticate {
+impl OpenApiResponder<'static> for IsModerator {
     fn responses(gen: &mut OpenApiGenerator) -> rocket_okapi::Result<Responses> {
         let mut responses = Responses::default();
         let schema = gen.json_schema::<String>();

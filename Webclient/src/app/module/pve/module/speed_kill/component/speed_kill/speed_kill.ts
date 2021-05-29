@@ -10,6 +10,7 @@ import {DateService} from "../../../../../../service/date";
 import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
 import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
 import {Router} from "@angular/router";
+import {SpeedKill} from "../../domain_value/speed_kill";
 
 @Component({
     selector: "SpeedKill",
@@ -36,6 +37,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
     difficulties_selected_items: Array<any> = [];
     difficulties: Array<any> = [];
 
+    bar_meta: Map<number, SpeedKill> = new Map();
     bar_subjects: Map<number, RaidMeterSubject> = new Map();
     bar_tooltips: Map<number, any> = new Map();
     bars: Array<[number, number | string]> = [];
@@ -56,6 +58,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
                     id: speed_kill.guild_id, name: speed_kill.guild_name,
                     color_class: "hero_class_bg_1", icon: "/assets/wow_icon/inv_misc_questionmark.jpg"
                 } as RaidMeterSubject);
+                this.bar_meta.set(speed_kill.instance_meta_id, speed_kill);
                 this.bars.push([speed_kill.instance_meta_id, speed_kill.duration]);
             }
         });
@@ -131,6 +134,15 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
             this.difficulties_selected_items = this.difficulties.filter(item => selection_params[3].includes(item.id));
         }
         this.select();
+    }
+
+    delete_clicked(instance_meta_id: number): void {
+        this.speedKillService.delete(this.bar_meta.get(instance_meta_id).attempt_id);
+    }
+
+    get is_deletable(): boolean {
+        const account_information = this.settingsService.get("ACCOUNT_INFORMATION");
+        return this.selections_current_selection === 1 && (!!account_information && (account_information.access_rights & 1) === 1);
     }
 
 }

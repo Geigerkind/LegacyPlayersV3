@@ -6,4 +6,5 @@ pub struct InstanceAttempt {
     pub end_ts: u64,
     pub is_kill: bool,
     pub difficulty_id: u8,
+    pub rankable: bool,
 }

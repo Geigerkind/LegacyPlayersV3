@@ -8,6 +8,7 @@ import {SpeedKill} from "../domain_value/speed_kill";
 })
 export class SpeedKillService {
     private static readonly URL_INSTANCE_SPEED_KILL: string = "/instance/speed_kill";
+    private static readonly URL_INSTANCE_ATTEMPT_DELETE: string = "/instance/ranking/unrank";
 
     private speed_kills$: Subject<Array<SpeedKill>> = new Subject();
     private current_mode$: number = 1;
@@ -43,5 +44,14 @@ export class SpeedKillService {
             && this.current_server_ids$.includes(speed_kill.server_id) && this.current_difficulty_ids$.includes(speed_kill.difficulty_id))
             .sort((left, right) => left.duration - right.duration);
         this.speed_kills$.next(result);
+    }
+
+    delete(attempt_id: number): void {
+        this.apiService.delete(SpeedKillService.URL_INSTANCE_ATTEMPT_DELETE, attempt_id, () => {
+            this.apiService.get(SpeedKillService.URL_INSTANCE_SPEED_KILL, result => {
+                this.speed_kills_internal = result;
+                this.commit();
+            });
+        });
     }
 }

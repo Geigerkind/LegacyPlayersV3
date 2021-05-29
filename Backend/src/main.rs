@@ -290,6 +290,7 @@ fn main() {
                 instance::transfer::ranking::get_instance_ranking_hps,
                 instance::transfer::ranking::get_instance_ranking_tps,
                 instance::transfer::ranking::get_character_ranking,
+                instance::transfer::ranking::unrank_attempt,
                 instance::transfer::delete::delete_instance,
                 instance::transfer::speed_run::get_speed_runs,
                 instance::transfer::speed_kill::get_speed_kills,

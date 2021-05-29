@@ -18,4 +18,4 @@
     </svg>
 </div>
 <MeterGraph [bars]="bars" [bar_subjects]="bar_subjects" [bar_tooltips]="bar_tooltips" [show_per_second]="false"
-            [show_percent]="false" (bar_clicked)="bar_clicked($event)"></MeterGraph>
+            [show_percent]="false" (bar_clicked)="bar_clicked($event)" [delete_label]="is_deletable" (delete_clicked)="delete_clicked($event)"></MeterGraph>

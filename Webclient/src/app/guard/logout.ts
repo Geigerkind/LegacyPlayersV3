@@ -12,6 +12,7 @@ export class LogOutGuard implements CanActivate {
 
     canActivate(): boolean {
         this.settingsService.set("API_TOKEN", undefined);
+        this.settingsService.set("ACCOUNT_INFORMATION", undefined);
         this.routingService.navigate(["/"]);
         return false;
     }

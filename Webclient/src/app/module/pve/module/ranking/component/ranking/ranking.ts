@@ -333,4 +333,13 @@ export class RankingComponent implements OnInit, OnDestroy {
         }
         return current_list.filter(item => wanted_ids.includes(item.id) || selected_list.find(i_item => i_item.id === item.id));
     }
+
+    delete_clicked(character_id: number): void {
+        this.rankingService.delete(this.bar_meta_information.get(character_id)[1][0]);
+    }
+
+    get is_deletable(): boolean {
+        const account_information = this.settingsService.get("ACCOUNT_INFORMATION");
+        return this.selections_current_selection === 1 && this.encounters_selected_items.length === 1 && (!!account_information && (account_information.access_rights & 1) === 1);
+    }
 }

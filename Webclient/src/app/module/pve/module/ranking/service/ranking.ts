@@ -12,6 +12,7 @@ export class RankingService {
     private static readonly URL_INSTANCE_RANKING_DPS: string = "/instance/ranking/dps";
     private static readonly URL_INSTANCE_RANKING_HPS: string = "/instance/ranking/hps";
     private static readonly URL_INSTANCE_RANKING_TPS: string = "/instance/ranking/tps";
+    private static readonly URL_INSTANCE_ATTEMPT_DELETE: string = "/instance/ranking/unrank";
 
     private rankings$: BehaviorSubject<Array<RankingRow>> = new BehaviorSubject([]);
 
@@ -80,6 +81,12 @@ export class RankingService {
                     attempt_ids: ranking_results.map(rr => rr[2])
                 };
             }).sort((left, right) => right.amount - left.amount));
+    }
+
+    delete(attempt_id: number): void {
+        this.apiService.delete(RankingService.URL_INSTANCE_ATTEMPT_DELETE, attempt_id, () => {
+           this.load_current_mode();
+        });
     }
 
     private get current_mode_data(): Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> {

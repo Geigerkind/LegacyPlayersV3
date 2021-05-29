@@ -19,8 +19,10 @@ export class MeterGraphComponent {
     @Input() bar_label_function: (args: any, amount: number) => string;
     @Input() bar_label_args: any;
     @Input() invert: boolean = false;
+    @Input() delete_label: boolean = false;
 
     @Output() bar_clicked: EventEmitter<[number, number]> = new EventEmitter();
+    @Output() delete_clicked: EventEmitter<number> = new EventEmitter();
 
     isLoading: boolean = false;
 
@@ -76,5 +78,9 @@ export class MeterGraphComponent {
 
     format_dps(amount: number): string {
         return this.get_dps(amount).toFixed(1).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    }
+
+    emit_delete(subject_id: number): void {
+        this.delete_clicked.next(subject_id);
     }
 }

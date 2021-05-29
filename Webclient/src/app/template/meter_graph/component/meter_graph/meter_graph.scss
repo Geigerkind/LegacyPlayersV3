@@ -6,6 +6,17 @@
     width: 100%;
 }
 
+.delete_button {
+    position: absolute;
+    padding-left: 6px;
+    color: red !important;
+    cursor: pointer;
+
+    &:hover {
+        color: $highlight !important;
+    }
+}
+
 .bar_container {
     width: calc(100% - 2px);
     background: $tdc_darker;
