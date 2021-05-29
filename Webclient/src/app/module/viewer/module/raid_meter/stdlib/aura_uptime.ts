@@ -20,69 +20,57 @@ export function commit_aura_uptime(aura_applications: Array<Event>, current_segm
             newData.set(subject_id, [se_aura_application(grouping[unit_id][0]), new Map()]);
 
         const abilities_data = newData.get(subject_id)[1];
-        grouping[subject_id].forEach(event => {
+        const sorted_aura_app = grouping[subject_id].sort((left, right) => {
+            if (left[0] === right[0])
+                return left[5] - right[5];
+            return left[0] - right[0];
+        });
+        sorted_aura_app.forEach(event => {
             const spell_id = event[4];
-            if (!abilities_data.has(spell_id)) {
-                abilities_data.set(spell_id, []);
-            }
+            if (!abilities_data.has(spell_id))
+                abilities_data.set(spell_id, [[undefined, undefined, undefined, undefined]]);
             const ability_intervals = abilities_data.get(spell_id);
-            let current_interval;
-            if (ability_intervals.length > 0) current_interval = ability_intervals[ability_intervals.length - 1];
-            else {
-                current_interval = [undefined, undefined, undefined, undefined];
-                ability_intervals.push(current_interval);
-            }
+            const current_interval = ability_intervals[ability_intervals.length - 1];
+
             if (event[5] > 0) {
-                // If we get an non 0 event twice, it is probably a refresh
+                // If we get a non 0 event twice, it is probably a refresh
                 if (current_interval[0] === undefined) {
                     current_interval[0] = event[1];
                     current_interval[2] = te_aura_application(event);
-                } else if (current_interval[1] !== undefined) {
-                    ability_intervals.push([event[1], undefined, te_aura_application(event), undefined]);
-                } else if (event[1] > current_interval[0]) {
+                } else {
                     current_interval[1] = event[1];
                     current_interval[3] = te_aura_application(event);
-                    ability_intervals.push([event[1], undefined, te_aura_application(event), undefined]);
                 }
             } else {
-                if (current_interval[1] === undefined) {
-                    current_interval[1] = event[1];
-                    current_interval[3] = te_aura_application(event);
-                } else if (current_interval[0] !== undefined
-                    && ability_intervals.find(i_interval => i_interval[0] === current_interval[0] && i_interval[1] === event[1]) === undefined) {
-                    ability_intervals.push([current_interval[0], event[1], current_interval[2], te_aura_application(event)]);
-                }
+                current_interval[1] = event[1];
+                current_interval[3] = te_aura_application(event);
+                ability_intervals.push([undefined, undefined, undefined, undefined]);
             }
         });
     }
 
-    const segment_end = current_segment_intervals.reduce((acc, [start, end]) => Math.max(acc, end), 0);
+    const sorted_segment_intervals = current_segment_intervals.sort((left, right) => left[0] - right[0]);
     return [...newData.entries()].map(([unit_id, [unit, abilities]]) => {
         const result = [];
         for (const [spell_id, intervals] of abilities) {
             const res_intervals = [];
             for (const [start, end, start_id, end_id] of intervals) {
-                /*
-                 * Should not be possible?
-                if (start === undefined && end === undefined) {
-                    res_intervals.push([segment_start, segment_end]);
-                    break;
-                }
-                 */
-
-                const int_end = end === undefined ? segment_end : end;
-                for (const [ci_start, ci_end] of current_segment_intervals) {
-                    if (ci_start > end)
+                // TODO: With information about the spell duration, we could approximate the end or start if its undefined
+                if (start === undefined || end === undefined)
+                    continue;
+                for (const [ci_start, ci_end] of sorted_segment_intervals) {
+                    if (start >= ci_end)
+                        continue;
+                    if (ci_start >= end)
                         break;
-                    if (start === undefined || start <= ci_start) {
-                        if (ci_end <= int_end) res_intervals.push([ci_start, ci_end, start_id, end_id]);
-                        else res_intervals.push([ci_start, int_end, start_id, end_id]);
-                    } else if (start < ci_end) {
-                        if (ci_end <= int_end) res_intervals.push([start, ci_end, start_id, end_id]);
-                        else res_intervals.push([start, int_end, start_id, end_id]);
-                    }
+                    res_intervals.push([
+                        Math.max(start, ci_start),
+                        Math.min(end, ci_end),
+                        start_id, end_id]);
+
                 }
             }
+
             if (res_intervals.length > 0)
                 result.push([spell_id, res_intervals]);
         }

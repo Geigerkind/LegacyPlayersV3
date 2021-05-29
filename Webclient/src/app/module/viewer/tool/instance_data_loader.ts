@@ -119,22 +119,21 @@ export class InstanceDataLoader {
                         if (ability_id >= 0) {
                             if (!this.abilities.has(ability_id))
                                 this.abilities.set(ability_id, [ability_id, []]);
-                            this.append_subject_interval(this.abilities.get(ability_id), event[1]);
+                            this.append_subject_interval(this.abilities.get(ability_id), event[1], event_type === 6 ? 8000 * 1000 : 2500);
                         }
                     }
                 } else {
                     if (abilities >= 0) {
                         if (!this.abilities.has(abilities))
                             this.abilities.set(abilities, [abilities, []]);
-                        this.append_subject_interval(this.abilities.get(abilities), event[1]);
+                        this.append_subject_interval(this.abilities.get(abilities), event[1], event_type === 6 ? 8000 * 1000 : 2500);
                     }
                 }
             }
         }
     }
 
-    private append_subject_interval(interval_holder: [any, Array<[number, number]>], timestamp: number): void {
-        const interval_threshold = 2500;
+    private append_subject_interval(interval_holder: [any, Array<[number, number]>], timestamp: number, interval_threshold: number = 2500): void {
         const intervals = interval_holder[1];
         if (intervals.length === 0) {
             intervals.push([timestamp, timestamp]);
