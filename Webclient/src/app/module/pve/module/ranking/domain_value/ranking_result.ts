@@ -4,4 +4,5 @@ export interface RankingResult {
     amount: number;
     duration: number;
     difficulty_id: number;
+    character_spec: number;
 }

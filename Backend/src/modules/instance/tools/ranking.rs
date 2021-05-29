@@ -84,6 +84,7 @@ fn helper_get_best_ranking(ranking: &Vec<RankingResult>) -> RankingResult {
             amount: 0,
             duration: 1,
             difficulty_id: 0,
+            character_spec: 0
         },
         |best, ranking_result| {
             if (best.amount as f64 / best.duration as f64) < (ranking_result.amount as f64 / ranking_result.duration as f64) {

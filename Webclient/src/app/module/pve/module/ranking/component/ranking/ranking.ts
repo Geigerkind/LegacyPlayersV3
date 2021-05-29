@@ -237,7 +237,7 @@ export class RankingComponent implements OnInit, OnDestroy {
             for (const row of entries) {
                 this.bar_subjects.set(row.character_id, {
                     color_class: "hero_class_bg_" + row.character_meta.hero_class_id.toString(),
-                    icon: "/assets/wow_hero_classes/c" + row.character_meta.hero_class_id.toString() + ".png",
+                    icon: "/assets/wow_hero_classes/c" + row.character_meta.hero_class_id.toString() + "-" + row.spec_ids[0].toString() + ".png",
                     id: row.character_id,
                     name: row.character_meta.name
                 });

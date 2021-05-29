@@ -60,7 +60,7 @@ export class RankingService {
                                 .filter(ranking => this.current_difficulty_ids$.includes(ranking.difficulty_id))
                                 .reduce((best, ranking) => {
                                     const ranking_result = (ranking.amount * 1000) / ranking.duration;
-                                    return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id];
+                                    return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id, ranking.character_spec];
                                 }, [0, 0, 0]);
                             if (!new_rankings.has(character_id))
                                 new_rankings.set(character_id, [meta, []]);
@@ -78,7 +78,8 @@ export class RankingService {
                     character_meta,
                     amount: Number((result[1] / result[0])),
                     instance_meta_ids: ranking_results.map(rr => rr[1]),
-                    attempt_ids: ranking_results.map(rr => rr[2])
+                    attempt_ids: ranking_results.map(rr => rr[2]),
+                    spec_ids: ranking_results.map(rr => rr[3]),
                 };
             }).sort((left, right) => right.amount - left.amount));
     }

@@ -3,12 +3,13 @@ use std::sync::{Arc, RwLock};
 
 use crate::material::Cachable;
 use crate::modules::armory::Armory;
-use crate::modules::armory::tools::GetArenaTeam;
+use crate::modules::armory::tools::{GetArenaTeam, GetCharacter};
 use crate::modules::instance::domain_value::{InstanceAttempt, InstanceMeta, MetaType};
 use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedKill, SpeedRun};
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::params;
 use crate::util::database::Select;
+use crate::modules::armory::util::talent_tree::get_talent_tree;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
@@ -62,9 +63,9 @@ impl Instance {
                 evict_export_cache(Arc::clone(&instance_exports_arc_clone));
                 update_instance_kill_attempts(Arc::clone(&instance_kill_attempts_clone), &mut db_main);
                 update_instance_metas(Arc::clone(&instance_metas_arc_clone), &mut db_main, &armory);
-                update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main);
-                update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main);
-                update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main);
+                update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main, &armory);
+                update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main, &armory);
+                update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main, &armory);
                 calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
                                      Arc::clone(&instance_kill_attempts_clone),
                                      Arc::clone(&speed_runs_arc_clone), &mut db_main, &armory);
@@ -217,12 +218,12 @@ fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMa
         });
 }
 
-fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
+fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select, armory: &Armory) {
     let mut rankings_dps = instance_rankings_dps.write().unwrap();
     db_main
         .select_wparams(
             "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.damage, \
-            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty FROM instance_ranking_damage A \
+            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty, B.start_ts FROM instance_ranking_damage A \
             JOIN instance_attempt B ON A.attempt_id = B.id \
             JOIN instance_raid C ON B.instance_meta_id = C.instance_meta_id \
             WHERE A.id > :last_queried_id AND B.rankable = 1 ORDER BY A.id",
@@ -230,36 +231,50 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
                 let encounter_id: u32 = row.take(2).unwrap();
+                let attempt_id: u32 = row.take(3).unwrap();
+                let amount: u32 = row.take(4).unwrap();
+                let duration: u64 = row.take(5).unwrap();
+                let instance_meta_id: u32 = row.take(6).unwrap();
+                let difficulty_id: u8 = row.take(7).unwrap();
+                let start_ts: u64 = row.take(8).unwrap();
                 (
                     id,
                     character_id,
                     encounter_id,
-                    RankingResult {
-                        attempt_id: row.take(3).unwrap(),
-                        amount: row.take(4).unwrap(),
-                        duration: row.take(5).unwrap(),
-                        instance_meta_id: row.take(6).unwrap(),
-                        difficulty_id: row.take(7).unwrap(),
-                    },
+                    attempt_id,
+                    amount,
+                    duration,
+                    instance_meta_id,
+                    difficulty_id,
+                    start_ts
                 )
             },
             params!("last_queried_id" => rankings_dps.0),
         )
         .into_iter()
-        .for_each(|(id, character_id, encounter_id, ranking)| {
+        .for_each(|(id, character_id, encounter_id, attempt_id, amount, duration, instance_meta_id, difficulty_id, start_ts)| {
             rankings_dps.0 = id;
             let characters_rankings = rankings_dps.1.entry(encounter_id).or_insert_with(HashMap::new);
             let rankings = characters_rankings.entry(character_id).or_insert_with(|| Vec::with_capacity(1));
-            rankings.push(ranking);
+            rankings.push(RankingResult {
+                attempt_id,
+                amount,
+                duration,
+                instance_meta_id,
+                difficulty_id,
+                character_spec: armory.get_character_moment(db_main, character_id, start_ts)
+                    .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
+                    .unwrap_or(0)
+            });
         });
 }
 
-fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
+fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select, armory: &Armory) {
     let mut rankings_hps = instance_rankings_hps.write().unwrap();
     db_main
         .select_wparams(
             "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.heal, \
-            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty FROM instance_ranking_heal A \
+            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty, B.start_ts FROM instance_ranking_heal A \
             JOIN instance_attempt B ON A.attempt_id = B.id \
             JOIN instance_raid C ON B.instance_meta_id = C.instance_meta_id \
             WHERE A.id > :last_queried_id AND B.rankable = 1 ORDER BY A.id",
@@ -267,36 +282,50 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
                 let encounter_id: u32 = row.take(2).unwrap();
+                let attempt_id: u32 = row.take(3).unwrap();
+                let amount: u32 = row.take(4).unwrap();
+                let duration: u64 = row.take(5).unwrap();
+                let instance_meta_id: u32 = row.take(6).unwrap();
+                let difficulty_id: u8 = row.take(7).unwrap();
+                let start_ts: u64 = row.take(8).unwrap();
                 (
                     id,
                     character_id,
                     encounter_id,
-                    RankingResult {
-                        attempt_id: row.take(3).unwrap(),
-                        amount: row.take(4).unwrap(),
-                        duration: row.take(5).unwrap(),
-                        instance_meta_id: row.take(6).unwrap(),
-                        difficulty_id: row.take(7).unwrap(),
-                    },
+                    attempt_id,
+                    amount,
+                    duration,
+                    instance_meta_id,
+                    difficulty_id,
+                    start_ts
                 )
             },
             params!("last_queried_id" => rankings_hps.0),
         )
         .into_iter()
-        .for_each(|(id, character_id, encounter_id, ranking)| {
+        .for_each(|(id, character_id, encounter_id, attempt_id, amount, duration, instance_meta_id, difficulty_id, start_ts)| {
             rankings_hps.0 = id;
             let characters_rankings = rankings_hps.1.entry(encounter_id).or_insert_with(HashMap::new);
             let rankings = characters_rankings.entry(character_id).or_insert_with(|| Vec::with_capacity(1));
-            rankings.push(ranking);
+            rankings.push(RankingResult {
+                attempt_id,
+                amount,
+                duration,
+                instance_meta_id,
+                difficulty_id,
+                character_spec: armory.get_character_moment(db_main, character_id, start_ts)
+                    .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
+                    .unwrap_or(0)
+            });
         });
 }
 
-fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select) {
+fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<u32, HashMap<u32, Vec<RankingResult>>>)>>, db_main: &mut impl Select, armory: &Armory) {
     let mut rankings_tps = instance_rankings_tps.write().unwrap();
     db_main
         .select_wparams(
             "SELECT A.id, A.character_id, B.encounter_id, A.attempt_id, A.threat, \
-            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty FROM instance_ranking_threat A \
+            (B.end_ts - B.start_ts) as duration, B.instance_meta_id, C.map_difficulty, B.start_ts FROM instance_ranking_threat A \
             JOIN instance_attempt B ON A.attempt_id = B.id \
             JOIN instance_raid C ON B.instance_meta_id = C.instance_meta_id \
             WHERE A.id > :last_queried_id AND B.rankable = 1 ORDER BY A.id",
@@ -304,27 +333,41 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
                 let id: u32 = row.take(0).unwrap();
                 let character_id: u32 = row.take(1).unwrap();
                 let encounter_id: u32 = row.take(2).unwrap();
+                let attempt_id: u32 = row.take(3).unwrap();
+                let amount: u32 = row.take(4).unwrap();
+                let duration: u64 = row.take(5).unwrap();
+                let instance_meta_id: u32 = row.take(6).unwrap();
+                let difficulty_id: u8 = row.take(7).unwrap();
+                let start_ts: u64 = row.take(8).unwrap();
                 (
                     id,
                     character_id,
                     encounter_id,
-                    RankingResult {
-                        attempt_id: row.take(3).unwrap(),
-                        amount: row.take(4).unwrap(),
-                        duration: row.take(5).unwrap(),
-                        instance_meta_id: row.take(6).unwrap(),
-                        difficulty_id: row.take(7).unwrap(),
-                    },
+                    attempt_id,
+                    amount,
+                    duration,
+                    instance_meta_id,
+                    difficulty_id,
+                    start_ts
                 )
             },
             params!("last_queried_id" => rankings_tps.0),
         )
         .into_iter()
-        .for_each(|(id, character_id, encounter_id, ranking)| {
+        .for_each(|(id, character_id, encounter_id, attempt_id, amount, duration, instance_meta_id, difficulty_id, start_ts)| {
             rankings_tps.0 = id;
             let characters_rankings = rankings_tps.1.entry(encounter_id).or_insert_with(HashMap::new);
             let rankings = characters_rankings.entry(character_id).or_insert_with(|| Vec::with_capacity(1));
-            rankings.push(ranking);
+            rankings.push(RankingResult {
+                attempt_id,
+                amount,
+                duration,
+                instance_meta_id,
+                difficulty_id,
+                character_spec: armory.get_character_moment(db_main, character_id, start_ts)
+                    .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
+                    .unwrap_or(0)
+            });
         });
 }
 
