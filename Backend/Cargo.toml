@@ -30,6 +30,7 @@ zip = "*"
 walkdir = "*"
 rust-lapper = "*"
 rustc-hash = "1.1.0"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
 
 [dependencies.rocket_contrib]
 version = "*"

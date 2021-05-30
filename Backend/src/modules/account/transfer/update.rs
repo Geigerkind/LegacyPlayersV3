@@ -39,3 +39,9 @@ pub fn confirm_mail(mut db_main: MainDb, me: State<Account>, id: String) -> Resu
 pub fn default_privacy(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<u8>) -> Result<(), Failure> {
     me.update_default_privacy(&mut *db_main, content.into_inner(), auth.0)
 }
+
+#[openapi]
+#[get("/update/patreons")]
+pub fn update_patreons(mut db_main: MainDb, me: State<Account>) -> Result<(), Failure> {
+    me.update_petreons(&mut *db_main)
+}

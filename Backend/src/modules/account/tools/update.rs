@@ -1,5 +1,5 @@
-use crate::params;
-use crate::util::database::*;
+use reqwest::header::HeaderValue;
+
 use language::{domain_value::Language, tools::Get};
 use str_util::{sha3, strformat};
 use validator::{
@@ -10,9 +10,13 @@ use validator::{
 use crate::modules::account::{
     domain_value::AccountInformation,
     dto::Failure,
-    material::{APIToken, Account},
+    material::{Account, APIToken},
     tools::{GetAccountInformation, Token},
 };
+use crate::modules::account::dto::PatreonResponse;
+use crate::params;
+use crate::util::database::*;
+use std::env;
 
 pub trait Update {
     fn change_name(&self, db_main: &mut impl Execute, new_nickname: &str, member_id: u32) -> Result<AccountInformation, Failure>;
@@ -21,6 +25,7 @@ pub trait Update {
     fn request_change_mail(&self, new_mail: &str, member_id: u32) -> Result<bool, Failure>;
     fn confirm_change_mail(&self, db_main: &mut (impl Execute + Select), confirmation_id: &str) -> Result<APIToken, Failure>;
     fn update_default_privacy(&self, db_main: &mut impl Execute, privacy_type: u8, member_id: u32) -> Result<(), Failure>;
+    fn update_petreons(&self, db_main: &mut impl Execute) -> Result<(), Failure>;
 }
 
 impl Update for Account {
@@ -136,12 +141,12 @@ impl Update for Account {
                     let lower_mail = member_entry.new_mail.clone();
                     if self.clear_tokens(db_main, *member_id).is_ok()
                         && db_main.execute_wparams(
-                            "UPDATE account_member SET mail=:mail WHERE id=:id",
-                            params!(
+                        "UPDATE account_member SET mail=:mail WHERE id=:id",
+                        params!(
                               "mail" => lower_mail.clone(),
                               "id" => member_id
                             ),
-                        )
+                    )
                     {
                         member_entry.mail = lower_mail;
                         member_entry.new_mail = String::new();
@@ -150,7 +155,7 @@ impl Update for Account {
                     }
                 }
                 self.create_token(db_main, &self.dictionary.get("general.login", Language::English), *member_id, time_util::get_ts_from_now_in_secs(7))
-            },
+            }
             None => Err(Failure::Unknown),
         }
     }
@@ -166,8 +171,37 @@ impl Update for Account {
             ),
         ) {
             member.get_mut(&member_id).unwrap().default_privacy_type = privacy_type;
-            return Ok(())
+            return Ok(());
         }
         Err(Failure::Unknown)
+    }
+
+    fn update_petreons(&self, db_main: &mut impl Execute) -> Result<(), Failure> {
+        let api_token: String = env::var("PATREON_TOKEN").unwrap();
+        let api_url = "https://www.patreon.com/api/oauth2/v2/campaigns/6892914/members?include=currently_entitled_tiers&fields%5Bmember%5D=email";
+        let client = reqwest::blocking::Client::new();
+        let resp = client.get(api_url)
+            .header("authorization", HeaderValue::from_str(&("Bearer ".to_owned() + &api_token)).unwrap())
+            .send().and_then(|resp| resp.json::<PatreonResponse>()).map_err(|_| Failure::Unknown)?;
+
+        let mut members = self.member.write().unwrap();
+        for patreon_member in resp.data {
+            let found_member = members.iter_mut().find(|(_, member)| member.mail.to_lowercase() == patreon_member.attributes.email.to_lowercase());
+            if let Some(member) = found_member {
+                for tier in patreon_member.relationships.currently_entitled_tiers.data {
+                    if tier.id.contains("7262039") || tier.id.contains("7262085") {
+                        member.1.access_rights |= 2;
+                    }
+                    if tier.id.contains("7262085") {
+                        member.1.access_rights |= 4;
+                    }
+                }
+                db_main.execute_wparams("UPDATE `account_member` SET access_rights=:access_rights WHERE id=:member_id", params!("access_rights" => member.1.access_rights, "id" => member.0));
+            } else {
+                println!("Could not find Patreon: {}", patreon_member.attributes.email);
+            }
+        }
+
+        Ok(())
     }
 }

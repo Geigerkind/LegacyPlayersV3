@@ -35,6 +35,7 @@ extern crate serde_json;
 extern crate str_util;
 extern crate time_util;
 extern crate validator;
+extern crate reqwest;
 
 use dotenv::dotenv;
 pub use rocket_contrib::databases::mysql;
@@ -139,7 +140,8 @@ fn main() {
                 account::transfer::update::confirm_mail,
                 account::transfer::update::password,
                 account::transfer::update::default_privacy,
-                account::transfer::update::nickname
+                account::transfer::update::nickname,
+                account::transfer::update::update_patreons,
             ],
         )
         .mount(
