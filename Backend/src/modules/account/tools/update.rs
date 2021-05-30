@@ -196,7 +196,7 @@ impl Update for Account {
                         member.1.access_rights |= 4;
                     }
                 }
-                db_main.execute_wparams("UPDATE `account_member` SET access_rights=:access_rights WHERE id=:member_id", params!("access_rights" => member.1.access_rights, "id" => member.0));
+                db_main.execute_wparams("UPDATE `account_member` SET access_rights=:access_rights WHERE id=:member_id", params!("access_rights" => member.1.access_rights, "member_id" => member.0));
             } else {
                 println!("Could not find Patreon: {}", patreon_member.attributes.email);
             }
