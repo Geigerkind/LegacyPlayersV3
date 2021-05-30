@@ -142,6 +142,7 @@ fn main() {
                 account::transfer::update::default_privacy,
                 account::transfer::update::nickname,
                 account::transfer::update::update_patreons,
+                account::transfer::update::update_patreons_post,
             ],
         )
         .mount(

@@ -45,3 +45,9 @@ pub fn default_privacy(mut db_main: MainDb, me: State<Account>, auth: Authentica
 pub fn update_patreons(mut db_main: MainDb, me: State<Account>) -> Result<(), Failure> {
     me.update_petreons(&mut *db_main)
 }
+
+#[openapi]
+#[post("/update/patreons")]
+pub fn update_patreons_post(mut db_main: MainDb, me: State<Account>) -> Result<(), Failure> {
+    me.update_petreons(&mut *db_main)
+}
