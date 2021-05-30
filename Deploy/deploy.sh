@@ -157,10 +157,12 @@ function deployBackend {
   cp /root/${REPOSITORY_NAME}/target/release/backend /home/${BACKEND_USER}/
   cp ./.env_prod /home/${BACKEND_USER}/.env
   DB_PASSWORD=$(cat /root/Keys/db_password)
+  PATREON_TOKEN=$(cat /root/Keys/patreon_token)
   echo "" >> /home/${BACKEND_USER}/.env
   echo "ROCKET_DATABASES='{main={url=\""mysql://rpll:${DB_PASSWORD}@127.0.0.1/main\""}}'" >> /home/${BACKEND_USER}/.env
   echo "" >> /home/${BACKEND_USER}/.env
   echo "MYSQL_URL='mysql://rpll:${DB_PASSWORD}@127.0.0.1/main'" >> /home/${BACKEND_USER}/.env
+  echo "PATREON_TOKEN='${PATREON_TOKEN}'" >> /home/${BACKEND_USER}/.env
   cd /root
 }
 
