@@ -3,7 +3,10 @@ import {RecentRaidsService} from "../../service/recent_raids";
 import {HeaderColumn} from "../../../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../../../template/table/module/table_body/domain_value/body_column";
 import {DateService} from "../../../../../../../../service/date";
-import {table_init_filter} from "../../../../../../../../template/table/utility/table_init_filter";
+import {
+    table_create_empty_filter,
+    table_init_filter
+} from "../../../../../../../../template/table/utility/table_init_filter";
 import {SettingsService} from "../../../../../../../../service/settings";
 import {Localized} from "../../../../../../../../domain_value/localized";
 import {InstanceMap} from "../../../../../../../../domain_value/instance_map";
@@ -76,6 +79,7 @@ export class RecentRaidsComponent implements OnInit, OnChanges {
         } else {
             filter = this.settingsService.get("table_filter_guild_recent_raids_search");
         }
+        filter["privacy"] = table_create_empty_filter();
         this.last_filter = filter;
         this.onFilter(filter);
     }

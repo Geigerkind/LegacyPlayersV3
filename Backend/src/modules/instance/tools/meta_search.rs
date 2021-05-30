@@ -89,6 +89,7 @@ impl MetaSearch for Instance {
             .filter(|raid| filter.start_ts.apply_filter_ts(raid.start_ts))
             .filter(|raid| filter.end_ts.apply_filter_ts(raid.end_ts))
             .filter(|raid| current_user.contains(&raid.uploaded_user))
+            .filter(|raid| filter.privacy.apply_filter(raid.privacy_type.to_u8()))
             .filter_map(|raid| {
                 if let InstanceMeta {
                     instance_specific: MetaType::Raid { map_difficulty },
@@ -119,7 +120,8 @@ impl MetaSearch for Instance {
             rpll_table_sort! {
                 (filter.map_id, Some(l_instance.map_id), Some(r_instance.map_id)),
                 (filter.start_ts, Some(l_instance.start_ts), Some(r_instance.start_ts)),
-                (filter.end_ts, l_instance.end_ts, r_instance.end_ts)
+                (filter.end_ts, l_instance.end_ts, r_instance.end_ts),
+                (filter.privacy, Some(l_instance.privacy_type), Some(r_instance.privacy_type))
             }
         });
 

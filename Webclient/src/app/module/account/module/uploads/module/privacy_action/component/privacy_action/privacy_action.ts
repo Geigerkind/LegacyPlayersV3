@@ -16,7 +16,7 @@ export class PrivacyActionComponent implements OnInit {
     privacy_options: Array<SelectOption> = [
         { value: 0, label_key: "Account.uploads.options.public" },
         { value: 1, label_key: "Account.uploads.options.not_listed" },
-        { value: 2, label_key: "Account.uploads.options.only_groups" },
+        // { value: 2, label_key: "Account.uploads.options.only_groups" },
     ];
 
     selected_privacy_group: number;

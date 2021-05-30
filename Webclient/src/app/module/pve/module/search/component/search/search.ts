@@ -7,7 +7,7 @@ import {Localized} from "../../../../../../domain_value/localized";
 import {InstanceMap} from "../../../../../../domain_value/instance_map";
 import {Difficulty} from "../../../../../../domain_value/difficulty";
 import {RaidSearchService} from "../../service/raid_search";
-import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
+import {table_create_empty_filter, table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {SettingsService} from "../../../../../../service/settings";
 import {DateService} from "../../../../../../service/date";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
@@ -101,6 +101,7 @@ export class SearchComponent implements OnInit {
         } else {
             filter = this.settingsService.get("table_filter_raids_search");
         }
+        filter["privacy"] = table_create_empty_filter();
         this.onFilter(filter);
     }
 

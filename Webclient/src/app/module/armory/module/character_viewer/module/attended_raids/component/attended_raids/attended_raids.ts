@@ -7,7 +7,10 @@ import {SettingsService} from "../../../../../../../../service/settings";
 import {DataService} from "../../../../../../../../service/data";
 import {Localized} from "../../../../../../../../domain_value/localized";
 import {InstanceMap} from "../../../../../../../../domain_value/instance_map";
-import {table_init_filter} from "../../../../../../../../template/table/utility/table_init_filter";
+import {
+    table_create_empty_filter,
+    table_init_filter
+} from "../../../../../../../../template/table/utility/table_init_filter";
 import {Difficulty} from "../../../../../../../../domain_value/difficulty";
 import {AttendedRaidsService} from "../../service/attended_raids";
 
@@ -79,6 +82,7 @@ export class AttendedRaidsComponent implements OnInit {
         } else {
             filter = this.settingsService.get("table_filter_armory_raids_search");
         }
+        filter["privacy"] = table_create_empty_filter();
         this.last_filter = filter;
         this.onFilter(filter);
     }

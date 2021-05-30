@@ -2,7 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
-import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
+import {table_create_empty_filter, table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {Severity} from "../../../../../../domain_value/severity";
 import {SettingsService} from "../../../../../../service/settings";
 import {DateService} from "../../../../../../service/date";
@@ -67,19 +67,22 @@ export class UploadsComponent implements OnInit {
             filter = this.settingsService.get("table_filter_account_raids_search");
         }
         this.account_information = this.settingsService.get("ACCOUNT_INFORMATION");
-        if (this.has_privacy_privilege && !this.header_columns[3])
+        if (this.has_privacy_privilege && !this.header_columns[3]) {
             this.header_columns.push({
                 index: 3,
                 filter_name: 'privacy',
                 labelKey: "Account.uploads.privacy_action",
                 type: 3,
-                type_range: [{value: 0, label_key: "Account.uploads.options.public"},
-                    {value: 1, label_key: "Account.uploads.options.not_listed"}, {
-                        value: 2,
-                        label_key: "Account.uploads.options.only_groups"
-                    }],
+                type_range: [
+                    {value: -1, label_key: "Account.uploads.privacy_action"},
+                    {value: 0, label_key: "Account.uploads.options.public"},
+                    {value: 1, label_key: "Account.uploads.options.not_listed"},
+                    //{value: 2, label_key: "Account.uploads.options.only_groups"}
+                ],
                 col_type: 0
             });
+            filter["privacy"] = table_create_empty_filter();
+        }
 
         this.last_filter = filter;
         this.onFilter(filter);
@@ -116,7 +119,7 @@ export class UploadsComponent implements OnInit {
                 if (this.has_privacy_privilege)
                     body_columns.push({
                         type: 3,
-                        content: "0",
+                        content: item.privacy_type.toString(),
                         args: {
                             instance_meta_id: item.instance_meta_id,
                             privacy_type: item.privacy_type,

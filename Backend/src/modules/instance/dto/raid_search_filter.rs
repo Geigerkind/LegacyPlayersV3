@@ -9,4 +9,5 @@ pub struct RaidSearchFilter {
     pub server_id: TableFilter<u32>,
     pub start_ts: TableFilter<u64>,
     pub end_ts: TableFilter<u64>,
+    pub privacy: TableFilter<u8>,
 }
