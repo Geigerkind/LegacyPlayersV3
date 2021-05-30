@@ -117,7 +117,11 @@ export class UploadsComponent implements OnInit {
                     body_columns.push({
                         type: 3,
                         content: "0",
-                        args: null
+                        args: {
+                            instance_meta_id: item.instance_meta_id,
+                            privacy_type: item.privacy_type,
+                            privacy_ref: item.privacy_ref
+                        }
                     });
                 return {
                     color: '',
@@ -139,7 +143,11 @@ export class UploadsComponent implements OnInit {
         return (this.account_information.access_rights & 4) === 4;
     }
 
-    privacy_changed([option, group]: [number, number]): void {
-        console.log(option, group);
+    privacy_changed(instance_meta_id: number, [option, group]: [number, number]): void {
+        this.uploadsService.update_privacy(instance_meta_id, option, group, () => {
+            this.notificationService.propagate(Severity.Success, "Account.uploads.notifications.success");
+        }, () => {
+            this.notificationService.propagate(Severity.Error, "Account.uploads.notifications.failure");
+        });
     }
 }

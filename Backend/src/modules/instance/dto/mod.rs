@@ -17,6 +17,7 @@ pub use self::search_arena_team::SearchArenaTeam;
 pub use self::skirmish_search_filter::SkirmishSearchFilter;
 pub use self::speed_run::SpeedRun;
 pub use self::speed_kill::SpeedKill;
+pub use self::instance_privacy::InstancePrivacy;
 
 mod battleground_search_filter;
 mod instance_failure;
@@ -37,3 +38,4 @@ mod search_arena_team;
 mod skirmish_search_filter;
 mod speed_run;
 mod speed_kill;
+mod instance_privacy;

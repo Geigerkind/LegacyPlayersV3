@@ -11,4 +11,6 @@ pub struct MetaRaidSearch {
     pub start_ts: u64,
     pub end_ts: Option<u64>,
     pub can_delete: bool,
+    pub privacy_type: u8,
+    pub privacy_ref: u32,
 }

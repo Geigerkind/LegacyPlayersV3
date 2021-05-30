@@ -270,7 +270,11 @@
                 "only_groups": "Only groups"
             },
             "privacy_action": "Privacy action",
-            "no_groups": "Everyone"
+            "no_groups": "Everyone",
+            "notifications": {
+                "success": "Success!",
+                "failure": "Privacy change failed!"
+            }
         }
     },
     "Login": {

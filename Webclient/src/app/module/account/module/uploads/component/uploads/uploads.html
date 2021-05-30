@@ -18,5 +18,7 @@
 </ng-template>
 
 <ng-template #privacy_action let-specification="specification" let-content="content">
-    <PrivacyAction (privacy_changed)="privacy_changed($event)"></PrivacyAction>
+    <PrivacyAction (privacy_changed)="privacy_changed(specification.args.instance_meta_id, $event)"
+                   [initial_privacy_option]="specification.args.privacy_type"
+                   [initial_privacy_group]="specification.args.privacy_ref"></PrivacyAction>
 </ng-template>

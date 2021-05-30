@@ -4,7 +4,7 @@ use std::sync::{Arc, RwLock};
 use crate::material::Cachable;
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetArenaTeam, GetCharacter};
-use crate::modules::instance::domain_value::{InstanceAttempt, InstanceMeta, MetaType};
+use crate::modules::instance::domain_value::{InstanceAttempt, InstanceMeta, MetaType, PrivacyType};
 use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedKill, SpeedRun};
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::params;
@@ -404,7 +404,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
     // Raids
     db_main
         .select_wparams(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty, C.member_id, A.upload_id FROM instance_meta A \
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.map_difficulty, C.member_id, A.upload_id, A.privacy_type, A.privacy_ref FROM instance_meta A \
             JOIN instance_raid B ON A.id = B.instance_meta_id \
             JOIN instance_uploads C ON A.upload_id = C.id \
             WHERE A.id > :saved_instance_meta_id ORDER BY A.id",
@@ -421,6 +421,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(7).unwrap(),
                 upload_id: row.take(8).unwrap(),
+                privacy_type: PrivacyType::new(row.take(9).unwrap(), row.take(10).unwrap())
             }, params.clone(),
         )
         .into_iter()
@@ -434,7 +435,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
     db_main
         .select_wparams(
             "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, \
-            B.team_id1, B.team_id2, B.team_change1, B.team_change2, C.member_id, A.upload_id FROM instance_meta A \
+            B.team_id1, B.team_id2, B.team_change1, B.team_change2, C.member_id, A.upload_id, A.privacy_type, A.privacy_ref FROM instance_meta A \
             JOIN instance_rated_arena B ON A.id = B.instance_meta_id \
             JOIN instance_uploads C ON A.upload_id = C.id \
             WHERE A.id > :saved_instance_meta_id ORDER BY A.id",
@@ -453,11 +454,13 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                     row.take::<i32, usize>(10).unwrap(),
                     row.take::<u32, usize>(11).unwrap(),
                     row.take::<u32, usize>(12).unwrap(),
+                    row.take::<u8, usize>(13).unwrap(),
+                    row.take::<u32, usize>(14).unwrap(),
                 )
             }, params.clone(),
         )
         .into_iter()
-        .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change, uploaded_user, upload_id)| {
+        .for_each(|(instance_meta_id, server_id, start_ts, end_ts, expired, map_id, winner, team_id1, team_id2, team1_change, team2_change, uploaded_user, upload_id, privacy_type, privacy_ref)| {
             instance_metas.1.insert(
                 instance_meta_id,
                 InstanceMeta {
@@ -477,6 +480,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                     },
                     uploaded_user,
                     upload_id,
+                    privacy_type: PrivacyType::new(privacy_type, privacy_ref)
                 },
             );
         });
@@ -484,7 +488,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
     // Skirmishes
     db_main
         .select_wparams(
-            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, C.member_id, A.upload_id FROM instance_meta A \
+            "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, C.member_id, A.upload_id, A.privacy_type, A.privacy_ref FROM instance_meta A \
             JOIN instance_skirmish B ON A.id = B.instance_meta_id \
             JOIN instance_uploads C ON A.upload_id = C.id \
             WHERE A.id > :saved_instance_meta_id ORDER BY A.id",
@@ -501,6 +505,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(7).unwrap(),
                 upload_id: row.take(8).unwrap(),
+                privacy_type: PrivacyType::new(row.take(9).unwrap(), row.take(10).unwrap())
             }, params.clone(),
         )
         .into_iter()
@@ -512,7 +517,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
     db_main
         .select_wparams(
             "SELECT A.id, A.server_id, A.start_ts, A.end_ts, A.expired, A.map_id, B.winner, \
-            B.score_alliance, B.score_horde, C.member_id, A.upload_id FROM instance_meta A \
+            B.score_alliance, B.score_horde, C.member_id, A.upload_id, A.privacy_type, A.privacy_ref FROM instance_meta A \
             JOIN instance_battleground B ON A.id = B.instance_meta_id \
             JOIN instance_uploads C ON A.upload_id = C.id \
             WHERE A.id > :saved_instance_meta_id ORDER BY A.id",
@@ -531,6 +536,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(9).unwrap(),
                 upload_id: row.take(10).unwrap(),
+                privacy_type: PrivacyType::new(row.take(11).unwrap(), row.take(12).unwrap())
             }, params.clone(),
         )
         .into_iter()

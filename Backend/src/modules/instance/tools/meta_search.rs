@@ -51,6 +51,8 @@ impl MetaSearch for Instance {
                                 start_ts: raid.start_ts,
                                 end_ts: raid.end_ts,
                                 can_delete: current_user.contains(&raid.uploaded_user),
+                                privacy_type: raid.privacy_type.to_u8(),
+                                privacy_ref: raid.privacy_type.get_group()
                             });
                         }
                     }
@@ -103,6 +105,8 @@ impl MetaSearch for Instance {
                         start_ts: raid.start_ts,
                         end_ts: raid.end_ts,
                         can_delete: true,
+                        privacy_type: raid.privacy_type.to_u8(),
+                        privacy_ref: raid.privacy_type.get_group()
                     });
                 }
                 None
@@ -151,6 +155,8 @@ impl MetaSearch for Instance {
                             start_ts: raid.start_ts,
                             end_ts: raid.end_ts,
                             can_delete: false,
+                            privacy_type: raid.privacy_type.to_u8(),
+                            privacy_ref: raid.privacy_type.get_group()
                         });
                     }
                 }
