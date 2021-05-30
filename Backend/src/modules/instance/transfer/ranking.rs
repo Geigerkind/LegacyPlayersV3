@@ -13,22 +13,25 @@ use crate::modules::instance::tools::{create_ranking_export, ExportRanking, Unra
 #[openapi]
 #[get("/ranking/dps")]
 pub fn get_instance_ranking_dps(me: State<Instance>, armory: State<Armory>) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
+    let instance_metas = me.instance_metas.read().unwrap();
     let rankings = me.instance_rankings_dps.read().unwrap();
-    Json(create_ranking_export(&rankings.1, &armory))
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory))
 }
 
 #[openapi]
 #[get("/ranking/hps")]
 pub fn get_instance_ranking_hps(me: State<Instance>, armory: State<Armory>) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
+    let instance_metas = me.instance_metas.read().unwrap();
     let rankings = me.instance_rankings_hps.read().unwrap();
-    Json(create_ranking_export(&rankings.1, &armory))
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory))
 }
 
 #[openapi]
 #[get("/ranking/tps")]
 pub fn get_instance_ranking_tps(me: State<Instance>, armory: State<Armory>) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
+    let instance_metas = me.instance_metas.read().unwrap();
     let rankings = me.instance_rankings_tps.read().unwrap();
-    Json(create_ranking_export(&rankings.1, &armory))
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory))
 }
 
 #[openapi]

@@ -129,11 +129,12 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMe
     let already_calculated_speed_runs: Vec<u32> = speed_runs.iter().map(|speed_run| speed_run.instance_meta_id).collect();
 
     for (instance_meta_id, attempts) in kill_attempts.1.iter().filter(|(im_id, _)| !already_calculated_speed_runs.contains(*im_id)) {
-        if !instance_metas.1.contains_key(instance_meta_id) {
+        if !instance_metas.1.contains_key(instance_meta_id) || attempts.len() == 0 {
             continue;
         }
+
         let instance_meta = instance_metas.1.get(instance_meta_id).unwrap();
-        if attempts.len() == 0 {
+        if instance_meta.privacy_type != PrivacyType::Public {
             continue;
         }
 
@@ -176,6 +177,10 @@ fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
             continue;
         }
         let instance_meta = instance_metas.1.get(instance_meta_id).unwrap();
+        if instance_meta.privacy_type != PrivacyType::Public {
+            continue;
+        }
+
         let (guild_id, guild_name) = instance_meta.participants
             .find_instance_guild(db_main, armory, instance_meta.end_ts.unwrap_or(instance_meta.start_ts))
             .map(|guild| (guild.id, guild.name)).unwrap_or((0, "Pug Raid".to_string()));

@@ -3,7 +3,7 @@ use crate::modules::armory::dto::SearchGuildDto;
 use crate::modules::armory::Armory;
 use crate::modules::data::tools::RetrieveMap;
 use crate::modules::data::Data;
-use crate::modules::instance::domain_value::{InstanceMeta, MetaType};
+use crate::modules::instance::domain_value::{InstanceMeta, MetaType, PrivacyType};
 use crate::modules::instance::dto::{BattlegroundSearchFilter, MetaBattlegroundSearch, MetaRaidSearch, MetaRatedArenaSearch, MetaSkirmishSearch, RaidSearchFilter, RatedArenaSearchFilter, SearchArenaTeam, SkirmishSearchFilter};
 use crate::modules::instance::tools::{ExportMeta, FindInstanceGuild};
 use crate::modules::instance::Instance;
@@ -27,6 +27,7 @@ impl MetaSearch for Instance {
         let mut result = self
             .export_meta(0)
             .into_iter()
+            .filter(|raid| raid.privacy_type == PrivacyType::Public)
             .filter(|raid| filter.map_id.apply_filter(raid.map_id))
             .filter(|raid| filter.server_id.apply_filter(raid.server_id))
             .filter(|raid| filter.start_ts.apply_filter_ts(raid.start_ts))
@@ -133,6 +134,7 @@ impl MetaSearch for Instance {
         let mut result = self
             .export_meta(0)
             .into_iter()
+            .filter(|raid| raid.privacy_type == PrivacyType::Public)
             .filter(|raid| filter.map_id.apply_filter(raid.map_id))
             .filter(|raid| filter.start_ts.apply_filter_ts(raid.start_ts))
             .filter(|raid| filter.end_ts.apply_filter_ts(raid.end_ts))

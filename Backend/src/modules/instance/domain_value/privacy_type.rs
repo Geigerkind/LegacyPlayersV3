@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema, PartialEq)]
 #[repr(u8)]
 pub enum PrivacyType {
     Public,
