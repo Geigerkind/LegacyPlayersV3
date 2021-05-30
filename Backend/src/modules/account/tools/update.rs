@@ -191,8 +191,6 @@ impl Update for Account {
                 for tier in patreon_member.relationships.currently_entitled_tiers.data {
                     if tier.id.contains("7262039") || tier.id.contains("7262085") {
                         member.1.access_rights |= 2;
-                    }
-                    if tier.id.contains("7262085") {
                         member.1.access_rights |= 4;
                     }
                 }
