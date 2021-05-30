@@ -1,12 +1,12 @@
 use std::{collections::HashMap, sync::RwLock};
 
-use crate::util::database::*;
-
-use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
 use crate::modules::armory::{
     domain_value::{CharacterFacial, CharacterGear, CharacterGuild, CharacterInfo, CharacterItem, GuildRank, HistoryMoment},
     material::{Character, CharacterHistory, Guild},
 };
+use crate::modules::armory::domain_value::{ArenaTeam, ArenaTeamSizeType};
+use crate::params;
+use crate::util::database::*;
 
 #[derive(Debug)]
 pub struct Armory {
@@ -47,6 +47,11 @@ impl Armory {
 
         self
     }
+
+    pub fn update(&self, db_main: &mut impl Select) {
+        self.characters.write().unwrap().init(db_main);
+        self.guilds.write().unwrap().init(db_main);
+    }
 }
 
 trait Init {
@@ -55,35 +60,42 @@ trait Init {
 
 impl Init for HashMap<u32, Character> {
     fn init(&mut self, db: &mut impl Select) {
+        let max_character_id = self.iter().max_by(|left, right| left.0.cmp(&right.0)).map(|(id, _)| *id).unwrap_or(0);
+        let max_history_moment_id = self.iter().max_by(|left, right| {
+            let max_left = left.1.history_moments.iter().max_by(|i_left, i_right| i_left.id.cmp(&i_right.id)).map(|hm| hm.id).unwrap_or(0);
+            let max_right = right.1.history_moments.iter().max_by(|i_left, i_right| i_left.id.cmp(&i_right.id)).map(|hm| hm.id).unwrap_or(0);
+            max_left.cmp(&max_right)
+        }).map(|(id, _)| *id).unwrap_or(0);
+
         // Loading the character itself
-        db.select("SELECT * FROM armory_character", |mut row| Character {
+        db.select_wparams("SELECT * FROM armory_character A WHERE A.id > :character_id", |mut row| Character {
             id: row.take(0).unwrap(),
             server_id: row.take(1).unwrap(),
             server_uid: row.take(2).unwrap(),
             last_update: None,
             history_moments: Vec::new(),
-        })
-        .into_iter()
-        .for_each(|result| {
-            self.insert(result.id, result);
-        });
+        }, params!("character_id" => max_character_id))
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.id, result);
+            });
 
         // Loading the history_ids
-        db.select("SELECT id, timestamp, character_id FROM armory_character_history ORDER BY id", |mut row| {
+        db.select_wparams("SELECT A.id, A.timestamp, A.character_id FROM armory_character_history A WHERE A.id > :char_history_id ORDER BY A.id", |mut row| {
             let id: u32 = row.take(0).unwrap();
             let timestamp: u64 = row.take(1).unwrap();
             let character_id: u32 = row.take(2).unwrap();
             (id, timestamp, character_id)
-        })
-        .into_iter()
-        .for_each(|result| {
-            if self.contains_key(&result.2) {
-                self.get_mut(&result.2).unwrap().history_moments.push(HistoryMoment { id: result.0, timestamp: result.1 });
-            }
-        });
+        }, params!("char_history_id" => max_history_moment_id))
+            .into_iter()
+            .for_each(|result| {
+                if self.contains_key(&result.2) {
+                    self.get_mut(&result.2).unwrap().history_moments.push(HistoryMoment { id: result.0, timestamp: result.1 });
+                }
+            });
 
         // Load the actual newest character history data
-        db.select(
+        db.select_wparams(
             "SELECT ach.*, agr.name AS guild_rank_name, acf.*, aci.*, ag.id, ai1.*, ai2.*, ai3.*, ai4.*, ai5.*, ai6.*, ai7.*, ai8.*, ai9.*, ai10.*, ai11.*, ai12.*, ai13.*, ai14.*, ai15.*, ai16.*, ai17.*, ai18.*, ai19.*, aat1.*, aat2.*, aat3.* FROM \
              armory_character_history ach JOIN (SELECT MAX(id) id FROM armory_character_history GROUP BY character_id) ach_max ON ach.id = ach_max.id LEFT JOIN armory_character_facial acf ON acf.id = ach.facial JOIN armory_character_info aci ON \
              ach.character_info_id = aci.id JOIN armory_gear ag ON aci.gear_id = ag.id LEFT JOIN armory_item ai1 ON ag.head = ai1.id LEFT JOIN armory_item ai2 ON ag.neck = ai2.id LEFT JOIN armory_item ai3 ON ag.shoulder = ai3.id LEFT JOIN \
@@ -91,7 +103,7 @@ impl Init for HashMap<u32, Character> {
              armory_item ai9 ON ag.main_hand = ai9.id LEFT JOIN armory_item ai10 ON ag.off_hand = ai10.id LEFT JOIN armory_item ai11 ON ag.ternary_hand = ai11.id LEFT JOIN armory_item ai12 ON ag.glove = ai12.id LEFT JOIN armory_item ai13 ON \
              ag.belt = ai13.id LEFT JOIN armory_item ai14 ON ag.leg = ai14.id LEFT JOIN armory_item ai15 ON ag.boot = ai15.id LEFT JOIN armory_item ai16 ON ag.ring1 = ai16.id LEFT JOIN armory_item ai17 ON ag.ring2 = ai17.id LEFT JOIN armory_item \
              ai18 ON ag.trinket1 = ai18.id LEFT JOIN armory_item ai19 ON ag.trinket2 = ai19.id LEFT JOIN armory_guild_rank agr ON agr.guild_id = ach.guild_id AND agr.rank_index = ach.guild_rank LEFT JOIN armory_arena_team aat1 ON aat1.id = \
-             ach.arena2 LEFT JOIN armory_arena_team aat2 ON aat2.id = ach.arena3 LEFT JOIN armory_arena_team aat3 ON aat3.id = ach.arena5",
+             ach.arena2 LEFT JOIN armory_arena_team aat2 ON aat2.id = ach.arena3 LEFT JOIN armory_arena_team aat3 ON aat3.id = ach.arena5 WHERE ach.id > :char_history_id",
             |mut row| {
                 let mut gear_slots: Vec<Option<CharacterItem>> = Vec::new();
                 for i in (31..183).step_by(8) {
@@ -133,10 +145,10 @@ impl Init for HashMap<u32, Character> {
                         size_type: ArenaTeamSizeType::from_u8(row.take(197).unwrap()),
                     }),
                 ]
-                .into_iter()
-                .filter(Option::is_some)
-                .map(Option::unwrap)
-                .collect();
+                    .into_iter()
+                    .filter(Option::is_some)
+                    .map(Option::unwrap)
+                    .collect();
 
                 CharacterHistory {
                     id: row.take(0).unwrap(),
@@ -195,34 +207,35 @@ impl Init for HashMap<u32, Character> {
                         },
                     },
                 }
-            },
+            }, params!("char_history_id" => max_history_moment_id),
         )
-        .into_iter()
-        .for_each(|result| {
-            // TOCTOU currently here
-            if self.contains_key(&result.character_id) {
-                let character = self.get_mut(&result.character_id).unwrap();
-                character.last_update = Some(result);
-            }
-        });
+            .into_iter()
+            .for_each(|result| {
+                // TOCTOU currently here
+                if self.contains_key(&result.character_id) {
+                    let character = self.get_mut(&result.character_id).unwrap();
+                    character.last_update = Some(result);
+                }
+            });
     }
 }
 
 impl Init for HashMap<u32, Guild> {
     fn init(&mut self, db: &mut impl Select) {
-        db.select("SELECT * FROM armory_guild", |mut row| Guild {
+        let max_guild_id = self.iter().max_by(|left, right| left.0.cmp(&right.0)).map(|(id, _)| *id).unwrap_or(0);
+        db.select_wparams("SELECT * FROM armory_guild A WHERE A.id > :guild_id", |mut row| Guild {
             id: row.take(0).unwrap(),
             server_uid: row.take(1).unwrap(),
             server_id: row.take(2).unwrap(),
             name: row.take(3).unwrap(),
             ranks: Vec::new(),
-        })
-        .into_iter()
-        .for_each(|result| {
-            self.insert(result.id, result);
-        });
+        }, params!("guild_id" => max_guild_id))
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.id, result);
+            });
 
-        db.select("SELECT * FROM armory_guild_rank ORDER BY guild_id, rank_index", |mut row| {
+        db.select_wparams("SELECT * FROM armory_guild_rank A WHERE A.guild_id > :guild_id ORDER BY A.guild_id, A.rank_index", |mut row| {
             let guild_id: u32 = row.take(0).unwrap();
 
             (
@@ -232,11 +245,11 @@ impl Init for HashMap<u32, Guild> {
                     name: row.take(2).unwrap(),
                 },
             )
-        })
-        .into_iter()
-        .for_each(|(guild_id, guild_rank)| {
-            let guild = self.get_mut(&guild_id).unwrap();
-            guild.ranks.push(guild_rank);
-        });
+        }, params!("guild_id" => max_guild_id))
+            .into_iter()
+            .for_each(|(guild_id, guild_rank)| {
+                let guild = self.get_mut(&guild_id).unwrap();
+                guild.ranks.push(guild_rank);
+            });
     }
 }

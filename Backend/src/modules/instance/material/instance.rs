@@ -56,7 +56,7 @@ impl Instance {
 
         std::thread::spawn(move || {
             let mut armory_counter = 1;
-            let mut armory = Armory::default().init(&mut db_main);
+            let armory = Armory::default().init(&mut db_main);
 
             loop {
                 evict_attempts_cache(Arc::clone(&instance_attempts_arc_clone));
@@ -73,8 +73,8 @@ impl Instance {
                                       Arc::clone(&instance_kill_attempts_clone),
                                       Arc::clone(&speed_kills_arc_clone), &mut db_main, &armory);
 
-                if armory_counter % 30 == 0 {
-                    armory = Armory::default().init(&mut db_main);
+                if armory_counter % 4 == 0 {
+                    armory.update(&mut db_main);
                 }
                 armory_counter += 1;
                 std::thread::sleep(std::time::Duration::from_secs(15));
