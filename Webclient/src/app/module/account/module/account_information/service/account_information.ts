@@ -23,7 +23,7 @@ export class AccountInformationService {
         this.apiService
             .get<AccountInformation>(AccountInformationService.URL_GET, (result) => {
                 this.settingsService.set("ACCOUNT_INFORMATION", result);
-                on_success.call(result);
+                on_success.call(on_success, result);
             });
     }
 
