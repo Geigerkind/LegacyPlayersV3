@@ -4,6 +4,8 @@ import {SpellComponent} from "./damage";
 export type Event = SpellCast | Death | CombatState | Loot | Position | Power | AuraApplication
     | Interrupt | UnAura | ThreatWipe | Summon | MeleeDamage | SpellDamage | Heal | Threat;
 
+// Always: Id, TS, Event
+// Source, Target, SpellId, HitMask, School
 export type SpellCast = [number, number, Unit | null, Unit, number, number, number];
 export type Death = [number, number, Unit, Unit | undefined];
 export type CombatState = [number, number, Unit, boolean];

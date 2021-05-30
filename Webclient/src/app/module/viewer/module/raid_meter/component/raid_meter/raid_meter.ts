@@ -39,6 +39,7 @@ import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
 import {UnitBasicInformation, UnitService} from "../../../../service/unit";
 import {SpellBasicInformation, SpellService} from "../../../../service/spell";
 import {merge_detail_rows} from "../../../raid_detail_table/stdlib/util";
+import {MeterSpellCastsService} from "../../service/meter_spell_casts";
 
 @Component({
     selector: "RaidMeter",
@@ -56,6 +57,7 @@ import {merge_detail_rows} from "../../../raid_detail_table/stdlib/util";
         MeterAuraUptimeService,
         MeterAbsorbService,
         MeterAuraGainService,
+        MeterSpellCastsService,
         RaidMeterService,
         // Raid Detail Service
         DetailDamageService,
@@ -120,6 +122,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 20, label_key: 'Target aura uptime'},
         {value: 25, label_key: 'Auras given'},
         {value: 26, label_key: 'Auras gotten'},
+        {value: 27, label_key: 'Spell casts done'},
+        {value: 28, label_key: 'Spell casts taken'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -225,7 +229,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     bar_clicked(bar: [number, number]): void {
-        if ([19, 20, 25, 26].includes(this.current_selection) && this.in_ability_mode)
+        if ([19, 20, 25, 26, 27, 28].includes(this.current_selection) && this.in_ability_mode)
             return;
 
         if (!this.in_ability_mode)
@@ -284,6 +288,15 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         .slice(0, 10)
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount]);
                 };
+            } else if ([27, 28].includes(this.current_selection)) {
+                type = 17;
+                payload = () => {
+                    return this.ability_rows((this.current_data as Array<[number, Array<[number, number]>]>)
+                        .filter(([unit_id, abilities]) => unit_id === subject_id))
+                        .sort((left, right) => right[1] - left[1])
+                        .slice(0, 10)
+                        .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount]);
+                };
             } else {
                 type = 5;
                 payload = () => {
@@ -311,7 +324,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     return from(this.event_log_service.get_event_log_entries((this.bars[subject_id] as any).timestamp))
                         .pipe(map(entries => entries.filter(evt => evt.subject_id === unit_id).slice(0, 20)));
                 };
-            } else if ([19, 20].includes(this.current_selection)) {
+            } else if ([19, 20, 27, 28].includes(this.current_selection)) {
                 type = 14;
                 specifics = {
                     spell_id: subject_id,
@@ -420,7 +433,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get show_per_second(): boolean {
-        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26].includes(this.current_selection);
+        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26, 27, 28].includes(this.current_selection);
     }
 
     format_number(number_str: string): string {

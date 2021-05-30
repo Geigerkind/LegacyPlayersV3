@@ -185,10 +185,6 @@ export class TalentTabComponent implements OnInit, OnChanges {
             return false;
         }
 
-        if (talent.row_index === 2 && talent.column_index === 3) {
-            console.log(talent, dependency);
-        }
-
         if (dependency.row_index <= talent.row_index && vertical) {
             for (let i = talent.row_index; i < this.talent_tree.length; ++i) {
                 const c_talent = this.talent_tree[i][talent.column_index];

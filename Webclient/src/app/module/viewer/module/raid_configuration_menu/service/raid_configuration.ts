@@ -430,6 +430,7 @@ export class RaidConfigurationService implements OnDestroy {
         source_prom.push([this.instanceDataService.knecht_un_aura.get_sources(), [7, 8, 9]]);
         source_prom.push([this.instanceDataService.knecht_threat.get_sources(), [15]]);
         source_prom.push([this.instanceDataService.knecht_aura.get_sources(), [6]]);
+        source_prom.push([this.instanceDataService.knecht_spell_cast.get_sources(), [0]]);
 
         const target_prom = [];
         target_prom.push([this.instanceDataService.knecht_melee.get_targets(), [12, 1]]);
@@ -439,6 +440,7 @@ export class RaidConfigurationService implements OnDestroy {
         target_prom.push([this.instanceDataService.knecht_un_aura.get_targets(), [7, 8, 9]]);
         target_prom.push([this.instanceDataService.knecht_threat.get_targets(), [15]]);
         target_prom.push([this.instanceDataService.knecht_aura.get_targets(), [6]]);
+        target_prom.push([this.instanceDataService.knecht_spell_cast.get_targets(), [0]]);
 
         const ability_prom = [];
         ability_prom.push([this.instanceDataService.knecht_melee.get_abilities(), [12, 1]]);
@@ -448,9 +450,7 @@ export class RaidConfigurationService implements OnDestroy {
         ability_prom.push([this.instanceDataService.knecht_un_aura.get_abilities(), [7, 8, 9]]);
         ability_prom.push([this.instanceDataService.knecht_threat.get_abilities(), [15]]);
         ability_prom.push([this.instanceDataService.knecht_aura.get_abilities(), [6]]);
-
-        // Performance: Adding it here initially is extremely expensive!
-
+        ability_prom.push([this.instanceDataService.knecht_spell_cast.get_abilities(), [0]]);
 
         const source_intervals = new IntervalBucket(this.current_meta.start_ts, this.current_meta.end_ts, 180000);
         for (const [prom] of source_prom) {

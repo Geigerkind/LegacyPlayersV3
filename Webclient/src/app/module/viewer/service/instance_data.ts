@@ -17,7 +17,7 @@ import {CommunicationEvent} from "../domain_value/communication_event";
 })
 export class InstanceDataService implements OnDestroy {
 
-    private static readonly NUMBER_OF_WORKER: number = 7;
+    private static readonly NUMBER_OF_WORKER: number = 8;
 
     private static INSTANCE_EXPORT_META_URL: string = "/instance/export/:instance_meta_id";
     private static INSTANCE_EXPORT_PARTICIPANTS_URL: string = "/instance/export/participants/:instance_meta_id";
@@ -43,7 +43,7 @@ export class InstanceDataService implements OnDestroy {
     knecht_heal: Remote<Rechenknecht>;
     knecht_un_aura: Remote<Rechenknecht>;
     knecht_threat: Remote<Rechenknecht>;
-    // knecht_spell_cast: Remote<Rechenknecht>;
+    knecht_spell_cast: Remote<Rechenknecht>;
     knecht_aura: Remote<Rechenknecht>;
 
     private public_knecht_updates$: Subject<[Array<KnechtUpdates>, Array<number>]> = new Subject();
@@ -162,7 +162,7 @@ export class InstanceDataService implements OnDestroy {
         promisses.push(this.knecht_heal.set_segment_intervals(intervals));
         promisses.push(this.knecht_un_aura.set_segment_intervals(intervals));
         promisses.push(this.knecht_threat.set_segment_intervals(intervals));
-        // promisses.push(this.knecht_spell_cast.set_segment_intervals(intervals));
+        promisses.push(this.knecht_spell_cast.set_segment_intervals(intervals));
         promisses.push(this.knecht_aura.set_segment_intervals(intervals));
 
         for (const prom of promisses)
@@ -189,7 +189,7 @@ export class InstanceDataService implements OnDestroy {
         promisses.push(this.knecht_heal.set_source_filter(sources));
         promisses.push(this.knecht_un_aura.set_source_filter(sources));
         promisses.push(this.knecht_threat.set_source_filter(sources));
-        // promisses.push(this.knecht_spell_cast.set_source_filter(sources));
+        promisses.push(this.knecht_spell_cast.set_source_filter(sources));
         promisses.push(this.knecht_aura.set_source_filter(sources));
 
         for (const prom of promisses)
@@ -216,7 +216,7 @@ export class InstanceDataService implements OnDestroy {
         promisses.push(this.knecht_heal.set_target_filter(targets));
         promisses.push(this.knecht_un_aura.set_target_filter(targets));
         promisses.push(this.knecht_threat.set_target_filter(targets));
-        // promisses.push(this.knecht_spell_cast.set_target_filter(targets));
+        promisses.push(this.knecht_spell_cast.set_target_filter(targets));
         promisses.push(this.knecht_aura.set_target_filter(targets));
 
         for (const prom of promisses)
@@ -243,7 +243,7 @@ export class InstanceDataService implements OnDestroy {
         promisses.push(this.knecht_heal.set_ability_filter(abilities));
         promisses.push(this.knecht_un_aura.set_ability_filter(abilities));
         promisses.push(this.knecht_threat.set_ability_filter(abilities));
-        // promisses.push(this.knecht_spell_cast.set_ability_filter(abilities));
+        promisses.push(this.knecht_spell_cast.set_ability_filter(abilities));
         promisses.push(this.knecht_aura.set_ability_filter(abilities));
 
         for (const prom of promisses)
@@ -273,7 +273,7 @@ export class InstanceDataService implements OnDestroy {
         promisses.push(this.knecht_heal.set_time_boundaries(boundaries));
         promisses.push(this.knecht_un_aura.set_time_boundaries(boundaries));
         promisses.push(this.knecht_threat.set_time_boundaries(boundaries));
-        // promisses.push(this.knecht_spell_cast.set_time_boundaries(boundaries));
+        promisses.push(this.knecht_spell_cast.set_time_boundaries(boundaries));
         promisses.push(this.knecht_aura.set_time_boundaries(boundaries));
 
         for (const prom of promisses)
@@ -380,8 +380,7 @@ export class InstanceDataService implements OnDestroy {
         this.worker.push(worker);
         this.knecht_heal = Comlink.wrap<Rechenknecht>(worker);
 
-        /*
-        worker = new Worker('./../worker/spell_cast.worker', {type: 'module'});
+        worker = new Worker(new URL('./../worker/spell_cast.worker', import.meta.url), {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id, is_expired]);
         worker.onmessage = ({data}) => {
             if (knecht_condition(data)) {
@@ -391,7 +390,6 @@ export class InstanceDataService implements OnDestroy {
         };
         this.worker.push(worker);
         this.knecht_spell_cast = Comlink.wrap<Rechenknecht>(worker);
-         */
 
         worker = new Worker(new URL('./../worker/threat.worker', import.meta.url), {type: 'module'});
         worker.postMessage(["INIT", instance_meta_id, is_expired]);

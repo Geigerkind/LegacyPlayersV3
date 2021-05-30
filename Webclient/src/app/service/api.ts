@@ -49,7 +49,6 @@ export class APIService {
                     on_success.call(on_success, response);
             })
             .catch(reason => {
-                console.log(reason);
                 const failure = this.handleFailure(reason);
                 if (!!on_failure)
                     on_failure.call(on_failure, failure);

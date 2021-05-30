@@ -238,6 +238,13 @@ export class Rechenknecht {
         return meter_aura_gain;
     }
 
+    async meter_spell_casts(inverse: boolean): Promise<Array<[number, [Unit, Array<[number, number]>]]>> {
+        Rechenknecht.send_work_start();
+        const meter_damage = this.raid_meter_knecht.spell_cast.calculate(inverse);
+        Rechenknecht.send_work_end();
+        return meter_damage;
+    }
+
     /*
      * DATA FILTER
      */
