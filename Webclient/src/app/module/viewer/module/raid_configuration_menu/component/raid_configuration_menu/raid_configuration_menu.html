@@ -27,9 +27,6 @@
     -->
 
     <!-- All actual buttons that are supposed to do something -->
-    <MultiSelect placeholder="Categories" [(selectedItems)]="selected_items_categories"
-                 [enableCheckAll]="true" (items_changed_by_action)="on_category_selection_updated()"
-                 [dropdownList]="list_items_categories" [showTooltip]="{ type: 999, payload: 'Select a category' }"></MultiSelect>
     <MultiSelect placeholder="Segments" [(selectedItems)]="selected_items_segments"
                  [enableCheckAll]="true" [additional_button]="segments_additional_button"
                  [dropdownList]="list_items_segments"

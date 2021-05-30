@@ -22,7 +22,6 @@ import {IntervalBucket} from "../../../../../stdlib/interval_bucket";
 
 export interface FilterStackItem {
     viewer_mode: ViewerMode;
-    categories: Set<number>;
     segments: Set<number>;
     sources: Set<number>;
     targets: Set<number>;
@@ -49,14 +48,12 @@ export class RaidConfigurationService implements OnDestroy {
 
     private current_filtered_intervals: Array<[number, number]> = [];
 
-    private categories$: BehaviorSubject<Array<Category>> = new BehaviorSubject([]);
     private segments$: BehaviorSubject<Array<Segment>> = new BehaviorSubject([]);
     private sources$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
     private targets$: BehaviorSubject<Array<EventSource>> = new BehaviorSubject([]);
     private abilities$: BehaviorSubject<Array<EventAbility>> = new BehaviorSubject([]);
     private options$: BehaviorSubject<Array<RaidOption>> = new BehaviorSubject([]);
 
-    category_filter: Set<number> = new Set();
     segment_filter: Set<number> = new Set();
     source_filter: Set<number> = new Set();
     target_filter: Set<number> = new Set();
@@ -65,7 +62,6 @@ export class RaidConfigurationService implements OnDestroy {
 
     private current_mode: ViewerMode = ViewerMode.Base;
 
-    private nextCategories: Subject<void> = new Subject();
     private nextSegments: Subject<void> = new Subject();
     private nextSources: Subject<void> = new Subject();
     private nextTargets: Subject<void> = new Subject();
@@ -87,18 +83,8 @@ export class RaidConfigurationService implements OnDestroy {
         private activated_route_service: ActivatedRoute,
         private router_service: Router
     ) {
-        this.subscription.add(this.instanceDataService.meta.subscribe(meta => {
-            this.current_meta = meta;
-            this.instanceDataService.attempts.pipe(take(1)).subscribe(attempts => {
-                this.update_categories(attempts);
-                this.update_segments(attempts);
-            });
-        }));
-        this.subscription.add(this.instanceDataService.attempts.subscribe(attempts => {
-            this.update_categories(attempts);
-            this.update_segments(attempts);
-        }));
-
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
+        this.subscription.add(this.instanceDataService.attempts.subscribe(attempts => this.update_segments(attempts)));
         this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_updates, evt_types]) => {
             if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem))) {
                 this.update_subjects();
@@ -113,7 +99,6 @@ export class RaidConfigurationService implements OnDestroy {
             if (knecht_updates.includes(KnechtUpdates.FilterInitialized)) {
                 const state = {
                     viewer_mode: this.current_mode,
-                    categories: new Set([...this.category_filter.values()]),
                     segments: new Set([...this.segment_filter.values()]),
                     sources: new Set(this.source_filter),
                     targets: new Set(this.target_filter),
@@ -132,7 +117,6 @@ export class RaidConfigurationService implements OnDestroy {
             if (push_history) {
                 const state = {
                     viewer_mode: this.current_mode,
-                    categories: new Set([...this.category_filter.values()]),
                     segments: new Set([...this.segment_filter.values()]),
                     sources: new Set(this.source_filter),
                     targets: new Set(this.target_filter),
@@ -149,7 +133,6 @@ export class RaidConfigurationService implements OnDestroy {
         window.onpopstate = (evt) => {
             const last_stack_entry = evt.state;
             if (!!last_stack_entry && !!last_stack_entry.categories) {
-                this.update_category_filter([...last_stack_entry.categories.values()]);
                 this.update_segment_filter([...last_stack_entry.segments.values()]);
                 this.update_source_filter([...last_stack_entry.sources.values()]);
                 this.update_target_filter([...last_stack_entry.targets.values()]);
@@ -163,28 +146,18 @@ export class RaidConfigurationService implements OnDestroy {
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
-        this.nextCategories.next();
         this.nextSegments.next();
         this.nextSources.next();
         this.nextTargets.next();
         this.nextAbilities.next();
-        this.nextCategories.complete();
         this.nextSegments.complete();
         this.nextSources.complete();
         this.nextTargets.complete();
         this.nextAbilities.complete();
     }
 
-    get categories(): Observable<Array<Category>> {
-        return this.categories$.asObservable();
-    }
-
     get segments(): Observable<Array<Segment>> {
-        return this.segments$.asObservable()
-            .pipe(map(inner_segments => inner_segments.filter(segment => {
-                return this.categories$.getValue().filter(category => this.category_filter.has(category.id))
-                    .find(category => category.segments.has(segment.id)) !== undefined;
-            })));
+        return this.segments$.asObservable();
     }
 
     get sources(): Observable<Array<EventSource>> {
@@ -201,21 +174,6 @@ export class RaidConfigurationService implements OnDestroy {
 
     get options(): Observable<Array<RaidOption>> {
         return this.options$.asObservable();
-    }
-
-    update_category_filter(selected_categories: Array<number>, update_stack: boolean = false, push_history: boolean = true): void {
-        if (this.category_filter.size === selected_categories.length && selected_categories.every(elem => this.category_filter.has(elem)))
-            return;
-        this.category_filter = new Set(selected_categories);
-        this.segments$.next(this.segments$.getValue());
-
-        const new_segment_filter = [];
-        const filtered_categories = this.categories$.getValue().filter(category => this.category_filter.has(category.id));
-        for (const segment of this.segment_filter)
-            if (filtered_categories.find(category => category.segments.has(segment)) !== undefined)
-                new_segment_filter.push(segment);
-        this.update_segment_filter(new_segment_filter);
-        if (update_stack) this.filter_updated$.next(push_history);
     }
 
     update_segment_filter(selected_segments: Array<number>, update_stack: boolean = false, push_history: boolean = true): void {
@@ -260,39 +218,6 @@ export class RaidConfigurationService implements OnDestroy {
         this.time_boundaries = boundaries;
         this.instanceDataService.set_time_boundaries(boundaries);
         if (update_stack) this.filter_updated$.next(push_history);
-    }
-
-    private update_categories(attempts: Array<InstanceViewerAttempt>): void {
-        this.nextCategories.next();
-        const categories: Map<number, Category> = new Map();
-        const non_boss_intervals = this.calculate_non_boss_attempts(attempts);
-        categories.set(0, {
-            segments: new Set(non_boss_intervals.map((value, index) => -index)),
-            id: 0,
-            label: "Trash & OOC segments",
-            time: non_boss_intervals.reduce((acc, [start, end]) => acc + end - start, 0)
-        });
-
-        for (const attempt of attempts) {
-            if (categories.has(attempt.encounter_id)) {
-                const category = categories.get(attempt.encounter_id);
-                category.segments.add(attempt.id);
-                category.time += (attempt.end_ts - attempt.start_ts);
-                continue;
-            }
-            categories.set(attempt.encounter_id, {
-                segments: new Set([attempt.id]),
-                id: attempt.encounter_id,
-                label: undefined,
-                time: (attempt.end_ts - attempt.start_ts)
-            });
-        }
-        zip(...[...categories.values()].map(category => this.dataService.get_encounter(category.id)
-            .pipe(map(encounter => {
-                if (!category.label || category.label === CONST_UNKNOWN_LABEL)
-                    category.label = !encounter ? CONST_UNKNOWN_LABEL : encounter.localization;
-                return category;
-            })))).pipe(takeUntil(this.nextCategories.asObservable())).subscribe(update => this.categories$.next(update));
     }
 
     private update_segments(attempts: Array<InstanceViewerAttempt>): void {

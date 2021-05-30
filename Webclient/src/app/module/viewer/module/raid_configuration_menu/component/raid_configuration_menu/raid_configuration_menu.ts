@@ -2,7 +2,6 @@ import {Component, OnDestroy} from "@angular/core";
 import {RaidConfigurationService} from "../../service/raid_configuration";
 import {Subscription} from "rxjs";
 import {DateService} from "../../../../../../service/date";
-import {Category} from "../../domain_value/category";
 import {Segment} from "../../domain_value/segment";
 import {EventSource} from "../../domain_value/event_source";
 import {RaidConfigurationSelectionService} from "../../service/raid_configuration_selection";
@@ -20,30 +19,20 @@ import {CommunicationEvent} from "../../../../domain_value/communication_event";
 })
 export class RaidConfigurationMenuComponent implements OnDestroy {
 
-    private subscription_categories: Subscription;
-    private subscription_segments: Subscription;
-    private subscription_sources: Subscription;
-    private subscription_targets: Subscription;
-    private subscription_abilities: Subscription;
-    private subscription_overwrite: Subscription;
-
-    private subscription_source_selection: Subscription;
+    private subscription: Subscription = new Subscription();
 
     // closed: boolean = true;
 
-    selected_items_categories: Array<any> = [];
     selected_items_segments: Array<any> = [];
     selected_items_sources: Array<any> = [];
     selected_items_targets: Array<any> = [];
     selected_items_abilities: Array<any> = [];
 
-    list_items_categories: Array<any> = [];
     list_items_segments: Array<any> = [];
     list_items_sources: Array<any> = [];
     list_items_targets: Array<any> = [];
     list_items_abilities: Array<any> = [];
 
-    use_default_filter_categories: boolean = true;
     use_default_filter_segments: boolean = true;
     use_default_filter_sources: boolean = true;
     use_default_filter_targets: boolean = true;
@@ -83,7 +72,9 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 5)
         },
         {
-            id: -9, label: "All Death Knights", list_selection_callback: (button, selected_list, current_list, checked) =>
+            id: -9,
+            label: "All Death Knights",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 6)
         },
         {
@@ -103,7 +94,6 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.hero_class_id === 11)
         },
     ];
-
     segments_additional_button: Array<AdditionalButton> = [];
 
     time_slider_reference_start: number = 0;
@@ -119,25 +109,23 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         public dateService: DateService,
         private instanceDataService: InstanceDataService
     ) {
-        this.subscription_categories = this.raidConfigurationService.categories.subscribe(categories => this.handle_categories(categories, true));
-        this.subscription_segments = this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments, true));
-        this.subscription_sources = this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources, true));
-        this.subscription_targets = this.raidConfigurationService.targets.subscribe(targets => this.handle_targets(targets, true));
-        this.subscription_abilities = this.raidConfigurationService.abilities.subscribe(abilities => this.handle_abilities(abilities, true));
-        this.subscription_source_selection = this.raidConfigurationSelectionService.source_selection.subscribe(selection =>
-            this.selected_items_sources = this.selected_items_sources.filter(item => selection.includes(item.id)));
+        this.subscription.add(this.raidConfigurationService.segments.subscribe(segments => this.handle_segments(segments, true)));
+        this.subscription.add(this.raidConfigurationService.sources.subscribe(sources => this.handle_sources(sources, true)));
+        this.subscription.add(this.raidConfigurationService.targets.subscribe(targets => this.handle_targets(targets, true)));
+        this.subscription.add(this.raidConfigurationService.abilities.subscribe(abilities => this.handle_abilities(abilities, true)));
+        this.subscription.add(this.raidConfigurationSelectionService.source_selection.subscribe(selection =>
+            this.selected_items_sources = this.selected_items_sources.filter(item => selection.includes(item.id))));
 
-        this.subscription_overwrite = this.raidConfigurationService.selection_overwrite$.subscribe(stack_item => {
-            this.selected_items_categories = this.list_items_categories.filter(item => stack_item.categories.has(item.id));
+        this.subscription.add(this.raidConfigurationService.selection_overwrite$.subscribe(stack_item => {
             this.selected_items_segments = this.list_items_segments.filter(item => stack_item.segments.has(item.id));
             this.selected_items_sources = this.list_items_sources.filter(item => stack_item.sources.has(item.id));
             this.selected_items_targets = this.list_items_targets.filter(item => stack_item.targets.has(item.id));
             this.selected_items_abilities = this.list_items_abilities.filter(item => stack_item.abilities.has(item.id));
             this.time_slider_start_reference = stack_item.boundaries[0];
             this.time_slider_end_reference = stack_item.boundaries[1];
-        });
+        }));
 
-        this.subscription_overwrite.add(this.instanceDataService.communicator.subscribe(([com_event, payload]) => {
+        this.subscription.add(this.instanceDataService.communicator.subscribe(([com_event, payload]) => {
             if (com_event === CommunicationEvent.GraphBoundaries) {
                 const time_frame = this.time_slider_end_reference - this.time_slider_start_reference;
                 this.time_slider_end_reference = this.time_slider_start_reference + payload[1] * time_frame;
@@ -146,31 +134,19 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
             }
         }));
 
-        this.instanceDataService.meta.subscribe(meta => {
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => {
             if (!!meta)
                 this.upload_id = meta.upload_id;
-        });
+        }));
 
-        this.raidConfigurationService.boundaries_updated$.subscribe(boundaries => {
+        this.subscription.add(this.raidConfigurationService.boundaries_updated$.subscribe(boundaries => {
             this.time_slider_start_reference = boundaries[0];
             this.time_slider_end_reference = boundaries[1];
-        });
+        }));
     }
 
     ngOnDestroy(): void {
-        this.subscription_categories?.unsubscribe();
-        this.subscription_segments?.unsubscribe();
-        this.subscription_sources?.unsubscribe();
-        this.subscription_targets?.unsubscribe();
-        this.subscription_abilities?.unsubscribe();
-        this.subscription_source_selection?.unsubscribe();
-        this.subscription_overwrite?.unsubscribe();
-    }
-
-    on_category_selection_updated(): void {
-        this.use_default_filter_categories = false;
-        this.update_additional_segment_buttons();
-        this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(category => category.id), true);
+        this.subscription?.unsubscribe();
     }
 
     on_segment_selection_updated(): void {
@@ -194,48 +170,44 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.raidConfigurationService.update_ability_filter(this.selected_items_abilities.map(ability => ability.id), true);
     }
 
-    private update_additional_segment_buttons(): void {
+    private update_additional_segment_buttons(segments: Array<Segment>): void {
         const additional_button = [];
         additional_button.push({
-            id: -1, label: "All Kill Attempts", list_selection_callback: (button, selected_list, current_list, checked) =>
+            id: -1,
+            label: "All Kill Attempts",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.is_kill)
         });
 
         additional_button.push({
-            id: -2, label: "All Wipe Attempts", list_selection_callback: (button, selected_list, current_list, checked) =>
+            id: -2,
+            label: "All Wipe Attempts",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => !item.is_kill)
         });
 
-        for (const cat_item of this.selected_items_categories) {
+        additional_button.push({
+            id: -3,
+            label: "Trash & OOC segments",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.id < 0)
+        });
+
+        let count = -4;
+        const already_added_encounter = new Set();
+        for (const segment of segments) {
+            if (segment.id <= 0 || already_added_encounter.has(segment.encounter_id)) {
+                continue;
+            }
+            already_added_encounter.add(segment.encounter_id);
             additional_button.push({
-                id: cat_item.id,
-                label: cat_item.label,
+                id: count--,
+                label: segment.label,
                 list_selection_callback: (button, selected_list, current_list, checked) =>
-                    this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.encounter_id === cat_item.id)
+                    this.additional_button_collection_if(button, selected_list, current_list, checked, (item) => item.encounter_id === segment.encounter_id)
             });
         }
         this.segments_additional_button = additional_button;
-    }
-
-    private async handle_categories(categories: Array<Category>, update_filter: boolean) {
-        const new_list_items = [];
-        const new_selected_items = [];
-        for (const category of categories) {
-            const cat_item = {
-                id: category.id,
-                label: category.label.toString() + " - " + this.dateService.toTimeSpan(category.time)
-            };
-            new_list_items.push(cat_item);
-
-            if ((this.use_default_filter_categories && cat_item.id > 0) || this.selected_items_categories.find(item => item.id === category.id) !== undefined)
-                new_selected_items.push(cat_item);
-        }
-        this.list_items_categories = new_list_items;
-        this.selected_items_categories = new_selected_items;
-        this.update_additional_segment_buttons();
-
-        if (this.use_default_filter_categories && update_filter)
-            this.raidConfigurationService.update_category_filter(this.selected_items_categories.map(item => item.id));
     }
 
     private async handle_segments(segments: Array<Segment>, update_filter: boolean) {
@@ -271,6 +243,7 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         if (this.use_default_filter_segments && update_filter)
             this.raidConfigurationService.update_segment_filter(this.selected_items_segments.map(item => item.id));
         this.update_start_end_time_slider_boundaries();
+        this.update_additional_segment_buttons(segments);
     }
 
     private async handle_sources(sources: Array<EventSource>, update_filter: boolean) {

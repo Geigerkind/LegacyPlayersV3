@@ -49,7 +49,6 @@ export class ExportViewerService implements OnDestroy {
             url_suffix: this.routerService.url.replace("viewer/", ""),
             payload: {
                 instance_meta_id: this.current_meta.instance_meta_id,
-                selected_categories: [...this.raidConfigurationService.category_filter.values()],
                 selected_segments: [...this.raidConfigurationService.segment_filter.values()],
                 selected_sources: [...this.raidConfigurationService.source_filter.values()],
                 selected_targets: [...this.raidConfigurationService.target_filter.values()],
@@ -71,7 +70,6 @@ export class ExportViewerService implements OnDestroy {
             return;
         const payload = this.settingsService.get(settings_key);
         this.settingsService.delete(settings_key);
-        this.raidConfigurationService.update_category_filter(payload.selected_categories);
         this.raidConfigurationService.update_segment_filter(payload.selected_segments);
         this.raidConfigurationService.update_source_filter(payload.selected_sources);
         this.raidConfigurationService.update_target_filter(payload.selected_targets);
@@ -79,7 +77,6 @@ export class ExportViewerService implements OnDestroy {
         this.raidConfigurationService.update_time_boundaries(payload.selected_boundaries);
         this.raidConfigurationService.selection_overwrite$.next({
             viewer_mode: this.viewer_mode,
-            categories: new Set(payload.selected_categories),
             segments: new Set(payload.selected_segments),
             sources: new Set(payload.selected_sources),
             targets: new Set(payload.selected_targets),
