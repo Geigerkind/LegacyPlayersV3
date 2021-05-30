@@ -262,6 +262,15 @@
         "delete": {
             "delete": "Delete account",
             "deleteNote": "Note: This action is not revertible!"
+        },
+        "uploads": {
+            "options": {
+                "public": "Public",
+                "not_listed": "Not listed",
+                "only_groups": "Only groups"
+            },
+            "privacy_action": "Privacy action",
+            "no_groups": "Everyone"
         }
     },
     "Login": {

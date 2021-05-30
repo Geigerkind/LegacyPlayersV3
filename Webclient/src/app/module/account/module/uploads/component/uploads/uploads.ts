@@ -11,6 +11,7 @@ import {InstanceMap} from "../../../../../../domain_value/instance_map";
 import {DataService} from "../../../../../../service/data";
 import {UploadsService} from "../../service/uploads";
 import {NotificationService} from "../../../../../../service/notification";
+import {AccountInformation} from "../../../../domain_value/account_information";
 
 @Component({
     selector: "Uploads",
@@ -28,7 +29,7 @@ export class UploadsComponent implements OnInit {
             col_type: 0
         },
         {index: 1, filter_name: 'start_ts', labelKey: "PvE.Search.start", type: 2, type_range: null, col_type: 1},
-        {index: 2, filter_name: 'end_ts', labelKey: "PvE.Search.end", type: 2, type_range: null, col_type: 1}
+        {index: 2, filter_name: 'end_ts', labelKey: "PvE.Search.end", type: 2, type_range: null, col_type: 1},
     ];
 
     body_columns: Array<Array<BodyColumn>> = [];
@@ -38,6 +39,7 @@ export class UploadsComponent implements OnInit {
     num_characters: number = 0;
 
     private last_filter;
+    private account_information: AccountInformation;
 
     constructor(
         public tinyUrlService: TinyUrlService,
@@ -64,14 +66,29 @@ export class UploadsComponent implements OnInit {
         } else {
             filter = this.settingsService.get("table_filter_account_raids_search");
         }
+        this.account_information = this.settingsService.get("ACCOUNT_INFORMATION");
+        if (this.has_privacy_privilege && !this.header_columns[3])
+            this.header_columns.push({
+                index: 3,
+                filter_name: 'privacy',
+                labelKey: "Account.uploads.privacy_action",
+                type: 3,
+                type_range: [{value: 0, label_key: "Account.uploads.options.public"},
+                    {value: 1, label_key: "Account.uploads.options.not_listed"}, {
+                        value: 2,
+                        label_key: "Account.uploads.options.only_groups"
+                    }],
+                col_type: 0
+            });
+
         this.last_filter = filter;
         this.onFilter(filter);
     }
 
     onFilter(filter: any): void {
-        filter.map_difficulty = { filter: null, sorting: null };
-        filter.guild = { filter: null, sorting: null };
-        filter.server_id = { filter: null, sorting: null };
+        filter.map_difficulty = {filter: null, sorting: null};
+        filter.guild = {filter: null, sorting: null};
+        filter.server_id = {filter: null, sorting: null};
         this.uploadsService.search_raids(filter, (search_result) => {
             this.last_filter = filter;
             this.num_characters = search_result.num_items;
@@ -96,6 +113,12 @@ export class UploadsComponent implements OnInit {
                     content: item.end_ts ? item.end_ts.toFixed(0) : '',
                     args: null
                 });
+                if (this.has_privacy_privilege)
+                    body_columns.push({
+                        type: 3,
+                        content: "0",
+                        args: null
+                    });
                 return {
                     color: '',
                     columns: body_columns
@@ -110,5 +133,13 @@ export class UploadsComponent implements OnInit {
             this.onFilter(this.last_filter);
             this.notificationService.propagate(Severity.Success, "Raid deleted!");
         });
+    }
+
+    get has_privacy_privilege(): boolean {
+        return (this.account_information.access_rights & 4) === 4;
+    }
+
+    privacy_changed([option, group]: [number, number]): void {
+        console.log(option, group);
     }
 }

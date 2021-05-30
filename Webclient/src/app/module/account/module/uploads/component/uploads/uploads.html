@@ -4,7 +4,7 @@
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
        [numItems]="num_characters" unique_id="account_raids_search"
        (filterOrPageChanged)="onFilter($event)" [enableShare]="false"
-       [et_row_items]="[instance_map, detailed_ts, detailed_ts]">
+       [et_row_items]="[instance_map, detailed_ts, detailed_ts, privacy_action]">
 </Table>
 
 <ng-template #instance_map let-specification="specification" let-content="content">
@@ -15,4 +15,8 @@
 
 <ng-template #detailed_ts let-specification="specification" let-content="content">
     {{specification.content.length === 0 ? '-' : dateService.toRPLLLongDate(specification.content) }}
+</ng-template>
+
+<ng-template #privacy_action let-specification="specification" let-content="content">
+    <PrivacyAction (privacy_changed)="privacy_changed($event)"></PrivacyAction>
 </ng-template>

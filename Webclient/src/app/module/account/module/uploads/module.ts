@@ -5,6 +5,7 @@ import {CommonModule} from "@angular/common";
 import {UploadsRouting} from "./routing";
 import {TableModule} from "../../../../template/table/module";
 import {InstanceMapModule} from "../../../../template/row_components/instance_map/module";
+import {PrivacyActionModule} from "./module/privacy_action/module";
 
 @NgModule({
     declarations: [UploadsComponent],
@@ -13,7 +14,8 @@ import {InstanceMapModule} from "../../../../template/row_components/instance_ma
         TranslateModule,
         UploadsRouting,
         TableModule,
-        InstanceMapModule
+        InstanceMapModule,
+        PrivacyActionModule
     ],
     exports: [UploadsComponent]
 })
