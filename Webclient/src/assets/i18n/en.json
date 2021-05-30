@@ -229,7 +229,8 @@
             "nickname": "Nickname",
             "mail": "Email",
             "mail_confirmed": "Confirmation status",
-            "resend_mail": "Resend confirmation mail"
+            "resend_mail": "Resend confirmation mail",
+            "default_privacy": "Default log privacy"
         },
         "updatePassword": {
             "newPassword": "New password",

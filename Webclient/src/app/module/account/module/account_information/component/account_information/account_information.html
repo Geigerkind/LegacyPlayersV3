@@ -18,4 +18,9 @@
                            labelKey="Account.accountInformation.resend_mail"></ConfirmButton>
         </div>
     </div>
+
+    <div *ngIf="has_privacy_privilege" class="information">
+        <div class="label">{{ 'Account.accountInformation.default_privacy' | translate }}</div>
+        <PrivacyAction [initial_privacy_option]="accountInformation?.default_privacy_type" (privacy_changed)="default_privacy_changed($event)"></PrivacyAction>
+    </div>
 </div>

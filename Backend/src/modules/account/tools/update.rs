@@ -20,6 +20,7 @@ pub trait Update {
     fn update_password(&self, db_main: &mut (impl Execute + Select), new_password: &str, member_id: u32) -> Result<(), Failure>;
     fn request_change_mail(&self, new_mail: &str, member_id: u32) -> Result<bool, Failure>;
     fn confirm_change_mail(&self, db_main: &mut (impl Execute + Select), confirmation_id: &str) -> Result<APIToken, Failure>;
+    fn update_default_privacy(&self, db_main: &mut impl Execute, privacy_type: u8, member_id: u32) -> Result<(), Failure>;
 }
 
 impl Update for Account {
@@ -152,5 +153,21 @@ impl Update for Account {
             },
             None => Err(Failure::Unknown),
         }
+    }
+
+    fn update_default_privacy(&self, db_main: &mut impl Execute, privacy_type: u8, member_id: u32) -> Result<(), Failure> {
+        let mut member = self.member.write().unwrap();
+
+        if db_main.execute_wparams(
+            "UPDATE account_member SET default_privacy_type=:privacy_type WHERE id=:id",
+            params!(
+              "privacy_type" => privacy_type,
+              "id" => member_id
+            ),
+        ) {
+            member.get_mut(&member_id).unwrap().default_privacy_type = privacy_type;
+            return Ok(())
+        }
+        Err(Failure::Unknown)
     }
 }

@@ -12,4 +12,5 @@ pub struct Member {
     pub delete_account: bool,
     pub new_mail: String, // Non-Empty means that a change was requested
     pub access_rights: u32,
+    pub default_privacy_type: u8
 }

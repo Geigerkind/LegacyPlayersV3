@@ -33,3 +33,9 @@ pub fn request_mail(me: State<Account>, auth: Authenticate, content: Json<String
 pub fn confirm_mail(mut db_main: MainDb, me: State<Account>, id: String) -> Result<Json<APIToken>, Failure> {
     me.confirm_change_mail(&mut *db_main, &id).map(Json)
 }
+
+#[openapi]
+#[post("/update/default_privacy", format = "application/json", data = "<content>")]
+pub fn default_privacy(mut db_main: MainDb, me: State<Account>, auth: Authenticate, content: Json<u8>) -> Result<(), Failure> {
+    me.update_default_privacy(&mut *db_main, content.into_inner(), auth.0)
+}

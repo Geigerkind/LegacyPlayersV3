@@ -47,7 +47,7 @@ impl Account {
 
             // We are a little wasteful here because we do not insert it directly but rather create a vector first and then copy it over
             for entry in db_main.select(
-                "SELECT id, nickname, mail, password, salt, mail_confirmed, forgot_password, delete_account, new_mail, access_rights FROM account_member",
+                "SELECT id, nickname, mail, password, salt, mail_confirmed, forgot_password, delete_account, new_mail, access_rights, default_privacy_type FROM account_member",
                 |mut row| Member {
                     id: row.take(0).unwrap(),
                     nickname: row.take(1).unwrap(),
@@ -59,6 +59,7 @@ impl Account {
                     delete_account: row.take(7).unwrap(),
                     new_mail: row.take(8).unwrap(),
                     access_rights: row.take(9).unwrap(),
+                    default_privacy_type: row.take(10).unwrap()
                 },
             ) {
                 // Prepping api_token map

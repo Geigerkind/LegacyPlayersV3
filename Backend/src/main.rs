@@ -138,6 +138,7 @@ fn main() {
                 account::transfer::update::request_mail,
                 account::transfer::update::confirm_mail,
                 account::transfer::update::password,
+                account::transfer::update::default_privacy,
                 account::transfer::update::nickname
             ],
         )

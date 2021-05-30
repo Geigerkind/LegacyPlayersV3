@@ -84,6 +84,7 @@ impl Create for Account {
                         delete_account: false,
                         new_mail: String::new(),
                         access_rights: 0,
+                        default_privacy_type: 0
                     },
                 );
             } else {

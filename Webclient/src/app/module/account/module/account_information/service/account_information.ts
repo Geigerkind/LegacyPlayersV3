@@ -11,6 +11,7 @@ import {SettingsService} from "../../../../../service/settings";
 export class AccountInformationService {
     private static readonly URL_GET: string = '/account/get';
     private static readonly URL_CREATE_RESEND: string = '/account/create/resend';
+    private static readonly URL_UPDATE_DEFAULT_PRIVACY: string = '/account/update/default_privacy';
 
     constructor(
         private apiService: APIService,
@@ -32,5 +33,9 @@ export class AccountInformationService {
             this.notificationService.propagate(Severity.Info, "serverResponses.mail_confirm");
             on_response.call(on_response);
         }, on_response);
+    }
+
+    update_default_privacy(privacy_type: number, on_success: any): void {
+        this.apiService.post(AccountInformationService.URL_UPDATE_DEFAULT_PRIVACY, privacy_type, on_success);
     }
 }

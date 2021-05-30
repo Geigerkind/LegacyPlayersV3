@@ -5,6 +5,7 @@ import {CommonModule} from "@angular/common";
 import {AccountInformationRouting} from "./routing";
 import {AccountInformationService} from "./service/account_information";
 import {ConfirmButtonModule} from "../../../../template/button/confirm_button/module";
+import {PrivacyActionModule} from "../uploads/module/privacy_action/module";
 
 @NgModule({
     declarations: [AccountInformationComponent],
@@ -12,7 +13,8 @@ import {ConfirmButtonModule} from "../../../../template/button/confirm_button/mo
         CommonModule,
         TranslateModule,
         AccountInformationRouting,
-        ConfirmButtonModule
+        ConfirmButtonModule,
+        PrivacyActionModule
     ],
     exports: [AccountInformationComponent],
     providers: [AccountInformationService]
