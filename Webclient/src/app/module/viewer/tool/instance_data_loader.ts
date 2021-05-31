@@ -24,7 +24,7 @@ import {debounceTime} from "rxjs/operators";
 
 export class InstanceDataLoader {
     private static readonly UPDATE_INTERVAL: number = 60000;
-    private static readonly BATCH_SIZE: number = 50000;
+    private static readonly BATCH_SIZE: number = 63000;
     private static readonly INSTANCE_EXPORT_URL: string = "/API/instance/export/:instance_meta_id/:event_type/:last_event_id";
 
     public spell_casts: Array<Event> = [];
@@ -183,22 +183,17 @@ export class InstanceDataLoader {
     }
 
     private async load_ressource(event_type: number): Promise<void> {
-        const container = this.container_getter.get(event_type)[0]();
-        const load_non_blocking = async (resolve) => {
-            const container_length = container.length;
-            const last_event_id = container_length === 0 ? 0 : container[container_length - 1][0];
-            const result = await this.load_instance_data(event_type, last_event_id);
-            result.forEach(event => this.extract_subjects(event_type, event));
-            container.push(...result);
-            if (result.length > 0) {
-                this.new_data_event_types.add(event_type);
-                this.newData$.next();
-            }
-            if (result.length < InstanceDataLoader.BATCH_SIZE)
-                resolve();
-            else setTimeout(() => load_non_blocking(resolve), 100);
-        };
-        return new Promise<void>((resolve, reject) => load_non_blocking(resolve));
+        let container = this.container_getter.get(event_type)[0]();
+        const container_length = container.length;
+        const last_event_id = container_length === 0 ? 0 : container[container_length - 1][0];
+        const result = await this.load_instance_data(event_type, last_event_id);
+        result.forEach(event => this.extract_subjects(event_type, event));
+        for (let i=0; i<Math.ceil(result.length/InstanceDataLoader.BATCH_SIZE); ++i)
+            container.push(...result.slice(i * InstanceDataLoader.BATCH_SIZE, (i+1) * InstanceDataLoader.BATCH_SIZE));
+        if (result.length > 0) {
+            this.new_data_event_types.add(event_type);
+            this.newData$.next();
+        }
     }
 
     private async load_instance_data(event_type: number, last_event_id: number): Promise<Array<Event>> {

@@ -13,7 +13,7 @@ use crate::modules::armory::util::talent_tree::get_talent_tree;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
-    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>,
+    pub instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<String>>>>>,
     pub instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<InstanceViewerAttempt>>>>>,
     pub speed_runs: Arc<RwLock<Vec<SpeedRun>>>,
     pub speed_kills: Arc<RwLock<Vec<SpeedKill>>>,
@@ -381,7 +381,7 @@ fn evict_attempts_cache(instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<
     let mut instance_attempts = instance_attempts.write().unwrap();
     for instance_meta_id in instance_attempts
         .iter()
-        .filter(|(_, cachable)| cachable.get_last_access() + 3600 < now)
+        .filter(|(_, cachable)| cachable.get_last_access() + 300 < now)
         .map(|(instance_meta_id, _)| *instance_meta_id)
         .collect::<Vec<u32>>()
     {
@@ -389,7 +389,7 @@ fn evict_attempts_cache(instance_attempts: Arc<RwLock<HashMap<u32, Cachable<Vec<
     }
 }
 
-fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<(u32, String)>>>>>) {
+fn evict_export_cache(instance_exports: Arc<RwLock<HashMap<(u32, u8), Cachable<Vec<String>>>>>) {
     let now = time_util::now();
     let mut instance_exports = instance_exports.write().unwrap();
     for instance_meta_id in instance_exports
