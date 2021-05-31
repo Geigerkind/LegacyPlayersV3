@@ -199,7 +199,8 @@
             "title": "Tools",
             "talent_calc": "Talent calculator",
             "rp_calc": "Rankpoints calculator",
-            "char_design": "Character designer"
+            "char_design": "Character designer",
+            "addons": "Addons"
         },
         "contribute": {
             "title": "Contribute",
@@ -402,5 +403,10 @@
         "classes": "Select class",
         "servers": "Select server",
         "difficulties": "Select difficulties"
+    },
+    "Addon": {
+        "name": "Name",
+        "description": "Description",
+        "expansion": "Expansion"
     }
 }

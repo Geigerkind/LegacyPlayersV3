@@ -46,6 +46,7 @@ SettingsService {
         "upload_last_server",
         "pve_speed_run",
         "pve_speed_kill",
+        "table_filter_addon_search"
     ];
 
     private ignoreSettings: Array<string> = [
