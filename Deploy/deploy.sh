@@ -182,6 +182,7 @@ function deployAddons {
   rm /var/www/html/AdvancedTBCCombatLog_Helper.zip
   rm /var/www/html/AdvancedWotLKCombatLog.zip
   rm /var/www/html/AdvancedWotLKCombatLog_Helper.zip
+  rm -r /var/www/html/Addons
   zip -r AdvancedVanillaCombatLog.zip ./AdvancedVanillaCombatLog
   zip -r AdvancedVanillaCombatLog_Helper.zip ./AdvancedVanillaCombatLog_Helper
   zip -r AdvancedTBCCombatLog.zip ./AdvancedTBCCombatLog
@@ -194,6 +195,7 @@ function deployAddons {
   mv AdvancedTBCCombatLog_Helper.zip /var/www/html/
   mv AdvancedWotLKCombatLog.zip /var/www/html/
   mv AdvancedWotLKCombatLog_Helper.zip /var/www/html/
+  cp -r External /var/www/html/Addons
 }
 
 function updateConfigs {
