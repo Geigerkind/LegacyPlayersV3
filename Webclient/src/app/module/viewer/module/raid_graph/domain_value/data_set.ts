@@ -23,9 +23,12 @@ export enum DataSet {
     InterruptReceived = "Interrupt received",
     SpellStealDone = "Spell steal done",
     SpellStealReceived = "Spell steal received",
+
+    // Misc
+    SpellCasts = "Spell casts"
 }
 
 export function is_event_data_set(data_set: DataSet): boolean {
     return [DataSet.Deaths, DataSet.Kills, DataSet.DispelsDone, DataSet.DispelsReceived,
-        DataSet.InterruptDone, DataSet.InterruptReceived, DataSet.SpellStealDone, DataSet.SpellStealReceived].includes(data_set);
+        DataSet.InterruptDone, DataSet.InterruptReceived, DataSet.SpellStealDone, DataSet.SpellStealReceived, DataSet.SpellCasts].includes(data_set);
 }

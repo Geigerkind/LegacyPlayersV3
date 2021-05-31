@@ -12,6 +12,7 @@ import {get_absorb_data_points} from "../../../stdlib/absorb";
 import {ChartType, number_to_chart_type} from "../domain_value/chart_type";
 import {Unit} from "../../../domain_value/unit";
 import {UnitService} from "../../../service/unit";
+import {MeterSpellCastsService} from "../../raid_meter/service/meter_spell_casts";
 
 @Injectable({
     providedIn: "root",
@@ -30,14 +31,17 @@ export class GraphDataService implements OnDestroy {
 
     private source_abilities$: Subject<Array<{ id: number, label: string }>> = new Subject();
     private target_abilities$: Subject<Array<{ id: number, label: string }>> = new Subject();
+    private source_spell_cast_abilities$: Subject<Array<{ id: number, label: string }>> = new Subject();
 
     private source_meter_aura_uptime_service: MeterAuraUptimeService;
     private target_meter_aura_uptime_service: MeterAuraUptimeService;
+    private source_meter_spell_cast_service: MeterSpellCastsService;
 
     // Helper for Export
     private graph_mode: ChartType = ChartType.Line;
     private selectedSourceAbilities: Array<number> = [];
     private selectedTargetAbilities: Array<number> = [];
+    private selectedSourceSpellCastAbilities: Array<number> = [];
     public overwrite_selection: Subject<any> = new Subject();
 
     constructor(
@@ -55,6 +59,7 @@ export class GraphDataService implements OnDestroy {
 
         this.source_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, unitService, spellService);
         this.target_meter_aura_uptime_service = new MeterAuraUptimeService(instanceDataService, unitService, spellService);
+        this.source_meter_spell_cast_service = new MeterSpellCastsService(instanceDataService, unitService, spellService);
 
         this.subscription.add(this.source_meter_aura_uptime_service.get_data(false).subscribe(data => {
             this.source_ability_intervals = flatten_aura_uptime_to_spell_map(data);
@@ -68,7 +73,6 @@ export class GraphDataService implements OnDestroy {
                     })));
             zip(...observables).subscribe(abilities => this.source_abilities$.next(abilities));
         }));
-
         this.subscription.add(this.target_meter_aura_uptime_service.get_data(true).subscribe(data => {
             this.target_ability_intervals = flatten_aura_uptime_to_spell_map(data);
             const observables = this.target_ability_intervals
@@ -80,6 +84,18 @@ export class GraphDataService implements OnDestroy {
                         };
                     })));
             zip(...observables).subscribe(abilities => this.target_abilities$.next(abilities));
+        }));
+        this.subscription.add(this.source_meter_spell_cast_service.get_data(false).subscribe(data => {
+            const spells = data.reduce((acc, [unit_id, ab_arr]) => acc.concat(ab_arr.map(([ability_id,]) => ability_id)), []);
+            const observables = spells
+                .map((spell_id) => this.spell_service.get_localized_basic_spell(spell_id)
+                    .pipe(map(spell => {
+                        return {
+                            id: spell_id,
+                            label: spell?.localization
+                        };
+                    })));
+            zip(...observables).subscribe(abilities => this.source_spell_cast_abilities$.next(abilities));
         }));
     }
 
@@ -107,6 +123,21 @@ export class GraphDataService implements OnDestroy {
         this.selectedSourceAbilities = [...abilities];
     }
 
+    setSelectedSourceSpellCastAbilities(abilities: Array<number>): void {
+        if (this.selectedSourceSpellCastAbilities.length > abilities.length) {
+            this.remove_data_set(DataSet.SpellCasts);
+        }
+
+        this.selectedSourceSpellCastAbilities = [...abilities];
+        if (abilities.length > 0) {
+            this.add_data_set(DataSet.SpellCasts);
+        }
+    }
+
+    get_selected_source_spell_cast_spell_ids(): Array<number> {
+        return this.selectedSourceSpellCastAbilities;
+    }
+
     get_selected_source_auras(): Array<number> {
         return this.selectedSourceAbilities;
     }
@@ -129,6 +160,10 @@ export class GraphDataService implements OnDestroy {
 
     get target_abilities(): Observable<Array<{ id: number, label: string }>> {
         return this.target_abilities$.asObservable();
+    }
+
+    get source_spell_cast_abilities(): Observable<Array<{ id: number, label: string }>> {
+        return this.source_spell_cast_abilities$.asObservable();
     }
 
     // TODO: This causes many updates
@@ -194,6 +229,10 @@ export class GraphDataService implements OnDestroy {
                     .reduce((acc, [subject_id, ab_arr]) => ab_arr.reduce((i_acc, [ability_id, points]) => [...i_acc, ...points], acc), []),
                     ...await this.instanceDataService.knecht_heal.graph_data_set(data_set === DataSet.HealAndAbsorbDone ? DataSet.EffectiveHealingDone : DataSet.EffectiveHealingTaken)]
                     .sort((left, right) => left[0] - right[0])));
+                break;
+            case DataSet.SpellCasts:
+                this.commit_data_set(data_set, ((await this.instanceDataService.knecht_spell_cast.graph_data_set(data_set)) as any)
+                    .filter(pt => this.selectedSourceSpellCastAbilities.includes(pt[2])));
                 break;
         }
     }

@@ -1,7 +1,7 @@
 import {PointStyle} from "chart.js";
 import {DataSet} from "../domain_value/data_set";
 
-function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
+export function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
     switch (data_set) {
         case DataSet.Deaths: {
             const death_icon = new Image();
@@ -42,5 +42,3 @@ function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
     }
     return "circle";
 }
-
-export {get_point_style};

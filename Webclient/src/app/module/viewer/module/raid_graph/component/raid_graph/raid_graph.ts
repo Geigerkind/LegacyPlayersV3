@@ -204,6 +204,9 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     targetAbilities = [];
     selectedTargetAbilities: Array<any> = [];
 
+    sourceSpellCastAbilities = [];
+    selectedSourceSpellCastAbilities: Array<any> = [];
+
     graph_min: number = 0;
     graph_max: number = 1;
 
@@ -322,6 +325,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         });
         this.subscription.add(this.graphDataService.source_abilities.subscribe(abilities => this.sourceAbilities = abilities));
         this.subscription.add(this.graphDataService.target_abilities.subscribe(abilities => this.targetAbilities = abilities));
+        this.subscription.add(this.graphDataService.source_spell_cast_abilities.subscribe(abilities => this.sourceSpellCastAbilities = abilities));
 
         // The delay is here "ensures" that source and target abilities had been loaded
         this.subscription.add(this.graphDataService.overwrite_selection.pipe(auditTime(1000)).subscribe(filter => {
@@ -343,6 +347,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
 
             this.selectedSourceAbilitiesChanged(this.sourceAbilities.filter(ability => filter.source_auras.includes(ability.id)));
             this.selectedTargetAbilitiesChanged(this.targetAbilities.filter(ability => filter.target_auras.includes(ability.id)));
+            this.selectedSourceSpellCastAbilitiesChanged(this.sourceSpellCastAbilities.filter(ability => filter.source_spell_casts.includes(ability.id)));
 
             this.select_chart_type(chart_type_to_number(filter.mode));
             this.save_selected();
@@ -435,6 +440,11 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     selectedSourceAbilitiesChanged(abilities: Array<any>): void {
         this.selectedSourceAbilities = abilities;
         this.graphDataService.setSelectedSourceAbilities(abilities.map(item => item.id));
+    }
+
+    selectedSourceSpellCastAbilitiesChanged(abilities: Array<any>): void {
+        this.selectedSourceSpellCastAbilities = abilities;
+        this.graphDataService.setSelectedSourceSpellCastAbilities(abilities.map(item => item.id));
     }
 
     private save_selected(): void {

@@ -3,9 +3,16 @@ import {DataSet, is_event_data_set} from "../domain_value/data_set";
 import {Event} from "../../../domain_value/event";
 import {get_spell_components_total_amount} from "../../../domain_value/damage";
 import {Unit} from "../../../domain_value/unit";
-import {se_death, se_interrupt, se_un_aura} from "../../../extractor/sources";
+import {se_death, se_interrupt, se_spell_cast, se_un_aura} from "../../../extractor/sources";
 import {te_interrupt, te_un_aura} from "../../../extractor/targets";
-import {ae_heal, ae_melee_damage, ae_spell_damage, ae_threat, ae_un_aura} from "../../../extractor/abilities";
+import {
+    ae_heal,
+    ae_melee_damage,
+    ae_spell_cast,
+    ae_spell_damage,
+    ae_threat,
+    ae_un_aura
+} from "../../../extractor/abilities";
 
 export class RaidGraphKnecht {
     private static readonly MAX_DATA_POINTS: number = 300;
@@ -116,6 +123,8 @@ export class RaidGraphKnecht {
                         }
                         return se_un_aura(event);
                     }, (event) => ae_un_aura(event)[0]);
+                case DataSet.SpellCasts:
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_spell_casts(false), (event) => se_spell_cast(event), (event) => ae_spell_cast(event));
             }
             return [];
         })().sort((left, right) => left[0] - right[0]);

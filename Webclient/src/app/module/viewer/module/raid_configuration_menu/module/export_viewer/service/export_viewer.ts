@@ -59,6 +59,7 @@ export class ExportViewerService implements OnDestroy {
                 graph_events: this.graphDataService.get_selected_events(),
                 graph_selected_source_auras: this.graphDataService.get_selected_source_auras(),
                 graph_selected_target_auras: this.graphDataService.get_selected_target_auras(),
+                graph_selected_source_spell_casts: this.graphDataService.get_selected_source_spell_cast_spell_ids(),
                 meter_selections: [...this.raidMeterExportService.meter_selections.entries()],
             }
         });
@@ -89,6 +90,7 @@ export class ExportViewerService implements OnDestroy {
             events: payload.graph_events,
             source_auras: payload.graph_selected_source_auras,
             target_auras: payload.graph_selected_target_auras,
+            source_spell_casts: payload.graph_selected_source_spell_casts
         });
         for (const selection of payload.meter_selections)
             this.raidMeterExportService.meter_selections$.next(selection);
