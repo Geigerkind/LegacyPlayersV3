@@ -12,11 +12,16 @@ export class LoadingBarService {
     private update$: Subject<void> = new Subject();
     private openRequests: number = 0;
     private prevLoading: boolean = false;
+    private lastUrl: string = "";
 
     constructor(private routerService: Router) {
         this.routerService.events.subscribe(event => {
             switch (true) {
                 case event instanceof NavigationStart: {
+                    const url = (event as any).url.split('?')[0].toLowerCase();
+                    if (url != this.lastUrl)
+                        this.resetCounter();
+                    this.lastUrl = url;
                     this.incrementCounter();
                     break;
                 }
@@ -45,6 +50,11 @@ export class LoadingBarService {
 
     isLoading(): boolean {
         return this.openRequests > 0;
+    }
+
+    resetCounter(): void {
+        this.openRequests = 0;
+        this.propagate();
     }
 
     incrementCounter(): void {
