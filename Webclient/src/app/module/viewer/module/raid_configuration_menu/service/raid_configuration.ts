@@ -132,7 +132,7 @@ export class RaidConfigurationService implements OnDestroy {
 
         window.onpopstate = (evt) => {
             const last_stack_entry = evt.state;
-            if (!!last_stack_entry && !!last_stack_entry.categories) {
+            if (!!last_stack_entry && !!last_stack_entry.segments) {
                 this.update_segment_filter([...last_stack_entry.segments.values()]);
                 this.update_source_filter([...last_stack_entry.sources.values()]);
                 this.update_target_filter([...last_stack_entry.targets.values()]);
