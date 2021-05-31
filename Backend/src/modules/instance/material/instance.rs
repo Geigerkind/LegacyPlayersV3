@@ -4,12 +4,12 @@ use std::sync::{Arc, RwLock};
 use crate::material::Cachable;
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetArenaTeam, GetCharacter};
+use crate::modules::armory::util::talent_tree::get_talent_tree;
 use crate::modules::instance::domain_value::{InstanceAttempt, InstanceMeta, MetaType, PrivacyType};
 use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedKill, SpeedRun};
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::params;
 use crate::util::database::Select;
-use crate::modules::armory::util::talent_tree::get_talent_tree;
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
@@ -61,23 +61,26 @@ impl Instance {
             loop {
                 evict_attempts_cache(Arc::clone(&instance_attempts_arc_clone));
                 evict_export_cache(Arc::clone(&instance_exports_arc_clone));
-                update_instance_kill_attempts(Arc::clone(&instance_kill_attempts_clone), &mut db_main);
                 update_instance_metas(Arc::clone(&instance_metas_arc_clone), &mut db_main, &armory);
-                update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main, &armory);
-                update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main, &armory);
-                update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main, &armory);
-                calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
-                                     Arc::clone(&instance_kill_attempts_clone),
-                                     Arc::clone(&speed_runs_arc_clone), &mut db_main, &armory);
-                calculate_speed_kills(Arc::clone(&instance_metas_arc_clone),
-                                      Arc::clone(&instance_kill_attempts_clone),
-                                      Arc::clone(&speed_kills_arc_clone), &mut db_main, &armory);
 
-                if armory_counter % 4 == 0 {
+                if armory_counter % 6 == 0 {
+                    update_instance_kill_attempts(Arc::clone(&instance_kill_attempts_clone), &mut db_main);
+                    update_instance_rankings_dps(Arc::clone(&instance_rankings_dps_arc_clone), &mut db_main, &armory);
+                    update_instance_rankings_hps(Arc::clone(&instance_rankings_hps_arc_clone), &mut db_main, &armory);
+                    update_instance_rankings_tps(Arc::clone(&instance_rankings_tps_arc_clone), &mut db_main, &armory);
+                    calculate_speed_runs(Arc::clone(&instance_metas_arc_clone),
+                                         Arc::clone(&instance_kill_attempts_clone),
+                                         Arc::clone(&speed_runs_arc_clone), &mut db_main, &armory);
+                    calculate_speed_kills(Arc::clone(&instance_metas_arc_clone),
+                                          Arc::clone(&instance_kill_attempts_clone),
+                                          Arc::clone(&speed_kills_arc_clone), &mut db_main, &armory);
+                }
+
+                if armory_counter % 12 == 0 {
                     armory.update(&mut db_main);
                 }
                 armory_counter += 1;
-                std::thread::sleep(std::time::Duration::from_secs(15));
+                std::thread::sleep(std::time::Duration::from_secs(5));
             }
         });
         self
@@ -158,7 +161,7 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMe
             guild_name,
             server_id: instance_meta.server_id,
             duration: end - start,
-            difficulty_id: attempts[0].difficulty_id
+            difficulty_id: attempts[0].difficulty_id,
         });
     }
 }
@@ -194,7 +197,7 @@ fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 guild_name: guild_name.clone(),
                 server_id: instance_meta.server_id,
                 duration: attempt.end_ts - attempt.start_ts,
-                difficulty_id: attempt.difficulty_id
+                difficulty_id: attempt.difficulty_id,
             });
         }
     }
@@ -213,7 +216,7 @@ fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMa
                                    end_ts: row.take(4).unwrap(),
                                    is_kill: true,
                                    difficulty_id: row.take(5).unwrap(),
-                                   rankable: row.take(6).unwrap()
+                                   rankable: row.take(6).unwrap(),
                                }), params!("saved_attempt_id" => kill_attempts.0))
         .into_iter()
         .for_each(|(instance_meta_id, instance_attempt)| {
@@ -269,7 +272,7 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
                 difficulty_id,
                 character_spec: armory.get_character_moment(db_main, character_id, start_ts)
                     .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
-                    .unwrap_or(0)
+                    .unwrap_or(0),
             });
         });
 }
@@ -320,7 +323,7 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
                 difficulty_id,
                 character_spec: armory.get_character_moment(db_main, character_id, start_ts)
                     .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
-                    .unwrap_or(0)
+                    .unwrap_or(0),
             });
         });
 }
@@ -371,7 +374,7 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
                 difficulty_id,
                 character_spec: armory.get_character_moment(db_main, character_id, start_ts)
                     .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
-                    .unwrap_or(0)
+                    .unwrap_or(0),
             });
         });
 }
@@ -426,7 +429,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(7).unwrap(),
                 upload_id: row.take(8).unwrap(),
-                privacy_type: PrivacyType::new(row.take(9).unwrap(), row.take(10).unwrap())
+                privacy_type: PrivacyType::new(row.take(9).unwrap(), row.take(10).unwrap()),
             }, params.clone(),
         )
         .into_iter()
@@ -485,7 +488,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                     },
                     uploaded_user,
                     upload_id,
-                    privacy_type: PrivacyType::new(privacy_type, privacy_ref)
+                    privacy_type: PrivacyType::new(privacy_type, privacy_ref),
                 },
             );
         });
@@ -510,7 +513,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(7).unwrap(),
                 upload_id: row.take(8).unwrap(),
-                privacy_type: PrivacyType::new(row.take(9).unwrap(), row.take(10).unwrap())
+                privacy_type: PrivacyType::new(row.take(9).unwrap(), row.take(10).unwrap()),
             }, params.clone(),
         )
         .into_iter()
@@ -541,7 +544,7 @@ fn update_instance_metas(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 },
                 uploaded_user: row.take(9).unwrap(),
                 upload_id: row.take(10).unwrap(),
-                privacy_type: PrivacyType::new(row.take(11).unwrap(), row.take(12).unwrap())
+                privacy_type: PrivacyType::new(row.take(11).unwrap(), row.take(12).unwrap()),
             }, params.clone(),
         )
         .into_iter()

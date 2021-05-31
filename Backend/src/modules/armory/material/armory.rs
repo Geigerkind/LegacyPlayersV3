@@ -65,7 +65,7 @@ impl Init for HashMap<u32, Character> {
             let max_left = left.1.history_moments.iter().max_by(|i_left, i_right| i_left.id.cmp(&i_right.id)).map(|hm| hm.id).unwrap_or(0);
             let max_right = right.1.history_moments.iter().max_by(|i_left, i_right| i_left.id.cmp(&i_right.id)).map(|hm| hm.id).unwrap_or(0);
             max_left.cmp(&max_right)
-        }).map(|(id, _)| *id).unwrap_or(0);
+        }).map(|(_, char)| char.last_update.as_ref().unwrap().id).unwrap_or(0);
 
         // Loading the character itself
         db.select_wparams("SELECT * FROM armory_character A WHERE A.id > :character_id", |mut row| Character {
