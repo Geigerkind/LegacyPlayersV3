@@ -1,5 +1,5 @@
 local RPLL_HELPER = RPLL_HELPER
-RPLL_HELPER.VERSION = 2
+RPLL_HELPER.VERSION = 3
 RPLL_HELPER.MESSAGE_PREFIX = "RPLL_H_"
 RPLL_HELPER.PlayerInfo = {}
 
@@ -31,17 +31,21 @@ local NotifyInspect = NotifyInspect
 
 local inspect_pending = false
 RPLL_HELPER.ZONE_CHANGED_NEW_AREA = function()
-    NotifyInspect("player")
-    inspect_pending = true
+    if not inspect_pending then
+        NotifyInspect("player")
+        inspect_pending = true
+    end
 end
 
 RPLL_HELPER.PLAYER_GUILD_UPDATE = function()
-    NotifyInspect("player")
-    inspect_pending = true
+    if not inspect_pending then
+        NotifyInspect("player")
+        inspect_pending = true
+    end
 end
 
 RPLL_HELPER.UNIT_INVENTORY_CHANGED = function(unit)
-    if unit == "player" then
+    if unit == "player" and not inspect_pending then
         NotifyInspect("player")
         inspect_pending = true
     end
@@ -64,8 +68,10 @@ RPLL_HELPER.PLAYER_ENTERING_WORLD = function()
     LOOT_ITEM = "%s receives loot: %sx1."
     LOOT_ITEM_SELF_MULTIPLE = player_name .. " receives loot: %sx%d."
 
-    NotifyInspect("player")
-    inspect_pending = true
+    if not inspect_pending then
+        NotifyInspect("player")
+        inspect_pending = true
+    end
     RPLL_HELPER:SendMessage("Initialized!")
 end
 
@@ -107,10 +113,10 @@ local inspect_ready = false
 RPLL_HELPER:RegisterEvent("INSPECT_TALENT_READY")
 RPLL_HELPER.INSPECT_TALENT_READY = function()
     if inspect_pending then
-        inspect_pending = false
         inspect_ready = true
         RPLL_HELPER:grab_player_information()
         inspect_ready = false
+        inspect_pending = false
     end
 end
 
