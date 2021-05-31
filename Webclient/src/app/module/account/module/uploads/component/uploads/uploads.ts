@@ -81,8 +81,9 @@ export class UploadsComponent implements OnInit {
                 ],
                 col_type: 0
             });
-            filter["privacy"] = table_create_empty_filter();
         }
+        if (!filter["privacy"])
+            filter["privacy"] = table_create_empty_filter();
 
         this.last_filter = filter;
         this.onFilter(filter);
