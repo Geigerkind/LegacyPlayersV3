@@ -54,6 +54,7 @@ export class AddonsComponent implements OnInit {
     ngOnInit(): void {
         const filter = table_init_filter(this.header_columns);
         if (!this.settingsService.check("table_filter_addon_search")) {
+            filter.name.sorting = false;
             this.settingsService.set("table_filter_addon_search", filter);
         }
         this.apiService.get(AddonsComponent.URL_ADDONS, (addons) => {
