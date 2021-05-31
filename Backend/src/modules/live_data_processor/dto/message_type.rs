@@ -31,6 +31,7 @@ pub enum MessageType {
     InstanceMap(InstanceMap),
     EncounterStart(u32),
     EncounterEnd(u32),
+    SpellCastAttempt(SpellCast)
 }
 
 impl MessageType {
@@ -55,6 +56,7 @@ impl MessageType {
             MessageType::Event(item) => Some(item.unit.clone()),
             MessageType::Summon(item) => Some(item.unit.clone()),
             MessageType::Interrupt(item) => Some(item.target.clone()),
+            MessageType::SpellCastAttempt(item) => Some(item.caster.clone()),
 
             // TODO!
             _ => None,

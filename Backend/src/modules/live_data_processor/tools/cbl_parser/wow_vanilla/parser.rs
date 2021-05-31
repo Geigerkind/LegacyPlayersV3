@@ -112,6 +112,7 @@ impl CombatLogParser for WoWVanillaParser {
             static ref RE_DAMAGE_REFLECT: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) is reflected back by (.+[^\s])\.").unwrap();
             static ref RE_DAMAGE_PROC_RESIST: Regex = Regex::new(r"(.+[^\s]) resists (.+[^\s])\s's (.+[^\s])\.").unwrap();
             static ref RE_DAMAGE_SPELL_IMMUNE: Regex = Regex::new(r"(.+[^\s])\s's (.+[^\s]) fails\. (.+[^\s]) is immune\.").unwrap();
+            static ref RE_SPELL_CAST_ATTEMPT: Regex = Regex::new(r"(.+[^\s]) begins to cast (.+[^\s])\.").unwrap();
 
             static ref RE_DAMAGE_SHIELD: Regex = Regex::new(r"(.+[^\s]) reflects (\d+) ([a-zA-Z]+) damage to (.+[^\s])\.").unwrap(); // Ability?
 
@@ -143,6 +144,18 @@ impl CombatLogParser for WoWVanillaParser {
 
         if RE_BUG_DAMAGE_SPELL_HIT_OR_CRIT.captures(&content).is_some() {
             return None;
+        }
+
+        if let Some(captures) = RE_SPELL_CAST_ATTEMPT.captures(&content) {
+            let caster = parse_unit(&mut self.cache_unit, data, captures.get(1)?.as_str())?;
+            let spell_id = parse_spell_args(&mut self.cache_spell_id, data, captures.get(2)?.as_str())?;
+
+            return Some(vec![MessageType::SpellCastAttempt(SpellCast {
+                caster,
+                target: None,
+                spell_id,
+                hit_mask: HitType::Hit as u32,
+            })]);
         }
 
         if let Some(captures) = RE_GAIN.captures(&content) {

@@ -1,13 +1,13 @@
 use std::cmp::Ordering;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 
 use chrono::{Datelike, NaiveDateTime};
 
 use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::data::Data;
-use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
-use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, SpellCast, Unit};
+use crate::modules::data::tools::{RetrieveNPC, RetrieveServer, RetrieveSpell};
+use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, SpellCast, Unit, Interrupt};
 use crate::modules::live_data_processor::material::{IntervalBucket, Participant, RetrieveActiveMap};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
@@ -167,6 +167,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut unit_last_instance_leave = HashMap::new();
     let mut pom_owner = HashMap::new();
     let mut looking_for_new_pom_owner = None;
+    let mut recent_spell_casts: VecDeque<(u64, SpellCast)> = VecDeque::new();
 
     for Message { timestamp, message_count, message_type, .. } in messages.iter_mut() {
         // Insert Instance Map Messages
@@ -258,10 +259,36 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             current_map = None;
         }
 
+        // Register timeouts
+        if parser.get_expansion_id() == 1 {
+            for (index, (ts, spell_cast)) in recent_spell_casts.clone().iter().enumerate().rev() {
+                if let Some(spell) = data.get_spell(1, spell_cast.spell_id) {
+                    if ((spell.cast_time + 500) as u64) < (*timestamp - *ts) {
+                        additional_messages.push(Message::new_parsed(
+                            *ts + ((3 * (spell.cast_time / 4)) as u64),
+                            *message_count - 1,
+                            MessageType::Interrupt(Interrupt {
+                                target: spell_cast.caster.clone(),
+                                interrupted_spell_id: spell_cast.spell_id
+                            }),
+                        ));
+                        recent_spell_casts.remove(index);
+                    }
+                } else {
+                    recent_spell_casts.remove(index);
+                }
+            }
+        }
+
         // Insert Combat Start/End Events
         // We assume CBT Start when we see it doing sth
         // We assume end if it dies or after a timeout
         match message_type {
+            MessageType::SpellCastAttempt(cast) => {
+                if !cast.caster.is_player {
+                    recent_spell_casts.push_back((*timestamp, cast.clone()));
+                }
+            },
             MessageType::MeleeDamage(dmg) | MessageType::SpellDamage(dmg) => {
                 static IN_COMBAT_DEATH_TIMEOUT: u64 = 180000;
                 static IN_COMBAT_DEATH_IGNORE_IMMEDIATE_TIMEOUT: u64 = 20000;

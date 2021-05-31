@@ -27,7 +27,7 @@ pub fn try_parse_interrupt(recently_committed_spell_cast_and_aura_applications: 
 }
 
 // "Kick", "Pummel", "Shield Bash", "Counterspell", "Earth Shock",  "Silence", "Spell Lock", "Wind Shear", "Mind Freeze"
-fn spell_is_direct_interrupt(spell_id: u32) -> bool {
+pub fn spell_is_direct_interrupt(spell_id: u32) -> bool {
     lazy_static! {
         static ref DIRECT_INTERRUPTS: BTreeSet<u32> = [
             42, // UNKNOWN
@@ -47,7 +47,7 @@ fn spell_is_direct_interrupt(spell_id: u32) -> bool {
 // Used Spells: "Gouge", "Death Coil", "Kidney Shot", "Cheap Shot", "Scatter Shot", "Improved Concussive Shot", "Wyvern Sting",
 // "Intimidation", "Charge Stun",  "Intercept Stun", "Concussive Blow", "Feral Charge", "Feral Charge Effect",
 // "Bash", "Pounce", "Impact", "Repentance", "Hammer of Justice",  "Pyroclasm", "Blackout", "Tidal Charm", "Reckless Charge", "Arcane Torrent"
-fn spell_is_indirect_interrupt(spell_id: u32) -> bool {
+pub fn spell_is_indirect_interrupt(spell_id: u32) -> bool {
     lazy_static! {
         static ref INDIRECT_INTERRUPTS: BTreeSet<u32> = [
             42, // UNKNOWN
