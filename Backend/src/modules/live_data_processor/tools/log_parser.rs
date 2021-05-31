@@ -7,7 +7,7 @@ use crate::modules::armory::Armory;
 use crate::modules::armory::tools::{GetCharacter, SetCharacter};
 use crate::modules::data::Data;
 use crate::modules::data::tools::{RetrieveNPC, RetrieveServer};
-use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, Unit, SpellCast};
+use crate::modules::live_data_processor::dto::{CombatState, InstanceMap, Message, MessageType, SpellCast, Unit};
 use crate::modules::live_data_processor::material::{IntervalBucket, Participant, RetrieveActiveMap};
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
@@ -124,9 +124,11 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     let mut suggested_instances = Vec::new();
     for Message { message_type, timestamp, .. } in bonus_messages.iter() {
         if let MessageType::InstanceMap(map) = message_type {
-            let instance_id = if map.instance_id == 0 { rand::random::<u32>() } else { map.instance_id };
+            // We cant deal with instance whose difficulties share the instance_id, like ICC
+            // let instance_id = if map.instance_id == 0 { rand::random::<u32>() } else { map.instance_id };
+            let instance_id = rand::random::<u32>();
             let instance_key = (map.map_id as u16, if map.map_difficulty == 0 { None } else { Some(map.map_difficulty) });
-            if map.instance_id > 0 || !instance_ids.contains_key(&instance_key) {
+            if !instance_ids.contains_key(&instance_key) {
                 instance_ids.insert(instance_key, instance_id);
             }
             suggested_instances.push((*timestamp, map.map_id as u16, map.map_difficulty));
@@ -157,7 +159,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     parsed_participants.push(unknown_participant);
     let active_maps = parser.get_active_maps();
 
-    let mut current_map = None;
+    let mut current_map: Option<(u16, Option<u8>, u64)> = None;
     let mut participants = HashMap::new();
     let mut last_combat_update = HashMap::new();
     let mut unit_died_recently = HashMap::new();
@@ -169,8 +171,23 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
     for Message { timestamp, message_count, message_type, .. } in messages.iter_mut() {
         // Insert Instance Map Messages
         if let Some((map_id, difficulty)) = active_maps.get_current_active_map(&suggested_instances, &player_participants_by_interval, expansion_id, *timestamp) {
-            if !current_map.contains(&(map_id, difficulty)) {
-                current_map = Some((map_id, difficulty));
+            if current_map.is_none() || current_map.unwrap().0 != map_id || current_map.unwrap().1 != difficulty {
+                current_map = Some((map_id, difficulty, *timestamp));
+                for (unit_id, is_player) in participants.iter() {
+                    if let Some(last_cbt_state) = last_combat_update.get(unit_id) {
+                        additional_messages.push(Message {
+                            api_version: 0,
+                            message_length: 0,
+                            timestamp: *last_cbt_state + 5,
+                            message_count: *message_count,
+                            message_type: MessageType::CombatState(CombatState {
+                                unit: Unit { is_player: *is_player, unit_id: *unit_id },
+                                in_combat: false,
+                            }),
+                        });
+                        last_combat_update.remove(unit_id);
+                    }
+                }
                 participants.clear();
             };
 
@@ -194,6 +211,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                 if let Some(last_leave_ts) = unit_last_instance_leave.get(&unit_id) {
                     join_instance_ts = join_instance_ts.max(*last_leave_ts + 1);
                 }
+                join_instance_ts = join_instance_ts.max(current_map.unwrap().2);
 
                 additional_messages.push(Message::new_parsed(
                     join_instance_ts,
@@ -377,7 +395,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
                                     }
                                     None
                                 }) {
-                                    if let Some((map_id, difficulty)) = current_map {
+                                    if let Some((map_id, difficulty, _)) = current_map {
                                         let instance_id = *instance_ids.entry((map_id, difficulty)).or_insert_with(rand::random::<u32>);
                                         additional_messages.push(Message::new_parsed(
                                             (*timestamp as i64 + delay_ts - 1) as u64,
@@ -448,7 +466,7 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
 
     messages.append(&mut bonus_messages.into_iter().filter(|msg| {
         match &msg.message_type {
-            MessageType::InstanceMap(map) => map.instance_id > 0,
+            MessageType::InstanceMap(_) => false,
             _ => true
         }
     }).collect());

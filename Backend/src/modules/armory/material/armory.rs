@@ -235,7 +235,11 @@ impl Init for HashMap<u32, Guild> {
                 self.insert(result.id, result);
             });
 
-        db.select_wparams("SELECT * FROM armory_guild_rank A WHERE A.guild_id > :guild_id ORDER BY A.guild_id, A.rank_index", |mut row| {
+        for (_, guild) in self.iter_mut() {
+            guild.ranks.clear();
+        }
+
+        db.select("SELECT * FROM armory_guild_rank A ORDER BY A.guild_id, A.rank_index", |mut row| {
             let guild_id: u32 = row.take(0).unwrap();
 
             (
@@ -245,7 +249,7 @@ impl Init for HashMap<u32, Guild> {
                     name: row.take(2).unwrap(),
                 },
             )
-        }, params!("guild_id" => max_guild_id))
+        })
             .into_iter()
             .for_each(|(guild_id, guild_rank)| {
                 let guild = self.get_mut(&guild_id).unwrap();
