@@ -223,6 +223,8 @@ fn main() {
                 data::transfer::encounter::get_all_encounters_localized,
                 data::transfer::encounter_npc::get_encounter_npc,
                 data::transfer::encounter_npc::get_all_encounter_npcs,
+                data::transfer::addon::get_addon,
+                data::transfer::addon::get_all_addons,
             ],
         )
         .mount(

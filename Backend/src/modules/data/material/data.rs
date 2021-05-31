@@ -1,16 +1,17 @@
 use std::collections::HashMap;
+use std::sync::RwLock;
 
-use crate::modules::data::domain_value::{Difficulty, Encounter, EncounterNpc, Map};
+use language::material::Dictionary;
+
 use crate::modules::data::{
     domain_value::{
-        DispelType, Enchant, Expansion, Gem, HeroClass, HeroClassTalent, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemRandomPropertyPoints, ItemSheath,
-        ItemSocket, ItemStat, ItemsetEffect, ItemsetName, Language, Localization, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title, NPC,
+        DispelType, Enchant, Expansion, Gem, HeroClass, HeroClassTalent, Icon, Item, ItemBonding, ItemClass, ItemDamage, ItemDamageType, ItemEffect, ItemInventoryType, ItemQuality, ItemRandomProperty, ItemRandomPropertyPoints, ItemsetEffect,
+        ItemsetName, ItemSheath, ItemSocket, ItemStat, Language, Localization, NPC, PowerType, Profession, Race, Server, Spell, SpellEffect, Stat, StatType, Title,
     },
     language::init::Init as DictionaryInit,
 };
+use crate::modules::data::domain_value::{Addon, Difficulty, Encounter, EncounterNpc, Map};
 use crate::util::database::*;
-use language::material::Dictionary;
-use std::sync::RwLock;
 
 #[derive(Debug)]
 pub struct Data {
@@ -51,6 +52,7 @@ pub struct Data {
     pub difficulties: HashMap<u8, Difficulty>,
     pub encounters: HashMap<u32, Encounter>,
     pub encounter_npcs: HashMap<u32, EncounterNpc>,
+    pub addons: HashMap<u32, Addon>,
 }
 
 impl Default for Data {
@@ -95,6 +97,7 @@ impl Default for Data {
             difficulties: HashMap::new(),
             encounters: HashMap::new(),
             encounter_npcs: HashMap::new(),
+            addons: HashMap::new(),
         }
     }
 }
@@ -140,6 +143,7 @@ impl Data {
         self.difficulties.init(db_main);
         self.encounters.init(db_main);
         self.encounter_npcs.init(db_main);
+        self.addons.init(db_main);
         self
     }
 }
@@ -147,6 +151,23 @@ impl Data {
 // Initializer for the collections
 pub trait Init {
     fn init(&mut self, db_main: &mut impl Select);
+}
+
+impl Init for HashMap<u32, Addon> {
+    fn init(&mut self, db_main: &mut impl Select) {
+        db_main
+            .select("SELECT * FROM data_addon", |mut row| Addon {
+                id: row.take(0).unwrap(),
+                expansion_id: row.take(1).unwrap(),
+                addon_name: row.take(2).unwrap(),
+                addon_desc: row.take(3).unwrap(),
+                url_name: row.take(4).unwrap(),
+            })
+            .into_iter()
+            .for_each(|result| {
+                self.insert(result.id, result);
+            });
+    }
 }
 
 impl Init for HashMap<u8, Expansion> {
@@ -239,7 +260,7 @@ impl Init for HashMap<u32, Server> {
                 owner: row.take_opt(3).unwrap().ok(),
                 patch: row.take(4).unwrap(),
                 retail_id: row.take_opt(5).unwrap().ok(),
-                archived: row.take(6).unwrap()
+                archived: row.take(6).unwrap(),
             })
             .into_iter()
             .for_each(|result| {

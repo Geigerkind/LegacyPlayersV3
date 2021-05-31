@@ -4,7 +4,7 @@ pub use self::{
     item_inventory_type::RetrieveItemInventoryType, item_quality::RetrieveItemQuality, item_random_property::RetrieveItemRandomProperty, item_random_property_points::RetrieveItemRandomPropertyPoints, item_sheath::RetrieveItemSheath,
     item_socket::RetrieveItemSocket, item_stat::RetrieveItemStat, itemset_effect::RetrieveItemsetEffect, itemset_name::RetrieveItemsetName, language::RetrieveLanguage, localization::RetrieveLocalization, map::RetrieveMap, npc::RetrieveNPC,
     power_type::RetrievePowerType, profession::RetrieveProfession, race::RetrieveRace, server::RetrieveServer, spell::RetrieveSpell, spell_description::SpellDescription, spell_effect::RetrieveSpellEffect, stat_type::RetrieveStatType,
-    title::RetrieveTitle,
+    title::RetrieveTitle, addon::RetrieveAddon
 };
 
 mod difficulty;
@@ -44,3 +44,4 @@ mod spell_description;
 mod spell_effect;
 mod stat_type;
 mod title;
+mod addon;
