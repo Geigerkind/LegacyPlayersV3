@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 24
+RPLL.VERSION = 25
 RPLL.MAX_MESSAGE_LENGTH = 300
 RPLL.CONSOLIDATE_CHARACTER = "{"
 RPLL.MESSAGE_PREFIX = "RPLL_H_"
@@ -773,7 +773,7 @@ function RPLL:RotateSpellFailedMessages()
         end
         result = current_result
         RPLL.ExtraMessageIndex = RPLL.ExtraMessageIndex + consolidate_count
-    elseif RPLL.RotationIndex <= RPLL.RotationLength then
+    elseif RPLL.RotationIndex <= RPLL.RotationLength and RPLL.PlayerInformation[RPLL.PlayerRotation[RPLL.RotationIndex]] ~= nil then
         result = "COMBATANT_INFO: "..RPLL:SerializePlayerInformation()
         RPLL.RotationIndex = RPLL.RotationIndex + 1
     else
