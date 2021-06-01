@@ -7,7 +7,7 @@
     <ng-container *ngIf="!enable_ads">
         <router-outlet></router-outlet>
     </ng-container>
-    <ng-container *ngIf="!isMobile && enable_ads">
+    <ng-container *ngIf="!isMobile && enough_width_for_side_ads && enable_ads">
         <div id="left_bar" *ngIf="false">
             <div class="vm-placement" data-id="609a80894e3663176463205f"></div>
         </div>
@@ -35,7 +35,7 @@
             </div>
         </div>
     </ng-container>
-    <ng-container *ngIf="isMobile && enable_ads">
+    <ng-container *ngIf="(isMobile || !enough_width_for_side_ads) && enable_ads">
         <div id="center_bar_mobile">
             <div id="top_layer">
                 <div class="vm-placement" data-id="609a80ac4e36631764632065"></div>
