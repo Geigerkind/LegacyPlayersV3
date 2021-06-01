@@ -85,7 +85,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
             });
         }));
         this.subscriptions.add(this.speedKillService.all_speed_kills.subscribe(speed_kills => {
-            const data = group_by(speed_kills.filter(speed_kill => speed_kill.server_id === this.server_id), (speed_kill) => speed_kill.encounter_id.toString() + "," + speed_kill.difficulty_id.toString());
+            const data = group_by(speed_kills.filter(speed_kill => speed_kill.server_id === this.server_id).sort((left, right) => left.duration - right.duration), (speed_kill) => speed_kill.encounter_id.toString() + "," + speed_kill.difficulty_id.toString());
             for (const group in data)
                 data[group] = enumerate(data[group]).filter(([index, speed_kill]) => speed_kill.guild_id === this.guild_id);
             const result = [];

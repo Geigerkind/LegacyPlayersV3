@@ -116,6 +116,7 @@ impl CharacterViewer for Armory {
                 })
                 .or_else(|| Some(character_history.character_name.clone()))
                 .unwrap(),
+            server_id: server.id,
             server_name: server.name.clone(),
             guild: character_history.character_guild.map(|guild| CharacterViewerGuildDto {
                 guild_id: guild.guild_id,

@@ -2,11 +2,15 @@ import {Component} from "@angular/core";
 import {ActivatedRoute, Router} from "@angular/router";
 import {CharacterViewerService} from "../../service/character_viewer";
 import {CharacterViewerDto} from "../../domain_value/character_viewer_dto";
+import {RankingService} from "../../../../../pve/module/ranking/service/ranking";
 
 @Component({
     selector: "CharacterViewer",
     templateUrl: "./character_viewer.html",
-    styleUrls: ["./character_viewer.scss"]
+    styleUrls: ["./character_viewer.scss"],
+    providers: [
+        RankingService
+    ]
 })
 export class CharacterViewerComponent {
 

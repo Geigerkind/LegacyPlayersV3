@@ -88,7 +88,7 @@ export class SpeedRunsComponent implements OnInit, OnDestroy {
             });
         }));
         this.subscriptions.add(this.speedRunService.all_speed_runs.subscribe(speed_runs => {
-            const data = group_by(speed_runs.filter(speed_run => speed_run.server_id === this.server_id), (speed_run) => speed_run.map_id.toString() + "," + speed_run.difficulty_id.toString());
+            const data = group_by(speed_runs.filter(speed_run => speed_run.server_id === this.server_id).sort((left, right) => left.duration - right.duration), (speed_run) => speed_run.map_id.toString() + "," + speed_run.difficulty_id.toString());
             for (const group in data)
                 data[group] = enumerate(data[group]).filter(([index, speed_run]) => speed_run.guild_id === this.guild_id);
             const result = [];

@@ -11,6 +11,7 @@ export interface CharacterViewerDto {
     hero_class_id: number;
     level: number;
     name: string;
+    server_id: number;
     server_name: string;
     guild: { guild_id: number, name: string, rank: string } | undefined;
     history: Array<SelectOption>;

@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {APIService} from "../../../../../service/api";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {RankingResult} from "../domain_value/ranking_result";
 import {RankingCharacterMeta} from "../domain_value/ranking_character_meta";
 import {RankingRow} from "../domain_value/ranking_row";
@@ -15,6 +15,9 @@ export class RankingService {
     private static readonly URL_INSTANCE_ATTEMPT_DELETE: string = "/instance/ranking/unrank";
 
     private rankings$: BehaviorSubject<Array<RankingRow>> = new BehaviorSubject([]);
+    private dps_rankings$: Subject<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> = new Subject();
+    private hps_rankings$: Subject<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> = new Subject();
+    private tps_rankings$: Subject<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> = new Subject();
 
     private dps_rankings: Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> = [];
     private hps_rankings: Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> = [];
@@ -30,10 +33,34 @@ export class RankingService {
     constructor(
         private apiService: APIService
     ) {
+        this.apiService.get(RankingService.URL_INSTANCE_RANKING_DPS, result => {
+            this.dps_rankings = result;
+            this.dps_rankings$.next(result);
+        });
+        this.apiService.get(RankingService.URL_INSTANCE_RANKING_HPS, result => {
+            this.hps_rankings = result;
+            this.hps_rankings$.next(result);
+        });
+        this.apiService.get(RankingService.URL_INSTANCE_RANKING_TPS, result => {
+            this.tps_rankings = result;
+            this.tps_rankings$.next(result);
+        });
     }
 
     get rankings(): Observable<Array<RankingRow>> {
         return this.rankings$.asObservable();
+    }
+
+    get all_dps_rankings(): Observable<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> {
+        return this.dps_rankings$.asObservable();
+    }
+
+    get all_hps_rankings(): Observable<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> {
+        return this.hps_rankings$.asObservable();
+    }
+
+    get all_tps_rankings(): Observable<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> {
+        return this.tps_rankings$.asObservable();
     }
 
     select(mode: number, selection: number, encounter_ids: Array<number>, hero_class_ids: Array<number>, server_ids: Array<number>, difficulty_ids: Array<number>): void {
@@ -112,6 +139,7 @@ export class RankingService {
     private load_dps(): void {
         this.apiService.get(RankingService.URL_INSTANCE_RANKING_DPS, result => {
             this.dps_rankings = result;
+            this.dps_rankings$.next(result);
             this.commit();
         });
     }
@@ -119,6 +147,7 @@ export class RankingService {
     private load_hps(): void {
         this.apiService.get(RankingService.URL_INSTANCE_RANKING_HPS, result => {
             this.hps_rankings = result;
+            this.hps_rankings$.next(result);
             this.commit();
         });
     }
@@ -126,6 +155,7 @@ export class RankingService {
     private load_tps(): void {
         this.apiService.get(RankingService.URL_INSTANCE_RANKING_TPS, result => {
             this.tps_rankings = result;
+            this.tps_rankings$.next(result);
             this.commit();
         });
     }
