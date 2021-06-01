@@ -21,7 +21,7 @@ export class AppComponent implements OnInit, OnChanges {
     title = "LegacyPlayers";
     private googleAnalyticsSubscription: Subscription
 
-    enable_ads: boolean = false;
+    enable_ads: boolean = true;
     is_on_viewer_site: boolean = false;
     enough_bottom_space: boolean = false;
 
