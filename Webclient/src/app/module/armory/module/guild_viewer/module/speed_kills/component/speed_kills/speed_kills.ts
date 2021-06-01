@@ -24,6 +24,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     @Input() guild_id: number;
+    @Input() server_id: number;
 
     header_columns: Array<HeaderColumn> = [
         {
@@ -87,7 +88,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
             });
         }));
         this.subscriptions.add(this.speedKillService.all_speed_kills.subscribe(speed_kills => {
-            const data = group_by(speed_kills, (speed_kill) => speed_kill.encounter_id);
+            const data = group_by(speed_kills.filter(speed_kill => speed_kill.server_id === this.server_id), (speed_kill) => speed_kill.encounter_id);
             for (const group in data)
                 data[group] = enumerate(data[group]).filter(([index, speed_kill]) => speed_kill.guild_id === this.guild_id);
             const result = [];
