@@ -99,6 +99,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
     update(speed_kills: Array<SpeedKill>): void {
         this.body_columns = [];
         for (const speed_kill of speed_kills) {
+            console.log("SK:", speed_kill);
             this.body_columns.push({
                 color: "", columns: [
                     {
