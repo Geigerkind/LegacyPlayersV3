@@ -37,6 +37,12 @@
     align-self: flex-start;
 }
 
+.center_no_ads {
+    height: 100%;
+    width: 100%;
+    align-self: flex-start;
+}
+
 #left_bar, #right_bar {
     display: flex;
     flex-direction: column;
