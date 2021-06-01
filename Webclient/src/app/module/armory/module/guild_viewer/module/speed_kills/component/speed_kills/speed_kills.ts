@@ -12,6 +12,7 @@ import {DateService} from "../../../../../../../../service/date";
 import {Router} from "@angular/router";
 import {group_by} from "../../../../../../../../stdlib/group_by";
 import {min_by} from "../../../../../../../../stdlib/min_by";
+import {enumerate} from "../../../../../../../../stdlib/enumerate";
 
 @Component({
     selector: "SpeedKills",
@@ -27,6 +28,14 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
     header_columns: Array<HeaderColumn> = [
         {
             index: 0,
+            filter_name: 'rank',
+            labelKey: "Armory.GuildViewer.SpeedKill.Rank",
+            type: 1,
+            type_range: null,
+            col_type: 3
+        },
+        {
+            index: 1,
             filter_name: 'encounter',
             labelKey: "Armory.GuildViewer.SpeedKill.Encounter",
             type: 3,
@@ -34,7 +43,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
             col_type: 0
         },
         {
-            index: 1,
+            index: 2,
             filter_name: 'difficulty',
             labelKey: "Armory.GuildViewer.SpeedKill.Difficulty",
             type: 3,
@@ -42,7 +51,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
             col_type: 3
         },
         {
-            index: 2,
+            index: 3,
             filter_name: 'duration',
             labelKey: "Armory.GuildViewer.SpeedKill.Duration",
             type: 1,
@@ -51,7 +60,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
         },
     ];
     clientSide: boolean = true;
-    responsiveHeadColumns: Array<number> = [0];
+    responsiveHeadColumns: Array<number> = [0, 1];
     responsiveModeWidthInPx: number = 500;
     body_columns: Array<BodyRow> = [];
     total_num: number = 0;
@@ -69,19 +78,21 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.dataService.encounters.subscribe(encounters => {
             encounters.forEach(encounter => {
                 this.encounter_map.set(encounter.base.id, encounter.localization);
-                this.header_columns[0].type_range.push({value: encounter.base.id, label_key: encounter.localization});
+                this.header_columns[1].type_range.push({value: encounter.base.id, label_key: encounter.localization});
             });
         }));
         this.subscriptions.add(this.dataService.difficulties.subscribe(difficulties => {
             difficulties.forEach(difficulty => {
-                this.header_columns[1].type_range.push({value: difficulty.base.id, label_key: difficulty.localization});
+                this.header_columns[2].type_range.push({value: difficulty.base.id, label_key: difficulty.localization});
             });
         }));
         this.subscriptions.add(this.speedKillService.all_speed_kills.subscribe(speed_kills => {
-            const data = group_by(speed_kills.filter(speed_kill => speed_kill.guild_id === this.guild_id), (speed_kill) => speed_kill.encounter_id);
+            const data = group_by(speed_kills, (speed_kill) => speed_kill.encounter_id);
+            for (const group in data)
+                data[group] = enumerate(data[group]).filter(([index, speed_kill]) => speed_kill.guild_id === this.guild_id);
             const result = [];
             for (const group in data)
-                result.push(min_by(data[group], (entry) => entry.duration));
+                result.push(min_by(data[group], ([index, entry]) => entry.duration));
             this.update(result);
         }));
     }
@@ -89,16 +100,21 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         const filter = table_init_filter(this.header_columns);
         if (!this.settingsService.check("table_filter_guild_speed_kills_search")) {
-            filter.encounter.sorting = false;
+            filter.rank.sorting = false;
             this.settingsService.set("table_filter_guild_speed_kills_search", filter);
         }
     }
 
-    update(speed_kills: Array<SpeedKill>): void {
+    update(speed_kills: Array<[number, SpeedKill]>): void {
         this.body_columns = [];
-        for (const speed_kill of speed_kills) {
+        for (const [index, speed_kill] of speed_kills) {
             this.body_columns.push({
                 color: "", columns: [
+                    {
+                        type: 1,
+                        content: (index + 1).toString(),
+                        args: null
+                    },
                     {
                         type: 3,
                         content: speed_kill.encounter_id.toString(),

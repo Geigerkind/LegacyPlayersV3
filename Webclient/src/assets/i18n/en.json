@@ -87,6 +87,7 @@
             "rank": "Rank",
             "last_update": "Updated",
             "SpeedKill": {
+                "Rank": "Rank",
                 "Encounter": "Encounter",
                 "Difficulty": "Difficulty",
                 "Duration": "Duration"

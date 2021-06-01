@@ -1,7 +1,7 @@
 <Table [bodyRows]="body_columns" [headColumns]="header_columns" [clientSide]="clientSide"
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
        [numItems]="total_num" unique_id="guild_speed_kills_search" [enableShare]="false"
-       [et_row_items]="[encounter, undefined, detailed_ts]">
+       [et_row_items]="[undefined, encounter, undefined, detailed_ts]">
 </Table>
 
 <ng-template #encounter let-specification="specification" let-content="content">
