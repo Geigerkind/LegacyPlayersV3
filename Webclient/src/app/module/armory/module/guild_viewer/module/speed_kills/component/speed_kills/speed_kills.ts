@@ -104,7 +104,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         const filter = table_init_filter(this.header_columns);
         if (!this.settingsService.check("table_filter_guild_speed_kills_search")) {
-            filter.rank.sorting = false;
+            filter.rank.sorting = true;
             this.settingsService.set("table_filter_guild_speed_kills_search", filter);
         }
     }
