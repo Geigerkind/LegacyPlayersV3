@@ -9,6 +9,8 @@ import {DateService} from "../../../../../../service/date";
 export class RankingMeterTooltipComponent {
 
     @Input() payload: {
+        instance_meta_ids: Array<number>,
+        attempt_ids: Array<number>,
         encounter_names: Array<string>,
         amounts: Array<number>,
         durations: Array<number>
@@ -24,13 +26,17 @@ export class RankingMeterTooltipComponent {
     }
 
     get results(): Array<[string, number, number, number]> {
+        if (!this.payload?.encounter_names)
+            return [];
+
         const results = [];
         for (let i=0; i<this.payload.encounter_names.length; ++i) {
             results.push([
                 this.payload.encounter_names[i],
                 this.payload.amounts[i],
                 this.payload.durations[i],
-                (this.payload.amounts[i] / (this.payload.durations[i] / 1000)).toFixed(1)
+                (this.payload.amounts[i] / (this.payload.durations[i] / 1000)).toFixed(1),
+                this.payload.instance_meta_ids[i]
             ]);
         }
         return results.sort((left, right) => right[3] - left[3]);

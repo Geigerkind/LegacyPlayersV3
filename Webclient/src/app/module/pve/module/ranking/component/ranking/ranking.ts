@@ -244,9 +244,12 @@ export class RankingComponent implements OnInit, OnDestroy {
                 });
                 this.bar_tooltips.set(row.character_id, {
                     type: 18,
+                    stay_static: true,
+                    instance_meta_ids: row.instance_meta_ids,
+                    attempt_ids: row.attempt_ids,
                     encounter_names: row.encounter_ids.map(id => this.encounter_name_map.get(id)),
                     amounts: row.amounts,
-                    durations: row.durations
+                    durations: row.durations,
                 });
                 this.bar_meta_information.set(row.character_id, [row.instance_meta_ids, row.attempt_ids]);
             }
@@ -306,7 +309,7 @@ export class RankingComponent implements OnInit, OnDestroy {
     }
 
     bar_clicked(bar: [number, number]): void {
-        this.routerService.navigate(["/viewer/" + this.bar_meta_information.get(bar[0])[0][0].toString() + "/base"]);
+        //this.routerService.navigate(["/viewer/" + this.bar_meta_information.get(bar[0])[0][0].toString() + "/base"]);
     }
 
     select(): void {

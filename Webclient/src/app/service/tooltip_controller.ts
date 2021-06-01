@@ -39,10 +39,10 @@ export class TooltipControllerService extends ObserverPattern {
 
     private positionDesktop(x: number, y: number): void {
         const tooltip = this.getTooltip();
-        tooltip.style.top = y + 20 + "px";
+        tooltip.style.top = (y + 5) + "px";
         const width = tooltip.children[Math.max(tooltip.children.length - 1, 0)]?.clientWidth || 500;
         if ((window.innerWidth / 2) <= x) {
-            tooltip.style.left = (x - width - 30) + "px";
+            tooltip.style.left = (x - width - 20) + "px";
         } else {
             tooltip.style.left = (x + 20) + "px";
         }

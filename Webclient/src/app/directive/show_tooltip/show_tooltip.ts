@@ -12,6 +12,8 @@ export class ShowTooltipDirective implements OnDestroy {
     private subscription: Subscription;
     private clicked: boolean = false;
     private visibility$: Subject<[boolean, any]> = new Subject();
+    private stay_visible: boolean = false;
+    private timeout;
 
     @Input('showTooltip') tooltipArgs: any;
 
@@ -24,6 +26,7 @@ export class ShowTooltipDirective implements OnDestroy {
             this.tooltipControllerService.hideTooltip();
         });
         this.subscription.add(this.visibility$.pipe(debounceTime(50)).subscribe(([show_tooltip, args]) => {
+            this.stay_visible = false;
             if (show_tooltip) this.tooltipControllerService.showTooltip(this.tooltipArgs, false, args[0], args[1]);
             else this.tooltipControllerService.hideTooltip();
         }));
@@ -36,6 +39,11 @@ export class ShowTooltipDirective implements OnDestroy {
 
     @HostListener('click', ["$event"])
     onClick(event: any): void {
+        if (!!this.tooltipArgs.stay_static) {
+            this.stay_visible = true;
+            this.timeout = setTimeout(() => this.visibility$.next([false, undefined]), 5000);
+        }
+
         if (!this.isMobile()) {
             if (this.tooltipArgs.type === 16) {
                 this.visibility$.next([true, [event.clientX, event.clientY]]);
@@ -50,16 +58,24 @@ export class ShowTooltipDirective implements OnDestroy {
 
     @HostListener('mouseenter', ["$event"])
     onEnter(event: any): void {
+        if (!!this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = undefined;
+        }
         this.visibility$.next([true, [event.clientX, event.clientY]]);
     }
 
     @HostListener('mouseleave')
     onLeave(): void {
+        if (this.stay_visible)
+            return;
         this.visibility$.next([false, undefined]);
     }
 
     @HostListener('mousemove', ["$event"])
     onMove(event: any): void {
+        if (this.stay_visible)
+            return;
         this.tooltipControllerService.positionTooltip(this.isMobile(), event.clientX, event.clientY + document.getElementsByTagName("body")[0].scrollTop);
     }
 
