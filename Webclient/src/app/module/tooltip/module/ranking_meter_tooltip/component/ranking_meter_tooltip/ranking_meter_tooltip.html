@@ -11,7 +11,7 @@
     <tbody>
         <tr *ngFor="let row of results; let i = index">
             <td>{{i+1}}</td>
-            <td><a routerLink="/viewer/{{row[4]}}/base">{{row[0]}}</a></td>
+            <td><a (click)="navigate_to_viewer(row)">{{row[0]}}</a></td>
             <td>{{format_number(row[1])}}</td>
             <td>{{dateService.toShortTimeSpan(row[2])}}</td>
             <td>{{format_number(row[3])}}</td>

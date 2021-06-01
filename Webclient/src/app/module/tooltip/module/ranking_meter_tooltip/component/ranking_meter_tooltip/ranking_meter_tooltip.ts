@@ -1,5 +1,6 @@
 import {Component, Input} from "@angular/core";
 import {DateService} from "../../../../../../service/date";
+import {Router} from "@angular/router";
 
 @Component({
     selector: "RankingMeterTooltip",
@@ -17,7 +18,8 @@ export class RankingMeterTooltipComponent {
     };
 
     constructor(
-        public dateService: DateService
+        public dateService: DateService,
+        private router: Router
     ) {
     }
 
@@ -25,7 +27,11 @@ export class RankingMeterTooltipComponent {
         return number_str.toLocaleString("en-US");
     }
 
-    get results(): Array<[string, number, number, number]> {
+    navigate_to_viewer(row: [string, number, number, number, number, number]): void {
+        this.router.navigate(["/viewer/" + row[4].toString() + "/base"], {queryParams: {preselected_attempt_id: row[5]}});
+    }
+
+    get results(): Array<[string, number, number, number, number, number]> {
         if (!this.payload?.encounter_names)
             return [];
 
@@ -36,7 +42,8 @@ export class RankingMeterTooltipComponent {
                 this.payload.amounts[i],
                 this.payload.durations[i],
                 (this.payload.amounts[i] / (this.payload.durations[i] / 1000)).toFixed(1),
-                this.payload.instance_meta_ids[i]
+                this.payload.instance_meta_ids[i],
+                this.payload.attempt_ids[i]
             ]);
         }
         return results.sort((left, right) => right[3] - left[3]);

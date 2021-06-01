@@ -74,6 +74,7 @@ export class RaidConfigurationService implements OnDestroy {
     public boundaries_updated$: Subject<[number, number]> = new Subject();
 
     private history_state: number = 0;
+    private preselected_attempt_id: number = 0;
 
     constructor(
         private instanceDataService: InstanceDataService,
@@ -108,11 +109,23 @@ export class RaidConfigurationService implements OnDestroy {
                 this.router_service.navigate([this.router_service.url.split('?')[0]], {
                     state: state,
                     queryParams: {history_state: this.history_state++}
-                } as NavigationExtras);
+                } as NavigationExtras).then(() => {
+                    if (this.preselected_attempt_id > 0) {
+                        this.segments$.next(this.segments$.getValue().filter(segment => segment.id === this.preselected_attempt_id));
+                    }
+                });
             }
         }));
 
-        this.subscription.add(this.activated_route_service.paramMap.subscribe(params => this.current_mode = params.get("mode") as ViewerMode));
+        this.subscription.add(this.activated_route_service.paramMap.subscribe(params => {
+            this.current_mode = params.get("mode") as ViewerMode;
+        }));
+        this.subscription.add(this.activated_route_service.queryParamMap.subscribe(params => {
+            const attempt_id = Number(params.get("preselected_attempt_id"));
+            if (attempt_id > 0)
+                this.preselected_attempt_id = attempt_id;
+        }));
+
         this.subscription.add(this.filter_updated$.pipe(debounceTime(100)).subscribe((push_history) => {
             if (push_history) {
                 const state = {
