@@ -62,7 +62,7 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
     ];
     clientSide: boolean = true;
     responsiveHeadColumns: Array<number> = [0, 1];
-    responsiveModeWidthInPx: number = 500;
+    responsiveModeWidthInPx: number = 600;
     body_columns: Array<BodyRow> = [];
     total_num: number = 0;
 
