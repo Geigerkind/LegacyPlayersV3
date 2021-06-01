@@ -92,8 +92,11 @@ export class SpeedKillsComponent implements OnInit, OnDestroy {
             for (const group in data)
                 data[group] = enumerate(data[group]).filter(([index, speed_kill]) => speed_kill.guild_id === this.guild_id);
             const result = [];
-            for (const group in data)
-                result.push(min_by(data[group], ([index, entry]) => entry.duration));
+            for (const group in data) {
+                if (data[group].length > 0) {
+                    result.push(min_by(data[group], ([index, entry]) => entry.duration));
+                }
+            }
             this.update(result);
         }));
     }
