@@ -10,6 +10,7 @@ export class SpeedRunService {
     private static readonly URL_INSTANCE_SPEED_RUN: string = "/instance/speed_run";
 
     private speed_runs$: Subject<Array<SpeedRun>> = new Subject();
+    private all_speed_runs$: Subject<Array<SpeedRun>> = new Subject();
     private current_mode$: number = 1;
     private current_map_id$: number = 1;
     private current_server_ids$: Array<number> = [];
@@ -22,12 +23,17 @@ export class SpeedRunService {
     ) {
         this.apiService.get(SpeedRunService.URL_INSTANCE_SPEED_RUN, result => {
             this.speed_runs_internal = result;
+            this.all_speed_runs$.next(result);
             this.commit();
         });
     }
 
     get speed_runs(): Observable<Array<SpeedRun>> {
         return this.speed_runs$.asObservable();
+    }
+
+    get all_speed_runs(): Observable<Array<SpeedRun>> {
+        return this.all_speed_runs$.asObservable();
     }
 
     select(mode: number, map_id: number, server_ids: Array<number>, difficulty_ids: Array<number>): void {

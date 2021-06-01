@@ -47,7 +47,8 @@ SettingsService {
         "pve_speed_run",
         "pve_speed_kill",
         "table_filter_addon_search",
-        "table_filter_guild_speed_kills_search"
+        "table_filter_guild_speed_kills_search",
+        "table_filter_guild_speed_runs_search"
     ];
 
     private ignoreSettings: Array<string> = [

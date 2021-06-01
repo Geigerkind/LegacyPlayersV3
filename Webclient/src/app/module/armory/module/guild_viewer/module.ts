@@ -9,6 +9,7 @@ import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/mod
 import {RecentRaidsModule} from "./module/recent_raids/module";
 import {GuildRosterModule} from "./module/guild_roster/module";
 import {SpeedKillsModule} from "./module/speed_kills/module";
+import {SpeedRunsModule} from "./module/speed_runs/module";
 
 @NgModule({
     declarations: [GuildViewerComponent],
@@ -21,7 +22,8 @@ import {SpeedKillsModule} from "./module/speed_kills/module";
         ShowTooltipDirectiveModule,
         GuildRosterModule,
         RecentRaidsModule,
-        SpeedKillsModule
+        SpeedKillsModule,
+        SpeedRunsModule
     ],
     exports: [GuildViewerComponent]
 })
