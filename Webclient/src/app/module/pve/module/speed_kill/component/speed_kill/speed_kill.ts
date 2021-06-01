@@ -96,7 +96,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
     }
 
     bar_clicked(bar: [number, number]): void {
-        this.routerService.navigate(["/viewer/" + bar[0].toString() + "/base"]);
+        this.routerService.navigate(["/viewer/" + bar[0].toString() + "/base"], {queryParams: {preselected_attempt_id: this.bar_meta.get(bar[0]).attempt_id}});
     }
 
     select(): void {
