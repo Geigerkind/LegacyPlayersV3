@@ -1,7 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {HeaderColumn} from "../../../../../../template/table/module/table_header/domain_value/header_column";
 import {BodyColumn} from "../../../../../../template/table/module/table_body/domain_value/body_column";
-import {CharacterSearchService} from "../../../../../armory/module/search/service/character_search";
 import {DataService} from "../../../../../../service/data";
 import {SettingsService} from "../../../../../../service/settings";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
@@ -37,7 +36,6 @@ export class AddonsComponent implements OnInit {
     expansions: Map<number, string> = new Map([[1, "Vanilla"], [2, "TBC"], [3, "WotLK"]]);
 
     constructor(
-        private characterSearchService: CharacterSearchService,
         private dataService: DataService,
         private settingsService: SettingsService,
         public tinyUrlService: TinyUrlService,

@@ -85,7 +85,12 @@
             "name": "Name",
             "hero_class": "Class",
             "rank": "Rank",
-            "last_update": "Updated"
+            "last_update": "Updated",
+            "SpeedKill": {
+                "Encounter": "Encounter",
+                "Difficulty": "Difficulty",
+                "Duration": "Duration"
+            }
         },
         "Viewer": {
             "guild": "{{rank}} of {{guild}}",

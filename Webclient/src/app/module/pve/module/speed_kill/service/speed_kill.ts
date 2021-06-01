@@ -11,6 +11,8 @@ export class SpeedKillService {
     private static readonly URL_INSTANCE_ATTEMPT_DELETE: string = "/instance/ranking/unrank";
 
     private speed_kills$: Subject<Array<SpeedKill>> = new Subject();
+    private all_speed_kills$: Subject<Array<SpeedKill>> = new Subject();
+
     private current_mode$: number = 1;
     private current_encounter_id$: number = 1;
     private current_server_ids$: Array<number> = [];
@@ -23,12 +25,17 @@ export class SpeedKillService {
     ) {
         this.apiService.get(SpeedKillService.URL_INSTANCE_SPEED_KILL, result => {
             this.speed_kills_internal = result;
+            this.all_speed_kills$.next(result);
             this.commit();
         });
     }
 
     get speed_kills(): Observable<Array<SpeedKill>> {
         return this.speed_kills$.asObservable();
+    }
+
+    get all_speed_kills(): Observable<Array<SpeedKill>> {
+        return this.all_speed_kills$.asObservable();
     }
 
     select(mode: number, encounter_id: number, server_ids: Array<number>, difficulty_ids: Array<number>): void {
@@ -50,6 +57,7 @@ export class SpeedKillService {
         this.apiService.delete(SpeedKillService.URL_INSTANCE_ATTEMPT_DELETE, attempt_id, () => {
             this.apiService.get(SpeedKillService.URL_INSTANCE_SPEED_KILL, result => {
                 this.speed_kills_internal = result;
+                this.all_speed_kills$.next(result);
                 this.commit();
             });
         });

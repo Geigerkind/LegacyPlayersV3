@@ -2,11 +2,19 @@ import {Component} from "@angular/core";
 import {GuildViewerDto} from "../../domain_value/guild_viewer_dto";
 import {ActivatedRoute, Router} from "@angular/router";
 import {GuildViewerService} from "../../service/guild_viewer";
+import {RankingService} from "../../../../../pve/module/ranking/service/ranking";
+import {SpeedKillService} from "../../../../../pve/module/speed_kill/service/speed_kill";
+import {SpeedRunService} from "../../../../../pve/module/speed_run/service/speed_run";
 
 @Component({
     selector: "GuildViewer",
     templateUrl: "./guild_viewer.html",
-    styleUrls: ["./guild_viewer.scss"]
+    styleUrls: ["./guild_viewer.scss"],
+    providers: [
+        RankingService,
+        SpeedKillService,
+        SpeedRunService
+    ]
 })
 export class GuildViewerComponent {
 
@@ -16,7 +24,7 @@ export class GuildViewerComponent {
     constructor(
         private routerService: Router,
         private activatedRouteService: ActivatedRoute,
-        private guildViewerService: GuildViewerService
+        private guildViewerService: GuildViewerService,
     ) {
         this.activatedRouteService.paramMap.subscribe(params => {
             this.server_name = params.get('server_name');

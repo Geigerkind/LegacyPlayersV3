@@ -8,6 +8,7 @@ import { HeroClassModule } from 'src/app/template/row_components/hero_class/modu
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
 import {RecentRaidsModule} from "./module/recent_raids/module";
 import {GuildRosterModule} from "./module/guild_roster/module";
+import {SpeedKillsModule} from "./module/speed_kills/module";
 
 @NgModule({
     declarations: [GuildViewerComponent],
@@ -19,7 +20,8 @@ import {GuildRosterModule} from "./module/guild_roster/module";
         HeroClassModule,
         ShowTooltipDirectiveModule,
         GuildRosterModule,
-        RecentRaidsModule
+        RecentRaidsModule,
+        SpeedKillsModule
     ],
     exports: [GuildViewerComponent]
 })
