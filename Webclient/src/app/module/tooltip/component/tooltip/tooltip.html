@@ -19,7 +19,7 @@
                        *ngIf="tooltipType === 15"></ViewerAuraGainTooltip>
 <TalentSpellTooltip [payload]="tooltipPayload" *ngIf="tooltipType === 16"></TalentSpellTooltip>
 <AuraMeterAbilitiesTooltip [payload]="tooltipPayload()" *ngIf="tooltipType === 17"></AuraMeterAbilitiesTooltip>
-<RankingMeterTooltip [payload]="tooltipArgs" *ngIf="18"></RankingMeterTooltip>
+<RankingMeterTooltip [payload]="tooltipArgs" *ngIf="tooltipType === 18"></RankingMeterTooltip>
 <ng-container *ngIf="!tooltipType">
     {{ 'Tooltip.loading' | translate }}
 </ng-container>
