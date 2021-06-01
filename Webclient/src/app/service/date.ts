@@ -52,4 +52,18 @@ export class DateService {
         return result;
     }
 
+    toShortTimeSpan(timespan_in_ms: any): string {
+        timespan_in_ms = Number(timespan_in_ms);
+        const hours: number = Math.floor(timespan_in_ms / 3600000);
+        timespan_in_ms -= hours * 3600000;
+        const minutes: number = Math.floor(timespan_in_ms / 60000);
+        timespan_in_ms -= minutes * 60000;
+        const seconds: number = Math.floor(timespan_in_ms / 1000);
+        let result: string = "";
+        result += minutes < 10 ? "0" + minutes.toString() : minutes.toString();
+        result += ":";
+        result += seconds < 10 ? "0" + seconds.toString() : seconds.toString();
+        return result;
+    }
+
 }

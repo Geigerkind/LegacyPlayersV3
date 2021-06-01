@@ -43,6 +43,7 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     encounters_selected_items: Array<any> = [];
     encounters: Array<any> = [];
+    encounter_name_map: Map<number, string> = new Map();
 
     classes_selected_items: Array<any> = [];
     classes: Array<any> = [];
@@ -241,7 +242,12 @@ export class RankingComponent implements OnInit, OnDestroy {
                     id: row.character_id,
                     name: row.character_meta.name
                 });
-                this.bar_tooltips.set(row.character_id, {type: 1, character_id: row.character_id});
+                this.bar_tooltips.set(row.character_id, {
+                    type: 18,
+                    encounter_names: row.encounter_ids.map(id => this.encounter_name_map.get(id)),
+                    amounts: row.amounts,
+                    durations: row.durations
+                });
                 this.bar_meta_information.set(row.character_id, [row.instance_meta_ids, row.attempt_ids]);
             }
             this.bars = entries.map(row => [row.character_id, row.amount]);
@@ -274,6 +280,7 @@ export class RankingComponent implements OnInit, OnDestroy {
         }));
         this.subscription.add(this.dataService.encounters.subscribe(encounters => {
             this.encounters = encounters.map(encounter => {
+                this.encounter_name_map.set(encounter.base.id, encounter.localization);
                 return {id: encounter.base.id, label: encounter.localization};
             });
             this.finished_loading[3] = encounters.length > 0;

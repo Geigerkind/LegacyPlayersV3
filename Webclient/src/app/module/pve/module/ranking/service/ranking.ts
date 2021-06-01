@@ -60,7 +60,7 @@ export class RankingService {
                                 .filter(ranking => this.current_difficulty_ids$.includes(ranking.difficulty_id))
                                 .reduce((best, ranking) => {
                                     const ranking_result = (ranking.amount * 1000) / ranking.duration;
-                                    return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id, ranking.character_spec];
+                                    return best[0] > ranking_result ? best : [ranking_result, ranking.instance_meta_id, ranking.attempt_id, ranking.character_spec, npc_id, ranking.amount, ranking.duration];
                                 }, [0, 0, 0]);
                             if (!new_rankings.has(character_id))
                                 new_rankings.set(character_id, [meta, []]);
@@ -80,13 +80,16 @@ export class RankingService {
                     instance_meta_ids: ranking_results.map(rr => rr[1]),
                     attempt_ids: ranking_results.map(rr => rr[2]),
                     spec_ids: ranking_results.map(rr => rr[3]),
+                    encounter_ids: ranking_results.map(rr => rr[4]),
+                    amounts: ranking_results.map(rr => rr[5]),
+                    durations: ranking_results.map(rr => rr[6]),
                 };
             }).sort((left, right) => right.amount - left.amount));
     }
 
     delete(attempt_id: number): void {
         this.apiService.delete(RankingService.URL_INSTANCE_ATTEMPT_DELETE, attempt_id, () => {
-           this.load_current_mode();
+            this.load_current_mode();
         });
     }
 
