@@ -156,7 +156,7 @@ export class RankingTableService implements OnDestroy {
             attempt_id: results[1][2].attempt_id,
             duration: results[1][2].duration,
             instance_meta_id: results[1][2].instance_meta_id,
-            rank: results[0]
+            rank: results[0] + 1
         };
     }
 
