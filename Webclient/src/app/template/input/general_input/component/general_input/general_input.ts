@@ -11,7 +11,7 @@ export class GeneralInputComponent implements AfterViewInit, OnInit {
     touched: boolean = false;
     pattern: string;
 
-    @ViewChild("generalInput", {static: true}) inputRef: ElementRef;
+    @ViewChild("generalInput", {static: false}) inputRef: ElementRef;
     @Input() type: string;
     @Input() placeholderKey: string;
     @Input() labelKey: string;
