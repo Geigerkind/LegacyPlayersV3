@@ -25,13 +25,13 @@
     justify-content: center;
 }
 
-#center_bar {
+.center_bar {
     height: 100%;
     width: calc(100% - 300px);
     align-self: flex-start;
 }
 
-#center_bar_mobile {
+.center_bar_mobile {
     height: 100%;
     width: 100%;
     align-self: flex-start;

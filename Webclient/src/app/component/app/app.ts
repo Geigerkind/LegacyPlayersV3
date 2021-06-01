@@ -1,4 +1,4 @@
-import {Component, OnChanges, OnInit} from "@angular/core";
+import {AfterViewInit, Component, OnChanges, OnInit} from "@angular/core";
 import {NavigationEnd, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {SettingsService} from "../../service/settings";
@@ -34,19 +34,14 @@ export class AppComponent implements OnInit, OnChanges {
     ) {
         this.settingsService.subscribe("cookieDecisions", item => this.configure_google_analytics(item));
         (window as any).addEventListener("beforeinstallprompt", (e) => () => this.prompt_for_pwa(e));
-
-        this.router.events.subscribe(event => {
-           this.is_on_viewer_site = this.router.url.includes("viewer/");
-           const ad_element = document.getElementById("bottom_layer");
-           this.enough_bottom_space = !!ad_element && ad_element.clientWidth >= 2000;
-           this.enough_width_for_side_ads = ad_element.clientWidth >= 800;
-        });
+        this.router.events.subscribe(event => this.set_ad_width_flags());
     }
 
     ngOnInit(): void {
         this.set_cookie_banner(!this.settingsService.check("cookieDecisions"));
         this.configure_google_analytics(this.settingsService.get("cookieDecisions"));
         this.retrieve_account_information();
+        setInterval(() => this.set_ad_width_flags(), 500);
     }
 
     ngOnChanges(): void {
@@ -55,6 +50,13 @@ export class AppComponent implements OnInit, OnChanges {
 
     set_cookie_banner(state: boolean): void {
         this.show_cookie_banner = state;
+    }
+
+    set_ad_width_flags(): void {
+        this.is_on_viewer_site = this.router.url.includes("viewer/");
+        this.enough_width_for_side_ads = document.getElementsByTagName("body")[0].clientWidth >= 800;
+        const ad_element = document.getElementById("bottom_layer");
+        this.enough_bottom_space = !!ad_element && ad_element.clientWidth >= 2000;
     }
 
     private configure_google_analytics(cookieDecisions: any): void {
@@ -89,7 +91,7 @@ export class AppComponent implements OnInit, OnChanges {
     }
 
     get isMobile(): boolean {
-        return navigator.userAgent.toLowerCase().includes("mobile");
+        return navigator.userAgent.toLowerCase().includes("mobile") || !this.enough_width_for_side_ads;
     }
 
     private retrieve_account_information(): void {
