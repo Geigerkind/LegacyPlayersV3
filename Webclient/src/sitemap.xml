@@ -4,63 +4,93 @@
         <loc>https://legacyplayers.com/sitemap_general.xml</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/1</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/1</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/2</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/2</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/3</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/3</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/4</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/4</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/5</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/5</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/6</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/6</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/7</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/7</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/8</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/8</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/9</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/9</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/10</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/10</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/11</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/11</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/12</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/12</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/13</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/13</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/14</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/14</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/15</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/15</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/16</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/16</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/17</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/17</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/18</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/18</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/19</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/19</loc>
     </sitemap>
     <sitemap>
-        <loc>https://legacyplayers.com/API/utility/site_map_gen/20</loc>
+        <loc>https://legacyplayers.com/API/utility/site_map_char_gen/20</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/1</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/2</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/3</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/4</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/5</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/6</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/7</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/8</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/9</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/10</loc>
     </sitemap>
 </sitemapindex>

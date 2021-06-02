@@ -307,6 +307,7 @@ fn main() {
             utility::transfer::tiny_url::get_tiny_url,
             utility::transfer::tiny_url::set_tiny_url,
             utility::transfer::site_map::build_character_site_map,
+            utility::transfer::site_map::build_guild_site_map,
             ])
         .launch();
 }
