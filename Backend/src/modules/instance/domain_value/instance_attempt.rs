@@ -7,4 +7,5 @@ pub struct InstanceAttempt {
     pub is_kill: bool,
     pub difficulty_id: u8,
     pub rankable: bool,
+    pub season_index: u8
 }

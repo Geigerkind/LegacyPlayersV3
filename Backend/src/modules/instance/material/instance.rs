@@ -10,6 +10,7 @@ use crate::modules::instance::dto::{InstanceViewerAttempt, RankingResult, SpeedK
 use crate::modules::instance::tools::FindInstanceGuild;
 use crate::params;
 use crate::util::database::Select;
+use chrono::{NaiveDateTime, Datelike};
 
 pub struct Instance {
     pub instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMeta>)>>,
@@ -162,6 +163,7 @@ fn calculate_speed_runs(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceMe
             server_id: instance_meta.server_id,
             duration: end - start,
             difficulty_id: attempts[0].difficulty_id,
+            season_index: attempts[0].season_index
         });
     }
 }
@@ -198,9 +200,21 @@ fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
                 server_id: instance_meta.server_id,
                 duration: attempt.end_ts - attempt.start_ts,
                 difficulty_id: attempt.difficulty_id,
+                season_index: attempt.season_index
             });
         }
     }
+}
+
+fn calculate_season_index(ts: u64) -> u8 {
+    static FIRST_SEASON_YEAR: i32 = 2020;
+    static FIRST_SEASON_MONTH: i32 = 1;
+    static SEASON_DURATION: i32 = 3;
+    let today = NaiveDateTime::from_timestamp((ts / 1000) as i64, 0);
+    let year = today.year();
+    let month = today.month() as i32;
+    let months_since = (year - FIRST_SEASON_YEAR) * 12 - FIRST_SEASON_MONTH + month;
+    return ((months_since + 1) / 3) as u8 + 1;
 }
 
 fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>, db_main: &mut impl Select) {
@@ -209,15 +223,19 @@ fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMa
     JOIN instance_raid B ON A.instance_meta_id = B.instance_meta_id \
     WHERE A.is_kill = 1 AND A.id > :saved_attempt_id ORDER BY A.id",
                            |mut row|
-                               (row.take::<u32, usize>(0).unwrap(), InstanceAttempt {
-                                   attempt_id: row.take(1).unwrap(),
-                                   encounter_id: row.take(2).unwrap(),
-                                   start_ts: row.take(3).unwrap(),
-                                   end_ts: row.take(4).unwrap(),
-                                   is_kill: true,
-                                   difficulty_id: row.take(5).unwrap(),
-                                   rankable: row.take(6).unwrap(),
-                               }), params!("saved_attempt_id" => kill_attempts.0))
+                               {
+                                   let start_ts = row.take(3).unwrap();
+                                   (row.take::<u32, usize>(0).unwrap(), InstanceAttempt {
+                                       attempt_id: row.take(1).unwrap(),
+                                       encounter_id: row.take(2).unwrap(),
+                                       start_ts,
+                                       end_ts: row.take(4).unwrap(),
+                                       is_kill: true,
+                                       difficulty_id: row.take(5).unwrap(),
+                                       rankable: row.take(6).unwrap(),
+                                       season_index: calculate_season_index(start_ts)
+                                   })
+                               }, params!("saved_attempt_id" => kill_attempts.0))
         .into_iter()
         .for_each(|(instance_meta_id, instance_attempt)| {
             kill_attempts.0 = instance_attempt.attempt_id;
@@ -273,6 +291,7 @@ fn update_instance_rankings_dps(instance_rankings_dps: Arc<RwLock<(u32, HashMap<
                 character_spec: armory.get_character_moment(db_main, character_id, start_ts)
                     .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
                     .unwrap_or(0),
+                season_index: calculate_season_index(start_ts)
             });
         });
 }
@@ -324,6 +343,7 @@ fn update_instance_rankings_hps(instance_rankings_hps: Arc<RwLock<(u32, HashMap<
                 character_spec: armory.get_character_moment(db_main, character_id, start_ts)
                     .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
                     .unwrap_or(0),
+                season_index: calculate_season_index(start_ts)
             });
         });
 }
@@ -375,6 +395,7 @@ fn update_instance_rankings_tps(instance_rankings_tps: Arc<RwLock<(u32, HashMap<
                 character_spec: armory.get_character_moment(db_main, character_id, start_ts)
                     .and_then(|char_history| char_history.character_info.talent_specialization.as_ref().map(|talents| get_talent_tree(&talents) + 1))
                     .unwrap_or(0),
+                season_index: calculate_season_index(start_ts)
             });
         });
 }
