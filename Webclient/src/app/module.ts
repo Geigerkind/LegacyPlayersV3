@@ -1,4 +1,4 @@
-import {BrowserModule} from "@angular/platform-browser";
+import {BrowserModule, Meta, Title} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
 
 import {AppRouting} from "./routing";
@@ -69,7 +69,9 @@ export function createTranslateLoader(http: HttpClient) {
         {provide: HTTP_INTERCEPTORS, useClass: AuthenticationInterceptor, multi: true},
         {provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true},
         DatePipe,
-        DateService
+        DateService,
+        Meta,
+        Title
     ],
     bootstrap: [AppComponent],
     entryComponents: [CookieBannerComponent]

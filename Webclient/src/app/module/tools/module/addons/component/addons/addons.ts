@@ -6,6 +6,8 @@ import {SettingsService} from "../../../../../../service/settings";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {table_init_filter} from "../../../../../../template/table/utility/table_init_filter";
 import {APIService} from "../../../../../../service/api";
+import {Router} from "@angular/router";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "Addons",
@@ -39,8 +41,13 @@ export class AddonsComponent implements OnInit {
         private dataService: DataService,
         private settingsService: SettingsService,
         public tinyUrlService: TinyUrlService,
-        private apiService: APIService
+        private apiService: APIService,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Addons");
+        this.metaService.updateTag({name: "description", content: "Download addons for Vanilla (1.12.1), TBC (2.4.3) and WotLK (3.3.5a)."});
+
         for (const expansion of this.dataService.expansions) {
             this.header_columns[1].type_range.push({
                 value: expansion.value,

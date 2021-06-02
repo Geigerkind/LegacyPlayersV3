@@ -11,6 +11,7 @@ import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
 import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
 import {Router} from "@angular/router";
 import {SpeedKill} from "../../domain_value/speed_kill";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "SpeedKill",
@@ -51,8 +52,13 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
         private dataService: DataService,
         private speedKillService: SpeedKillService,
         public dateService: DateService,
-        private routerService: Router
+        private routerService: Router,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Speed kills");
+        this.metaService.updateTag({name: "description", content: "Seasonal speed kills of all guilds on Legacyplayers."});
+
         this.speedKillService.speed_kills.subscribe(speed_kills => {
             this.bars = [];
             for (const speed_kill of speed_kills) {

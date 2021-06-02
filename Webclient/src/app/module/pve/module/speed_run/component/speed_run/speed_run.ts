@@ -10,6 +10,7 @@ import {SpeedRunService} from "../../service/speed_run";
 import {RaidMeterSubject} from "../../../../../../template/meter_graph/domain_value/raid_meter_subject";
 import {DateService} from "../../../../../../service/date";
 import {Router} from "@angular/router";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "SpeedRun",
@@ -49,8 +50,13 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
         private dataService: DataService,
         private speedRunService: SpeedRunService,
         public dateService: DateService,
-        private routerService: Router
+        private routerService: Router,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Speed runs");
+        this.metaService.updateTag({name: "description", content: "Seasonal speed runs of all guilds on Legacyplayers."});
+
         this.speedRunService.speed_runs.subscribe(speed_runs => {
             this.bars = [];
             for (const speed_run of speed_runs) {

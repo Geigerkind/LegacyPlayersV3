@@ -13,6 +13,7 @@ import {DateService} from "../../../../../../service/date";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {NotificationService} from "../../../../../../service/notification";
 import {Severity} from "../../../../../../domain_value/severity";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "Search",
@@ -69,8 +70,13 @@ export class SearchComponent implements OnInit {
         private settingsService: SettingsService,
         public dateService: DateService,
         public tinyUrlService: TinyUrlService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Raid search");
+        this.metaService.updateTag({name: "description", content: "Search for raid logs submitted to Legacyplayers."});
+
         this.dataService.get_maps_by_type(0).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(inner_map => this.header_columns[0].type_range.push({
                 value: inner_map.base.id,

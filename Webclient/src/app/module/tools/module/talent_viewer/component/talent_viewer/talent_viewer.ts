@@ -5,6 +5,8 @@ import {DataService} from "../../../../../../service/data";
 import {SelectOption} from "../../../../../../template/input/select_input/domain_value/select_option";
 import {Talent} from "../../module/talent_tab/value_object/talent";
 import {ActivatedRoute, Router} from "@angular/router";
+import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "TalentViewer",
@@ -17490,8 +17492,13 @@ export class TalentViewerComponent {
     constructor(
         private dataService: DataService,
         private activatedRoute: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Talent calculator");
+        this.metaService.updateTag({name: "description", content: "WoW Talent calculator for Vanilla (1.12.1), TBC (2.4.3) and WotLK (3.3.5a)."});
+
         this.expansions = this.dataService.expansions;
         this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
             hero_classes.forEach(hero_class => this.hero_classes.push({

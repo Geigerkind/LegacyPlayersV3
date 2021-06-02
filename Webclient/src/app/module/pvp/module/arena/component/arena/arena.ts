@@ -10,6 +10,8 @@ import {ArenaSearchService} from "../../service/arena_search";
 import {SettingsService} from "src/app/service/settings";
 import {DateService} from "../../../../../../service/date";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {NotificationService} from "../../../../../../service/notification";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "Arena",
@@ -56,8 +58,13 @@ export class ArenaComponent implements OnInit {
         private settingsService: SettingsService,
         private arenaSearchService: ArenaSearchService,
         public dateService: DateService,
-        public tinyUrlService: TinyUrlService
+        public tinyUrlService: TinyUrlService,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Arena search");
+        this.metaService.updateTag({name: "description", content: "Search for arena logs submitted to Legacyplayers."});
+
         this.dataService.get_maps_by_type(1).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
                 value: map.base.id,

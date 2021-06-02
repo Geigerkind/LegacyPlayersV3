@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {CharacterViewerService} from "../../service/character_viewer";
 import {CharacterViewerDto} from "../../domain_value/character_viewer_dto";
 import {RankingService} from "../../../../../pve/module/ranking/service/ranking";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "CharacterViewer",
@@ -19,7 +20,9 @@ export class CharacterViewerComponent {
     constructor(
         private routerService: Router,
         private activatedRouteService: ActivatedRoute,
-        private characterViewerService: CharacterViewerService
+        private characterViewerService: CharacterViewerService,
+        private metaService: Meta,
+        private titleService: Title
     ) {
         this.activatedRouteService.paramMap.subscribe(params => {
             const history_date = params.get('character_history_date');
@@ -39,6 +42,7 @@ export class CharacterViewerComponent {
     private loadCharacter(server_name: string, character_name: string): void {
         this.characterViewerService.get_character_viewer(server_name, character_name, result => {
             this.character = result;
+            this.do_seo_meta();
         }, () => {
             this.routerService.navigate(['/404']);
         });
@@ -47,8 +51,14 @@ export class CharacterViewerComponent {
     private loadCharacterByHistoryDate(server_name: string, character_name: string, character_history_date: string): void {
         this.characterViewerService.get_character_viewer_by_history_date(character_history_date, server_name, character_name, result => {
             this.character = result;
+            this.do_seo_meta();
         }, () => {
             this.loadCharacter(server_name, character_name);
         });
+    }
+
+    private do_seo_meta(): void {
+        this.metaService.updateTag({name: 'description', content: "Armory history, recent raids and ranking of " + this.character.name + " on " + this.character.name + "."});
+        this.titleService.setTitle(this.character.name + " - " + this.character.server_name);
     }
 }

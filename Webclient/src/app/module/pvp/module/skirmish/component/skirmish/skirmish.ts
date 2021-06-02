@@ -10,6 +10,7 @@ import {SkirmishSearchService} from "../../service/skirmish_search";
 import {SettingsService} from "src/app/service/settings";
 import {DateService} from "../../../../../../service/date";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
+import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
     selector: "Skirmish",
@@ -52,8 +53,13 @@ export class SkirmishComponent implements OnInit {
         private settingsService: SettingsService,
         private skirmishSearchService: SkirmishSearchService,
         public dateService: DateService,
-        public tinyUrlService: TinyUrlService
+        public tinyUrlService: TinyUrlService,
+        private metaService: Meta,
+        private titleService: Title
     ) {
+        this.titleService.setTitle("LegacyPlayers - Skirmish search");
+        this.metaService.updateTag({name: "description", content: "Search for skirmish arena logs submitted to Legacyplayers."});
+
         this.dataService.get_maps_by_type(1).subscribe((instance_maps: Array<Localized<InstanceMap>>) => {
             instance_maps.forEach(map => this.header_columns[0].type_range.push({
                 value: map.base.id,
