@@ -226,8 +226,70 @@ export class RankingComponent implements OnInit, OnDestroy {
                 this.uncheck_if_all_check_else([142, 143], selected_list, current_list)
         }
     ];
+    additional_spec_buttons: AdditionalButton[] = [
+        {
+            id: -1,
+            label: "Warrior",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([1, 2, 3, 4], selected_list, current_list)
+        },
+        {
+            id: -2,
+            label: "Paladin",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([5, 6, 7, 8], selected_list, current_list)
+        },
+        {
+            id: -3,
+            label: "Hunter",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([9, 10, 11, 12], selected_list, current_list)
+        },
+        {
+            id: -4,
+            label: "Rogue",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([13, 14, 15, 16], selected_list, current_list)
+        },
+        {
+            id: -5,
+            label: "Priest",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([17, 18, 19, 20], selected_list, current_list)
+        },
+        {
+            id: -6,
+            label: "Death knight",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([21, 22, 23, 24], selected_list, current_list)
+        },
+        {
+            id: -7,
+            label: "Shaman",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([25, 26, 27, 28], selected_list, current_list)
+        },
+        {
+            id: -8,
+            label: "Mage",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([29, 30, 31, 32], selected_list, current_list)
+        },
+        {
+            id: -9,
+            label: "Warlock",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([33, 34, 35, 36], selected_list, current_list)
+        },
+        {
+            id: -11,
+            label: "Druid",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([37, 38, 39, 40], selected_list, current_list)
+        },
+    ];
 
-    private finished_loading: [boolean, boolean, boolean, boolean] = [false, false, false, false];
+    private finished_loading: [boolean, boolean, boolean] = [false, false, false];
 
     constructor(
         private settingsService: SettingsService,
@@ -262,6 +324,9 @@ export class RankingComponent implements OnInit, OnDestroy {
         this.seasons = this.dataService.ranking_seasons.map(item => {
             return {id: item.value, label: item.label_key};
         }).reverse();
+        this.classes = this.dataService.specs.map(item => {
+            return {id: item.value, label: item.label_key};
+        });
         this.subscription.add(this.dataService.difficulties.subscribe(difficulties => {
             this.difficulties = difficulties.sort((left, right) => left.base.id - right.base.id)
                 .map(difficulty => {
@@ -278,19 +343,12 @@ export class RankingComponent implements OnInit, OnDestroy {
             this.finished_loading[1] = servers.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         }));
-        this.subscription.add(this.dataService.hero_classes.subscribe(hero_classes => {
-            this.classes = hero_classes.map(hero_class => {
-                return {id: hero_class.base.id, label: hero_class.localization};
-            });
-            this.finished_loading[2] = hero_classes.length > 0;
-            if (this.finished_loading.every(item => item)) this.init_ranking();
-        }));
         this.subscription.add(this.dataService.encounters.subscribe(encounters => {
             this.encounters = encounters.map(encounter => {
                 this.encounter_name_map.set(encounter.base.id, encounter.localization);
                 return {id: encounter.base.id, label: encounter.localization};
             });
-            this.finished_loading[3] = encounters.length > 0;
+            this.finished_loading[2] = encounters.length > 0;
             if (this.finished_loading.every(item => item)) this.init_ranking();
         }));
     }
@@ -321,15 +379,18 @@ export class RankingComponent implements OnInit, OnDestroy {
         if (!this.finished_loading.every(item => item))
             return;
 
-        const selection_params = [this.modes_current_selection, this.selections_current_selection,
-            this.encounters_selected_items.map(item => item.id),
-            this.classes_selected_items.map(item => item.id),
-            this.servers_selected_items.map(item => item.id),
-            this.difficulties_selected_items.map(item => item.id),
-            this.seasons_selected_items.map(item => item.id)];
-        // @ts-ignore
-        this.rankingService.select(...selection_params);
-        this.settingsService.set("pve_ranking", selection_params);
+        // Slight delay, so the selected items are updated
+        setTimeout(() => {
+            const selection_params = [this.modes_current_selection, this.selections_current_selection,
+                this.encounters_selected_items.map(item => item.id),
+                this.classes_selected_items.map(item => item.id),
+                this.servers_selected_items.map(item => item.id),
+                this.difficulties_selected_items.map(item => item.id),
+                this.seasons_selected_items.map(item => item.id)];
+            // @ts-ignore
+            this.rankingService.select(...selection_params);
+            this.settingsService.set("pve_ranking", selection_params);
+        }, 100);
     }
 
     share(): void {

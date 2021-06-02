@@ -53,6 +53,49 @@ export class DataService implements OnDestroy {
     private pending_basic_spells: Array<[number, Subject<Localized<BasicSpell>>]> = [];
     private lazy_basic_spells$: Subject<number> = new Subject();
 
+    public readonly spec_mapping: Map<number, [number, number, string]> = new Map([
+        [1, [1, 0, "Warrior - Unknown"]],
+        [2, [1, 1, "Arms"]],
+        [3, [1, 2, "Fury"]],
+        [4, [1, 3, "Protection"]],
+        [5, [2, 0, "Paladin - Unknown"]],
+        [6, [2, 1, "Holy"]],
+        [7, [2, 2, "Protection"]],
+        [8, [2, 3, "Retribution"]],
+        [9, [3, 0, "Hunter - Unknown"]],
+        [10, [3, 1, "Beast Mastery"]],
+        [11, [3, 2, "Marksmanship"]],
+        [12, [3, 3, "Survival"]],
+        [13, [4, 0, "Rogue - Unknown"]],
+        [14, [4, 1, "Assassination"]],
+        [15, [4, 2, "Combat"]],
+        [16, [4, 3, "Subtlety"]],
+        [17, [5, 0, "Priest - Unknown"]],
+        [18, [5, 1, "Discipline"]],
+        [19, [5, 2, "Holy"]],
+        [20, [5, 3, "Shadow"]],
+        [21, [6, 0, "Death knight - Unknown"]],
+        [22, [6, 1, "Blood"]],
+        [23, [6, 2, "Frost"]],
+        [24, [6, 3, "Unholy"]],
+        [25, [7, 0, "Shaman - Unknown"]],
+        [26, [7, 1, "Elemental"]],
+        [27, [7, 2, "Enhancement"]],
+        [28, [7, 3, "Restoration"]],
+        [29, [8, 0, "Mage - Unknown"]],
+        [30, [8, 1, "Arcane"]],
+        [31, [8, 2, "Fire"]],
+        [32, [8, 3, "Frost"]],
+        [33, [9, 0, "Warlock - Unknown"]],
+        [34, [9, 1, "Affliction"]],
+        [35, [9, 2, "Demonology"]],
+        [36, [9, 3, "Destruction"]],
+        [37, [11, 0, "Druid - Unknown"]],
+        [38, [11, 1, "Balance"]],
+        [39, [11, 2, "Feral Combat"]],
+        [40, [11, 3, "Restoration"]],
+    ]);
+
     constructor(
         private apiService: APIService,
         private settingsService: SettingsService
@@ -112,6 +155,12 @@ export class DataService implements OnDestroy {
             {label_key: "TBC (2.4.3)", value: 2},
             {label_key: "WotLK (3.3.5)", value: 3},
         ];
+    }
+
+    get specs(): Array<SelectOption> {
+        return [...this.spec_mapping.entries()].map(([spec_id, meta]) => {
+            return {value: spec_id, label_key: meta[2]};
+        });
     }
 
     get ranking_seasons(): Array<SelectOption> {
