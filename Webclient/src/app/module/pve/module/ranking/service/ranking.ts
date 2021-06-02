@@ -75,6 +75,8 @@ export class RankingService {
         this.current_season_ids$ = season_ids;
         if (mode !== this.current_mode$)
             this.load_current_mode();
+        else
+            this.commit();
         this.current_mode$ = mode;
     }
 
