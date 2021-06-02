@@ -39,14 +39,17 @@ export class RankingService {
         this.apiService.get(RankingService.URL_INSTANCE_RANKING_DPS, result => {
             this.dps_rankings = result;
             this.dps_rankings$.next(result);
+            this.commit();
         });
         this.apiService.get(RankingService.URL_INSTANCE_RANKING_HPS, result => {
             this.hps_rankings = result;
             this.hps_rankings$.next(result);
+            this.commit();
         });
         this.apiService.get(RankingService.URL_INSTANCE_RANKING_TPS, result => {
             this.tps_rankings = result;
             this.tps_rankings$.next(result);
+            this.commit();
         });
     }
 
