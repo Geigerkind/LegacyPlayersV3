@@ -21,6 +21,7 @@ extern crate mail;
 extern crate okapi;
 extern crate rand;
 extern crate regex;
+extern crate reqwest;
 #[macro_use]
 extern crate rocket;
 #[macro_use]
@@ -34,8 +35,8 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate str_util;
 extern crate time_util;
+extern crate urlencoding;
 extern crate validator;
-extern crate reqwest;
 
 use dotenv::dotenv;
 pub use rocket_contrib::databases::mysql;
@@ -302,6 +303,10 @@ fn main() {
                 instance::transfer::speed_kill::get_speed_kills,
             ],
         )
-        .mount("/API/utility", routes_with_openapi![utility::transfer::tiny_url::get_tiny_url, utility::transfer::tiny_url::set_tiny_url])
+        .mount("/API/utility", routes_with_openapi![
+            utility::transfer::tiny_url::get_tiny_url,
+            utility::transfer::tiny_url::set_tiny_url,
+            utility::transfer::site_map::build_character_site_map,
+            ])
         .launch();
 }

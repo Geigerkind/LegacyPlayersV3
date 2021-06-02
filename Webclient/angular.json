@@ -26,6 +26,8 @@
                             "src/favicon.ico",
                             "src/assets",
                             "src/robots.txt",
+                            "src/sitemap.xml",
+                            "src/sitemap_general.xml",
                             "src/serviceworker.js",
                             "src/manifest.webmanifest"
                         ],
