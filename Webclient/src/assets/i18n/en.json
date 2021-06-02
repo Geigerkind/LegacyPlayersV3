@@ -408,7 +408,8 @@
         "encounter": "Select encounter",
         "classes": "Select class",
         "servers": "Select server",
-        "difficulties": "Select difficulties"
+        "difficulties": "Select difficulties",
+        "seasons": "Select seasons"
     },
     "Addon": {
         "name": "Name",

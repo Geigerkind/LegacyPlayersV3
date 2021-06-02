@@ -6,4 +6,5 @@ export interface SpeedRun {
     server_id: number;
     duration: number;
     difficulty_id: number;
+    season_index: number;
 }

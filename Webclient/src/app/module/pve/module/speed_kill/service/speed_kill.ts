@@ -17,6 +17,7 @@ export class SpeedKillService {
     private current_encounter_id$: number = 1;
     private current_server_ids$: Array<number> = [];
     private current_difficulty_ids$: Array<number> = [];
+    private current_season_ids$: Array<number> = [];
 
     private speed_kills_internal: Array<SpeedKill> = [];
 
@@ -38,17 +39,19 @@ export class SpeedKillService {
         return this.all_speed_kills$.asObservable();
     }
 
-    select(mode: number, encounter_id: number, server_ids: Array<number>, difficulty_ids: Array<number>): void {
+    select(mode: number, encounter_id: number, server_ids: Array<number>, difficulty_ids: Array<number>, season_ids: Array<number>): void {
         this.current_mode$ = mode;
         this.current_encounter_id$ = encounter_id;
         this.current_server_ids$ = server_ids;
         this.current_difficulty_ids$ = difficulty_ids;
+        this.current_season_ids$ = season_ids;
         this.commit();
     }
 
     commit(): void {
         const result = this.speed_kills_internal.filter(speed_kill => speed_kill.encounter_id === this.current_encounter_id$
-            && this.current_server_ids$.includes(speed_kill.server_id) && this.current_difficulty_ids$.includes(speed_kill.difficulty_id))
+            && this.current_server_ids$.includes(speed_kill.server_id) && this.current_difficulty_ids$.includes(speed_kill.difficulty_id)
+            && this.current_season_ids$.includes(speed_kill.season_index))
             .sort((left, right) => left.duration - right.duration);
         this.speed_kills$.next(result);
     }

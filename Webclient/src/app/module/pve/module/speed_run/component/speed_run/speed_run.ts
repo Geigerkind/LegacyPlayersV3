@@ -36,6 +36,9 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
     difficulties_selected_items: Array<any> = [];
     difficulties: Array<any> = [];
 
+    seasons_selected_items: Array<any> = [];
+    seasons: Array<any> = [];
+
     bar_subjects: Map<number, RaidMeterSubject> = new Map();
     bar_tooltips: Map<number, any> = new Map();
     bars: Array<[number, number | string]> = [];
@@ -64,6 +67,9 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.seasons = this.dataService.ranking_seasons.map(item => {
+            return {id: item.value, label: item.label_key};
+        }).reverse();
         this.subscriptions = this.dataService.servers.subscribe(servers => {
             this.servers = servers.sort((left, right) => left.expansion_id - right.expansion_id)
                 .map(server => {
@@ -103,7 +109,8 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
 
         const selection_params = [this.selections_current_selection,
             this.maps_current_selection, this.servers_selected_items.map(item => item.id),
-            this.difficulties_selected_items.map(item => item.id)];
+            this.difficulties_selected_items.map(item => item.id),
+            this.seasons_selected_items.map(item => item.id)];
         // @ts-ignore
         this.speedRunService.select(...selection_params);
         this.settingsService.set("pve_speed_run", selection_params);
@@ -129,6 +136,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
             this.maps_current_selection = selection_params[1];
             this.servers_selected_items = this.servers.filter(item => selection_params[2].includes(item.id));
             this.difficulties_selected_items = this.difficulties.filter(item => selection_params[3].includes(item.id));
+            this.seasons_selected_items = this.seasons.filter(item => selection_params[4].includes(item.id));
         }
         this.select();
     }

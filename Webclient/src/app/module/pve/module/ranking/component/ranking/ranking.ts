@@ -9,7 +9,6 @@ import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
 import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
-import {Router} from "@angular/router";
 
 @Component({
     selector: "Ranking",
@@ -53,6 +52,9 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     difficulties_selected_items: Array<any> = [];
     difficulties: Array<any> = [];
+
+    seasons_selected_items: Array<any> = [];
+    seasons: Array<any> = [];
 
     additional_encounter_button: AdditionalButton[] = [
         {
@@ -231,8 +233,7 @@ export class RankingComponent implements OnInit, OnDestroy {
         private settingsService: SettingsService,
         private rankingService: RankingService,
         private dataService: DataService,
-        private tinyUrlService: TinyUrlService,
-        private routerService: Router
+        private tinyUrlService: TinyUrlService
     ) {
         this.subscription.add(this.rankingService.rankings.subscribe(entries => {
             for (const row of entries) {
@@ -258,6 +259,9 @@ export class RankingComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.seasons = this.dataService.ranking_seasons.map(item => {
+            return {id: item.value, label: item.label_key};
+        }).reverse();
         this.subscription.add(this.dataService.difficulties.subscribe(difficulties => {
             this.difficulties = difficulties.sort((left, right) => left.base.id - right.base.id)
                 .map(difficulty => {
@@ -300,6 +304,7 @@ export class RankingComponent implements OnInit, OnDestroy {
             this.classes_selected_items = this.classes.filter(item => selection_params[3].includes(item.id));
             this.servers_selected_items = this.servers.filter(item => selection_params[4].includes(item.id));
             this.difficulties_selected_items = this.difficulties.filter(item => selection_params[5].includes(item.id));
+            this.seasons_selected_items = this.seasons.filter(item => selection_params[6].includes(item.id));
         }
         this.select();
     }
@@ -320,7 +325,8 @@ export class RankingComponent implements OnInit, OnDestroy {
             this.encounters_selected_items.map(item => item.id),
             this.classes_selected_items.map(item => item.id),
             this.servers_selected_items.map(item => item.id),
-            this.difficulties_selected_items.map(item => item.id)];
+            this.difficulties_selected_items.map(item => item.id),
+            this.seasons_selected_items.map(item => item.id)];
         // @ts-ignore
         this.rankingService.select(...selection_params);
         this.settingsService.set("pve_ranking", selection_params);

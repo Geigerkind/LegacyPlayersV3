@@ -5,4 +5,5 @@ export interface RankingResult {
     duration: number;
     difficulty_id: number;
     character_spec: number;
+    season_index: number;
 }

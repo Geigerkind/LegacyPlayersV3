@@ -78,7 +78,8 @@ export class DataService implements OnDestroy {
                     }
                     for (const [id, subject] of pending_npcs.entries())
                         subject.next(this.get_unknown_npc(expansion_id, id));
-                }, reason => {});
+                }, reason => {
+                });
         }));
 
         this.subscriptions.add(this.lazy_basic_spells$.pipe(auditTime(100)).subscribe(expansion_id => {
@@ -96,7 +97,8 @@ export class DataService implements OnDestroy {
                     }
                     for (const [, subject] of pending_basic_spells.entries())
                         subject.next(this.unknown_basic_spell(-1));
-                }, reason => {});
+                }, reason => {
+                });
         }));
     }
 
@@ -106,10 +108,28 @@ export class DataService implements OnDestroy {
 
     get expansions(): Array<SelectOption> {
         return [
-            { label_key: "Vanilla (1.12.1)", value: 1 },
-            { label_key: "TBC (2.4.3)", value: 2 },
-            { label_key: "WotLK (3.3.5)", value: 3 },
+            {label_key: "Vanilla (1.12.1)", value: 1},
+            {label_key: "TBC (2.4.3)", value: 2},
+            {label_key: "WotLK (3.3.5)", value: 3},
         ];
+    }
+
+    get ranking_seasons(): Array<SelectOption> {
+        const first_season_year = 2020;
+        const first_season_month = 1;
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const months_since_start = (year - first_season_year) * 12 - first_season_month + month;
+        const num_ranking_seasons = ((months_since_start + 1) / 3);
+
+        const result = [];
+        for (let i = 0; i < num_ranking_seasons; ++i)
+            result.push({
+                label_key: "Season Q" + ((i % 4) + 1).toString() + " " + (first_season_year + Math.floor(i / 4)).toString(),
+                value: (i + 1)
+            });
+        return result;
     }
 
     get servers(): Observable<Array<AvailableServer>> {
