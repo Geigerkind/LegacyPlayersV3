@@ -67,14 +67,15 @@ export class RankingService {
     }
 
     select(mode: number, selection: number, encounter_ids: Array<number>, spec_ids: Array<number>, server_ids: Array<number>, difficulty_ids: Array<number>, season_ids: Array<number>): void {
-        this.current_mode$ = mode;
         this.current_selection$ = selection;
         this.current_encounter_ids$ = encounter_ids;
         this.current_specs$ = spec_ids.map(spec_id => [this.dataService.spec_mapping.get(spec_id)[0], this.dataService.spec_mapping.get(spec_id)[1]]);
         this.current_server_ids$ = server_ids;
         this.current_difficulty_ids$ = difficulty_ids;
         this.current_season_ids$ = season_ids;
-        this.load_current_mode();
+        if (mode !== this.current_mode$)
+            this.load_current_mode();
+        this.current_mode$ = mode;
     }
 
     private commit() {
