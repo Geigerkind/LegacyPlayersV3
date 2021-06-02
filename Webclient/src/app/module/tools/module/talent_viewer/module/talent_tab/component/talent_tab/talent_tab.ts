@@ -63,7 +63,7 @@ export class TalentTabComponent implements OnInit, OnChanges {
         for (let i = talent.row_index; i < this.talent_tree.length; ++i) {
             const c_talent = this.talent_tree[i][talent.column_index];
             if (!c_talent.is_filler && !!c_talent.parent && c_talent.parent.row_index < talent.row_index
-                && (c_talent.parent.column_index === talent.column_index || c_talent.parent.column_index === talent.column_index - 1)) {
+                && (c_talent.parent.column_index === talent.column_index || c_talent.parent.column_index === talent.column_index - 1 || c_talent.parent.column_index === talent.column_index - 2)) {
                 return true;
             }
         }
@@ -86,6 +86,13 @@ export class TalentTabComponent implements OnInit, OnChanges {
 
         if (this.hasDependencyTopOfIt(talent) && talent.row_index < this.talent_tree.length - 1) {
             return this.findDependency(this.talent_tree[talent.row_index + 1][talent.column_index]);
+        }
+
+        if (this.is_diagonal_arrow_filler(talent)) {
+            if (!!this.talent_tree[talent.row_index + 1] && !!this.talent_tree[talent.row_index + 1][talent.column_index]?.parent)
+                return this.talent_tree[this.talent_tree[talent.row_index + 1][talent.column_index].parent.row_index][this.talent_tree[talent.row_index + 1][talent.column_index].parent.column_index];
+            if (!!this.talent_tree[talent.row_index + 2] && !!this.talent_tree[talent.row_index + 2][talent.column_index]?.parent)
+                return this.talent_tree[this.talent_tree[talent.row_index + 2][talent.column_index].parent.row_index][this.talent_tree[talent.row_index + 2][talent.column_index].parent.column_index];
         }
 
         return undefined;
@@ -219,30 +226,37 @@ export class TalentTabComponent implements OnInit, OnChanges {
         const current_dependency = this.findDependency(talent);
         const lookahead_dependency = this.findDependency(this.talent_tree[talent.row_index + 1][talent.column_index]);
         return (!!current_dependency && !lookahead_dependency) || (!this.hasDependencyTopOfIt(talent) &&
-        ((!!lookahead_dependency && !(lookahead_dependency.row_index === talent.row_index && lookahead_dependency.column_index === talent.column_index - 1)
+            ((!!lookahead_dependency && !(lookahead_dependency.row_index === talent.row_index && lookahead_dependency.column_index === talent.column_index - 1)
                 && (lookahead_dependency.row_index !== talent.row_index || lookahead_dependency.column_index !== talent.column_index))
-            || (!!lookahead_dependency && !!current_dependency && (lookahead_dependency.row_index !== current_dependency.row_index
-                || lookahead_dependency.column_index !== current_dependency.column_index))
-            || (!lookahead_dependency && !current_dependency)));
+                || (!!lookahead_dependency && !!current_dependency && (lookahead_dependency.row_index !== current_dependency.row_index
+                    || lookahead_dependency.column_index !== current_dependency.column_index))
+                || (!lookahead_dependency && !current_dependency)));
     }
 
     isHorizontalFiller(talent: Talent): boolean {
         const c_talent = this.talent_tree[talent.row_index][talent.column_index + 1];
         const has_diagonal_dependency = !talent.is_filler && talent.column_index < 3 && talent.row_index < this.talent_tree.length - 1
-            && !!this.talent_tree[talent.row_index + 1][talent.column_index + 1].parent
-            && this.talent_tree[talent.row_index + 1][talent.column_index + 1].parent.row_index === talent.row_index
-            && this.talent_tree[talent.row_index + 1][talent.column_index + 1].parent.column_index === talent.column_index;
+            && ((!!this.talent_tree[talent.row_index + 1][talent.column_index + 1].parent
+                && this.talent_tree[talent.row_index + 1][talent.column_index + 1].parent.row_index === talent.row_index
+                && this.talent_tree[talent.row_index + 1][talent.column_index + 1].parent.column_index === talent.column_index) ||
+                (!!this.talent_tree[talent.row_index + 2] && !!this.talent_tree[talent.row_index + 2][talent.column_index + 1]?.parent
+                    && this.talent_tree[talent.row_index + 2][talent.column_index + 1].parent.row_index === talent.row_index
+                    && this.talent_tree[talent.row_index + 2][talent.column_index + 1].parent.column_index === talent.column_index));
         return !has_diagonal_dependency && (!this.hasDependencyLeftOfIt(c_talent) || this.hasDependencyTopOfIt(c_talent));
     }
 
     is_diagonal_arrow_filler(talent: Talent): boolean {
         return talent.is_filler && talent.row_index < this.talent_tree.length - 1
-            && !!this.talent_tree[talent.row_index + 1][talent.column_index].parent
-            && this.talent_tree[talent.row_index + 1][talent.column_index].parent.row_index === talent.row_index
-            && this.talent_tree[talent.row_index + 1][talent.column_index].parent.column_index === talent.column_index - 1;
+            && ((!!this.talent_tree[talent.row_index + 1][talent.column_index].parent
+                && this.talent_tree[talent.row_index + 1][talent.column_index].parent.row_index === talent.row_index
+                && this.talent_tree[talent.row_index + 1][talent.column_index].parent.column_index === talent.column_index - 1) ||
+                (!!this.talent_tree[talent.row_index + 2] && !!this.talent_tree[talent.row_index + 2][talent.column_index]?.parent
+                    && this.talent_tree[talent.row_index + 2][talent.column_index].parent.row_index === talent.row_index
+                    && this.talent_tree[talent.row_index + 2][talent.column_index].parent.column_index === talent.column_index - 1));
     }
 
     is_diagonal_arrow_golden(talent: Talent): boolean {
-        return this.is_diagonal_arrow_filler(talent) && !this.isGrayedOut(this.talent_tree[talent.row_index + 1][talent.column_index]);
+        return this.is_diagonal_arrow_filler(talent) && !this.isGrayedOut(this.talent_tree[talent.row_index + 1][talent.column_index])
+            && (!this.talent_tree[talent.row_index + 2] || !this.isGrayedOut(this.talent_tree[talent.row_index + 2][talent.column_index]));
     }
 }
