@@ -41,17 +41,17 @@
             max-width: calc(50% - 0.25 * #{$spacing});
             margin-bottom: 0.5 * $spacing;
 
-            &:nth-child(2), &:nth-child(4) {
+            &:nth-child(2), &:nth-child(4), &:nth-child(6) {
                 margin-right: 0;
             }
 
-            &:nth-child(4), &:nth-child(5) {
+            &:nth-child(6), &:nth-child(7) {
                 margin-bottom: 0;
             }
         }
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 520px) {
         flex-direction: column;
 
         SelectInput, MultiSelect {
