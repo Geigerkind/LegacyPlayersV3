@@ -5,7 +5,7 @@
                  (item_selected)="data_set_selected($event)"
                  (item_deselected)="data_set_deselected($event)" [enableCheckAll]="false"
                  [allowSearchFilter]="false"></MultiSelect>
-    <MultiSelect [placeholder]="'Events'" [dropdownList]="events"
+    <MultiSelect [placeholder]="'Events'" [dropdownList]="events" id="last_select_2"
                  [selectedItems]="eventsSelected" [enableCheckAll]="false" [allowSearchFilter]="false"
                  (item_selected)="event_selected($event)" (item_deselected)="event_deselected($event)"></MultiSelect>
     <MultiSelect placeholder="Source aura uptime" [dropdownList]="sourceAbilities"

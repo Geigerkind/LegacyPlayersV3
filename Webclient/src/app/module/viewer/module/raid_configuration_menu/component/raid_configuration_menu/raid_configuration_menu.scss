@@ -26,12 +26,28 @@
     padding: 0.5 * $spacing 0.5 * $spacing;
 
     MultiSelect, MultiThumbInput, RaidBrowser {
-        width: calc(16.6% - (2/6) * #{$spacing});
+        width: calc(16.55% - (2/6) * #{$spacing});
         margin-right: 0.5 * $spacing;
         float: left;
 
         &:last-child {
             margin-right: 0;
+        }
+    }
+
+    @media (max-width: 1600px) {
+        MultiSelect, MultiThumbInput, RaidBrowser {
+            width: calc(33.3% - (1/3) * #{$spacing});
+            margin-right: 0.5 * $spacing;
+            float: left;
+        }
+
+        MultiSelect:nth-child(3), RaidBrowser {
+            margin-right: 0;
+        }
+
+        MultiSelect:last-child, MultiThumbInput, RaidBrowser {
+            margin-top: $spacing * 0.5;
         }
     }
 
@@ -52,7 +68,7 @@
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
         SelectInput, MultiThumbInput, RaidBrowser {
             margin-top: 0.5 * $spacing;
         }
