@@ -9,6 +9,7 @@ import {RouterModule} from "@angular/router";
 import {ExportViewerModule} from "./module/export_viewer/module";
 import {MultiThumbInputModule} from "../../../../template/input/multi_thumb_input/module";
 import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/module";
+import {RaidBrowserModule} from "./module/raid_browser/module";
 
 @NgModule({
     declarations: [RaidConfigurationMenuComponent],
@@ -21,7 +22,8 @@ import {ShowTooltipDirectiveModule} from "../../../../directive/show_tooltip/mod
         RouterModule,
         ExportViewerModule,
         MultiThumbInputModule,
-        ShowTooltipDirectiveModule
+        ShowTooltipDirectiveModule,
+        RaidBrowserModule
     ],
     exports: [RaidConfigurationMenuComponent]
 })
