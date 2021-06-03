@@ -75,3 +75,12 @@ table {
         }
     }
 }
+
+.contains_link {
+    cursor: pointer;
+    font-weight: bold;
+
+    &:hover {
+        color: $highlight;
+    }
+}

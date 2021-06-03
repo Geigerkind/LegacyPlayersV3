@@ -115,6 +115,10 @@ export class RaidConfigurationMenuComponent implements OnDestroy {
         this.subscription.add(this.raidConfigurationService.abilities.subscribe(abilities => this.handle_abilities(abilities, true)));
         this.subscription.add(this.raidConfigurationSelectionService.source_selection.subscribe(selection =>
             this.selected_items_sources = this.selected_items_sources.filter(item => selection.includes(item.id))));
+        this.subscription.add(this.raidConfigurationSelectionService.target_selection.subscribe(selection =>
+            this.selected_items_targets = this.selected_items_targets.filter(item => selection.includes(item.id))));
+        this.subscription.add(this.raidConfigurationSelectionService.ability_selection.subscribe(selection =>
+            this.selected_items_abilities = this.selected_items_abilities.filter(item => selection.includes(item.id))));
 
         this.subscription.add(this.raidConfigurationService.selection_overwrite$.subscribe(stack_item => {
             this.selected_items_segments = this.list_items_segments.filter(item => stack_item.segments.has(item.id));

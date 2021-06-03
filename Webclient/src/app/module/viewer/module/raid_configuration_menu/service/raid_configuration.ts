@@ -350,8 +350,8 @@ export class RaidConfigurationService implements OnDestroy {
         const abilities: Set<number> = new Set();
         for (const [start, end] of this.current_filtered_intervals) {
             for (const [ability_id] of this.current_ability_intervals.find_within_range(start, end))
-                if (iterable_some(this.current_ability_map.get(ability_id).values(), (evt_type) => this.current_event_types.has(evt_type)))
-                    abilities.add(ability_id);
+                //if (iterable_some(this.current_ability_map.get(ability_id).values(), (evt_type) => this.current_event_types.has(evt_type)))
+                abilities.add(ability_id);
         }
 
         this.update_sources(iterable_map(sources.values(), (id) => this.current_source_map.get(id)));

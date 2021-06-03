@@ -11,6 +11,8 @@ export class RaidConfigurationSelectionService implements OnDestroy {
     private subscription: Subscription;
 
     private source_selection$: Subject<Array<number>> = new Subject();
+    private target_selection$: Subject<Array<number>> = new Subject();
+    private ability_selection$: Subject<Array<number>> = new Subject();
     private active_event_types: Map<number, number> = new Map<number, number>();
     private event_type_selection_changed: Subject<void> = new Subject();
 
@@ -30,9 +32,27 @@ export class RaidConfigurationSelectionService implements OnDestroy {
         return this.source_selection$.asObservable();
     }
 
+    get target_selection(): Observable<Array<number>> {
+        return this.target_selection$.asObservable();
+    }
+
+    get ability_selection(): Observable<Array<number>> {
+        return this.ability_selection$.asObservable();
+    }
+
     select_sources(sources: Array<number>): void {
         this.source_selection$.next(sources);
         this.raidConfigurationService.update_source_filter(sources, true, true);
+    }
+
+    select_targets(targets: Array<number>): void {
+        this.target_selection$.next(targets);
+        this.raidConfigurationService.update_target_filter(targets, true, true);
+    }
+
+    select_abilities(abilities: Array<number>): void {
+        this.ability_selection$.next(abilities);
+        this.raidConfigurationService.update_ability_filter(abilities, true, true);
     }
 
     register_event_type(event_type: number): void {

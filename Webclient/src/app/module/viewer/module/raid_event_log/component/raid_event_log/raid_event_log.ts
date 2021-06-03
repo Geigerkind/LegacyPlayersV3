@@ -3,9 +3,13 @@ import {EventLogService} from "../../service/event_log";
 import {EventLogEntry} from "../../domain_value/event_log_entry";
 import {Observable, Subscription} from "rxjs";
 import {DateService} from "../../../../../../service/date";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {InstanceDataService} from "../../../../service/instance_data";
 import {KnechtUpdates} from "../../../../domain_value/knecht_updates";
+import {UnitService} from "../../../../service/unit";
+import {SpellService} from "../../../../service/spell";
+import {RaidConfigurationSelectionService} from "../../../raid_configuration_menu/service/raid_configuration_selection";
+import {InstanceViewerMeta} from "../../../../domain_value/instance_viewer_meta";
 
 @Component({
     selector: "RaidEventLog",
@@ -23,11 +27,17 @@ export class RaidEventLogComponent implements OnDestroy {
     private current_offset: number = 0;
     private event_log_entries_length: number = 0;
 
+    private meta: InstanceViewerMeta;
+
     constructor(
         private eventLogService: EventLogService,
         public dateService: DateService,
         private activatedRouteService: ActivatedRoute,
-        private instanceDataService: InstanceDataService
+        private instanceDataService: InstanceDataService,
+        public unitService: UnitService,
+        public spellService: SpellService,
+        private raidConfigurationSelectionService: RaidConfigurationSelectionService,
+        private router: Router
     ) {
         this.subscription = this.eventLogService.event_log_entries.subscribe(entries => {
             this.event_log_entries = entries;
@@ -46,6 +56,22 @@ export class RaidEventLogComponent implements OnDestroy {
                 this.event_log_entries_length = 0;
             }
         }));
+        this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.meta = meta));
+    }
+
+    filter_by_source_id(id: number): void {
+        this.router.navigate(["/viewer/" + this.meta.instance_meta_id + "/base"]);
+        this.raidConfigurationSelectionService.select_sources([id]);
+    }
+
+    filter_by_target_id(id: number): void {
+        this.router.navigate(["/viewer/" + this.meta.instance_meta_id + "/base"]);
+        this.raidConfigurationSelectionService.select_targets([id]);
+    }
+
+    filter_by_ability_id(id: number): void {
+        this.router.navigate(["/viewer/" + this.meta.instance_meta_id + "/base"]);
+        this.raidConfigurationSelectionService.select_abilities([id]);
     }
 
     ngOnDestroy(): void {

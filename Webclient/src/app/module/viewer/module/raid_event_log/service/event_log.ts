@@ -123,7 +123,7 @@ export class EventLogService implements OnDestroy {
         if (!this.initialized) {
             this.update_event_log_entries();
             this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_update, _]) => {
-                if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged].includes(elem)))
+                if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged, KnechtUpdates.FilterInitialized, KnechtUpdates.WorkerInitialized].includes(elem)))
                     this.update_event_log_entries();
             }));
             this.initialized = true;
@@ -138,39 +138,52 @@ export class EventLogService implements OnDestroy {
         }
     }
 
-    private create_event_log_entry(type: number, event: Event, processor: (Event) => [Observable<string>, number]): EventLogEntry {
-        const [event_message, subject_id] = processor(event);
-        return {
+    private create_event_log_entry(type: number, event: Event, processor: (Event, entry) => void): EventLogEntry {
+        const entry = {
             id: event[0],
             type,
-            timestamp: event[1],
-            subject_id,
-            event_message
+            timestamp: event[1]
         };
+        processor(event, entry);
+        return (entry as EventLogEntry);
     }
 
     async get_event_log_entries(up_to_timestamp: number): Promise<Array<EventLogEntry>> {
+        if (!this.instanceDataService.isInitialized())
+            return [];
+
+        const job_spell_casts = this.instanceDataService.knecht_spell_cast.event_log_spell_cast(this.to_actor, this.log_offsets.get(0)[0], up_to_timestamp);
+        const job_death = this.instanceDataService.knecht_melee.event_log_deaths(this.to_actor, this.log_offsets.get(1)[0], up_to_timestamp);
+        const job_aura_app = this.instanceDataService.knecht_aura.event_log_aura_application(this.to_actor, this.log_offsets.get(6)[0], up_to_timestamp);
+        const job_interrupts = this.instanceDataService.knecht_un_aura.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp);
+        const job_spell_steals = this.instanceDataService.knecht_un_aura.event_log_spell_steal(this.to_actor, this.log_offsets.get(8)[0], up_to_timestamp);
+        const job_dispels = this.instanceDataService.knecht_un_aura.event_log_dispel(this.to_actor, this.log_offsets.get(9)[0], up_to_timestamp);
+        const job_melee = this.instanceDataService.knecht_melee.event_log_melee_damage(this.to_actor, this.log_offsets.get(12)[0], up_to_timestamp);
+        const job_spell_dmg = this.instanceDataService.knecht_spell_damage.event_log_spell_damage(this.to_actor, this.log_offsets.get(13)[0], up_to_timestamp);
+        const job_heal = this.instanceDataService.knecht_heal.event_log_heal(this.to_actor, this.log_offsets.get(14)[0], up_to_timestamp);
+
+        const result_spell_casts = await job_spell_casts;
+        const result_death = await job_death;
+        const result_aura_app = await job_aura_app;
+        const result_interrupts = await job_interrupts;
+        const result_dispels = await job_dispels;
+        const result_spell_steals = await job_spell_steals;
+        const result_melee = await job_melee;
+        const result_spell_damage = await job_spell_dmg;
+        const result_heal = await job_heal;
+
         return [
-            // ...(await this.instanceDataService.knecht_spell_cast.event_log_spell_cast(this.to_actor, this.log_offsets.get(0)[0], up_to_timestamp))
-            // .map(event => this.create_event_log_entry(0, event, (evt) => this.process_spell_cast(evt))),
-            ...(await this.instanceDataService.knecht_melee.event_log_deaths(this.to_actor, this.log_offsets.get(1)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(1, event, (evt) => this.process_death(evt))),
+            ...result_spell_casts.map(event => this.create_event_log_entry(0, event, (evt, entry) => this.process_spell_cast(evt, entry))),
+            ...result_death.map(event => this.create_event_log_entry(1, event, (evt, entry) => this.process_death(evt, entry))),
+            ...result_aura_app.map(event => this.create_event_log_entry(6, event, (evt, entry) => this.process_aura_application(evt, entry))),
+            ...result_interrupts.map(event => this.create_event_log_entry(7, event, (evt, entry) => this.process_interrupt(evt, entry))),
+            ...result_spell_steals.map(event => this.create_event_log_entry(8, event, (evt, entry) => this.process_spell_steal(evt, entry))),
+            ...result_dispels.map(event => this.create_event_log_entry(9, event, (evt, entry) => this.process_dispel(evt, entry))),
+            ...result_melee.map(event => this.create_event_log_entry(12, event, (evt, entry) => this.process_melee_damage(evt, entry))),
+            ...result_spell_damage.map(event => this.create_event_log_entry(13, event, (evt, entry) => this.process_spell_damage(evt, entry))),
+            ...result_heal.map(event => this.create_event_log_entry(14, event, (evt, entry) => this.process_heal(evt, entry))),
             // ...(await this.instanceDataService.knecht_replay.event_log_combat_state(this.to_actor, this.log_offsets.get(2)[0], up_to_timestamp))
             // .map(event => this.create_event_log_entry(2, event, (evt) => this.process_combat_state(evt))),
-            ...(await this.instanceDataService.knecht_aura.event_log_aura_application(this.to_actor, this.log_offsets.get(6)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(6, event, (evt) => this.process_aura_application(evt))),
-            ...(await this.instanceDataService.knecht_un_aura.event_log_interrupt(this.to_actor, this.log_offsets.get(7)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(7, event, (evt) => this.process_interrupt(evt))),
-            ...(await this.instanceDataService.knecht_un_aura.event_log_spell_steal(this.to_actor, this.log_offsets.get(8)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(8, event, (evt) => this.process_spell_steal(evt))),
-            ...(await this.instanceDataService.knecht_un_aura.event_log_dispel(this.to_actor, this.log_offsets.get(9)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(9, event, (evt) => this.process_dispel(evt))),
-            ...(await this.instanceDataService.knecht_melee.event_log_melee_damage(this.to_actor, this.log_offsets.get(12)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(12, event, (evt) => this.process_melee_damage(evt))),
-            ...(await this.instanceDataService.knecht_spell_damage.event_log_spell_damage(this.to_actor, this.log_offsets.get(13)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(13, event, (evt) => this.process_spell_damage(evt))),
-            ...(await this.instanceDataService.knecht_heal.event_log_heal(this.to_actor, this.log_offsets.get(14)[0], up_to_timestamp))
-                .map(event => this.create_event_log_entry(14, event, (evt) => this.process_heal(evt))),
         ].sort((left, right) => {
             const cmp = right.timestamp - left.timestamp;
             if (cmp === 0)
@@ -183,18 +196,16 @@ export class EventLogService implements OnDestroy {
         this.event_log_entries$.next(await this.get_event_log_entries(0));
     }
 
-    private process_spell_cast(event: Event): [Observable<string>, number] {
-        const subject$ = this.unitService.get_unit_name(se_spell_cast(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim$ = this.unitService.get_unit_name(te_spell_cast(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const spell$ = this.spellService.get_spell_name(ae_spell_cast(event));
+    private process_spell_cast(event: Event, entry: EventLogEntry): void {
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_spell_cast(event), false);
         else subject_id = get_unit_id(se_spell_cast(event), false);
 
-        return [combineLatest([subject$, victim$, spell$])
-            .pipe(map((([subject_name, victim_name, spell_name]) => {
-                return subject_name + " casts " + spell_name + " onto " + victim_name + ".";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_spell_cast(event), false);
+        entry.target_id = get_unit_id(te_spell_cast(event), false);
+        entry.amount = event[5] as number;
+        entry.source_ability_id = ae_spell_cast(event);
     }
 
     private process_combat_state(event: Event): [Observable<string>, number] {
@@ -208,139 +219,109 @@ export class EventLogService implements OnDestroy {
             }))), subject_id];
     }
 
-    private process_aura_application(event: Event): [Observable<string>, number] {
-        const subject$ = this.unitService.get_unit_name(se_aura_application(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const caster$ = this.unitService.get_unit_name(te_aura_application(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const spell$ = this.spellService.get_spell_name(ae_aura_application(event));
+    private process_aura_application(event: Event, entry: EventLogEntry): void {
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(se_aura_application(event), false);
         else subject_id = get_unit_id(te_aura_application(event), false);
 
-        return [combineLatest([subject$, caster$, spell$])
-            .pipe(map((([subject_name, caster_name, spell_name]) => {
-                if (event[5] === 0)
-                    return spell_name + " (by " + caster_name + ") fades from " + subject_name + ".";
-                return subject_name + " gains " + spell_name + " (by " + caster_name + ").";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_aura_application(event), false);
+        entry.target_id = get_unit_id(te_aura_application(event), false);
+        entry.amount = event[5] as number;
+        entry.source_ability_id = ae_aura_application(event);
     }
 
-    private process_interrupt(event: Event): [Observable<string>, number] {
+    private process_interrupt(event: Event, entry: EventLogEntry): void {
         const spells = ae_interrupt(event);
-        const subject$ = this.unitService.get_unit_name(se_interrupt(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim$ = this.unitService.get_unit_name(te_interrupt(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const ability$ = this.spellService.get_spell_name(spells[0]);
-        const interrupted_ability$ = this.spellService.get_spell_name(spells[1]);
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_interrupt(event), false);
         else subject_id = get_unit_id(se_interrupt(event), false);
 
-        return [combineLatest([subject$, victim$, ability$, interrupted_ability$])
-            .pipe(map((([subject_name, victim_name, ability_name, interrupted_ability_name]) => {
-                return subject_name + " interrupts " + victim_name + "'s " + interrupted_ability_name + " with " + ability_name + ".";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_interrupt(event), false);
+        entry.target_id = get_unit_id(te_interrupt(event), false);
+        entry.source_ability_id = spells[0];
+        entry.target_ability_id = spells[1];
     }
 
-    private process_spell_steal(event: Event): [Observable<string>, number] {
+    private process_spell_steal(event: Event, entry: EventLogEntry): void {
         const spells = ae_un_aura(event);
-        const subject$ = this.unitService.get_unit_name(se_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim$ = this.unitService.get_unit_name(te_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const ability$ = this.spellService.get_spell_name(spells[0]);
-        const stolen_ability$ = this.spellService.get_spell_name(spells[1]);
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_un_aura(event), false);
         else subject_id = get_unit_id(se_un_aura(event), false);
 
-        return [combineLatest([subject$, victim$, ability$, stolen_ability$])
-            .pipe(map((([subject_name, victim_name, ability_name, stolen_ability_name]) => {
-                return subject_name + " steals " + victim_name + "'s " + stolen_ability_name + " with " + ability_name + ".";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_un_aura(event), false);
+        entry.target_id = get_unit_id(te_un_aura(event), false);
+        entry.source_ability_id = spells[0];
+        entry.target_ability_id = spells[1];
     }
 
-    private process_dispel(event: Event): [Observable<string>, number] {
+    private process_dispel(event: Event, entry: EventLogEntry): void {
         const spells = ae_un_aura(event);
-        const subject$ = this.unitService.get_unit_name(se_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim$ = this.unitService.get_unit_name(te_un_aura(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const ability$ = this.spellService.get_spell_name(spells[0]);
-        const dispelled_ability$ = this.spellService.get_spell_name(spells[1]);
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_un_aura(event), false);
         else subject_id = get_unit_id(se_un_aura(event), false);
 
-        return [combineLatest([subject$, victim$, ability$, dispelled_ability$])
-            .pipe(map((([subject_name, victim_name, ability_name, dispelled_ability_name]) => {
-                return subject_name + " dispels " + victim_name + "'s " + dispelled_ability_name + " with " + ability_name + ".";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_un_aura(event), false);
+        entry.target_id = get_unit_id(te_un_aura(event), false);
+        entry.source_ability_id = spells[0];
+        entry.target_ability_id = spells[1];
     }
 
-    private process_melee_damage(event: MeleeDamage): [Observable<string>, number] {
-        const subject = this.unitService.get_unit_name(se_melee_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim = this.unitService.get_unit_name(te_melee_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+    private process_melee_damage(event: MeleeDamage, entry: EventLogEntry): void {
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_melee_damage(event), false);
         else subject_id = get_unit_id(se_melee_damage(event), false);
 
-        return [combineLatest([subject, victim])
-            .pipe(map((([subject_name, victim_name]) => {
-                const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[4]));
-                const damage_done = get_spell_components_total_amount_without_absorb(event[5]);
-                if (damage_done === 0)
-                    return subject_name + " " + hit_type_str + " " + victim_name + ".";
-                return subject_name + " " + hit_type_str + " " + victim_name + " for " +
-                    event[5].map(component => this.get_spell_component_localization(component)).join(", ") + ".";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_melee_damage(event), false);
+        entry.target_id = get_unit_id(te_melee_damage(event), false);
+        entry.amount = get_spell_components_total_amount_without_absorb(event[5]);
+        entry.hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[4]));
+        entry.trailer = event[5].map(component => this.get_spell_component_localization(component)).join(", ");
     }
 
-    private process_spell_damage(event: SpellDamage): [Observable<string>, number] {
-        const subject$ = this.unitService.get_unit_name(se_spell_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim$ = this.unitService.get_unit_name(te_spell_damage(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const ability$ = this.spellService.get_spell_name(ae_spell_damage(event));
+    private process_spell_damage(event: SpellDamage, entry: EventLogEntry): void {
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_spell_damage(event), false);
         else subject_id = get_unit_id(se_spell_damage(event), false);
 
-        return [combineLatest([subject$, victim$, ability$])
-            .pipe(map((([subject_name, victim_name, ability_name]) => {
-                const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]));
-                const damage_done = get_spell_components_total_amount_without_absorb(event[7]);
-                if (damage_done === 0)
-                    return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
-                return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " +
-                    event[7].map(component => this.get_spell_component_localization(component)).join(", ") + ".";
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_spell_damage(event), false);
+        entry.target_id = get_unit_id(te_spell_damage(event), false);
+        entry.amount = get_spell_components_total_amount_without_absorb(event[7]);
+        entry.hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]));
+        entry.source_ability_id = ae_spell_damage(event);
+        entry.trailer = event[7].map(component => this.get_spell_component_localization(component)).join(", ");
     }
 
-    private process_heal(event: Event): [Observable<string>, number] {
-        const subject$ = this.unitService.get_unit_name(se_heal(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const victim$ = this.unitService.get_unit_name(te_heal(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const ability$ = this.spellService.get_spell_name(ae_heal(event));
+    private process_heal(event: Event, entry: EventLogEntry): void {
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(te_heal(event), false);
         else subject_id = get_unit_id(se_heal(event), false);
 
-        return [combineLatest([subject$, victim$, ability$])
-            .pipe(map((([subject_name, victim_name, ability_name]) => {
-                const hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]), true);
-                const overheal = event[8] - event[9];
-                if (event[8] === 0)
-                    return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + ".";
-                return subject_name + "'s " + ability_name + " " + hit_type_str + " " + victim_name + " for " +
-                    this.format_number(event[9]) + this.get_mitigation_localization(event[10], 0, 0) +
-                    (overheal > 0 ? " (" + this.format_number(overheal) + " overheal)." : ".");
-            }))), subject_id];
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_heal(event), false);
+        entry.target_id = get_unit_id(te_heal(event), false);
+        entry.amount = event[9];
+        entry.amount2 = event[8];
+        entry.amount3 = event[8] - event[9];
+        entry.hit_type_str = this.get_hit_type_localization(hit_mask_to_hit_type_array(event[6]));
+        entry.source_ability_id = ae_heal(event);
+        entry.trailer = this.format_number(event[9]) + this.get_mitigation_localization(event[10], 0, 0) +
+            (entry.amount3 > 0 ? " (" + this.format_number(entry.amount3) + " overheal)" : "");
     }
 
-    private process_death(event: Event): [Observable<string>, number] {
-        const subject$ = this.unitService.get_unit_name(se_death(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
-        const murder$ = this.unitService.get_unit_name(te_death(event), this.current_meta.end_ts ?? this.current_meta.start_ts);
+    private process_death(event: Event, entry: EventLogEntry): void {
         let subject_id;
         if (this.to_actor) subject_id = get_unit_id(se_death(event), false);
         else subject_id = get_unit_id(te_death(event), false);
-        return [combineLatest([subject$, murder$])
-            .pipe(map((([subject_name, murder_name]) => {
-                if (murder_name === CONST_UNKNOWN_LABEL)
-                    return subject_name + " died.";
-                return subject_name + " is killed by " + murder_name + ".";
-            }))), subject_id];
+
+        entry.subject_id = subject_id;
+        entry.source_id = get_unit_id(se_death(event), false);
+        entry.target_id = get_unit_id(te_death(event), false);
     }
 
     private get_hit_type_localization(hit_mask: Array<HitType>, is_heal: boolean = false): string {
