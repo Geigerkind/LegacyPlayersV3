@@ -89,7 +89,7 @@ export class RaidDetailTableComponent implements OnDestroy {
 
         if (!has_ability) {
             if (this.abilities.length > 0 && this.ability_details.length > 0) {
-                this.current_ability_selection = this.abilities[0].value;
+                this.current_ability_selection = this.abilities[0].value as number;
                 this.adjust_path();
                 return this.current_ability_details;
             }

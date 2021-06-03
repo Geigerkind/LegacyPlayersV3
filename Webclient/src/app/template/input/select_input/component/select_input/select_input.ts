@@ -13,15 +13,14 @@ export class SelectInputComponent implements AfterViewInit {
     @Input() options: Array<SelectOption>;
     @Input() autoFocus: boolean = false;
 
-    @Output() valueChange: EventEmitter<number> = new EventEmitter<number>();
-    valueData: number;
+    @Output() valueChange: EventEmitter<number | string> = new EventEmitter<number | string>();
+    valueData: number | string;
     @Input()
-    get value(): number {
+    get value(): number | string {
         return this.valueData;
     }
 
-    set value(selectedOption: number) {
-        selectedOption = Number(selectedOption);
+    set value(selectedOption: number | string) {
         if (this.valueData !== selectedOption) {
             this.valueChange.emit(selectedOption);
         }

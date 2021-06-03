@@ -1,6 +1,6 @@
 import {Observable} from "rxjs";
 
 export interface SelectOption {
-    value: number;
+    value: number | string;
     label_key: string | Observable<string>;
 }
