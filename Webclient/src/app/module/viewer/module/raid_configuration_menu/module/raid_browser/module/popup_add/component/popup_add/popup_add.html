@@ -34,7 +34,9 @@
         </div>
         <div class="input_row">
             <label for="hit_types">Hit types:</label>
-            <MultiSelect id="hit_types"></MultiSelect>
+            <MultiSelect id="hit_types" [dropdownList]="hit_types"
+                         [selectedItems]="selected_hit_types"
+                         (selectedItemsChange)="selected_hit_types_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">
             <div class="save_button popup_button btn btnHighlight" (click)="save_preset()">Save</div>
