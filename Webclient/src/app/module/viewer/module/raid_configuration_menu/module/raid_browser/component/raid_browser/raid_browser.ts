@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, EventEmitter, OnInit, Output} from "@angular/core";
 import {Preset} from "../../domain_value/preset";
 import {NotificationService} from "../../../../../../../../service/notification";
 import {Severity} from "../../../../../../../../domain_value/severity";
@@ -11,10 +11,15 @@ import {SettingsService} from "../../../../../../../../service/settings";
 })
 export class RaidBrowserComponent implements OnInit {
 
+    @Output() selected_presets: EventEmitter<Array<Preset>> = new EventEmitter();
+
     presets: Array<Preset> = [];
 
     show_remove_widget: boolean = false;
     show_add_widget: boolean = false;
+
+    options: Array<any> = [];
+    selected_options: Array<any> = [];
 
     constructor(
         private notificationService: NotificationService,
@@ -25,6 +30,7 @@ export class RaidBrowserComponent implements OnInit {
     ngOnInit(): void {
         if (this.settingsService.check("viewer_presets"))
             this.presets = this.settingsService.get("viewer_presets");
+        this.reload_select();
     }
 
     toggleRemoveWidget(): void {
@@ -49,6 +55,7 @@ export class RaidBrowserComponent implements OnInit {
         this.presets = this.presets.filter(preset => preset.name !== preset_name);
         this.settingsService.set("viewer_presets", this.presets);
         this.notificationService.propagate(Severity.Success, "Preset has been removed!");
+        this.reload_select();
     }
 
     add_preset(preset: Preset): void {
@@ -57,5 +64,39 @@ export class RaidBrowserComponent implements OnInit {
         this.presets = current_presets;
         this.settingsService.set("viewer_presets", this.presets);
         this.notificationService.propagate(Severity.Success, "Preset has been added!");
+        this.reload_select();
+    }
+
+    selected_presets_changed(presets: Array<any>): void {
+        const old_contains_everything: boolean = !!this.selected_options.find(item => item.id === "DEFAULT");
+        const new_contains_everything: boolean = !!presets.find(item => item.id === "DEFAULT");
+        if (!old_contains_everything && new_contains_everything) {
+            this.selected_options = presets.filter(item => item.id === "DEFAULT");
+        } else if (old_contains_everything && presets.length > 1) {
+            this.selected_options = presets.filter(item => item.id !== "DEFAULT");
+        } else {
+            this.selected_options = presets;
+        }
+    }
+
+    apply(): void {
+        if (this.selected_options.length === 1 && this.selected_options[0].id === "DEFAULT") {
+            this.selected_presets.next([{
+                name: "DEFAULT",
+                event_types: [-1],
+                sources: [-1],
+                targets: [-1],
+                abilities: [-1],
+                hit_types: [-1]
+            }]);
+            return;
+        }
+        this.selected_presets.next(this.selected_options.map(item => this.presets.find(preset => preset.name === item.id)));
+    }
+
+    private reload_select(): void {
+        this.options = [{id: "DEFAULT", label: "Default filter"}].concat(this.presets.map(preset => {
+            return {id: preset.name, label: preset.name};
+        }));
     }
 }
