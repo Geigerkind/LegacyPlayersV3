@@ -110,6 +110,31 @@ export class PopupAddComponent implements OnChanges {
             return;
         }
 
+        if (this.selected_event_types.length < 1) {
+            this.notificationService.propagate(Severity.Error, "At least one event type must be selected!");
+            return;
+        }
+
+        if (this.selected_sources.length < 1) {
+            this.notificationService.propagate(Severity.Error, "At least one source must be selected!");
+            return;
+        }
+
+        if (this.selected_targets.length < 1) {
+            this.notificationService.propagate(Severity.Error, "At least one target must be selected!");
+            return;
+        }
+
+        if (this.selected_abilities.length < 1) {
+            this.notificationService.propagate(Severity.Error, "At least one ability must be selected!");
+            return;
+        }
+
+        if (this.selected_hit_types.length < 1) {
+            this.notificationService.propagate(Severity.Error, "At least one hit type must be selected!");
+            return;
+        }
+
         this.add_preset.next({
             name: this.preset_name,
             event_types: this.selected_event_types.map(item => item.id),
