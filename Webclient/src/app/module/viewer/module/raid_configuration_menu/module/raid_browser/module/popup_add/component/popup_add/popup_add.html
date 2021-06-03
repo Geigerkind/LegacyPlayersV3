@@ -12,30 +12,41 @@
         </div>
         <div class="input_row">
             <label for="preset_name">Preset name:</label>
-            <GeneralInput id="preset_name" type="text" [(value)]="preset_name"></GeneralInput>
+            <GeneralInput id="preset_name" type="text" [(value)]="preset_name" placeholderKey="Choose unique name"></GeneralInput>
         </div>
         <div class="input_row">
             <label for="event_types">Event types:</label>
             <MultiSelect id="event_types" [dropdownList]="event_types"
                          [selectedItems]="selected_event_types"
+                         placeholder="Select event types..."
                          (selectedItemsChange)="selected_event_types_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">
             <label for="sources">Sources:</label>
-            <MultiSelect id="sources"></MultiSelect>
+            <MultiSelect id="sources" [dropdownList]="sources"
+                         [selectedItems]="selected_sources"
+                         placeholder="Select sources..."
+                         (selectedItemsChange)="selected_sources_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">
             <label for="targets">Targets:</label>
-            <MultiSelect id="targets"></MultiSelect>
+            <MultiSelect id="targets" [dropdownList]="targets"
+                         [selectedItems]="selected_targets"
+                         placeholder="Select targets..."
+                         (selectedItemsChange)="selected_targets_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">
             <label for="abilities">Abilities:</label>
-            <MultiSelect id="abilities"></MultiSelect>
+            <MultiSelect id="abilities" [dropdownList]="abilities"
+                         [selectedItems]="selected_abilities"
+                         placeholder="Select abilities..."
+                         (selectedItemsChange)="selected_abilities_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">
             <label for="hit_types">Hit types:</label>
             <MultiSelect id="hit_types" [dropdownList]="hit_types"
                          [selectedItems]="selected_hit_types"
+                         placeholder="Select hit types..."
                          (selectedItemsChange)="selected_hit_types_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">

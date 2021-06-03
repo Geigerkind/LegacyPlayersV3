@@ -1,15 +1,17 @@
-import {Component, EventEmitter, Input, OnChanges, Output} from "@angular/core";
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, Output} from "@angular/core";
 import {Preset} from "../../../../domain_value/preset";
 import {SelectOption} from "../../../../../../../../../../template/input/select_input/domain_value/select_option";
 import {NotificationService} from "../../../../../../../../../../service/notification";
 import {Severity} from "../../../../../../../../../../domain_value/severity";
+import {RaidConfigurationService} from "../../../../../../service/raid_configuration";
+import {Subscription} from "rxjs";
 
 @Component({
     selector: "PopupAdd",
     templateUrl: "./popup_add.html",
     styleUrls: ["./popup_add.scss"]
 })
-export class PopupAddComponent implements OnChanges {
+export class PopupAddComponent implements OnChanges, OnDestroy {
     private static EVENT_TYPES: Array<[number, string]> = [
         [0, "Spell casts"],
         [1, "Deaths"],
@@ -52,6 +54,8 @@ export class PopupAddComponent implements OnChanges {
         [1048576, "Reflect"]
     ];
 
+    private subscription: Subscription = new Subscription();
+
     @Input() presets: Array<Preset>;
     @Output() close_widget: EventEmitter<void> = new EventEmitter();
     @Output() add_preset: EventEmitter<Preset> = new EventEmitter();
@@ -59,6 +63,9 @@ export class PopupAddComponent implements OnChanges {
     load_presets: Array<SelectOption> = [];
     event_types: Array<any> = [];
     hit_types: Array<any> = [];
+    sources: Array<any> = [];
+    targets: Array<any> = [];
+    abilities: Array<any> = [];
 
     selected_preset: string = "";
     preset_name: string = "";
@@ -69,8 +76,24 @@ export class PopupAddComponent implements OnChanges {
     selected_hit_types: Array<any> = [];
 
     constructor(
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private raidConfigurationService: RaidConfigurationService
     ) {
+        this.subscription.add(this.raidConfigurationService.sources.subscribe(items => {
+            this.sources = [{id: -1, label: "Everything"}].concat(items.map(item => {
+                return {id: item.id, label: item.label};
+            }));
+        }));
+        this.subscription.add(this.raidConfigurationService.targets.subscribe(items => {
+            this.targets = [{id: -1, label: "Everything"}].concat(items.map(item => {
+                return {id: item.id, label: item.label};
+            }));
+        }));
+        this.subscription.add(this.raidConfigurationService.abilities.subscribe(items => {
+            this.abilities = [{id: -1, label: "Everything"}].concat(items.map(item => {
+                return {id: item.id, label: item.label};
+            }));
+        }));
     }
 
     ngOnChanges(): void {
@@ -80,6 +103,10 @@ export class PopupAddComponent implements OnChanges {
         this.load_presets = this.select_presets;
         this.event_types = this.select_event_types;
         this.hit_types = this.select_hit_types;
+    }
+
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
     }
 
     get select_presets(): Array<SelectOption> {
@@ -101,7 +128,18 @@ export class PopupAddComponent implements OnChanges {
     }
 
     load_preset(): void {
-        this.preset_name = this.selected_preset;
+        const preset = this.presets.find(preset => preset.name === this.selected_preset);
+        if (!preset) {
+            this.notificationService.propagate(Severity.Warning, "Could not load preset!");
+            return;
+        }
+
+        this.preset_name = preset.name;
+        this.selected_event_types = this.event_types.filter(evt => preset.event_types.includes(evt.id));
+        this.selected_sources = this.sources.filter(evt => preset.sources.includes(evt.id));
+        this.selected_targets = this.targets.filter(evt => preset.targets.includes(evt.id));
+        this.selected_abilities = this.abilities.filter(evt => preset.abilities.includes(evt.id));
+        this.selected_hit_types = this.hit_types.filter(evt => preset.hit_types.includes(evt.id));
     }
 
     save_preset(): void {
@@ -166,6 +204,42 @@ export class PopupAddComponent implements OnChanges {
             this.selected_hit_types = selected_items.filter(item => item.id !== -1);
         } else {
             this.selected_hit_types = selected_items;
+        }
+    }
+
+    selected_sources_changed(selected_items: Array<any>): void {
+        const old_contains_everything: boolean = !!this.selected_sources.find(item => item.id === -1);
+        const new_contains_everything: boolean = !!selected_items.find(item => item.id === -1);
+        if (!old_contains_everything && new_contains_everything) {
+            this.selected_sources = selected_items.filter(item => item.id === -1);
+        } else if (old_contains_everything && selected_items.length > 1) {
+            this.selected_sources = selected_items.filter(item => item.id !== -1);
+        } else {
+            this.selected_sources = selected_items;
+        }
+    }
+
+    selected_targets_changed(selected_items: Array<any>): void {
+        const old_contains_everything: boolean = !!this.selected_targets.find(item => item.id === -1);
+        const new_contains_everything: boolean = !!selected_items.find(item => item.id === -1);
+        if (!old_contains_everything && new_contains_everything) {
+            this.selected_targets = selected_items.filter(item => item.id === -1);
+        } else if (old_contains_everything && selected_items.length > 1) {
+            this.selected_targets = selected_items.filter(item => item.id !== -1);
+        } else {
+            this.selected_targets = selected_items;
+        }
+    }
+
+    selected_abilities_changed(selected_items: Array<any>): void {
+        const old_contains_everything: boolean = !!this.selected_abilities.find(item => item.id === -1);
+        const new_contains_everything: boolean = !!selected_items.find(item => item.id === -1);
+        if (!old_contains_everything && new_contains_everything) {
+            this.selected_abilities = selected_items.filter(item => item.id === -1);
+        } else if (old_contains_everything && selected_items.length > 1) {
+            this.selected_abilities = selected_items.filter(item => item.id !== -1);
+        } else {
+            this.selected_abilities = selected_items;
         }
     }
 }
