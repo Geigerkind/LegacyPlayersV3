@@ -4,7 +4,7 @@
         <div class="close_button" (click)="close_widget.next()">X</div>
     </div>
     <div class="popup_content">
-        <SelectInput [options]="select_options" [(value)]="selected_option"></SelectInput>
+        <SelectInput [options]="select_options" [themed]="true" [(value)]="selected_option"></SelectInput>
         <div class="btn btnHighlight" (click)="remove.next(selected_option)">Remove</div>
     </div>
 </div>

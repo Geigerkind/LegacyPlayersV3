@@ -16,7 +16,7 @@ export class PopupRemoveComponent implements OnChanges {
     selected_option: string = "";
 
     ngOnChanges(): void {
-        if (this.presets.length > 0)
+        if (this.presets.length > 0 && this.selected_option === "")
             this.selected_option = this.presets[0].name;
     }
 

@@ -6,12 +6,13 @@
     <div class="popup_content">
         <div class="load_preset_container">
             <label for="preset_select">Load preset:</label>
-            <SelectInput id="preset_select"></SelectInput>
-            <div class="popup_button btn btnHighlight">Load</div>
+            <SelectInput id="preset_select" [themed]="true" [options]="select_options"
+                         [(value)]="selected_option"></SelectInput>
+            <div class="popup_button btn btnHighlight" (click)="load_preset()">Load</div>
         </div>
         <div class="input_row">
             <label for="preset_name">Preset name:</label>
-            <GeneralInput id="preset_name" type="text"></GeneralInput>
+            <GeneralInput id="preset_name" type="text" [(value)]="preset_name"></GeneralInput>
         </div>
         <div class="input_row">
             <label for="event_types">Event types:</label>
@@ -34,7 +35,7 @@
             <MultiSelect id="hit_types"></MultiSelect>
         </div>
         <div class="input_row">
-            <div class="save_button popup_button btn btnHighlight">Save</div>
+            <div class="save_button popup_button btn btnHighlight" (click)="save_preset()">Save</div>
         </div>
     </div>
 </div>

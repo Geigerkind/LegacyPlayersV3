@@ -3,4 +3,4 @@
 <div class="rbButton btn btnHighlight" (click)="toggleRemoveWidget()">-</div>
 <div class="rbButton btn btnHighlight" (click)="toggleAddWidget()">+</div>
 <PopupRemove *ngIf="show_remove_widget" [presets]="presets" (close_widget)="close_remove_widget()" (remove)="remove_preset($event)"></PopupRemove>
-<PopupAdd *ngIf="show_add_widget" [presets]="presets" (close_widget)="close_add_widget()"></PopupAdd>
+<PopupAdd *ngIf="show_add_widget" [presets]="presets" (close_widget)="close_add_widget()" (add_preset)="add_preset($event)"></PopupAdd>
