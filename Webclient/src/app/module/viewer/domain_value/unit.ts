@@ -14,7 +14,9 @@ export function get_unit_id(unit: Unit, get_owner: boolean = true): number {
     return unit[1];
 }
 
-export function get_creature_entry(unit: Unit): number | null {
+export function get_creature_entry(unit: Unit, get_owner: boolean = false): number | null {
+    if (get_owner === true)
+        return get_creature_entry(get_unit_owner(unit), false);
     return unit[2];
 }
 

@@ -17,7 +17,11 @@ export type Interrupt = [number, number, number, Unit, Unit, number, number];
 export type UnAura = [number, number, number, number, Unit, Unit, number, number];
 export type ThreatWipe = [number, number, Unit];
 export type Summon = [number, number, Unit, Unit];
+// Source, Target, hit_mask, dmg_components
 export type MeleeDamage = [number, number, Unit, Unit, number, Array<SpellComponent>];
+// Spell_cause_id, source, target, spell_id, hit_mask, spell_components
 export type SpellDamage = [number, number, number, Unit, Unit, number, number, Array<SpellComponent>];
+// Spell_cause_id, source, target, spell_id, hit_mask, school_mask, total, effective, mitigation
 export type Heal = [number, number, number, Unit, Unit, number, number, number, number, number, number, number, number];
+// cause_event_id, source, target, spell_id, hit_mask, school_mask, amount
 export type Threat = [number, number, number, Unit, Unit, number, number, number, number];

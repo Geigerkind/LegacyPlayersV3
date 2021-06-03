@@ -1,6 +1,6 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
-import {get_unit_id, Unit} from "../domain_value/unit";
+import {get_creature_entry, get_unit_id, is_player, Unit} from "../domain_value/unit";
 import {
     se_aura_application,
     se_combat_state,
@@ -40,6 +40,9 @@ import {
     ae_threat,
     ae_un_aura
 } from "../extractor/abilities";
+import {Preset} from "../module/raid_configuration_menu/module/raid_browser/domain_value/preset";
+import {iterable_filter} from "../../../stdlib/iterable_higher_order";
+import {hm_heal, hm_melee_damage, hm_spell_cast, hm_spell_damage, hm_threat} from "../extractor/hit_types";
 
 export class InstanceDataFilter {
 
@@ -48,6 +51,7 @@ export class InstanceDataFilter {
     private target_filter$: Set<number> = new Set();
     private ability_filter$: Set<number> = new Set();
     private time_boundaries$: [number, number] = [0, 1];
+    private presets$: Array<Preset> = [];
 
     private data_loader: InstanceDataLoader;
     private cache: Map<string, Array<Event>> = new Map();
@@ -56,15 +60,29 @@ export class InstanceDataFilter {
         this.data_loader = new InstanceDataLoader(instance_meta_id, is_expired, event_types);
     }
 
-    private apply_filter(event_type: number, container: Array<Event>, source_extraction: (Event) => number, target_extraction: (Event) => number,
-                         multi_ability_extraction: (Event) => Array<number>, single_ability_extraction: (Event) => number,
+    private apply_filter(event_type: number, container: Array<Event>, source_extraction: [(Event) => Unit, boolean], target_extraction: [(Event) => Unit, boolean],
+                         multi_ability_extraction: (Event) => Array<number>, single_ability_extraction: (Event) => number, hit_mask_extraction: (Event) => number,
                          inverse_filter: boolean = false, skip_time_and_attempt_filter: boolean = false, skip_target_filter: boolean = false): Array<Event> {
+        const presets_with_event_type: Array<Preset> = this.presets$.filter(preset => preset.event_types.includes(event_type) || preset.event_types.includes(-1));
+        if (presets_with_event_type.length === 0 && this.presets$.length > 0)
+            return [];
+
+        const has_everything_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-1));
+        const has_everything_target_preset_tmp = presets_with_event_type.some(preset => preset.targets.includes(-1));
+        const has_everything_source_preset = this.presets$.length === 0 || (inverse_filter ? has_everything_target_preset_tmp : has_everything_source_preset_tmp);
+        const has_everything_target_preset = this.presets$.length === 0 || (inverse_filter ? has_everything_source_preset_tmp : has_everything_target_preset_tmp);
+        const has_everything_abilities_preset = this.presets$.length === 0 || presets_with_event_type.some(preset => preset.abilities.includes(-1));
+        const has_everything_hit_types_preset = this.presets$.length === 0 || presets_with_event_type.some(preset => preset.hit_types.includes(-1));
+
         const cache_key = event_type.toString() + (inverse_filter ? "1" : "0");
         if (this.cache.has(cache_key))
             return this.cache.get(cache_key);
 
         const filter_source = inverse_filter ? this.target_filter$ : this.source_filter$;
         const filter_target = inverse_filter ? this.source_filter$ : this.target_filter$;
+        const filter_source_preset = inverse_filter ? presets_with_event_type.map(preset => preset.targets) : presets_with_event_type.map(preset => preset.sources);
+        const filter_target_preset = inverse_filter ? presets_with_event_type.map(preset => preset.sources) : presets_with_event_type.map(preset => preset.targets);
+
         let result = container;
         if (!skip_time_and_attempt_filter) {
             result = result.filter(event => this.time_boundaries$[0] <= event[1] && this.time_boundaries$[1] >= event[1]);
@@ -74,27 +92,48 @@ export class InstanceDataFilter {
         }
         if (!(inverse_filter && skip_target_filter)) {
             result = result.filter(event => {
-                const unit_id = source_extraction(event);
+                const unit = source_extraction[0](event);
+                const unit_id = get_unit_id(unit, source_extraction[1]);
+                const preset_id = is_player(unit, source_extraction[1]) ? unit_id : get_creature_entry(unit, source_extraction[1]);
                 // if (unit_id === 0) return true;
-                return filter_source.has(unit_id);
+                return filter_source.has(unit_id) && (has_everything_source_preset || filter_source_preset.some(filter => filter.includes(preset_id)));
             });
         }
         if (!(!inverse_filter && skip_target_filter)) {
             if (!!target_extraction)
                 result = result.filter(event => {
-                    const unit_id = target_extraction(event);
+                    const unit = target_extraction[0](event);
+                    const unit_id = get_unit_id(unit, target_extraction[1]);
                     if (unit_id === 0)
                         return true;
-                    return filter_target.has(unit_id);
+                    const preset_id = is_player(unit, target_extraction[1]) ? unit_id : get_creature_entry(unit, target_extraction[1]);
+                    return filter_target.has(unit_id) && (has_everything_target_preset || filter_target_preset.some(filter => filter.includes(preset_id)));
                 });
         }
         if (!!multi_ability_extraction)
-            result = result.filter(event => multi_ability_extraction(event).every(ability => this.ability_filter$.has(ability)));
+            result = result.filter(event => multi_ability_extraction(event).every(ability => this.ability_filter$.has(ability)
+                && (has_everything_abilities_preset || presets_with_event_type.some(preset => preset.abilities.includes(ability)))));
         if (!!single_ability_extraction)
-            result = result.filter(event => this.ability_filter$.has(single_ability_extraction(event)));
+            result = result.filter(event => {
+                const ability_id = single_ability_extraction(event);
+                return this.ability_filter$.has(ability_id)
+                    && (has_everything_abilities_preset || presets_with_event_type.some(preset => preset.abilities.includes(ability_id)));
+            });
+
+        if (presets_with_event_type.length > 0 && !!hit_mask_extraction && !has_everything_hit_types_preset) {
+            result = result.filter(event => {
+                const hit_mask = hit_mask_extraction(event);
+                return presets_with_event_type.some(preset => preset.hit_types.some(ht => (hit_mask & ht) > 0));
+            });
+        }
 
         this.cache.set(cache_key, result);
         return result;
+    }
+
+    async set_preset_filter(presets: Array<Preset>): Promise<void> {
+        this.cache = new Map();
+        this.presets$ = presets;
     }
 
     async set_segment_intervals(intervals: Array<[number, number]>): Promise<void> {
@@ -131,111 +170,116 @@ export class InstanceDataFilter {
     }
 
     async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
-        return this.data_loader.sources;
+        const has_everything = this.presets$.some(preset => preset.sources.includes(-1)) || this.presets$.length === 0;
+        return new Map(iterable_filter(this.data_loader.sources.entries(), ([key,]) => has_everything || this.presets$.some(preset => preset.sources.includes(key))));
     }
 
     async get_targets(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
-        return this.data_loader.targets;
+        const has_everything = this.presets$.some(preset => preset.targets.includes(-1)) || this.presets$.length === 0;
+        return new Map(iterable_filter(this.data_loader.targets.entries(), ([key,]) => has_everything || this.presets$.some(preset => preset.targets.includes(key))));
     }
 
     async get_abilities(): Promise<Map<number, [number, Array<[number, number]>]>> {
-        return this.data_loader.abilities;
+        const has_everything = this.presets$.some(preset => preset.abilities.includes(-1)) || this.presets$.length === 0;
+        return new Map(iterable_filter(this.data_loader.abilities.entries(), ([key,]) => has_everything || this.presets$.some(preset => preset.abilities.includes(key))));
     }
 
     get_spell_casts(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(0, this.data_loader.spell_casts, (evt) => get_unit_id(se_spell_cast(evt)),
-            (evt) => get_unit_id(te_spell_cast(evt), false), undefined, ae_spell_cast, inverse_filter);
+        return this.apply_filter(0, this.data_loader.spell_casts, [se_spell_cast, true],
+            [te_spell_cast, false], undefined, ae_spell_cast, hm_spell_cast, inverse_filter);
     }
 
     get_deaths(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(1, this.data_loader.deaths, (evt) => get_unit_id(se_death(evt), false),
-            (evt) => get_unit_id(te_death(evt), false), undefined, undefined, inverse_filter);
+        return this.apply_filter(1, this.data_loader.deaths, [se_death, false],
+            [te_death, false], undefined, undefined, undefined, inverse_filter);
     }
 
     get_combat_states(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(2, this.data_loader.combat_states, (evt) => get_unit_id(se_combat_state(evt)),
-            undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(2, this.data_loader.combat_states, [se_combat_state, false],
+            undefined, undefined, undefined, undefined, inverse_filter);
     }
 
     get_loot(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(3, this.data_loader.loot, (evt) => get_unit_id(se_loot(evt), false),
-            undefined, undefined, undefined, inverse_filter, true);
+        return this.apply_filter(3, this.data_loader.loot, [se_loot, false],
+            undefined, undefined, undefined, undefined, inverse_filter, true);
     }
 
     get_positions(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(4, this.data_loader.positions, (evt) => get_unit_id(se_position(evt), false),
-            undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(4, this.data_loader.positions, [se_position, false],
+            undefined, undefined, undefined, undefined, inverse_filter);
     }
 
     get_powers(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(5, this.data_loader.powers, (evt) => get_unit_id(se_power(evt), false),
-            undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(5, this.data_loader.powers, [se_power, false],
+            undefined, undefined, undefined, undefined, inverse_filter);
     }
 
     get_aura_applications(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(6, this.data_loader.aura_applications, (evt) => get_unit_id(se_aura_application(evt), false),
-            (evt) => get_unit_id(te_aura_application(evt), false), undefined, ae_aura_application, inverse_filter);
+        return this.apply_filter(6, this.data_loader.aura_applications, [se_aura_application, false],
+            [te_aura_application, false], undefined, ae_aura_application, undefined, inverse_filter);
     }
 
     get_interrupts(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(7, this.data_loader.interrupts, (evt) => get_unit_id(se_interrupt(evt)),
-            (evt) => get_unit_id(te_interrupt(evt), false), ae_interrupt, undefined, inverse_filter);
+        return this.apply_filter(7, this.data_loader.interrupts, [se_interrupt, true],
+            [te_interrupt, false], ae_interrupt, undefined, undefined, inverse_filter);
     }
 
     get_spell_steals(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(8, this.data_loader.spell_steals, (evt) => get_unit_id(se_un_aura(evt)),
-            (evt) => get_unit_id(te_un_aura(evt), false), ae_un_aura, undefined, inverse_filter);
+        return this.apply_filter(8, this.data_loader.spell_steals, [se_un_aura, true],
+            [te_un_aura, false], ae_un_aura, undefined, undefined, inverse_filter);
     }
 
     get_dispels(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(9, this.data_loader.dispels, (evt) => get_unit_id(se_un_aura(evt)),
-            (evt) => get_unit_id(te_un_aura(evt), false), ae_un_aura, undefined, inverse_filter);
+        return this.apply_filter(9, this.data_loader.dispels, [se_un_aura, true],
+            [te_un_aura, false], ae_un_aura, undefined, undefined, inverse_filter);
     }
 
     get_threat_wipes(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(10, this.data_loader.threat_wipes, (evt) => get_unit_id(se_threat_wipe(evt), false),
-            undefined, undefined, undefined, inverse_filter);
+        return this.apply_filter(10, this.data_loader.threat_wipes, [se_threat_wipe, false],
+            undefined, undefined, undefined, undefined, inverse_filter);
     }
 
     get_summons(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(11, this.data_loader.summons, (evt) => get_unit_id(se_summon(evt), false),
-            (evt) => get_unit_id(te_summon(evt), false), undefined, undefined, inverse_filter);
+        return this.apply_filter(11, this.data_loader.summons, [se_summon, false],
+            [te_summon, false], undefined, undefined, undefined, inverse_filter);
     }
 
     get_melee_damage(inverse_filter: boolean = false, skip_target_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(12, this.data_loader.melee_damage, (evt) => get_unit_id(se_melee_damage(evt)),
-            (evt) => get_unit_id(te_melee_damage(evt), false), undefined, ae_melee_damage, inverse_filter, false, skip_target_filter);
+        return this.apply_filter(12, this.data_loader.melee_damage, [se_melee_damage, true],
+            [te_melee_damage, false], undefined, ae_melee_damage, hm_melee_damage,
+            inverse_filter, false, skip_target_filter);
     }
 
     get_spell_damage(inverse_filter: boolean = false, skip_target_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(13, this.data_loader.spell_damage, (evt) => get_unit_id(se_spell_damage(evt)),
-            (evt) => get_unit_id(te_spell_damage(evt), false), undefined, ae_spell_damage, inverse_filter, false, skip_target_filter);
+        return this.apply_filter(13, this.data_loader.spell_damage, [se_spell_damage, true],
+            [te_spell_damage, false], undefined, ae_spell_damage, hm_spell_damage,
+            inverse_filter, false, skip_target_filter);
     }
 
     get_heal(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(14, this.data_loader.heal, (evt) => get_unit_id(se_heal(evt)),
-            (evt) => get_unit_id(te_heal(evt), false), undefined, ae_heal, inverse_filter);
+        return this.apply_filter(14, this.data_loader.heal, [se_heal, true],
+            [te_heal, false], undefined, ae_heal, hm_heal, inverse_filter);
     }
 
     get_threat(inverse_filter: boolean = false): Array<Event> {
         if (!this.data_loader.initialized) return [];
-        return this.apply_filter(15, this.data_loader.threat, (evt) => get_unit_id(se_threat(evt), false),
-            (evt) => get_unit_id(te_threat(evt), false), undefined, ae_threat, inverse_filter);
+        return this.apply_filter(15, this.data_loader.threat, [se_threat, false],
+            [te_threat, false], undefined, ae_threat, hm_threat, inverse_filter);
     }
 
     get_non_segmented_aura_applications(inverse_filter: boolean = false): Array<Event> {

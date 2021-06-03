@@ -3,6 +3,7 @@ import {Preset} from "../../domain_value/preset";
 import {NotificationService} from "../../../../../../../../service/notification";
 import {Severity} from "../../../../../../../../domain_value/severity";
 import {SettingsService} from "../../../../../../../../service/settings";
+import {InstanceDataService} from "../../../../../../service/instance_data";
 
 @Component({
     selector: "RaidBrowser",
@@ -10,8 +11,6 @@ import {SettingsService} from "../../../../../../../../service/settings";
     styleUrls: ["./raid_browser.scss"]
 })
 export class RaidBrowserComponent implements OnInit {
-
-    @Output() selected_presets: EventEmitter<Array<Preset>> = new EventEmitter();
 
     presets: Array<Preset> = [];
 
@@ -23,7 +22,8 @@ export class RaidBrowserComponent implements OnInit {
 
     constructor(
         private notificationService: NotificationService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        private instanceDataService: InstanceDataService
     ) {
     }
 
@@ -81,17 +81,10 @@ export class RaidBrowserComponent implements OnInit {
 
     apply(): void {
         if (this.selected_options.length === 1 && this.selected_options[0].id === "DEFAULT") {
-            this.selected_presets.next([{
-                name: "DEFAULT",
-                event_types: [-1],
-                sources: [-1],
-                targets: [-1],
-                abilities: [-1],
-                hit_types: [-1]
-            }]);
+            this.instanceDataService.apply_preset([]);
             return;
         }
-        this.selected_presets.next(this.selected_options.map(item => this.presets.find(preset => preset.name === item.id)));
+        this.instanceDataService.apply_preset(this.selected_options.map(item => this.presets.find(preset => preset.name === item.id)));
     }
 
     private reload_select(): void {

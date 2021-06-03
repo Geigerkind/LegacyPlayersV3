@@ -11,6 +11,7 @@ import {KnechtUpdates} from "../domain_value/knecht_updates";
 import {LoadingBarService} from "../../../service/loading_bar";
 import {debounceTime} from "rxjs/operators";
 import {CommunicationEvent} from "../domain_value/communication_event";
+import {Preset} from "../module/raid_configuration_menu/module/raid_browser/domain_value/preset";
 
 @Injectable({
     providedIn: "root",
@@ -154,18 +155,18 @@ export class InstanceDataService implements OnDestroy {
         this.current_intervals = intervals;
         this.update_total_duration();
 
-        const promisses = [];
-        promisses.push(this.knecht_melee.set_segment_intervals(intervals));
-        promisses.push(this.knecht_misc.set_segment_intervals(intervals));
-        // promisses.push(this.knecht_replay.set_segment_intervals(intervals));
-        promisses.push(this.knecht_spell_damage.set_segment_intervals(intervals));
-        promisses.push(this.knecht_heal.set_segment_intervals(intervals));
-        promisses.push(this.knecht_un_aura.set_segment_intervals(intervals));
-        promisses.push(this.knecht_threat.set_segment_intervals(intervals));
-        promisses.push(this.knecht_spell_cast.set_segment_intervals(intervals));
-        promisses.push(this.knecht_aura.set_segment_intervals(intervals));
+        const promises = [];
+        promises.push(this.knecht_melee.set_segment_intervals(intervals));
+        promises.push(this.knecht_misc.set_segment_intervals(intervals));
+        // promises.push(this.knecht_replay.set_segment_intervals(intervals));
+        promises.push(this.knecht_spell_damage.set_segment_intervals(intervals));
+        promises.push(this.knecht_heal.set_segment_intervals(intervals));
+        promises.push(this.knecht_un_aura.set_segment_intervals(intervals));
+        promises.push(this.knecht_threat.set_segment_intervals(intervals));
+        promises.push(this.knecht_spell_cast.set_segment_intervals(intervals));
+        promises.push(this.knecht_aura.set_segment_intervals(intervals));
 
-        for (const prom of promisses)
+        for (const prom of promises)
             await prom;
 
         --this.filter_update_in_progress;
@@ -181,18 +182,18 @@ export class InstanceDataService implements OnDestroy {
     public async set_source_filter(sources: Array<number>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
         ++this.filter_update_in_progress;
-        const promisses = [];
-        promisses.push(this.knecht_melee.set_source_filter(sources));
-        promisses.push(this.knecht_misc.set_source_filter(sources));
-        // promisses.push(this.knecht_replay.set_source_filter(sources));
-        promisses.push(this.knecht_spell_damage.set_source_filter(sources));
-        promisses.push(this.knecht_heal.set_source_filter(sources));
-        promisses.push(this.knecht_un_aura.set_source_filter(sources));
-        promisses.push(this.knecht_threat.set_source_filter(sources));
-        promisses.push(this.knecht_spell_cast.set_source_filter(sources));
-        promisses.push(this.knecht_aura.set_source_filter(sources));
+        const promises = [];
+        promises.push(this.knecht_melee.set_source_filter(sources));
+        promises.push(this.knecht_misc.set_source_filter(sources));
+        // promises.push(this.knecht_replay.set_source_filter(sources));
+        promises.push(this.knecht_spell_damage.set_source_filter(sources));
+        promises.push(this.knecht_heal.set_source_filter(sources));
+        promises.push(this.knecht_un_aura.set_source_filter(sources));
+        promises.push(this.knecht_threat.set_source_filter(sources));
+        promises.push(this.knecht_spell_cast.set_source_filter(sources));
+        promises.push(this.knecht_aura.set_source_filter(sources));
 
-        for (const prom of promisses)
+        for (const prom of promises)
             await prom;
 
         --this.filter_update_in_progress;
@@ -208,18 +209,18 @@ export class InstanceDataService implements OnDestroy {
     public async set_target_filter(targets: Array<number>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
         ++this.filter_update_in_progress;
-        const promisses = [];
-        promisses.push(this.knecht_melee.set_target_filter(targets));
-        promisses.push(this.knecht_misc.set_target_filter(targets));
-        // promisses.push(this.knecht_replay.set_target_filter(targets));
-        promisses.push(this.knecht_spell_damage.set_target_filter(targets));
-        promisses.push(this.knecht_heal.set_target_filter(targets));
-        promisses.push(this.knecht_un_aura.set_target_filter(targets));
-        promisses.push(this.knecht_threat.set_target_filter(targets));
-        promisses.push(this.knecht_spell_cast.set_target_filter(targets));
-        promisses.push(this.knecht_aura.set_target_filter(targets));
+        const promises = [];
+        promises.push(this.knecht_melee.set_target_filter(targets));
+        promises.push(this.knecht_misc.set_target_filter(targets));
+        // promises.push(this.knecht_replay.set_target_filter(targets));
+        promises.push(this.knecht_spell_damage.set_target_filter(targets));
+        promises.push(this.knecht_heal.set_target_filter(targets));
+        promises.push(this.knecht_un_aura.set_target_filter(targets));
+        promises.push(this.knecht_threat.set_target_filter(targets));
+        promises.push(this.knecht_spell_cast.set_target_filter(targets));
+        promises.push(this.knecht_aura.set_target_filter(targets));
 
-        for (const prom of promisses)
+        for (const prom of promises)
             await prom;
 
         --this.filter_update_in_progress;
@@ -235,18 +236,18 @@ export class InstanceDataService implements OnDestroy {
     public async set_ability_filter(abilities: Array<number>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
         ++this.filter_update_in_progress;
-        const promisses = [];
-        promisses.push(this.knecht_melee.set_ability_filter(abilities));
-        promisses.push(this.knecht_misc.set_ability_filter(abilities));
-        // promisses.push(this.knecht_replay.set_ability_filter(abilities));
-        promisses.push(this.knecht_spell_damage.set_ability_filter(abilities));
-        promisses.push(this.knecht_heal.set_ability_filter(abilities));
-        promisses.push(this.knecht_un_aura.set_ability_filter(abilities));
-        promisses.push(this.knecht_threat.set_ability_filter(abilities));
-        promisses.push(this.knecht_spell_cast.set_ability_filter(abilities));
-        promisses.push(this.knecht_aura.set_ability_filter(abilities));
+        const promises = [];
+        promises.push(this.knecht_melee.set_ability_filter(abilities));
+        promises.push(this.knecht_misc.set_ability_filter(abilities));
+        // promises.push(this.knecht_replay.set_ability_filter(abilities));
+        promises.push(this.knecht_spell_damage.set_ability_filter(abilities));
+        promises.push(this.knecht_heal.set_ability_filter(abilities));
+        promises.push(this.knecht_un_aura.set_ability_filter(abilities));
+        promises.push(this.knecht_threat.set_ability_filter(abilities));
+        promises.push(this.knecht_spell_cast.set_ability_filter(abilities));
+        promises.push(this.knecht_aura.set_ability_filter(abilities));
 
-        for (const prom of promisses)
+        for (const prom of promises)
             await prom;
 
         --this.filter_update_in_progress;
@@ -265,18 +266,18 @@ export class InstanceDataService implements OnDestroy {
         this.boundaries = boundaries;
         this.update_total_duration();
 
-        const promisses = [];
-        promisses.push(this.knecht_melee.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_misc.set_time_boundaries(boundaries));
-        // promisses.push(this.knecht_replay.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_spell_damage.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_heal.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_un_aura.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_threat.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_spell_cast.set_time_boundaries(boundaries));
-        promisses.push(this.knecht_aura.set_time_boundaries(boundaries));
+        const promises = [];
+        promises.push(this.knecht_melee.set_time_boundaries(boundaries));
+        promises.push(this.knecht_misc.set_time_boundaries(boundaries));
+        // promises.push(this.knecht_replay.set_time_boundaries(boundaries));
+        promises.push(this.knecht_spell_damage.set_time_boundaries(boundaries));
+        promises.push(this.knecht_heal.set_time_boundaries(boundaries));
+        promises.push(this.knecht_un_aura.set_time_boundaries(boundaries));
+        promises.push(this.knecht_threat.set_time_boundaries(boundaries));
+        promises.push(this.knecht_spell_cast.set_time_boundaries(boundaries));
+        promises.push(this.knecht_aura.set_time_boundaries(boundaries));
 
-        for (const prom of promisses)
+        for (const prom of promises)
             await prom;
 
         --this.filter_update_in_progress;
@@ -459,6 +460,26 @@ export class InstanceDataService implements OnDestroy {
 
     private update_total_duration(): void {
         this.attempt_total_duration$.next(Math.min(this.current_intervals.reduce((acc, interval) => acc + interval[1] - interval[0], 0), this.boundaries[1] - this.boundaries[0]));
+    }
+
+    public async apply_preset(presets: Array<Preset>) {
+        if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        const promises = [];
+        promises.push(this.knecht_melee.set_preset_filter(presets));
+        promises.push(this.knecht_misc.set_preset_filter(presets));
+        // promises.push(this.knecht_replay.set_preset_filter(presets));
+        promises.push(this.knecht_spell_damage.set_preset_filter(presets));
+        promises.push(this.knecht_heal.set_preset_filter(presets));
+        promises.push(this.knecht_un_aura.set_preset_filter(presets));
+        promises.push(this.knecht_threat.set_preset_filter(presets));
+        promises.push(this.knecht_spell_cast.set_preset_filter(presets));
+        promises.push(this.knecht_aura.set_preset_filter(presets));
+
+        for (const prom of promises)
+            await prom;
+
+        this.knecht_updates$.next([KnechtUpdates.PresetSet, []]);
+        this.knecht_updates$.next([KnechtUpdates.FilterChanged, []]);
     }
 
 }

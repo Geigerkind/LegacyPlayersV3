@@ -31,6 +31,16 @@ function iterable_map<T, U>(iterable: Iterator<T>, predicate: (T) => U): Array<U
     return result;
 }
 
+function iterable_filter<T, U>(iterable: Iterator<T>, predicate: (T) => boolean): Array<U> {
+    const result = [];
+    let element = iterable.next();
+    while (!element.done) {
+        if (predicate(element.value))
+            result.push(element.value);
+        element = iterable.next();
+    }
+    return result;
+}
 
 
-export {iterable_some, iterable_filterMap, iterable_map};
+export {iterable_some, iterable_filterMap, iterable_map, iterable_filter};

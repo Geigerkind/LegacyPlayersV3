@@ -87,7 +87,7 @@ export class RaidConfigurationService implements OnDestroy {
         this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
         this.subscription.add(this.instanceDataService.attempts.subscribe(attempts => this.update_segments(attempts)));
         this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_updates, evt_types]) => {
-            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized].includes(elem))) {
+            if (knecht_updates.some(elem => [KnechtUpdates.NewData, KnechtUpdates.Initialized, KnechtUpdates.PresetSet].includes(elem))) {
                 this.update_subjects();
             }
             if (knecht_updates.includes(KnechtUpdates.WorkerInitialized)) {
@@ -303,6 +303,7 @@ export class RaidConfigurationService implements OnDestroy {
     private update_abilities(abilities: Array<number>): void {
         this.nextAbilities.next();
         const result: Array<Observable<EventAbility>> = [];
+
         // TODO: Optimize!
         for (const spell_id of abilities)
             result.push(this.spellService.get_localized_basic_spell(spell_id)
