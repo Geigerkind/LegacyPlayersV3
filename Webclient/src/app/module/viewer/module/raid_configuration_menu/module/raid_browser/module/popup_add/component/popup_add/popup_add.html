@@ -6,8 +6,8 @@
     <div class="popup_content">
         <div class="load_preset_container">
             <label for="preset_select">Load preset:</label>
-            <SelectInput id="preset_select" [themed]="true" [options]="select_options"
-                         [(value)]="selected_option"></SelectInput>
+            <SelectInput id="preset_select" [themed]="true" [options]="load_presets"
+                         [(value)]="selected_preset"></SelectInput>
             <div class="popup_button btn btnHighlight" (click)="load_preset()">Load</div>
         </div>
         <div class="input_row">
@@ -16,7 +16,9 @@
         </div>
         <div class="input_row">
             <label for="event_types">Event types:</label>
-            <MultiSelect id="event_types"></MultiSelect>
+            <MultiSelect id="event_types" [dropdownList]="event_types"
+                         [selectedItems]="selected_event_types"
+                         (selectedItemsChange)="selected_event_types_changed($event)"></MultiSelect>
         </div>
         <div class="input_row">
             <label for="sources">Sources:</label>
