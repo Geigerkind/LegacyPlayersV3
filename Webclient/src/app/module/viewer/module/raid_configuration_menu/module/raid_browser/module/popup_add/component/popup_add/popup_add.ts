@@ -81,12 +81,16 @@ export class PopupAddComponent implements OnChanges, OnDestroy {
     ) {
         this.subscription.add(this.raidConfigurationService.sources.subscribe(items => {
             this.sources = [{id: -1, label: "Everything"}].concat(items.map(item => {
-                return {id: item.id, label: item.label};
+                if (item.is_player)
+                    return {id: item.id, label: item.label};
+                return {id: item.npc_id, label: item.label};
             }));
         }));
         this.subscription.add(this.raidConfigurationService.targets.subscribe(items => {
             this.targets = [{id: -1, label: "Everything"}].concat(items.map(item => {
-                return {id: item.id, label: item.label};
+                if (item.is_player)
+                    return {id: item.id, label: item.label};
+                return {id: item.npc_id, label: item.label};
             }));
         }));
         this.subscription.add(this.raidConfigurationService.abilities.subscribe(items => {

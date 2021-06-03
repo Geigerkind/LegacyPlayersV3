@@ -8,7 +8,7 @@ import {EventSource} from "../domain_value/event_source";
 import {RaidOption} from "../domain_value/raid_option";
 import {debounceTime, map, take, takeUntil} from "rxjs/operators";
 import {UnitService} from "../../../service/unit";
-import {get_unit_id, is_player, Unit} from "../../../domain_value/unit";
+import {get_creature_entry, get_unit_id, is_player, Unit} from "../../../domain_value/unit";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {EventAbility} from "../domain_value/event_ability";
 import {SpellService} from "../../../service/spell";
@@ -270,12 +270,14 @@ export class RaidConfigurationService implements OnDestroy {
             result.push(combineLatest([this.unitService.get_unit_name(source, this.current_meta.end_ts ?? this.current_meta.start_ts),
                 this.unitService.is_unit_boss(source), this.unitService.get_unit_hero_class_id(source, this.current_meta.end_ts ?? this.current_meta.start_ts)])
                 .pipe(map(([label, is_boss, hero_class_id]) => {
+                    const isPlayer = is_player(source, false);
                     return {
                         id: get_unit_id(source, false),
                         label,
-                        is_player: is_player(source, false),
+                        is_player: isPlayer,
                         is_boss,
-                        hero_class_id
+                        hero_class_id,
+                        npc_id: isPlayer ? 0 : get_creature_entry(source, false)
                     };
                 })));
         zip(...result).pipe(takeUntil(this.nextSources.asObservable())).subscribe(update => this.sources$.next(update));
@@ -289,12 +291,14 @@ export class RaidConfigurationService implements OnDestroy {
             result.push(combineLatest([this.unitService.get_unit_name(target, this.current_meta.end_ts ?? this.current_meta.start_ts),
                 this.unitService.is_unit_boss(target), this.unitService.get_unit_hero_class_id(target, this.current_meta.end_ts ?? this.current_meta.start_ts)])
                 .pipe(map(([label, is_boss, hero_class_id]) => {
+                    const isPlayer = is_player(target, false);
                     return {
                         id: get_unit_id(target, false),
                         label,
-                        is_player: is_player(target, false),
+                        is_player: isPlayer,
                         is_boss,
-                        hero_class_id
+                        hero_class_id,
+                        npc_id: isPlayer ? 0 : get_creature_entry(target, false)
                     };
                 })));
         zip(...result).pipe(takeUntil(this.nextTargets.asObservable())).subscribe(update => this.targets$.next(update));
