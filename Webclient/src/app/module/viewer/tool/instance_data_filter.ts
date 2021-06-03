@@ -1,6 +1,6 @@
 import {InstanceDataLoader} from "./instance_data_loader";
 import {Event} from "../domain_value/event";
-import {get_creature_entry, get_unit_id, is_player, Unit} from "../domain_value/unit";
+import {get_creature_entry, get_unit_id, is_player, player_id_or_npc_id, Unit} from "../domain_value/unit";
 import {
     se_aura_application,
     se_combat_state,
@@ -171,12 +171,12 @@ export class InstanceDataFilter {
 
     async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         const has_everything = this.presets$.some(preset => preset.sources.includes(-1)) || this.presets$.length === 0;
-        return new Map(iterable_filter(this.data_loader.sources.entries(), ([key,]) => has_everything || this.presets$.some(preset => preset.sources.includes(key))));
+        return new Map(iterable_filter(this.data_loader.sources.entries(), ([key, val]) => has_everything || this.presets$.some(preset => preset.sources.includes(player_id_or_npc_id(val[0])))));
     }
 
     async get_targets(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         const has_everything = this.presets$.some(preset => preset.targets.includes(-1)) || this.presets$.length === 0;
-        return new Map(iterable_filter(this.data_loader.targets.entries(), ([key,]) => has_everything || this.presets$.some(preset => preset.targets.includes(key))));
+        return new Map(iterable_filter(this.data_loader.targets.entries(), ([key, val]) => has_everything || this.presets$.some(preset => preset.targets.includes(player_id_or_npc_id(val[0])))));
     }
 
     async get_abilities(): Promise<Map<number, [number, Array<[number, number]>]>> {

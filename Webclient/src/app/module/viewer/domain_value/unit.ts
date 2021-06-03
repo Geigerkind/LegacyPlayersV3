@@ -35,3 +35,9 @@ export function is_creature(unit: Unit, get_owner: boolean = true): boolean {
 export function has_unit(container: Array<Unit>, unit: Unit): boolean {
     return container.find(inner_unit => unit[0] === inner_unit[0] && unit[1] === inner_unit[1]) !== undefined;
 }
+
+export function player_id_or_npc_id(unit: Unit): number {
+    if (is_player(unit))
+        return get_unit_id(unit);
+    return get_creature_entry(unit);
+}

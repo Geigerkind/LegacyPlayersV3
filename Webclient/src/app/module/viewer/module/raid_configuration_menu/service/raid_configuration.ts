@@ -263,6 +263,10 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_sources(sources: Array<Unit>): void {
+        if (sources.length === 0) {
+            this.sources$.next([]);
+            return;
+        }
         this.nextSources.next();
         const result: Array<Observable<EventSource>> = [];
         // TODO: Optimize!
@@ -284,8 +288,13 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_targets(targets: Array<Unit>): void {
+        if (targets.length === 0) {
+            this.targets$.next([]);
+            return;
+        }
         this.nextTargets.next();
         const result: Array<Observable<EventSource>> = [];
+
         // TODO: Optimize!
         for (const target of targets)
             result.push(combineLatest([this.unitService.get_unit_name(target, this.current_meta.end_ts ?? this.current_meta.start_ts),
@@ -305,6 +314,10 @@ export class RaidConfigurationService implements OnDestroy {
     }
 
     private update_abilities(abilities: Array<number>): void {
+        if (abilities.length === 0) {
+            this.abilities$.next([]);
+            return;
+        }
         this.nextAbilities.next();
         const result: Array<Observable<EventAbility>> = [];
 
