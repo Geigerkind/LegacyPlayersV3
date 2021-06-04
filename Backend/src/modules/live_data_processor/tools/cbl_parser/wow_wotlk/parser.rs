@@ -438,6 +438,13 @@ impl CombatLogParser for WoWWOTLKParser {
                 self.collect_participant(&victim, message_args[5], event_ts);
                 vec![MessageType::Death(Death { cause: None, victim })]
             }
+            "PARTY_KILL" => {
+                let killer = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
+                let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
+                self.collect_participant(&killer, message_args[2], event_ts);
+                self.collect_participant(&victim, message_args[5], event_ts);
+                vec![MessageType::Death(Death { cause: Some(killer), victim })]
+            }
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
@@ -680,6 +687,8 @@ impl CombatLogParser for WoWWOTLKParser {
             36597 | 38153 => 180000,
             // Noth the Plaguebringer
             15954 => 120000,
+            // Halion
+            40142 => 180000,
             _ => return None,
         })
     }
@@ -714,6 +723,8 @@ impl CombatLogParser for WoWWOTLKParser {
             36791 | 37863 | 37868 | 37886 | 37907 | 37934 => vec![36789],
             // Noth the Plaguebringer
             16981 | 16983 => vec![15954],
+            // Halion
+            40142 => vec![39863],
             _ => return None,
         })
     }

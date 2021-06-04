@@ -410,6 +410,13 @@ impl CombatLogParser for WoWTBCParser {
                 let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
                 vec![MessageType::Death(Death { cause: None, victim })]
             }
+            "PARTY_KILL" => {
+                let killer = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
+                let victim = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);
+                self.collect_participant(&killer, message_args[2], event_ts);
+                self.collect_participant(&victim, message_args[5], event_ts);
+                vec![MessageType::Death(Death { cause: Some(killer), victim })]
+            }
             "SPELL_DISPEL" => {
                 let un_aura_caster = parse_unit(&message_args[1..4]).unwrap_or_else(Unit::default);
                 let target = parse_unit(&message_args[4..7]).unwrap_or_else(Unit::default);

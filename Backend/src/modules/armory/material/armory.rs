@@ -252,8 +252,10 @@ impl Init for HashMap<u32, Guild> {
         })
             .into_iter()
             .for_each(|(guild_id, guild_rank)| {
-                let guild = self.get_mut(&guild_id).unwrap();
-                guild.ranks.push(guild_rank);
+                if self.contains_key(&guild_id) {
+                    let guild = self.get_mut(&guild_id).unwrap();
+                    guild.ranks.push(guild_rank);
+                }
             });
     }
 }
