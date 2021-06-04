@@ -72,7 +72,7 @@ export class RaidDetailTableComponent implements OnDestroy {
             this.raidDetailService.select(this.current_meter_selection);
         });
         this.subscription = this.instanceDataService.knecht_updates.subscribe(([updates, ]) => {
-            if (updates.includes(KnechtUpdates.FilterChanged))
+            if (updates.includes(KnechtUpdates.FilterChanging))
                 this.ability_details = [];
         });
     }
@@ -105,6 +105,7 @@ export class RaidDetailTableComponent implements OnDestroy {
     }
 
     change_ability_selection(selection: number): void {
+        selection = Number(selection);
         if (this.current_ability_selection === selection)
             return;
 
@@ -113,6 +114,7 @@ export class RaidDetailTableComponent implements OnDestroy {
     }
 
     change_meter_selection(selection: number): void {
+        selection = Number(selection);
         if (this.current_meter_selection === selection)
             return;
 
