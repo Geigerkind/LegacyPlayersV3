@@ -26,6 +26,8 @@ export class HeaderTdComponent implements OnInit {
 
     set filterValue(value: any) {
         this.filterValueData = value;
+        if (this.specification.type === 3)
+            this.filterValueData = Number(value);
         if (!this.isFilterDefault()) {
             if (this.specification.type === 2)
                 this.filterChanged.emit(Math.ceil(new Date(this.filterValueData).getTime() / 1000));
@@ -37,6 +39,8 @@ export class HeaderTdComponent implements OnInit {
     }
 
     get filterValue(): any {
+        if (this.specification.type === 3)
+            this.filterValueData = Number(this.filterValueData);
         return this.filterValueData;
     }
 
