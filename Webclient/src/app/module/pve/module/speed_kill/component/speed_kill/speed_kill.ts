@@ -115,7 +115,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
         if (!this.finished_loading.every(item => item))
             return;
 
-        const selection_params = [this.selections_current_selection,
+        const selection_params = [Number(this.selections_current_selection),
             this.encounters_current_selection,
             this.servers_selected_items.map(item => item.id),
             this.difficulties_selected_items.map(item => item.id),

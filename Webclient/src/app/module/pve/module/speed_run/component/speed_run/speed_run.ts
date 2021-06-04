@@ -85,7 +85,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
             if (this.finished_loading.every(item => item)) this.init_ranking();
         });
         this.subscriptions.add(this.dataService.maps.subscribe(maps => {
-            this.maps = maps.map(map => {
+            this.maps = maps.filter(map => map.base.map_type === 0).map(map => {
                 return {value: map.base.id, label_key: map.localization};
             });
             this.finished_loading[1] = maps.length > 0;
@@ -113,7 +113,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
         if (!this.finished_loading.every(item => item))
             return;
 
-        const selection_params = [this.selections_current_selection,
+        const selection_params = [Number(this.selections_current_selection),
             this.maps_current_selection, this.servers_selected_items.map(item => item.id),
             this.difficulties_selected_items.map(item => item.id),
             this.seasons_selected_items.map(item => item.id)];
