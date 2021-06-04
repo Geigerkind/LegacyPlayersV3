@@ -24,6 +24,8 @@ export class UploadComponent implements OnDestroy, OnInit {
     selected_start_date: string;
     selected_end_date: string;
 
+    current_progress: number = 0;
+
     constructor(
         private uploadService: UploadService,
         private notification_service: NotificationService,
@@ -49,6 +51,7 @@ export class UploadComponent implements OnDestroy, OnInit {
             this.server.push({value: -1, label_key: "Retail Classic"});
         });
 
+        setInterval(() => this.poll_progress(), 1000);
     }
 
     ngOnInit(): void {
@@ -73,9 +76,11 @@ export class UploadComponent implements OnDestroy, OnInit {
             this.uploadService.upload_file(formData, () => {
                 this.notification_service.propagate(Severity.Success, "Your log has been uploaded!");
                 this.disableSubmit = false;
+                this.current_progress = 0;
             }, () => {
                 this.notification_service.propagate(Severity.Error, "Your log failed to upload!");
                 this.disableSubmit = false;
+                this.current_progress = 0;
             });
         }
     }
@@ -83,5 +88,11 @@ export class UploadComponent implements OnDestroy, OnInit {
     selectedServerIdChanges(server_id: number): void {
         this.selected_server_id = server_id;
         this.settingsService.set("upload_last_server", server_id);
+    }
+
+    private poll_progress(): void {
+        if (!this.disableSubmit)
+            return;
+        this.uploadService.get_progress(progress => this.current_progress = progress);
     }
 }

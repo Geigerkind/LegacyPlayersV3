@@ -18,6 +18,7 @@ use crate::modules::live_data_processor::tools::log_parser::parse_cbl;
 use crate::modules::live_data_processor::tools::ProcessMessages;
 use crate::params;
 use crate::util::database::{Execute, Select};
+use rocket_contrib::json::Json;
 
 #[openapi(skip)]
 #[post("/upload", format = "multipart/form-data", data = "<form_data>")]
@@ -41,6 +42,11 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     let end_time_raw = std::str::from_utf8(&end_time_raw_field.raw).map_err(|_| LiveDataProcessorFailure::InvalidEndTime)?;
     let end_time = NaiveDateTime::parse_from_str(&end_time_raw, "%d.%m.%y %I:%M %p").ok().ok_or(LiveDataProcessorFailure::InvalidEndTime)?;
      */
+
+    {
+        let mut upload_progress = me.upload_progress.write().unwrap();
+        upload_progress.insert(auth.0, 0);
+    }
 
     // The filtering functionality was removed
     let start_time_in_ms: u64 = time_util::now() * 1000;
@@ -143,8 +149,15 @@ pub fn upload_log(mut db_main: MainDb, auth: Authenticate, me: State<LiveDataPro
     Err(LiveDataProcessorFailure::InvalidInput)
 }
 
+#[openapi]
+#[get("/upload/progress")]
+pub fn get_upload_progress(me: State<LiveDataProcessor>, auth: Authenticate) -> Json<u8> {
+    let upload_progress = me.upload_progress.read().unwrap();
+    Json(*upload_progress.get(&auth.0).unwrap_or(&0))
+}
+
 fn parse(me: &LiveDataProcessor, mut parser: impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &DataMaterial, armory: &Armory, content: &str, start_time: u64, end_time: u64, member_id: u32, upload_id: u32) -> Result<(), LiveDataProcessorFailure> {
-    if let Some((server_id, messages)) = parse_cbl(&mut parser, &mut *db_main, data, armory, content, start_time, end_time) {
+    if let Some((server_id, messages)) = parse_cbl(&mut parser, &me, &mut *db_main, data, armory, content, start_time, end_time, member_id) {
         return me.process_messages(&mut *db_main, server_id as u32, &armory, &data, messages, member_id, upload_id);
     }
     Err(LiveDataProcessorFailure::InvalidInput)

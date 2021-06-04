@@ -12,8 +12,9 @@ use crate::modules::live_data_processor::material::{IntervalBucket, Participant,
 use crate::modules::live_data_processor::tools::cbl_parser::CombatLogParser;
 use crate::modules::live_data_processor::tools::GUID;
 use crate::util::database::{Execute, Select};
+use crate::modules::live_data_processor::LiveDataProcessor;
 
-pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, _end_parse: u64) -> Option<(u32, Vec<Message>)> {
+pub fn parse_cbl(parser: &mut impl CombatLogParser, live_data_processor: &LiveDataProcessor, db_main: &mut (impl Select + Execute), data: &Data, armory: &Armory, file_content: &str, start_parse: u64, _end_parse: u64, member_id: u32) -> Option<(u32, Vec<Message>)> {
     let mut messages = Vec::with_capacity(1000000);
 
     // Pre processing
@@ -70,8 +71,18 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         res
     });
 
+    {
+        let mut upload_progress = live_data_processor.upload_progress.write().unwrap();
+        upload_progress.insert(member_id, 10);
+    }
+
     // Post processing step
     parser.do_message_post_processing(data, &mut messages);
+
+    {
+        let mut upload_progress = live_data_processor.upload_progress.write().unwrap();
+        upload_progress.insert(member_id, 20);
+    }
 
     let expansion_id = parser.get_expansion_id();
     let mut server_id = parser.get_server_id();
@@ -84,6 +95,11 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             let server = server.unwrap();
             server_id = Some(server.id); // TODO: Better way to determine server id
         }
+    }
+
+    {
+        let mut upload_progress = live_data_processor.upload_progress.write().unwrap();
+        upload_progress.insert(member_id, 25);
     }
 
     let server_id = server_id?;
@@ -115,6 +131,11 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             }
             let _result = armory.set_character(db_main, server_id, character_dto, timestamp);
         }
+    }
+
+    {
+        let mut upload_progress = live_data_processor.upload_progress.write().unwrap();
+        upload_progress.insert(member_id, 50);
     }
     println!("Stop Char processing");
 
@@ -465,6 +486,11 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
         };
     }
 
+    {
+        let mut upload_progress = live_data_processor.upload_progress.write().unwrap();
+        upload_progress.insert(member_id, 80);
+    }
+
     // Artificially set in combat to false at the end for each in combat npc
     for (entry, last_update_ts) in last_combat_update.iter() {
         let last_in_combat_msg = additional_messages
@@ -511,6 +537,11 @@ pub fn parse_cbl(parser: &mut impl CombatLogParser, db_main: &mut (impl Select +
             .collect();
     }
     messages.sort_by(|left, right| left.timestamp.cmp(&right.timestamp));
+
+    {
+        let mut upload_progress = live_data_processor.upload_progress.write().unwrap();
+        upload_progress.insert(member_id, 99);
+    }
 
     Some((server_id, messages))
 }

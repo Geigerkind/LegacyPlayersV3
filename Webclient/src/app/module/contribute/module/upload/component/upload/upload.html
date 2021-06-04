@@ -1,4 +1,4 @@
-<form (ngSubmit)="upload()" formValid ngNativeValidate>
+<form (ngSubmit)="upload()" formValid ngNativeValidate [class.hide_upload]="disableSubmit">
     <div class="row">
         <div class="col">
             <label for="server_id">Server</label>
@@ -31,3 +31,6 @@
         </div>
     </div>
 </form>
+<div class="progress_counter" *ngIf="disableSubmit">
+    {{ current_progress }}%
+</div>

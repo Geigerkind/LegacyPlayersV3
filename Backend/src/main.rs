@@ -274,6 +274,7 @@ fn main() {
                 live_data_processor::transfer::package::get_package,
                 live_data_processor::transfer::instance_reset::set_instance_resets,
                 live_data_processor::transfer::upload::upload_log,
+                live_data_processor::transfer::upload::get_upload_progress,
             ],
         )
         .mount(

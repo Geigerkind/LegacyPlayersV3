@@ -6,11 +6,15 @@ use std::sync::RwLock;
 
 pub struct LiveDataProcessor {
     pub servers: RwLock<HashMap<u32, RwLock<Server>>>,
+    pub upload_progress: RwLock<HashMap<u32, u8>>
 }
 
 impl Default for LiveDataProcessor {
     fn default() -> Self {
-        LiveDataProcessor { servers: RwLock::new(HashMap::new()) }
+        LiveDataProcessor {
+            servers: RwLock::new(HashMap::new()),
+            upload_progress: RwLock::new(HashMap::new())
+        }
     }
 }
 
