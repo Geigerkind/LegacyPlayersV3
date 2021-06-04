@@ -304,7 +304,9 @@ fn main() {
                 instance::transfer::ranking::unrank_attempt,
                 instance::transfer::delete::delete_instance,
                 instance::transfer::speed_run::get_speed_runs,
+                instance::transfer::speed_run::get_speed_runs_by_season,
                 instance::transfer::speed_kill::get_speed_kills,
+                instance::transfer::speed_kill::get_speed_kills_by_season,
             ],
         )
         .mount("/API/utility", routes_with_openapi![

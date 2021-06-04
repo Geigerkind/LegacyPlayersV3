@@ -115,14 +115,17 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
         if (!this.finished_loading.every(item => item))
             return;
 
-        const selection_params = [Number(this.selections_current_selection),
-            Number(this.encounters_current_selection),
-            this.servers_selected_items.map(item => item.id),
-            this.difficulties_selected_items.map(item => item.id),
-            this.seasons_selected_items.map(item => item.id)];
-        // @ts-ignore
-        this.speedKillService.select(...selection_params);
-        this.settingsService.set("pve_speed_kill", selection_params);
+        // Slight delay, so the selected items are updated
+        setTimeout(() => {
+            const selection_params = [Number(this.selections_current_selection),
+                Number(this.encounters_current_selection),
+                this.servers_selected_items.map(item => item.id),
+                this.difficulties_selected_items.map(item => item.id),
+                this.seasons_selected_items.map(item => item.id)];
+            // @ts-ignore
+            this.speedKillService.select(...selection_params);
+            this.settingsService.set("pve_speed_kill", selection_params);
+        }, 100);
     }
 
     share(): void {
