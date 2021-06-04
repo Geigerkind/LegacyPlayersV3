@@ -169,5 +169,6 @@ export class RankingService {
             });
             loaded_arr.push(selected_season);
         }
+        this.commit();
     }
 }
