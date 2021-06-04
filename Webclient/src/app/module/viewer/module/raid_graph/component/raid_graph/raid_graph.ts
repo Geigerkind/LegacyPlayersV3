@@ -17,6 +17,7 @@ import {DelayedLabel} from "../../../../../../stdlib/delayed_label";
 import {DataService} from "../../../../../../service/data";
 import "chartjs-plugin-zoom";
 import {CommunicationEvent} from "../../../../domain_value/communication_event";
+import {SpellService} from "../../../../service/spell";
 
 @Component({
     selector: "RaidGraph",
@@ -218,6 +219,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
         private settingsService: SettingsService,
         private instanceDataService: InstanceDataService,
         private unitService: UnitService,
+        private spellService: SpellService,
         private dataService: DataService
     ) {
         this.instanceDataService.meta.subscribe(meta => {
@@ -257,16 +259,21 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
                             x: x_axis[i],
                             y: fitted_data[i] > 0 ? fitted_data[i] : null,
                             custom_label: fitted_data[i] !== max_value ? "" : (!!evt_units[orig_data_set_index] ? new DelayedLabel(this.unitService.get_unit_name(evt_units[orig_data_set_index], real_x_axis[orig_data_set_index])) : CONST_UNKNOWN_LABEL),
+                            spell_id: ab_dmg_arr[orig_data_set_index]
                         } as ChartPoint;
                         if (fitted_data[i] === max_value) {
                             ++orig_data_set_index;
                         }
                     }
+
                     this.chartDataSets.push({
                         data: chart_points,
                         label: data_set,
                         type: is_event_data_set(data_set) ? "scatter" : number_to_chart_type(this.selected_chart_type),
-                        pointStyle: get_point_style(data_set)
+                        pointStyle: ({dataIndex, dataset}) => {
+                            const icon = !!(dataset.data[dataIndex] as any).spell_id ? this.spellService.spells.get((dataset.data[dataIndex] as any).spell_id).icon : undefined;
+                            return get_point_style(data_set, icon);
+                        }
                     });
                 } else {
                     if (this.selected_chart_type === 1) {

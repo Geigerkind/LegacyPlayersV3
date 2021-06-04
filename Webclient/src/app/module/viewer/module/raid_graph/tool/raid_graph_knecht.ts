@@ -124,7 +124,7 @@ export class RaidGraphKnecht {
                         return se_un_aura(event);
                     }, (event) => ae_un_aura(event)[0]);
                 case DataSet.SpellCasts:
-                    return RaidGraphKnecht.feed_points(this.data_filter.get_spell_casts(false), (event) => se_spell_cast(event), (event) => ae_spell_cast(event));
+                    return RaidGraphKnecht.feed_points(this.data_filter.get_spell_casts(false), se_spell_cast, ae_spell_cast);
             }
             return [];
         })().sort((left, right) => left[0] - right[0]);

@@ -248,9 +248,14 @@ export class GraphDataService implements OnDestroy {
             y_axis.push(y);
             if (is_event_data_set(data_set)) {
                 units.push(y);
-            } else {
-                ab_arr_dmg.push(ab_arr)
+                // @ts-ignore
+                if (ab_arr > 0) {
+                    // @ts-ignore
+                    this.spellService.get_spell_basic_information(ab_arr);
+                }
             }
+            // For event datasets, its either undefined or the spell_ids as array
+            ab_arr_dmg.push(ab_arr);
         }
 
         data_points.set(data_set, [x_axis, y_axis, units, ab_arr_dmg]);

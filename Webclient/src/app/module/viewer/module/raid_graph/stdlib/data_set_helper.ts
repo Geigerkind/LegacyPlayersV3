@@ -1,7 +1,7 @@
 import {PointStyle} from "chart.js";
 import {DataSet} from "../domain_value/data_set";
 
-export function get_point_style(data_set: DataSet): PointStyle | HTMLImageElement {
+export function get_point_style(data_set: DataSet, icon: string = undefined): PointStyle | HTMLImageElement {
     switch (data_set) {
         case DataSet.Deaths: {
             const death_icon = new Image();
@@ -35,6 +35,15 @@ export function get_point_style(data_set: DataSet): PointStyle | HTMLImageElemen
         case DataSet.SpellStealReceived: {
             const spell_Steal_icon = new Image();
             spell_Steal_icon.src = "/assets/viewer/spell_steal_icon.jpg";
+            spell_Steal_icon.width = 20;
+            spell_Steal_icon.height = 20;
+            return spell_Steal_icon;
+        }
+        case DataSet.SpellCasts: {
+            if (!icon)
+                return "circle";
+            const spell_Steal_icon = new Image();
+            spell_Steal_icon.src = icon;
             spell_Steal_icon.width = 20;
             spell_Steal_icon.height = 20;
             return spell_Steal_icon;
