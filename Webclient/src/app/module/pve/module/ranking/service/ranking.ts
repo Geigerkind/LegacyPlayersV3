@@ -10,9 +10,9 @@ import {DataService} from "../../../../../service/data";
     providedIn: "root",
 })
 export class RankingService {
-    private static readonly URL_INSTANCE_RANKING_DPS: string = "/instance/ranking/dps";
-    private static readonly URL_INSTANCE_RANKING_HPS: string = "/instance/ranking/hps";
-    private static readonly URL_INSTANCE_RANKING_TPS: string = "/instance/ranking/tps";
+    private static readonly URL_INSTANCE_RANKING_DPS: string = "/instance/ranking/dps/by_season/:season";
+    private static readonly URL_INSTANCE_RANKING_HPS: string = "/instance/ranking/hps/by_season/:season";
+    private static readonly URL_INSTANCE_RANKING_TPS: string = "/instance/ranking/tps/by_season/:season";
     private static readonly URL_INSTANCE_ATTEMPT_DELETE: string = "/instance/ranking/unrank";
 
     private rankings$: BehaviorSubject<Array<RankingRow>> = new BehaviorSubject([]);
@@ -20,9 +20,13 @@ export class RankingService {
     private hps_rankings$: Subject<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> = new Subject();
     private tps_rankings$: Subject<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> = new Subject();
 
-    private dps_rankings: Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> = [];
-    private hps_rankings: Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> = [];
-    private tps_rankings: Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> = [];
+    private dps_rankings: Map<number, Map<number, [RankingCharacterMeta, Array<RankingResult>]>> = new Map();
+    private hps_rankings: Map<number, Map<number, [RankingCharacterMeta, Array<RankingResult>]>> = new Map();
+    private tps_rankings: Map<number, Map<number, [RankingCharacterMeta, Array<RankingResult>]>> = new Map();
+
+    private season_loaded_dps: Array<number> = [];
+    private season_loaded_hps: Array<number> = [];
+    private season_loaded_tps: Array<number> = [];
 
     private current_mode$: number = 1;
     private current_selection$: number = 1;
@@ -36,21 +40,6 @@ export class RankingService {
         private apiService: APIService,
         private dataService: DataService
     ) {
-        this.apiService.get(RankingService.URL_INSTANCE_RANKING_DPS, result => {
-            this.dps_rankings = result;
-            this.dps_rankings$.next(result);
-            this.commit();
-        });
-        this.apiService.get(RankingService.URL_INSTANCE_RANKING_HPS, result => {
-            this.hps_rankings = result;
-            this.hps_rankings$.next(result);
-            this.commit();
-        });
-        this.apiService.get(RankingService.URL_INSTANCE_RANKING_TPS, result => {
-            this.tps_rankings = result;
-            this.tps_rankings$.next(result);
-            this.commit();
-        });
     }
 
     get rankings(): Observable<Array<RankingRow>> {
@@ -58,14 +47,20 @@ export class RankingService {
     }
 
     get all_dps_rankings(): Observable<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> {
+        this.current_season_ids$ = this.dataService.ranking_seasons.map(item => item.value as number);
+        this.load(RankingService.URL_INSTANCE_RANKING_DPS, this.season_loaded_dps, this.dps_rankings, this.dps_rankings$);
         return this.dps_rankings$.asObservable();
     }
 
     get all_hps_rankings(): Observable<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> {
+        this.current_season_ids$ = this.dataService.ranking_seasons.map(item => item.value as number);
+        this.load(RankingService.URL_INSTANCE_RANKING_HPS, this.season_loaded_hps, this.hps_rankings, this.hps_rankings$);
         return this.hps_rankings$.asObservable();
     }
 
     get all_tps_rankings(): Observable<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>> {
+        this.current_season_ids$ = this.dataService.ranking_seasons.map(item => item.value as number);
+        this.load(RankingService.URL_INSTANCE_RANKING_TPS, this.season_loaded_tps, this.tps_rankings, this.tps_rankings$);
         return this.tps_rankings$.asObservable();
     }
 
@@ -76,11 +71,8 @@ export class RankingService {
         this.current_server_ids$ = server_ids;
         this.current_difficulty_ids$ = difficulty_ids;
         this.current_season_ids$ = season_ids;
-        if (mode !== this.current_mode$)
-            this.load_current_mode();
-        else
-            this.commit();
         this.current_mode$ = mode;
+        this.load_current_mode();
     }
 
     private commit() {
@@ -131,43 +123,51 @@ export class RankingService {
         });
     }
 
+    private flatten_map(input): Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> {
+        return [...input.entries()].map(([id, i_map]) => [id, [...i_map.entries()].map(([a, [b, c]]) => [a, b, c])]);
+    }
+
     private get current_mode_data(): Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]> {
         if (this.current_mode$ === 1)
-            return this.dps_rankings;
+            return this.flatten_map(this.dps_rankings);
         if (this.current_mode$ === 2)
-            return this.hps_rankings;
-        return this.tps_rankings;
+            return this.flatten_map(this.hps_rankings);
+        return this.flatten_map(this.tps_rankings);
     }
 
     private load_current_mode(): void {
         if (this.current_mode$ === 1)
-            this.load_dps();
+            this.load(RankingService.URL_INSTANCE_RANKING_DPS, this.season_loaded_dps, this.dps_rankings, this.dps_rankings$);
         else if (this.current_mode$ === 2)
-            this.load_hps();
-        else this.load_tps();
+            this.load(RankingService.URL_INSTANCE_RANKING_HPS, this.season_loaded_hps, this.hps_rankings, this.hps_rankings$);
+        else this.load(RankingService.URL_INSTANCE_RANKING_TPS, this.season_loaded_tps, this.tps_rankings, this.tps_rankings$);
     }
 
-    private load_dps(): void {
-        this.apiService.get(RankingService.URL_INSTANCE_RANKING_DPS, result => {
-            this.dps_rankings = result;
-            this.dps_rankings$.next(result);
-            this.commit();
-        });
-    }
-
-    private load_hps(): void {
-        this.apiService.get(RankingService.URL_INSTANCE_RANKING_HPS, result => {
-            this.hps_rankings = result;
-            this.hps_rankings$.next(result);
-            this.commit();
-        });
-    }
-
-    private load_tps(): void {
-        this.apiService.get(RankingService.URL_INSTANCE_RANKING_TPS, result => {
-            this.tps_rankings = result;
-            this.tps_rankings$.next(result);
-            this.commit();
-        });
+    private load(url: string, loaded_arr: Array<number>, container: Map<number, Map<number, [RankingCharacterMeta, Array<RankingResult>]>>,
+                 observable: Subject<Array<[number, Array<[number, RankingCharacterMeta, Array<RankingResult>]>]>>): void {
+        for (const selected_season of this.current_season_ids$) {
+            if (loaded_arr.includes(selected_season))
+                continue;
+            this.apiService.get(url.replace(":season", selected_season.toString()), result => {
+                for (const [encounter_id, char_results] of result) {
+                    if (container.has(encounter_id)) {
+                        const encounter_map = container.get(encounter_id);
+                        for (const [character_id, meta, rr] of char_results) {
+                            if (encounter_map.has(character_id)) {
+                                const char_map = encounter_map.get(character_id);
+                                char_map[1].push(...rr);
+                            } else {
+                                encounter_map.set(character_id, [meta, rr]);
+                            }
+                        }
+                    } else {
+                        container.set(encounter_id, new Map(char_results.map(([id, meta, rr]) => [id, [meta, rr]])));
+                    }
+                }
+                observable.next(this.flatten_map(container));
+                this.commit();
+            });
+            loaded_arr.push(selected_season);
+        }
     }
 }

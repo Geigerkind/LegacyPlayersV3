@@ -9,7 +9,6 @@ import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {TinyUrl} from "../../../../../tiny_url/domain_value/tiny_url";
 import {RankingUrl} from "../../../../../tiny_url/domain_value/ranking_url";
 import {AdditionalButton} from "../../../../../../template/input/multi_select/domain_value/additional_button";
-import {CharacterViewerService} from "../../../../../armory/module/character_viewer/service/character_viewer";
 import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
@@ -302,7 +301,10 @@ export class RankingComponent implements OnInit, OnDestroy {
         private titleService: Title
     ) {
         this.titleService.setTitle("LegacyPlayers - Ranking");
-        this.metaService.updateTag({name: "description", content: "Seasonal damage, heal and threat rankings of all players on Legacyplayers."});
+        this.metaService.updateTag({
+            name: "description",
+            content: "Seasonal damage, heal and threat rankings of all players on Legacyplayers."
+        });
 
         this.subscription.add(this.rankingService.rankings.subscribe(entries => {
             for (const row of entries) {

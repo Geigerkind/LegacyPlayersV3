@@ -13,7 +13,15 @@ use crate::modules::instance::tools::{create_ranking_export, UnrankAttempt};
 pub fn get_instance_ranking_dps(me: State<Instance>, armory: State<Armory>) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
     let instance_metas = me.instance_metas.read().unwrap();
     let rankings = me.instance_rankings_dps.read().unwrap();
-    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory))
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory, None))
+}
+
+#[openapi]
+#[get("/ranking/dps/by_season/<season>")]
+pub fn get_instance_ranking_dps_by_season(me: State<Instance>, armory: State<Armory>, season: u8) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
+    let instance_metas = me.instance_metas.read().unwrap();
+    let rankings = me.instance_rankings_dps.read().unwrap();
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory, Some(season)))
 }
 
 #[openapi]
@@ -21,7 +29,15 @@ pub fn get_instance_ranking_dps(me: State<Instance>, armory: State<Armory>) -> J
 pub fn get_instance_ranking_hps(me: State<Instance>, armory: State<Armory>) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
     let instance_metas = me.instance_metas.read().unwrap();
     let rankings = me.instance_rankings_hps.read().unwrap();
-    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory))
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory, None))
+}
+
+#[openapi]
+#[get("/ranking/hps/by_season/<season>")]
+pub fn get_instance_ranking_hps_by_season(me: State<Instance>, armory: State<Armory>, season: u8) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
+    let instance_metas = me.instance_metas.read().unwrap();
+    let rankings = me.instance_rankings_hps.read().unwrap();
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory, Some(season)))
 }
 
 #[openapi]
@@ -29,7 +45,15 @@ pub fn get_instance_ranking_hps(me: State<Instance>, armory: State<Armory>) -> J
 pub fn get_instance_ranking_tps(me: State<Instance>, armory: State<Armory>) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
     let instance_metas = me.instance_metas.read().unwrap();
     let rankings = me.instance_rankings_tps.read().unwrap();
-    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory))
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory, None))
+}
+
+#[openapi]
+#[get("/ranking/tps/by_season/<season>")]
+pub fn get_instance_ranking_tps_by_season(me: State<Instance>, armory: State<Armory>, season: u8) -> Json<Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)>> {
+    let instance_metas = me.instance_metas.read().unwrap();
+    let rankings = me.instance_rankings_tps.read().unwrap();
+    Json(create_ranking_export(&instance_metas.1, &rankings.1, &armory, Some(season)))
 }
 
 #[openapi]

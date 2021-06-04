@@ -5,7 +5,7 @@ use crate::modules::armory::tools::GetCharacter;
 use crate::modules::instance::domain_value::{InstanceMeta, PrivacyType};
 use crate::modules::instance::dto::{RankingCharacterMeta, RankingResult};
 
-pub fn create_ranking_export(instance_metas: &HashMap<u32, InstanceMeta>, rankings: &HashMap<u32, HashMap<u32, Vec<RankingResult>>>, armory: &Armory) -> Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)> {
+pub fn create_ranking_export(instance_metas: &HashMap<u32, InstanceMeta>, rankings: &HashMap<u32, HashMap<u32, Vec<RankingResult>>>, armory: &Armory, season: Option<u8>) -> Vec<(u32, Vec<(u32, RankingCharacterMeta, Vec<RankingResult>)>)> {
     rankings
         .iter()
         .map(|(npc_id, char_rankings)| {
@@ -26,7 +26,7 @@ pub fn create_ranking_export(instance_metas: &HashMap<u32, InstanceMeta>, rankin
                                 .unwrap(),
                             rankings.iter().filter_map(|rr| {
                                 let instance_meta = instance_metas.get(&rr.instance_meta_id)?;
-                                if instance_meta.privacy_type == PrivacyType::Public {
+                                if instance_meta.privacy_type == PrivacyType::Public && (season.is_none() || season.contains(&rr.season_index)) {
                                     return Some(rr);
                                 }
                                 None
