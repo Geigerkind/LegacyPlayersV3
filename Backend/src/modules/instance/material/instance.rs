@@ -208,13 +208,15 @@ fn calculate_speed_kills(instance_metas: Arc<RwLock<(u32, HashMap<u32, InstanceM
 
 fn calculate_season_index(ts: u64) -> u8 {
     static FIRST_SEASON_YEAR: i32 = 2020;
-    static FIRST_SEASON_MONTH: i32 = 1;
     static SEASON_DURATION: i32 = 3;
     let today = NaiveDateTime::from_timestamp((ts / 1000) as i64, 0);
     let year = today.year();
     let month = today.month() as i32;
-    let months_since = (year - FIRST_SEASON_YEAR) * 12 - FIRST_SEASON_MONTH + month;
-    return ((months_since + 1) / 3) as u8 + 1;
+    let months_since = (year - FIRST_SEASON_YEAR) * 12 + month;
+    if (months_since % SEASON_DURATION) == 0 {
+        return (months_since / SEASON_DURATION) as u8;
+    }
+    return (months_since / SEASON_DURATION) as u8 + 1;
 }
 
 fn update_instance_kill_attempts(instance_kill_attempts: Arc<RwLock<(u32, HashMap<u32, Vec<InstanceAttempt>>)>>, db_main: &mut impl Select) {
