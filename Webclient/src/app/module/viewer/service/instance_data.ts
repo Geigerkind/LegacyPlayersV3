@@ -151,6 +151,7 @@ export class InstanceDataService implements OnDestroy {
 
     public async set_segment_intervals(intervals: Array<[number, number]>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanging, []]);
         ++this.filter_update_in_progress;
         this.current_intervals = intervals;
         this.update_total_duration();
@@ -181,6 +182,7 @@ export class InstanceDataService implements OnDestroy {
 
     public async set_source_filter(sources: Array<number>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanging, []]);
         ++this.filter_update_in_progress;
         const promises = [];
         promises.push(this.knecht_melee.set_source_filter(sources));
@@ -208,6 +210,7 @@ export class InstanceDataService implements OnDestroy {
 
     public async set_target_filter(targets: Array<number>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanging, []]);
         ++this.filter_update_in_progress;
         const promises = [];
         promises.push(this.knecht_melee.set_target_filter(targets));
@@ -235,6 +238,7 @@ export class InstanceDataService implements OnDestroy {
 
     public async set_ability_filter(abilities: Array<number>) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanging, []]);
         ++this.filter_update_in_progress;
         const promises = [];
         promises.push(this.knecht_melee.set_ability_filter(abilities));
@@ -262,6 +266,7 @@ export class InstanceDataService implements OnDestroy {
 
     public async set_time_boundaries(boundaries: [number, number]) {
         if (this.worker_initialized < InstanceDataService.NUMBER_OF_WORKER) return;
+        this.knecht_updates$.next([KnechtUpdates.FilterChanging, []]);
         ++this.filter_update_in_progress;
         this.boundaries = boundaries;
         this.update_total_duration();

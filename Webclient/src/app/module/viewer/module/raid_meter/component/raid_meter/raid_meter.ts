@@ -22,7 +22,7 @@ import {DetailDamageService} from "../../../raid_detail_table/service/detail_dam
 import {DetailHealService} from "../../../raid_detail_table/service/detail_heal";
 import {DetailThreatService} from "../../../raid_detail_table/service/detail_threat";
 import {EventLogService} from "../../../raid_event_log/service/event_log";
-import {auditTime, debounceTime, map} from "rxjs/operators";
+import {auditTime, map} from "rxjs/operators";
 import {MeterInterruptService} from "../../service/meter_interrupt";
 import {MeterSpellStealService} from "../../service/meter_spell_steal";
 import {MeterAuraUptimeService} from "../../service/meter_aura_uptime";
@@ -147,7 +147,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
             const new_mode = params.get("mode") === ViewerMode.Ability;
             if (this.in_ability_mode !== new_mode) {
                 this.in_ability_mode = new_mode;
-                this.update_bars(this.current_data);
+                this.update_bars$.next();
             }
         });
         this.subscription.add(this.instanceDataService.attempt_total_duration.subscribe(duration => this.current_attempt_duration = duration / 1000));
@@ -163,12 +163,12 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         }));
         this.subscription.add(this.raid_meter_export_service.meter_selections$.subscribe(([id, selection]) => {
             if (id === this.unique_id) {
-                this.current_selection = selection;
-                this.selection_changed(selection);
+                this.current_selection = Number(selection);
+                this.selection_changed(this.current_selection);
             }
         }));
         this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([updates,]) => {
-            if (updates.includes(KnechtUpdates.FilterChanged)) {
+            if (updates.includes(KnechtUpdates.FilterChanging)) {
                 this.bars = [];
             }
         }));
@@ -184,7 +184,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         } else {
             this.current_selection = 1;
         }
-        this.selection_changed(this.current_selection);
+        this.selection_changed(Number(this.current_selection));
     }
 
     ngOnDestroy(): void {
