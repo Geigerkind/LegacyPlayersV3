@@ -114,7 +114,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
             return;
 
         const selection_params = [Number(this.selections_current_selection),
-            this.maps_current_selection, this.servers_selected_items.map(item => item.id),
+            Number(this.maps_current_selection), this.servers_selected_items.map(item => item.id),
             this.difficulties_selected_items.map(item => item.id),
             this.seasons_selected_items.map(item => item.id)];
         // @ts-ignore
