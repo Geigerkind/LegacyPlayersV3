@@ -69,8 +69,18 @@ export class InstanceDataFilter {
 
         const has_everything_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-1));
         const has_everything_target_preset_tmp = presets_with_event_type.some(preset => preset.targets.includes(-1));
+        const has_players_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-2));
+        const has_players_target_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-2));
+        const has_creatures_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-3));
+        const has_creatures_target_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-3));
+
         const has_everything_source_preset = this.presets$.length === 0 || (inverse_filter ? has_everything_target_preset_tmp : has_everything_source_preset_tmp);
         const has_everything_target_preset = this.presets$.length === 0 || (inverse_filter ? has_everything_source_preset_tmp : has_everything_target_preset_tmp);
+        const has_players_source_preset = this.presets$.length === 0 || (inverse_filter ? has_players_target_preset_tmp : has_players_source_preset_tmp);
+        const has_players_target_preset = this.presets$.length === 0 || (inverse_filter ? has_players_source_preset_tmp : has_players_target_preset_tmp);
+        const has_creatures_source_preset = this.presets$.length === 0 || (inverse_filter ? has_creatures_target_preset_tmp : has_creatures_source_preset_tmp);
+        const has_creatures_target_preset = this.presets$.length === 0 || (inverse_filter ? has_creatures_source_preset_tmp : has_creatures_target_preset_tmp);
+
         const has_everything_abilities_preset = this.presets$.length === 0 || presets_with_event_type.some(preset => preset.abilities.includes(-1));
         const has_everything_hit_types_preset = this.presets$.length === 0 || presets_with_event_type.some(preset => preset.hit_types.includes(-1));
 
@@ -94,9 +104,11 @@ export class InstanceDataFilter {
             result = result.filter(event => {
                 const unit = source_extraction[0](event);
                 const unit_id = get_unit_id(unit, source_extraction[1]);
-                const preset_id = is_player(unit, source_extraction[1]) ? unit_id : get_creature_entry(unit, source_extraction[1]);
+                const unit_is_player = is_player(unit, source_extraction[1]);
+                const preset_id = unit_is_player ? unit_id : get_creature_entry(unit, source_extraction[1]);
                 // if (unit_id === 0) return true;
-                return filter_source.has(unit_id) && (has_everything_source_preset || filter_source_preset.some(filter => filter.includes(preset_id)));
+                return filter_source.has(unit_id) && (has_everything_source_preset || (has_players_source_preset && unit_is_player)
+                    || (has_creatures_source_preset && !unit_is_player) || filter_source_preset.some(filter => filter.includes(preset_id)));
             });
         }
         if (!(!inverse_filter && skip_target_filter)) {
@@ -106,8 +118,10 @@ export class InstanceDataFilter {
                     const unit_id = get_unit_id(unit, target_extraction[1]);
                     if (unit_id === 0)
                         return true;
-                    const preset_id = is_player(unit, target_extraction[1]) ? unit_id : get_creature_entry(unit, target_extraction[1]);
-                    return filter_target.has(unit_id) && (has_everything_target_preset || filter_target_preset.some(filter => filter.includes(preset_id)));
+                    const unit_is_player = is_player(unit, target_extraction[1]);
+                    const preset_id = unit_is_player ? unit_id : get_creature_entry(unit, target_extraction[1]);
+                    return filter_target.has(unit_id) && (has_everything_target_preset || (has_players_target_preset && unit_is_player)
+                        || (has_creatures_target_preset && !unit_is_player) || filter_target_preset.some(filter => filter.includes(preset_id)));
                 });
         }
         if (!!multi_ability_extraction)
@@ -171,12 +185,24 @@ export class InstanceDataFilter {
 
     async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         const has_everything = this.presets$.some(preset => preset.sources.includes(-1)) || this.presets$.length === 0;
-        return new Map(iterable_filter(this.data_loader.sources.entries(), ([key, val]) => has_everything || this.presets$.some(preset => preset.sources.includes(player_id_or_npc_id(val[0])))));
+        const has_players = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
+        const has_creatures = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
+        return new Map(iterable_filter(this.data_loader.sources.entries(), ([key, val]) => {
+            const unit_is_player = is_player(val[0]);
+            return has_everything || (has_players && unit_is_player) || (has_creatures && !unit_is_player)
+                || this.presets$.some(preset => preset.sources.includes(player_id_or_npc_id(val[0])));
+        }));
     }
 
     async get_targets(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         const has_everything = this.presets$.some(preset => preset.targets.includes(-1)) || this.presets$.length === 0;
-        return new Map(iterable_filter(this.data_loader.targets.entries(), ([key, val]) => has_everything || this.presets$.some(preset => preset.targets.includes(player_id_or_npc_id(val[0])))));
+        const has_players = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
+        const has_creatures = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
+        return new Map(iterable_filter(this.data_loader.targets.entries(), ([key, val]) => {
+            const unit_is_player = is_player(val[0]);
+            return has_everything || (has_players && unit_is_player) || (has_creatures && !unit_is_player)
+                || this.presets$.some(preset => preset.targets.includes(player_id_or_npc_id(val[0])));
+        }));
     }
 
     async get_abilities(): Promise<Map<number, [number, Array<[number, number]>]>> {
