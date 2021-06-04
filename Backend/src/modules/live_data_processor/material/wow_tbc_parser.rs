@@ -47,7 +47,7 @@ impl WoWTBCParser {
                 .iter()
                 .cloned()
                 .collect();
-            static ref DRUID_SPELLS: BTreeSet<u32> = [26986, 26988, 27013, 27002, 27008, 33983, 33987, 33763, 33778, 26982, 26980].iter().cloned().collect();
+            static ref DRUID_SPELLS: BTreeSet<u32> = [26986, 26988, 27013, 27002, 27008, 33983, 33987, 26982, 26980].iter().cloned().collect();
         }
 
         if !unit.is_player {
