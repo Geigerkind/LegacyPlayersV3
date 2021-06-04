@@ -1090,6 +1090,10 @@ impl CombatLogParser for WoWVanillaParser {
                     }
 
                     let item_args = arg.split(':').collect::<Vec<&str>>();
+                    if item_args.len() < 2 {
+                        gear.push(None);
+                        continue;
+                    }
                     let item_id = u32::from_str_radix(item_args[0], 10).ok()?;
                     let enchant_id = u32::from_str_radix(item_args[1], 10).ok()?;
                     if item_id == 0 {
