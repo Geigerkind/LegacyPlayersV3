@@ -5,6 +5,8 @@ import {TAGS} from "../../../../../data/tags";
 import {NotificationService} from "../../../../../../../../service/notification";
 import {Severity} from "../../../../../../../../domain_value/severity";
 import {Clipboard} from "@angular/cdk/clipboard";
+import {AccountInformation} from "../../../../../../../account/domain_value/account_information";
+import {SettingsService} from "../../../../../../../../service/settings";
 
 @Component({
     selector: "Viewer",
@@ -24,11 +26,14 @@ export class ViewerComponent implements OnInit {
         member_id: 21
     };
 
+    private account_information: AccountInformation;
+
     constructor(
         private metaService: Meta,
         private titleService: Title,
         private notificationService: NotificationService,
-        private clipboard: Clipboard
+        private clipboard: Clipboard,
+        private settingsService: SettingsService
     ) {
         this.titleService.setTitle("LegacyPlayers - Addon paste viewer");
         this.metaService.updateTag({
@@ -43,6 +48,7 @@ export class ViewerComponent implements OnInit {
             name: "description",
             content: this.paste.description
         });
+        this.account_information = this.settingsService.get("ACCOUNT_INFORMATION");
     }
 
     save_to_clipboard(): void {
@@ -50,7 +56,15 @@ export class ViewerComponent implements OnInit {
         this.notificationService.propagate(Severity.Success, "Paste saved to clipboard!");
     }
 
+    delete(): void {
+
+    }
+
     get tags(): string {
         return this.paste.tags.map(tag => TAGS[tag]).join(", ");
+    }
+
+    get is_paste_owner(): boolean {
+        return !!this.account_information && !!this.paste && this.account_information.id === this.paste.member_id;
     }
 }
