@@ -93,4 +93,19 @@
     <sitemap>
         <loc>https://legacyplayers.com/API/utility/site_map_guild_gen/10</loc>
     </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_pastebin_gen/1</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_pastebin_gen/2</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_pastebin_gen/3</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_pastebin_gen/4</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://legacyplayers.com/API/utility/site_map_pastebin_gen/5</loc>
+    </sitemap>
 </sitemapindex>

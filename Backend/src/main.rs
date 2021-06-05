@@ -314,6 +314,7 @@ fn main() {
             utility::transfer::tiny_url::set_tiny_url,
             utility::transfer::site_map::build_character_site_map,
             utility::transfer::site_map::build_guild_site_map,
+            utility::transfer::site_map::build_pastebin_site_map,
             utility::transfer::addon_paste::get_addon_paste,
             utility::transfer::addon_paste::get_addon_pastes,
             utility::transfer::addon_paste::replace_addon_paste,

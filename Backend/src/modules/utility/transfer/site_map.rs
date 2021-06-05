@@ -17,3 +17,9 @@ pub fn build_character_site_map(me: State<Utility>, data: State<Data>, armory: S
 pub fn build_guild_site_map(me: State<Utility>, data: State<Data>, armory: State<Armory>, page: u32) -> Xml<String> {
     Xml(me.build_guild_site_map(&armory, &data, page))
 }
+
+#[openapi]
+#[get("/site_map_pastebin_gen/<page>")]
+pub fn build_pastebin_site_map(me: State<Utility>, page: u32) -> Xml<String> {
+    Xml(me.build_pastebin_site_map(page))
+}
