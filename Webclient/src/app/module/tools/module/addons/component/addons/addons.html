@@ -1,7 +1,6 @@
 <Table [bodyRows]="current_addons" [headColumns]="header_columns" [clientSide]="clientSide"
        [responsiveHeadColumns]="responsiveHeadColumns" [responsiveModeWidthInPx]="responsiveModeWidthInPx"
-       [numItems]="total_num" unique_id="addon_search" (share)="tinyUrlService.set_table_filter(2, $event)"
-       [et_row_items]="[addon_name, undefined, undefined]">
+       [numItems]="total_num" unique_id="addon_search" [et_row_items]="[addon_name, undefined, undefined]">
 </Table>
 
 <ng-template #addon_name let-specification="specification" let-content="content">

@@ -415,5 +415,14 @@
         "name": "Name",
         "description": "Description",
         "expansion": "Expansion"
+    },
+    "AddonPastebin": {
+        "Search": {
+            "title": "Title",
+            "addon_name": "Addon name",
+            "tags": "Tags",
+            "description": "Description",
+            "expansion": "Expansion"
+        }
     }
 }
