@@ -35,6 +35,8 @@ export class SearchComponent {
     current_addons: Array<Array<BodyColumn>> = [];
     total_num: number = 0;
 
+    is_logged_in: boolean = false;
+
     constructor(
         private dataService: DataService,
         private settingsService: SettingsService,
@@ -62,6 +64,7 @@ export class SearchComponent {
             filter.title.sorting = false;
             this.settingsService.set("table_filter_addon_pastebin_search", filter);
         }
+        this.is_logged_in = this.settingsService.check("API_TOKEN");
 
         this.apiService.get(SearchComponent.URL_ADDON_PASTEBIN_SEARCH, (pastes) => {
             this.current_addons = pastes.map(paste => {

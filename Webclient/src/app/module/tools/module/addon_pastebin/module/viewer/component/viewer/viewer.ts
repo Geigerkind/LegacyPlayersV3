@@ -20,7 +20,8 @@ export class ViewerComponent implements OnInit {
         addon_name: "Weak Auras",
         tags: [1, 2, 3],
         description: "Some description",
-        content: "WAMBO"
+        content: "WAMBO",
+        member_id: 21
     };
 
     constructor(

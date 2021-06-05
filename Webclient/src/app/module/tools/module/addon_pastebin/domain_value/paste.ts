@@ -6,4 +6,5 @@ export interface Paste {
     tags: Array<number>;
     description: string;
     content: string;
+    member_id: number;
 }
