@@ -6,7 +6,7 @@ import {APIService} from "../../../../../../../../service/api";
 import {NotificationService} from "../../../../../../../../service/notification";
 import {Severity} from "../../../../../../../../domain_value/severity";
 import {Paste} from "../../../../domain_value/paste";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
     selector: "Edit",
@@ -15,6 +15,7 @@ import {Router} from "@angular/router";
 })
 export class EditComponent implements OnInit {
     private static URL_REPLACE_PASTE: string = "/utility/addon_paste"
+    private static URL_GET_PASTE: string = "/utility/addon_paste/:id";
 
     current_id: number | undefined = undefined;
 
@@ -33,7 +34,8 @@ export class EditComponent implements OnInit {
         private dataService: DataService,
         private apiService: APIService,
         private notificationService: NotificationService,
-        private router: Router
+        private router: Router,
+        private activatedRoute: ActivatedRoute
     ) {
         this.expansions = this.dataService.expansions;
         this.tags = TAGS.map((tag, index) => {
@@ -42,6 +44,21 @@ export class EditComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.activatedRoute.paramMap.subscribe(params => {
+            if (Number(params.get("id")) <= 0)
+                return;
+
+            this.apiService.get(EditComponent.URL_GET_PASTE.replace(":id", Number(params.get("id")).toString()),
+                (paste) => {
+                    this.current_id = paste.id;
+                    this.current_title = paste.title;
+                    this.current_desc = paste.description;
+                    this.current_content = paste.content;
+                    this.current_addon_name = paste.addon_name;
+                    this.selected_tags = this.tags.filter(item => paste.tags.includes(item.id));
+                    this.selected_expansion = paste.expansion_id;
+                });
+        });
     }
 
     save_paste(): void {
