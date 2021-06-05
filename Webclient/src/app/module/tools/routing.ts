@@ -17,6 +17,10 @@ const routes: Routes = [{
             path: "addons",
             loadChildren: () => import("./module/addons/module").then(m => m.AddonsModule)
         },
+        {
+            path: "addon_pastebin",
+            loadChildren: () => import("./module/addon_pastebin/module").then(m => m.AddonPastebinModule)
+        },
     ]
 }];
 
