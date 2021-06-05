@@ -4,7 +4,7 @@ import {AddonPastebinComponent} from "./component/addon_pastebin/addon_pastebin"
 
 const routes: Routes = [{
     path: "", component: AddonPastebinComponent, children: [
-        {path: "", redirectTo: "/tools/addon_pastebin/search", pathMatch: "full" },
+        //{path: "", redirectTo: "search", pathMatch: "full" },
         {
             path: "search",
             loadChildren: () => import("./module/search/module").then(m => m.SearchModule)

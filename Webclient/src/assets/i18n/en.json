@@ -206,7 +206,8 @@
             "talent_calc": "Talent calculator",
             "rp_calc": "Rankpoints calculator",
             "char_design": "Character designer",
-            "addons": "Addons"
+            "addons": "Addons",
+            "addon_pastebin": "Addon pastebin"
         },
         "contribute": {
             "title": "Contribute",

@@ -49,7 +49,7 @@ export class SearchComponent {
         });
 
         for (const expansion of this.dataService.expansions) {
-            this.header_columns[1].type_range.push({
+            this.header_columns[2].type_range.push({
                 value: expansion.value,
                 label_key: expansion.label_key
             });
@@ -90,7 +90,7 @@ export class SearchComponent {
                         },
                         {
                             type: 0,
-                            content: paste.paste_description,
+                            content: paste.description,
                             args: null
                         }
                     ]
