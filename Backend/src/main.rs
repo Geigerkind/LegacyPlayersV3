@@ -316,6 +316,7 @@ fn main() {
             utility::transfer::site_map::build_guild_site_map,
             utility::transfer::addon_paste::get_addon_paste,
             utility::transfer::addon_paste::get_addon_pastes,
+            utility::transfer::addon_paste::replace_addon_paste,
             ])
         .launch();
 }

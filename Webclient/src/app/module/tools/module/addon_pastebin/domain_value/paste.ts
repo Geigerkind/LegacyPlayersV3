@@ -1,5 +1,5 @@
 export interface Paste {
-    id: number;
+    id: number | undefined;
     title: string;
     expansion_id: number;
     addon_name: string;

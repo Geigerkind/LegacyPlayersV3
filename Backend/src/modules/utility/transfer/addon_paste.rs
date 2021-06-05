@@ -1,9 +1,10 @@
 use crate::modules::utility::domain_value::Paste;
-use crate::modules::utility::dto::UtilityFailure;
+use crate::modules::utility::dto::{UtilityFailure, PasteDto};
 use crate::modules::utility::Utility;
 use rocket::State;
 use rocket_contrib::json::Json;
-use crate::modules::utility::tools::RetrieveAddonPaste;
+use crate::modules::utility::tools::{RetrieveAddonPaste, UpdateAddonPaste};
+use crate::MainDb;
 
 #[openapi]
 #[get("/addon_paste/<id>")]
@@ -15,4 +16,10 @@ pub fn get_addon_paste(me: State<Utility>, id: u32) -> Result<Json<Paste>, Utili
 #[get("/addon_paste")]
 pub fn get_addon_pastes(me: State<Utility>) -> Json<Vec<Paste>> {
     Json(me.get_addon_pastes())
+}
+
+#[openapi]
+#[post("/addon_paste", data = "<paste>")]
+pub fn replace_addon_paste(mut db_main: MainDb, me: State<Utility>, paste: Json<PasteDto>) -> Result<Json<u32>, UtilityFailure> {
+    me.replace_addon_paste(&mut (*db_main), paste.into_inner()).map(Json)
 }
