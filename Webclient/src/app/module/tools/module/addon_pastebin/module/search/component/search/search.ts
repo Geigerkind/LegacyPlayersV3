@@ -6,6 +6,7 @@ import {SettingsService} from "../../../../../../../../service/settings";
 import {APIService} from "../../../../../../../../service/api";
 import {Meta, Title} from "@angular/platform-browser";
 import {table_init_filter} from "../../../../../../../../template/table/utility/table_init_filter";
+import {TAGS} from "../../../../../data/tags";
 
 @Component({
     selector: "Search",
@@ -89,7 +90,7 @@ export class SearchComponent {
                         },
                         {
                             type: 0,
-                            content: paste.tags,
+                            content: paste.tags.map(id => TAGS[id]).join(", "),
                             args: null
                         },
                         {

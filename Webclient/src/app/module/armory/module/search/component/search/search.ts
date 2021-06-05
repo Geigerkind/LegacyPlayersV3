@@ -10,7 +10,6 @@ import {HeroClass} from "../../../../../../domain_value/hero_class";
 import {SettingsService} from "src/app/service/settings";
 import {TinyUrlService} from "../../../../../tiny_url/service/tiny_url";
 import {DateService} from "../../../../../../service/date";
-import {Router} from "@angular/router";
 import {Meta, Title} from "@angular/platform-browser";
 
 @Component({
@@ -74,9 +73,9 @@ export class SearchComponent implements OnInit {
 
         this.dataService.hero_classes.subscribe((hero_classes: Array<Localized<HeroClass>>) =>
             hero_classes.forEach(hero_class => this.character_header_columns[0].type_range.push({
-            value: hero_class.base.id,
-            label_key: hero_class.localization
-        })));
+                value: hero_class.base.id,
+                label_key: hero_class.localization
+            })));
         this.dataService.servers.subscribe((servers: Array<AvailableServer>) => {
             this.current_servers = servers;
             servers.forEach(server => this.character_header_columns[3].type_range.push({
