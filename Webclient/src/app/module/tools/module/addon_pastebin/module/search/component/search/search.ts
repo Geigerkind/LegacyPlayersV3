@@ -16,8 +16,8 @@ export class SearchComponent {
     private static URL_ADDON_PASTEBIN_SEARCH: string = "/utility/addon_paste";
 
     header_columns: Array<HeaderColumn> = [
-        {index: 0, filter_name: 'title', labelKey: "AddonPastebin.Search.title", type: 0, type_range: null, col_type: 3},
-        {index: 1, filter_name: 'addon_name', labelKey: "AddonPastebin.Search.addon_name", type: 0, type_range: null, col_type: 3},
+        {index: 0, filter_name: 'title', labelKey: "AddonPastebin.Search.title", type: 0, type_range: null, col_type: 1},
+        {index: 1, filter_name: 'addon_name', labelKey: "AddonPastebin.Search.addon_name", type: 0, type_range: null, col_type: 2},
         {
             index: 2,
             filter_name: 'expansion',
@@ -26,8 +26,8 @@ export class SearchComponent {
             type_range: [{value: -1, label_key: "AddonPastebin.Search.expansion"}],
             col_type: 3
         },
-        {index: 3, filter_name: 'tags', labelKey: "AddonPastebin.Search.tags", type: 0, type_range: null, col_type: 0},
-        {index: 4, filter_name: 'description', labelKey: "AddonPastebin.Search.title", type: 0, type_range: null, col_type: 0},
+        {index: 3, filter_name: 'tags', labelKey: "AddonPastebin.Search.tags", type: 0, type_range: null, col_type: 1},
+        {index: 4, filter_name: 'description', labelKey: "AddonPastebin.Search.description", type: 0, type_range: null, col_type: 0},
     ];
     clientSide: boolean = true;
     responsiveHeadColumns: Array<number> = [0, 1];
