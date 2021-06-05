@@ -1,3 +1,4 @@
+use crate::modules::account::Account;
 use crate::modules::utility::domain_value::Paste;
 use crate::modules::utility::dto::{PasteDto, UtilityFailure};
 use crate::modules::utility::Utility;
@@ -10,8 +11,8 @@ pub trait RetrieveAddonPaste {
 }
 
 pub trait UpdateAddonPaste {
-    fn replace_addon_paste(&self, db_main: &mut (impl Select + Execute), paste: PasteDto, member_id: u32) -> Result<u32, UtilityFailure>;
-    fn delete_addon_paste(&self, db_main: &mut impl Execute, paste_id: u32, member_id: u32) -> Result<(), UtilityFailure>;
+    fn replace_addon_paste(&self, db_main: &mut (impl Select + Execute), paste: PasteDto, member_id: u32, account: &Account) -> Result<u32, UtilityFailure>;
+    fn delete_addon_paste(&self, db_main: &mut impl Execute, paste_id: u32, member_id: u32, account: &Account) -> Result<(), UtilityFailure>;
 }
 
 impl RetrieveAddonPaste for Utility {
@@ -27,12 +28,16 @@ impl RetrieveAddonPaste for Utility {
 }
 
 impl UpdateAddonPaste for Utility {
-    fn replace_addon_paste(&self, db_main: &mut (impl Select + Execute), paste: PasteDto, member_id: u32) -> Result<u32, UtilityFailure> {
+    fn replace_addon_paste(&self, db_main: &mut (impl Select + Execute), paste: PasteDto, member_id: u32, account: &Account) -> Result<u32, UtilityFailure> {
         if let Some(id) = paste.id {
             let mut addon_pastes = self.addon_pastes.write().unwrap();
             let mut i_paste = addon_pastes.get_mut(&id).ok_or(UtilityFailure::InvalidInput)?;
             if i_paste.member_id != member_id {
-                return Err(UtilityFailure::InvalidInput);
+                let members = account.member.read().unwrap();
+                let member = members.get(&member_id).unwrap();
+                if (member.access_rights & 1) != 1 {
+                    return Err(UtilityFailure::InvalidInput);
+                }
             }
             i_paste.title = paste.title.clone();
             i_paste.addon_name = paste.addon_name.clone();
@@ -62,7 +67,7 @@ impl UpdateAddonPaste for Utility {
                     tags: paste.tags,
                     description: paste.description.clone(),
                     content: paste.content.clone(),
-                    member_id
+                    member_id,
                 });
                 return Ok(id);
             }
@@ -70,19 +75,23 @@ impl UpdateAddonPaste for Utility {
         }
     }
 
-    fn delete_addon_paste(&self, db_main: &mut impl Execute, paste_id: u32, member_id: u32) -> Result<(), UtilityFailure> {
+    fn delete_addon_paste(&self, db_main: &mut impl Execute, paste_id: u32, member_id: u32, account: &Account) -> Result<(), UtilityFailure> {
         let mut addon_pastes = self.addon_pastes.write().unwrap();
         if !addon_pastes.contains_key(&paste_id) {
             return Err(UtilityFailure::InvalidInput);
         } else {
             let paste = addon_pastes.get(&paste_id).unwrap();
             if paste.member_id != member_id {
-                return Err(UtilityFailure::InvalidInput);
+                let members = account.member.read().unwrap();
+                let member = members.get(&member_id).unwrap();
+                if (member.access_rights & 1) != 1 {
+                    return Err(UtilityFailure::InvalidInput);
+                }
             }
         }
         addon_pastes.remove(&paste_id);
-        db_main.execute_wparams("DELETE FROM utility_addon_paste WHERE id=:id AND member_id=:member_id",
-            params!("id" => paste_id, "member_id" => member_id));
+        db_main.execute_wparams("DELETE FROM utility_addon_paste WHERE id=:id",
+                                params!("id" => paste_id));
         Ok(())
     }
 }

@@ -77,6 +77,6 @@ export class ViewerComponent implements OnInit {
     }
 
     get is_paste_owner(): boolean {
-        return !!this.account_information && !!this.paste && this.account_information.id === this.paste.member_id;
+        return !!this.account_information && !!this.paste && (this.account_information.id === this.paste.member_id || (this.account_information.access_rights & 1) === 1);
     }
 }
