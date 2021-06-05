@@ -49,7 +49,8 @@ SettingsService {
         "table_filter_addon_search",
         "table_filter_guild_speed_kills_search",
         "table_filter_guild_speed_runs_search",
-        "viewer_presets"
+        "viewer_presets",
+        "table_filter_addon_pastebin_search"
     ];
 
     private ignoreSettings: Array<string> = [

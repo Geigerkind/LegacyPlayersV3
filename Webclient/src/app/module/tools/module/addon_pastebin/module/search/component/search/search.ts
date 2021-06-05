@@ -13,11 +13,11 @@ import {table_init_filter} from "../../../../../../../../template/table/utility/
     styleUrls: ["./search.scss"]
 })
 export class SearchComponent {
-    private static URL_ADDON_PASTEBIN_SEARCH: string = "/data/addon_pastebin/search";
+    private static URL_ADDON_PASTEBIN_SEARCH: string = "/utility/addon_paste";
 
     header_columns: Array<HeaderColumn> = [
-        {index: 0, filter_name: 'name', labelKey: "AddonPastebin.Search.title", type: 0, type_range: null, col_type: 3},
-        {index: 1, filter_name: 'name', labelKey: "AddonPastebin.Search.addon_name", type: 0, type_range: null, col_type: 3},
+        {index: 0, filter_name: 'title', labelKey: "AddonPastebin.Search.title", type: 0, type_range: null, col_type: 3},
+        {index: 1, filter_name: 'addon_name', labelKey: "AddonPastebin.Search.addon_name", type: 0, type_range: null, col_type: 3},
         {
             index: 2,
             filter_name: 'expansion',
@@ -62,6 +62,7 @@ export class SearchComponent {
             filter.title.sorting = false;
             this.settingsService.set("table_filter_addon_pastebin_search", filter);
         }
+
         this.apiService.get(SearchComponent.URL_ADDON_PASTEBIN_SEARCH, (pastes) => {
             this.current_addons = pastes.map(paste => {
                 return {
