@@ -5,4 +5,5 @@ export interface Paste {
     addon_name: string;
     tags: Array<number>;
     description: string;
+    content: string;
 }

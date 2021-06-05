@@ -1,11 +1,15 @@
 import {Component, OnInit} from "@angular/core";
 import {Paste} from "../../../../domain_value/paste";
 import {Meta, Title} from "@angular/platform-browser";
+import {TAGS} from "../../../../../data/tags";
+import {NotificationService} from "../../../../../../../../service/notification";
+import {Severity} from "../../../../../../../../domain_value/severity";
+import {Clipboard} from "@angular/cdk/clipboard";
 
 @Component({
     selector: "Viewer",
     templateUrl: "./viewer.html",
-    styleUrls: ["./viewer.scss"]
+    styleUrls: ["./viewer.scss"],
 })
 export class ViewerComponent implements OnInit {
 
@@ -14,13 +18,16 @@ export class ViewerComponent implements OnInit {
         title: "TEST",
         expansion_id: 1,
         addon_name: "Weak Auras",
-        tags: [1,2,3],
-        description: "Some description"
+        tags: [1, 2, 3],
+        description: "Some description",
+        content: "WAMBO"
     };
 
     constructor(
         private metaService: Meta,
-        private titleService: Title
+        private titleService: Title,
+        private notificationService: NotificationService,
+        private clipboard: Clipboard
     ) {
         this.titleService.setTitle("LegacyPlayers - Addon paste viewer");
         this.metaService.updateTag({
@@ -37,8 +44,12 @@ export class ViewerComponent implements OnInit {
         });
     }
 
+    save_to_clipboard(): void {
+        this.clipboard.copy(this.paste.content);
+        this.notificationService.propagate(Severity.Success, "Paste saved to clipboard!");
+    }
 
     get tags(): string {
-        return "TODO";
+        return this.paste.tags.map(tag => TAGS[tag]).join(", ");
     }
 }
