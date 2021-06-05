@@ -11,6 +11,7 @@ pub trait RetrieveAddonPaste {
 
 pub trait UpdateAddonPaste {
     fn replace_addon_paste(&self, db_main: &mut (impl Select + Execute), paste: PasteDto, member_id: u32) -> Result<u32, UtilityFailure>;
+    fn delete_addon_paste(&self, db_main: &mut impl Execute, paste_id: u32, member_id: u32) -> Result<(), UtilityFailure>;
 }
 
 impl RetrieveAddonPaste for Utility {
@@ -67,5 +68,21 @@ impl UpdateAddonPaste for Utility {
             }
             Err(UtilityFailure::InvalidInput)
         }
+    }
+
+    fn delete_addon_paste(&self, db_main: &mut impl Execute, paste_id: u32, member_id: u32) -> Result<(), UtilityFailure> {
+        let mut addon_pastes = self.addon_pastes.write().unwrap();
+        if !addon_pastes.contains_key(&paste_id) {
+            return Err(UtilityFailure::InvalidInput);
+        } else {
+            let paste = addon_pastes.get(&paste_id).unwrap();
+            if paste.member_id != member_id {
+                return Err(UtilityFailure::InvalidInput);
+            }
+        }
+        addon_pastes.remove(&paste_id);
+        db_main.execute_wparams("DELETE FROM utility_addon_paste WHERE id=:id AND member_id=:member_id",
+            params!("id" => paste_id, "member_id" => member_id));
+        Ok(())
     }
 }

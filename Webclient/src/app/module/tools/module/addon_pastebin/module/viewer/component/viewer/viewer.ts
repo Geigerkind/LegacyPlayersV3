@@ -7,7 +7,7 @@ import {Severity} from "../../../../../../../../domain_value/severity";
 import {Clipboard} from "@angular/cdk/clipboard";
 import {AccountInformation} from "../../../../../../../account/domain_value/account_information";
 import {SettingsService} from "../../../../../../../../service/settings";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {APIService} from "../../../../../../../../service/api";
 
 @Component({
@@ -17,6 +17,7 @@ import {APIService} from "../../../../../../../../service/api";
 })
 export class ViewerComponent implements OnInit {
     private static URL_GET_PASTE: string = "/utility/addon_paste/:id";
+    private static URL_DELETE_PASTE: string = "/utility/addon_paste";
 
     paste: Paste;
 
@@ -29,7 +30,8 @@ export class ViewerComponent implements OnInit {
         private clipboard: Clipboard,
         private settingsService: SettingsService,
         private activatedRoute: ActivatedRoute,
-        private apiService: APIService
+        private apiService: APIService,
+        private router: Router
     ) {
         this.titleService.setTitle("LegacyPlayers - Addon paste viewer");
         this.metaService.updateTag({
@@ -62,7 +64,10 @@ export class ViewerComponent implements OnInit {
     }
 
     delete(): void {
-
+        this.apiService.delete(ViewerComponent.URL_DELETE_PASTE, this.paste.id, () => {
+            this.notificationService.propagate(Severity.Success, "Paste deleted!");
+            this.router.navigate(["/tools/addon_pastebin"]);
+        });
     }
 
     get tags(): string {

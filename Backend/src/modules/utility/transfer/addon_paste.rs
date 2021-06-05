@@ -24,3 +24,9 @@ pub fn get_addon_pastes(me: State<Utility>) -> Json<Vec<Paste>> {
 pub fn replace_addon_paste(mut db_main: MainDb, me: State<Utility>, paste: Json<PasteDto>, auth: Authenticate) -> Result<Json<u32>, UtilityFailure> {
     me.replace_addon_paste(&mut (*db_main), paste.into_inner(), auth.0).map(Json)
 }
+
+#[openapi]
+#[delete("/addon_paste", data = "<paste_id>")]
+pub fn delete_addon_paste(mut db_main: MainDb, me: State<Utility>, paste_id: Json<u32>, auth: Authenticate) -> Result<(), UtilityFailure> {
+    me.delete_addon_paste(&mut (*db_main), paste_id.into_inner(), auth.0)
+}

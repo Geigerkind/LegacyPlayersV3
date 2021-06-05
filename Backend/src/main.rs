@@ -71,7 +71,7 @@ fn main() {
     let tooltip = tooltip::Tooltip::default();
     let live_data_processor = live_data_processor::LiveDataProcessor::default().init(&mut conn);
     let instance = instance::Instance::default().init(instance_conn);
-    let utility = utility::Utility::default();
+    let utility = utility::Utility::default().init(&mut conn);
 
     let prometheus = PrometheusMetrics::new();
 
@@ -317,6 +317,7 @@ fn main() {
             utility::transfer::addon_paste::get_addon_paste,
             utility::transfer::addon_paste::get_addon_pastes,
             utility::transfer::addon_paste::replace_addon_paste,
+            utility::transfer::addon_paste::delete_addon_paste,
             ])
         .launch();
 }
