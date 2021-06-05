@@ -17573,14 +17573,14 @@ export class TalentViewerComponent {
     }
 
     expansionChanged(expansion: number): void {
-        this.selected_expansion = expansion;
+        this.selected_expansion = Number(expansion);
         if (expansion !== this.saved_expansion) {
             this.configurationChanged();
         }
     }
 
     heroClassChanged(hero_class_id: number): void {
-        this.selected_hero_class = hero_class_id;
+        this.selected_hero_class = Number(hero_class_id);
         if (hero_class_id !== this.saved_hero_class) {
             this.configurationChanged();
         }
