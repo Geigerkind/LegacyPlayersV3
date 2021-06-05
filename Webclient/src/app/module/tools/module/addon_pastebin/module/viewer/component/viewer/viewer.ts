@@ -7,6 +7,8 @@ import {Severity} from "../../../../../../../../domain_value/severity";
 import {Clipboard} from "@angular/cdk/clipboard";
 import {AccountInformation} from "../../../../../../../account/domain_value/account_information";
 import {SettingsService} from "../../../../../../../../service/settings";
+import {ActivatedRoute} from "@angular/router";
+import {APIService} from "../../../../../../../../service/api";
 
 @Component({
     selector: "Viewer",
@@ -14,17 +16,9 @@ import {SettingsService} from "../../../../../../../../service/settings";
     styleUrls: ["./viewer.scss"],
 })
 export class ViewerComponent implements OnInit {
+    private static URL_GET_PASTE: string = "/utility/addon_paste/:id";
 
-    paste: Paste = {
-        id: 42,
-        title: "TEST",
-        expansion_id: 1,
-        addon_name: "Weak Auras",
-        tags: [1, 2, 3],
-        description: "Some description",
-        content: "WAMBO",
-        member_id: 21
-    };
+    paste: Paste;
 
     private account_information: AccountInformation;
 
@@ -33,21 +27,32 @@ export class ViewerComponent implements OnInit {
         private titleService: Title,
         private notificationService: NotificationService,
         private clipboard: Clipboard,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        private activatedRoute: ActivatedRoute,
+        private apiService: APIService
     ) {
         this.titleService.setTitle("LegacyPlayers - Addon paste viewer");
         this.metaService.updateTag({
             name: "description",
             content: "Addon configuration pastes for Vanilla, TBC and WotLK. Pastes include for example WeakAuras, ElvUi Exports or simply lua configuration."
         });
+        this.activatedRoute.paramMap.subscribe(params => {
+            if (Number(params.get("id")) <= 0)
+                return;
+
+            this.apiService.get(ViewerComponent.URL_GET_PASTE.replace(":id", Number(params.get("id")).toString()),
+                (paste) => {
+                    this.paste = paste;
+                    this.titleService.setTitle(this.paste.title);
+                    this.metaService.updateTag({
+                        name: "description",
+                        content: this.paste.description
+                    });
+                });
+        });
     }
 
     ngOnInit(): void {
-        this.titleService.setTitle(this.paste.title);
-        this.metaService.updateTag({
-            name: "description",
-            content: this.paste.description
-        });
         this.account_information = this.settingsService.get("ACCOUNT_INFORMATION");
     }
 
@@ -61,6 +66,8 @@ export class ViewerComponent implements OnInit {
     }
 
     get tags(): string {
+        if (!this.paste)
+            return "";
         return this.paste.tags.map(tag => TAGS[tag]).join(", ");
     }
 

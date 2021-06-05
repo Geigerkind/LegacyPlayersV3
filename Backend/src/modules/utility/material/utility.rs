@@ -29,6 +29,7 @@ impl Utility {
                     tags: row.take::<String, usize>(4).unwrap().split(",").map(|num| u32::from_str(num).unwrap()).collect(),
                     description: row.take(5).unwrap(),
                     content: row.take(6).unwrap(),
+                    member_id: row.take(7).unwrap()
                 }
             }).into_iter().for_each(|paste| {
                 addon_pastes.insert(paste.id, paste);

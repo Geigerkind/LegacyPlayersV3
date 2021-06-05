@@ -4,7 +4,7 @@ pub struct PasteDto {
     pub title: String,
     pub expansion_id: u8,
     pub addon_name: String,
-    pub tags: String,
+    pub tags: Vec<u32>,
     pub description: String,
     pub content: String,
 }

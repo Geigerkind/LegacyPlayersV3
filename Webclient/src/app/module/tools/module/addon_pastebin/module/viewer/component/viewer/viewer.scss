@@ -20,13 +20,13 @@
         flex: 1;
     }
 
-    .copy_to_clipboard_btn, .edit_btn {
+    .copy_to_clipboard_btn, .edit_btn, .delete_button {
         height: 30px;
         min-height: 30px;
         line-height: 30px;
     }
 
-    .copy_to_clipboard_btn {
+    .copy_to_clipboard_btn, .edit_btn {
         margin-left: $spacing * 0.5;
     }
 }

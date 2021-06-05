@@ -7,4 +7,5 @@ pub struct Paste {
     pub tags: Vec<u32>,
     pub description: String,
     pub content: String,
+    pub member_id: u32,
 }

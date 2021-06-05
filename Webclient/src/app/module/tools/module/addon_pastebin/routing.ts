@@ -10,7 +10,7 @@ const routes: Routes = [{
             loadChildren: () => import("./module/search/module").then(m => m.SearchModule)
         },
         {
-            path: "viewer",
+            path: "viewer/:id",
             loadChildren: () => import("./module/viewer/module").then(m => m.ViewerModule)
         },
         {
