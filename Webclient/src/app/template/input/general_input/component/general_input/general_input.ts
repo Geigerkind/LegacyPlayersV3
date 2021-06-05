@@ -16,7 +16,7 @@ export class GeneralInputComponent implements AfterViewInit, OnInit {
     @Input() placeholderKey: string;
     @Input() labelKey: string;
     @Input() required: boolean;
-    @Input() maximum_length = 1024;
+    @Input() maximum_length = 65532;
     @Input() min_spec: string;
     @Input() max_spec: string;
     @Input() name: string;
