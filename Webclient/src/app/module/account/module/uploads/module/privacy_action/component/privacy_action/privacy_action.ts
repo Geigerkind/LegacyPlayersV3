@@ -35,14 +35,14 @@ export class PrivacyActionComponent implements OnInit {
     update_privacy_option(option: number): void {
         if (!this.initialized)
             return;
-        this.selected_privacy_option = option;
+        this.selected_privacy_option = Number(option);
         this.privacy_changed.next([this.selected_privacy_option, this.selected_privacy_group]);
     }
 
     update_privacy_group(group: number): void {
         if (!this.initialized)
             return;
-        this.selected_privacy_group = group;
+        this.selected_privacy_group = Number(group);
         this.privacy_changed.next([this.selected_privacy_option, this.selected_privacy_group]);
     }
 
