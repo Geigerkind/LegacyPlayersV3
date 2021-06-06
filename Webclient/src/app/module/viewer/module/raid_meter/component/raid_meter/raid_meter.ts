@@ -40,6 +40,7 @@ import {UnitBasicInformation, UnitService} from "../../../../service/unit";
 import {SpellBasicInformation, SpellService} from "../../../../service/spell";
 import {merge_detail_rows} from "../../../raid_detail_table/stdlib/util";
 import {MeterSpellCastsService} from "../../service/meter_spell_casts";
+import {MeterUptimeService} from "../../service/meter_uptime";
 
 @Component({
     selector: "RaidMeter",
@@ -58,6 +59,7 @@ import {MeterSpellCastsService} from "../../service/meter_spell_casts";
         MeterAbsorbService,
         MeterAuraGainService,
         MeterSpellCastsService,
+        MeterUptimeService,
         RaidMeterService,
         // Raid Detail Service
         DetailDamageService,
@@ -124,6 +126,8 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
         {value: 26, label_key: 'Auras gotten'},
         {value: 27, label_key: 'Spell casts done'},
         {value: 28, label_key: 'Spell casts taken'},
+        {value: 29, label_key: 'Source Uptime'},
+        {value: 30, label_key: 'Target Uptime'},
         {value: 99, label_key: 'Event Log'},
     ];
 
@@ -208,6 +212,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     selection_changed(selection: number): void {
+        selection = Number(selection);
         if (this.current_selection === -1)
             return;
 
@@ -229,7 +234,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     bar_clicked(bar: [number, number]): void {
-        if ([19, 20, 25, 26, 27, 28].includes(this.current_selection) && this.in_ability_mode)
+        if ([19, 20, 25, 26, 27, 28, 29, 30].includes(this.current_selection) && this.in_ability_mode)
             return;
 
         if (!this.in_ability_mode)
@@ -297,6 +302,9 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                         .slice(0, 10)
                         .map(([ability_id, amount]) => [this.abilities.get(ability_id).name, amount]);
                 };
+            } else if ([29, 30].includes(this.current_selection)) {
+                type = 999;
+                payload = "No tooltip available!";
             } else {
                 type = 5;
                 payload = () => {
@@ -339,7 +347,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     units: this.units,
                     icon: this.abilities.get(subject_id).icon
                 };
-            } else {
+            } else if ([29, 30].includes(this.current_selection)) {
+                type = 999;
+                payload = "No tooltip available!";
+            }  else {
                 type = 6;
                 const result = this.ability_details.reduce((acc, [i_unit_id, i_details]) =>
                     merge_detail_rows(acc, i_details.filter(([i_ability_id,]) => i_ability_id === subject_id)
@@ -399,7 +410,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     }
                 }
                 result = [...acc.entries()].sort((left, right) => right[1] - left[1]);
-            } else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
+            } else if ([29, 30].includes(this.current_selection)) {
+                result = [];
+            }
+            else result = this.ability_rows(rows as Array<[number, Array<[number, number]>]>);
         } else {
             if ([11, 12, 13, 14, 15, 16, 17, 18, 25, 26].includes(this.current_selection)) {
                 result = rows.map(([unit_id, secondary]) => [unit_id, secondary.length]);
@@ -410,6 +424,10 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
                     const frac_duration = (100 * intervals.reduce((acc, [start, end]) => acc + (end - start), 0)) / (this.current_attempt_duration * 1000);
                     result.push([spell_id, Math.min(100, frac_duration)]);
                 }
+            } else if ([29, 30].includes(this.current_selection)) {
+                const total_time = this.current_attempt_duration * 1000;
+                result = (rows as Array<[number, Array<[number, number]>]>).map(([subject_id, intervals]) =>
+                    [subject_id, 100 * intervals.reduce((acc, interval) => interval[1] - interval[0], 0) / total_time]);
             } else {
                 result = (rows as Array<[number, Array<[number, number]>]>).map(([unit_id, abilities]) =>
                     [unit_id, abilities.reduce((acc, [ability_id, amount]) => acc + amount, 0)])
@@ -433,7 +451,7 @@ export class RaidMeterComponent implements OnDestroy, OnInit {
     }
 
     get show_per_second(): boolean {
-        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26, 27, 28].includes(this.current_selection);
+        return ![11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26, 27, 28, 29, 30].includes(this.current_selection);
     }
 
     format_number(number_str: string): string {

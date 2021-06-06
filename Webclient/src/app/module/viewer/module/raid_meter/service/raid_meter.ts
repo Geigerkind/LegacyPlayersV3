@@ -17,6 +17,7 @@ import {MeterAuraGainService} from "./meter_aura_gain";
 import {AuraGainOverviewRow} from "../domain_value/aura_gain_overview_row";
 import {HealMode} from "../../../domain_value/heal_mode";
 import {MeterSpellCastsService} from "./meter_spell_casts";
+import {MeterUptimeService} from "./meter_uptime";
 
 @Injectable({
     providedIn: "root",
@@ -47,6 +48,7 @@ export class RaidMeterService implements OnDestroy {
         private meter_heal_and_absorb_service: MeterHealAndAbsorbService,
         private meter_aura_gain_service: MeterAuraGainService,
         private meter_spell_casts_service: MeterSpellCastsService,
+        private meter_uptime_service: MeterUptimeService,
         private raid_configuration_selection_service: RaidConfigurationSelectionService
     ) {
     }
@@ -158,6 +160,14 @@ export class RaidMeterService implements OnDestroy {
             case 28:
                 this.register_evt_type(0);
                 this.subscription_data = this.meter_spell_casts_service.get_data(selection === 28)
+                    .subscribe(data => this.commit(data));
+                break;
+            case 29:
+            case 30:
+                this.register_evt_type(14);
+                this.register_evt_type(13);
+                this.register_evt_type(12);
+                this.subscription_data = this.meter_uptime_service.get_data(selection === 30)
                     .subscribe(data => this.commit(data));
                 break;
         }

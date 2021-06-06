@@ -17,7 +17,7 @@
                 [bar_subjects]="bar_subjects"
                 [bar_tooltips]="bar_tooltips"
                 [show_per_second]="show_per_second"
-                [show_percent]="![19, 20].includes(current_selection)"
+                [show_percent]="![19, 20, 29, 30].includes(current_selection)"
                 (bar_clicked)="bar_clicked($event)">
     </MeterGraph>
     <DeathsOverview *ngIf="[11, 12].includes(current_selection) && in_ability_mode" [death_overview_rows]="bars"

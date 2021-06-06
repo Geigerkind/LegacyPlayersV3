@@ -246,6 +246,13 @@ export class Rechenknecht {
         return meter_damage;
     }
 
+    async meter_uptime(inverse: boolean): Promise<Array<[number, [Unit, Array<[number, number]>]]>> {
+        Rechenknecht.send_work_start();
+        const meter_damage = this.raid_meter_knecht.uptime.calculate(inverse);
+        Rechenknecht.send_work_end();
+        return meter_damage;
+    }
+
     /*
      * DATA FILTER
      */
