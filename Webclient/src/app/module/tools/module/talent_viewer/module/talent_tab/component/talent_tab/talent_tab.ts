@@ -76,6 +76,9 @@ export class TalentTabComponent implements OnInit, OnChanges {
     }
 
     findDependency(talent: Talent): Talent {
+        if (!talent)
+            return undefined;
+
         if (!!talent.parent) {
             return this.talent_tree[talent.parent.row_index][talent.parent.column_index];
         }
