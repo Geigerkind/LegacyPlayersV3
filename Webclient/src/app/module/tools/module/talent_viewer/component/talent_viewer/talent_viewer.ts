@@ -12828,10 +12828,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 2,
                             column_index: 1,
-                            spell_id: [19596],
+                            spell_id: [53265],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_druid_dash"
+                            icon: "ability_hunter_aspectmastery"
                         },
                         {
                             is_filler: false,
@@ -12951,7 +12951,16 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 6, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 7, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 0,
+                            spell_id: [53252, 53253],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_hunter_invigeration",
+                            parent: {row_index: 6, column_index: 0}
+                        },
                         {is_filler: true, row_index: 7, column_index: 1},
                         {
                             is_filler: false,
@@ -12965,7 +12974,15 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 7, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 0,
+                            spell_id: [53262, 53263, 53264],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_longevity",
+                        },
                         {
                             is_filler: false,
                             row_index: 8,
@@ -12976,21 +12993,66 @@ export class TalentViewerComponent {
                             icon: "ability_hunter_beastwithin",
                             parent: {row_index: 6, column_index: 1}
                         },
-                        {is_filler: true, row_index: 8, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 2,
+                            spell_id: [53256, 53259, 53260],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_cobrastrikes",
+                            parent: {row_index: 7, column_index: 2}
+                        },
                         {is_filler: true, row_index: 8, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 9, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 9,
+                            column_index: 1,
+                            spell_id: [56314, 56315, 56316, 56317, 56318],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_hunter_separationanxiety",
+                        },
+                        {is_filler: true, row_index: 9, column_index: 2},
+                        {is_filler: true, row_index: 9, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 10, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 10,
+                            column_index: 1,
+                            spell_id: [53270],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_hunter_beastmastery",
+                        },
+                        {is_filler: true, row_index: 10, column_index: 2},
+                        {is_filler: true, row_index: 10, column_index: 3},
                     ]
                 ]]],
                 [2, ["Marksmanship", [
                     [
-                        {is_filler: true, row_index: 0, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 0,
+                            column_index: 0,
+                            spell_id: [19407, 19412],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "spell_frost_stun"
+                        },
                         {
                             is_filler: false,
                             row_index: 0,
                             column_index: 1,
-                            spell_id: [19407, 19412, 19413, 19414, 19415],
-                            max_points: 5,
+                            spell_id: [53620, 53621, 53622],
+                            max_points: 3,
                             points_spend: 0,
-                            icon: "spell_frost_stun"
+                            icon: "ability_hunter_focusedaim"
                         },
                         {
                             is_filler: false,
@@ -13004,13 +13066,21 @@ export class TalentViewerComponent {
                         {is_filler: true, row_index: 0, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 1, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 0,
+                            spell_id: [34482, 34483, 34484],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_zenarchery"
+                        },
                         {
                             is_filler: false,
                             row_index: 1,
                             column_index: 1,
-                            spell_id: [19421, 19422, 19423, 19424, 19425],
-                            max_points: 5,
+                            spell_id: [19421, 19422, 19423],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "ability_hunter_snipershot"
                         },
@@ -13018,10 +13088,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 1,
                             column_index: 2,
-                            spell_id: [19416, 19417, 19418, 19419, 19420],
+                            spell_id: [19485, 19487, 19488, 19489, 19490],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "spell_frost_wizardmark"
+                            icon: "ability_piercedamage",
                         },
                         {is_filler: true, row_index: 1, column_index: 3},
                     ],
@@ -13039,8 +13109,8 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 2,
                             column_index: 1,
-                            spell_id: [19454, 19455, 19456, 19457, 19458],
-                            max_points: 5,
+                            spell_id: [19454, 19455, 19456],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "ability_impalingbolt"
                         },
@@ -13051,7 +13121,8 @@ export class TalentViewerComponent {
                             spell_id: [19434],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "inv_spear_07"
+                            icon: "inv_spear_07",
+                            parent: {row_index: 1, column_index: 2}
                         },
                         {
                             is_filler: false,
@@ -13069,8 +13140,8 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 3,
                             column_index: 1,
-                            spell_id: [19464, 19465, 19466, 19467, 19468],
-                            max_points: 5,
+                            spell_id: [19464, 19465, 19466],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "ability_hunter_quickshot"
                         },
@@ -13078,11 +13149,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 3,
                             column_index: 2,
-                            spell_id: [19485, 19487, 19488, 19489, 19490],
+                            spell_id: [19416, 19417, 19418, 19419, 19420],
                             max_points: 5,
                             points_spend: 0,
-                            icon: "ability_piercedamage",
-                            parent: {row_index: 2, column_index: 2}
+                            icon: "spell_frost_wizardmark"
                         },
                         {is_filler: true, row_index: 3, column_index: 3},
                     ],
@@ -13091,8 +13161,8 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 4,
                             column_index: 0,
-                            spell_id: [35100, 35102, 35103],
-                            max_points: 3,
+                            spell_id: [35100, 35102],
+                            max_points: 2,
                             points_spend: 0,
                             icon: "spell_arcane_starfire"
                         },
@@ -13100,10 +13170,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 4,
                             column_index: 1,
-                            spell_id: [19503],
+                            spell_id: [23989],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_golemstormbolt"
+                            icon: "ability_hunter_readiness"
                         },
                         {
                             is_filler: false,
@@ -13132,8 +13202,8 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 5,
                             column_index: 3,
-                            spell_id: [19507, 19508, 19509, 19510, 19511],
-                            max_points: 5,
+                            spell_id: [19507, 19508, 19509],
+                            max_points: 3,
                             points_spend: 0,
                             icon: "inv_weapon_rifle_06"
                         },
@@ -13143,10 +13213,10 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 6,
                             column_index: 0,
-                            spell_id: [34482, 34483, 34484],
+                            spell_id: [53234, 53237, 53238],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_hunter_zenarchery",
+                            icon: "ability_hunter_piercingshots",
                         },
                         {
                             is_filler: false,
@@ -13181,11 +13251,27 @@ export class TalentViewerComponent {
                             points_spend: 0,
                             icon: "ability_hunter_mastermarksman",
                         },
-                        {is_filler: true, row_index: 7, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 2,
+                            spell_id: [53228, 53232],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_hunter_rapidregeneration",
+                        },
                         {is_filler: true, row_index: 7, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 0,
+                            spell_id: [53215, 53216, 53217],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_wildquiver",
+                        },
                         {
                             is_filler: false,
                             row_index: 8,
@@ -13196,8 +13282,44 @@ export class TalentViewerComponent {
                             icon: "ability_theblackarrow",
                             parent: {row_index: 7, column_index: 1}
                         },
-                        {is_filler: true, row_index: 8, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 2,
+                            spell_id: [53221, 53222, 53224],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_improvedsteadyshot",
+                        },
                         {is_filler: true, row_index: 8, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 9, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 9,
+                            column_index: 1,
+                            spell_id: [53241, 53243, 53244, 53245, 53246],
+                            max_points: 5,
+                            points_spend: 0,
+                            icon: "ability_hunter_assassinate",
+                        },
+                        {is_filler: true, row_index: 9, column_index: 2},
+                        {is_filler: true, row_index: 9, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 10, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 10,
+                            column_index: 1,
+                            spell_id: [53209],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_hunter_chimerashot2",
+                        },
+                        {is_filler: true, row_index: 10, column_index: 2},
+                        {is_filler: true, row_index: 10, column_index: 3},
                     ]
                 ]]],
                 [3, ["Survival", [
@@ -13206,24 +13328,15 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 0,
                             column_index: 0,
-                            spell_id: [24293, 24294, 24295],
-                            max_points: 3,
+                            spell_id: [52783, 52785, 52786, 52787, 52788],
+                            max_points: 5,
                             points_spend: 0,
-                            icon: "inv_misc_head_dragon_black"
+                            icon: "ability_hunter_improvedtracking"
                         },
                         {
                             is_filler: false,
                             row_index: 0,
                             column_index: 1,
-                            spell_id: [19151, 19152, 19153],
-                            max_points: 3,
-                            points_spend: 0,
-                            icon: "spell_holy_prayerofhealing"
-                        },
-                        {
-                            is_filler: false,
-                            row_index: 0,
-                            column_index: 2,
                             spell_id: [19498, 19499, 19500],
                             max_points: 3,
                             points_spend: 0,
@@ -13232,18 +13345,28 @@ export class TalentViewerComponent {
                         {
                             is_filler: false,
                             row_index: 0,
-                            column_index: 3,
+                            column_index: 2,
                             spell_id: [19159, 19160],
                             max_points: 2,
                             points_spend: 0,
                             icon: "ability_racial_bloodrage"
                         },
+                        {is_filler: true, row_index: 0, column_index: 3},
                     ],
                     [
                         {
                             is_filler: false,
                             row_index: 1,
                             column_index: 0,
+                            spell_id: [19290, 19294, 24283],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_kick"
+                        },
+                        {
+                            is_filler: false,
+                            row_index: 1,
+                            column_index: 1,
                             spell_id: [19184, 19387, 19388],
                             max_points: 3,
                             points_spend: 0,
@@ -13252,37 +13375,27 @@ export class TalentViewerComponent {
                         {
                             is_filler: false,
                             row_index: 1,
-                            column_index: 1,
-                            spell_id: [19295, 19297, 19298, 19301, 19300],
-                            max_points: 5,
+                            column_index: 2,
+                            spell_id: [19376, 63457, 63458],
+                            max_points: 3,
                             points_spend: 0,
-                            icon: "ability_parry"
+                            icon: "ability_ensnare"
                         },
                         {
                             is_filler: false,
                             row_index: 1,
-                            column_index: 2,
-                            spell_id: [19228, 19232, 19233],
-                            max_points: 3,
+                            column_index: 3,
+                            spell_id: [34494, 34496],
+                            max_points: 2,
                             points_spend: 0,
-                            icon: "ability_rogue_trip"
+                            icon: "ability_hunter_survivalinstincts",
                         },
-                        {is_filler: true, row_index: 1, column_index: 3},
                     ],
                     [
                         {
                             is_filler: false,
                             row_index: 2,
                             column_index: 0,
-                            spell_id: [19239, 19245],
-                            max_points: 2,
-                            points_spend: 0,
-                            icon: "spell_nature_timestop"
-                        },
-                        {
-                            is_filler: false,
-                            row_index: 2,
-                            column_index: 1,
                             spell_id: [19255, 19256, 19257, 19258, 19259],
                             max_points: 5,
                             points_spend: 0,
@@ -13291,37 +13404,24 @@ export class TalentViewerComponent {
                         {
                             is_filler: false,
                             row_index: 2,
-                            column_index: 2,
-                            spell_id: [19263],
+                            column_index: 1,
+                            spell_id: [19503],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_whirlwind",
-                        },
-                        {is_filler: true, row_index: 2, column_index: 3},
-                    ],
-                    [
-                        {
-                            is_filler: false,
-                            row_index: 3,
-                            column_index: 0,
-                            spell_id: [19376, 19377],
-                            max_points: 2,
-                            points_spend: 0,
-                            icon: "ability_ensnare"
+                            icon: "ability_golemstormbolt"
                         },
                         {
                             is_filler: false,
-                            row_index: 3,
-                            column_index: 1,
-                            spell_id: [19290, 19294, 24283],
+                            row_index: 2,
+                            column_index: 2,
+                            spell_id: [19295, 19297, 19298],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_kick"
+                            icon: "ability_parry"
                         },
-                        {is_filler: true, row_index: 3, column_index: 2},
                         {
                             is_filler: false,
-                            row_index: 3,
+                            row_index: 2,
                             column_index: 3,
                             spell_id: [19286, 19287],
                             max_points: 2,
@@ -13330,14 +13430,37 @@ export class TalentViewerComponent {
                         },
                     ],
                     [
+                        {is_filler: true, row_index: 3, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 1,
+                            spell_id: [56333, 56336, 56337],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "inv_misc_bomb_05"
+                        },
+                        {is_filler: true, row_index: 3, column_index: 2},
+                        {
+                            is_filler: false,
+                            row_index: 3,
+                            column_index: 3,
+                            spell_id: [56342, 56343, 56344],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_lockandload"
+                        },
+                    ],
+                    [
                         {
                             is_filler: false,
                             row_index: 4,
                             column_index: 0,
-                            spell_id: [34494, 34496],
-                            max_points: 2,
+                            spell_id: [56339, 56340, 56341],
+                            max_points: 3,
                             points_spend: 0,
-                            icon: "ability_hunter_survivalinstincts",
+                            icon: "ability_hunter_huntervswild",
+                            parent: {row_index: 2, column_index: 0}
                         },
                         {
                             is_filler: false,
@@ -13365,20 +13488,20 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 5,
                             column_index: 0,
-                            spell_id: [34491, 34492, 34493],
-                            max_points: 3,
+                            spell_id: [19168, 19180, 19181, 24296, 24297],
+                            max_points: 5,
                             points_spend: 0,
-                            icon: "ability_hunter_resourcefulness"
+                            icon: "spell_nature_invisibilty"
                         },
                         {is_filler: true, row_index: 5, column_index: 1},
                         {
                             is_filler: false,
                             row_index: 5,
                             column_index: 2,
-                            spell_id: [19168, 19180, 19181, 24296, 24297],
-                            max_points: 5,
+                            spell_id: [34491, 34492, 34493],
+                            max_points: 3,
                             points_spend: 0,
-                            icon: "spell_nature_invisibilty"
+                            icon: "ability_hunter_resourcefulness"
                         },
                         {is_filler: true, row_index: 5, column_index: 3},
                     ],
@@ -13387,10 +13510,11 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 6,
                             column_index: 0,
-                            spell_id: [34497, 34498, 34499],
+                            spell_id: [34500, 34502, 34503],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_hunter_thrillofthehunt",
+                            icon: "ability_rogue_findweakness",
+                            parent: {row_index: 5, column_index: 0}
                         },
                         {
                             is_filler: false,
@@ -13406,42 +13530,94 @@ export class TalentViewerComponent {
                             is_filler: false,
                             row_index: 6,
                             column_index: 2,
-                            spell_id: [34500, 34502, 34503],
+                            spell_id: [34497, 34498, 34499],
                             max_points: 3,
                             points_spend: 0,
-                            icon: "ability_rogue_findweakness",
-                            parent: {row_index: 5, column_index: 2}
+                            icon: "ability_hunter_thrillofthehunt",
                         },
                         {is_filler: true, row_index: 6, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 7, column_index: 0},
                         {
                             is_filler: false,
                             row_index: 7,
-                            column_index: 1,
+                            column_index: 0,
                             spell_id: [34506, 34507, 34508, 34838, 34839],
                             max_points: 5,
                             points_spend: 0,
                             icon: "ability_hunter_mastertactitian",
                         },
+                        {
+                            is_filler: false,
+                            row_index: 7,
+                            column_index: 1,
+                            spell_id: [53295, 53296, 53297],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_potentvenom",
+                        },
                         {is_filler: true, row_index: 7, column_index: 2},
                         {is_filler: true, row_index: 7, column_index: 3},
                     ],
                     [
-                        {is_filler: true, row_index: 8, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 0,
+                            spell_id: [53298, 53299],
+                            max_points: 2,
+                            points_spend: 0,
+                            icon: "ability_hunter_pointofnoescape"
+                        },
                         {
                             is_filler: false,
                             row_index: 8,
                             column_index: 1,
-                            spell_id: [23989],
+                            spell_id: [3674],
                             max_points: 1,
                             points_spend: 0,
-                            icon: "ability_hunter_readiness",
-                            parent: {row_index: 7, column_index: 1}
+                            icon: "spell_shadow_painspike"
                         },
                         {is_filler: true, row_index: 8, column_index: 2},
-                        {is_filler: true, row_index: 8, column_index: 3},
+                        {
+                            is_filler: false,
+                            row_index: 8,
+                            column_index: 3,
+                            spell_id: [53302, 53303, 53304],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_longshots"
+                        },
+                    ],
+                    [
+                        {is_filler: true, row_index: 9, column_index: 0},
+                        {is_filler: true, row_index: 9, column_index: 1},
+                        {
+                            is_filler: false,
+                            row_index: 9,
+                            column_index: 2,
+                            spell_id: [53290, 53291, 53292],
+                            max_points: 3,
+                            points_spend: 0,
+                            icon: "ability_hunter_huntingparty",
+                            parent: {row_index: 6, column_index: 2}
+                        },
+                        {is_filler: true, row_index: 9, column_index: 3},
+                    ],
+                    [
+                        {is_filler: true, row_index: 10, column_index: 0},
+                        {
+                            is_filler: false,
+                            row_index: 10,
+                            column_index: 1,
+                            spell_id: [53301],
+                            max_points: 1,
+                            points_spend: 0,
+                            icon: "ability_hunter_explosiveshot",
+                            parent: {row_index: 8, column_index: 1}
+                        },
+                        {is_filler: true, row_index: 10, column_index: 2},
+                        {is_filler: true, row_index: 10, column_index: 3},
                     ]
                 ]]],
             ])],
