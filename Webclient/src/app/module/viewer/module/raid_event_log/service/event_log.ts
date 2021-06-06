@@ -7,34 +7,37 @@ import {Event, MeleeDamage, SpellDamage} from "../../../domain_value/event";
 import {UnitService} from "../../../service/unit";
 import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
 import {SpellService} from "../../../service/spell";
-import {CONST_UNKNOWN_LABEL} from "../../../constant/viewer";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import {
     se_aura_application,
-    se_combat_state, se_death, se_heal,
-    se_interrupt, se_melee_damage,
-    se_spell_cast, se_spell_damage,
+    se_combat_state,
+    se_death,
+    se_heal,
+    se_interrupt,
+    se_melee_damage,
+    se_spell_cast,
+    se_spell_damage,
     se_un_aura
 } from "../../../extractor/sources";
 import {
-    te_aura_application, te_death, te_heal,
+    te_aura_application,
+    te_death,
+    te_heal,
     te_interrupt,
     te_melee_damage,
-    te_spell_cast, te_spell_damage,
+    te_spell_cast,
+    te_spell_damage,
     te_un_aura
 } from "../../../extractor/targets";
 import {
-    ae_aura_application, ae_heal,
+    ae_aura_application,
+    ae_heal,
     ae_interrupt,
     ae_spell_cast,
     ae_spell_damage,
     ae_un_aura
 } from "../../../extractor/abilities";
-import {
-    get_spell_components_total_amount,
-    get_spell_components_total_amount_without_absorb,
-    SpellComponent
-} from "../../../domain_value/damage";
+import {get_spell_components_total_amount_without_absorb, SpellComponent} from "../../../domain_value/damage";
 import {school_mask_to_school_array} from "../../../domain_value/school";
 import {InstanceViewerMeta} from "../../../domain_value/instance_viewer_meta";
 import {get_unit_id} from "../../../domain_value/unit";
