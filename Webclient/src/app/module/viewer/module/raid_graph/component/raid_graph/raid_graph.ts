@@ -426,7 +426,7 @@ export class RaidGraphComponent implements OnInit, OnDestroy {
     }
 
     select_chart_type(chart_type: number): void {
-        this.selected_chart_type = chart_type;
+        this.selected_chart_type = Number(chart_type);
         this.graphDataService.set_graph_mode(chart_type);
         this.graphDataService.update();
     }
