@@ -1,7 +1,7 @@
-name: CI
-on: push
+#name: CI
+#on: push
 
-jobs:
+#jobs:
 #  frontend:
 #    name: Frontend
 #    runs-on: ubuntu-latest
