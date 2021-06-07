@@ -4,14 +4,15 @@
     <SelectInput [(value)]="encounters_current_selection" (valueChange)="select()" [options]="encounters"
                  [themed]="true"></SelectInput>
     <MultiSelect [(selectedItems)]="difficulties_selected_items" [dropdownList]="difficulties"
-                 [allowSearchFilter]="false"
+                 [allowSearchFilter]="false" (items_changed_by_action)="select()"
                  (select_all)="select()" placeholder="Ranking.difficulties"
                  (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>
     <MultiSelect [(selectedItems)]="servers_selected_items" [dropdownList]="servers" [allowSearchFilter]="true"
-                 (select_all)="select()" placeholder="Ranking.servers"
+                 (select_all)="select()" placeholder="Ranking.servers" (items_changed_by_action)="select()"
                  (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>
     <MultiSelect [(selectedItems)]="seasons_selected_items" [dropdownList]="seasons" [allowSearchFilter]="true"
                  (select_all)="select()" placeholder="Ranking.seasons" [enableCheckAll]="true"
+                 (items_changed_by_action)="select()"
                  (item_deselected)="select()" (item_selected)="select()" (deselect_all)="select()"></MultiSelect>
     <svg aria-hidden="true" viewBox="0 0 448 512" id="rpll_share_button" (click)="share()">
         <path fill="currentColor"
