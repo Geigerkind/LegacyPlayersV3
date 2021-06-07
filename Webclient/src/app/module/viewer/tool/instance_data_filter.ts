@@ -135,9 +135,10 @@ export class InstanceDataFilter {
             });
 
         if (presets_with_event_type.length > 0 && !!hit_mask_extraction && !has_everything_hit_types_preset) {
+            const flattened_hit_types = presets_with_event_type.reduce((acc, preset) => preset.hit_types.reduce((i_acc, ht) => i_acc | ht, acc), 0);
             result = result.filter(event => {
                 const hit_mask = hit_mask_extraction(event);
-                return presets_with_event_type.some(preset => preset.hit_types.some(ht => (hit_mask & ht) > 0));
+                return (flattened_hit_types & hit_mask) > 0;
             });
         }
 
