@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 29
+RPLL.VERSION = 30
 RPLL.MAX_MESSAGE_LENGTH = 300
 RPLL.MESSAGE_PREFIX = "RPLL_H_"
 RPLL.CONSOLIDATE_CHARACTER = "{"
@@ -43,6 +43,7 @@ local GetCurrentMapAreaID = GetCurrentMapAreaID
 local setglobal = setglobal
 local NotifyInspect = NotifyInspect
 local CanInspect = CanInspect
+local Unknown = UNKNOWN
 
 local SpellFailedCombatLogEvents = {
     "SPELL_FAILED_AFFECTING_COMBAT",
@@ -969,10 +970,16 @@ function RPLL:CollectUnit(unit)
     if not UnitIsPlayer(unit) then
         return
     end
+
     if UnitGUID(unit) ~= nil and UnitGUID(unit) == UnitGUID("player") then
         unit = "player"
     end
+
     local unit_name = UnitName(unit)
+    if unit_name == Unknown then
+        return
+    end
+
     if RPLL:ContainsSynchronizer(unit_name) then
         return
     end
