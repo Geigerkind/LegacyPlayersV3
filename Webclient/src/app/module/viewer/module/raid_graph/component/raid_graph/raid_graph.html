@@ -9,15 +9,15 @@
                  [selectedItems]="eventsSelected" [enableCheckAll]="false" [allowSearchFilter]="false"
                  (item_selected)="event_selected($event)" (item_deselected)="event_deselected($event)"></MultiSelect>
     <MultiSelect placeholder="Source aura uptime" [dropdownList]="sourceAbilities"
-                 [selectedItems]="selectedSourceAbilities"
+                 [selectedItems]="selectedSourceAbilities" class="bottom_ms"
                  (selectedItemsChange)="selectedSourceAbilitiesChanged($event)" [enableCheckAll]="false"
                  [allowSearchFilter]="true"></MultiSelect>
     <MultiSelect placeholder="Target aura uptime" [dropdownList]="targetAbilities"
-                 [selectedItems]="selectedTargetAbilities"
+                 [selectedItems]="selectedTargetAbilities" class="bottom_ms"
                  (selectedItemsChange)="selectedTargetAbilitiesChanged($event)" [enableCheckAll]="false"
                  [allowSearchFilter]="true"></MultiSelect>
     <MultiSelect id="last_multi_select" placeholder="Source spell casts" [dropdownList]="sourceSpellCastAbilities"
-                 [selectedItems]="selectedSourceSpellCastAbilities"
+                 [selectedItems]="selectedSourceSpellCastAbilities" class="bottom_ms"
                  (selectedItemsChange)="selectedSourceSpellCastAbilitiesChanged($event)" [enableCheckAll]="false"
                  [allowSearchFilter]="true"></MultiSelect>
     <div class="question_mark" [showTooltip]="tooltip">?</div>
