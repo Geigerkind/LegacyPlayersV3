@@ -1,12 +1,11 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {BehaviorSubject, combineLatest, Observable, Subject, Subscription} from "rxjs";
+import {combineLatest, Observable, Subject, Subscription} from "rxjs";
 import {EventLogEntry} from "../domain_value/event_log_entry";
 import {InstanceDataService} from "../../../service/instance_data";
 import {debounceTime, map} from "rxjs/operators";
 import {Event, MeleeDamage, SpellDamage} from "../../../domain_value/event";
 import {UnitService} from "../../../service/unit";
 import {hit_mask_to_hit_type_array, HitType} from "../../../domain_value/hit_type";
-import {SpellService} from "../../../service/spell";
 import {KnechtUpdates} from "../../../domain_value/knecht_updates";
 import {
     se_aura_application,
@@ -50,7 +49,10 @@ export class EventLogService implements OnDestroy {
     private current_meta: InstanceViewerMeta;
 
     private subscription: Subscription = new Subscription();
-    private event_log_entries$: BehaviorSubject<Array<EventLogEntry>> = new BehaviorSubject([]);
+    private event_log_entries$: Subject<Array<EventLogEntry>> = new Subject();
+    private scrolled_page$: Subject<Array<EventLogEntry>> = new Subject();
+    private internal_event_log_entries: Array<EventLogEntry> = [];
+
     private to_actor: boolean = false;
     private initialized: boolean = false;
 
@@ -78,10 +80,9 @@ export class EventLogService implements OnDestroy {
 
     constructor(
         private instanceDataService: InstanceDataService,
-        private unitService: UnitService,
-        private spellService: SpellService
+        private unitService: UnitService
     ) {
-        this.subscription.add(this.offset_changed.asObservable().pipe(debounceTime(2)).subscribe(offset => {
+        this.subscription.add(this.offset_changed.asObservable().pipe(debounceTime(2)).subscribe(async offset => {
             if (offset === 0) {
                 // Reset
                 for (const log_offset of this.log_offsets) {
@@ -101,7 +102,7 @@ export class EventLogService implements OnDestroy {
                     }
                 } else {
                     // Scrolled down
-                    const log_entries = this.event_log_entries$.getValue();
+                    const log_entries = this.internal_event_log_entries;
                     for (let i = 0; i < (offset - this.last_global_offset); ++i) {
                         if (log_entries.length <= i)
                             break; // Scrolling too fast?
@@ -113,9 +114,21 @@ export class EventLogService implements OnDestroy {
                 }
             }
             this.last_global_offset = offset;
-            this.update_event_log_entries();
+            if (this.last_global_offset >= this.internal_event_log_entries.length - 25)
+                await this.update_event_log_entries();
+            this.scrolled_page$.next(this.internal_event_log_entries.slice(this.last_global_offset, this.last_global_offset + 19));
         }));
         this.subscription.add(this.instanceDataService.meta.subscribe(meta => this.current_meta = meta));
+        this.subscription.add(this.instanceDataService.knecht_updates.subscribe(async ([knecht_update, _]) => {
+            if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged, KnechtUpdates.FilterInitialized, KnechtUpdates.WorkerInitialized].includes(elem))) {
+                this.internal_event_log_entries = [];
+                this.last_global_offset = 0;
+                for (const key of this.log_offsets.keys())
+                    this.log_offsets.set(key, [0, new Set()]);
+                await this.update_event_log_entries();
+                this.scrolled_page$.next(this.internal_event_log_entries.slice(0, 19));
+            }
+        }));
     }
 
     ngOnDestroy(): void {
@@ -123,15 +136,11 @@ export class EventLogService implements OnDestroy {
     }
 
     get event_log_entries(): Observable<Array<EventLogEntry>> {
-        if (!this.initialized) {
-            this.update_event_log_entries();
-            this.subscription.add(this.instanceDataService.knecht_updates.subscribe(([knecht_update, _]) => {
-                if (knecht_update.some(elem => [KnechtUpdates.NewData, KnechtUpdates.FilterChanged, KnechtUpdates.FilterInitialized, KnechtUpdates.WorkerInitialized].includes(elem)))
-                    this.update_event_log_entries();
-            }));
-            this.initialized = true;
-        }
-        return this.event_log_entries$.asObservable().pipe(map(entries => entries.slice(0, 19)));
+        return this.event_log_entries$.asObservable();
+    }
+
+    get scrolled_page(): Observable<Array<EventLogEntry>> {
+        return this.scrolled_page$.asObservable();
     }
 
     set_actor(to_actor: boolean): void {
@@ -196,7 +205,15 @@ export class EventLogService implements OnDestroy {
     }
 
     private async update_event_log_entries(): Promise<void> {
-        this.event_log_entries$.next(await this.get_event_log_entries(0));
+        let log_entries = await this.get_event_log_entries(0);
+        this.internal_event_log_entries = this.internal_event_log_entries.filter(entry => !log_entries.find(i_entry => i_entry.id === entry.id))
+            .concat(log_entries).sort((left, right) => {
+                const cmp = right.timestamp - left.timestamp;
+                if (cmp === 0)
+                    return right.id - left.id;
+                return cmp;
+            });
+        this.event_log_entries$.next(this.internal_event_log_entries);
     }
 
     private process_spell_cast(event: Event, entry: EventLogEntry): void {
