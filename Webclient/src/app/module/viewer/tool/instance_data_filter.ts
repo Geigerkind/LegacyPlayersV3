@@ -70,9 +70,9 @@ export class InstanceDataFilter {
         const has_everything_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-1));
         const has_everything_target_preset_tmp = presets_with_event_type.some(preset => preset.targets.includes(-1));
         const has_players_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-2));
-        const has_players_target_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-2));
+        const has_players_target_preset_tmp = presets_with_event_type.some(preset => preset.targets.includes(-2));
         const has_creatures_source_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-3));
-        const has_creatures_target_preset_tmp = presets_with_event_type.some(preset => preset.sources.includes(-3));
+        const has_creatures_target_preset_tmp = presets_with_event_type.some(preset => preset.targets.includes(-3));
 
         const has_everything_source_preset = this.presets$.length === 0 || (inverse_filter ? has_everything_target_preset_tmp : has_everything_source_preset_tmp);
         const has_everything_target_preset = this.presets$.length === 0 || (inverse_filter ? has_everything_source_preset_tmp : has_everything_target_preset_tmp);
@@ -84,7 +84,7 @@ export class InstanceDataFilter {
         const has_everything_abilities_preset = this.presets$.length === 0 || presets_with_event_type.some(preset => preset.abilities.includes(-1));
         const has_everything_hit_types_preset = this.presets$.length === 0 || presets_with_event_type.some(preset => preset.hit_types.includes(-1));
 
-        const cache_key = event_type.toString() + (inverse_filter ? "1" : "0");
+        const cache_key = event_type.toString() + (inverse_filter ? "1" : "0") + this.presets$.map(preset => preset.name).join(",");
         if (this.cache.has(cache_key))
             return this.cache.get(cache_key);
 
@@ -186,7 +186,7 @@ export class InstanceDataFilter {
     async get_sources(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         const has_everything = this.presets$.some(preset => preset.sources.includes(-1)) || this.presets$.length === 0;
         const has_players = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
-        const has_creatures = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
+        const has_creatures = this.presets$.some(preset => preset.sources.includes(-3)) || this.presets$.length === 0;
         return new Map(iterable_filter(this.data_loader.sources.entries(), ([key, val]) => {
             const unit_is_player = is_player(val[0]);
             return has_everything || (has_players && unit_is_player) || (has_creatures && !unit_is_player)
@@ -196,8 +196,8 @@ export class InstanceDataFilter {
 
     async get_targets(): Promise<Map<number, [Unit, Array<[number, number]>]>> {
         const has_everything = this.presets$.some(preset => preset.targets.includes(-1)) || this.presets$.length === 0;
-        const has_players = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
-        const has_creatures = this.presets$.some(preset => preset.sources.includes(-2)) || this.presets$.length === 0;
+        const has_players = this.presets$.some(preset => preset.targets.includes(-2)) || this.presets$.length === 0;
+        const has_creatures = this.presets$.some(preset => preset.targets.includes(-3)) || this.presets$.length === 0;
         return new Map(iterable_filter(this.data_loader.targets.entries(), ([key, val]) => {
             const unit_is_player = is_player(val[0]);
             return has_everything || (has_players && unit_is_player) || (has_creatures && !unit_is_player)

@@ -2,7 +2,7 @@ import {InstanceDataFilter} from "../../../tool/instance_data_filter";
 import {Event} from "../../../domain_value/event";
 
 export class RaidEventLogKnecht {
-    private static readonly PAGE_SIZE: number = 100;
+    private static readonly PAGE_SIZE: number = 500;
 
     constructor(
         private data_filter: InstanceDataFilter
