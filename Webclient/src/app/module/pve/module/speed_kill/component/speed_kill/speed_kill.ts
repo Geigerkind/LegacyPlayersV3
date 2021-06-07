@@ -125,7 +125,7 @@ export class SpeedKillComponent implements OnInit, OnDestroy {
             // @ts-ignore
             this.speedKillService.select(...selection_params);
             this.settingsService.set("pve_speed_kill", selection_params);
-        }, 100);
+        }, 250);
     }
 
     share(): void {

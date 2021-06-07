@@ -122,7 +122,7 @@ export class SpeedRunComponent implements OnInit, OnDestroy {
             // @ts-ignore
             this.speedRunService.select(...selection_params);
             this.settingsService.set("pve_speed_run", selection_params);
-        }, 100);
+        }, 250);
     }
 
     share(): void {

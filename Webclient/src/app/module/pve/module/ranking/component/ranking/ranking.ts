@@ -399,7 +399,7 @@ export class RankingComponent implements OnInit, OnDestroy {
             // @ts-ignore
             this.rankingService.select(...selection_params);
             this.settingsService.set("pve_ranking", selection_params);
-        }, 100);
+        }, 250);
     }
 
     share(): void {
