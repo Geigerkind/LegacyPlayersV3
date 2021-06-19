@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 30
+RPLL.VERSION = 31
 RPLL.MAX_MESSAGE_LENGTH = 300
 RPLL.MESSAGE_PREFIX = "RPLL_H_"
 RPLL.CONSOLIDATE_CHARACTER = "{"
@@ -320,10 +320,24 @@ local SpellFailedCombatLogEvents = {
     "ERR_OUT_OF_RUNIC_POWER",
 }
 
+local message_limiter = {}
+local num_messages_per_minute = 20
+local message_limiter_wipe_interval = 60
+local message_limiter_last_wipe = 0
+
 RPLL:RegisterEvent("CHAT_MSG_ADDON")
 RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
     if strfind(prefix, RPLL.MESSAGE_PREFIX) ~= nil then
         RPLL.Synchronizers[sender] = true
+        if message_limiter[sender] > num_messages_per_minute then
+            return
+        end
+        if message_limiter[sender] == nil  then
+            message_limiter[sender] = 1
+        else
+            message_limiter[sender] = message_limiter[sender] + 1
+        end
+
         if strfind(prefix, "LOOT") ~= nil then
             tinsert(RPLL.ExtraMessages, "LOOT: " .. date("%d.%m.%y %H:%M:%S") .. "&" .. msg)
             RPLL.ExtraMessageLength = RPLL.ExtraMessageLength + 1
@@ -746,6 +760,11 @@ function RPLL:OnUpdate()
             NotifyInspect(inspect_queue[inspect_queue_index][1])
             inspect_queue_index = inspect_queue_index + 1
         end
+    end
+
+    if time - message_limiter_last_wipe >= message_limiter_wipe_interval then
+        message_limiter_last_wipe = time()
+        message_limiter = {}
     end
 end
 
