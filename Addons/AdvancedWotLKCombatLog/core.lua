@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 31
+RPLL.VERSION = 32
 RPLL.MAX_MESSAGE_LENGTH = 300
 RPLL.MESSAGE_PREFIX = "RPLL_H_"
 RPLL.CONSOLIDATE_CHARACTER = "{"
@@ -325,6 +325,15 @@ local num_messages_per_minute = 20
 local message_limiter_wipe_interval = 60
 local message_limiter_last_wipe = 0
 
+function RPLL:find_unit_id(name)
+    for key, val in pairs(RPLL.PlayerInformation) do
+        if val["unit_name"] == name then
+            return key
+        end
+    end
+    return nil
+end
+
 RPLL:RegisterEvent("CHAT_MSG_ADDON")
 RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
     if strfind(prefix, RPLL.MESSAGE_PREFIX) ~= nil then
@@ -346,6 +355,11 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             RPLL.ExtraMessageLength = RPLL.ExtraMessageLength + 1
         elseif strfind(prefix, "CBT_I_1") ~= nil then
             local unit_guid, unit_name, race, hero_class, gender, g_name, g_rank_name, g_rank_index = strsplit("&", msg)
+            local found_unit_id = RPLL.find_unit_id(sender)
+            if found_unit_id ~= nil then
+                unit_guid = found_unit_id
+            end
+
             if unit_guid == "nil" or unit_name == "nil" or race == "nil" or gender == "nil" or hero_class == "nil" then
                 return
             end
@@ -359,7 +373,7 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             player_info["last_updated"] = date("%d.%m.%y %H:%M:%S")
             player_info["last_updated_time"] = time()
             player_info["unit_guid"] = unit_guid
-            player_info["unit_name"] = unit_name
+            player_info["unit_name"] = sender
             player_info["race"] = race
             player_info["hero_class"] = hero_class
             player_info["gender"] = gender
@@ -382,6 +396,11 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             end
         elseif strfind(prefix, "CBT_I_2") ~= nil then
             local unit_guid, talents, team1, team2, team3 = strsplit("&", msg)
+            local found_unit_id = RPLL.find_unit_id(sender)
+            if found_unit_id ~= nil then
+                unit_guid = found_unit_id
+            end
+
             if unit_guid == "nil" or talents == "nil" then
                 return
             end
@@ -418,6 +437,11 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             end
         elseif strfind(prefix, "CBT_I_3") ~= nil then
             local unit_guid, gear_str = strsplit("&", msg)
+            local found_unit_id = RPLL.find_unit_id(sender)
+            if found_unit_id ~= nil then
+                unit_guid = found_unit_id
+            end
+
             if unit_guid == "nil" or gear_str == "nil" then
                 return
             end
@@ -461,6 +485,11 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             end
         elseif strfind(prefix, "CBT_I_4") ~= nil then
             local unit_guid, gear_str = strsplit("&", msg)
+            local found_unit_id = RPLL.find_unit_id(sender)
+            if found_unit_id ~= nil then
+                unit_guid = found_unit_id
+            end
+
             if unit_guid == "nil" or gear_str == "nil" then
                 return
             end
@@ -505,6 +534,11 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             end
         elseif strfind(prefix, "CBT_I_5") ~= nil then
             local unit_guid, gear_str = strsplit("&", msg)
+            local found_unit_id = RPLL.find_unit_id(sender)
+            if found_unit_id ~= nil then
+                unit_guid = found_unit_id
+            end
+
             if unit_guid == "nil" or gear_str == "nil" then
                 return
             end
@@ -548,6 +582,11 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             end
         elseif strfind(prefix, "CBT_I_6") ~= nil then
             local unit_guid, gear_str = strsplit("&", msg)
+            local found_unit_id = RPLL.find_unit_id(sender)
+            if found_unit_id ~= nil then
+                unit_guid = found_unit_id
+            end
+
             if unit_guid == "nil" or gear_str == "nil" then
                 return
             end
