@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 32
+RPLL.VERSION = 33
 RPLL.MAX_MESSAGE_LENGTH = 300
 RPLL.MESSAGE_PREFIX = "RPLL_H_"
 RPLL.CONSOLIDATE_CHARACTER = "{"
@@ -801,7 +801,7 @@ function RPLL:OnUpdate()
         end
     end
 
-    if time - message_limiter_last_wipe >= message_limiter_wipe_interval then
+    if time() - message_limiter_last_wipe >= message_limiter_wipe_interval then
         message_limiter_last_wipe = time()
         message_limiter = {}
     end
