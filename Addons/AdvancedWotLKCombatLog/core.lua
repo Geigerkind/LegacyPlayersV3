@@ -338,11 +338,10 @@ RPLL:RegisterEvent("CHAT_MSG_ADDON")
 RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
     if strfind(prefix, RPLL.MESSAGE_PREFIX) ~= nil then
         RPLL.Synchronizers[sender] = true
-        if message_limiter[sender] > num_messages_per_minute then
-            return
-        end
         if message_limiter[sender] == nil  then
             message_limiter[sender] = 1
+        elseif
+            message_limiter[sender] > num_messages_per_minute then
         else
             message_limiter[sender] = message_limiter[sender] + 1
         end
