@@ -342,6 +342,7 @@ RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
             message_limiter[sender] = 1
         elseif
             message_limiter[sender] > num_messages_per_minute then
+            return
         else
             message_limiter[sender] = message_limiter[sender] + 1
         end
