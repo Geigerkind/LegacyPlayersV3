@@ -85,13 +85,14 @@
 }
 
 .aura_uptime_container {
-    width: calc(100% - #{$spacing} - 2px);
+    width: calc(100% - #{$spacing} - 50px);
     border: 1px solid $tdc_accent;
     border-top: none;
     background: $tdc_darker;
     border-radius: 3px 0 0 3px;
     padding: 0.5 * $spacing 0.5 * $spacing;
     padding-left: 56px;
+
     AuraUptimeBar:not(:last-child) {
         margin-bottom: 0.5 * $spacing;
     }
