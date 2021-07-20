@@ -91,7 +91,7 @@
     background: $tdc_darker;
     border-radius: 3px 0 0 3px;
     padding: 0.5 * $spacing 0.5 * $spacing;
-
+    padding-left: 56px;
     AuraUptimeBar:not(:last-child) {
         margin-bottom: 0.5 * $spacing;
     }
