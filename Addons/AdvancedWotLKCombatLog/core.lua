@@ -1,5 +1,5 @@
 local RPLL = RPLL
-RPLL.VERSION = 33
+RPLL.VERSION = 34
 RPLL.MAX_MESSAGE_LENGTH = 300
 RPLL.MESSAGE_PREFIX = "RPLL_H_"
 RPLL.CONSOLIDATE_CHARACTER = "{"
@@ -321,7 +321,7 @@ local SpellFailedCombatLogEvents = {
 }
 
 local message_limiter = {}
-local num_messages_per_minute = 20
+local num_messages_per_minute = 60
 local message_limiter_wipe_interval = 60
 local message_limiter_last_wipe = 0
 
@@ -338,13 +338,13 @@ RPLL:RegisterEvent("CHAT_MSG_ADDON")
 RPLL.CHAT_MSG_ADDON = function(prefix, msg, channel, sender)
     if strfind(prefix, RPLL.MESSAGE_PREFIX) ~= nil then
         RPLL.Synchronizers[sender] = true
-        if message_limiter[sender] > num_messages_per_minute then
-            return
-        end
         if message_limiter[sender] == nil  then
             message_limiter[sender] = 1
         else
             message_limiter[sender] = message_limiter[sender] + 1
+        end
+        if message_limiter[sender] > num_messages_per_minute then
+            return
         end
 
         if strfind(prefix, "LOOT") ~= nil then
