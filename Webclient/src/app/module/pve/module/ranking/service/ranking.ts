@@ -71,7 +71,7 @@ export class RankingService {
         this.current_server_ids$ = server_ids;
         this.current_difficulty_ids$ = difficulty_ids;
         this.current_season_ids$ = season_ids;
-        this.current_mode$ = mode;
+        this.current_mode$ = Number(mode);
         this.load_current_mode();
     }
 
