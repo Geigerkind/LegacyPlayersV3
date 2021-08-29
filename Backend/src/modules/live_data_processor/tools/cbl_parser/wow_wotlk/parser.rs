@@ -111,6 +111,11 @@ impl CombatLogParser for WoWWOTLKParser {
                             }
 
                             let item_args = item.split(':').collect::<Vec<&str>>();
+                            if item_args.len() <= 5 {
+                                // Early return, something is wrong here!
+                                return None;
+                            }
+
                             let item_id = u32::from_str_radix(item_args[0], 10).ok()?;
                             let enchant_id = u32::from_str_radix(item_args[1], 10).ok()?;
                             let mut gems = Vec::with_capacity(4);
@@ -136,7 +141,7 @@ impl CombatLogParser for WoWWOTLKParser {
                         gear_setups.push((timestamp as u64, gear));
                     }
 
-                    if talents != "nil" {
+                    if talents != "nil" && !talents.contains(":") {
                         participant.talents = strip_talent_specialization(&Some(talents.replace("}", "|")));
                     }
                 } else {
