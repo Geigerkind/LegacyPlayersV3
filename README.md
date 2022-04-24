@@ -34,11 +34,11 @@ LegacyPlayersV3 is licensed under the AGPLv3 license for all open source applica
 ### GNU/Linux
 4. Go into the Environment directory and start it using `docker-compose up`. (If you want to run it as daemon, append -d)
 5. Go into the Backend directory and start the server using `cargo run`
-6. Go into the Webclient directory and install packages `npm i`
+6. Go into the Webclient directory and install packages `npm ci`
 7. Start the webclient using `npm run start`
 
 ### Windows/Mac
 4. Go into the Environment directory and start it using `docker-compose -f docker-compose.mac_windows.yml up`. (If you want to run it as daemon, append -d)
 5. Go into the Backend directory and start the server using `ROCKET_ENV=stage cargo run`
-6. Go into the Webclient directory and install packages `npm i`
-7. Start the webclient using `npm run start:mac`/`npm run start:windows`
+6. Go into the Webclient directory and install packages `npm ci`
+7. Start the webclient using `npm run start:mac`/`npm run start:windows` in the **Git shell or some other bash**
