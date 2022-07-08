@@ -4,10 +4,9 @@ version = "0.1.0"
 authors = ["Tom Dymel <tom@dymel.dev>"]
 
 [dependencies]
-pwned = "0.2.1"
-regex = "*"
-lazy_static = "*"
+regex = "1.0.6"
+lazy_static = "1.4.0"
 
 [dev-dependencies]
 proptest = "0.9.6"
-dotenv = "*"
+dotenv = "0.15.0"

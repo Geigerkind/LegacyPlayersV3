@@ -320,7 +320,7 @@ impl Server {
 
     fn save_committed_events_to_disk(&mut self) {
         let storage_path = std::env::var("INSTANCE_STORAGE_PATH").expect("storage path must be set!");
-        let mut open_options = std::fs::File::with_options();
+        let mut open_options = std::fs::File::options();
         open_options.append(true);
         open_options.create(true);
 

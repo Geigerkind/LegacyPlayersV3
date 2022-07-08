@@ -8,7 +8,6 @@
 #![allow(clippy::from_str_radix_10)]
 #![allow(dead_code)]
 #![feature(proc_macro_hygiene, decl_macro, option_result_contains, test)]
-#![feature(with_options)]
 #![feature(box_patterns)]
 extern crate byteorder;
 extern crate chrono;
@@ -76,8 +75,8 @@ fn main() {
     let prometheus = PrometheusMetrics::new();
 
     let swagger_ui_config = SwaggerUIConfig {
-        url: None,
-        urls: Some(vec![
+        url: "/openapi.json".to_string(),
+        urls: vec![
             UrlObject {
                 name: "Account".to_string(),
                 url: "/API/account/openapi.json".to_string(),
@@ -106,7 +105,8 @@ fn main() {
                 name: "Utility".to_string(),
                 url: "/API/utility/openapi.json".to_string(),
             },
-        ]),
+        ],
+        ..Default::default()
     };
 
     rocket::ignite()
