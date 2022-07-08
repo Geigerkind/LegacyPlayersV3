@@ -24,8 +24,28 @@ The goal is to unite the Legacy-WoW community in this hub and persist all the me
 of raids, characters and PvP as well as to provide useful tools.
 
 ## Licence
-LegacyPlayersV3 is licensed under the AGPLv3 license for all open source applications. A commercial license is required for all commercial applications (i.e. non open source applications, including sites and apps you plan to sell or monetize).
+* LegacyPlayersV3 is licensed under the AGPLv3 license for all open source applications. 
+* Anyone can host your own version of LegacyPlayers
+* Any form of monetization is not allowed through the site
+* Any changes that improve existing code must be fed back into the main repo and shared with everyone
 
+## Deployment
+1. Install **docker** and **docker-compose**
+2. run `docker-compose up -d`
+3. Website is now available under port 80
+4. For integration into your custom environment, changes must be made to the environment
+
+## Performance
+* A big bottleneck is the database container currently. You should tune the configurations of the database. See the deployment folder for a comparable configuration that was used on the official site.
+* The backend may be resource starved depending on your docker configuration. It eats lots of RAM :)
+
+## Existing Bugs
+There are a lot of existing bugs. Many raids are not parsed correctly in all cases. 
+The parsers are a big part that could be improved. The ModelViewer is currently not integrated. 
+It could be integrated easily but you have to fetch the resources yourself as I can't host them. 
+Scripts are provided in the respecti folder.
+
+# Development
 ## Installation
 1. Install **docker**, **docker-compose**, **rustup**
 2. Using rustup, install the **nightly** toolchain and set it to default

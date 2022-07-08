@@ -35,8 +35,6 @@ const routes: Routes = [
     {path: "tools", loadChildren: () => import("./module/tools/module").then(m => m.ToolsModule)},
     {path: "pve", loadChildren: () => import("./module/pve/module").then(m => m.PveModule)},
     {path: "pvp", loadChildren: () => import("./module/pvp/module").then(m => m.PvpModule)},
-    {path: "privacy", loadChildren: () => import("./module/privacy/module").then(m => m.PrivacyModule)},
-    {path: "imprint", loadChildren: () => import("./module/imprint/module").then(m => m.ImprintModule)},
     {path: "404", loadChildren: () => import("./module/404/module").then(m => m.FourOFourModule)},
     {path: "contribute", loadChildren: () => import("./module/contribute/module").then(m => m.ContributeModule)},
     {path: "viewer", loadChildren: () => import("./module/viewer/module").then(m => m.ViewerModule)},
