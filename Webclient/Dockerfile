@@ -1,7 +1,7 @@
 FROM nginx:1.23
 
 RUN apt update
-RUN apt install -y npm
+RUN apt install -y npm unzip
 
 RUN mkdir /Webclient
 COPY ./src /Webclient/src
