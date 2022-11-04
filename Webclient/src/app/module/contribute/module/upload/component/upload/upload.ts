@@ -49,6 +49,10 @@ export class UploadComponent implements OnDestroy, OnInit {
                     return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
                 });
             this.server.push({value: -1, label_key: "Retail Classic"});
+
+            if (this.selected_server_id === undefined) {
+                this.selected_server_id = this.server[0].value;
+            }
         });
 
         setInterval(() => this.poll_progress(), 1000);
