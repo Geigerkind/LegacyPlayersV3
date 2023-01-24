@@ -66,9 +66,9 @@ export class RankingComponent implements OnInit, OnDestroy {
         },
         {
             id: -2,
-            label: "Zul'Gurub",
+            label: "Onyxia's Lair",
             list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([12, 13, 14, 15, 16, 17, 18, 19, 20, 21], selected_list, current_list)
+                this.uncheck_if_all_check_else([11], selected_list, current_list)
         },
         {
             id: -3,
@@ -78,153 +78,183 @@ export class RankingComponent implements OnInit, OnDestroy {
         },
         {
             id: -4,
+            label: "Zul'Gurub",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([12, 13, 14, 15, 16, 17, 18, 19, 20, 21], selected_list, current_list)
+        },
+        {
+            id: -5,
             label: "Ruins of Ahn'Qiraj",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([30, 31, 32, 33, 34, 35], selected_list, current_list)
         },
         {
-            id: -5,
+            id: -6,
             label: "Temple of Ahn'Qiraj",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([36, 37, 38, 39, 40, 41, 42, 163, 164, 165], selected_list, current_list)
         },
         {
-            id: -6,
+            id: -7,
             label: "Naxxramas - All",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57], selected_list, current_list)
         },
         {
-            id: -7,
+            id: -8,
             label: "Naxxramas - Abomination Wing",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([43, 44, 45, 46], selected_list, current_list)
         },
         {
-            id: -8,
+            id: -9,
             label: "Naxxramas - Plague Wing",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([47, 48, 49], selected_list, current_list)
         },
         {
-            id: -9,
+            id: -10,
             label: "Naxxramas - Spider Wing",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([50, 51, 52], selected_list, current_list)
         },
         {
-            id: -10,
+            id: -11,
             label: "Naxxramas - Deathknight Wing",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([53, 54, 55], selected_list, current_list)
         },
         {
-            id: -11,
+            id: -12,
             label: "Naxxramas - Frostwyrm Lair",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([56, 57], selected_list, current_list)
         },
         {
-            id: -12,
+            id: -13,
             label: "Karazhan",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68], selected_list, current_list)
         },
         {
-            id: -13,
+            id: -14,
             label: "Gruul's Lair",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([69, 70], selected_list, current_list)
         },
         {
-            id: -14,
+            id: -15,
+            label: "Magtheridon's Lair",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([71], selected_list, current_list)
+        },
+        {
+            id: -16,
             label: "Tempest Keep",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([72, 73, 74, 75], selected_list, current_list)
         },
         {
-            id: -15,
+            id: -17,
             label: "Serpentshrine Cavern",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([76, 77, 78, 79, 80, 81], selected_list, current_list)
         },
         {
-            id: -16,
+            id: -18,
             label: "Zul'Aman",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([82, 83, 84, 85, 86, 87], selected_list, current_list)
         },
         {
-            id: -17,
+            id: -19,
             label: "Battle for Mount Hyjal",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([88, 89, 90, 91, 92], selected_list, current_list)
         },
         {
-            id: -18,
+            id: -20,
             label: "Black Temple",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([93, 94, 95, 96, 97, 98, 99, 100, 101], selected_list, current_list)
         },
         {
-            id: -19,
+            id: -21,
             label: "The Sunwell",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([102, 103, 104, 105, 106, 107], selected_list, current_list)
         },
         {
-            id: -20,
+            id: -22,
+            label: "The Obsidian Sanctum",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([108], selected_list, current_list)
+        },
+        {
+            id: -23,
+            label: "The Eye of Eternity",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([109], selected_list, current_list)
+        },
+        {
+            id: -24,
             label: "Vault of Archavon",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([110, 111, 112, 113], selected_list, current_list)
         },
         {
-            id: -21,
+            id: -25,
             label: "Ulduar NM",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 146, 147, 148, 152, 153, 158, 159], selected_list, current_list)
         },
         {
-            id: -22,
+            id: -26,
             label: "Ulduar HM",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([127, 149, 150, 151, 154, 155, 156, 157, 160, 161, 162], selected_list, current_list)
         },
         {
-            id: -23,
+            id: -27,
             label: "Trial of the Crusader",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([128, 129, 130, 131, 132], selected_list, current_list)
         },
         {
-            id: -24,
+            id: -28,
             label: "Icecrown Citadel - All",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144], selected_list, current_list)
         },
         {
-            id: -25,
+            id: -29,
             label: "Icecrown Citadel - Lower Spire",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([133, 134, 135, 136], selected_list, current_list)
         },
         {
-            id: -26,
+            id: -30,
             label: "Icecrown Citadel - Plagueworks",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([137, 138, 139], selected_list, current_list)
         },
         {
-            id: -27,
+            id: -31,
             label: "Icecrown Citadel - Crimson Hall",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([140, 141], selected_list, current_list)
         },
         {
-            id: -27,
+            id: -32,
             label: "Icecrown Citadel - Frostwing Halls",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([142, 143], selected_list, current_list)
+        },
+        {
+            id: -33,
+            label: "The Ruby Sanctum",
+            list_selection_callback: (button, selected_list, current_list, checked) =>
+                this.uncheck_if_all_check_else([145], selected_list, current_list)
         }
     ];
     additional_spec_buttons: AdditionalButton[] = [
