@@ -59,36 +59,6 @@ export class RankingComponent implements OnInit, OnDestroy {
 
     additional_encounter_button: AdditionalButton[] = [
         {
-            id: -1,
-            label: "Molten Core",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], selected_list, current_list)
-        },
-        {
-            id: -2,
-            label: "Zul'Gurub",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([12, 13, 14, 15, 16, 17, 18, 19, 20, 21], selected_list, current_list)
-        },
-        {
-            id: -3,
-            label: "Blackwing Lair",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([22, 23, 24, 25, 26, 27, 28, 29], selected_list, current_list)
-        },
-        {
-            id: -4,
-            label: "Ruins of Ahn'Qiraj",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([30, 31, 32, 33, 34, 35], selected_list, current_list)
-        },
-        {
-            id: -5,
-            label: "Temple of Ahn'Qiraj",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([36, 37, 38, 39, 40, 41, 42, 163, 164, 165], selected_list, current_list)
-        },
-        {
             id: -6,
             label: "Naxxramas - All",
             list_selection_callback: (button, selected_list, current_list, checked) =>
@@ -123,54 +93,6 @@ export class RankingComponent implements OnInit, OnDestroy {
             label: "Naxxramas - Frostwyrm Lair",
             list_selection_callback: (button, selected_list, current_list, checked) =>
                 this.uncheck_if_all_check_else([56, 57], selected_list, current_list)
-        },
-        {
-            id: -12,
-            label: "Karazhan",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68], selected_list, current_list)
-        },
-        {
-            id: -13,
-            label: "Gruul's Lair",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([69, 70], selected_list, current_list)
-        },
-        {
-            id: -14,
-            label: "Tempest Keep",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([72, 73, 74, 75], selected_list, current_list)
-        },
-        {
-            id: -15,
-            label: "Serpentshrine Cavern",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([76, 77, 78, 79, 80, 81], selected_list, current_list)
-        },
-        {
-            id: -16,
-            label: "Zul'Aman",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([82, 83, 84, 85, 86, 87], selected_list, current_list)
-        },
-        {
-            id: -17,
-            label: "Battle for Mount Hyjal",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([88, 89, 90, 91, 92], selected_list, current_list)
-        },
-        {
-            id: -18,
-            label: "Black Temple",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([93, 94, 95, 96, 97, 98, 99, 100, 101], selected_list, current_list)
-        },
-        {
-            id: -19,
-            label: "The Sunwell",
-            list_selection_callback: (button, selected_list, current_list, checked) =>
-                this.uncheck_if_all_check_else([102, 103, 104, 105, 106, 107], selected_list, current_list)
         },
         {
             id: -20,

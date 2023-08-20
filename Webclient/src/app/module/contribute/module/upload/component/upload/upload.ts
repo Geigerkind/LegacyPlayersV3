@@ -48,7 +48,6 @@ export class UploadComponent implements OnDestroy, OnInit {
                 .map(server => {
                     return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
                 });
-            this.server.push({value: -1, label_key: "Retail Classic"});
 
             if (this.selected_server_id === undefined) {
                 this.selected_server_id = this.server[0].value;
@@ -71,21 +70,25 @@ export class UploadComponent implements OnDestroy, OnInit {
     upload(): void {
         if (!this.disableSubmit) {
             this.disableSubmit = true;
+
             this.notification_service.propagate(Severity.Info, "Uploading...");
-            const formData = new FormData();
-            formData.append('server_id', this.selected_server_id.toString());
-            // formData.append('start_time', this.selected_start_date);
-            // formData.append('end_time', this.selected_end_date);
-            formData.append('payload', this.upload_file.nativeElement.files[0]);
-            this.uploadService.upload_file(formData, () => {
-                this.notification_service.propagate(Severity.Success, "Your log has been uploaded!");
-                this.disableSubmit = false;
-                this.current_progress = 0;
-            }, () => {
-                this.notification_service.propagate(Severity.Error, "Your log failed to upload!");
-                this.disableSubmit = false;
-                this.current_progress = 0;
-            });
+
+            const files_to_upload = (this.upload_file.nativeElement as HTMLInputElement).files;
+
+            for (let i = 0; i < files_to_upload.length; i++) {
+                const formData = new FormData();
+                formData.append('server_id', this.selected_server_id.toString());
+                formData.append('payload', files_to_upload[i]);
+                this.uploadService.upload_file(formData, () => {
+                    this.notification_service.propagate(Severity.Success, "Your log has been uploaded!");
+                    this.disableSubmit = false;
+                    this.current_progress = 0;
+                }, () => {
+                    this.notification_service.propagate(Severity.Error, "Your log failed to upload!");
+                    this.disableSubmit = false;
+                    this.current_progress = 0;
+                });
+            }
         }
     }
 

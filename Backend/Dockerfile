@@ -1,7 +1,7 @@
-FROM rust:1.62
+FROM rust:1.67
 
-RUN rustup install nightly-2022-07-01
-RUN rustup default nightly-2022-07-01
+RUN rustup install nightly-2023-02-07
+RUN rustup default nightly-2023-02-07
 
 RUN mkdir /Backend
 COPY ./src /Backend/src
