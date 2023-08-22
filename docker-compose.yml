@@ -2,6 +2,7 @@ version: '3.6'
 services:
   mariadb:
     build: ./Database
+    restart: on-failure
     networks:
     - rpll
     volumes:
@@ -12,10 +13,12 @@ services:
     - MYSQL_PASSWORD=vagrant
     - MYSQL_ROOT_PASSWORD=vagrant
     - TZ=Europe/Berlin
+
   backend:
     depends_on:
     - mariadb
     build: ./Backend
+    restart: on-failure
     networks:
     - rpll
     volumes:
@@ -27,12 +30,16 @@ services:
     - HOST=http://localhost
     - MODEL_GENERATOR=http://localhost:5555
     - INSTANCE_STORAGE_PATH=/Storage
+
   webclient:
     build: ./Webclient
+    restart: on-failure
     networks:
     - rpll
+
   reverse-proxy:
     build: ./ReverseProxy
+    restart: on-failure
     networks:
     - rpll
     ports:
