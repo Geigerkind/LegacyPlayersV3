@@ -4,9 +4,9 @@
 # Note for manifest icons: If you provide more than the 512 logo version, then adjust it yourself in the manifest_template.json
 
 # Important escape "/"
-WEBCLIENT_COMPANY_NAME="LegacyPlayers"
-WEBCLIENT_WEBSITE_NAME="LegacyPlayers"
-WEBCLIENT_WEBSITE_SHORT_NAME="LP"
+WEBCLIENT_COMPANY_NAME="Dalaranwow Logserver"
+WEBCLIENT_WEBSITE_NAME="Dalaranwow Logserver"
+WEBCLIENT_WEBSITE_SHORT_NAME="DWL"
 WEBCLIENT_WEBSITE_DOMAIN="legacyplayers.com"
 WEBCLIENT_WEBSITE_NOSCRIPT_MESSAGE="This website requires JavaScript to be enabled!"
 WEBCLIENT_WEBSITE_SEARCH_URL="search?q="

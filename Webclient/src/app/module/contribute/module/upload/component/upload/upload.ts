@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, OnDestroy, OnInit, OnChanges, SimpleChanges, ViewChild} from "@angular/core";
 import {UploadService} from "../../service/upload";
 import {Severity} from "../../../../../../domain_value/severity";
 import {NotificationService} from "../../../../../../service/notification";
@@ -12,7 +12,7 @@ import {SettingsService} from "../../../../../../service/settings";
     templateUrl: "./upload.html",
     styleUrls: ["./upload.scss"]
 })
-export class UploadComponent implements OnDestroy, OnInit {
+export class UploadComponent implements OnDestroy, OnInit, OnChanges {
 
     private subscription: Subscription;
 
@@ -43,16 +43,16 @@ export class UploadComponent implements OnDestroy, OnInit {
 
         this.subscription = this.data_service.servers.subscribe(available_servers => {
             this.server = available_servers
-                .filter(server => !server.is_retail && ! server.archived)
+                .filter(server => !server.archived)
                 .sort((left, right) => left.expansion_id - right.expansion_id)
                 .map(server => {
                     return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
                 });
-
-            if (this.selected_server_id === undefined) {
-                this.selected_server_id = this.server[0].value;
-            }
         });
+        
+        if (this.selected_server_id === undefined) {
+            this.selected_server_id = this.server[0].value;
+        }
 
         setInterval(() => this.poll_progress(), 1000);
     }
@@ -61,10 +61,35 @@ export class UploadComponent implements OnDestroy, OnInit {
         if (this.settingsService.check("upload_last_server")) {
             this.selected_server_id = Number(this.settingsService.get("upload_last_server"));
         }
+        this.subscription = this.data_service.servers.subscribe(available_servers => {
+            this.server = available_servers
+                .filter(server => !server.is_retail && ! server.archived)
+                .sort((left, right) => left.expansion_id - right.expansion_id)
+                .map(server => {
+                    return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
+                });
+        });
+        if (this.selected_server_id === undefined) {
+            this.selected_server_id = this.server[0].value;
+        }
     }
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        this.subscription = this.data_service.servers.subscribe(available_servers => {
+            this.server = available_servers
+                .filter(server => !server.is_retail && ! server.archived)
+                .sort((left, right) => left.expansion_id - right.expansion_id)
+                .map(server => {
+                    return {value: server.id, label_key: server.name + " (" + server.patch + ")"};
+                });
+        });
+        if (this.selected_server_id === undefined) {
+            this.selected_server_id = this.server[0].value;
+        }
     }
 
     upload(): void {

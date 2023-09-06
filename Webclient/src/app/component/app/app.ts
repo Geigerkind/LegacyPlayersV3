@@ -18,7 +18,7 @@ export class AppComponent implements OnInit, OnChanges {
 
 
     public show_cookie_banner = false;
-    title = "LegacyPlayers";
+    title = "LegacyPlayers for Dalaran Wow";
     private googleAnalyticsSubscription: Subscription
 
     enable_ads: boolean = false;

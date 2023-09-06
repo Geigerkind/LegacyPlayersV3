@@ -1,22 +1,6 @@
 version: '3.6'
 services:
-  mariadb:
-    build: ./Database
-    restart: on-failure
-    networks:
-    - rpll
-    volumes:
-    - ./Database/patches:/docker-entrypoint-initdb.d
-    - rpll_mariadb:/var/lib/mysql
-    environment:
-    - MYSQL_USER=mysql
-    - MYSQL_PASSWORD=vagrant
-    - MYSQL_ROOT_PASSWORD=vagrant
-    - TZ=Europe/Berlin
-
   backend:
-    depends_on:
-    - mariadb
     build: ./Backend
     restart: on-failure
     networks:
@@ -24,8 +8,8 @@ services:
     volumes:
     - rpll_backend_storage:/Storage
     environment:
-    - MYSQL_URL=mysql://root:vagrant@mariadb/main
-    - ROCKET_DATABASES={main={url="mysql://root:vagrant@mariadb/main"}}
+    - MYSQL_URL=mysql://legacyplayersv3prod:navglk6ynmd5dt4oiqi8py5jqpr3sqe5metcz56qs48r@legacyplayersv3prod.ckaemifzcfya.eu-west-1.rds.amazonaws.com/main
+    - ROCKET_DATABASES={main={url="mysql://legacyplayersv3prod:navglk6ynmd5dt4oiqi8py5jqpr3sqe5metcz56qs48r@legacyplayersv3prod.ckaemifzcfya.eu-west-1.rds.amazonaws.com/main"}}
     - SMTP_DNS=127.0.0.1:25
     - HOST=http://localhost
     - MODEL_GENERATOR=http://localhost:5555
@@ -34,6 +18,8 @@ services:
   webclient:
     build: ./Webclient
     restart: on-failure
+    volumes:
+    - ./Webclient:/var/www 
     networks:
     - rpll
 
@@ -44,10 +30,22 @@ services:
     - rpll
     ports:
     - '80:80'
+  
+  filestorage:
+    image: nginx:alpine
+    restart: on-failure
+    volumes:
+      - ./Addons:/usr/share/nginx/html  # Assuming you still want to serve files from this location
+      - webclient_data:/var/www  # Mount the volume from the webclient container
+    ports:
+      - '8080:80'  # Expose the file storage on port 8080
+    networks:
+      - rpll
+
 
 volumes:
-  rpll_mariadb:
   rpll_backend_storage:
+  webclient_data:
 
 networks:
   rpll:

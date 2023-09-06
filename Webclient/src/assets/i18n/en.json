@@ -338,11 +338,11 @@
         },
         "Individual": {
             "title": "Contribute as an individual",
-            "description": "You can currently only upload for Vanilla, TBC, WOTLK and Retail Classic. If you want to upload to a non listed server, please contact Shino!",
+            "description": "You can currently only upload for Dalaran Wow, both Algalon and Era 1. If you want to upload your logs, please contact Tapwhenoom or Jarq!",
             "description2": "Please select the correct server, start time, end time in the upload form and upload a zip of your WoWCombatLog.txt.",
-            "description3": "Vanilla (1.12), TBC (2.4.3) and WOTLK (3.3.5a) ONLY (English client only): You need to install an AddOn: 'AdvancedCombatLog' (see below). Please note that this addon writes meta information into your spell failed combat log messages. Therefore you need to spam your spells. Caster should spam their spells without a target every now and then (can be done during trash phases for example) to produce a sufficient amount of meta information.",
-            "description4": "For Vanilla: This macro may help you '/script for i=1, 100 do CastSpellByName(\"Fireball\"); end' (Replace Fireball with one of your spells); Make sure that no Hunter named its pet after an instance NPC. If someone does it, consider kicking him from your guild.",
-            "description5": "Note for TBC and WOTLK: The addon overwrites your SPELL_FAILED UI error messages. Therefore, you will no longer see them in your UI."
+            "description3": "WOTLK (3.3.5a) ONLY (English client only): You need to install an AddOn: 'AdvancedCombatLog' (see below). Please note that this addon writes meta information into your spell failed combat log messages. Therefore you need to spam your spells. Caster should spam their spells without a target every now and then (can be done during trash phases for example) to produce a sufficient amount of meta information.",
+            "description4": "Make sure that no Hunter named its pet after an instance NPC. If someone does it, consider kicking him from your guild.",
+            "description5": "Note that the addon overwrites your SPELL_FAILED UI error messages. Therefore, you will no longer see them in your UI."
         },
         "Guide": {
             "title": "Step by step guide to contribue",
@@ -352,7 +352,7 @@
             "step4": "4. Prior to the raid, delete the WoWCombatLog.txt.",
             "step5": "5. Log in and collect a raid, the addon will start collecting automatically.",
             "step6": "6. Log out after the raid, otherwise the log may be lost.",
-            "step7": "7. Zip the WoWCombatLog.txt, e.g. using 7zip. Please note that rar is not zip.",
+            "step7": "7. Zip the WoWCombatLog.txt, e.g. using 7zip. Please note that rar is not zip. .tar.gz is also not zip. Finally, .7z is also not zip.",
             "step8": "8. Upload it on the upload page: ",
             "step9": "9. Make sure that you select the correct server.",
             "step10": "10. After the log has been uploaded, it can take up to a minute until it is shown in the raid list. Additionally, you can find your uploads in your account panel."
