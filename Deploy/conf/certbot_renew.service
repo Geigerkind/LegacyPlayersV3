@@ -1,6 +1,0 @@
-[Unit]
-Description=Certbot renew
-
-[Service]
-ExecStart=/bin/bash /root/LegacyPlayersV3/Deploy/renew_cert.sh
-User=root
