@@ -5,5 +5,13 @@ LegacyPlayersV3.iml
 Cargo.lock
 target
 out
-Storage
-logs
+
+
+nginx/sites-enabled/
+nginx/templates-enabled/
+nginx/templates-initiate-enabled/
+
+logs/
+
+*_content/
+secrets

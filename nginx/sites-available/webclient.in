@@ -1,0 +1,22 @@
+server {
+  listen [::]:80;
+  listen 80;
+
+  server_name _ ${SERVER_FQDN} ${SERVER_DN} ${SERVER_IP};
+
+  #location ~/.well-known/acme-challenge {
+  #    allow all;
+  #    default_type "text/plain";
+  #    root /var/www/certbot;
+  #}
+
+  location /API/ {
+    resolver 127.0.0.11 valid=30s;
+    proxy_pass       http://${BACKEND_HOST}:${BACKEND_HOST_PORT};
+  }
+
+  location / {
+    resolver 127.0.0.11 valid=30s;
+    proxy_pass       http://${WEBCLIENT_HOST}:${WEBCLIENT_HOST_PORT};
+  }
+}
