@@ -25,5 +25,3 @@ RUN npm run build
 
 RUN mkdir -p /var/www
 RUN cp -r dist/Webclient/* /var/www/
-
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf

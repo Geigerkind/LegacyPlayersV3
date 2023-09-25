@@ -1,0 +1,15 @@
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  server_name _;
+
+  location /API/ {
+    resolver 127.0.0.11 valid=30s;
+    proxy_pass       http://${BACKEND_HOST};
+  }
+
+  location / {
+    resolver 127.0.0.11 valid=30s;
+    proxy_pass       http://${WEBCLIENT_HOST};
+  }  
+}

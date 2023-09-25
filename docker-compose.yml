@@ -14,14 +14,26 @@ services:
       - INSTANCE_STORAGE_PATH=$BACKEND_STORAGE_PATH
     networks:
       - rpll
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '1000M'
 
   webclient:
     build: ./Webclient
     restart: on-failure
+    volumes:
+      - ./Webclient/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - rpll
     depends_on:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '500M'
 
   nginx:
     container_name: nginx
@@ -30,7 +42,7 @@ services:
       - "$NGINX_PORT_WEB:80"
       - "$NGINX_PORT_SSL:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx.conf
       - ./nginx/sites-enabled:/etc/nginx/sites-enabled
       #- /etc/letsencrypt:/etc/letsencrypt
       #- ./certbot/data:/var/www/certbot
