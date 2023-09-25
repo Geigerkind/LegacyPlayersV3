@@ -1,0 +1,1 @@
+ssh -i "C:\git\LegacyPlayersV3\secrets\legacyplayersv3-prod.pem" ec2-user@52.18.246.251

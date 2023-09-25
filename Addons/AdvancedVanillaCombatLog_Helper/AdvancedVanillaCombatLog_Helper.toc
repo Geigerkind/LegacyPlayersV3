@@ -1,8 +1,0 @@
-## Interface: 11200
-## Title: AdvancedVanillaCombatLog Helper |cFFFF8080-Shino-|r
-## Notes: Sends additional information to the people that collect logs for LegacyPlayers
-## Author: Shino
-## DefaultState: enabled
-
-RPLLCollector.xml
-core.lua
